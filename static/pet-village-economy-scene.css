@@ -1,0 +1,15 @@
+/* All coordinates share the town's world/depth system; no fixed screen overlay. */
+.ipg-town .pve-scene-project{position:absolute;width:280px;height:280px;transform:translate(-50%,-100%);pointer-events:none;text-align:center;color:#40503b}
+.ipg-town .pve-scene-building{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 8px 5px #344d3028)}
+.ipg-town .pve-scene-foundation{position:absolute;inset:auto 10px 0;min-height:105px;display:grid;place-items:center;box-sizing:border-box;border:5px dashed #a28d65;border-radius:30%;background:#ded2b8d9;font:500 21px/1.5 system-ui;color:#5a523c}
+.ipg-town .pve-scene-shop-name{position:absolute;left:50%;bottom:0;transform:translate(-50%,65%);width:max-content;max-width:290px;padding:5px 14px;border:1px solid #d8ddbf;border-radius:999px;background:#fffcedf2;font:500 19px/1.5 system-ui}
+.ipg-town .pve-scene-no-art{background:#d6c5a5;border-radius:45px 45px 10px 10px;height:200px}
+.ipg-town .pve-scene-person{position:absolute;width:100px;height:115px;transform:translate(-50%,-90%);pointer-events:none}
+.ipg-town .pve-scene-person-art{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 5px 3px #344d3030);animation:pve-person-breathe 4.6s ease-in-out infinite}
+.ipg-town .pve-scene-person-art[hidden],.ipg-town .pve-scene-building[hidden]{display:none!important}
+.ipg-town .pve-scene-person[data-visitor=true] .pve-scene-person-art{animation-delay:-2s}
+.ipg-town .pve-scene-person-tag{position:absolute;left:50%;bottom:0;transform:translate(-50%,75%);width:max-content;max-width:160px;padding:3px 9px;border:1px solid #d8ddbf;border-radius:999px;background:#fffceded;color:#40503b;font:500 15px/1.4 system-ui}
+.ipg-town .pve-scene-person[data-visitor=true] .pve-scene-person-tag{background:#f4e9e5}
+.ipg-town .pve-scene-person[data-paused=true] .pve-scene-person-art{animation-play-state:paused}
+@keyframes pve-person-breathe{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@media(prefers-reduced-motion:reduce){.ipg-town .pve-scene-person-art{animation:none}}

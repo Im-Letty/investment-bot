@@ -64,6 +64,9 @@ function loaderFixture(options = {}) {
     head: { appendChild: script => { scripts.push(script); } }
   };
   const window = {
+    PetVillageEconomy: options.economyMissing ? undefined : {},
+    PetTownWalk: options.townMissing ? undefined : {},
+    PetVillageEconomyScene: options.sceneMissing ? undefined : {mount(){}},
     PetCozyRoom: options.cozyMissing ? undefined : {mount(){}},
     __knGateReady: options.gate ?? Promise.resolve(true),
     __knReadGameStorage: options.read || (() => null),
@@ -84,6 +87,9 @@ function loaderFixture(options = {}) {
     get mounts() { return mounts; }, get closes() { return closes; }, get received() { return received; },
     get reloads() { return reloads; }, get recordCloses() { return recordCloses; }, record,
     asset(name) { return scripts.findLast(script => script.src.includes('/' + name + '.js?')); },
+    economyLoaded() { window.PetVillageEconomy = {}; this.asset('pet-village-economy').onload(); },
+    townLoaded() { window.PetTownWalk = {}; this.asset('pet-town-walk').onload(); },
+    sceneLoaded() { window.PetVillageEconomyScene = {mount(){}}; this.asset('pet-village-economy-scene').onload(); },
     coreLoaded() { window.PetGameCore = {}; this.asset('pet-game-core').onload(); },
     motionLoaded() { window.PetLilacMotion = {}; this.asset('pet-lilac-motion').onload(); },
     roomLoaded() { window.PetRoomBehavior = {}; this.asset('pet-room-behavior').onload(); },
@@ -216,6 +222,31 @@ test('UI downloads after core without waiting for optional visuals; concurrent o
   f.window.closePetTab(); assert.equal(f.pane.hidden, true); assert.equal(f.focus.focused, true);
   assert.equal(await f.window.openPetTab(), true);
   assert.equal(f.scripts.length, 4); assert.equal(f.mounts, 2, 'UI owns idempotent store reuse');
+});
+
+test('a cold entry loads the economy before core and the walking engine before its scene without showing a pending page', async () => {
+  const f=loaderFixture({economyMissing:true,townMissing:true,sceneMissing:true}),opening=f.window.openPetTab();
+  assert.equal(f.asset('pet-game-core'),undefined);assert.equal(f.asset('pet-village-economy-scene'),undefined);
+  assert.ok(f.asset('pet-village-economy'));assert.ok(f.asset('pet-town-walk'));
+  assert.equal(f.pane.hidden,true);assert.equal(f.mounts,0);
+  f.townLoaded();await flush();assert.ok(f.asset('pet-village-economy-scene'));assert.equal(f.asset('pet-game'),undefined);
+  f.economyLoaded();await flush();assert.ok(f.asset('pet-game-core'));assert.equal(f.asset('pet-game'),undefined);
+  f.coreLoaded();await flush();assert.equal(f.asset('pet-game'),undefined,'scene is a required entry point');
+  f.sceneLoaded();await flush();assert.ok(f.asset('pet-game'));
+  f.uiLoaded();f.motionLoaded();f.roomLoaded();assert.equal(await opening,true);assert.equal(f.mounts,1);
+  f.window.closePetTab();await f.window.openPetTab();
+  for(const name of ['pet-village-economy','pet-game-core','pet-town-walk','pet-village-economy-scene'])assert.equal(f.scripts.filter(s=>s.src.includes('/'+name+'.js?')).length,1,name+' is shared across reopening');
+});
+
+test('an economy or scene download failure preserves the previous page and cannot execute dependent modules', async () => {
+  for(const missing of ['economy','scene']){
+    const f=loaderFixture({economyMissing:missing==='economy',sceneMissing:missing==='scene'}),opening=f.window.openPetTab();
+    const name=missing==='economy'?'pet-village-economy':'pet-village-economy-scene';
+    f.asset(name).onerror();await flush();f.fireTimers(1200);await flush();f.asset(name).onerror();
+    assert.equal(await opening,false);assert.equal(f.mounts,0);assert.equal(f.asset('pet-game'),undefined);
+    if(missing==='economy')assert.equal(f.asset('pet-game-core'),undefined);
+    assert.match(f.host.textContent,/もう一度読み込む/);
+  }
 });
 
 test('room presentation loads once before mounting without downloading the heavy 3D vendor at game entry', async () => {
@@ -513,8 +544,9 @@ test('the outer loader also protects village arrangement from Escape until the e
 test('main game does not load a removed minigame runtime and updates only changed game asset revisions',()=>{
   assert.doesNotMatch(html,/<script\b[^>]*src=["'][^"']*pet-cafe\.js/);
   assert.equal(fs.existsSync(path.join(root,'static/pet-cafe.js')),false);
-  for(const asset of ['pet-game-core.js','pet-game.js','pet-game.css','pet-village.css','pet-town-walk.js']){
+  for(const asset of ['pet-village.css','pet-town-walk.js']){
     assert.ok(html.includes('/static/'+asset+'?v=20261024-no-minigames1'),asset);
   }
+  for(const asset of ['pet-game-core.js','pet-game.js','pet-game.css','pet-village-economy.js','pet-village-economy-scene.js','pet-village-economy-scene.css'])assert.ok(html.includes('/static/'+asset+'?v=20261024-village-economy1'),asset);
   assert.ok(html.includes('/static/pet-cozy-room.css?v=20261024-cozy-room1'),'unchanged room asset pin is preserved');
 });

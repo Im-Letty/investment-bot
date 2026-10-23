@@ -99,7 +99,7 @@ async function fixture(config = {}) {
   pane.hidden = !!config.paneHidden; document.body.appendChild(pane); pane.appendChild(host);
   document.getElementById = id => id === 'sect-pet' ? pane : id === 'pet-game-root' ? host : null;
   const raf = new Map(), intervals = new Map(), timers = new Map(), mounts = [], actionCues = [], anchorCalls = [], hitTests = [];
-  const cozyMounts = [], cozyControl = { pending: null, reject: false };
+  const cozyMounts = [], cozyControl = { pending: null, reject: false }, economyScenes = [];
   const rendererControl = { mode: config.rendererMode || 'pending', mappingThrows: false, hit: null, hitThrows: false };
   const renderer = {
     durations: Motion.durations, catalogue: Motion.catalogue, bodyCatalogue: Motion.bodyCatalogue, directionCatalogue: Motion.directionCatalogue, appearanceProfile: Motion.appearanceProfile, eggVisualProfile: Motion.eggVisualProfile, roomWalkFrame: Motion.roomWalkFrame, feedingPhase: Motion.feedingPhase, feedingAnchor(stage, path, appearanceKey, eggOrigin) { anchorCalls.push({ stage, path, appearanceKey, eggOrigin }); return Motion.feedingAnchor(stage, path, appearanceKey, eggOrigin); }, growthProfile: Motion.growthProfile, growthPoint: Motion.growthPoint,
@@ -134,6 +134,12 @@ async function fixture(config = {}) {
     clearTimeout(id) { timers.delete(id); }, URL: { createObjectURL: () => 'blob:synthetic', revokeObjectURL() {} }
   });
   document.defaultView = window;
+  if (config.villageScene) window.PetVillageEconomyScene = {
+    mount(options) {
+      const controller = { options, disposed: false, dispose() { this.disposed = true; } };
+      economyScenes.push(controller); return controller;
+    }
+  };
   if (config.cozyRenderer) window.PetCozyRoom = {
     async mount(options) {
       const stage = document.createElement('div'); stage.className = 'room-stage'; options.host.appendChild(stage);
@@ -161,8 +167,9 @@ async function fixture(config = {}) {
     assert.ok(room, 'existing room scenarios can enter the room from the village');
     room.emit('click'); await flush();
   }
-  return { ui, host, pane, document, window, data, storage, writes, control, rendererControl, mounts, actionCues, anchorCalls, hitTests, raf, timers, beforeMountRaw, writesBeforeMount, cozyMounts, cozyControl,
+  return { ui, host, pane, document, window, data, storage, writes, control, rendererControl, mounts, actionCues, anchorCalls, hitTests, raf, timers, beforeMountRaw, writesBeforeMount, cozyMounts, cozyControl, economyScenes,
     get store() { return store; },
+    get now() { return clock; },
     saved() { return JSON.parse(data.get(Core.KEY)); },
     buttons() { return host.querySelectorAll('button'); },
     button(text) { const found = this.buttons().find(b => b.textContent === text || b.textContent.startsWith(text)); assert.ok(found, 'button: ' + text); return found; },
@@ -2885,7 +2892,7 @@ test('walking to nearby entrances opens the existing facilities only after expli
   const start=f.host.querySelector('.ipg-town-avatar').style.left;
   await f.click(villagePlace(f,'home'));assert.ok(f.host.querySelector('.ipg-town'));assert.equal(f.host.querySelector('.ipg-town-avatar').style.left,start,'tap cannot teleport or enter');
   await walkToVillagePlace(f,'home');assert.ok(f.host.querySelector('.ipg-care-room'));assert.equal(f.focusButton('tab-care').getAttribute('aria-current'),'page');
-  await f.click(f.focusButton('tab-village'));await walkToVillagePlace(f,'shop');assert.ok(f.host.querySelector('.ipg-shop-grid'));
+  await f.click(f.focusButton('tab-village'));await walkToVillagePlace(f,'shop');assert.ok(f.host.querySelector('.ipg-village-market'));
   await f.click(f.focusButton('tab-village'));await walkToVillagePlace(f,'cafe');assert.ok(f.host.querySelector('.ipg-town'));assert.equal(f.focusButton('town-enter').hidden,true);
   await f.click(f.focusButton('tab-village'));await walkToVillagePlace(f,'playground');assert.ok(f.host.querySelector('.ipg-town'));assert.equal(f.focusButton('town-enter').hidden,true);
   await f.click(f.focusButton('tab-village'));await walkToVillagePlace(f,'tree',false);assert.ok(f.host.querySelector('.ipg-town'));
@@ -2912,7 +2919,7 @@ test('town uses exactly the raised clothed pet, moves continuously with its came
 test('returning from a facility keeps the walked position while detached entry controls are inert',async()=>{
   const f=await villageFixture(),before=f.saved();await walkToVillagePlace(f,'shop',false);
   const avatar=f.host.querySelector('.ipg-town-avatar'),position=[avatar.style.left,avatar.style.top],oldEnter=f.focusButton('town-enter'),oldRight=f.focusButton('town-right');
-  await f.click(oldEnter);assert.ok(f.host.querySelector('.ipg-shop-grid'));
+  await f.click(oldEnter);assert.ok(f.host.querySelector('.ipg-village-market'));
   await f.click(f.focusButton('tab-village'));const current=f.host.querySelector('.ipg-town-avatar');
   assert.deepEqual([current.style.left,current.style.top],position);assert.equal(f.focusButton('town-enter').textContent,'マルシェに入る');
   oldEnter.emit('click');oldRight.emit('pointerdown',{pointerId:8,button:0});await f.frame(50);
@@ -3296,4 +3303,236 @@ test('reopening and restoring a different market rebuilds charts from that save 
   const fresh=await fixture({species:'lilac',developerPreview:false}),before=fresh.saved(),writes=fresh.writes.length;
   await fresh.click(fresh.focusButton('tab-market'));assert.deepEqual(plottedPrices(priceChart(fresh,'apl')),[{day:1,price:40}]);
   assert.equal(plottedSegments(priceChart(fresh,'apl')).length,0);assert.deepEqual(fresh.saved(),before);assert.equal(fresh.writes.length,writes);fresh.ui.close();
+});
+
+function villageView(f) { return Core.getVillageEconomyView(f.store.getState(), f.now); }
+function villageInput(f, key, value, event = 'input') {
+  const input=f.focusButton(key);input.value=String(value);input.emit(event);return input;
+}
+async function marketVillageFixture(config = {}) {
+  const f=await fixture({species:'lilac',developerPreview:false,seed:{pg_coins:'10000',pg_items:'{"rice":30,"apple":30}'},...config});
+  await f.click(f.focusButton('tab-market'));return f;
+}
+async function nextVillageDay(f) {
+  if(f.focusButton('village-advance').disabled){f.advance(60025);await f.fireTimers();}
+  await f.click(f.focusButton('village-advance'));
+}
+
+test('village market views, redraw and reopen never initialize an old save or reroll visitors; old stocks and care shop remain separate',async()=>{
+  const f=await marketVillageFixture(),before=f.saved(),raw=f.data.get(Core.KEY),writes=f.writes.length,view=villageView(f);
+  assert.equal(Object.hasOwn(before,'villageEconomy'),false);
+  assert.ok(f.host.querySelector('.ipg-village-goods'));assert.ok(f.host.querySelector('.ipg-village-businesses'));
+  const legacy=f.host.querySelector('.ipg-village-legacy');assert.equal(legacy.tagName,'DETAILS');assert.notEqual(legacy.open,true);
+  assert.equal(legacy.querySelectorAll('.ipg-stock').length,6);
+  for(let i=0;i<3;i++){f.ui.render();assert.deepEqual(villageView(f),view);}
+  f.ui.close();await f.ui.open();await f.click(f.focusButton('tab-market'));
+  assert.deepEqual(villageView(f),view);assert.equal(f.data.get(Core.KEY),raw);assert.equal(f.writes.length,writes);
+  await f.click(f.focusButton('tab-shop'));assert.ok(f.host.querySelector('.ipg-shop-grid'));assert.equal(f.host.querySelector('.ipg-village-goods'),null);
+  assert.equal(f.data.get(Core.KEY),raw);f.ui.close();
+});
+
+for(const outcome of ['false','throw'])test('village listing '+outcome+' save retains the price/quantity draft and wallet, and an explicit retry escrows once',async()=>{
+  const f=await marketVillageFixture(),before=f.saved(),writes=f.writes.length;
+  villageInput(f,'village-list-item','rice','change');villageInput(f,'village-list-quantity',5);villageInput(f,'village-list-price',999);
+  f.control.outcome=outcome;await f.click(f.focusButton('village-list'));
+  assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);assert.equal(f.focusButton('village-list-quantity').value,'5');assert.equal(f.focusButton('village-list-price').value,'999');
+  assert.match(f.host.querySelector('.ipg-notice').textContent,/保存/);
+  f.control.outcome='ok';await f.click(f.focusButton('village-list'));
+  const after=f.saved();assert.equal(after.inventory.rice,before.inventory.rice-5);assert.equal(after.coins,before.coins);
+  assert.equal(villageView(f).listings.length,1);assert.equal(villageView(f).listings[0].remaining,5);assert.equal(f.writes.length,writes+1);
+  assert.deepEqual(after.pet,before.pet);assert.deepEqual(after.market,before.market);f.ui.close();
+});
+
+test('a pending village listing changes no displayed balance before durability and repeated taps cannot duplicate escrow',async()=>{
+  const f=await marketVillageFixture(),before=f.saved(),writes=f.writes.length;
+  villageInput(f,'village-list-item','rice','change');villageInput(f,'village-list-quantity',4);villageInput(f,'village-list-price',12);
+  const held=deferred(),list=f.focusButton('village-list');f.control.pending=held;list.emit('click');await flush();
+  list.emit('click');assert.equal(list.disabled,true);assert.deepEqual(f.store.getState().inventory,before.inventory);assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
+  assert.equal(f.host.querySelectorAll('.ipg-village-trade-row').some(x=>x.dataset.listingId),false);
+  held.resolve();await flush();f.control.pending=null;
+  assert.equal(f.writes.length,writes+1);assert.equal(villageView(f).listings.length,1);assert.equal(f.saved().inventory.rice,before.inventory.rice-4);f.ui.close();
+});
+
+test('expensive listings can remain unsold; taking them down returns remaining inventory once without income',async()=>{
+  const f=await marketVillageFixture(),before=f.saved();
+  villageInput(f,'village-list-item','rice','change');villageInput(f,'village-list-quantity',5);villageInput(f,'village-list-price',999);
+  await f.click(f.focusButton('village-list'));await nextVillageDay(f);
+  const view=villageView(f);assert.equal(view.listings[0].remaining,5);assert.equal(f.saved().coins,before.coins);assert.equal(view.summary.salesRevenue,0);
+  const cancel=f.focusButton('village-cancel-'+view.listings[0].id);await f.click(cancel);
+  assert.equal(f.saved().inventory.rice,before.inventory.rice);assert.equal(villageView(f).listings.length,0);
+  const writes=f.writes.length;cancel.emit('click');await flush();assert.equal(f.writes.length,writes);assert.equal(f.saved().coins,before.coins);f.ui.close();
+});
+
+test('cheap listing partial sales and cancellation conserve sold, remaining, escrow and the shared wallet',async()=>{
+  const f=await marketVillageFixture(),before=f.saved();
+  villageInput(f,'village-list-item','rice','change');villageInput(f,'village-list-quantity',20);villageInput(f,'village-list-price',1);
+  await f.click(f.focusButton('village-list'));await nextVillageDay(f);
+  const view=villageView(f),remaining=view.listings[0].remaining,sold=20-remaining;
+  assert.ok(sold>0&&remaining>0);assert.equal(f.saved().coins,before.coins+sold);assert.equal(view.summary.salesRevenue,sold);
+  assert.match(f.host.querySelector('.ipg-village-listings').textContent,new RegExp('残り'+remaining+'個'));
+  await f.click(f.focusButton('village-cancel-'+view.listings[0].id));
+  assert.equal(f.saved().inventory.rice,before.inventory.rice-sold);assert.deepEqual(f.saved().pet,before.pet);assert.deepEqual(f.saved().market,before.market);f.ui.close();
+});
+
+test('NPC offer purchase uses a finite actual offer and confirmed wallet/inventory; detached buy cannot buy it twice',async()=>{
+  const f=await marketVillageFixture(),before=f.saved(),offer=villageView(f).offers[0],key='village-offer-'+offer.id;
+  villageInput(f,key,2);const buy=f.focusButton(key+'-buy');await f.click(buy);
+  assert.equal(f.saved().coins,before.coins-offer.unitPrice*2);assert.equal(f.saved().inventory[offer.itemId],(before.inventory[offer.itemId]||0)+2);
+  assert.equal(villageView(f).offers.find(x=>x.id===offer.id).remaining,offer.remaining-2);
+  const writes=f.writes.length;buy.emit('click');await flush();assert.equal(f.writes.length,writes);f.ui.close();
+});
+
+test('village time progresses only explicitly, enforces one minute, and the visible advance control unlocks without a save',async()=>{
+  const f=await marketVillageFixture();await nextVillageDay(f);const after=f.saved(),writes=f.writes.length,visitors=villageView(f).visitors;
+  assert.equal(villageView(f).day,2);assert.equal(f.focusButton('village-advance').disabled,true);assert.match(f.host.textContent,/約60秒後/);
+  f.ui.render();assert.deepEqual(f.saved(),after);assert.deepEqual(villageView(f).visitors,visitors);
+  f.advance(59999);await f.fireTimers();assert.equal(f.focusButton('village-advance').disabled,true);assert.equal(f.writes.length,writes);
+  f.advance(30);await f.fireTimers();assert.equal(f.focusButton('village-advance').disabled,false);assert.equal(f.writes.length,writes);
+  assert.equal(villageView(f).day,2);await nextVillageDay(f);assert.equal(villageView(f).day,3);assert.equal(f.writes.length,writes+1);f.ui.close();
+});
+
+test('availability timers preserve live listing and funding inputs, their draft values and focus while only updating the advance control',async()=>{
+  const f=await marketVillageFixture();await nextVillageDay(f);
+  const before=f.data.get(Core.KEY),writes=f.writes.length,goods=f.host.querySelector('.ipg-village-goods'),shops=f.host.querySelector('.ipg-village-businesses');
+  const price=villageInput(f,'village-list-price',777),quantity=villageInput(f,'village-list-quantity',7),fund=villageInput(f,'village-fund-orchard',3);
+  const advance=f.focusButton('village-advance'),hint=f.host.querySelector('.ipg-village-advance-hint');fund.focus();
+  f.advance(30000);await f.fireTimers();assert.equal(f.focusButton('village-advance'),advance);assert.equal(advance.disabled,true);
+  f.advance(30030);await f.fireTimers();
+  assert.equal(f.focusButton('village-advance'),advance);assert.equal(advance.disabled,false);assert.equal(advance.dataset.ipgDisabled,'');
+  assert.equal(f.host.querySelector('.ipg-village-advance-hint'),hint);assert.match(hint.textContent,/あと11回/);
+  assert.equal(f.host.querySelector('.ipg-village-goods'),goods);assert.equal(f.host.querySelector('.ipg-village-businesses'),shops);
+  for(const [key,input,value] of [['village-list-price',price,'777'],['village-list-quantity',quantity,'7'],['village-fund-orchard',fund,'3']]){
+    assert.equal(f.focusButton(key),input);assert.equal(input.isConnected,true);assert.equal(input.value,value);
+  }
+  assert.equal(f.document.activeElement,fund);assert.equal(f.data.get(Core.KEY),before);assert.equal(f.writes.length,writes);assert.equal(villageView(f).day,2);
+  await f.click(f.focusButton('village-jump-goods'));price.focus();f.advance(120000);await f.fireTimers();
+  assert.equal(f.document.activeElement,price);assert.equal(f.focusButton('village-list-price'),price);assert.equal(f.data.get(Core.KEY),before);f.ui.close();
+});
+
+test('shared funding shows NPC holdings, then construction, open shares and net current-price sale without modifying legacy stocks',async()=>{
+  const f=await marketVillageFixture(),original=f.saved();await nextVillageDay(f);
+  let shop=villageView(f).shops.find(x=>x.id==='orchard');assert.equal(shop.npcShares,2);
+  villageInput(f,'village-fund-orchard',18);await f.click(f.focusButton('village-fund-orchard-buy'));
+  shop=villageView(f).shops.find(x=>x.id==='orchard');assert.equal(shop.status,'building');assert.equal(shop.playerShares,18);
+  assert.match(f.host.querySelector('.ipg-village-businesses').textContent,/建設中/);assert.equal(f.host.querySelector('[data-focus-key="village-shares-orchard-sell"]'),null);
+  await nextVillageDay(f);shop=villageView(f).shops.find(x=>x.id==='orchard');assert.equal(shop.status,'open');assert.ok(shop.maxSellQuantity>0);
+  const before=f.saved();villageInput(f,'village-shares-orchard',1);await f.click(f.focusButton('village-shares-orchard-sell'));
+  const after=f.saved(),fee=Math.max(1,Math.ceil(shop.price*.01));assert.equal(after.coins,before.coins+shop.price-fee);
+  const sold=villageView(f).shops.find(x=>x.id==='orchard');assert.equal(sold.playerShares,17);assert.equal(sold.costBasis,170);assert.equal(sold.realizedProfit,shop.price-fee-10);
+  assert.deepEqual(after.market,original.market);assert.deepEqual(after.pet,original.pet);f.ui.close();
+});
+
+test('actual operating profit enables a claimable food benefit and funded dividends, while a claim cannot replay',async()=>{
+  const f=await marketVillageFixture();await nextVillageDay(f);villageInput(f,'village-fund-orchard',18);await f.click(f.focusButton('village-fund-orchard-buy'));await nextVillageDay(f);
+  for(let round=0;round<4;round++){
+    for(const offer of villageView(f).offers.filter(x=>x.shopId==='orchard'&&x.remaining>0)){
+      const key='village-offer-'+offer.id;villageInput(f,key,offer.remaining);await f.click(f.focusButton(key+'-buy'));
+    }
+    if(round<3)await nextVillageDay(f);
+  }
+  const shop=villageView(f).shops.find(x=>x.id==='orchard');assert.ok(shop.pendingBenefit>0);assert.ok(shop.dividends>0);
+  const before=f.saved(),claim=f.focusButton('village-benefit-orchard');await f.click(claim);
+  assert.equal(f.saved().inventory.apple,before.inventory.apple+1);assert.equal(f.saved().coins,before.coins);
+  assert.equal(villageView(f).shops.find(x=>x.id==='orchard').pendingBenefit,shop.pendingBenefit-1);
+  const writes=f.writes.length;claim.emit('click');await flush();assert.equal(f.writes.length,writes);f.ui.close();
+});
+
+test('village validation keeps local drafts and performs no write for fractional, nonfinite or out-of-bounds listing values',async()=>{
+  const f=await marketVillageFixture(),before=f.saved(),writes=f.writes.length;
+  for(const [quantity,price] of [['0','1'],['1.5','1'],['100','1'],['1','1000'],['1','NaN'],['Infinity','1']]){
+    villageInput(f,'village-list-quantity',quantity);villageInput(f,'village-list-price',price);await f.click(f.focusButton('village-list'));
+    assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);assert.equal(f.focusButton('village-list-quantity').value,quantity);assert.equal(f.focusButton('village-list-price').value,price);
+  }
+  f.ui.close();
+});
+
+test('a stale stored revision refuses the village draft without overwriting newer care or listing inventory',async()=>{
+  const f=await marketVillageFixture();villageInput(f,'village-list-item','rice','change');villageInput(f,'village-list-quantity',3);villageInput(f,'village-list-price',13);
+  const other=Core.create({storage:f.storage,now:()=>f.now,random:()=>.5});await other.ready;assert.equal((await other.dispatch({type:'care',kind:'play'})).ok,true);
+  const newer=f.data.get(Core.KEY),writes=f.writes.length;await f.click(f.focusButton('village-list'));
+  assert.equal(f.data.get(Core.KEY),newer);assert.equal(f.writes.length,writes);assert.equal(f.focusButton('village-list-price').value,'13');assert.equal(Object.hasOwn(f.saved(),'villageEconomy'),false);f.ui.close();
+});
+
+test('closing a pending village save prevents late success messages and detached controls in the reopened screen',async()=>{
+  const f=await marketVillageFixture();villageInput(f,'village-list-item','rice','change');villageInput(f,'village-list-price',999);
+  const held=deferred(),oldButton=f.focusButton('village-list');f.control.pending=held;oldButton.emit('click');await flush();
+  f.ui.close();await f.ui.open();held.resolve();await flush();f.control.pending=null;
+  assert.equal(f.host.getAttribute('aria-busy'),'false');assert.doesNotMatch(f.host.querySelector('.ipg-notice').textContent,/出品しました/);
+  const writes=f.writes.length;oldButton.emit('click');await flush();assert.equal(f.writes.length,writes);assert.equal(villageView(f).listings.length,1);f.ui.close();
+});
+
+test('the town economy scene receives a detached read-only projection and is disposed on route, close and remount',async()=>{
+  const f=await villageFixture({villageScene:true}),before=f.data.get(Core.KEY),writes=f.writes.length,first=f.economyScenes[0];
+  assert.ok(first.options.canRun());assert.equal(first.options.view.day,1);assert.equal(first.options.view.residents.length,2);assert.equal(first.options.view.shops.length,2);
+  first.options.view.residents[0].name='changed';assert.notEqual(villageView(f).residents[0].name,'changed');
+  first.options.onOpenMarket();await flush();assert.ok(f.host.querySelector('.ipg-village-market'));assert.equal(first.disposed,true);assert.equal(first.options.canRun(),false);
+  await f.click(f.focusButton('tab-village'));const second=f.economyScenes.at(-1);assert.notEqual(first,second);f.ui.close();assert.equal(second.disposed,true);
+  await f.ui.open();assert.ok(f.economyScenes.at(-1).options.canRun());assert.equal(f.data.get(Core.KEY),before);assert.equal(f.writes.length,writes);f.ui.close();
+});
+
+test('a pending village save remains in its original owner and connected old controls cannot change a newly mounted owner',async()=>{
+  const f=await marketVillageFixture(),before=f.saved();villageInput(f,'village-list-item','rice','change');villageInput(f,'village-list-quantity',4);villageInput(f,'village-list-price',777);
+  const held=deferred(),old=f.focusButton('village-list');f.control.pending=held;old.emit('click');await flush();
+  const other=copy(before);other.pet.name='別の保存先のこ';other.coins=1234;
+  const data=new Map([[Core.KEY,JSON.stringify(other)]]),otherWrites=[],storage={getItem:key=>data.get(key)??null,setItem(key,value){data.set(key,value);otherWrites.push([key,value]);}};
+  const target=f.document.createElement('div');f.pane.appendChild(target);
+  const opening=f.ui.mount(target,{storage,developerPreview:false,now:()=>f.now,random:()=>.5});await flush();
+  held.resolve();assert.equal(await opening,true);await flush();f.control.pending=null;
+  target.querySelector('[data-focus-key="tab-market"]').emit('click');await flush();
+  assert.equal(old.isConnected,true,'the old owner may remain attached to its old host');old.emit('click');await flush();
+  assert.equal(otherWrites.length,0);assert.deepEqual(JSON.parse(data.get(Core.KEY)),other);assert.equal(target.getAttribute('aria-busy'),'false');
+  assert.equal(target.querySelector('[data-focus-key="village-list-price"]').value,'10');assert.doesNotMatch(target.querySelector('.ipg-notice').textContent,/出品しました/);
+  assert.equal(f.saved().inventory.rice,before.inventory.rice-4);assert.equal(f.saved().villageEconomy.listings.length,1);f.ui.close();
+});
+
+test('the twelfth explicit village advance stops for the JST day and closing removes the availability refresh timer',async()=>{
+  const f=await marketVillageFixture();
+  for(let i=0;i<12;i++)await nextVillageDay(f);
+  assert.equal(villageView(f).day,13);assert.equal(villageView(f).residents.length,5);assert.equal(villageView(f).advance.reason,'daily_limit');
+  assert.equal(f.focusButton('village-advance').disabled,true);assert.match(f.host.textContent,/今日はここまで/);
+  const advance=f.focusButton('village-advance'),price=villageInput(f,'village-list-price',19);price.focus();
+  const raw=f.data.get(Core.KEY),writes=f.writes.length;f.advance(120000);await f.fireTimers();
+  assert.equal(f.focusButton('village-advance'),advance);assert.equal(f.focusButton('village-list-price'),price);assert.equal(f.document.activeElement,price);
+  assert.equal(f.data.get(Core.KEY),raw);assert.equal(f.writes.length,writes);assert.equal(villageView(f).day,13);
+  f.advance(villageView(f).advance.waitMs+30);await f.fireTimers();
+  assert.equal(f.focusButton('village-advance').disabled,false,'the core JST boundary unlocks without relying on a local calendar interval');
+  assert.equal(f.focusButton('village-advance'),advance);assert.equal(f.focusButton('village-list-price'),price);assert.equal(f.document.activeElement,price);assert.equal(price.value,'19');
+  assert.equal(villageView(f).day,13);assert.equal(villageView(f).advance.dailyRemaining,12);assert.equal(f.data.get(Core.KEY),raw);assert.equal(f.writes.length,writes);
+  f.ui.close();assert.equal(f.timers.size,0);f.ui.close();
+});
+
+test('folded village rules disclose actual wait, JST cap, dividend and benefit conditions without changing the record',async()=>{
+  const f=await marketVillageFixture(),raw=f.data.get(Core.KEY),writes=f.writes.length,rules=f.host.querySelector('.ipg-village-rules');
+  assert.equal(rules.tagName,'DETAILS');assert.notEqual(rules.open,true);assert.equal(rules.querySelector('summary').textContent,'村のあそび方');
+  assert.match(rules.textContent,/60秒/);assert.match(rules.textContent,/JST.*12回/);assert.match(rules.textContent,/3ゲーム日/);assert.match(rules.textContent,/2株以上/);
+  rules.open=true;rules.emit('toggle');await flush();assert.equal(f.data.get(Core.KEY),raw);assert.equal(f.writes.length,writes);f.ui.close();
+});
+
+test('the two market shortcuts focus and scroll to the same sections without replacing draft inputs or saving',async()=>{
+  const f=await marketVillageFixture(),raw=f.data.get(Core.KEY),writes=f.writes.length;
+  const quantity=villageInput(f,'village-list-quantity',7),price=villageInput(f,'village-list-price',23),goods=f.host.querySelector('.ipg-village-goods'),shops=f.host.querySelector('.ipg-village-businesses');
+  await f.click(f.focusButton('village-jump-shops'));assert.equal(f.scrolls().at(-1).node,shops);assert.equal(f.document.activeElement,shops.querySelector('h3'));
+  await f.click(f.focusButton('village-jump-goods'));assert.equal(f.scrolls().at(-1).node,goods);assert.equal(f.document.activeElement,goods.querySelector('h3'));
+  assert.equal(f.focusButton('village-list-quantity'),quantity);assert.equal(f.focusButton('village-list-price'),price);assert.equal(quantity.value,'7');assert.equal(price.value,'23');
+  assert.equal(f.data.get(Core.KEY),raw);assert.equal(f.writes.length,writes);f.ui.close();
+});
+
+test('open-shop purchases preserve issued shares and a later sale uses actual average acquisition cost plus fees',async()=>{
+  const f=await marketVillageFixture();await nextVillageDay(f);villageInput(f,'village-fund-orchard',18);await f.click(f.focusButton('village-fund-orchard-buy'));await nextVillageDay(f);
+  const quoted=villageView(f).shops.find(x=>x.id==='orchard'),before=f.saved(),gross=quoted.price*2,fee=Math.max(1,Math.ceil(gross/100));
+  assert.equal(quoted.npcShares,2);assert.ok(quoted.canBuyShares);villageInput(f,'village-buy-shares-orchard',2);await f.click(f.focusButton('village-buy-shares-orchard-buy'));
+  const bought=villageView(f).shops.find(x=>x.id==='orchard');assert.equal(bought.playerShares,20);assert.equal(bought.npcShares,0);assert.equal(bought.costBasis,180+gross+fee);assert.equal(f.saved().coins,before.coins-gross-fee);
+  assert.equal(f.focusButton('village-buy-shares-orchard-buy').disabled,true,'no NPC stock is fabricated after buying the available shares');
+  const wallet=f.saved().coins,basis=bought.costBasis/20,sellFee=Math.max(1,Math.ceil(quoted.price/100));
+  villageInput(f,'village-shares-orchard',1);await f.click(f.focusButton('village-shares-orchard-sell'));
+  const sold=villageView(f).shops.find(x=>x.id==='orchard');assert.equal(sold.playerShares,19);assert.equal(sold.npcShares,1);assert.ok(Math.abs(sold.costBasis-(bought.costBasis-basis))<1e-8);
+  assert.ok(Math.abs(sold.realizedProfit-(quoted.price-sellFee-basis))<1e-8);assert.equal(f.saved().coins,wallet+quoted.price-sellFee);assert.deepEqual(f.saved().market,before.market);f.ui.close();
+});
+
+test('a fully NPC-funded open shop still offers shares to a player with no previous investment, and failed purchase retains its draft',async()=>{
+  const f=await marketVillageFixture();for(let i=0;i<11;i++)await nextVillageDay(f);
+  const shop=villageView(f).shops.find(x=>x.id==='orchard');assert.equal(shop.status,'open');assert.equal(shop.playerShares,0);assert.equal(shop.npcShares,20);
+  const raw=f.data.get(Core.KEY),writes=f.writes.length;villageInput(f,'village-buy-shares-orchard',2);f.control.outcome='false';await f.click(f.focusButton('village-buy-shares-orchard-buy'));
+  assert.equal(f.data.get(Core.KEY),raw);assert.equal(f.writes.length,writes);assert.equal(f.focusButton('village-buy-shares-orchard').value,'2');
+  f.control.outcome='ok';await f.click(f.focusButton('village-buy-shares-orchard-buy'));assert.equal(villageView(f).shops.find(x=>x.id==='orchard').playerShares,2);assert.equal(f.writes.length,writes+1);f.ui.close();
 });

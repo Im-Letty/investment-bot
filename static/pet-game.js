@@ -19,7 +19,8 @@
   var villageEdit = null, villageSaveAttempt = null;
   // Walking is a view of the existing pet, not a second pet or a save action.
   // Retain the spot when visiting a facility; never write a frame into the store.
-  var townController = null, townPending = null, townPosition = null;
+  var townController = null, townEconomyScene = null, townPending = null, townPosition = null;
+  var villageListingDraft = null, villageTradeDrafts = {}, villageActionAttempt = null, villageRefreshTimer = null;
   var imageRoot = '/static/';
   var stageLabels = { egg: 'たまご', baby: 'あかちゃん', child: 'こども', final: 'さいしゅうしんか' };
   var tabLabels = { village: '村', care: 'そだてる', shop: 'お店・もちもの', market: '仮想マーケット' };
@@ -239,7 +240,10 @@
   }
   function stopMotions() {
     if (townController) { townController.destroy(); townController = null; }
+    if (townEconomyScene) { townEconomyScene.dispose(); townEconomyScene = null; }
     townPending = null;
+    if (villageRefreshTimer != null) w.clearTimeout(villageRefreshTimer);
+    villageRefreshTimer = null;
     motionRequests.forEach(function (request) {
       (request.touchRemovers || []).forEach(function (remove) { remove(); });
       request.touchRemovers = []; request.touchCue = null; request.touchPointer = null;
@@ -1477,7 +1481,7 @@
   function villageDestination(id) {
     if (busy || suspended || villageEdit || roomEdit) return;
     if (id === 'home') tab = 'care';
-    else if (id === 'shop') tab = 'shop';
+    else if (id === 'shop' || id === 'market') tab = 'market';
     else if (id === 'cafe' || id === 'playground') { notice = id === 'cafe' ? 'カフェの前で、ひとやすみ。' : '広場を、のんびりおさんぽ。'; }
     else { notice = id === 'tree' ? '木かげで、ひとやすみ。' : 'お花が村を彩っています。'; }
     render();
@@ -1570,6 +1574,11 @@
     body.appendChild(village);
     townPending = function () {
       if (!active()) return;
+      if (w.PetVillageEconomyScene && typeof w.PetVillageEconomyScene.mount === 'function' && typeof core().getVillageEconomyView === 'function') {
+        townEconomyScene = w.PetVillageEconomyScene.mount({ worldElement: scene, world: world,
+          view: core().getVillageEconomyView(s, (options && options.now || Date.now)()), canRun: active,
+          onOpenMarket: function () { if (active()) villageDestination('market'); } });
+      }
       townController = engine.mount({ viewport: viewport, worldElement: scene, avatar: avatar, controls: inputs, enterButton: enter,
         world: world, position: townPosition, canRun: active, enterableIds: ['home', 'shop'],
         onPosition: function (point) { if (active()) townPosition = { x: point.x, y: point.y }; },
@@ -1892,7 +1901,219 @@
     if (points.length === 1) figure.appendChild(text('これから値動きがたまります。', 'ipg-price-chart-hint'));
     return figure;
   }
+  async function runVillageAction(view, source, action, message, saved) {
+    if (!store || busy || suspended || tab !== 'market' || roomEdit || villageEdit || !source.isConnected || state().readOnly) return;
+    var owner = store, target = host, epoch = lifecycleEpoch, attempt = {};
+    function current() { return store === owner && host === target && lifecycleEpoch === epoch && !suspended; }
+    villageActionAttempt = attempt; setBusy(true);
+    var result;
+    try { result = await owner.dispatch(Object.assign({}, action, { expectedRevision: view.revision })); }
+    catch (_) { result = { ok: false, error: { code: 'save_failed' } }; }
+    if (villageActionAttempt !== attempt) return;
+    villageActionAttempt = null;
+    // A closed/changed screen may finish its already-started durable save. Its
+    // result must never clear another screen's draft or show a success there.
+    var live = current();
+    setBusy(false);
+    if (live) {
+      if (result && result.ok) { if (saved) saved(); failure = ''; notice = message; }
+      else { failure = safeError(result); notice = ''; }
+    }
+    if (store && !suspended) render();
+    return result;
+  }
+  function villageInteger(value, max) {
+    var n = Number(value);
+    return String(value).trim() && Number.isSafeInteger(n) && n >= 1 && (!max || n <= max) ? n : null;
+  }
   function renderMarket(s, body) {
+    if (typeof core().getVillageEconomyView !== 'function') {
+      body.appendChild(card('村のマーケットを読み込めませんでした。'));
+      return;
+    }
+    var view = core().getVillageEconomyView(s, (options && options.now || Date.now)());
+    var owner = store, epoch = lifecycleEpoch, intro = card('村のマーケット', 'ipg-village-market');
+    intro.dataset.villageDay = String(view.day);
+    append(intro, text('住人や旅人と、コインでやりとり。現実のお金は使いません。'),
+      node('div', 'ipg-game-day', '村の ' + number(view.day) + '日目'));
+    var advance = view.advance || {}, advanceButton = button('村の時間を進める', function () {
+      transact(advanceButton, { type: 'advanceVillageEconomy' }, '村の時間を1日進めました。');
+    }, false, s.readOnly || !advance.canAdvance);
+    advanceButton.dataset.focusKey = 'village-advance';
+    function advanceMessage(value) {
+      return value.reason === 'daily_limit' ? '今日はここまで。また明日。' :
+        value.reason === 'clock_moved_back' ? '端末の時刻を確認してください。' :
+        value.reason === 'village_wait' ? '次は約' + Math.max(1, Math.ceil(value.waitMs / 1000)) + '秒後。' :
+        '1回で村の1日。今日はあと' + number(value.dailyRemaining) + '回。';
+    }
+    var advanceHint = text(advanceMessage(advance), 'ipg-small ipg-village-advance-hint');
+    append(intro, advanceButton, advanceHint);
+    if (view.summary) intro.appendChild(text('売上 ' + number(view.summary.salesRevenue) + 'コイン · 受取配当 ' + number(view.summary.dividends) + 'コイン · 株の評価 ' + number(view.summary.currentValue) + 'コイン', 'ipg-small'));
+    var people = (view.residents || []).map(function (x) { return x.name; }).join('・');
+    var visitors = (view.visitors || []).map(function (x) { return x.name; }).join('・');
+    if (people || visitors) intro.appendChild(text((people ? '住人 ' + people : '') + (visitors ? ' ／ 旅人 ' + visitors : ''), 'ipg-small'));
+    var jumps = node('nav', 'ipg-village-market-jumps'); jumps.setAttribute('aria-label', '村のマーケット内');
+    [['品物', 'goods'], ['お店', 'shops']].forEach(function (row) {
+      var jump = button(row[0], function () {
+        if (!jump.isConnected || store !== owner || lifecycleEpoch !== epoch || tab !== 'market' || suspended || busy) return;
+        var target = row[1] === 'goods' ? goods : shops;
+        target.scrollIntoView({ block: 'start', behavior: 'auto' });
+        var heading = target.querySelector('h3'); if (heading) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); }
+      }, true); jump.dataset.focusKey = 'village-jump-' + row[1]; jumps.appendChild(jump);
+    });
+    intro.appendChild(jumps);
+    body.appendChild(intro);
+    function scheduleAdvance(value) {
+      if ((value.reason !== 'village_wait' && value.reason !== 'daily_limit') || !(value.waitMs > 0)) return;
+      villageRefreshTimer = w.setTimeout(function () {
+        villageRefreshTimer = null;
+        if (store !== owner || epoch !== lifecycleEpoch || tab !== 'market' || suspended || !advanceButton.isConnected) return;
+        // Time availability is a read-only control update. Replacing the market
+        // here would detach a field while someone is typing into its draft.
+        var currentState = state(), next = core().getVillageEconomyView(currentState, (options && options.now || Date.now)()).advance;
+        var disabled = currentState.readOnly || !next.canAdvance;
+        advanceButton.dataset.ipgDisabled = disabled ? '1' : '';
+        advanceButton.disabled = busy || disabled;
+        advanceHint.textContent = advanceMessage(next);
+        scheduleAdvance(next);
+      }, Math.min(60000, value.waitMs + 25));
+    }
+    scheduleAdvance(advance);
+    function active(element) { return element.isConnected && store === owner && lifecycleEpoch === epoch && tab === 'market' && !suspended && !busy && !state().readOnly; }
+    function transact(source, action, message, saved) {
+      if (!active(source)) return;
+      return runVillageAction(view, source, action, message, saved);
+    }
+    function inputValue(key, value, max) {
+      var input = node('input'); input.type = 'number'; input.inputMode = 'numeric'; input.min = '1'; input.step = '1';
+      if (max != null) input.max = String(max);
+      input.value = villageTradeDrafts[key] == null ? String(value) : villageTradeDrafts[key]; input.dataset.focusKey = key;
+      if (s.readOnly) { input.disabled = true; input.dataset.ipgDisabled = '1'; }
+      input.addEventListener('input', function () { if (active(input)) villageTradeDrafts[key] = input.value; });
+      return input;
+    }
+    function invalid(message) { failure = message; notice = ''; render(); }
+    var goods = card('品物', 'ipg-village-goods');
+    append(goods, text('もちものを出品。値段は自分で決められます。売れない日もあります。', 'ipg-small'));
+    var foods = view.foods || [];
+    if (!villageListingDraft) villageListingDraft = { itemId: (foods.filter(function (x) { return x.owned > 0; })[0] || foods[0] || {}).id || '', quantity: '1', unitPrice: '10' };
+    var draft = villageListingDraft, listingFields = node('div', 'ipg-village-listing-fields');
+    var food = node('select'); food.dataset.focusKey = 'village-list-item';
+    foods.forEach(function (x) {
+      var option = node('option', '', x.name + ' · もちもの ' + number(x.owned)); option.value = x.id; food.appendChild(option);
+    });
+    food.value = draft.itemId;
+    if (s.readOnly) { food.disabled = true; food.dataset.ipgDisabled = '1'; }
+    food.addEventListener('change', function () { if (active(food)) draft.itemId = food.value; });
+    var count = node('input'), price = node('input');
+    [[count, 'quantity', 'village-list-quantity', 99], [price, 'unitPrice', 'village-list-price', 999]].forEach(function (row) {
+      var field = row[0]; field.type = 'number'; field.inputMode = 'numeric'; field.min = '1'; field.max = String(row[3]); field.step = '1';
+      field.value = draft[row[1]]; field.dataset.focusKey = row[2];
+      if (s.readOnly) { field.disabled = true; field.dataset.ipgDisabled = '1'; }
+      field.addEventListener('input', function () { if (active(field)) draft[row[1]] = field.value; });
+    });
+    append(listingFields, label('品物', food), label('個数', count), label('1個の値段', price));
+    var listButton = button('出品する', function () {
+      if (!active(listButton)) return;
+      var quantity = villageInteger(count.value, 99), unitPrice = villageInteger(price.value, 999);
+      if (!quantity || !unitPrice) return invalid('個数は1〜99、値段は1〜999の整数で入力してください。');
+      transact(listButton, { type: 'placeVillageListing', itemId: food.value, quantity: quantity, unitPrice: unitPrice }, '出品しました。売れ残りは取り下げられます。');
+    }, false, s.readOnly || !foods.length);
+    listButton.dataset.focusKey = 'village-list'; append(goods, listingFields, listButton,
+      text('出品中の品物は一時お預かり。村の時間を進めると、売れることがあります。', 'ipg-small'));
+    var listings = node('div', 'ipg-village-listings');
+    (view.listings || []).forEach(function (x) {
+      var row = node('div', 'ipg-village-trade-row'); row.dataset.listingId = x.id;
+      append(row, node('strong', '', x.name), text('1個 ' + number(x.unitPrice) + 'コイン · 残り' + number(x.remaining) + '個', 'ipg-small'));
+      if (x.remaining > 0) {
+        var cancel = button('取り下げる', function () {
+          transact(cancel, { type: 'cancelVillageListing', listingId: x.id }, '売れ残りをもちものへ戻しました。');
+        }, true, s.readOnly); cancel.dataset.focusKey = 'village-cancel-' + x.id; row.appendChild(cancel);
+      } else row.appendChild(text('売り切れ', 'ipg-small'));
+      listings.appendChild(row);
+    });
+    if (!(view.listings || []).length) listings.appendChild(text('出品はまだありません。', 'ipg-small'));
+    goods.appendChild(listings);
+    goods.appendChild(node('h4', '', '住人・旅人から買う'));
+    var offers = node('div', 'ipg-village-offers');
+    (view.offers || []).forEach(function (x) {
+      var row = node('div', 'ipg-village-trade-row'); row.dataset.offerId = x.id;
+      append(row, node('strong', '', x.itemName), text(x.name + 'から · 1個 ' + number(x.unitPrice) + 'コイン · 残り' + number(x.remaining) + '個', 'ipg-small'));
+      if (x.remaining > 0) {
+        var key = 'village-offer-' + x.id, qty = inputValue(key, 1, x.remaining), controls = node('div', 'ipg-village-transaction');
+        var buy = button('買う', function () {
+          if (!active(buy)) return;
+          var n = villageInteger(qty.value, x.remaining);
+          if (!n) return invalid('残りの個数まで、1以上の整数で入力してください。');
+          transact(buy, { type: 'buyVillageOffer', offerId: x.id, quantity: n }, '購入して、もちものに加えました。');
+        }, false, s.readOnly); buy.dataset.focusKey = key + '-buy';
+        append(controls, label('個数', qty), buy); row.appendChild(controls);
+      } else row.appendChild(text('売り切れ', 'ipg-small'));
+      offers.appendChild(row);
+    });
+    if (!(view.offers || []).length) offers.appendChild(text('次の来村をお楽しみに。', 'ipg-small'));
+    goods.appendChild(offers); body.appendChild(goods);
+    var shops = card('お店', 'ipg-village-businesses');
+    shops.appendChild(text('みんなで出資して建てるお店。株を持つと、利益に応じて配当や優待を受け取れます。', 'ipg-small'));
+    (view.shops || []).forEach(function (x) {
+      var row = node('section', 'ipg-village-business'); row.dataset.shopId = x.id; row.dataset.shopStatus = x.status;
+      append(row, node('h4', '', x.name), text(x.status === 'open' ? '営業中' : x.status === 'building' ? '建設中 · 村の次の日に開店' : '出資募集中', 'ipg-village-business-status'));
+      if (x.status !== 'open') {
+        append(row, text('集まった資金 ' + number(x.capitalRaised) + ' / ' + number(x.targetCapital) + 'コイン', 'ipg-small'),
+          text('あなたの株 ' + number(x.playerShares) + '株 · 住人の株 ' + number(x.npcShares) + '株', 'ipg-small'));
+        if (x.canContribute) {
+          var key = 'village-fund-' + x.id, qty = inputValue(key, 1, x.remainingShares), controls = node('div', 'ipg-village-transaction');
+          var fund = button('出資する', function () {
+            if (!active(fund)) return;
+            var n = villageInteger(qty.value, x.remainingShares);
+            if (!n) return invalid('募集中の株数まで、1以上の整数で入力してください。');
+            transact(fund, { type: 'contributeVillageShop', shopId: x.id, quantity: n }, 'お店に出資し、株を保有しました。');
+          }, false, s.readOnly); fund.dataset.focusKey = key + '-buy';
+          append(controls, label('株数 · 1株' + number(x.sharePrice) + 'コイン', qty), fund); row.appendChild(controls);
+        }
+      } else {
+        append(row, text('1株 ' + number(x.price) + 'コイン · あなたの株 ' + number(x.playerShares) + '株', 'ipg-small'),
+          text('評価額 ' + number(x.currentValue) + 'コイン · 評価損益 ' + signed(x.unrealizedProfit), 'ipg-small'),
+          text('受取配当 ' + number(x.dividends) + 'コイン · 確定損益 ' + signed(x.realizedProfit), 'ipg-small'));
+        var buyKey = 'village-buy-shares-' + x.id, buyQty = inputValue(buyKey, 1, x.maxBuyQuantity), buyControls = node('div', 'ipg-village-transaction');
+        var buyShares = button('株を買う', function () {
+          if (!active(buyShares)) return;
+          var n = villageInteger(buyQty.value, x.maxBuyQuantity);
+          if (!n || x.maxBuyQuantity < 1) return invalid('いま買える株数まで、1以上の整数で入力してください。');
+          transact(buyShares, { type: 'buyVillageShares', shopId: x.id, quantity: n }, '株を購入し、保有しました。');
+        }, false, s.readOnly || !x.canBuyShares); buyShares.dataset.focusKey = buyKey + '-buy';
+        append(buyControls, label('株数 · いま買えるのは' + number(x.maxBuyQuantity) + '株', buyQty), buyShares); row.appendChild(buyControls);
+        if (x.playerShares > 0) {
+          var sellKey = 'village-shares-' + x.id, sellQty = inputValue(sellKey, 1, x.maxSellQuantity), sellControls = node('div', 'ipg-village-transaction');
+          var sell = button('時価で売る', function () {
+            if (!active(sell)) return;
+            var n = villageInteger(sellQty.value, x.maxSellQuantity);
+            if (!n || x.maxSellQuantity < 1) return invalid('いま売れる株数まで、1以上の整数で入力してください。');
+            transact(sell, { type: 'sellVillageShares', shopId: x.id, quantity: n }, '株を売り、手数料を引いたコインを受け取りました。');
+          }, true, s.readOnly || x.maxSellQuantity < 1); sell.dataset.focusKey = sellKey + '-sell';
+          append(sellControls, label('株数 · いま売れるのは' + number(x.maxSellQuantity) + '株', sellQty), sell); row.appendChild(sellControls);
+        }
+        row.appendChild(text('売買手数料1%（最低1コイン）。住人の株数や予算によっては取引できません。', 'ipg-small'));
+      }
+      if (x.pendingBenefit) {
+        var benefit = button('優待を受け取る', function () {
+          transact(benefit, { type: 'claimVillageBenefit', shopId: x.id }, '優待をもちものに加えました。');
+        }, false, s.readOnly); benefit.dataset.focusKey = 'village-benefit-' + x.id;
+        append(row, text('優待 ' + x.benefitItemName, 'ipg-small'), benefit);
+      }
+      shops.appendChild(row);
+    });
+    shops.appendChild(text('配当・優待はお店の利益から。開店や保有だけでは保証されません。株価は上がることも下がることもあります。', 'ipg-small'));
+    body.appendChild(shops);
+    var rules = node('details', 'ipg-village-rules'), ruleList = node('ul');
+    rules.appendChild(node('summary', '', '村のあそび方'));
+    (view.rules || []).slice(0, 16).forEach(function (rule) { if (typeof rule === 'string') ruleList.appendChild(node('li', '', rule)); });
+    rules.appendChild(ruleList); body.appendChild(rules);
+    var legacy = node('details', 'ipg-village-legacy');
+    legacy.appendChild(node('summary', '', 'これまでの6社の株'));
+    renderLegacyMarket(s, legacy); body.appendChild(legacy);
+  }
+  function renderLegacyMarket(s, body) {
     var market = s.market, stocks = core().STOCKS || core().stocks || [], invested = 0, cost = 0;
     stocks.forEach(function (x) { var h = market.holdings[x.id] || {}; invested += (h.quantity || 0) * market.prices[x.id]; cost += h.costBasis || 0; });
     var intro = card('コインで学ぶ、仮想マーケット');
@@ -2022,7 +2243,7 @@
     if (host === target && store) { render(); return true; }
     if (mounting) return mounting;
     discardRoomEdit(); discardVillageEdit(); lifecycleEpoch++;
-    host = target; townPosition = null; options = opts || options || {};
+    host = target; townPosition = null; villageListingDraft = null; villageTradeDrafts = {}; options = opts || options || {};
     tab = developerPreview() ? 'care' : 'village';
     loading('ゲームの記録を読み込んでいます…');
     mounting = (async function () {

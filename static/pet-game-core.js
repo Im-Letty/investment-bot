@@ -1,8 +1,8 @@
 (function (root, factory) {
   'use strict';
-  if (typeof module === 'object' && module.exports) module.exports = factory();
-  else root.PetGameCore = factory();
-}(typeof globalThis !== 'undefined' ? globalThis : this, function () {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./pet-village-economy.js'));
+  else root.PetGameCore = factory(root.PetVillageEconomy);
+}(typeof globalThis !== 'undefined' ? globalThis : this, function (VillageEconomy) {
   'use strict';
 
   // One record contains the entire economy. A rejected write never publishes a
@@ -149,6 +149,10 @@
     invalid_room_layout:'家具の配置を確認してください。保存済みのお部屋は変更していません。',
     invalid_cozy_room_layout:'家具や壁紙・床の配置を確認してください。保存済みのお部屋は変更していません。',
     invalid_village_layout:'村の配置を確認してください。保存済みの村は変更していません。',
+    village_invalid:'食品の数・値段・株数を確認してください。',village_listing_limit:'出品は8件までです。',
+    village_not_found:'商品や出品の最新の状態を確認してください。',village_wait:'村の一日を進めるには60秒あけてください。',
+    village_liquidity:'今はNPCの買戻し予算が足りません。株数を減らすか、村の一日を進めてください。',
+    village_not_open:'出資や売却ができるお店の状態を確認してください。',village_no_benefit:'受け取れる優待はまだありません。',
     insufficient_coins:'コインが足りません。',already_owned:'すでに持っています。',not_owned:'このアイテムを持っていません。',
     invalid_trade:'株数は1以上の整数で入力してください。',amount_overflow:'扱える金額を超えています。',insufficient_shares:'保有株数が足りません。',
     legacy_already_transferred:'移せる旧ゲームの記録はありません。',legacy_pot_empty:'引き出せる旧ポット資産はありません。',invalid_backup:'バックアップの形式を確認してください。'
@@ -323,6 +327,7 @@
     if(m.legacyPot!==null)check(plain(m.legacyPot)&&integer(m.legacyPot.value)&&amount(m.legacyPot.basis,false)&&integer(m.legacyPot.days),'corrupt_data');
     var value=0,basis=0;STOCKS.forEach(function(x){value+=m.prices[x.id]*m.holdings[x.id].quantity;basis+=m.holdings[x.id].costBasis;});
     check(amount(value,false)&&amount(basis,false)&&amount(s.coins+value,false),'amount_overflow');
+    if(own(s,'villageEconomy')){check(VillageEconomy&&typeof VillageEconomy.validate==='function','corrupt_data');VillageEconomy.validate(s);}
     var r=s.legacyReserve;check(plain(r)&&typeof r.available==='boolean'&&typeof r.transferred==='boolean'&&text(r.name,40)&&integer(r.coins)&&integer(r.exp)&&plain(r.decorations),'corrupt_data');counts(r.inventory);
     check(r.sourceRaw===null || text(r.sourceRaw,MAX_BYTES),'corrupt_data');check(r.market===null || plain(r.market),'corrupt_data');
     check(plain(r.pot)&&integer(r.pot.value)&&amount(r.pot.basis,false)&&integer(r.pot.days),'corrupt_data');
@@ -549,6 +554,12 @@
         return reward;
       }
       check(!needsEggChoice(next),'egg_required');
+      if(VillageEconomy&&VillageEconomy.handles(a.type)) {
+        var village=VillageEconomy.transition(next,a,ms);next.villageEconomy=village.economy;
+        next.coins=village.coins;next.inventory=village.inventory;
+        // NPC transactions never change care, EXP, evolution or achievements.
+        return village.reward;
+      }
       if(a.type==='saveRoomLayout') {
         check(integer(a.expectedRevision)&&a.expectedRevision===next.revision,'stale_state');
         validateRoomLayout(a.layout,next);next.roomLayout=clone(a.layout);
@@ -669,7 +680,7 @@
         catch(e){return failure(e);}
       });
     }
-    api={ready:ready,getState:visible,dispatch:dispatch,getStage:getStage,getLilacGrowth:getLilacGrowth,getLilacAppearance:getLilacAppearance,getLilacEvolution:getLilacEvolution,getEggOrigin:getEggOrigin,needsEggChoice:needsEggChoice,getVillageLayout:function(){return getVillageLayout(state);},getCozyRoomLayout:function(){return getCozyRoomLayout(state);},
+    api={ready:ready,getState:visible,dispatch:dispatch,getStage:getStage,getLilacGrowth:getLilacGrowth,getLilacAppearance:getLilacAppearance,getLilacEvolution:getLilacEvolution,getEggOrigin:getEggOrigin,needsEggChoice:needsEggChoice,getVillageLayout:function(){return getVillageLayout(state);},getCozyRoomLayout:function(){return getCozyRoomLayout(state);},getVillageEconomyView:function(ms){return VillageEconomy.view(state,ms===undefined?Number(clock()):ms);},
       subscribe:function(fn){check(typeof fn==='function','invalid_listener');listeners.push(fn);return function(){listeners=listeners.filter(function(x){return x!==fn;});};},
       exportBackup:function(){check(!loading&&!blocked,'read_only');return JSON.stringify({format:'PetGameBackup',version:3,exportedAt:time(),state:clone(state)});},
       importBackup:importBackup};return api;
@@ -678,6 +689,7 @@
     roomFurniture:clone(ROOM_FURNITURE),defaultRoomLayout:defaultRoomLayout,getRoomLayout:getRoomLayout,
     cozyRoomFurniture:clone(COZY_ROOM_FURNITURE),cozyRoomTypes:clone(COZY_ROOM_TYPES),defaultCozyRoomLayout:defaultCozyRoomLayout,getCozyRoomLayout:getCozyRoomLayout,
     villagePlaces:VILLAGE_PLACES,defaultVillageLayout:defaultVillageLayout,getVillageLayout:getVillageLayout,
+    getVillageEconomyView:function(s,ms){return VillageEconomy.view(s,ms===undefined?Date.now():ms);},
     STOCKS:clone(STOCKS),stocks:clone(STOCKS),ITEMS:clone(ITEMS),items:clone(ITEMS),catalogue:clone(ITEMS),
     LIMITS:clone(LIMITS),limits:clone(LIMITS),LEGACY_KEYS:LEGACY_KEYS.slice()};
 }));

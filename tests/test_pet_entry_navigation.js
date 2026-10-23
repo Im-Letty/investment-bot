@@ -63,7 +63,7 @@ function fixture({ origin = 'morning', preloaded = true, hydration, mounting } =
     async close() { closes++; },
     render() { visibleRenders.push(!pane.hidden); }
   };
-  if (preloaded) { window.PetGameCore = {}; window.PetCozyRoom = {mount(){}}; window.IndependentPetGame = ui; }
+  if (preloaded) { window.PetVillageEconomy = {}; window.PetTownWalk = {}; window.PetVillageEconomyScene = {mount(){}}; window.PetGameCore = {}; window.PetCozyRoom = {mount(){}}; window.IndependentPetGame = ui; }
   const context = vm.createContext({ document, window, Promise, nav: navEl, ms: sourceView,
     setTimeout(fn, delay) { const id = ++timerId; timers.set(id, { fn, delay }); return id; }, clearTimeout(id) { timers.delete(id); } });
   function click(button) {
@@ -90,14 +90,22 @@ function fixture({ origin = 'morning', preloaded = true, hydration, mounting } =
     click: act => click(buttons.find(x => x.act === act)),
     key(key) { for (const listener of docs.filter(x => x.type === 'keydown')) listener.fn({ key }); },
     pagehide() { windows.filter(x => x.type === 'pagehide').forEach(x => x.fn()); },
+    async loadPrerequisites() {
+      if(!window.PetVillageEconomy){window.PetVillageEconomy={};assets.findLast(x=>x.src.includes('/pet-village-economy.js')).onload();}
+      if(!window.PetTownWalk){window.PetTownWalk={};assets.findLast(x=>x.src.includes('/pet-town-walk.js')).onload();}
+      await flush();
+      if(!window.PetVillageEconomyScene){window.PetVillageEconomyScene={mount(){}};assets.findLast(x=>x.src.includes('/pet-village-economy-scene.js')).onload();}
+      await flush();
+    },
     async loadAssets() {
+      await this.loadPrerequisites();
       window.PetGameCore = {}; assets.findLast(x => x.src.includes('/pet-game-core.js')).onload();
       window.PetCozyRoom = {mount(){}}; assets.findLast(x => x.src.includes('/pet-cozy-room.js')).onload();
       window.PetLilacMotion = {}; assets.findLast(x => x.src.includes('/pet-lilac-motion.js')).onload();
       window.PetRoomBehavior = {}; assets.findLast(x => x.src.includes('/pet-room-behavior.js')).onload();
       await flush(); window.IndependentPetGame = ui; assets.findLast(x => x.src.includes('/pet-game.js')).onload(); await flush();
     },
-    failCore() { assets.findLast(x => x.src.includes('/pet-game-core.js')).onerror(); },
+    async failCore() { await this.loadPrerequisites(); assets.findLast(x => x.src.includes('/pet-game-core.js')).onerror(); },
     timer(delay) { for (const [id, item] of [...timers]) if (item.delay === delay) { timers.delete(id); item.fn(); } }
   };
 }
@@ -124,10 +132,10 @@ test('all previous routes remain visible through hydration and mount; only ready
 });
 test('repeated taps share assets/mount and never replay navigation repeatedly', async () => {
   const mounting = deferred(), f = fixture({ preloaded: false, mounting });
-  f.click('pet'); f.click('pet'); const pending = f.window.openPetTab(); assert.equal(f.assets.length, 4);
+  f.click('pet'); f.click('pet'); const pending = f.window.openPetTab(); assert.equal(f.assets.length, 5);
   await f.loadAssets(); assert.equal(f.counts().mounts, 1); assert.equal(f.pane.hidden, true);
   mounting.resolve(true); assert.equal(await pending, true); f.click('pet'); await flush();
-  assert.equal(f.assets.length, 5); assert.equal(f.counts().mounts, 1); assert.deepEqual(f.commits, ['実ゲーム']);
+  assert.equal(f.assets.length, 8); assert.equal(f.counts().mounts, 1); assert.deepEqual(f.commits, ['実ゲーム']);
 });
 test('other navigation cancels downloads; late assets cannot mount or steal the selected route', async () => {
   const f = fixture({ preloaded: false }); f.click('pet'); const pending = f.window.openPetTab();
@@ -156,7 +164,7 @@ test('pagehide cancels a pending mount and a late failure never displays an erro
 });
 test('a real download failure commits a recoverable error once and manual retry reveals the game', async () => {
   const f = fixture({ preloaded: false }); f.click('pet'); const first = f.window.openPetTab();
-  f.failCore(); await flush(); f.timer(1200); await flush(); f.failCore(); assert.equal(await first, false);
+  await f.failCore(); await flush(); f.timer(1200); await flush(); await f.failCore(); assert.equal(await first, false);
   assert.equal(f.pane.hidden, false); assert.match(f.host.textContent, /ゲームを読み込めませんでした/);
   assert.match(f.host.textContent, /もう一度読み込む/); assert.deepEqual(f.selected(), ['pet']); assert.equal(f.commits.length, 1);
   const retry = f.host.children[0].children.find(x => x.tagName === 'BUTTON'); retry.onclick(); const second = f.window.openPetTab();

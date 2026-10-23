@@ -86,6 +86,24 @@
 .ipg-shop-item .ipg-button{margin-top:6px}
 .ipg-item-icon{font-size:32px;line-height:1.8}
 .ipg-game-day{display:inline-block;padding:4px 12px;margin:0 0 18px;background:var(--ipg-bg);border-radius:999px}
+.ipg-village-market>.ipg-button{display:block;margin-bottom:8px}
+.ipg-village-market-jumps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.ipg-village-goods,.ipg-village-businesses{scroll-margin-top:18px}
+.ipg-village-listing-fields{display:grid;grid-template-columns:minmax(0,2fr) repeat(2,minmax(0,1fr));gap:10px;margin:16px 0 12px}
+.ipg-village-listings,.ipg-village-offers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:16px 0 24px}
+.ipg-village-trade-row,.ipg-village-business{min-width:0;padding:16px;border:1px solid var(--ipg-line);border-radius:14px;background:var(--ipg-bg)}
+.ipg-village-trade-row strong{display:block;margin-bottom:4px}
+.ipg-village-trade-row p:last-child,.ipg-village-business p:last-child{margin-bottom:0}
+.ipg-village-transaction{display:flex;align-items:end;flex-wrap:wrap;gap:10px;margin:12px 0}
+.ipg-village-transaction>.ipg-field{flex:1 1 120px}
+.ipg-village-transaction>.ipg-button{flex:0 1 auto;min-width:88px}
+.ipg-village-business{margin:14px 0}
+.ipg-village-business-status{display:inline-block;padding:3px 10px;border:1px solid var(--ipg-line);border-radius:999px;font-size:.85em}
+.ipg-village-legacy,.ipg-village-rules{min-width:0;padding:14px;border:1px solid var(--ipg-line);border-radius:16px}
+.ipg-village-rules li{margin-bottom:10px;color:var(--ipg-muted)}
+.ipg-village-legacy>summary{font-weight:500}
+.ipg-village-legacy>.ipg-card,.ipg-village-legacy>.ipg-stock-list{margin-top:14px}
+@media(max-width:540px){.ipg-village-listing-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.ipg-village-listing-fields>.ipg-field:first-child{grid-column:1/-1}.ipg-village-listings,.ipg-village-offers{grid-template-columns:1fr}.ipg-village-legacy{padding:10px}.ipg-village-transaction>.ipg-button{flex:1 1 100px}}
 .ipg-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 20px}
 .ipg-metric{min-width:0;padding:12px;background:var(--ipg-bg);border-radius:10px}
 .ipg-metric dt{font-size:.85em;color:var(--ipg-muted)}
