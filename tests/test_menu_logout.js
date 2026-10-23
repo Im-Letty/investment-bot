@@ -3,8 +3,8 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const read=file=>fs.readFileSync(path.join(__dirname,'..',file),'utf8');
 
 // Execute the production drawer and confirmation code against synthetic DOM and auth objects.
-function fixture({user=null,language='ja',logoutFlow=true}={}){
-  const calls=[],timers=[],observers=[],storage=new Map([['app_lang',language]]);let document;
+function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true}={}){
+  const calls=[],timers=[],observers=[],storage=new Map([['app_lang',language]]);let document,clock=0;
   const dataKey=key=>key.slice(5).replace(/-([a-z])/g,(_,letter)=>letter.toUpperCase());
   function matches(node,selector){
     if(selector.includes(':has(')){const found=selector.match(/:has\(([^)]+)\)/);if(!found||!node.querySelector(found[1]))return false;selector=selector.replace(found[0],'');}
@@ -65,19 +65,21 @@ function fixture({user=null,language='ja',logoutFlow=true}={}){
   for(const id of ['knHomeAMenu','knFloatHam','hamburgerBtn'])add('button',{id});
   const mounted=[];
 
-  for(const act of ['morning','shorts','talk','pet','mypage'])add('button',{class:'bn-item','data-act':act}).onclick=()=>calls.push(['bottom',act]);
+  for(const act of ['morning','shorts','talk','pet','mypage'])add('button',{class:'bn-item','data-act':act}).onclick=()=>{calls.push(['bottom',act]);if(act==='mypage'&&mypageAllowed)mypage.classList.add('open');};
   add('div',{id:'morning-news-content'});const stock=add('div',{id:'knTabWrap'});add('button',{'data-kn-tab':'div_cal'},stock).onclick=()=>calls.push(['tab','div_cal']);
   const mypage=add('div',{id:'myPageOv'});for(let i=0;i<2;i++)add('button',{class:'mp-toptab'},mypage).onclick=()=>calls.push(['mypage-tab',i]);
   add('button',{class:'mo-tab','data-i18n':'g2_mp_tab_memo'},mypage).onclick=()=>calls.push(['memo-tab']);
-  const w={knUser:user,KNUserProfile:{mount(panel){const section=add('details',{id:'knProfile'},panel);add('summary',{},section).textContent='プロフィール';mounted.push(panel);return section;}},dsSetSize:value=>{storage.set('ui_fontscale',value);calls.push(['size',value]);},dsSetFont:value=>{storage.set('ui_font',value);calls.push(['font',value]);},dsReset:()=>calls.push(['reset']),closeDrawer:()=>calls.push(['close']),__knSetSub:value=>calls.push(['stock-view',value]),matchMedia:()=>({matches:false})};
+  const w={knUser:user,KNUserProfile:{mount(panel){const section=add('details',{id:'knProfile'},panel);add('summary',{},section).textContent='プロフィール';mounted.push(panel);return section;}},dsSetSize:value=>{storage.set('ui_fontscale',value);calls.push(['size',value]);},dsSetFont:value=>{storage.set('ui_font',value);calls.push(['font',value]);},dsReset:()=>calls.push(['reset']),closeDrawer:()=>{calls.push(['close']);drawer.classList.remove('open');},__knSetSub:value=>calls.push(['stock-view',value]),matchMedia:()=>({matches:false})};
   for(const [key,name]of Object.entries({openSimulatorSection:'sim',openSaved:'saved',openAlertSection:'alert',openBeginnerGuide:'guide'}))w[key]=()=>calls.push(['open',name]);
   if(logoutFlow)w.knLogoutFlow=()=>calls.push(['logout-flow']);
-  const context={window:w,document,localStorage:{getItem:key=>storage.get(key)||null},setTimeout:fn=>{timers.push(fn);return timers.length;},MutationObserver:class{constructor(fn){this.fn=fn;observers.push(this);}observe(target,options){this.target=target;this.options=options;}},console};
+  const context={window:w,document,localStorage:{getItem:key=>storage.get(key)||null},setTimeout:(fn,delay=0)=>{timers.push({fn,at:clock+delay,delay});return timers.length;},MutationObserver:class{constructor(fn){this.fn=fn;observers.push(this);}observe(target,options){this.target=target;this.options=options;}},console};
   vm.runInNewContext(read('static/menu-a.js'),context);
-  function flush(){for(let budget=20;timers.length;){assert.ok(budget-->0,'Unexpected repeated menu scheduling');timers.shift()();}}
+  function flush(){for(let budget=20;timers.length;){assert.ok(budget-->0,'Unexpected repeated menu scheduling');timers.sort((a,b)=>a.at-b.at);const next=timers.shift();clock=Math.max(clock,next.at);next.fn();}}
+  function advance(ms){const end=clock+ms;for(let budget=20;;){timers.sort((a,b)=>a.at-b.at);if(!timers.length||timers[0].at>end)break;assert.ok(budget-->0,'Unexpected repeated menu scheduling');const next=timers.shift();clock=next.at;next.fn();}clock=end;}
+  function route(key){const b=node('button');b.dataset.menuPage=key;nav.appendChild(b);b.click();b.remove();}
   flush();
-  return {w,document,drawer,nav,calls,storage,flush,node,mounted,colors,languageGrid,motion,custom,colorReset,notifyDrawerState(){observers.find(o=>o.target===drawer).fn();},notifyNav(){observers.find(o=>o.target===nav).fn();},group:()=>document.getElementById('knMenuLogoutGroup'),button:key=>nav.querySelector('[data-menu-page="'+key+'"]'),activate(key,{nested=false}={}){const b=nav.querySelector('[data-menu-page="'+key+'"]');assert.ok(b,key+' menu row exists');(nested?b.querySelector('span'):b).click();flush();},
-    navigate(key){const b=node('button');b.dataset.menuPage=key;nav.appendChild(b);b.click();b.remove();flush();},
+  return {w,document,drawer,nav,calls,storage,flush,advance,route,now:()=>clock,pendingTimers:()=>timers.map(t=>t.delay),setMypageAllowed(value){mypageAllowed=value;},node,mounted,colors,languageGrid,motion,custom,colorReset,notifyDrawerState(){observers.find(o=>o.target===drawer).fn();},notifyNav(){observers.find(o=>o.target===nav).fn();},group:()=>document.getElementById('knMenuLogoutGroup'),button:key=>nav.querySelector('[data-menu-page="'+key+'"]'),activate(key,{nested=false}={}){const b=nav.querySelector('[data-menu-page="'+key+'"]');assert.ok(b,key+' menu row exists');(nested?b.querySelector('span'):b).click();flush();},
+    navigate(key){route(key);flush();},
     useConfirmation(){
       const html=read('index.html'),marker='(function(){window.knLogoutFlow=function(){',start=html.indexOf(marker);assert.ok(start>=0,'Existing confirmation IIFE exists');const end=html.indexOf('})();',start);assert.ok(end>start);
       let signouts=0,reloads=0;w.sb={auth:{signOut(){signouts++;return Promise.resolve();}}};context.location={reload(){reloads++;}};
@@ -91,7 +93,7 @@ test('logout exists once at the end of the hamburger menu and the old personal-p
   const h=fixture({user:{id:'synthetic-member',is_anonymous:false}}),group=h.group();
   assert.ok(group);assert.equal(group.parentElement.className,'knAccPanel kn-menu-content');assert.equal(group.parentElement.children.at(-1),group);
   assert.equal(h.nav.querySelectorAll('[data-menu-page="logout"]').length,1);assert.equal(h.button('logout').textContent,'ログアウト');assert.equal(group.hidden,false);
-  const html=read('index.html');assert.doesNotMatch(html,/ensureLogout|knLogoutBtn/);assert.match(html,/menu-a\.js\?v=20261022-style-remove3/);
+  const html=read('index.html');assert.doesNotMatch(html,/ensureLogout|knLogoutBtn/);assert.match(html,/menu-a\.js\?v=20261024-fast-nav1/);
 });
 test('signed-out and guest users cannot invoke logout even through a programmatic menu click',()=>{
   for(const user of [null,undefined,{id:'synthetic-guest',is_anonymous:true}]){
@@ -142,6 +144,57 @@ const destinations={
 };
 for(const [key,expected]of Object.entries(destinations))test('existing '+key+' navigation retains its destination and arguments',()=>{
   const h=fixture({user:{id:'synthetic-member'}});h.navigate(key);assert.deepEqual(h.calls,[['close'],...expected]);
+});
+
+test('every route runs in the activation event after closing the drawer, without animation timers',()=>{
+  for(const [key,expected]of Object.entries(destinations)){
+    const h=fixture({user:{id:'synthetic-member'}}),at=h.now();h.route(key);
+    assert.deepEqual(h.calls,[['close'],...expected],key+' must respond before advancing the clock');
+    assert.equal(h.now(),at);assert.deepEqual(h.pendingTimers(),[],key+' must not leave a deferred navigation');
+    h.advance(1000);assert.deepEqual(h.calls,[['close'],...expected],key+' must not replay a route after animation');
+  }
+});
+test('household and memo select their prepared panel immediately while storage restoration stays on its own path',()=>{
+  for(const key of ['kakeibo','memo']){
+    const h=fixture({user:{id:'synthetic-member'}}),settings=[...h.storage];
+    Object.defineProperty(h.w,'__knGateReady',{get(){throw new Error('The existing personal-page route owns protected restoration');}});
+    h.route(key);
+    assert.deepEqual(h.calls,[['close'],...destinations[key]]);assert.equal(h.document.getElementById('myPageOv').classList.contains('open'),true);
+    assert.deepEqual([...h.storage],settings,'Navigation only selects the existing panel and never writes records');
+    assert.deepEqual(h.pendingTimers(),[]);
+  }
+});
+test('a rejected personal-page opener never selects hidden panels or applies an intent after later authentication',()=>{
+  for(const key of ['kakeibo','memo']){
+    const h=fixture({mypageAllowed:false});h.route(key);
+    assert.deepEqual(h.calls,[['close'],['bottom','mypage']]);assert.equal(h.document.getElementById('myPageOv').classList.contains('open'),false);
+    h.setMypageAllowed(true);h.advance(1000);assert.deepEqual(h.calls,[['close'],['bottom','mypage']]);
+    assert.deepEqual(h.pendingTimers(),[],'No delayed protected panel selection may survive denied auth');
+  }
+});
+test('switching routes after household selection cannot be pulled back by a delayed memo or ledger callback',()=>{
+  for(const key of ['kakeibo','memo']){
+    const h=fixture({user:{id:'synthetic-member'}});h.route(key);h.route('morning');const calls=h.calls.slice();
+    assert.deepEqual(calls,[['close'],...destinations[key],['close'],...destinations.morning]);
+    h.advance(2000);assert.deepEqual(h.calls,calls);assert.deepEqual(h.pendingTimers(),[]);
+  }
+});
+test('synchronous close finishes focus restoration before routing and its late observer cannot steal destination focus',()=>{
+  const h=fixture(),opener=h.document.getElementById('knHomeAMenu'),destination=h.node('h2');h.document.body.appendChild(destination);
+  h.drawer.classList.remove('open');h.notifyDrawerState();opener.focus();h.drawer.classList.add('open');h.notifyDrawerState();
+  h.w.openBeginnerGuide=()=>{h.calls.push(['open','guide']);destination.focus();};
+  h.route('guide');assert.equal(h.drawer.inert,true);assert.equal(h.drawer.getAttribute('aria-hidden'),'true');
+  assert.equal(opener.getAttribute('aria-expanded'),'false');assert.equal(h.document.activeElement,destination);
+  h.notifyDrawerState();h.advance(1000);assert.equal(h.document.activeElement,destination);
+  assert.deepEqual(h.calls,[['close'],['open','guide']]);
+});
+test('an explicit close without navigation still restores the existing opener once',()=>{
+  const h=fixture(),opener=h.document.getElementById('knFloatHam');
+  h.drawer.classList.remove('open');h.notifyDrawerState();opener.focus();h.drawer.classList.add('open');h.notifyDrawerState();
+  h.drawer.querySelector('.kn-menu-close').click();assert.equal(h.document.activeElement,opener);assert.equal(h.drawer.inert,true);
+  const elsewhere=h.node('button');h.document.body.appendChild(elsewhere);elsewhere.focus();h.notifyDrawerState();
+  assert.equal(h.document.activeElement,elsewhere,'a duplicate close notification cannot steal later focus');
+  assert.deepEqual(h.calls,[['close']]);
 });
 
 test('compact menu has only the selected primary rows and hides preference panels until requested',()=>{

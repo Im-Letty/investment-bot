@@ -289,9 +289,22 @@ class StartupAssetsTests(unittest.TestCase):
             def __init__(self):
                 super().__init__()
                 self.scripts = []
+                self.styles = []
+                self.local_resources = []
+                self.inline_style = False
 
             def handle_starttag(self, tag, attrs):
                 values = dict(attrs)
+                if tag == 'style':
+                    self.inline_style = True
+                if tag == 'link' and values.get('rel') == 'stylesheet':
+                    match = re.fullmatch(r'/static/([a-zA-Z0-9_.-]+\.css)(?:\?v=[a-zA-Z0-9_.-]+)?', values.get('href', ''))
+                    if match:
+                        self.local_resources.append(values['href'])
+                        if not self.inline_style:
+                            self.styles.append(match[1])
+                if tag == 'script' and values.get('src', '').startswith('/static/'):
+                    self.local_resources.append(values['src'])
                 if tag == 'script' and len(values) == len(attrs) and set(values) == {'defer', 'src'}:
                     match = re.fullmatch(r'/static/([a-zA-Z0-9_.-]+\.js)(?:\?v=[a-zA-Z0-9_.-]+)?', values['src'])
                     if match:
@@ -299,6 +312,28 @@ class StartupAssetsTests(unittest.TestCase):
 
         references = References()
         references.feed(head)
+        bundled_references = References()
+        bundled_references.feed(transformed.split('</head>', 1)[0])
+        # Test the real entry point too: an early inline style or an orphan
+        # script attribute can silently disable the otherwise-safe optimizer.
+        self.assertEqual(len(references.local_resources), 71)
+        self.assertEqual(len(bundled_references.local_resources), 6)
+        self.assertEqual(len(references.styles), 28)
+        self.assertEqual(bundles['css'], b'\n'.join(
+            (ROOT / 'static' / name).read_bytes() for name in references.styles))
+        self.assertLess(transformed.index('startup-css-'), transformed.index('<style id="knBrowserSurface">'))
+        self.assertLess(transformed.index('<style id="knBrowserSurface">'), transformed.index('    <style>'))
+        # The early palette, navigation gate, and guest bootstrap keep their
+        # original execution order; inline scripts/styles keep exact contents.
+        markers = ('KN_BROWSER_SURFACE', 'window.__KN_HOME_A=true',
+                   'id="pet-entry-navigation"', '/static/guest-access.js?', 'startup-js-')
+        offsets = [transformed.index(marker) for marker in markers]
+        self.assertEqual(offsets, sorted(offsets))
+        inline_scripts = r'<script\b(?![^>]*\bsrc=)[^>]*>.*?</script\s*>'
+        self.assertEqual(re.findall(inline_scripts, head, re.DOTALL),
+                         re.findall(inline_scripts, transformed.split('</head>', 1)[0], re.DOTALL))
+        self.assertEqual(re.findall(r'<style\b[^>]*>.*?</style\s*>', head, re.DOTALL),
+                         re.findall(r'<style\b[^>]*>.*?</style\s*>', transformed.split('</head>', 1)[0], re.DOTALL))
         scripts = references.scripts
         self.assertGreaterEqual(len(scripts), 30)
         self.assertEqual(bundles['js'].count(b'catch (error) { setTimeout(function () { throw error; }, 0); }'), len(scripts))
@@ -321,7 +356,8 @@ class StartupAssetsTests(unittest.TestCase):
         self.assertTrue(b'.ks-edit-modal' in bundles['css'])
         self.assertEqual(transformed.count('startup-css-'), 1)
         self.assertIn('/static/menu-a.css?', transformed)
-        self.assertIn('/static/stock-watch.js?', transformed)
+        self.assertIn('stock-watch.js', scripts)
+        self.assertNotIn('/static/stock-watch.js?', transformed)
         self.assertIn('/static/guest-access.js?', transformed)
         self.assertIn('/static/menu-a.js?', transformed)
         self.assertIn('fonts.googleapis.com/css2?', transformed)

@@ -1,7 +1,7 @@
 /* Compact bottom menu. Keep destinations and saved preferences on their existing paths. */
 (function () {
   'use strict';
-  var drawer, nav, lastOpener, mainPanel, backButton, currentView='main', wasOpen=false;
+  var drawer, nav, lastOpener, mainPanel, backButton, syncDrawerState, currentView='main', wasOpen=false;
   var views=Object.create(null), viewTriggers=Object.create(null);
   var copy = {
     ja: {menu:'メニュー',back:'戻る',close:'閉じる',frequent:'よく使うもの',news:'経済ニュース',stocks:'今日の銘柄',favorites:'お気に入り',calendar:'カレンダー',color:'カラー',resetColor:'元の色に戻す',original:'これまでの機能',morning:'朝の相場レター',sim:'シミュレーター',shorts:'ショート',saved:'保存した動画',talk:'トーク',kakeibo:'家計簿',memo:'メモ',alert:'急騰アラート',guide:'はじめてガイド',pet:'育成ゲーム',display:'表示設定',size:'文字の大きさ',font:'字体',small:'小',medium:'中',large:'大',largest:'特大',gothic:'ゴシック',round:'丸ゴシック',mincho:'明朝',klee:'かわいい',pop:'かっこいい',reset:'標準に戻す',style:'説明のスタイル',beginner:'かんたん解説',pro:'しっかり解説',account:'マイページ',language:'言語',logout:'ログアウト'},
@@ -36,7 +36,12 @@
     ['knHomeAMenu','knFloatHam','hamburgerBtn'].forEach(function(id){var opener=document.getElementById(id);if(opener){opener.setAttribute('aria-controls','sideDrawer');opener.setAttribute('aria-haspopup','dialog');opener.setAttribute('aria-expanded',String(open));}});
   }
   function bn(act) { var b=document.querySelector('.bn-item[data-act="'+act+'"]');if(b)b.click(); }
-  function close() { if(window.closeDrawer)window.closeDrawer(); }
+  function close() {
+    if(window.closeDrawer)window.closeDrawer();
+    // Finish this close before a destination takes focus. The later observer
+    // sees the same state and must not move focus back from the new screen.
+    if(drawer&&!drawer.classList.contains('open')&&syncDrawerState)syncDrawerState();
+  }
   function openHome() { bn('morning'); }
   function scrollToNode(node) { if(node)node.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'}); }
   function canLogout() { return !!(window.knUser && !window.knUser.is_anonymous); }
@@ -52,25 +57,29 @@
       return;
     }
     close();
-    setTimeout(function () {
-      if(key==='news'){openHome();scrollToNode(document.getElementById('morning-news-content'));}
-      else if(key==='stocks'||key==='favorites'||key==='calendar'){
-        openHome();
-        if(key==='calendar'){var c=document.querySelector('#knTabWrap [data-kn-tab="div_cal"]');if(c)c.click();}
-        else if(window.__knSetSub)window.__knSetSub(key==='favorites'?'watch':'movers');
-        scrollToNode(document.getElementById('knTabWrap'));
-      }
-      else if(key==='morning')openHome();
-      else if(key==='shorts'||key==='talk'||key==='pet')bn(key);
-      else if(key==='sim'&&window.openSimulatorSection)window.openSimulatorSection();
-      else if(key==='saved'&&window.openSaved)window.openSaved();
-      else if(key==='alert'&&window.openAlertSection)window.openAlertSection();
-      else if(key==='guide'&&window.openBeginnerGuide)window.openBeginnerGuide();
-      else if(key==='account'||key==='kakeibo'||key==='memo'){
-        bn('mypage');
-        if(key!=='account')setTimeout(function(){var ov=document.getElementById('myPageOv');if(!ov)return;var tabs=ov.querySelectorAll('.mp-toptab'),tab=tabs[key==='kakeibo'?1:0];if(tab)tab.click();if(key==='memo'){var memo=ov.querySelector('.mo-tab[data-i18n="g2_mp_tab_memo"]');if(memo)memo.click();}},300);
-      }
-    },250);
+    // Route in this event; the closing drawer can finish its own CSS transition.
+    if(key==='news'){openHome();scrollToNode(document.getElementById('morning-news-content'));}
+    else if(key==='stocks'||key==='favorites'||key==='calendar'){
+      openHome();
+      if(key==='calendar'){var c=document.querySelector('#knTabWrap [data-kn-tab="div_cal"]');if(c)c.click();}
+      else if(window.__knSetSub)window.__knSetSub(key==='favorites'?'watch':'movers');
+      scrollToNode(document.getElementById('knTabWrap'));
+    }
+    else if(key==='morning')openHome();
+    else if(key==='shorts'||key==='talk'||key==='pet')bn(key);
+    else if(key==='sim'&&window.openSimulatorSection)window.openSimulatorSection();
+    else if(key==='saved'&&window.openSaved)window.openSaved();
+    else if(key==='alert'&&window.openAlertSection)window.openAlertSection();
+    else if(key==='guide'&&window.openBeginnerGuide)window.openBeginnerGuide();
+    else if(key==='account'||key==='kakeibo'||key==='memo'){
+      bn('mypage');
+      // The existing opener owns auth and record restoration. Select only an
+      // already-open page, without a timer that could outlive another route.
+      var ov=document.getElementById('myPageOv');
+      if(key==='account'||!ov||!ov.classList.contains('open'))return;
+      var tabs=ov.querySelectorAll('.mp-toptab'),tab=tabs[key==='kakeibo'?1:0];if(tab)tab.click();
+      if(key==='memo'){var memo=ov.querySelector('.mo-tab[data-i18n="g2_mp_tab_memo"]');if(memo)memo.click();}
+    }
   }
   function syncPreferences() {
     if(!drawer)return;
@@ -116,7 +125,8 @@
     drawer.addEventListener('click',function(){syncPreferences();});
     var observer=new MutationObserver(function(){Array.from(nav.children).forEach(function(n){if(n!==panel&&Object.keys(views).every(function(key){return views[key]!==n;}))n.remove();});});observer.observe(nav,{childList:true});
     wasOpen=drawer.classList.contains('open');
-    var stateObserver=new MutationObserver(function(){var open=drawer.classList.contains('open');drawer.inert=!open;drawer.setAttribute('aria-hidden',String(!open));syncOpeners(open);if(open===wasOpen)return;wasOpen=open;if(open){lastOpener=document.activeElement;showView('main',false);header.querySelector('.kn-menu-close').focus({preventScroll:true});}else if(lastOpener&&lastOpener.isConnected)lastOpener.focus({preventScroll:true});});stateObserver.observe(drawer,{attributes:true,attributeFilter:['class']});
+    syncDrawerState=function(){var open=drawer.classList.contains('open');drawer.inert=!open;drawer.setAttribute('aria-hidden',String(!open));syncOpeners(open);if(open===wasOpen)return;wasOpen=open;if(open){lastOpener=document.activeElement;showView('main',false);header.querySelector('.kn-menu-close').focus({preventScroll:true});}else if(lastOpener&&lastOpener.isConnected)lastOpener.focus({preventScroll:true});};
+    var stateObserver=new MutationObserver(syncDrawerState);stateObserver.observe(drawer,{attributes:true,attributeFilter:['class']});
     drawer.inert=!wasOpen;drawer.setAttribute('aria-hidden',String(drawer.inert));syncOpeners(wasOpen);
     drawer.addEventListener('keydown',function(e){if(e.key==='Escape'){e.preventDefault();close();}if(e.key==='Tab'){var focusable=Array.from(drawer.querySelectorAll('button,select,input,textarea,summary,a[href]')).filter(function(n){return !n.disabled&&n.getClientRects().length;});var first=focusable[0],last=focusable[focusable.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
     translate();syncAccount();document.addEventListener('knAuthChange',syncAccount);document.addEventListener('langChanged',translate);document.addEventListener('styleChanged',syncPreferences);
