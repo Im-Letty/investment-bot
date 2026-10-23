@@ -32,6 +32,7 @@ class Element {
   appendChild(child) { child.parentNode = this; this.children.push(child); return child; }
   setAttribute(name, value) { this.attributes[name] = String(value); }
   getAttribute(name) { return this.attributes[name] ?? null; }
+  removeAttribute(name) { delete this.attributes[name]; }
   remove() {
     if (this.parentNode) this.parentNode.children = this.parentNode.children.filter(child => child !== this);
   }
@@ -42,7 +43,7 @@ function loaderFixture(options = {}) {
   const pane = new Element('section'); pane.hidden = true;
   pane.roomEditing = false; pane.villageEditing = false;
   pane.querySelector = selector => selector === '.ipg-room-editor' && pane.roomEditing || selector === '.ipg-village-editor' && pane.villageEditing ? {} : null;
-  const host = new Element(), focus = new Element('button');
+  const host = new Element(), focus = new Element('button'), petButton = new Element('button');
   const scripts = [], listeners = { document: {}, window: {} }, timers = new Map();
   let timerId = 0, mounts = 0, closes = 0, reloads = 0, recordCloses = 0, received;
   const record = { open: !!options.recordOpen, classList: { contains: () => record.open } };
@@ -57,6 +58,7 @@ function loaderFixture(options = {}) {
   const document = {
     activeElement: focus,
     getElementById: id => id === 'sect-pet' ? pane : id === 'pet-game-root' ? host : id === 'mrOv' ? record : null,
+    querySelector: () => petButton,
     createElement: tag => new Element(tag),
     addEventListener: (name, fn) => { (listeners.document[name] ||= []).push(fn); },
     head: { appendChild: script => { scripts.push(script); } }
@@ -77,7 +79,7 @@ function loaderFixture(options = {}) {
   });
   vm.runInContext(loader, context);
   return {
-    window, document, pane, host, focus, scripts, timers, listeners, ui, context,
+    window, document, pane, host, focus, petButton, scripts, timers, listeners, ui, context,
     get mounts() { return mounts; }, get closes() { return closes; }, get received() { return received; },
     get reloads() { return reloads; }, get recordCloses() { return recordCloses; }, record,
     asset(name) { return scripts.findLast(script => script.src.includes('/' + name + '.js?')); },
@@ -195,7 +197,9 @@ test('UI downloads after core without waiting for optional visuals; concurrent o
   assert.equal(f.scripts.length, 0); assert.equal(f.mounts, 0);
   const first = f.window.openPetTab(), second = f.window.openPetTab();
   assert.equal(first, second);
-  assert.equal(f.pane.hidden, false); assert.equal(f.scripts.length, 3);
+  assert.equal(f.pane.hidden, true, 'do not show the old check-in/loading screen'); assert.equal(f.scripts.length, 3);
+  assert.equal(f.petButton.getAttribute('aria-busy'), 'true');
+  assert.doesNotMatch(f.host.textContent, /ゲームを読み込んでいます/);
   assert.match(f.scripts[0].src, /pet-game-core\.js/);
   assert.match(f.scripts[1].src, /pet-lilac-motion\.js/);
   assert.match(f.scripts[2].src, /pet-room-behavior\.js/);
@@ -204,6 +208,7 @@ test('UI downloads after core without waiting for optional visuals; concurrent o
   f.uiLoaded(); await flush(); assert.equal(f.mounts, 0, 'mount still allows optional visuals to become ready');
   f.motionLoaded(); f.roomLoaded(); assert.equal(await first, true);
   assert.equal(f.mounts, 1); assert.equal(f.received.target, f.host);
+  assert.equal(f.pane.hidden, false); assert.equal(f.petButton.getAttribute('aria-busy'), null);
   assert.equal(await f.window.openPetTab(), true);
   assert.equal(f.mounts, 1, 'already-visible game is not rebuilt during an active minigame');
   f.window.closePetTab(); assert.equal(f.pane.hidden, true); assert.equal(f.focus.focused, true);

@@ -62,6 +62,25 @@
 })();
 </script>
 <script>window.__KN_HOME_A=true;</script>
+<script id="pet-entry-navigation">
+(function(){
+  if(window.knCommitPetNavigation)return;
+  var replaying=false;
+  window.knCommitPetNavigation=function(){
+    var button=document.querySelector('#knBottomNav .bn-item[data-act="pet"]');
+    if(!button)return;
+    replaying=true;
+    try{button.click();}finally{replaying=false;}
+  };
+  // Keep the current screen intact before other capture handlers close it.
+  document.addEventListener('click',function(event){
+    var button=event.target&&typeof event.target.closest==='function'?event.target.closest('#knBottomNav .bn-item[data-act="pet"]'):null;
+    if(!button||replaying||typeof window.openPetTab!=='function')return;
+    event.preventDefault();event.stopImmediatePropagation();
+    window.openPetTab();
+  },true);
+})();
+</script>
 <script src="/static/guest-access.js?v=20261012-guest1"></script>
 <link rel="stylesheet" href="/static/home-a.css?v=20261013-news-gothic1">
 <link rel="stylesheet" href="/static/market-carousel.css?v=20261011-six1">
@@ -4452,33 +4471,42 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
     }
   };
   var legacy={getItem:function(key){return window.__knReadGameStorage(key);}};
+  function entryBusy(busy){
+    var button=document.querySelector('#knBottomNav .bn-item[data-act="pet"]');
+    if(button){if(busy)button.setAttribute('aria-busy','true');else button.removeAttribute('aria-busy');}
+  }
+  function reveal(pane,ready){
+    viewReady=ready;pane.hidden=false;
+    if(typeof window.knCommitPetNavigation==='function')window.knCommitPetNavigation();
+    // Hidden preparation skips motion work; render once in the visible layout.
+    if(ready&&typeof window.IndependentPetGame.render==='function')window.IndependentPetGame.render();
+  }
   window.openPetTab=function(){
     var pane=section();if(!pane)return Promise.resolve(false);
-    if(!pane.hidden&&openLoading)return openLoading;
+    if(openLoading)return openLoading;
     if(!pane.hidden&&viewReady)return Promise.resolve(true);
     if(pane.hidden)returnFocus=document.activeElement;
-    pane.hidden=false;
     var epoch=++generation;viewReady=false;
-    notice(false);
+    entryBusy(true);
     openLoading=(async function(){
       try{
         await Promise.all([loadModules(),window.__knGateReady]);
-        if(epoch!==generation||pane.hidden)return false;
+        if(epoch!==generation)return false;
         if(!window.__knGateReady||typeof window.__knReadGameStorage!=='function'||typeof window.__knPersistLocalSetting!=='function')throw new Error('Game storage unavailable');
         var mounted=await window.IndependentPetGame.mount(host(),{storage:storage,legacy:legacy});
-        if(epoch!==generation||pane.hidden){if(pane.hidden)await window.IndependentPetGame.close();return false;}
-        if(mounted===false)return false;
-        viewReady=true;return true;
+        if(epoch!==generation)return false;
+        reveal(pane,mounted!==false);
+        return mounted!==false;
       }catch(error){
-        if(epoch===generation&&!pane.hidden)notice(true,error);
+        if(epoch===generation){notice(true,error);reveal(pane,false);}
         return false;
-      }finally{if(epoch===generation)openLoading=null;}
+      }finally{if(epoch===generation){openLoading=null;entryBusy(false);}}
     })();
     return openLoading;
   };
   window.closePetTab=function(restoreFocus){
     var pane=section();if(!pane)return;
-    var wasOpen=!pane.hidden;pane.hidden=true;generation++;openLoading=null;viewReady=false;
+    var wasOpen=!pane.hidden;pane.hidden=true;generation++;openLoading=null;viewReady=false;entryBusy(false);
     if(wasOpen&&typeof window.mrClose==='function')window.mrClose();
     if(window.IndependentPetGame&&typeof window.IndependentPetGame.close==='function'){
       try{Promise.resolve(window.IndependentPetGame.close()).catch(function(){});}catch(error){}
@@ -4491,7 +4519,8 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
     if(button.getAttribute('data-act')==='pet')window.openPetTab();else window.closePetTab(false);
   },true);
   document.addEventListener('keydown',function(event){
-    var pane=section();if(event.key!=='Escape'||!pane||pane.hidden)return;
+    var pane=section();if(event.key!=='Escape'||!pane)return;
+    if(pane.hidden){if(openLoading)window.closePetTab(false);return;}
     if(pane.querySelector('.ipg-room-editor')||pane.querySelector('.ipg-village-editor'))return;
     var record=document.getElementById('mrOv');
     if(record&&record.classList.contains('on')&&typeof window.mrClose==='function')window.mrClose();
