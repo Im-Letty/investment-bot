@@ -1438,7 +1438,7 @@
     function editorActive() { return !!editing && villageEdit === editing && !busy && !suspended && village.isConnected; }
     append(village, node('h3', '', editing ? '村の配置を変える' : 'カフェとお店の村'));
     var viewport = node('div', 'ipg-village-viewport'); viewport.tabIndex = 0;
-    viewport.setAttribute('role', 'region'); viewport.setAttribute('aria-label', '村の地図。小さい画面では横に動かして見渡せます');
+    viewport.setAttribute('role', 'region'); viewport.setAttribute('aria-label', '村の地図。指や矢印キーで動かして見渡せます');
     var map = node('div', 'ipg-village-map'); map.setAttribute('role', 'group'); map.setAttribute('aria-label', 'カフェとお店の村');
     var square = node('span', 'ipg-village-square'); square.setAttribute('aria-hidden', 'true'); map.appendChild(square);
     drawVillageRoads(map, layout);
@@ -1474,7 +1474,7 @@
       map.appendChild(place);
     });
     viewport.appendChild(map); village.appendChild(viewport);
-    village.appendChild(text('建物をタップして入れます。小さい画面では、指で横に動かして村を見渡せます。', 'ipg-small ipg-village-hint'));
+    village.appendChild(text('建物をタップして入れます。指や矢印キーで動かして村を見渡せます。', 'ipg-small ipg-village-hint'));
     if (editing) {
       var controls = node('div', 'ipg-village-controls'), selected = layout.items.filter(function (row) { return row.id === editing.selected; })[0];
       controls.appendChild(text('動かす建物や木を選び、位置を調節してください。配置の変更にコインは使いません。', 'ipg-small'));

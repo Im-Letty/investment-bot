@@ -90,3 +90,30 @@
   .ipg-cafe-art img{width:65px;height:64px}
 }
 @media(prefers-reduced-motion:reduce){.ipg-village-place{transition:none}}
+
+/* The village is the game surface; controls float above it instead of shrinking it. */
+#pet-game-root>.ipg-view-village:has(.ipg-village:not(.ipg-village-editor)){
+  position:fixed;inset:0;isolation:isolate;max-width:none;margin:0;padding:0!important;overflow:hidden;
+}
+.ipg-view-village:has(.ipg-village:not(.ipg-village-editor))>.ipg-body{position:absolute;inset:0;display:block;z-index:0}
+.ipg-view-village .ipg-village:not(.ipg-village-editor){position:absolute;inset:0;padding:0;border:0;border-radius:0;background:transparent}
+.ipg-view-village .ipg-village:not(.ipg-village-editor)>h3{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.ipg-village:not(.ipg-village-editor)>.ipg-village-viewport{position:absolute;inset:0;max-width:none;margin:0;border-radius:0;overscroll-behavior:contain}
+.ipg-village:not(.ipg-village-editor) .ipg-village-map{width:max(100%,150vh);width:max(100%,150dvh);min-width:0;min-height:100%;aspect-ratio:3/2;border-radius:0}
+.ipg-view-village:has(.ipg-village:not(.ipg-village-editor))>.ipg-header{position:absolute;top:max(12px,env(safe-area-inset-top,0px));right:max(12px,env(safe-area-inset-right,0px));z-index:3;margin:0;max-width:140px}
+.ipg-view-village:has(.ipg-village:not(.ipg-village-editor))>.ipg-header>:not(.ipg-wallet){display:none}
+.ipg-view-village:has(.ipg-village:not(.ipg-village-editor))>.ipg-tabs{position:absolute;top:calc(72px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);z-index:3;display:flex;gap:4px;width:max-content;max-width:calc(100% - 24px);margin:0;padding:5px;border:1px solid var(--ipg-line);border-radius:24px;background:var(--ipg-paper);overflow-x:auto;overscroll-behavior:contain}
+.ipg-view-village:has(.ipg-village:not(.ipg-village-editor))>.ipg-tabs .ipg-button{flex:0 0 auto;width:auto;min-width:44px;padding:8px 12px;font-size:.9em}
+.ipg-view-village:has(.ipg-village:not(.ipg-village-editor))>.ipg-tabs .is-active{background:var(--ipg-bg);color:var(--ipg-ink);border-color:var(--ipg-line)}
+.ipg-view-village:has(.ipg-village:not(.ipg-village-editor))>.ipg-notice:not(:empty),.ipg-view-village:has(.ipg-village:not(.ipg-village-editor))>.ipg-error{position:absolute;left:50%;bottom:calc(160px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:4;width:max-content;max-width:calc(100% - 32px);margin:0;padding:10px 14px;border-radius:12px;background:var(--ipg-paper)}
+.ipg-village:not(.ipg-village-editor)>.ipg-village-hint{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;pointer-events:none}
+.ipg-village:not(.ipg-village-editor)>.ipg-button{position:absolute;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(96px + env(safe-area-inset-bottom,0px));z-index:3;background:var(--ipg-paper)}
+#sect-pet:has(.ipg-village:not(.ipg-village-editor)) .ipg-shell-content{padding-bottom:0;overflow:hidden}
+#sect-pet:has(.ipg-village:not(.ipg-village-editor)) .ipg-check-in{position:fixed;top:max(12px,env(safe-area-inset-top,0px));left:max(12px,env(safe-area-inset-left,0px));z-index:4;max-width:calc(100% - 172px);margin:0;padding:0}
+#sect-pet:has(.ipg-village:not(.ipg-village-editor)) #skBanner{display:flex!important;min-height:44px!important;padding:6px 10px!important;gap:8px!important}
+#sect-pet:has(.ipg-village:not(.ipg-village-editor)) #skBanner>div:not(:first-child),#sect-pet:has(.ipg-village:not(.ipg-village-editor)) #skBanner>div:first-child>div:nth-child(2)>div:first-child>span:last-child{position:absolute;width:1px;min-width:0;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+#sect-pet:has(.ipg-village:not(.ipg-village-editor)) #skBanner>div:first-child{gap:8px!important}
+@media(min-width:640px) and (max-height:480px){
+ .ipg-view-village:has(.ipg-village:not(.ipg-village-editor))>.ipg-tabs{top:max(8px,env(safe-area-inset-top,0px));max-width:calc(100% - 310px)}
+ .ipg-village:not(.ipg-village-editor)>.ipg-village-hint{display:none}
+}
