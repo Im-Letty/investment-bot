@@ -1,17 +1,16 @@
-/* Selected compact bottom menu, using the current reading theme. */
+/* Restore the previous full-height left drawer in the current reading theme. */
 #sideDrawer #knSavedMenu{display:none!important;}
-body.kn-home-a #sideDrawer.kn-menu-a{box-sizing:border-box;width:min(440px,100vw);left:0;right:auto;top:auto;bottom:0;transform:translateX(-105%);height:auto;max-height:calc(100vh - 16px);max-height:calc(100dvh - max(16px,env(safe-area-inset-top)));display:flex;flex-direction:column;padding:0;overflow:hidden;border:1px solid var(--kn-a-line);border-bottom:0;border-radius:28px 28px 0 0;transition:transform .25s ease;box-shadow:0 -10px 36px #24352d20;font-family:var(--kn-a-sans);}
+body.kn-home-a #sideDrawer.kn-menu-a{box-sizing:border-box;width:min(350px,calc(100vw - 28px));left:0;right:auto;top:0;bottom:auto;transform:translateX(-105%);height:100vh;height:100dvh;max-height:none;display:flex;flex-direction:column;padding:0;overflow:hidden;border:0;border-radius:0;transition:transform .25s ease;box-shadow:8px 0 30px #24352d20;font-family:var(--kn-a-sans);}
 body.kn-home-a #sideDrawer.kn-menu-a.open{left:0;transform:translateX(0)}
 #sideDrawer.kn-menu-a [hidden]{display:none!important}
-#sideDrawer.kn-menu-a .kn-menu-header{position:relative;display:flex;align-items:center;justify-content:flex-end;gap:12px;flex:none;min-height:56px;padding:12px 15px 0;color:var(--kn-a-ink);}
-#sideDrawer.kn-menu-a .kn-menu-header:before{content:"";position:absolute;top:10px;left:calc(50% - 18px);width:36px;height:4px;border-radius:4px;background:var(--kn-a-line);}
+#sideDrawer.kn-menu-a .kn-menu-header{position:relative;display:flex;align-items:center;justify-content:flex-end;gap:12px;flex:none;padding:18px 20px 14px;border-bottom:1px solid var(--kn-a-line);color:var(--kn-a-ink);}
 #sideDrawer.kn-menu-a .kn-menu-back{display:flex;align-items:center;gap:5px;margin-right:auto;min-height:44px;min-width:44px;padding:8px 6px;border:0;background:none;color:var(--kn-a-muted);font:400 calc(14px * var(--kn-a-scale,1))/1.5 var(--kn-a-sans);cursor:pointer;}
 #sideDrawer.kn-menu-a .kn-menu-back span{overflow-wrap:anywhere;}
 body:has(#sideDrawer.kn-menu-a.open){overflow:hidden;}
 body.kn-home-a #drawerOverlay{touch-action:none;}
 #sideDrawer.kn-menu-a .kn-menu-close{background:none;border:0;color:inherit;width:44px;height:44px;display:grid;place-items:center;cursor:pointer;flex:none;}
 #sideDrawer.kn-menu-a svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;flex:none;}
-#sideDrawer.kn-menu-a #drawerNav{flex:0 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;touch-action:pan-y;padding:0 23px max(24px,env(safe-area-inset-bottom));}
+#sideDrawer.kn-menu-a #drawerNav{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;touch-action:pan-y;padding:10px 20px max(24px,env(safe-area-inset-bottom));}
 #sideDrawer.kn-menu-a .kn-menu-content{max-height:none;overflow:visible;transition:none;}
 #sideDrawer.kn-menu-a .kn-menu-group{padding:6px 0;border-bottom:1px solid var(--kn-a-line);}
 #sideDrawer.kn-menu-a .kn-menu-group .kn-menu-row:last-child{border-bottom:0;}
