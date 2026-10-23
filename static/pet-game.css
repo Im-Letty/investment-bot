@@ -382,3 +382,11 @@ img.ipg-lilac-compact{width:80px;height:80px;animation:none}
 .ipg-room-choice-art>.ipg-room-layout-art{width:100%;height:100%}
 @media(max-width:540px){.ipg-room-layout-surface{inset:10px 8px 64px}.ipg-room-prop-window{width:94px;height:113px}.ipg-room-prop-shelf{width:100px;height:64px}.ipg-room-prop-rug{width:82%;height:85px}.ipg-room-prop-bed{width:94px;height:75px}.ipg-room-prop-bowl{width:56px;height:39px}.ipg-room-prop-toy{width:38px;height:38px}.ipg-room-prop-decoration{width:80px;height:80px}.ipg-room-layout-tools,.ipg-room-editor-actions{gap:6px}.ipg .ipg-room-editor-actions>.ipg-button{flex:1 1 auto}.ipg-room-layout-choices{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(prefers-color-scheme:dark){.ipg-room-layout-surface.is-editing{border-color:#e4d4e280}.ipg .is-editing .ipg-room-layout-prop[aria-pressed=true]{background:#fff1;box-shadow:inset 0 0 0 2px #e2d0d9}.ipg .is-editing .ipg-room-layout-prop:focus-visible{outline-color:#e2d0d9}}
+
+/* Illustrated background cards match the dimensional shop item artwork. */
+.ipg-swatch-meadow{--ipg-background-art:url('/static/pet-backgrounds-v1/meadow.webp')}
+.ipg-swatch-beach{--ipg-background-art:url('/static/pet-backgrounds-v1/beach.webp')}
+.ipg-swatch-snow{--ipg-background-art:url('/static/pet-backgrounds-v1/snow.webp')}
+.ipg-swatch-room{--ipg-background-art:url('/static/pet-backgrounds-v1/room.webp')}
+.ipg-background-swatch{background-color:#eee9d9;background-image:var(--ipg-background-art);background-size:cover;background-position:center;background-repeat:no-repeat}
+.ipg-background-swatch:before,.ipg-background-swatch:after{content:none}
