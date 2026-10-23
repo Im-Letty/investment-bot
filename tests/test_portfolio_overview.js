@@ -237,10 +237,10 @@ test('DOM target shows the same exact current total as the hero plus percentage 
  assert.match(nodeText(body.children[0]),/^目標まであと 6円$/);assert.equal(body.children[1].textContent,'達成率 40%');
  h.setPlanner(raw({version:1,goals:[],assetTarget:2}));await h.w.kkPortfolioRender();assert.match(nodeText(body.children[0]),/^目標を上回った金額 2円$/);assert.match(nodeText(body),/200%/);assert.equal(body.children.find(n=>n.getAttribute('role')==='progressbar').getAttribute('aria-valuenow'),'100');
 });
-test('an empty restored asset list is zero progress and an exact target match announces achievement',async()=>{
+test('an empty restored asset list is zero progress and an exact target match shows progress without an achievement message',async()=>{
  const empty=domFixture([]);await empty.flush();empty.setPlanner(raw({version:1,goals:[],assetTarget:10}));await empty.w.kkPortfolioRender();const body=empty.nodes.get('poGoalBody');
  assert.equal(empty.nodes.get('totalAssetVal').textContent,'0円');assert.match(nodeText(body),/目標まであと 10円.*0%.*現在 0円.*目標 10円/);
- const exact=domFixture([{amount:.1},{amount:.2}]);await exact.flush();exact.setPlanner(raw({version:1,goals:[],assetTarget:.3}));await exact.w.kkPortfolioRender();assert.match(nodeText(exact.nodes.get('poGoalBody')),/目標額に到達.*100%.*現在 0.3円/);assert.match(exact.nodes.get('poGoalBody').children[0].className,/po-goal-achieved/);
+ const exact=domFixture([{amount:.1},{amount:.2}]);await exact.flush();exact.setPlanner(raw({version:1,goals:[],assetTarget:.3}));await exact.w.kkPortfolioRender();const achieved=exact.nodes.get('poGoalBody');assert.match(nodeText(achieved),/達成率 100%.*現在 0.3円.*目標 0.3円/);assert.doesNotMatch(nodeText(achieved),/目標額に到達/);assert.equal(achieved.children[0].className,'po-goal-rate');assert.equal(achieved.children.find(n=>n.getAttribute('role')==='progressbar').getAttribute('aria-valuenow'),'100');
 });
 test('DOM target saves only on submit through the existing bridge and blank clears legacy fallback',async()=>{
  const h=domFixture();await h.flush();const planner=require('../static/mypage-planner.js'),d=planner.empty();d.notes=[{id:'p',title:'保持',body:'本文',groupId:'',pinned:true}];d.goals=[{id:'old',title:'保持',details:'詳細',target:100,monthly:null,deadline:''}];d.selectedGoalId='old';d.extra={keep:true};h.setPlanner(raw(d));await h.w.kkPortfolioRender();
