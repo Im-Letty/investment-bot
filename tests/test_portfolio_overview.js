@@ -269,7 +269,7 @@ test('goal-first markup keeps one editable target and the existing independently
  assert.ok(pane.indexOf('id="poGoalBody"')<pane.indexOf('id="poGoalForm"'));
  assert.equal((pane.match(/id="poGoalAmount"/g)||[]).length,1);
  assert.equal((pane.match(/<input[^>]+>/g)||[]).filter(s=>/id="poGoal/.test(s)).length,1);
- assert.match(html,/<script defer src="\/static\/portfolio-advice\.js\?v=20261018-advice1"><\/script>/);
+  assert.match(html,/<script defer src="\/static\/portfolio-advice\.js\?v=20261024-advice-simple1"><\/script>/);
  assert.match(html,/<link rel="stylesheet" href="\/static\/portfolio-advice\.css\?v=20261018-advice1">/);
 });
 test('prominent remaining and excess values keep signed totals and exact fractional differences',async()=>{

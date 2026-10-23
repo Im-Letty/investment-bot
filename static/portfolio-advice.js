@@ -152,27 +152,16 @@
       panel.appendChild(el('p','pa-lead','今の持ち方を確認して、次に見直すことを整理しましょう。'));
       var notice=el('p','pa-notice');notice.setAttribute('role','status');panel.appendChild(notice);
       var facts=el('div','pa-facts');panel.appendChild(facts);
-      var form=el('details','pa-context'),summary=el('summary','','あなたに合わせる（任意）');form.appendChild(summary);
-      var grid=el('div','pa-fields');form.appendChild(grid);
-      function field(label,id,node){var wrap=el('label','pa-field',label);node.id=id;wrap.htmlFor=id;wrap.appendChild(node);grid.appendChild(wrap);return node;}
-      var expense=el('input');expense.type='text';expense.inputMode='decimal';expense.placeholder='例：150000';expense.autocomplete='off';
-      field('毎月必要な生活費（円）','paMonthlyExpense',expense);
-      function select(items){var n=el('select');items.forEach(function(x){var o=el('option','',x[1]);o.value=x[0];n.appendChild(o);});return n;}
-      var horizon=field('この資産を使う予定','paHorizon',select([['unknown','まだ決めていない'],['under_3','3年以内'],['3_10','3〜10年'],['over_10','10年より先']]));
-      var tolerance=field('値下がりへの考え方','paLossTolerance',select([['unknown','まだ決めていない'],['low','できるだけ避けたい'],['medium','ある程度は受け入れられる'],['high','大きな変動も受け入れられる']]));
-      form.appendChild(el('p','pa-caption','この入力は今開いている画面の分析にだけ使います。空欄は未確認として扱います。'));panel.appendChild(form);
-      var localTitle=el('h3','','確認しておきたいこと');panel.appendChild(localTitle);var checks=el('ul','pa-checks');panel.appendChild(checks);
       var ai=el('div','pa-ai');ai.appendChild(el('h3','','AIと見直す'));
       var availability=el('p','pa-caption');ai.appendChild(availability);
       var consentLabel=el('label','pa-consent'),consent=el('input');consent.type='checkbox';consentLabel.appendChild(consent);
-      consentLabel.appendChild(el('span','','18歳以上です。資産カテゴリ別の集計と上の入力をGoogle Geminiに送信して分析します。登録名やメモは送信しません。'));ai.appendChild(consentLabel);
+      consentLabel.appendChild(el('span','','18歳以上です。資産カテゴリ別の集計をGoogle Geminiに送信して分析します。登録名やメモは送信しません。'));ai.appendChild(consentLabel);
       var run=el('button','pa-run','AIで分析する');run.type='button';ai.appendChild(run);
       var output=el('div','pa-result');output.setAttribute('aria-live','polite');ai.appendChild(output);panel.appendChild(ai);pane.appendChild(panel);
-      var currentOwner='',lastState=null,badContext=false;
+      var currentOwner='';
       function money(n){return new Intl.NumberFormat('ja-JP',{maximumFractionDigits:20}).format(n)+'円';}
       function pct(n){return new Intl.NumberFormat('ja-JP',{maximumFractionDigits:1}).format(n)+'%';}
       function metric(label,value){var n=el('div','pa-metric');n.appendChild(el('span','',label));n.appendChild(el('strong','',value));facts.appendChild(n);}
-      function addCheck(text){checks.appendChild(el('li','',text));}
       var messages={
         records_unavailable:'記録を確認できませんでした。元の記録を保ったまま、再読み込みしてお試しください。',
         daily_limit:'今日のAI分析は利用済みです。同じ内容での再実行を控え、明日ご確認ください。',
@@ -185,33 +174,20 @@
       };
       function paint(state){
         var who=owner();
-        if(currentOwner!==who){currentOwner=who;expense.value='';horizon.value='unknown';tolerance.value='unknown';consent.checked=false;badContext=false;}
-        lastState=state;facts.replaceChildren();checks.replaceChildren();output.replaceChildren();
+        if(currentOwner!==who){currentOwner=who;consent.checked=false;}
+        facts.replaceChildren();output.replaceChildren();
         var f=state.facts;
-        notice.textContent=badContext?'生活費を0以上の数字で入力してください。':messages[state.error]||(state.error?'AI分析を利用できません。':state.stale?'記録が変わりました。必要に応じてもう一度分析してください。':'');
+        notice.textContent=messages[state.error]||(state.error?'AI分析を利用できません。':state.stale?'記録が変わりました。必要に応じてもう一度分析してください。':!f?'資産記録を確認しています。':!f.count?'資産を追加すると分析できます。':f.negative||f.total<=0?'分析するには、登録額をご確認ください。':'');
         notice.hidden=!notice.textContent;
-        if(!f){addCheck('非公開の資産記録を確認しています。');}
-        else if(!f.count){addCheck('資産を登録すると、配分や偏りを確認できます。');}
-        else{
+        if(f&&f.count){
           var first=f.groups[0];
           metric('登録額の合計',money(f.total));
           metric('最大のカテゴリ',first.label+(first.percent===null?'（割合未算定）':' '+pct(first.percent)));
           metric('1つの登録項目の最大割合',f.largestEntryPercent===null?'未算定':pct(f.largestEntryPercent));
-          metric('現金・預金 ÷ 毎月の生活費',f.monthsOfExpenses===null?'未確認':new Intl.NumberFormat('ja-JP',{maximumFractionDigits:1}).format(f.monthsOfExpenses)+'か月分');
-          if(f.negative||f.total<=0)addCheck('マイナスの登録額や合計0以下を含む場合は、配分割合や生活費何か月分かを算定しません。入力内容をご確認ください。');
-          else{
-            addCheck('カテゴリが分かれていても、同じ銘柄や地域への投資が重なることがあります。登録項目の中身も確認しましょう。');
-            if(f.groups.some(function(g){return g.key==='other';}))addCheck('「その他・未分類」にまとめた資産があります。流動性や値動きを個別に確認しましょう。');
-            if(state.context.horizon==='under_3')addCheck('3年以内に使う予定があるため、必要になる時期と、すぐに使える資金を確認しましょう。');
-            else if(state.context.horizon==='unknown')addCheck('使う予定の時期を入れると、短期の支出と長く置ける資金を考えやすくなります。');
-            if(state.context.loss_tolerance==='low')addCheck('値下がりを避けたいという入力があります。生活に支障が出る損失額を考え、各資産の値動きと照らし合わせましょう。');
-            if(state.context.monthly_expense===null)addCheck('毎月必要な生活費を入れると、現金・預金が何か月分に当たるかを確認できます。');
-            else if(state.context.monthly_expense===0)addCheck('生活費が0円のため、何か月分に当たるかは算定しません。');
-          }
         }
-        availability.textContent=state.ready?'分析ボタンを押したときだけ送信します。':'AI分析は準備中です。登録内容のチェックはこの画面で利用できます。';
+        availability.textContent=state.ready?'分析ボタンを押したときだけ送信します。':'AI分析は準備中です。';
         consentLabel.hidden=!state.ready;consent.disabled=!state.ready||state.busy;
-        run.disabled=!state.ready||state.busy||badContext||!consent.checked||!f||f.negative||f.total<=0;
+        run.disabled=!state.ready||state.busy||!consent.checked||!f||f.negative||f.total<=0;
         run.textContent=state.busy?'分析しています…':'AIで分析する';run.setAttribute('aria-busy',String(state.busy));
         if(state.result){
           output.appendChild(el('p','pa-generated','AIによる参考情報'));
@@ -244,12 +220,6 @@
         digest:async function(raw){var data=await w.crypto.subtle.digest('SHA-256',new TextEncoder().encode(raw));return Array.from(new Uint8Array(data),function(b){return b.toString(16).padStart(2,'0');}).join('');},
         onChange:paint
       });
-      function contextChanged(){
-        session.cancel();
-        try{var context=normaliseContext({monthly_expense:parseMonthlyExpense(expense.value),horizon:horizon.value,loss_tolerance:tolerance.value});badContext=false;session.setContext(context);paint(session.getState());}
-        catch(ignore){badContext=true;paint(session.getState());}
-      }
-      expense.addEventListener('input',contextChanged);horizon.addEventListener('change',contextChanged);tolerance.addEventListener('change',contextChanged);
       consent.addEventListener('change',function(){paint(session.getState());});
       run.addEventListener('click',function(){session.run(consent.checked);});
       w.addEventListener('knMyPageStoreChange',function(){session.refresh();});
