@@ -375,6 +375,18 @@ img.ipg-lilac-compact{width:80px;height:80px;animation:none}
 .ipg .is-editing .ipg-room-layout-prop[aria-pressed=true]{background:color-mix(in srgb,var(--ipg-paper) 32%,transparent);box-shadow:inset 0 0 0 2px var(--ipg-green)}
 .ipg .is-editing .ipg-room-layout-prop:focus-visible{outline:3px solid var(--ipg-green);outline-offset:2px}
 .ipg-room-editing .ipg-room-pet{pointer-events:none;opacity:.65;animation:none!important}
+/* Adopted 3D room keeps the existing pet and care controls in the same view. */
+.ipg-scene.ipg-care-room.ipg-cozy-care{height:auto;min-height:0;border:0;background:none;overflow:visible;isolation:auto}
+.ipg-cozy-care:after{display:none}
+.ipg-cozy-care-host{position:relative;min-height:280px}
+.ipg-cozy-care[data-cozy-ready=true]>:not(.ipg-cozy-care-host):not(.ipg-room-bubble){display:none}
+.ipg-cozy-care .room-stage .ipg-room-pet.ipg-cozy-pet{position:absolute;max-width:none;top:auto;z-index:3;object-fit:contain;transform:translateX(-50%);filter:drop-shadow(0 5px 4px #8e7d8222)}
+.ipg-cozy-care .room-stage .ipg-cozy-pet canvas.ipg-touchable{pointer-events:auto;cursor:pointer}
+.ipg-cozy-care .room-stage,.ipg-cozy-care .room-stage canvas{touch-action:pan-y pinch-zoom}
+.ipg-cozy-care .ipg-room-bubble{pointer-events:none;z-index:4}
+.ipg-cozy-care[data-cozy-unavailable=true] .ipg-cozy-care-host{min-height:0}
+.ipg-cozy-editor-card{padding:10px!important}
+.ipg-cozy-editor-card>[data-focus-key=room-cancel]{margin:8px 12px 4px}
 .ipg-room-selection{min-height:1.7em;margin:12px 0 8px!important;font-weight:600}
 .ipg-room-layout-tools,.ipg-room-editor-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:10px 0 14px}
 .ipg .ipg-room-layout-tools>.ipg-button{min-width:44px;min-height:44px;padding:8px 12px}

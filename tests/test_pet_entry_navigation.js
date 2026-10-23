@@ -63,7 +63,7 @@ function fixture({ origin = 'morning', preloaded = true, hydration, mounting } =
     async close() { closes++; },
     render() { visibleRenders.push(!pane.hidden); }
   };
-  if (preloaded) { window.PetGameCore = {}; window.IndependentPetGame = ui; }
+  if (preloaded) { window.PetGameCore = {}; window.PetCozyRoom = {mount(){}}; window.IndependentPetGame = ui; }
   const context = vm.createContext({ document, window, Promise, nav: navEl, ms: sourceView,
     setTimeout(fn, delay) { const id = ++timerId; timers.set(id, { fn, delay }); return id; }, clearTimeout(id) { timers.delete(id); } });
   function click(button) {
@@ -92,6 +92,7 @@ function fixture({ origin = 'morning', preloaded = true, hydration, mounting } =
     pagehide() { windows.filter(x => x.type === 'pagehide').forEach(x => x.fn()); },
     async loadAssets() {
       window.PetGameCore = {}; assets.findLast(x => x.src.includes('/pet-game-core.js')).onload();
+      window.PetCozyRoom = {mount(){}}; assets.findLast(x => x.src.includes('/pet-cozy-room.js')).onload();
       window.PetLilacMotion = {}; assets.findLast(x => x.src.includes('/pet-lilac-motion.js')).onload();
       window.PetRoomBehavior = {}; assets.findLast(x => x.src.includes('/pet-room-behavior.js')).onload();
       await flush(); window.IndependentPetGame = ui; assets.findLast(x => x.src.includes('/pet-game.js')).onload(); await flush();
@@ -123,10 +124,10 @@ test('all previous routes remain visible through hydration and mount; only ready
 });
 test('repeated taps share assets/mount and never replay navigation repeatedly', async () => {
   const mounting = deferred(), f = fixture({ preloaded: false, mounting });
-  f.click('pet'); f.click('pet'); const pending = f.window.openPetTab(); assert.equal(f.assets.length, 3);
+  f.click('pet'); f.click('pet'); const pending = f.window.openPetTab(); assert.equal(f.assets.length, 4);
   await f.loadAssets(); assert.equal(f.counts().mounts, 1); assert.equal(f.pane.hidden, true);
   mounting.resolve(true); assert.equal(await pending, true); f.click('pet'); await flush();
-  assert.equal(f.assets.length, 4); assert.equal(f.counts().mounts, 1); assert.deepEqual(f.commits, ['実ゲーム']);
+  assert.equal(f.assets.length, 5); assert.equal(f.counts().mounts, 1); assert.deepEqual(f.commits, ['実ゲーム']);
 });
 test('other navigation cancels downloads; late assets cannot mount or steal the selected route', async () => {
   const f = fixture({ preloaded: false }); f.click('pet'); const pending = f.window.openPetTab();

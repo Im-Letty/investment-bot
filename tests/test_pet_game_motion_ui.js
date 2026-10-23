@@ -100,6 +100,7 @@ async function fixture(config = {}) {
   pane.hidden = !!config.paneHidden; document.body.appendChild(pane); pane.appendChild(host);
   document.getElementById = id => id === 'sect-pet' ? pane : id === 'pet-game-root' ? host : null;
   const raf = new Map(), intervals = new Map(), timers = new Map(), mounts = [], actionCues = [], anchorCalls = [], hitTests = [];
+  const cozyMounts = [], cozyControl = { pending: null, reject: false };
   const rendererControl = { mode: config.rendererMode || 'pending', mappingThrows: false, hit: null, hitThrows: false };
   const renderer = {
     durations: Motion.durations, catalogue: Motion.catalogue, bodyCatalogue: Motion.bodyCatalogue, directionCatalogue: Motion.directionCatalogue, appearanceProfile: Motion.appearanceProfile, eggVisualProfile: Motion.eggVisualProfile, roomWalkFrame: Motion.roomWalkFrame, feedingPhase: Motion.feedingPhase, feedingAnchor(stage, path, appearanceKey, eggOrigin) { anchorCalls.push({ stage, path, appearanceKey, eggOrigin }); return Motion.feedingAnchor(stage, path, appearanceKey, eggOrigin); }, growthProfile: Motion.growthProfile, growthPoint: Motion.growthPoint,
@@ -134,6 +135,19 @@ async function fixture(config = {}) {
     clearTimeout(id) { timers.delete(id); }, URL: { createObjectURL: () => 'blob:synthetic', revokeObjectURL() {} }
   });
   document.defaultView = window;
+  if (config.cozyRenderer) window.PetCozyRoom = {
+    async mount(options) {
+      const stage = document.createElement('div'); stage.className = 'room-stage'; options.host.appendChild(stage);
+      const controller = { options, stage, destroyed: false, destroyCount: 0, destroy() { this.destroyed = true; this.destroyCount++; } };
+      cozyMounts.push(controller);
+      // Only the 3D drawing/import is stubbed. The real UI, core, callbacks and
+      // asynchronous durable adapter remain responsible for all state changes.
+      options.onProjectPet({ left: 140, top: 200, scale: 1 });
+      if (cozyControl.pending) await cozyControl.pending.promise;
+      if (cozyControl.reject) throw Error('synthetic unavailable renderer');
+      return controller;
+    }
+  };
   if (config.rendererUnavailable) delete window.PetLilacMotion;
   class Clock extends Date { constructor(...args) { super(...(args.length ? args : [clock])); } static now() { return clock; } }
   const math = Object.create(Math); math.random = () => .5;
@@ -149,7 +163,7 @@ async function fixture(config = {}) {
     assert.ok(room, 'existing room scenarios can enter the room from the village');
     room.emit('click'); await flush();
   }
-  return { ui, host, pane, document, window, data, storage, writes, control, rendererControl, mounts, actionCues, anchorCalls, hitTests, raf, timers, beforeMountRaw, writesBeforeMount,
+  return { ui, host, pane, document, window, data, storage, writes, control, rendererControl, mounts, actionCues, anchorCalls, hitTests, raf, timers, beforeMountRaw, writesBeforeMount, cozyMounts, cozyControl,
     get store() { return store; },
     saved() { return JSON.parse(data.get(Core.KEY)); },
     buttons() { return host.querySelectorAll('button'); },
@@ -182,9 +196,136 @@ async function fixture(config = {}) {
     },
     async frame(ms = 0) { clock += ms; const callbacks = [...raf.values()]; raf.clear(); callbacks.forEach(fn => fn(clock)); await flush(); },
     activeMotions() { return mounts.filter(m => !m.destroyed && m.canvas.isConnected); },
+    activeCozy() { return cozyMounts.filter(m => !m.destroyed && m.options.host.isConnected && m.options.canRun()); },
     scrolls() { return document.scrollEvents || []; }
   };
 }
+
+async function cozyFixture(config = {}) { return fixture({ species: 'lilac', developerPreview: false, rendererMode: 'ready', cozyRenderer: true, ...config }); }
+function cozyView(f, editable) {
+  const controller = f.activeCozy().find(m => m.options.editable === editable);
+  assert.ok(controller, editable ? 'current 3D room editor' : 'current 3D care room'); return controller;
+}
+function changedCozy(layout, wall = 'floral') { const draft = copy(layout); draft.wall = wall; draft.floor = 'check'; return draft; }
+
+test('approved 3D care room projects the same canonical selected pet without creating a room save or changing progress', async () => {
+  const f = await cozyFixture({ seed: { pg_exp: '686', pg_name: '育ててきたこ' } }), before = f.saved(), writes = f.writes.length;
+  const room = cozyView(f, false), motion = f.activeMotions()[0], visual = f.host.querySelector('.ipg-cozy-pet');
+  assert.deepEqual(copy(room.options.layout), Core.getCozyRoomLayout(before)); assert.equal(room.options.furniture.length, 8); assert.equal(room.options.types.length, 18);
+  assert.ok(visual); assert.equal(motion.canvas.parentNode, visual); assert.equal(visual.parentNode, room.stage);
+  assert.equal(motion.options.appearanceKey, Core.getLilacAppearance(before.pet.exp).key);
+  assert.equal(visual.dataset.eggOrigin, Core.getEggOrigin(before)); assert.equal(visual.dataset.evolutionPath, Core.getLilacEvolution(before).current.key);
+  assert.equal(room.options.host.parentNode.dataset.cozyReady, 'true'); assert.equal(Object.hasOwn(before, 'cozyRoomLayout'), false);
+  room.options.onDraftChange(changedCozy(room.options.layout)); assert.equal((await room.options.onSave(room.options.layout)).ok, false, 'read-only care cannot save an editor draft');
+  f.ui.render(); await flush(); assert.equal(room.destroyed, true); assert.equal(room.destroyCount, 1); cozyView(f, false);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+});
+
+test('3D editor receives the real legacy projection, holds draft changes locally and keeps stale care/navigation callbacks inert', async () => {
+  const old = { version: 1, items: [{ id: 'room_bed', x: 80, y: 84, flip: true }] };
+  const f = await cozyFixture({ setup: async store => { await store.dispatch({ type: 'saveRoomLayout', layout: old, expectedRevision: store.getState().revision }); } });
+  const before = f.saved(), writes = f.writes.length, expected = Core.getCozyRoomLayout(before), care = cozyView(f, false), staleFeed = f.focusButton('care-feed'), staleNav = f.focusButton('tab-shop');
+  await f.click(f.focusButton('room-edit')); const editor = cozyView(f, true);
+  assert.equal(care.destroyed, true); assert.deepEqual(copy(editor.options.layout), expected); assert.equal(f.activeMotions().length, 0);
+  const draft = changedCozy(expected), retained = copy(draft); editor.options.onDraftChange(draft); draft.objects[0].x = 99;
+  staleFeed.emit('click'); staleNav.emit('click'); await flush(); assert.ok(f.host.querySelector('.ipg-cozy-editor-card')); assert.equal(f.host.querySelector('.ipg-shop-grid'), null);
+  f.ui.render(); await flush(); assert.equal(editor.destroyed, true); assert.deepEqual(copy(cozyView(f, true).options.layout), retained, 'the adapter retains a detached draft through a render');
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.deepEqual(f.saved().roomLayout, old);
+  await f.click(f.focusButton('room-cancel')); assert.equal(f.host.querySelector('.ipg-room-editor'), null); assert.deepEqual(copy(cozyView(f, false).options.layout), expected); assert.deepEqual(f.saved(), before); await f.ui.close();
+});
+
+test('3D save keeps the editor mounted while storage is pending, then shows only the confirmed design in the care room', async () => {
+  const f = await cozyFixture(), before = f.saved(), writes = f.writes.length; await f.click(f.focusButton('room-edit'));
+  const editor = cozyView(f, true), draft = changedCozy(editor.options.layout), gate = deferred(); editor.options.onDraftChange(draft);
+  f.control.pending = gate; const saving = editor.options.onSave(draft); await flush();
+  assert.equal(f.host.getAttribute('aria-busy'), 'true'); assert.equal(cozyView(f, true), editor); assert.equal(editor.destroyed, false);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal((await editor.options.onSave(changedCozy(draft, 'mint'))).ok, false);
+  editor.options.onDraftChange(changedCozy(draft, 'mint'));
+  gate.resolve(); const result = await saving; f.control.pending = null; await flush();
+  assert.equal(result.ok, true); assert.equal(editor.destroyed, true); assert.equal(f.host.querySelector('.ipg-room-editor'), null); assert.equal(f.host.getAttribute('aria-busy'), 'false');
+  assert.deepEqual(f.saved(), { ...before, cozyRoomLayout: draft, revision: before.revision + 1 });
+  assert.deepEqual(copy(cozyView(f, false).options.layout), draft); assert.ok(f.host.textContent.includes('おへやの配置を保存しました'));
+  assert.equal(f.writes.length, writes + 1); assert.equal(f.activeMotions().length, 1); await f.ui.close();
+});
+
+for (const outcome of ['false', 'throw']) test('3D ' + outcome + ' save failure keeps the same draft/editor and an explicit retry can succeed', async () => {
+  const f = await cozyFixture(), before = f.saved(), writes = f.writes.length; await f.click(f.focusButton('room-edit'));
+  const editor = cozyView(f, true), draft = changedCozy(editor.options.layout); editor.options.onDraftChange(draft); f.control.outcome = outcome;
+  const result = await editor.options.onSave(draft); await flush();
+  assert.equal(result.ok, false); assert.match(result.message, /下書きは残っています/); assert.equal(cozyView(f, true), editor); assert.equal(editor.destroyed, false);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.host.getAttribute('aria-busy'), 'false');
+  f.control.outcome = 'ok'; assert.equal((await editor.options.onSave(draft)).ok, true); await flush();
+  assert.deepEqual(copy(cozyView(f, false).options.layout), draft); assert.deepEqual(f.saved().pet, before.pet); assert.deepEqual(f.saved().inventory, before.inventory); assert.deepEqual(f.saved().care, before.care); assert.equal(f.saved().coins, before.coins); await f.ui.close();
+});
+
+test('3D editor rejects an external storage revision and preserves both its draft and the newer real game record', async () => {
+  const f = await cozyFixture(); await f.click(f.focusButton('room-edit')); const editor = cozyView(f, true), draft = changedCozy(editor.options.layout); editor.options.onDraftChange(draft);
+  const other = Core.create({ storage: f.storage, now: () => new Date(2026, 9, 21, 12).getTime() }); await other.ready;
+  assert.equal((await other.dispatch({ type: 'rename', name: '別画面でつけた名前' })).ok, true); const saved = f.saved(), raw = f.data.get(Core.KEY), writes = f.writes.length;
+  const result = await editor.options.onSave(draft); await flush();
+  assert.equal(result.ok, false); assert.match(result.message, /ほかの操作で記録が変わった/); assert.equal(cozyView(f, true), editor); assert.equal(editor.destroyed, false);
+  assert.equal(f.data.get(Core.KEY), raw); assert.deepEqual(f.saved(), saved); assert.equal(f.writes.length, writes); assert.equal(Object.hasOwn(saved, 'cozyRoomLayout'), false); await f.ui.close();
+});
+
+test('a focus event keeps the live 3D editor and its transient draft instead of destroying its undo-owning controller', async () => {
+  const f = await cozyFixture(); await f.click(f.focusButton('room-edit')); const editor = cozyView(f, true), draft = changedCozy(editor.options.layout), before = f.saved(), writes = f.writes.length;
+  editor.options.onDraftChange(draft); const mounts = f.cozyMounts.length; f.window.emit('focus'); await flush();
+  assert.equal(cozyView(f, true), editor); assert.equal(editor.destroyed, false); assert.equal(f.cozyMounts.length, mounts); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+  assert.equal((await editor.options.onSave(draft)).ok, true); await flush(); assert.deepEqual(copy(cozyView(f, false).options.layout), draft); await f.ui.close();
+});
+
+test('closing a pending 3D mount destroys its late controller and stale callbacks cannot edit, save, report errors or reopen it', async () => {
+  const f = await cozyFixture(), before = f.saved(), writes = f.writes.length, gate = deferred(); f.cozyControl.pending = gate;
+  await f.click(f.focusButton('room-edit')); const old = f.cozyMounts.at(-1), oldHost = old.options.host; assert.equal(old.options.editable, true);
+  await f.ui.close(); assert.equal(old.options.canRun(), false); old.options.onDraftChange(changedCozy(old.options.layout)); old.options.onError(); old.options.onProjectPet({ left: 1, top: 1, scale: 20 });
+  assert.equal((await old.options.onSave(old.options.layout)).ok, false); old.options.onCancel();
+  await f.ui.open(); const next = f.cozyMounts.at(-1); assert.notEqual(next, old); assert.equal(next.options.editable, false);
+  gate.resolve(); f.cozyControl.pending = null; await flush();
+  assert.equal(old.destroyed, true); assert.equal(old.destroyCount, 1); assert.equal(cozyView(f, false), next); assert.equal(oldHost.isConnected, false);
+  assert.equal(f.host.querySelector('.ipg-room-editor'), null); assert.equal(f.host.querySelector('.ipg-cozy-failure'), null); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+});
+
+test('a pending old 3D controller cannot project or save into a different host and private game store', async () => {
+  const f = await cozyFixture(), before = f.saved(), raw = f.data.get(Core.KEY), writes = f.writes.length, gate = deferred(); f.cozyControl.pending = gate;
+  await f.click(f.focusButton('room-edit')); const old = f.cozyMounts.at(-1);
+  const otherRecord = copy(before); otherRecord.pet.name = '別の保存先のこ'; otherRecord.cozyRoomLayout = changedCozy(Core.defaultCozyRoomLayout(), 'mint');
+  const values = new Map([[Core.KEY, JSON.stringify(otherRecord)]]), otherWrites = [], storage = { getItem: key => values.get(key) ?? null, setItem(key, text) { values.set(key, text); otherWrites.push([key, text]); } };
+  const target = f.document.createElement('div'); f.pane.appendChild(target);
+  assert.equal(await f.ui.mount(target, { storage, developerPreview: false, now: () => new Date(2026, 9, 21, 12).getTime(), random: () => .5 }), true);
+  target.querySelector('[data-focus-key="tab-care"]').emit('click'); await flush(); const current = f.cozyMounts.at(-1);
+  assert.notEqual(current, old); assert.equal(current.options.editable, false); assert.equal(old.options.canRun(), false);
+  old.options.onProjectPet({ left: 1, top: 1, scale: 99 }); old.options.onDraftChange(changedCozy(old.options.layout)); old.options.onCancel(); old.options.onError();
+  assert.equal((await old.options.onSave(old.options.layout)).ok, false);
+  gate.resolve(); f.cozyControl.pending = null; await flush();
+  assert.equal(old.destroyed, true); assert.equal(current.destroyed, false); assert.ok(target.textContent.includes('別の保存先のこ'));
+  assert.deepEqual(copy(current.options.layout), otherRecord.cozyRoomLayout); assert.equal(target.querySelector('.ipg-room-editor'), null); assert.equal(target.querySelector('.ipg-cozy-failure'), null);
+  assert.deepEqual(JSON.parse(values.get(Core.KEY)), otherRecord); assert.equal(otherWrites.length, 0); assert.equal(f.data.get(Core.KEY), raw); assert.equal(f.writes.length, writes); await f.ui.close();
+});
+
+test('a late 3D save may commit in its original store but cannot overwrite a newly opened editor draft or announce success there', async () => {
+  const f = await cozyFixture(); await f.click(f.focusButton('room-edit')); const old = cozyView(f, true), firstDraft = changedCozy(old.options.layout), gate = deferred();
+  f.control.pending = gate; const pendingSave = old.options.onSave(firstDraft); await flush(); await f.ui.close(); await f.ui.open(); await f.click(f.focusButton('room-edit'));
+  const next = cozyView(f, true), newDraft = changedCozy(next.options.layout, 'mint'); next.options.onDraftChange(newDraft);
+  gate.resolve(); f.control.pending = null; const result = await pendingSave; await flush();
+  assert.equal(result.ok, false); assert.equal(old.destroyed, true); assert.ok(f.host.querySelector('.ipg-room-editor'));
+  assert.deepEqual(copy(cozyView(f, true).options.layout), newDraft); assert.deepEqual(f.saved().cozyRoomLayout, firstDraft);
+  assert.equal(f.host.textContent.includes('おへやの配置を保存しました'), false); assert.equal(f.host.getAttribute('aria-busy'), 'false'); await f.ui.close();
+});
+
+test('3D controllers are destroyed on care rerender, tab navigation and close, while detached controls stay powerless', async () => {
+  const f = await cozyFixture(), before = f.saved(), writes = f.writes.length, first = cozyView(f, false);
+  await f.click(f.focusButton('tab-shop')); assert.equal(first.destroyed, true); assert.equal(first.destroyCount, 1); assert.equal(first.options.canRun(), false);
+  await f.click(f.focusButton('tab-care')); const second = cozyView(f, false); assert.notEqual(second, first);
+  f.ui.render(); await flush(); assert.equal(second.destroyed, true); const third = cozyView(f, false);
+  await f.ui.close(); assert.equal(third.destroyed, true); assert.equal(third.destroyCount, 1); assert.equal(third.options.canRun(), false);
+  first.options.onCancel(); third.options.onError(); third.options.onDraftChange(changedCozy(third.options.layout)); assert.equal((await third.options.onSave(third.options.layout)).ok, false);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('a failed 3D renderer reports an unavailable room without replacing records or consuming care', async () => {
+  const f = await cozyFixture(), before = f.saved(), writes = f.writes.length; f.cozyControl.reject = true; f.ui.render(); await flush();
+  assert.ok(f.host.querySelector('.ipg-cozy-failure')); assert.ok(f.host.textContent.includes('配置の記録はそのままです')); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+});
 
 function shellBounds(f, headerRect, footerRect) {
   const header = f.document.createElement('header'); header.className = 'ipg-shell-head';

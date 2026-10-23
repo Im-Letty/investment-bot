@@ -4345,7 +4345,8 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
 })();
 </script>
 <!-- Independent pet game: legacy records are migrated once; household and study remain separate. -->
-<link rel="stylesheet" href="/static/pet-game.css?v=20261023-market-art1">
+<link rel="stylesheet" href="/static/pet-game.css?v=20261024-cozy-room1">
+<link rel="stylesheet" href="/static/pet-cozy-room.css?v=20261024-cozy-room1">
 <link rel="stylesheet" href="/static/pet-village.css?v=20261023-connected-village1">
 <link rel="stylesheet" href="/static/pet-town-walk.css?v=20261024-town-walk1">
 <script defer src="/static/pet-town-walk.js?v=20261024-town-walk1"></script>
@@ -4397,7 +4398,7 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
   var scriptLoads=Object.create(null);
   function section(){return document.getElementById('sect-pet');}
   function host(){return document.getElementById('pet-game-root');}
-  function apiReady(){return !!(window.PetGameCore&&window.IndependentPetGame&&typeof window.IndependentPetGame.mount==='function'&&typeof window.IndependentPetGame.close==='function');}
+  function apiReady(){return !!(window.PetGameCore&&window.PetCozyRoom&&typeof window.PetCozyRoom.mount==='function'&&window.IndependentPetGame&&typeof window.IndependentPetGame.mount==='function'&&typeof window.IndependentPetGame.close==='function');}
   function assetFailure(kind){var error=new Error('Game unavailable');error.petAssetFailure=kind;return error;}
   function loadScript(src,ready,timeout){
     if(ready())return Promise.resolve();
@@ -4443,8 +4444,11 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
   function loadModules(){
     if(apiReady())return Promise.resolve();
     if(moduleLoading)return moduleLoading;
-    var required=loadRequired('/static/pet-game-core.js?v=20261022-cafe-village1',function(){return !!window.PetGameCore;}).then(function(){
-      return loadRequired('/static/pet-game.js?v=20261024-town-walk1',apiReady);
+    var required=Promise.all([
+      loadRequired('/static/pet-game-core.js?v=20261024-cozy-room1',function(){return !!window.PetGameCore;}),
+      loadRequired('/static/pet-cozy-room.js?v=20261024-cozy-room1',function(){return !!window.PetCozyRoom&&typeof window.PetCozyRoom.mount==='function';})
+    ]).then(function(){
+      return loadRequired('/static/pet-game.js?v=20261024-cozy-room1',apiReady);
     });
     var motion=loadScript('/static/pet-lilac-motion.js?v=20261023-reference-blink1',function(){return !!window.PetLilacMotion;},5000).catch(function(){});
     var room=loadScript('/static/pet-room-behavior.js?v=4306c88f116b',function(){return !!window.PetRoomBehavior;},5000).catch(function(){});

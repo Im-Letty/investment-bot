@@ -15,6 +15,7 @@
   var fittingOpen = false, fittingOutfit = null;
   var eggDraft = null, eggConfirm = false;
   var roomEdit = null, roomSurfaceCleanup = null, roomSurfaceGeneration = 0, roomSaveAttempt = null;
+  var cozyPending = null;
   var villageEdit = null, villageSaveAttempt = null, playKind = 'catch';
   // Walking is a view of the existing pet, not a second pet or a save action.
   // Retain the spot when visiting a facility; never write a frame into the store.
@@ -1065,6 +1066,7 @@
   }
   function clearRoomSurface() {
     roomSurfaceGeneration++;
+    cozyPending = null;
     if (roomSurfaceCleanup) roomSurfaceCleanup();
     roomSurfaceCleanup = null;
   }
@@ -1078,21 +1080,27 @@
     if (!store || busy || game || roomEdit || developerPreview() || !motionsVisible()) return;
     var s = state();
     if (s.readOnly || needsEggChoice(s) || typeof core().getRoomLayout !== 'function' || typeof core().defaultRoomLayout !== 'function') return;
-    roomEdit = { draft: cloneRoomLayout(core().getRoomLayout(s)), defaults: cloneRoomLayout(core().defaultRoomLayout(s)),
+    var cozy = !!w.PetCozyRoom && typeof core().getCozyRoomLayout === 'function';
+    roomEdit = { cozy: cozy, draft: cozy ? copyCozyLayout(core().getCozyRoomLayout(s)) : cloneRoomLayout(core().getRoomLayout(s)), defaults: cloneRoomLayout(core().defaultRoomLayout(s)),
       revision: s.revision, selected: null, error: '', saving: false };
+    if (cozy) roomEdit.saved = copyCozyLayout(roomEdit.draft);
     tab = 'care'; failure = ''; notice = ''; reaction = null; render();
     var surface = host.querySelector('.ipg-room-layout-surface'); if (surface) surface.focus({ preventScroll: true });
   }
   async function saveRoomEdit(session) {
-    if (roomEdit !== session || busy || !store || suspended) return;
+    if (roomEdit !== session || busy || !store || suspended) return { ok: false };
     var target = host, owner = store, epoch = lifecycleEpoch, attempt = {};
-    roomSaveAttempt = attempt; session.error = ''; session.saving = true; render(); setBusy(true);
+    roomSaveAttempt = attempt; session.error = ''; session.saving = true;
+    // The 3D editor owns its draft/undo and stays mounted until the durable
+    // adapter confirms the write. Rebuilding here would lose the gesture state.
+    if (!session.cozy) render();
+    setBusy(true);
     var result;
-    try { result = await owner.dispatch({ type: 'saveRoomLayout', layout: cloneRoomLayout(session.draft), expectedRevision: session.revision }); }
+    try { result = await owner.dispatch({ type: session.cozy ? 'saveCozyRoomLayout' : 'saveRoomLayout', layout: session.cozy ? copyCozyLayout(session.draft) : cloneRoomLayout(session.draft), expectedRevision: session.revision }); }
     catch (_) { result = { ok: false, error: { code: 'save_failed' } }; }
-    if (roomSaveAttempt !== attempt) return;
+    if (roomSaveAttempt !== attempt) return { ok: false };
     roomSaveAttempt = null; setBusy(false);
-    if (roomEdit !== session || host !== target || store !== owner || lifecycleEpoch !== epoch || suspended) return;
+    if (roomEdit !== session || host !== target || store !== owner || lifecycleEpoch !== epoch || suspended) return { ok: false };
     session.saving = false;
     if (result && result.ok) { roomEdit = null; failure = ''; notice = 'おへやの配置を保存しました。'; }
     else {
@@ -1100,9 +1108,62 @@
         'ほかの操作で記録が変わったため保存できませんでした。下書きは残っています。やめるで下書きを破棄し、ページを再読み込みしてから、もう一度お試しください。' :
         '配置を保存できませんでした。下書きは残っています。もう一度保存するか、やめるを選べます。';
     }
-    render();
+    if (!session.cozy || result && result.ok) render();
     var focus = host.querySelector('[data-focus-key="' + (roomEdit ? 'room-save' : 'room-edit') + '"]');
     if (focus) focus.focus({ preventScroll: true });
+    return result && result.ok ? { ok: true } : { ok: false, message: session.error };
+  }
+  function copyCozyLayout(layout) { return JSON.parse(JSON.stringify(layout)); }
+  function cozyAvailable() { return !!w.PetCozyRoom && typeof w.PetCozyRoom.mount === 'function' && typeof core().getCozyRoomLayout === 'function'; }
+  function mountCozyRoom(container, s, session, visual, scene) {
+    var generation = roomSurfaceGeneration, owner = store, epoch = lifecycleEpoch;
+    function alive() { return generation === roomSurfaceGeneration && store === owner && epoch === lifecycleEpoch && container.isConnected && motionsVisible() && (!session || roomEdit === session); }
+    var controller = null, lastPoint = null;
+    function project(point) {
+      lastPoint = point;
+      if (!visual || !alive()) return;
+      var stageElement = container.querySelector('.room-stage');
+      if (!stageElement) return;
+      if (visual.parentNode !== stageElement) stageElement.appendChild(visual);
+      visual.style.left = point.left + 'px'; visual.style.bottom = 'calc(100% - ' + point.top + 'px)';
+      visual.style.width = (160 * (point.scale || 1)) + 'px'; visual.style.height = (160 * (point.scale || 1)) + 'px';
+      visual.className += visual.className.indexOf('ipg-cozy-pet') < 0 ? ' ipg-cozy-pet' : '';
+    }
+    function cancel() { if (!alive() || busy) return; discardRoomEdit(); notice = '配置の変更をやめました。'; render(); }
+    cozyPending = function () {
+      if (!alive()) return;
+      roomSurfaceCleanup = function () { if (controller) controller.destroy(); };
+      Promise.resolve(w.PetCozyRoom.mount({ host: container, layout: session ? session.draft : core().getCozyRoomLayout(s), savedLayout: session && session.saved,
+        types: core().cozyRoomTypes, furniture: core().cozyRoomFurniture, editable: !!session, canRun: alive,
+        onProjectPet: project, onCancel: cancel,
+        onDraftChange: function (layout) { if (session && alive() && !session.saving) { session.draft = copyCozyLayout(layout); session.error = ''; } },
+        onSave: function (layout) { if (!session || !alive() || busy) return Promise.resolve({ ok: false }); session.draft = copyCozyLayout(layout); return saveRoomEdit(session); },
+        onError: function () {
+          if (!alive()) return;
+          if (scene) { scene.dataset.cozyUnavailable = 'true'; scene.dataset.cozyReady = 'false'; }
+          var error = container.querySelector('.ipg-cozy-failure');
+          if (!error) { error = text('立体のお部屋を表示できませんでした。配置の記録はそのままです。ページを読み直してお試しください。', 'ipg-cozy-failure ipg-small'); error.setAttribute('role', 'alert'); container.appendChild(error); }
+        }
+      })).then(function (mounted) {
+        if (!alive()) { if (mounted) mounted.destroy(); return; }
+        controller = mounted;
+        if (!controller) return;
+        if (scene) scene.dataset.cozyReady = 'true';
+        if (visual && lastPoint) project(lastPoint);
+      }).catch(function () {
+        if (!alive()) return;
+        if (scene) scene.dataset.cozyUnavailable = 'true';
+        container.appendChild(text('立体のお部屋を読み込めませんでした。配置の記録はそのままです。', 'ipg-cozy-failure ipg-small'));
+      });
+    };
+  }
+  function renderCozyEditor(s, body) {
+    var session = roomEdit, pet = card('', 'ipg-pet-card ipg-room-editor ipg-cozy-editor-card');
+    var container = node('div', 'ipg-cozy-editor-host');
+    pet.appendChild(container);
+    var cancel = button('やめる', function () { if (roomEdit !== session || busy) return; discardRoomEdit(); notice = '配置の変更をやめました。'; render(); }, true);
+    cancel.dataset.focusKey = 'room-cancel'; pet.appendChild(cancel);
+    body.appendChild(pet); mountCozyRoom(container, s, session);
   }
   function renderRoomProps(scene, layout, session, tools) {
     var surface = node('div', 'ipg-room-layout-surface' + (session ? ' is-editing' : ''));
@@ -1195,6 +1256,7 @@
     update(); scene.appendChild(surface); return surface;
   }
   function renderRoomEditor(s, body) {
+    if (roomEdit.cozy && cozyAvailable()) return renderCozyEditor(s, body);
     var session = roomEdit, generation = roomSurfaceGeneration, pet = card('おへやの模様替え', 'ipg-pet-card ipg-room-editor');
     function editorActive() { return roomEdit === session && generation === roomSurfaceGeneration && pet.isConnected && !busy && motionsVisible(); }
     append(pet, text('家具を選んで、指で動かそう。おへやの空いた場所をタップして移動することもできます。保存で反映されます。画面を離れると、保存前の変更は取り消されます。', 'ipg-small'));
@@ -1269,6 +1331,10 @@
       var edit = button('模様替え', beginRoomEdit, true, s.readOnly || typeof core().getRoomLayout !== 'function');
       edit.className += ' ipg-room-edit-entry'; edit.dataset.focusKey = 'room-edit'; heading.appendChild(edit);
       append(pet, heading, scene, roomStatus);
+      if (cozyAvailable()) {
+        var cozyHost = node('div', 'ipg-cozy-care-host'); scene.appendChild(cozyHost); scene.className += ' ipg-cozy-care';
+        mountCozyRoom(cozyHost, s, null, img, scene);
+      }
       if (careRequest) { careRequest.room = scene; careRequest.roomBubble = bubble; careRequest.roomStatus = roomStatus; careRequest.roomWalkDistance = 27; careRequest.wrap.dataset.facing = 'front'; careRequest.wrap.dataset.roomWalkPhase = ''; placeInRoom(careRequest, roomCarryX, false); }
       if (careRequest) bindRoomTouch(careRequest, pet);
     } else {
@@ -2077,6 +2143,7 @@
     host.replaceChildren(root);
     if (!roomEdit && !villageEdit) startMotions();
     if (townPending) { var startTown = townPending; townPending = null; startTown(); }
+    if (cozyPending) { var startCozy = cozyPending; cozyPending = null; startCozy(); }
     setBusy(busy);
     if (game) { var board = host.querySelector('.ipg-catch-board'); if (board) board.focus({ preventScroll: true }); }
     if (focused && !game) {
@@ -2139,7 +2206,7 @@
   });
   w.addEventListener('pagehide', suspend);
   w.addEventListener('pageshow', function () { suspended = false; if (store && !game && !busy) render(); });
-  w.addEventListener('focus', function () { if (store && !game && !busy) render(); });
+  w.addEventListener('focus', function () { if (store && !game && !busy && !(roomEdit && roomEdit.cozy)) render(); });
   w.setInterval(function () { if (store && !game && !busy && renderedDay !== currentDay()) render(); }, 60000);
   w.IndependentPetGame = {
     mount: mount,

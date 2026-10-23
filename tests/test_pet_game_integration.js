@@ -64,6 +64,7 @@ function loaderFixture(options = {}) {
     head: { appendChild: script => { scripts.push(script); } }
   };
   const window = {
+    PetCozyRoom: options.cozyMissing ? undefined : {mount(){}},
     __knGateReady: options.gate ?? Promise.resolve(true),
     __knReadGameStorage: options.read || (() => null),
     __knPersistLocalSetting: options.persist || (async () => undefined),
@@ -86,6 +87,7 @@ function loaderFixture(options = {}) {
     coreLoaded() { window.PetGameCore = {}; this.asset('pet-game-core').onload(); },
     motionLoaded() { window.PetLilacMotion = {}; this.asset('pet-lilac-motion').onload(); },
     roomLoaded() { window.PetRoomBehavior = {}; this.asset('pet-room-behavior').onload(); },
+    cozyLoaded() { window.PetCozyRoom = {mount(){}}; this.asset('pet-cozy-room').onload(); },
     uiLoaded() { window.IndependentPetGame = ui; this.asset('pet-game').onload(); },
     fireTimers(delay) {
       const pending = Array.from(timers).filter(([, timer]) => timer.delay === delay);
@@ -214,6 +216,23 @@ test('UI downloads after core without waiting for optional visuals; concurrent o
   f.window.closePetTab(); assert.equal(f.pane.hidden, true); assert.equal(f.focus.focused, true);
   assert.equal(await f.window.openPetTab(), true);
   assert.equal(f.scripts.length, 4); assert.equal(f.mounts, 2, 'UI owns idempotent store reuse');
+});
+
+test('room presentation loads once before mounting without downloading the heavy 3D vendor at game entry', async () => {
+  const f=loaderFixture({cozyMissing:true}),opening=f.window.openPetTab();
+  assert.equal(f.scripts.length,4);f.coreLoaded();f.motionLoaded();f.roomLoaded();await flush();
+  assert.equal(f.asset('pet-game'),undefined,'UI waits for the room entry point');
+  assert.equal(f.scripts.filter(s=>s.src.includes('pet-cozy-room')).length,1);
+  assert.equal(f.scripts.some(s=>s.src.includes('/vendor/three')),false,'Three stays lazy until the actual room opens');
+  f.cozyLoaded();await flush();f.uiLoaded();assert.equal(await opening,true);assert.equal(f.mounts,1);
+});
+
+test('a missing room presentation reports the existing recoverable load error without entering an obsolete editor', async () => {
+  const f=loaderFixture({cozyMissing:true}),opening=f.window.openPetTab();
+  f.coreLoaded();f.motionLoaded();f.roomLoaded();await flush();
+  f.asset('pet-cozy-room').onerror();await flush();f.fireTimers(1200);await flush();
+  f.asset('pet-cozy-room').onerror();assert.equal(await opening,false);assert.equal(f.mounts,0);
+  assert.match(f.host.textContent,/もう一度読み込む/);assert.equal(f.asset('pet-game'),undefined);
 });
 
 test('mount waits for protected hydration and storage adapter awaits durable writes', async () => {

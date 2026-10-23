@@ -91,6 +91,33 @@
     {id:'room_bowl',name:'ごはんのうつわ',x:10,y:91,flip:false},
     {id:'room_toy',name:'おもちゃ',x:25,y:94,flip:false}
   ].map(function(row){return Object.freeze(row);}));
+  // The approved 3D room has its own optional layout. Its free fixtures never
+  // become inventory, and the earlier percentage-based room record stays intact.
+  var COZY_ROOM_FURNITURE = Object.freeze([
+    {id:'bed',name:'チェックのベッド',width:1.65,depth:2.55,flat:false},
+    {id:'table',name:'まるい木のテーブル',width:1.65,depth:1.35,flat:false},
+    {id:'chair',name:'木のチェア',width:.75,depth:.8,flat:false},
+    {id:'cupboard',name:'ガラスの食器棚',width:1.5,depth:.66,flat:false},
+    {id:'plant',name:'みどりの鉢植え',width:.85,depth:.85,flat:false},
+    {id:'counter',name:'カフェのカウンター',width:1.85,depth:.85,flat:false},
+    {id:'lamp',name:'森色のフロアランプ',width:.65,depth:.65,flat:false},
+    {id:'rug',name:'やわらかラグ',width:2.9,depth:2.25,flat:true}
+  ].map(function(row){return Object.freeze(row);}));
+  var COZY_ROOM_IMPORTS = Object.freeze([
+    {id:'legacy_window',name:'これまでのまど',width:1.65,depth:.35,flat:false,sourceId:'room_window'},
+    {id:'legacy_bowl',name:'ごはんのうつわ',width:.7,depth:.7,flat:false,sourceId:'room_bowl'},
+    {id:'legacy_toy',name:'これまでのおもちゃ',width:.8,depth:.8,flat:false,sourceId:'room_toy'},
+    {id:'decor_house',name:'おうちのかざり',width:1.2,depth:1.1,flat:false,sourceId:'house'},
+    {id:'decor_tree',name:'きのかざり',width:1.1,depth:1.1,flat:false,sourceId:'tree'},
+    {id:'decor_flower',name:'はなのかざり',width:.65,depth:.65,flat:false,sourceId:'flower'},
+    {id:'decor_fountain',name:'ふんすいのかざり',width:1.2,depth:1.2,flat:false,sourceId:'fountain'},
+    {id:'decor_sunflower',name:'ひまわりのかざり',width:.65,depth:.65,flat:false,sourceId:'sunflower'},
+    {id:'decor_mushroom',name:'きのこのかざり',width:.7,depth:.7,flat:false,sourceId:'mushroom'},
+    {id:'decor_lantern',name:'とうろうのかざり',width:.55,depth:.55,flat:false,sourceId:'lantern'}
+  ].map(function(row){return Object.freeze(row);}));
+  var COZY_ROOM_TYPES = COZY_ROOM_FURNITURE.concat(COZY_ROOM_IMPORTS);
+  var COZY_ROOM_SOURCES = {room_window:'legacy_window',room_shelf:'cupboard',room_rug:'rug',room_bed:'bed',room_bowl:'legacy_bowl',room_toy:'legacy_toy',
+    house:'decor_house',tree:'decor_tree',flower:'decor_flower',fountain:'decor_fountain',sunflower:'decor_sunflower',mushroom:'decor_mushroom',lantern:'decor_lantern'};
   // Village places are free entrances, distinct from owned room decorations.
   // Their optional layout is materialized only by an explicit confirmed save.
   var VILLAGE_PLACES = Object.freeze([
@@ -120,6 +147,7 @@
     egg_already_chosen:'このこのたまごは選択済みです。',egg_species_locked:'選んだたまごから生まれた子を育ててください。',
     appearance_locked:'さいしゅうしんかすると姿を選べます。',invalid_appearance:'姿と表示方法を確認してください。',
     invalid_room_layout:'家具の配置を確認してください。保存済みのお部屋は変更していません。',
+    invalid_cozy_room_layout:'家具や壁紙・床の配置を確認してください。保存済みのお部屋は変更していません。',
     invalid_village_layout:'村の配置を確認してください。保存済みの村は変更していません。',
     insufficient_coins:'コインが足りません。',already_owned:'すでに持っています。',not_owned:'このアイテムを持っていません。',
     game_active:'進行中のミニゲームを終えてから開始してください。',invalid_session:'このミニゲームは終了済み、または確認できません。',
@@ -281,6 +309,7 @@
     check(d.equipped===null || text(d.equipped,100)&&own(d.owned,d.equipped),'corrupt_data');
     d.backgrounds.forEach(function(x){check(text(x,100),'corrupt_data');});check(d.backgrounds.indexOf(d.background)>=0,'corrupt_data');
     if(own(s,'roomLayout'))validateRoomLayout(s.roomLayout,s,'corrupt_data');
+    if(own(s,'cozyRoomLayout'))validateCozyRoomLayout(s.cozyRoomLayout,s,'corrupt_data');
     if(own(s,'villageLayout'))validateVillageLayout(s.villageLayout,'corrupt_data');
     check(Array.isArray(s.achievements)&&s.achievements.length<=300,'corrupt_data');s.achievements.forEach(function(x){check(text(x,100),'corrupt_data');});
     var c=s.care;check(plain(c)&&validDay(c.day,false)&&validDay(c.dailyRewardDay,true)&&plain(c.counts)&&plain(c.total),'corrupt_data');
@@ -383,6 +412,67 @@
     if(s&&own(s,'roomLayout'))return clone(validateRoomLayout(s.roomLayout,s,'corrupt_data'));
     return defaultRoomLayout(s);
   }
+  function cozyRoomType(id) {return COZY_ROOM_TYPES.find(function(row){return row.id===id;});}
+  function validateCozyRoomLayout(layout,s,code) {
+    code=code||'invalid_cozy_room_layout';
+    check(exactKeys(layout,['version','wall','floor','objects','nextId'])&&layout.version===1&&
+      ['brick','floral','mint'].indexOf(layout.wall)>=0&&['honey','oak','check'].indexOf(layout.floor)>=0&&
+      Array.isArray(layout.objects)&&layout.objects.length<=24&&Reflect.ownKeys(layout.objects).length===layout.objects.length+1&&
+      integer(layout.nextId)&&layout.nextId>0,code);
+    var ids=Object.create(null),sources=Object.create(null),largest=0;
+    for(var i=0;i<layout.objects.length;i++) {
+      var placed=layout.objects[i];
+      check(own(layout.objects,i)&&plain(placed)&&exactKeys(placed,own(placed,'sourceId')?['id','type','x','z','r','sourceId']:['id','type','x','z','r'])&&
+        integer(placed.id)&&placed.id>0&&!own(ids,placed.id)&&typeof placed.type==='string'&&
+        amount(placed.x,true)&&amount(placed.z,true)&&integer(placed.r)&&placed.r<=3,code);
+      var spec=cozyRoomType(placed.type);check(!!spec,code);
+      ids[placed.id]=true;largest=Math.max(largest,placed.id);
+      var width=placed.r%2?spec.depth:spec.width,depth=placed.r%2?spec.width:spec.depth;
+      check(Math.abs(placed.x)+width/2<=3.85+1e-9&&Math.abs(placed.z)+depth/2<=3.85+1e-9,code);
+      if(own(placed,'sourceId')) {
+        var source=placed.sourceId;
+        check(typeof source==='string'&&own(COZY_ROOM_SOURCES,source)&&COZY_ROOM_SOURCES[source]===placed.type&&!own(sources,source),code);
+        sources[source]=true;
+        if(roomDecoration(source))check(plain(s)&&plain(s.decorations)&&plain(s.decorations.owned)&&own(s.decorations.owned,source),code==='corrupt_data'?code:'not_owned');
+      } else check(!own(spec,'sourceId'),code);
+      // Old rooms can contain overlapping fixtures. Display/edit collision rules
+      // prevent new overlaps without making an existing saved room unreadable.
+    }
+    check(layout.nextId>largest,code);
+    return layout;
+  }
+  function defaultCozyRoomLayout() {
+    return {version:1,wall:'brick',floor:'honey',objects:[
+      {id:1,type:'cupboard',x:-2.5,z:-3.2,r:0},{id:2,type:'counter',x:-.25,z:-3.15,r:0},
+      {id:3,type:'bed',x:2.45,z:.2,r:0},{id:4,type:'rug',x:-.5,z:.65,r:0},
+      {id:5,type:'table',x:-1,z:-.5,r:0},{id:6,type:'chair',x:-1,z:1.05,r:0},
+      {id:7,type:'plant',x:-3,z:2.35,r:0},{id:8,type:'lamp',x:3,z:-2.5,r:0}
+    ],nextId:9};
+  }
+  function cozyRoomFromLegacy(row,id) {
+    var type=COZY_ROOM_SOURCES[row.id],spec=cozyRoomType(type);
+    // A legacy mirror bit becomes a half-turn in this detached projection only.
+    // The original flip and percentage coordinates remain in roomLayout verbatim.
+    var r=row.flip?2:0,width=r%2?spec.depth:spec.width,depth=r%2?spec.width:spec.depth;
+    var edgeX=3.85-width/2,edgeZ=3.85-depth/2;
+    return {id:id,type:type,x:Math.max(-edgeX,Math.min(edgeX,(row.x/100-.5)*6.4)),
+      z:Math.max(-edgeZ,Math.min(edgeZ,(row.y/100-.5)*6.4)),r:r,sourceId:row.id};
+  }
+  function getCozyRoomLayout(s) {
+    if(s&&own(s,'cozyRoomLayout'))return clone(validateCozyRoomLayout(s.cozyRoomLayout,s,'corrupt_data'));
+    var layout=defaultCozyRoomLayout();
+    if(s&&own(s,'roomLayout')) {
+      var previous=validateRoomLayout(s.roomLayout,s,'corrupt_data');
+      layout.objects=previous.items.map(function(row,i){return cozyRoomFromLegacy(row,i+1);});
+      layout.nextId=layout.objects.length+1;
+    } else {
+      var decor=s&&s.decorations,equipped=decor&&decor.equipped;
+      if(roomDecoration(equipped)&&plain(decor.owned)&&own(decor.owned,equipped)) {
+        layout.objects.push(cozyRoomFromLegacy({id:equipped,x:74,y:94,flip:false},layout.nextId++));
+      }
+    }
+    return clone(validateCozyRoomLayout(layout,s,'corrupt_data'));
+  }
   function validateVillageLayout(layout,code) {
     code=code||'invalid_village_layout';
     check(exactKeys(layout,['version','theme','items'])&&layout.version===1&&layout.theme==='cafe'&&
@@ -464,6 +554,12 @@
         check(integer(a.expectedRevision)&&a.expectedRevision===next.revision,'stale_state');
         validateRoomLayout(a.layout,next);next.roomLayout=clone(a.layout);
         // Moving or removing furniture never charges, rewards or backfills achievements.
+        return reward;
+      }
+      if(a.type==='saveCozyRoomLayout') {
+        check(integer(a.expectedRevision)&&a.expectedRevision===next.revision,'stale_state');
+        validateCozyRoomLayout(a.layout,next);next.cozyRoomLayout=clone(a.layout);
+        // Free room design never changes ownership, care, growth or rewards.
         return reward;
       }
       if(a.type==='saveVillageLayout') {
@@ -589,13 +685,14 @@
         catch(e){return failure(e);}
       });
     }
-    api={ready:ready,getState:visible,dispatch:dispatch,getStage:getStage,getLilacGrowth:getLilacGrowth,getLilacAppearance:getLilacAppearance,getLilacEvolution:getLilacEvolution,getEggOrigin:getEggOrigin,needsEggChoice:needsEggChoice,getVillageLayout:function(){return getVillageLayout(state);},
+    api={ready:ready,getState:visible,dispatch:dispatch,getStage:getStage,getLilacGrowth:getLilacGrowth,getLilacAppearance:getLilacAppearance,getLilacEvolution:getLilacEvolution,getEggOrigin:getEggOrigin,needsEggChoice:needsEggChoice,getVillageLayout:function(){return getVillageLayout(state);},getCozyRoomLayout:function(){return getCozyRoomLayout(state);},
       subscribe:function(fn){check(typeof fn==='function','invalid_listener');listeners.push(fn);return function(){listeners=listeners.filter(function(x){return x!==fn;});};},
       exportBackup:function(){check(!loading&&!blocked,'read_only');return JSON.stringify({format:'PetGameBackup',version:3,exportedAt:time(),state:clone(state)});},
       importBackup:importBackup};return api;
   }
   return {create:create,getStage:getStage,getLilacGrowth:getLilacGrowth,lilacGrowthStages:lilacGrowthStages,getLilacAppearance:getLilacAppearance,lilacAppearanceStages:lilacAppearanceStages,getLilacEvolution:getLilacEvolution,lilacEvolutionPaths:lilacEvolutionPaths,getMarketSummary:summary,eggCatalogue:eggCatalogue,eggProfile:eggProfile,getEggOrigin:getEggOrigin,needsEggChoice:needsEggChoice,KEY:KEY,STORAGE_KEY:KEY,
     roomFurniture:clone(ROOM_FURNITURE),defaultRoomLayout:defaultRoomLayout,getRoomLayout:getRoomLayout,
+    cozyRoomFurniture:clone(COZY_ROOM_FURNITURE),cozyRoomTypes:clone(COZY_ROOM_TYPES),defaultCozyRoomLayout:defaultCozyRoomLayout,getCozyRoomLayout:getCozyRoomLayout,
     villagePlaces:VILLAGE_PLACES,defaultVillageLayout:defaultVillageLayout,getVillageLayout:getVillageLayout,
     STOCKS:clone(STOCKS),stocks:clone(STOCKS),ITEMS:clone(ITEMS),items:clone(ITEMS),catalogue:clone(ITEMS),
     LIMITS:clone(LIMITS),limits:clone(LIMITS),LEGACY_KEYS:LEGACY_KEYS.slice()};
