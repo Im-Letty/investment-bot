@@ -130,6 +130,26 @@ function equalFinal(h,mode,expected){
 }
 
 for(const file of files) {
+  test(file+': lump principal remains visible above a shared zero origin without changing the projected amounts',()=>{
+    const h=harness(file);h.enableCharts();
+    for(const mode of ['daily','monthly','lump']){
+      const result=h.project(mode,{amount:1000000,rate:5,years:20}),chart=h.charts.at(-1);
+      assert.equal(chart.options.scales.y.beginAtZero,true,'a constant initial principal must not become the lower axis boundary');
+      assert.equal(chart.data.datasets.length,2);assert.equal(chart.options.plugins.legend.display,true);
+      assert.deepEqual(plain(chart.data.datasets[0].data),plain(result.principalSeries));
+      assert.deepEqual(plain(chart.data.datasets[1].data),plain(result.totalSeries));
+      assert.equal(chart.data.datasets[0].data.at(-1),result.principal);assert.equal(chart.data.datasets[1].data.at(-1),result.finalAmount);
+      if(mode==='lump'){
+        assert.ok(chart.data.datasets[0].data.every(value=>value===1000000));
+        assert.equal(chart.data.datasets[1].data[0],1050000);assert.equal(result.finalAmount,2653298);
+        equalFinal(h,'lump','265万3,298円');
+      }
+    }
+    const flat=h.project('lump',{amount:1000000,rate:0,years:20}),chart=h.charts.at(-1);
+    assert.equal(chart.options.scales.y.beginAtZero,true);
+    assert.deepEqual(plain(chart.data.datasets[0].data),plain(chart.data.datasets[1].data),'zero return legitimately overlaps both lines');
+    assert.equal(flat.finalAmount,1000000);equalFinal(h,'lump','100万円');
+  });
   test(file+': core snapshots render detail immediately and calculations share no delayed amount animation',()=>{
     const h=harness(file);
     for(const mode of Object.keys(modes)){

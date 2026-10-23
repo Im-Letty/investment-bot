@@ -693,7 +693,7 @@ function makeChart(id,labels,p,tot){
     },
     scales:{
       x:{ticks:{font:{family:chartFont,size:12,weight:'400'},color:'#888',autoSkip:true,maxTicksLimit:10},grid:{color:'rgba(0,0,0,0.06)',drawBorder:false}},
-      y:{ticks:{font:{family:chartFont,size:12,weight:'400'},color:'#888',callback:v=>fmtChartTick(v)},grid:{color:'rgba(0,0,0,0.06)',drawBorder:false}}
+      y:{beginAtZero:true,ticks:{font:{family:chartFont,size:12,weight:'400'},color:'#888',callback:v=>fmtChartTick(v)},grid:{color:'rgba(0,0,0,0.06)',drawBorder:false}}
     }}});
   if(window.KNSimulatorTheme) window.KNSimulatorTheme.applyChart(chart);
   return chart;
