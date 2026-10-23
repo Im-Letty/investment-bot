@@ -244,7 +244,7 @@ test('an empty restored asset list is zero progress and an exact target match sh
 });
 test('DOM target saves only on submit through the existing bridge and blank clears legacy fallback',async()=>{
  const h=domFixture();await h.flush();const planner=require('../static/mypage-planner.js'),d=planner.empty();d.notes=[{id:'p',title:'保持',body:'本文',groupId:'',pinned:true}];d.goals=[{id:'old',title:'保持',details:'詳細',target:100,monthly:null,deadline:''}];d.selectedGoalId='old';d.extra={keep:true};h.setPlanner(raw(d));await h.w.kkPortfolioRender();
- h.target('１，０００．５');assert.equal(h.targetWrites.length,0);await h.saveTarget();await h.flush();assert.equal(h.targetWrites.length,1);const next=JSON.parse(h.getPlanner());assert.equal(next.assetTarget,1000.5);delete next.assetTarget;assert.deepEqual(next,d);assert.equal(h.writes.length,0);assert.equal(h.nodes.get('poGoalStatus').textContent,'保存しました。');
+ h.target('１，０００．５');assert.equal(h.targetWrites.length,0);await h.saveTarget();await h.flush();assert.equal(h.targetWrites.length,1);const next=JSON.parse(h.getPlanner());assert.equal(next.assetTarget,1000.5);delete next.assetTarget;assert.deepEqual(next,d);assert.equal(h.writes.length,0);assert.equal(h.nodes.get('poGoalStatus').textContent,'');
  h.target('');await h.saveTarget();await h.flush();assert.equal(JSON.parse(h.getPlanner()).assetTarget,null);assert.equal(h.nodes.get('poGoalAmount').value,'');assert.doesNotMatch(h.nodes.get('poGoalBody').children.map(n=>n.textContent).join('|'),/100円/);
 });
 test('same-owner refresh keeps an unfinished target while account change clears the input errors and prior acknowledgement',async()=>{

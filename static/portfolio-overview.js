@@ -223,7 +223,7 @@
         var result=await session.setTarget(targetAmount(text));
         if(who!==owner()||epoch!==targetEpoch)return false;
         if(targetInput.value===text)targetDirty=false;
-        doc.getElementById('poGoalStatus').textContent=result.synced?'保存しました。':'この端末に保存しました。同期を待っています…';return true;
+        doc.getElementById('poGoalStatus').textContent=result.synced?'':'この端末に保存しました。同期を待っています…';return true;
       }catch(e){if(who===owner()&&epoch===targetEpoch)doc.getElementById('poGoalError').textContent=errorMessage(e);return false;}
       finally{if(who===owner()&&epoch===targetEpoch){targetBusy=false;paint(session.state());}}
     }
