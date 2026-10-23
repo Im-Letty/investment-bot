@@ -6,6 +6,7 @@ const vm = require('node:vm');
 const Core = require('../static/pet-game-core.js');
 const Motion = require('../static/pet-lilac-motion.js');
 const Room = require('../static/pet-room-behavior.js');
+const Town = require('../static/pet-town-walk.js');
 const source = fs.readFileSync(require.resolve('../static/pet-game.js'), 'utf8');
 const cafeSource = fs.readFileSync(require.resolve('../static/pet-cafe.js'), 'utf8');
 
@@ -45,6 +46,7 @@ class Element {
   scrollIntoView(options) { this.scrollCalls = this.scrollCalls || []; this.scrollCalls.push(options);
     this.ownerDocument.scrollEvents = this.ownerDocument.scrollEvents || []; this.ownerDocument.scrollEvents.push({ node: this, options }); }
   getBoundingClientRect() { return { left: 0, top: 0, width: 300, height: 300 }; }
+  contains(child) { for(let node=child;node;node=node.parentNode)if(node===this)return true;return false; }
   matches(selector) {
     if (selector.startsWith('.')) return this.className.split(/\s+/).includes(selector.slice(1));
     const focus = /^\[data-focus-key="([^"]+)"\]$/.exec(selector);
@@ -123,7 +125,7 @@ async function fixture(config = {}) {
       return controller;
     }
   };
-  const window = events({ document, PetLilacMotion: renderer, PetRoomBehavior: config.roomUnavailable ? undefined : Room, matchMedia: () => ({ matches: !!config.reducedMotion }), confirm: () => true,
+  const window = events({ document, PetTownWalk: config.townUnavailable ? undefined : Town, PetLilacMotion: renderer, PetRoomBehavior: config.roomUnavailable ? undefined : Room, matchMedia: () => ({ matches: !!config.reducedMotion }), confirm: () => true,
     PetGameCore: { ...Core, create(opts) { store = Core.create(opts); return store; } },
     requestAnimationFrame(fn) { const id = ++sequence; raf.set(id, fn); return id; },
     cancelAnimationFrame(id) { raf.delete(id); },
@@ -131,6 +133,7 @@ async function fixture(config = {}) {
     setTimeout(fn, ms) { const id = ++sequence; timers.set(id, { fn, at: clock + Math.max(0, ms || 0) }); return id; },
     clearTimeout(id) { timers.delete(id); }, URL: { createObjectURL: () => 'blob:synthetic', revokeObjectURL() {} }
   });
+  document.defaultView = window;
   if (config.rendererUnavailable) delete window.PetLilacMotion;
   class Clock extends Date { constructor(...args) { super(...(args.length ? args : [clock])); } static now() { return clock; } }
   const math = Object.create(Math); math.random = () => .5;
@@ -2724,33 +2727,91 @@ test('room arrangement is available for eggs and bunnies, stays free, and does n
 
 async function villageFixture(config={}) { return fixture({species:'lilac',developerPreview:false,startAtVillage:true,...config}); }
 function villagePlace(f,id) { return f.focusButton('village-place-'+id); }
-function villagePositionInView(f,id) { const p=villagePlace(f,id);return {x:Number.parseFloat(p.style.left),y:Number.parseFloat(p.style.top)}; }
+function villagePositionInView(f,id) { const p=villagePlace(f,id);return p.className.includes('ipg-town-place')?{x:Number(p.dataset.layoutX),y:Number(p.dataset.layoutY)}:{x:Number.parseFloat(p.style.left),y:Number.parseFloat(p.style.top)}; }
 async function setVillageAxis(f,axis,value) { const field=f.focusButton('village-'+axis);field.value=String(value);field.emit('input');await flush(); }
+async function walkToVillagePlace(f,id,enter=true) {
+  await f.click(villagePlace(f,id));
+  for(let frame=0;frame<650;frame++) {
+    await f.frame(50);
+    const avatar=f.host.querySelector('.ipg-town-avatar'),world=Town.createWorld(Core.getVillageLayout(f.store.getState()));
+    const pos={x:parseFloat(avatar.style.left),y:parseFloat(avatar.style.top)},place=world.places.find(row=>row.id===id);
+    if(Math.hypot(pos.x-place.entrance.x,pos.y-place.entrance.y)<1)break;
+  }
+  if(enter&&['home','shop','cafe','playground'].includes(id)) {
+    const button=f.focusButton('town-enter');assert.equal(button.hidden,false,id+' is in reach');
+    assert.ok(button.textContent.startsWith(Town.createWorld().places.find(p=>p.id===id).label));await f.click(button);
+  }
+}
 
 test('public game enters the cafe village without initializing layout or changing legacy pet and economy',async()=>{
   const f=await villageFixture({seed:{pg_exp:'686',pg_coins:'574',pg_items:'{"rice":2}'}});
   assert.ok(f.host.querySelector('.ipg-village'));assert.equal(f.focusButton('tab-village').getAttribute('aria-current'),'page');
-  assert.deepEqual(f.host.querySelectorAll('.ipg-village-place').map(x=>x.dataset.place),Core.villagePlaces.map(x=>x.id));
+  assert.deepEqual(f.host.querySelectorAll('.ipg-village-place,.ipg-town-place').map(x=>x.dataset.place),Core.villagePlaces.map(x=>x.id));
   assert.equal(f.host.querySelector('.ipg-care-room'),null);assert.equal(Object.hasOwn(f.saved(),'villageLayout'),false);
   assert.equal(f.data.get(Core.KEY),f.beforeMountRaw);assert.equal(f.writes.length,f.writesBeforeMount);assert.equal(f.saved().pet.exp,686);assert.equal(f.saved().coins,574);
   f.ui.render();await f.ui.close();await f.ui.open();assert.equal(f.data.get(Core.KEY),f.beforeMountRaw);assert.ok(f.host.querySelector('.ipg-village'));
 });
 
-test('village entrances route to the existing room shop and both real games while map browsing grants nothing',async()=>{
+test('walking to nearby entrances opens the existing facilities only after explicit entry, without granting rewards',async()=>{
   const f=await villageFixture(),before=f.saved(),writes=f.writes.length;
-  await f.click(villagePlace(f,'home'));assert.ok(f.host.querySelector('.ipg-care-room'));assert.equal(f.focusButton('tab-care').getAttribute('aria-current'),'page');
-  await f.click(f.focusButton('tab-village'));await f.click(villagePlace(f,'shop'));assert.ok(f.host.querySelector('.ipg-shop-grid'));
-  await f.click(f.focusButton('tab-village'));await f.click(villagePlace(f,'cafe'));assert.ok(f.host.textContent.includes('カフェのおやつづくり'));assert.equal(f.host.querySelector('.ipg-cafe-activity'),null,'opening a cafe cannot silently begin a paid daily attempt');
-  await f.click(f.focusButton('tab-village'));await f.click(villagePlace(f,'playground'));assert.ok(f.host.textContent.includes('広場のおにぎりキャッチ'));
-  await f.click(f.focusButton('tab-village'));await f.click(villagePlace(f,'tree'));assert.ok(f.host.textContent.includes('木かげで、ひとやすみ'));
-  await f.click(villagePlace(f,'flowers'));assert.ok(f.host.textContent.includes('お花が村を彩っています'));
+  const start=f.host.querySelector('.ipg-town-avatar').style.left;
+  await f.click(villagePlace(f,'home'));assert.ok(f.host.querySelector('.ipg-town'));assert.equal(f.host.querySelector('.ipg-town-avatar').style.left,start,'tap cannot teleport or enter');
+  await walkToVillagePlace(f,'home');assert.ok(f.host.querySelector('.ipg-care-room'));assert.equal(f.focusButton('tab-care').getAttribute('aria-current'),'page');
+  await f.click(f.focusButton('tab-village'));await walkToVillagePlace(f,'shop');assert.ok(f.host.querySelector('.ipg-shop-grid'));
+  await f.click(f.focusButton('tab-village'));await walkToVillagePlace(f,'cafe');assert.ok(f.host.textContent.includes('カフェのおやつづくり'));assert.equal(f.host.querySelector('.ipg-cafe-activity'),null,'opening a cafe cannot silently begin a paid daily attempt');
+  await f.click(f.focusButton('tab-village'));await walkToVillagePlace(f,'playground');assert.ok(f.host.textContent.includes('広場のおにぎりキャッチ'));
+  await f.click(f.focusButton('tab-village'));await walkToVillagePlace(f,'tree',false);assert.ok(f.host.querySelector('.ipg-town'));
+  await walkToVillagePlace(f,'flowers',false);assert.equal(f.focusButton('town-enter').hidden,true);
   assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
+});
+
+test('town uses exactly the raised clothed pet, moves continuously with its camera, and writes no save',async()=>{
+  const f=await villageFixture({rendererMode:'ready',seed:{pg_exp:'686'},setup:async store=>{
+    for(const action of [{type:'buyItem',itemId:'cloth_cream_vest'},{type:'equipClothing',itemId:'cloth_cream_vest'}])assert.equal((await store.dispatch(action)).ok,true);
+  }}),before=f.saved(),writes=f.writes.length;
+  const avatar=f.host.querySelector('.ipg-town-avatar'),visual=avatar.querySelector('.ipg-lilac-visual'),scene=f.host.querySelector('.ipg-town-world');
+  assert.equal(f.host.querySelectorAll('.ipg-lilac-visual').length,1);assert.equal(visual.dataset.outfit,'cloth_cream_vest');
+  assert.equal(f.activeMotions()[0].options.growthStage,Core.getLilacGrowth(before.pet.exp).key);
+  const x=parseFloat(avatar.style.left),camera=scene.style.transform,button=f.focusButton('town-right');
+  button.emit('pointerdown',{pointerId:1,button:0});await f.frame();for(let i=0;i<25;i++)await f.frame(50);
+  assert.equal(Math.round(parseFloat(avatar.style.left)-x),250);assert.notEqual(scene.style.transform,camera);
+  assert.equal(avatar.dataset.walking,'true');assert.equal(avatar.style.zIndex,String(Math.round(parseFloat(avatar.style.top))));
+  const moving=f.activeMotions()[0].changes.filter(row=>row.name==='moving');assert.ok(moving.length>=3);assert.ok(moving.every(row=>row.durationMs===1600&&row.elapsedMs>=0&&row.elapsedMs<1600));
+  f.window.emit('pointerup',{pointerId:1});await f.frame(50);assert.equal(avatar.dataset.walking,'false');
+  assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
+});
+
+test('returning from a facility keeps the walked position while detached entry controls are inert',async()=>{
+  const f=await villageFixture(),before=f.saved();await walkToVillagePlace(f,'shop',false);
+  const avatar=f.host.querySelector('.ipg-town-avatar'),position=[avatar.style.left,avatar.style.top],oldEnter=f.focusButton('town-enter'),oldRight=f.focusButton('town-right');
+  await f.click(oldEnter);assert.ok(f.host.querySelector('.ipg-shop-grid'));
+  await f.click(f.focusButton('tab-village'));const current=f.host.querySelector('.ipg-town-avatar');
+  assert.deepEqual([current.style.left,current.style.top],position);assert.equal(f.focusButton('town-enter').textContent,'マルシェに入る');
+  oldEnter.emit('click');oldRight.emit('pointerdown',{pointerId:8,button:0});await f.frame(50);
+  assert.ok(f.host.querySelector('.ipg-town'));assert.deepEqual([current.style.left,current.style.top],position);assert.deepEqual(f.saved(),before);
+});
+
+test('town hide and editing destroy all movement frames; reopening is still with the same durable pet',async()=>{
+  const f=await villageFixture(),before=f.saved(),button=f.focusButton('town-right');
+  button.emit('pointerdown',{pointerId:2,button:0});await f.frame();await f.frame(50);const stale=[...f.raf.values()];
+  await f.ui.close();assert.equal(f.raf.size,0);stale.forEach(fn=>fn(999999));await f.ui.open();
+  const avatar=f.host.querySelector('.ipg-town-avatar'),position=[avatar.style.left,avatar.style.top];
+  await f.frame(500);assert.deepEqual([avatar.style.left,avatar.style.top],position);assert.equal(avatar.dataset.walking,'false');
+  f.focusButton('town-right').emit('pointerdown',{pointerId:3,button:0});await f.frame();await f.click(f.focusButton('village-edit'));
+  assert.equal(f.raf.size,0);button.emit('pointerdown',{pointerId:2,button:0});await f.frame(50);
+  assert.ok(f.host.querySelector('.ipg-village-editor'));assert.deepEqual(f.saved(),before);
+});
+
+test('missing town movement code reports a loading failure without showing teleport controls or changing a save',async()=>{
+  const f=await villageFixture({townUnavailable:true});assert.ok(f.host.textContent.includes('街を読み込めませんでした'));
+  assert.equal(f.host.querySelector('.ipg-village-map'),null);assert.equal(f.host.querySelector('.ipg-town-avatar'),null);
+  assert.equal(f.data.get(Core.KEY),f.beforeMountRaw);assert.equal(f.writes.length,f.writesBeforeMount);
 });
 
 test('village editor keeps all six entrances free, blocks navigation and updates only local integer positions before save',async()=>{
   const f=await villageFixture(),before=f.saved(),writes=f.writes.length,oldRoomTab=f.focusButton('tab-care'),oldShop=villagePlace(f,'shop');
   await f.click(f.focusButton('village-edit'));assert.ok(f.host.querySelector('.ipg-village-editor'));
-  assert.equal(f.host.querySelectorAll('.ipg-village-place').length,6);assert.equal(f.host.querySelector('.ipg-backup'),null);
+  assert.equal(f.host.querySelectorAll('.ipg-village-place,.ipg-town-place').length,6);assert.equal(f.host.querySelector('.ipg-backup'),null);
   assert.ok(f.host.querySelector('.ipg-tabs').querySelectorAll('button').every(x=>x.disabled));oldRoomTab.emit('click');oldShop.emit('click');await flush();
   assert.ok(f.host.querySelector('.ipg-village-editor'));
   await f.click(villagePlace(f,'cafe'));await setVillageAxis(f,'x',81);await setVillageAxis(f,'y',79);
@@ -2820,7 +2881,7 @@ test('mounting a different host isolates a pending village save and all detached
 });
 
 test('cafe starts explicit snack sessions and settles the real shared wallet only after its full timer',async()=>{
-  const f=await villageFixture(),before=f.saved();await f.click(villagePlace(f,'cafe'));await f.click(f.button('25秒のゲームをはじめる'));
+  const f=await villageFixture(),before=f.saved();await walkToVillagePlace(f,'cafe');await f.click(f.button('25秒のゲームをはじめる'));
   assert.equal(f.saved().minigames.active.kind,'snack');assert.equal(f.saved().minigames.started,1);assert.ok(f.host.querySelector('.ipg-cafe-activity'));assert.equal(f.saved().coins,before.coins);
   const ingredient=id=>f.host.querySelectorAll('.ipg-cafe-ingredient').find(x=>x.dataset.ingredient===id);
   for(const id of ['sponge','cream','berry'])await f.click(ingredient(id));assert.ok(f.host.querySelector('.ipg-cafe-status').textContent.includes('3点'));
@@ -2830,14 +2891,14 @@ test('cafe starts explicit snack sessions and settles the real shared wallet onl
 });
 
 test('cafe cancellation cleans old ingredient and timer callbacks without granting rewards or a second daily attempt',async()=>{
-  const f=await villageFixture(),before=f.saved();await f.click(villagePlace(f,'cafe'));await f.click(f.button('25秒のゲームをはじめる'));
+  const f=await villageFixture(),before=f.saved();await walkToVillagePlace(f,'cafe');await f.click(f.button('25秒のゲームをはじめる'));
   const old=f.host.querySelectorAll('.ipg-cafe-ingredient'),staleFrames=[...f.raf.values()];await f.click(f.button('中止する（報酬なし）'));
   assert.equal(f.saved().minigames.active,null);assert.equal(f.saved().minigames.started,1);assert.equal(f.saved().coins,before.coins);assert.equal(f.saved().pet.exp,before.pet.exp);
   const after=f.saved();old.forEach(b=>b.emit('click'));staleFrames.forEach(fn=>fn(100000));await f.frame(30000);await flush();assert.deepEqual(f.saved(),after);assert.equal(f.host.querySelector('.ipg-cafe-activity'),null);
 });
 
 test('missing cafe code is an honest read error and does not consume a daily game attempt',async()=>{
-  const f=await villageFixture({cafeUnavailable:true}),before=f.saved();await f.click(villagePlace(f,'cafe'));await f.click(f.button('25秒のゲームをはじめる'));
+  const f=await villageFixture({cafeUnavailable:true}),before=f.saved();await walkToVillagePlace(f,'cafe');await f.click(f.button('25秒のゲームをはじめる'));
   assert.ok(f.host.textContent.includes('カフェを読み込めませんでした'));assert.deepEqual(f.saved(),before);assert.equal(f.host.querySelector('.ipg-cafe-activity'),null);
 });
 
@@ -2847,7 +2908,7 @@ test('village facility and flora edges clamp to their distinct safe bands withou
     assert.equal((await store.dispatch({type:'saveVillageLayout',layout,expectedRevision:store.getState().revision})).ok,true);
   }}),before=f.saved(),writes=f.writes.length;
   const bounds=id=>['tree','flowers'].includes(id)?[16,84]:[22,78];
-  before.villageLayout.items.forEach((row,i)=>assert.deepEqual(villagePositionInView(f,row.id),{x:i%2?85:15,y:bounds(row.id)[i%2]}));
+  Town.createWorld(before.villageLayout).places.forEach(row=>assert.deepEqual(villagePositionInView(f,row.id),{x:row.x/2880*100,y:row.y/1920*100}));
   assert.equal(f.data.get(Core.KEY),f.beforeMountRaw);assert.equal(f.writes.length,writes);
   await f.click(f.focusButton('village-edit'));
   for(const {id} of Core.villagePlaces){
@@ -2873,13 +2934,13 @@ test('village connected roads stay decorative while all six original entrances a
   for(const [attribute,value] of [['x','0'],['y','0'],['width','1000'],['height','1000']])assert.equal(texture.getAttribute(attribute),value);
   assert.deepEqual(roads.querySelectorAll('.ipg-village-lane').map(lane=>lane.dataset.pathFor).sort(),['cafe','flowers','home','playground','shop']);
   assert.equal(roads.querySelectorAll('button').length,0);
-  const entrances=f.host.querySelectorAll('.ipg-village-place');assert.equal(entrances.length,6);
+  const entrances=f.host.querySelectorAll('.ipg-village-place,.ipg-town-place');assert.equal(entrances.length,6);
   for(const spec of Core.villagePlaces){
     const entrance=villagePlace(f,spec.id);assert.equal(entrance.tagName,'BUTTON');
     assert.ok(entrance.getAttribute('aria-label').includes(spec.name));assert.equal(entrance.disabled,false);
   }
   await f.click(villagePlace(f,'tree'));await f.click(villagePlace(f,'flowers'));
-  await f.click(villagePlace(f,'home'));await f.click(f.focusButton('tab-village'));
+  await walkToVillagePlace(f,'home');await f.click(f.focusButton('tab-village'));
   assert.ok(f.host.querySelector('.ipg-village-roads'));assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
 });
 

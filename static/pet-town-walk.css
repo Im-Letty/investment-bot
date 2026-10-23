@@ -1,0 +1,356 @@
+/* Walking uses the existing village art and one camera-controlled world.
+   The engine owns world transforms, coordinates and every depth index. */
+.ipg-village.ipg-town:not(.ipg-village-editor) {
+  --ipg-town-control-bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+  --ipg-town-edge-left: max(12px, env(safe-area-inset-left, 0px));
+  --ipg-town-edge-right: max(12px, env(safe-area-inset-right, 0px));
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.ipg-town .ipg-town-viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: #a6b56e;
+  overscroll-behavior: none;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.ipg-town .ipg-town-viewport:focus-visible {
+  outline: 2px solid #fffced;
+  outline-offset: -5px;
+}
+.ipg-town .ipg-town-load-error { position: absolute; top: 38%; left: 50%; transform: translateX(-50%); width: min(320px, calc(100% - 48px)); padding: 20px; box-sizing: border-box; border-radius: 18px; background: var(--ipg-paper); color: var(--ipg-ink); text-align: center; }
+
+.ipg-town .ipg-town-world {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 2880px;
+  height: 1920px;
+  margin: 0;
+  background: #a6b56e url('/static/pet-village-art/terrain-v2.webp') center / 100% 100% no-repeat;
+  transform-origin: 0 0;
+  will-change: transform;
+  isolation: isolate;
+}
+
+.ipg-town .ipg-town-roads {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.ipg-town .ipg-town-roads path {
+  fill: none;
+  stroke: #e4cfa6;
+  stroke-width: 84px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.ipg-town .ipg-town-roads :is(.ipg-village-lane-edge, .ipg-town-road-edge) {
+  stroke: #b59f70;
+  stroke-width: 100px;
+  opacity: .66;
+}
+
+.ipg-town .ipg-town-roads :is(.ipg-village-lane, .ipg-town-road) {
+  stroke: #e4cfa6;
+  stroke-width: 84px;
+}
+
+.ipg .ipg-town .ipg-town-place {
+  position: absolute;
+  display: block;
+  width: 360px;
+  height: 360px;
+  min-width: 0;
+  min-height: 0;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 28px;
+  background: transparent;
+  color: #3e4c34;
+  font: inherit;
+  line-height: 1.4;
+  transform: translate(-50%, -100%);
+  touch-action: none;
+}
+
+.ipg .ipg-town .ipg-town-place:is(:hover, :active, [aria-pressed="true"]) {
+  background: transparent;
+  box-shadow: none;
+}
+
+.ipg .ipg-town .ipg-town-place:focus-visible {
+  outline: 3px solid #fffced;
+  outline-offset: 6px;
+  background: #fffced18;
+}
+
+.ipg-town .ipg-town-place > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  filter: drop-shadow(0 7px 5px #344d3024);
+}
+.ipg-town .ipg-town-place > img[hidden] { display: none !important; }
+
+.ipg-town .ipg-town-place > strong {
+  position: absolute;
+  top: auto;
+  bottom: 20px;
+  left: 50%;
+  width: max-content;
+  max-width: calc(100% - 24px);
+  margin: 0;
+  padding: 5px 14px;
+  border: 1px solid #d8ddbf;
+  border-radius: 999px;
+  background: #fffceded;
+  color: #3e4c34;
+  font: 500 18px/1.5 var(--kn-a-sans, system-ui, sans-serif);
+  text-align: center;
+  opacity: 1;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.ipg .ipg-town .ipg-town-place[data-place="tree"] { width: 330px; height: 330px; }
+.ipg .ipg-town .ipg-town-place[data-place="flowers"] { width: 230px; height: 230px; }
+
+.ipg-town .ipg-town-prop {
+  position: absolute;
+  display: block;
+  max-width: none;
+  height: auto;
+  object-fit: contain;
+  transform: translate(-50%, -100%);
+  pointer-events: none;
+  filter: drop-shadow(0 5px 4px #344d3020);
+}
+
+.ipg-town .ipg-town-avatar {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  transform: translate(-50%, -90%);
+  pointer-events: none;
+}
+
+.ipg-town .ipg-town-shadow {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  width: 76px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, #374c3530, #374c3514 48%, transparent 72%);
+  transform: translateX(-50%);
+}
+
+.ipg-town .ipg-town-pet {
+  position: absolute;
+  inset: 0;
+  width: 150px;
+  height: 150px;
+  transform-origin: 50% 90%;
+}
+
+.ipg-town .ipg-town-pet > :is(.ipg-lilac-visual, img) {
+  display: block;
+  position: relative;
+  width: 150px;
+  height: 150px;
+  min-width: 0;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  object-fit: contain;
+  transform: none;
+  filter: none;
+  animation: none;
+}
+
+/* Direction is model state, not a mirrored or rotated replacement drawing. */
+.ipg-town .ipg-town-avatar[data-walking="true"] > .ipg-town-pet {
+  animation: ipg-town-step .46s ease-in-out infinite;
+}
+
+@keyframes ipg-town-step {
+  0%, 50%, 100% { transform: translateY(0); }
+  25%, 75% { transform: translateY(-4px); }
+}
+
+.ipg-town .ipg-town-controls {
+  position: absolute;
+  bottom: var(--ipg-town-control-bottom);
+  left: var(--ipg-town-edge-left);
+  z-index: 5;
+  display: grid;
+  grid-template-columns: repeat(3, 44px);
+  grid-template-rows: repeat(3, 44px);
+  gap: 4px;
+  width: max-content;
+  margin: 0;
+  padding: 6px;
+  border: 1px solid #d8ddbf;
+  border-radius: 23px;
+  background: #fffcedeb;
+  color: #3e4c34;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ipg .ipg-town-controls button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #d5dcc0;
+  border-radius: 13px;
+  background: #fafbef;
+  color: #4e6242;
+  font: 500 21px/1 var(--kn-a-sans, system-ui, sans-serif);
+  box-shadow: none;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ipg-town-controls [data-direction="up"] { grid-column: 2; grid-row: 1; }
+.ipg-town-controls [data-direction="left"] { grid-column: 1; grid-row: 2; }
+.ipg-town-controls [data-direction="down"] { grid-column: 2; grid-row: 3; }
+.ipg-town-controls [data-direction="right"] { grid-column: 3; grid-row: 2; }
+
+.ipg .ipg-town-controls button:is(:active, [aria-pressed="true"]) {
+  background: #e5ecd4;
+  color: #344d2e;
+  border-color: #aabb91;
+}
+
+.ipg .ipg-town-controls button:focus-visible {
+  outline: 2px solid #607765;
+  outline-offset: 2px;
+}
+
+.ipg .ipg-town > .ipg-town-enter {
+  position: absolute;
+  right: var(--ipg-town-edge-right);
+  bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+  z-index: 5;
+  width: max-content;
+  max-width: calc(100% - 184px);
+  min-width: 0;
+  min-height: 48px;
+  margin: 0;
+  padding: 11px 14px;
+  border: 1px solid #d1d8b8;
+  border-radius: 18px;
+  background: #fffcedf5;
+  color: #3e4c34;
+  font: 500 14px/1.5 var(--kn-a-sans, system-ui, sans-serif);
+  box-shadow: 0 3px 14px #344d3012;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  touch-action: manipulation;
+}
+
+.ipg-town .ipg-town-enter[hidden] { display: none !important; }
+
+.ipg-village.ipg-town:not(.ipg-village-editor) > [data-focus-key="village-edit"] {
+  right: var(--ipg-town-edge-right);
+  bottom: calc(185px + env(safe-area-inset-bottom, 0px));
+  z-index: 5;
+  width: max-content;
+  max-width: calc(100% - 184px);
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid #d1d8b8;
+  border-radius: 14px;
+  background: #fffcede8;
+  color: #3e4c34;
+  font: 400 13px/1.4 var(--kn-a-sans, system-ui, sans-serif);
+  box-shadow: none;
+}
+
+.ipg-town .ipg-town-guide {
+  position: absolute;
+  top: calc(135px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  z-index: 4;
+  width: max-content;
+  max-width: calc(100% - 32px);
+  margin: 0;
+  padding: 7px 13px;
+  border: 1px solid #d8ddbf;
+  border-radius: 999px;
+  background: #fffceded;
+  color: #526346;
+  font: 400 12px/1.5 var(--kn-a-sans, system-ui, sans-serif);
+  text-align: center;
+  pointer-events: none;
+}
+
+.ipg-town .ipg-town-location {
+  position: absolute;
+  top: calc(180px + env(safe-area-inset-top, 0px));
+  left: var(--ipg-town-edge-left);
+  z-index: 4;
+  max-width: calc(100% - 32px);
+  margin: 0;
+  padding: 5px 10px;
+  border: 1px solid #d8ddbf;
+  border-radius: 12px;
+  background: #fffcede8;
+  color: #526346;
+  font: 400 12px/1.5 var(--kn-a-sans, system-ui, sans-serif);
+  pointer-events: none;
+}
+
+.ipg-town .ipg-town-location:empty { display: none; }
+
+@media (min-width: 760px) {
+  .ipg-village.ipg-town:not(.ipg-village-editor) {
+    --ipg-town-edge-left: max(24px, env(safe-area-inset-left, 0px));
+    --ipg-town-edge-right: max(24px, env(safe-area-inset-right, 0px));
+  }
+}
+
+@media (max-height: 560px) {
+  .ipg-town .ipg-town-guide { display: none; }
+  .ipg-town .ipg-town-location { top: calc(174px + env(safe-area-inset-top, 0px)); }
+}
+
+/* The existing compact-landscape tabs move to the first row. */
+@media (min-width: 640px) and (max-height: 480px) {
+  .ipg-town .ipg-town-guide { top: calc(72px + env(safe-area-inset-top, 0px)); }
+  .ipg-town .ipg-town-location { top: calc(112px + env(safe-area-inset-top, 0px)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ipg-town .ipg-town-avatar[data-walking="true"] > .ipg-town-pet { animation: none; }
+  .ipg-town .ipg-town-world { will-change: auto; }
+}

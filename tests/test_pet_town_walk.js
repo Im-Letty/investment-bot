@@ -1,0 +1,236 @@
+'use strict';
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const Town = require('../static/pet-town-walk.js');
+
+function near(actual, expected, tolerance = .001) { assert.ok(Math.abs(actual - expected) <= tolerance, actual + ' differs from ' + expected); }
+class Events {
+  constructor() { this.listeners = new Map(); }
+  addEventListener(type, fn) { if (!this.listeners.has(type)) this.listeners.set(type, new Set()); this.listeners.get(type).add(fn); }
+  removeEventListener(type, fn) { this.listeners.get(type)?.delete(fn); }
+  emit(type, values = {}) {
+    const event = { target: this, preventDefault() { this.prevented = true; }, ...values };
+    [...(this.listeners.get(type) || [])].forEach(fn => fn(event)); return event;
+  }
+  count() { return [...this.listeners.values()].reduce((total, rows) => total + rows.size, 0); }
+}
+class Element extends Events {
+  constructor(doc, tag = 'DIV') { super(); this.ownerDocument = doc; this.tagName = tag; this.style = {}; this.attributes = {}; this.children = []; this.isConnected = true; this.hidden = false; this.disabled = false; this.captures = new Set(); }
+  append(child) { child.parentNode = this; this.children.push(child); return child; }
+  contains(child) { return child === this || this.children.some(item => item.contains(child)); }
+  focus(options) { this.ownerDocument.activeElement = this; this.focusOptions = options; }
+  getBoundingClientRect() { return { left: 10, top: 20, width: this.width || 390, height: this.height || 700 }; }
+  setAttribute(key, value) { this.attributes[key] = value; }
+  getAttribute(key) { return this.attributes[key] ?? null; }
+  setPointerCapture(id) { this.captures.add(id); }
+  releasePointerCapture(id) { this.captures.delete(id); }
+}
+function fixture(options = {}) {
+  const win = new Events(), doc = new Events(), raf = new Map(), observed = [], positions = [], motions = [], entries = [];
+  let sequence = 0, stamp = 0, allowed = true;
+  doc.hidden = false; doc.defaultView = win;
+  win.requestAnimationFrame = fn => { const id = ++sequence; raf.set(id, fn); return id; };
+  win.cancelAnimationFrame = id => raf.delete(id);
+  if (!options.noObserver) win.ResizeObserver = class {
+    constructor(fn) { this.fn = fn; this.disconnected = false; observed.push(this); }
+    observe(element) { this.element = element; }
+    disconnect() { this.disconnected = true; }
+  };
+  const viewport = new Element(doc), surface = viewport.append(new Element(doc)), avatar = surface.append(new Element(doc));
+  const enter = new Element(doc, 'BUTTON'), buttons = [];
+  const controls = [[1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0], [-1, -1], [0, -1], [1, -1]].map(([x, y]) => {
+    const element = new Element(doc, 'BUTTON'); buttons.push(element); return { element, x, y };
+  });
+  doc.activeElement = viewport;
+  const world = options.world || Town.createWorld();
+  const controller = Town.mount({ viewport, worldElement: surface, avatar, enterButton: enter, world,
+    position: options.position || { x: 1100, y: 1100 }, controls, canRun: () => allowed,
+    onPosition: p => positions.push(p), onMotion: m => motions.push(m), onEnter: id => entries.push(id) });
+  function frame(ms = 50) { stamp += ms; const calls = [...raf.values()]; raf.clear(); calls.forEach(fn => fn(stamp)); }
+  function advance(count, ms = 50) { for (let i = 0; i < count; i++) frame(ms); }
+  function settle(limit = 1200) { for (let i = 0; raf.size && i < limit; i++) frame(); assert.equal(raf.size, 0, 'movement must reach or safely stop in a bounded number of frames'); }
+  return { win, doc, world, viewport, surface, avatar, enter, buttons, controls, controller, raf, observed, positions, motions, entries,
+    frame, advance, settle, allow(value) { allowed = value; }, key(key, type = 'keydown', values = {}) { return win.emit(type, { target: doc.activeElement, key, ...values }); } };
+}
+
+test('world projections use the six saved places and safe display bands without rewriting the saved layout', () => {
+  const layout = { version: 1, theme: 'cafe', items: [
+    { id: 'home', x: 0, y: 0 }, { id: 'cafe', x: 100, y: 100 }, { id: 'tree', x: 100, y: 100 }, { id: 'flowers', x: 0, y: 0 }
+  ] }, original = JSON.stringify(layout), world = Town.createWorld(layout);
+  assert.equal(world.width, 2880); assert.equal(world.height, 1920); assert.equal(world.places.length, 6);
+  assert.equal(JSON.stringify(layout), original);
+  const home = world.places.find(p => p.id === 'home'), cafe = world.places.find(p => p.id === 'cafe'), tree = world.places.find(p => p.id === 'tree'), flowers = world.places.find(p => p.id === 'flowers');
+  near(home.x, 432); near(home.y, 422.4); near(cafe.y, 1497.6); near(tree.y, 1612.8); near(flowers.y, 307.2);
+  assert.ok(cafe.x < 2880 * .85, 'unsafe saved bank positions are projected inland only for display');
+  for (const place of world.places) { near(place.entrance.x, place.x); near(place.entrance.y, place.y + 70); assert.ok(place.footprint.y < place.y); }
+});
+
+test('river collision respects the near bank and the single bounded bridge corridor', () => {
+  const world = Town.createWorld(); world.places = [];
+  assert.equal(Town.isWalkable(world, 2200, 1500), true);
+  assert.equal(Town.isWalkable(world, 2650, 1500), false);
+  assert.equal(Town.isWalkable(world, 2770, 1160), true);
+  assert.equal(Town.isWalkable(world, 2770, 1060), false);
+  assert.equal(Town.isWalkable(world, 2820, 1160), false);
+  assert.equal(Town.isWalkable(world, -1, 500), false);
+  assert.equal(Town.isWalkable(world, 500, NaN), false);
+});
+
+test('substeps prevent crossing a building or the river even for a large displacement', () => {
+  const world = Town.createWorld(), home = world.places[0].footprint;
+  const start = { x: home.x - 300, y: home.y }, end = Town.move(world, start, 600, 0);
+  assert.ok(Town.isWalkable(world, start.x, start.y)); assert.ok(Town.isWalkable(world, end.x, end.y));
+  assert.ok(end.x < home.x - home.rx, 'the far side must not be reached through the footprint');
+  const empty = Town.createWorld(); empty.places = [];
+  const shore = Town.move(empty, { x: 2000, y: 1500 }, 800, 0);
+  assert.ok(shore.x < 2500); assert.ok(Town.isWalkable(empty, shore.x, shore.y));
+});
+
+test('a cached position is accepted only on valid walkable ground and copies cannot mutate engine spawn state', () => {
+  const world = Town.createWorld(), home = world.places[0];
+  const safe = { x: 1000, y: 1000 }, recovered = Town.spawn(world, safe); assert.deepEqual(recovered, safe); recovered.x = 0; assert.equal(safe.x, 1000);
+  for (const unsafe of [{ x: NaN, y: 0 }, { x: 2700, y: 1600 }, { x: home.footprint.x, y: home.footprint.y }]) {
+    const result = Town.spawn(world, unsafe); assert.ok(Town.isWalkable(world, result.x, result.y)); assert.notDeepEqual(result, unsafe);
+  }
+});
+
+test('only four facilities can be entered, using their entrance within 110 pixels', () => {
+  const world = Town.createWorld(), cafe = world.places.find(p => p.id === 'cafe'), tree = world.places.find(p => p.id === 'tree');
+  assert.equal(Town.nearestFacility(world, { x: cafe.entrance.x, y: cafe.entrance.y + 109 }).id, 'cafe');
+  assert.equal(Town.nearestFacility(world, { x: cafe.entrance.x, y: cafe.entrance.y + 111 }), null);
+  assert.equal(Town.nearestFacility(world, tree.entrance), null);
+});
+
+test('camera follows the player at its anchor, clamps to the world and never fits the whole map', () => {
+  const world = Town.createWorld(), position = { x: 1500, y: 1100 }, c = Town.camera(world, 390, 700, position);
+  near((position.x - c.x) * c.scale, 390 * .5); near((position.y - c.y) * c.scale, 700 * .58);
+  for (const size of [[390, 700], [1440, 900], [320, 240]]) {
+    const at = Town.camera(world, ...size, { x: 2870, y: 1910 });
+    assert.ok(size[0] / at.scale <= 960); assert.ok(size[1] / at.scale <= 800);
+    assert.ok(at.x >= 0 && at.x + size[0] / at.scale <= world.width + .001); assert.ok(at.y >= 0 && at.y + size[1] / at.scale <= world.height + .001);
+  }
+});
+
+test('short portrait and landscape cameras keep the player above the lower direction pad while respecting world bounds', () => {
+  const world = Town.createWorld(), position = { x: 1500, y: 1100 };
+  for (const [width, height] of [[320, 480], [640, 360], [844, 390]]) {
+    const c = Town.camera(world, width, height, position);
+    near((position.x - c.x) * c.scale, width * .5); near((position.y - c.y) * c.scale, height * .45);
+    if (height === 480) near((position.y - c.y) * c.scale, 216);
+    for (const corner of [{ x: 28, y: 28 }, { x: world.width - 28, y: world.height - 28 }]) {
+      const edge = Town.camera(world, width, height, corner);
+      assert.ok(edge.x >= 0 && edge.x + width / edge.scale <= world.width + .001);
+      assert.ok(edge.y >= 0 && edge.y + height / edge.scale <= world.height + .001);
+      assert.ok((corner.y - edge.y) * edge.scale >= 0 && (corner.y - edge.y) * edge.scale <= height);
+    }
+  }
+});
+
+test('idle and resizing create no continuous animation or position writes, and avatar depth follows its feet', () => {
+  const f = fixture(); assert.equal(f.raf.size, 0); assert.equal(f.positions.length, 0); assert.equal(f.avatar.style.zIndex, '1100');
+  const initial = f.surface.style.transform; f.viewport.width = 700; f.observed[0].fn();
+  assert.notEqual(f.surface.style.transform, initial); assert.equal(f.raf.size, 0); assert.equal(f.positions.length, 0);
+  f.controller.destroy(); assert.equal(f.observed[0].disconnected, true);
+});
+
+test('continuous movement uses 200 pixels per second, equal diagonal speed and a 50ms maximum step', () => {
+  for (const diagonal of [false, true]) {
+    const f = fixture(), start = f.controller.position(); f.key('ArrowRight'); if (diagonal) f.key('ArrowDown');
+    f.frame(); f.advance(20);
+    const end = f.controller.position(); near(Math.hypot(end.x - start.x, end.y - start.y), 200);
+    assert.equal(f.positions.length, 20); assert.equal(f.motions.filter(m => m.walking).length, 20, 'the renderer receives every actual walking frame');
+    f.key('ArrowRight', 'keyup'); if (diagonal) f.key('ArrowDown', 'keyup');
+    assert.equal(f.raf.size, 0); assert.equal(f.motions.at(-1).walking, false); f.controller.destroy();
+  }
+  const f = fixture(), start = f.controller.position(); f.key('d'); f.frame(); f.frame(5000);
+  near(f.controller.position().x - start.x, 10); f.controller.destroy();
+});
+
+test('keyboard input stays inside the focused town and never takes text-entry or modifier keys', () => {
+  const f = fixture(), outside = new Element(f.doc); f.doc.activeElement = outside;
+  assert.equal(f.key('ArrowRight').prevented, undefined); assert.equal(f.raf.size, 0);
+  for (const tag of ['INPUT', 'TEXTAREA', 'SELECT']) {
+    f.doc.activeElement = f.viewport.append(new Element(f.doc, tag));
+    assert.equal(f.key('w').prevented, undefined); assert.equal(f.raf.size, 0);
+  }
+  const editable = f.viewport.append(new Element(f.doc)); editable.isContentEditable = true; f.doc.activeElement = editable;
+  assert.equal(f.key('s').prevented, undefined); f.doc.activeElement = f.viewport;
+  assert.equal(f.key('a', 'keydown', { ctrlKey: true }).prevented, undefined);
+  assert.equal(f.key('A').prevented, true); f.frame(); f.frame(); assert.ok(f.controller.position().x < 1100);
+  f.viewport.emit('focusout', { relatedTarget: outside }); assert.equal(f.raf.size, 0); assert.equal(f.motions.at(-1).walking, false); f.controller.destroy();
+});
+
+test('Dpad holds capture their pointer, release immediately and suppress the resulting pointer click', () => {
+  const f = fixture(), east = f.buttons[0], start = f.controller.position();
+  east.emit('pointerdown', { pointerId: 7, button: 0 }); assert.equal(east.captures.has(7), true); assert.deepEqual(f.viewport.focusOptions, { preventScroll: true });
+  f.frame(); f.advance(4); near(f.controller.position().x - start.x, 40);
+  f.win.emit('pointerup', { pointerId: 7 }); assert.equal(east.captures.has(7), false); assert.equal(f.raf.size, 0);
+  east.emit('click', { detail: 1 }); assert.equal(f.raf.size, 0); near(f.controller.position().x - start.x, 40);
+  east.emit('click', { detail: 0 }); assert.ok(f.raf.size); f.settle(); near(f.controller.position().x - start.x, 88); f.controller.destroy();
+});
+
+test('assistive diagonal button activation walks a normalized small step without teleporting', () => {
+  const f = fixture(), start = f.controller.position(); f.buttons[1].emit('click', { detail: 0 }); assert.deepEqual(f.controller.position(), start);
+  f.settle(); const end = f.controller.position(); near(Math.hypot(end.x - start.x, end.y - start.y), 48); assert.equal(f.entries.length, 0); f.controller.destroy();
+});
+
+test('facility approach walks around footprints from home to shop to cafe, never entering automatically', () => {
+  const world = Town.createWorld(), f = fixture({ world, position: world.spawn });
+  for (const id of ['shop', 'cafe']) {
+    const before = f.controller.position(), place = world.places.find(p => p.id === id), path = Town.route(world, before, place.entrance);
+    assert.ok(path && path.length); assert.equal(f.controller.approach(id), true); assert.deepEqual(f.controller.position(), before);
+    f.settle(); near(f.controller.position().x, place.entrance.x, 1); near(f.controller.position().y, place.entrance.y, 1);
+    assert.equal(f.enter.hidden, false); assert.equal(f.enter.textContent, place.label + 'に入る'); assert.equal(f.entries.length, 0);
+    assert.ok(f.positions.every(p => Town.isWalkable(world, p.x, p.y)));
+  }
+  f.enter.emit('click'); assert.deepEqual(f.entries, ['cafe']); f.controller.destroy();
+});
+
+test('flora can be approached but do not invent an enterable facility', () => {
+  const f = fixture(); assert.equal(f.controller.approach('flowers'), true); f.settle();
+  const flowers = f.world.places.find(p => p.id === 'flowers'); near(f.controller.position().x, flowers.entrance.x, 1); near(f.controller.position().y, flowers.entrance.y, 1);
+  assert.equal(f.enter.hidden, true); assert.equal(f.enter.disabled, true); f.enter.emit('click'); assert.deepEqual(f.entries, []); f.controller.destroy();
+});
+
+test('overlapping saved placements with a blocked entrance reject approach without snapping or entering', () => {
+  const world = Town.createWorld(), home = world.places[0], cafe = world.places[1];
+  cafe.entrance = { x: home.footprint.x, y: home.footprint.y };
+  const f = fixture({ world }); const before = f.controller.position();
+  assert.equal(f.controller.approach('cafe'), false); assert.deepEqual(f.controller.position(), before); assert.equal(f.raf.size, 0); assert.deepEqual(f.entries, []); f.controller.destroy();
+});
+
+test('ground taps walk their vector, ignore drags and controls, and do not auto-enter', () => {
+  const f = fixture(), start = f.controller.position(), c = Town.camera(f.world, 390, 700, start), box = f.viewport.getBoundingClientRect();
+  const event = { pointerId: 1, button: 0, target: f.surface, clientX: box.left + (start.x + 80 - c.x) * c.scale, clientY: box.top + (start.y - c.y) * c.scale };
+  f.viewport.emit('pointerdown', event); f.viewport.emit('pointerup', event); assert.deepEqual(f.controller.position(), start); f.settle(); near(f.controller.position().x, start.x + 80, 1);
+  const after = f.controller.position(); f.viewport.emit('pointerdown', event); f.viewport.emit('pointerup', { ...event, clientX: event.clientX + 40 }); assert.equal(f.raf.size, 0);
+  const button = f.viewport.append(new Element(f.doc, 'BUTTON')); f.viewport.emit('pointerdown', { ...event, target: button }); f.viewport.emit('pointerup', { ...event, target: button }); assert.equal(f.raf.size, 0); assert.deepEqual(f.controller.position(), after); assert.deepEqual(f.entries, []); f.controller.destroy();
+});
+
+for (const reason of ['blur', 'pagehide', 'visibility', 'pointercancel', 'lostcapture']) test(reason + ' stops movement and does not restart it on resume', () => {
+  const f = fixture(), button = f.buttons[0]; button.emit('pointerdown', { pointerId: 3, button: 0 }); f.frame(); f.frame();
+  if (reason === 'visibility') { f.doc.hidden = true; f.doc.emit('visibilitychange'); }
+  else if (reason === 'pointercancel') f.win.emit('pointercancel', { pointerId: 3 });
+  else if (reason === 'lostcapture') button.emit('lostpointercapture', { pointerId: 3 });
+  else f.win.emit(reason);
+  const stopped = f.controller.position(); assert.equal(f.raf.size, 0); assert.equal(f.motions.at(-1).walking, false);
+  f.doc.hidden = false; f.doc.emit('visibilitychange'); f.advance(20); assert.deepEqual(f.controller.position(), stopped); f.controller.destroy();
+});
+
+test('a detached button or denied host cannot enter, and destroying removes pending frames, observers and every listener', () => {
+  const world = Town.createWorld(), home = world.places[0], f = fixture({ world, position: home.entrance });
+  const staleEnter = [...f.enter.listeners.get('click')][0], observer = f.observed[0];
+  f.enter.isConnected = false; staleEnter({}); assert.deepEqual(f.entries, []); f.enter.isConnected = true; f.allow(false); staleEnter({}); assert.deepEqual(f.entries, []);
+  f.allow(true); f.key('ArrowRight'); const staleFrame = [...f.raf.values()][0]; f.controller.destroy();
+  const position = f.controller.position(), count = f.positions.length, motions = f.motions.length;
+  staleFrame(10000); staleEnter({}); observer.fn(); f.key('ArrowRight'); f.buttons[0].emit('click', { detail: 0 });
+  assert.deepEqual(f.controller.position(), position); assert.equal(f.positions.length, count); assert.equal(f.motions.length, motions); assert.deepEqual(f.entries, []); assert.equal(f.raf.size, 0); assert.equal(observer.disconnected, true);
+  for (const target of [f.win, f.doc, f.viewport, f.enter, ...f.buttons]) assert.equal(target.count(), 0);
+  assert.equal(f.controller.approach('home'), false);
+});
+
+test('the resize-event fallback also cleans up, and a lost canRun lease stops its pending frame', () => {
+  const f = fixture({ noObserver: true }); f.key('ArrowRight'); f.frame(); f.frame(); const position = f.controller.position();
+  f.allow(false); f.frame(); assert.equal(f.raf.size, 0); assert.deepEqual(f.controller.position(), position); assert.equal(f.motions.at(-1).walking, false);
+  f.controller.destroy(); assert.equal(f.win.count(), 0);
+});
