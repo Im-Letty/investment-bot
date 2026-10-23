@@ -1,8 +1,8 @@
 # Shareholder benefits calendar
 
-The catalogue contains 33 companies: the original nine reviewed on 2026-09-25,
+The catalogue contains 34 companies: the original nine reviewed on 2026-09-25,
 fifteen additions reviewed on 2026-10-17, three on 2026-10-18, three on
-2026-10-19, two on 2026-10-20 and one on 2026-10-23. The owner chose phased expansion using free
+2026-10-19, two on 2026-10-20 and two on 2026-10-23. The owner chose phased expansion using free
 official sources only. This remains a partial, manually reviewed catalogue, not a
 complete benefit-issuer list or automatic data updater. Missing records never mean
 "no benefit". A build does not refresh the original nine's confirmation dates.
@@ -578,3 +578,42 @@ publication is verified separately from this reviewed repository build.
 All previous 32 companies, 23 reviewed additions, nine fixed records and 12
 explicit schedules retain their values and confirmation dates. No new purchase
 deadline or 2027 schedule is inferred; coverage remains partial.
+
+
+## Additional current-HTML company reviewed on 2026-10-23
+
+- 1766 Token Corporation:
+  https://www.token.co.jp/ir/investors/shareholder_privilege/
+  The annual April-end register has three nonadditive brackets. At 100–999
+  shares, choose four weekday golf coupons (5,000 yen per person, up to four
+  people per coupon) or a 4,000-yen Heartmarkshop discount coupon; a separate
+  hotel accommodation 30% discount coupon covers up to ten people. At
+  1,000–1,999 shares, choose a weekday one-year golf card or a 5,000-yen shop
+  coupon, plus one of rice 5 kg, water 500 ml x48 or shochu 720 ml x5. At 2,000+
+  shares, choose an all-day one-year card or a 6,000-yen shop coupon, plus one
+  of rice 10 kg, water 500 ml x96 or shochu 720 ml x10. Both upper brackets
+  separately offer an optional one-night free hotel pair invitation. The public
+  conditions retain the two golf courses, per-person coupon discount, card
+  shareholder-only scope and the three designated Tado Onsen facilities.
+  Separate service-use privileges have their own contract/application tests;
+  the annual April-end gift record is not imposed on every service contract.
+  Construction-contract customers receive designated housing equipment at
+  0.5%/1.0%/1.5% of base construction price by the same brackets, with an
+  application and transaction proof at preliminary agreement. For 100+ share
+  individuals and relatives within the third degree, rental brokerage fees
+  are discounted 100%/70% for managed properties and 50%/30% for other
+  properties (shareholder/family). Entry-application paperwork, late-application
+  caveats and franchise, business-property, corporate and stacking exclusions
+  remain explicit. A one-year golf-card duration is confirmed separately from
+  its unknown exact start/end dates. Unstated holding/continuity conditions,
+  programme/tier start, ordinary selection deadlines, exact coupon expiry and
+  dispatch/arrival dates remain unknown. No purchase deadline or schedule is
+  inferred. Root read FAQ, linking conditions, current IR index and calendar;
+  the separate reviewer read the programme HTML. Six displayed IR rows do not
+  prove exhaustive amendment coverage. Only independently authored facts are
+  used, with observation-note SHA separate from original HTML byte SHA.
+
+All previous 33 companies, 24 reviewed additions, nine fixed records and 12
+explicit schedules retain their values and confirmation dates. This addition
+has no schedule and coverage remains partial. Build and public verification
+are separate steps.

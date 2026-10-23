@@ -1769,6 +1769,93 @@
           "schedules": []
         }
       ]
+    },
+    {
+      "code": "1766",
+      "symbol": "1766.T",
+      "name": "東建コーポレーション",
+      "category": "ゴルフ・買物割引",
+      "aliases": "東建 TOKEN ハートマークショップ ホテル多度温泉",
+      "versions": [
+        {
+          "id": "current-html-reviewed-20261023",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-10-23",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://www.token.co.jp/ir/investors/shareholder_privilege/",
+            "title": "東建コーポレーション公式 株主優待制度",
+            "security_code": "1766",
+            "issuer_name": "東建コーポレーション",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-23T21:41:33.514881+09:00",
+            "observed_at_kind": "actual_normal_HTML_GET_response_finished_at_jst",
+            "evidence_path": "evidence/reviewed-1766-observation-note-20261023-v2.json",
+            "evidence_sha256": "0e12a4b068bb83995a48d6d15fb80df4de1e9587aea282596155bbedcdd3c61b",
+            "original_HTML_sha256": "9d5d290fb3a18f3e89d8e56785773e072168ef34f70608182c14a0c69c650923",
+            "original_HTML_bytes": 44960
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "root-primary-facts-plus-independent-primary-GET-and-candidate-wording-review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "Rootが現在公式HTML、FAQ、リンク条件、2026年IR一覧、IRカレンダーを直接確認。別担当が同じ制度HTMLを通常GETで読み、全3区分と利用条件を数値照合。IR一覧は表示6件の範囲で、全改廃や未来の変更不存在を保証しない。未記載の保有期間・制度開始・各券の具体的な満了日・発送日はnullのまま保持し、独自の購入締切を作らない。原文表・画像・長文を転載せず、短い独立した制度事実だけを使用。",
+            "all_future_amendments_verified_absent": false,
+            "general_reuse_licence_claimed": false,
+            "primary_original_SHA_separate_from_note_SHA": true,
+            "independent_numeric_source_review": {
+              "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261023-213457/company-1766/independent-source-review.json",
+              "sha256": "0d5bcffbe78dcca0c83b97c57eece1e846c4498fdfd0cd1f509e0efbe3ca4089"
+            },
+            "final_public_record_wording_reviewed": true,
+            "independent_final_wording_review": {
+              "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261023-213457/company-1766/independent-final-wording-review.json",
+              "sha256": "5b7b0de345fbc4e0569eb73b188a73cfaf808771a9a0f24af3e15f4b9d90b389"
+            }
+          },
+          "period": "保有株数に応じた優待は、毎年4月末の株主名簿で対象と株数区分を判定する年1回の制度です。サービス利用時の優待には別の契約・申請条件があります。制度の元の開始日、現行区分の適用開始日、具体的な次回購入締切日は未確認です。",
+          "conditions": "最低100株、売買単元も100株。保有期間、同一株主番号・連続名簿回数に関する追加条件は確認資料に記載がありません。保有株数に応じた年1回の優待では、株数による3区分を加算しません。主優待は各区分の二択で、1,000株以上では別に商品三択から一つ、希望者へのホテル招待があります。",
+          "use": "対象は東建多度カントリークラブ・名古屋と東建塩河カントリー倶楽部。割引券は土日祝を除く平日に利用でき、1枚で紹介・同伴者を含む最大4人が、一人につき5,000円割引となります。ゴルフカードは株主本人1人をメンバー料金とし、有効期間は1年。具体的な開始日・満了日は未確認です。\nホテル優待の対象はホテル多度温泉のクラブハウス本館、火水風別館、レジデンス新館4階です。\n同社サービス利用時の別の優待として、同社と賃貸マンション・アパートの工事請負契約をする株主は、本体工事請負金額に対し100～999株は0.5%、1,000～1,999株は1.0%、2,000株以上は1.5%相当の指定ナスラック住宅機器の付与サービスがあります。内諾時に専用申込書と取引明細の写しを担当者へ提出。後の申込みは利用できない場合があります。\n同社サービス利用時の別の優待として、100株以上の個人株主本人と三親等以内の家族が、同社仲介の賃貸マンション・アパートへ契約・入居する場合、仲介手数料を割引。管理物件は本人100%・家族70%、管理外物件は本人50%・家族30%です。入居申込時に取引明細の写しを提出し、支店備付け専用申込書に記入。後の申込みは利用できない場合があります。FC、事業用物件、法人株主、他割引との併用は対象外です。\nハートマークショップの券は割引券です。現金給付や無条件の商品相当額とは扱いません。通常優待の選択申込期限、各券の具体的な有効期限は未確認です。",
+          "delivery": "優待券・選択商品の具体的な発送時期と実到着日は未確認です。",
+          "grant_summary": "株数別の優待は4月末・年1回。主優待はゴルフ又はショップ割引。1,000株以上は追加商品三択と希望者のホテル招待があります。",
+          "tiers": [
+            {
+              "id": "annual-100-999",
+              "shares_min": 100,
+              "shares_max": 999,
+              "holding_months_min": null,
+              "holding_requirement": "保有期間、同一株主番号・連続名簿回数に関する追加条件は確認資料に記載なし",
+              "reward": "平日ゴルフ5,000円割引券4枚、又はハートマークショップ4,000円割引券。別にホテル多度温泉の宿泊30%割引券",
+              "conditions": "主優待はゴルフ券とショップ割引券の二択です。ゴルフ券は1枚で最大4人まで、一人につき5,000円割引。宿泊30%割引券は10人まで有効です。工事請負契約をする株主向け住宅機器優待は、本体工事請負金額の0.5%相当。株数区分を加算しません。"
+            },
+            {
+              "id": "annual-1000-1999",
+              "shares_min": 1000,
+              "shares_max": 1999,
+              "holding_months_min": null,
+              "holding_requirement": "保有期間、同一株主番号・連続名簿回数に関する追加条件は確認資料に記載なし",
+              "reward": "平日1年ゴルフカード、又はハートマークショップ5,000円割引券。加えて新米5kg・水500ml×48本・焼酎720ml×5本から一つ。希望者はホテル1泊無料ペア招待券",
+              "conditions": "主優待の二択に加え、商品の三択から一つを選べます。ホテル多度温泉1泊無料ペア招待券は希望者向けの別項目です。ゴルフカードのメンバー料金は株主本人1人分。工事請負契約をする株主向け住宅機器優待は、本体工事請負金額の1.0%相当。株数区分や商品三択の数量は加算しません。"
+            },
+            {
+              "id": "annual-2000plus",
+              "shares_min": 2000,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "保有期間、同一株主番号・連続名簿回数に関する追加条件は確認資料に記載なし",
+              "reward": "全日1年ゴルフカード、又はハートマークショップ6,000円割引券。加えて新米10kg・水500ml×96本・焼酎720ml×10本から一つ。希望者はホテル1泊無料ペア招待券",
+              "conditions": "主優待の二択に加え、商品の三択から一つを選べます。ホテル多度温泉1泊無料ペア招待券は希望者向けの別項目です。ゴルフカードのメンバー料金は株主本人1人分。工事請負契約をする株主向け住宅機器優待は、本体工事請負金額の1.5%相当。株数区分や商品三択の数量は加算しません。"
+            }
+          ],
+          "schedules": []
+        }
+      ]
     }
   ]
 }
