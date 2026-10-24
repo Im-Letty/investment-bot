@@ -43,6 +43,37 @@
     var doc=w.document,state=empty(),identity=null,loaded=false,loading=false,error='',email='',serial=0,readPromise=null,saving=false,refreshTimer=null;
     var section=null,form=null,fields={},summaryName=null,summaryIcon=null,scope=null,status=null,submit=null,cancel=null,emailWrap=null,emailInput=null,dirty=false,iconButton=null,iconChoices=null,choiceButtons={};
     var photoInput=null,photoPreview=null,photoReset=null,albumButton=null,draftPhoto='',photoEdited=false,preparing=false,photoSerial=0,decodeCancel=null,imageSerial=0,imageRef='',imageOwner='',imageURL='',imagePending=false,imageController=null;
+    // Initial labels belong only to this menu; posting still requires a saved username.
+    var initialNames=Object.create(null),initialTasks=Object.create(null),initialGuestKey='kn_profile_initial_name_v1';
+    function randomInitialName(){
+      var number;
+      try{var values=new Uint32Array(2);w.crypto.getRandomValues(values);number=(values[0]%1000000)*10000+values[1]%10000;}
+      catch(_){number=Math.floor(Math.random()*10000000000);}
+      return 'ユーザー'+String(number).padStart(10,'0');
+    }
+    function initialName(){
+      var key=identity;if(!key||!loaded)return 'ユーザー';
+      if(initialNames[key])return initialNames[key];
+      if(key==='guest'){
+        var label='';try{label=w.localStorage.getItem(initialGuestKey)||'';}catch(_){}
+        if(!/^ユーザー[0-9]{10}$/.test(label)){label=randomInitialName();try{w.localStorage.setItem(initialGuestKey,label);}catch(_){}}
+        initialNames[key]=label;return label;
+      }
+      if(!initialTasks[key]){
+        initialTasks[key]=true;
+        // The account identifier stays private: only a namespaced digest becomes a number.
+        try{
+          var input=new w.TextEncoder().encode('kn-profile-initial-name-v1|'+key);
+          Promise.resolve(w.crypto.subtle.digest('SHA-256',input)).then(function(result){
+            var bytes=new Uint8Array(result),number=0;
+            for(var i=0;i<6;i++)number=number*256+bytes[i];
+            initialNames[key]='ユーザー'+String(number%10000000000).padStart(10,'0');
+            if(same(key))paint(false);
+          }).catch(function(){initialNames[key]=randomInitialName();if(same(key))paint(false);});
+        }catch(_){initialNames[key]=randomInitialName();}
+      }
+      return initialNames[key]||'ユーザー';
+    }
     function member(user){return !!(user&&user.is_anonymous===false&&typeof user.id==='string'&&user.id);}
     function owner(){var user=w.knUser;return member(user)?'member:'+user.id:'guest';}
     function same(key){return owner()===key&&identity===key;}
@@ -84,7 +115,7 @@
     function draftSource(){if(isPhotoData(draftPhoto))return draftPhoto;return draftPhoto&&draftPhoto===imageValue(state)?savedSource():'';}
     function paint(force){
       if(!section)return;
-      syncProfileVisibility();summaryName.textContent=state.username;summaryName.hidden=!state.username;renderAvatar(summaryIcon,state.avatar,savedSource());
+      syncProfileVisibility();summaryName.textContent=state.username||initialName();summaryName.hidden=false;fields.username.placeholder=state.username?'みんなに表示する名前':summaryName.textContent;renderAvatar(summaryIcon,state.avatar,savedSource());
       scope.hidden=identity!=='guest';
       scope.textContent=identity==='guest'?'ユーザー名はチャットで共通に使います。このブラウザに保存します。動画の投稿にはログインが必要です。':'';
       emailWrap.hidden=identity==='guest'||!email;emailInput.value=email;
@@ -299,7 +330,7 @@
       if(!doc||!container)return null;
       if(section){if(section.parentNode!==container)container.insertBefore(section,container.firstChild);return section;}
       section=make('details','kn-profile');section.id='knProfile';section.open=false;var summary=make('summary','kn-profile-summary');
-      summaryIcon=make('span','kn-profile-avatar',avatars.leaf);summaryIcon.setAttribute('aria-hidden','true');summaryName=make('span','kn-profile-name');summaryName.hidden=true;var summaryHeading=make('span','kn-profile-heading');summaryHeading.appendChild(make('span','kn-profile-label','プロフィール'));summaryHeading.appendChild(summaryName);summary.appendChild(summaryIcon);summary.appendChild(summaryHeading);section.appendChild(summary);
+      summaryIcon=make('span','kn-profile-avatar',avatars.leaf);summaryIcon.setAttribute('aria-hidden','true');summaryName=make('span','kn-profile-name','ユーザー');var summaryHeading=make('span','kn-profile-heading');summaryHeading.appendChild(summaryName);summary.appendChild(summaryIcon);summary.appendChild(summaryHeading);section.appendChild(summary);
       form=make('form','kn-profile-form');form.setAttribute('aria-label','プロフィールを編集');form.hidden=true;form.noValidate=true;section.appendChild(form);
       scope=make('p','kn-profile-scope');form.appendChild(scope);
       var name=field('ユーザー名（公開・20文字まで）','username');name.type='text';name.maxLength=40;name.autocomplete='nickname';name.placeholder='みんなに表示する名前';

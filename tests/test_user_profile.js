@@ -4,7 +4,7 @@ const {create,validate}=require('../static/user-profile.js');
 const JPEG='data:image/jpeg;base64,'+Buffer.from([255,216,255,224,0,4,17,23,255,217]).toString('base64'),PHOTO_REF='a'.repeat(64),OTHER_REF='b'.repeat(64);
 function deferred(){let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return {promise,resolve,reject};}
 const profile=(username='みどり',bio='経済を勉強中',avatar='leaf')=>({username,bio,avatar});
-function fixture({user=null,legacy='',extra=null,getUser,getSession,putProfile,persist,decode,encode,getAvatar}={}){
+function fixture({user=null,legacy='',extra=null,getUser,getSession,putProfile,persist,decode,encode,getAvatar,initialName=null}={}){
   const events=[],storage=new Map(legacy?[['cm_nick',legacy]]:[]),listeners=new Map(),timers=[],nodes=[];
   let userReads=0,updates=[],requests=[],focus=null,objectSerial=0;const objectURLs=[],revoked=[],draws=[],closed=[];
   class Node{
@@ -47,6 +47,8 @@ function fixture({user=null,legacy='',extra=null,getUser,getSession,putProfile,p
   }};
   if(extra)storage.set('kn_profile_guest_v1',JSON.stringify(extra));
   if(persist)w.__knPersistLocalSetting=persist;
+  if(initialName)storage.set('kn_profile_initial_name_v1',initialName);
+  w.crypto=require('node:crypto').webcrypto;w.TextEncoder=TextEncoder;
   const api=create(w);
   return {w,api,storage,events,container,document,nodes,objectURLs,revoked,draws,closed,reads:()=>userReads,updates:()=>updates,requests:()=>requests,timers:()=>timers,focus:()=>focus,async flush(){for(let i=0;i<timers.length;i++){const timer=timers[i];if(timer.active&&timer.delay===0){timer.active=false;await timer.fn();}}await Promise.resolve();},auth(next){w.knUser=next;document.dispatchEvent(new w.Event('knAuthChange'));}};
 }
@@ -89,7 +91,7 @@ test('registered users load only their verified profile and never infer provider
 test('member saves send only the profile schema through the same-origin endpoint and preserve extras',async()=>{
   const h=fixture({user:account('a',profile('前','自己紹介','star'))});await h.api.ready();await h.api.saveUsername('  次の名前  ');
   assert.deepEqual(h.updates(),[profile('次の名前','自己紹介','star')]);
-  assert.equal(h.w.knUser.user_metadata.name,'Provider Legal Name');assert.equal(h.api.username(),'次の名前');assert.equal(h.storage.size,0);
+  assert.equal(h.w.knUser.user_metadata.name,'Provider Legal Name');assert.equal(h.api.username(),'次の名前');assert.equal([...h.storage.keys()].filter(k=>k!=='kn_profile_initial_name_v1').length,0);
   assert.ok(h.events.every(e=>!e.detail||!('email'in e.detail)));
 });
 test('auth verification failure fails closed and does not update or adopt local fallback',async()=>{
@@ -180,7 +182,7 @@ test('the member request fixes origin, method, public payload and authorization 
   assert.deepEqual(JSON.parse(request.options.body),profile('新しい名前'));
   assert.ok(request.options.signal instanceof AbortSignal);assert.equal(request.options.signal.aborted,false);
   assert.doesNotMatch(JSON.stringify(h.api.snapshot()),/fixture-token/);assert.doesNotMatch(JSON.stringify(h.events),/fixture-token/);
-  assert.equal(h.storage.size,0);
+  assert.equal([...h.storage.keys()].filter(k=>k!=='kn_profile_initial_name_v1').length,0);
 });
 test('switching A to B inside fetch still sends only the captured A bearer and never changes B',async()=>{
   const h=fixture({user:account('a'),putProfile:async(value,w,options)=>{
@@ -290,7 +292,7 @@ test('guest quota failure rolls back name and photo extras and retains the edita
 });
 test('a member photo Save accepts only the canonical reference and loads its private bytes',async()=>{
   const h=fixture({user:account()});h.api.mount(h.container);await h.api.ready();await selectPhoto(h);assert.equal(h.requests().length,0);await h.nodes.find(n=>n.tagName==='FORM').fire('submit');await settle();
-  assert.equal(h.api.snapshot().avatar_image,PHOTO_REF);assert.equal(h.updates()[0].avatar_image,JPEG);assert.equal(h.w.knUser.user_metadata.kn_profile_v1.avatar_image,PHOTO_REF);assert.match(imageSource(h),/^blob:/);assert.equal(h.storage.size,0);
+  assert.equal(h.api.snapshot().avatar_image,PHOTO_REF);assert.equal(h.updates()[0].avatar_image,JPEG);assert.equal(h.w.knUser.user_metadata.kn_profile_v1.avatar_image,PHOTO_REF);assert.match(imageSource(h),/^blob:/);assert.equal([...h.storage.keys()].filter(k=>k!=='kn_profile_initial_name_v1').length,0);
   const read=h.requests().find(r=>r.options.method==='GET');assert.equal(read.url,'/api/user-profile/avatar');assert.deepEqual(read.options.headers,{'Authorization':'Bearer fixture-token-a'});assert.equal(read.options.cache,'no-store');assert.equal(read.options.redirect,'error');assert.equal(read.options.credentials,'same-origin');
   assert.ok(h.events.every(e=>!e.detail||!('avatar_image'in e.detail)));assert.doesNotMatch(JSON.stringify(h.events),/data:image|blob:/);
 });
@@ -343,7 +345,7 @@ test('tapping an icon opens the choices and selection changes only the draft unt
 });
 test('Escape closes just the icon choices, keeps the draft and returns focus to the icon',async()=>{
   const h=fixture();h.api.mount(h.container);await h.api.ready();const button=h.document.getElementById('knProfileIconButton'),choices=h.document.getElementById('knProfileIconChoices'),form=h.nodes.find(n=>n.tagName==='FORM');
-  await button.fire('click');const escape=await form.fire('keydown',{key:'Escape'});assert.equal(choices.hidden,true);assert.equal(button.getAttribute('aria-expanded'),'false');assert.equal(h.focus(),button);assert.equal(escape.defaultPrevented,true);assert.equal(escape.propagationStopped,true);assert.equal(h.api.snapshot().avatar,'leaf');assert.equal(h.storage.size,0);
+  await button.fire('click');const escape=await form.fire('keydown',{key:'Escape'});assert.equal(choices.hidden,true);assert.equal(button.getAttribute('aria-expanded'),'false');assert.equal(h.focus(),button);assert.equal(escape.defaultPrevented,true);assert.equal(escape.propagationStopped,true);assert.equal(h.api.snapshot().avatar,'leaf');assert.equal([...h.storage.keys()].filter(k=>k!=='kn_profile_initial_name_v1').length,0);
   const closed=await form.fire('keydown',{key:'Escape'});assert.equal(closed.defaultPrevented,false);assert.equal(closed.propagationStopped,false,'drawer may handle Escape when the chooser is already closed');
 });
 test('cancel restores the committed icon and a member preset Save explicitly clears a photo',async()=>{
@@ -363,8 +365,8 @@ test('failed saves keep the selected icon draft available for retry and cancel',
 });
 test('the album action remains in the icon chooser and opens its hidden input synchronously',async()=>{
   const h=fixture();h.api.mount(h.container);await h.api.ready();const icon=h.document.getElementById('knProfileIconButton'),choices=h.document.getElementById('knProfileIconChoices'),album=h.document.getElementById('knProfileAlbumButton'),input=h.document.getElementById('knProfilePhoto'),reset=h.nodes.find(n=>n.className==='kn-profile-photo-reset');
-  assert.equal(album.parentNode.parentNode,choices);assert.equal(reset.parentNode.parentNode,choices);assert.equal(input.parentNode.parentNode,choices);assert.equal(album.type,'button');await icon.fire('click');const opening=album.fire('click');assert.equal(input.clicks,1,'the native file picker opens in the same click call, before any await');await opening;assert.equal(choices.hidden,true);assert.equal(h.focus(),icon);assert.equal(h.storage.size,0);
-  await selectPhoto(h);assert.equal(imageSource(h),JPEG);await icon.fire('click');assert.equal(h.focus(),album);const cancelled=album.fire('click');assert.equal(input.clicks,2);await cancelled;input.files=[];await input.fire('change');assert.equal(imageSource(h),JPEG);assert.equal(h.api.snapshot().avatar_image,undefined);assert.equal(h.storage.size,0);
+  assert.equal(album.parentNode.parentNode,choices);assert.equal(reset.parentNode.parentNode,choices);assert.equal(input.parentNode.parentNode,choices);assert.equal(album.type,'button');await icon.fire('click');const opening=album.fire('click');assert.equal(input.clicks,1,'the native file picker opens in the same click call, before any await');await opening;assert.equal(choices.hidden,true);assert.equal(h.focus(),icon);assert.equal([...h.storage.keys()].filter(k=>k!=='kn_profile_initial_name_v1').length,0);
+  await selectPhoto(h);assert.equal(imageSource(h),JPEG);await icon.fire('click');assert.equal(h.focus(),album);const cancelled=album.fire('click');assert.equal(input.clicks,2);await cancelled;input.files=[];await input.fire('change');assert.equal(imageSource(h),JPEG);assert.equal(h.api.snapshot().avatar_image,undefined);assert.equal([...h.storage.keys()].filter(k=>k!=='kn_profile_initial_name_v1').length,0);
 });
 test('photo drafts render inside the tappable icon and presets clear them only when saved',async()=>{
   const h=fixture({legacy:'名前',extra:{version:1,bio:'',avatar:'star',avatar_image:JPEG}});h.api.mount(h.container);await h.api.ready();const icon=h.document.getElementById('knProfileIconButton'),choices=h.document.getElementById('knProfileIconChoices'),preview=h.nodes.find(n=>n.className==='kn-profile-photo-preview');assert.equal(preview.parentNode,icon);assert.equal(icon.children.length,1);assert.match(icon.getAttribute('aria-label'),/写真/);assert.ok(choices.children.filter(n=>n.getAttribute('data-avatar')).every(n=>n.getAttribute('aria-pressed')==='false'));
@@ -374,13 +376,13 @@ test('a real file selection closes the chooser and Cancel restores the saved pho
   const saved='data:image/jpeg;base64,'+Buffer.from([255,216,255,224,5,6,255,217]).toString('base64');const h=fixture({extra:{version:1,bio:'',avatar:'leaf',avatar_image:saved}});h.api.mount(h.container);await h.api.ready();const icon=h.document.getElementById('knProfileIconButton'),choices=h.document.getElementById('knProfileIconChoices');await icon.fire('click');await selectPhoto(h);assert.equal(choices.hidden,true);assert.equal(imageSource(h),JPEG);await icon.fire('click');await h.nodes.find(n=>n.className==='kn-profile-cancel').fire('click');assert.equal(choices.hidden,true);assert.equal(imageSource(h),saved);assert.match(icon.getAttribute('aria-label'),/写真/);
 });
 
-test('guest and member profiles start closed with a fixed label and only saved name and icon preview',async()=>{
+test('guest and member profiles start closed with their saved name as the single heading and icon preview',async()=>{
   for(const member of [false,true]){
     const h=fixture(member?{user:account('a',profile('保存済み','紹介','moon'))}:{legacy:'保存済み',extra:{version:1,bio:'紹介',avatar:'moon'}}),section=h.api.mount(h.container),form=h.nodes.find(n=>n.tagName==='FORM');
-    assert.equal(section.open,false);assert.equal(form.hidden,true);await h.api.ready();assert.equal(section.open,false);assert.equal(form.hidden,true);assert.equal(h.nodes.find(n=>n.className==='kn-profile-label').textContent,'プロフィール');assert.equal(h.nodes.find(n=>n.className==='kn-profile-name').textContent,'保存済み');assert.equal(h.nodes.find(n=>n.className==='kn-profile-avatar').textContent,'🌙');
+    assert.equal(section.open,false);assert.equal(form.hidden,true);await h.api.ready();assert.equal(section.open,false);assert.equal(form.hidden,true);assert.equal(h.nodes.some(n=>n.className==='kn-profile-label'),false);assert.equal(h.nodes.find(n=>n.className==='kn-profile-name').textContent,'保存済み');assert.equal(h.nodes.find(n=>n.className==='kn-profile-avatar').textContent,'🌙');
     const summary=h.nodes.find(n=>n.tagName==='SUMMARY');assert.equal(summary.getAttribute('role'),null);assert.equal(Object.keys(summary.listeners).length,0,'native summary keeps platform click and keyboard behavior');assert.equal(form.parentNode,section);assert.equal(h.document.getElementById('knProfileUsername').parentNode.parentNode,form);assert.equal(h.document.getElementById('knProfileBio').parentNode.parentNode,form);
   }
-  const blank=fixture();blank.api.mount(blank.container);await blank.api.ready();assert.equal(blank.nodes.find(n=>n.className==='kn-profile-label').textContent,'プロフィール');assert.equal(blank.nodes.find(n=>n.className==='kn-profile-name').hidden,true);
+  const blank=fixture();blank.api.mount(blank.container);await blank.api.ready();assert.equal(blank.nodes.some(n=>n.className==='kn-profile-label'),false);assert.match(blank.nodes.find(n=>n.className==='kn-profile-name').textContent,/^ユーザー[0-9]{10}$/);
 });
 test('native details toggles show the whole editor and closing also closes the icon choices',async()=>{
   const h=fixture();const section=h.api.mount(h.container);await h.api.ready();const form=h.nodes.find(n=>n.tagName==='FORM'),choices=h.document.getElementById('knProfileIconChoices');section.open=true;await section.fire('toggle');assert.equal(form.hidden,false);await h.document.getElementById('knProfileIconButton').fire('click');assert.equal(choices.hidden,false);section.open=false;await section.fire('toggle');assert.equal(form.hidden,true);assert.equal(choices.hidden,true);assert.equal(h.document.getElementById('knProfileIconButton').getAttribute('aria-expanded'),'false');section.open=true;await section.fire('toggle');assert.equal(form.hidden,false);assert.equal(choices.hidden,true);
@@ -395,7 +397,7 @@ test('closing before delayed API focus never focuses hidden fields, and reads or
   const h=fixture();h.api.mount(h.container);await h.api.ready();h.api.open();const section=h.document.getElementById('knProfile'),form=h.nodes.find(n=>n.tagName==='FORM');section.open=false;await section.fire('toggle');h.timers().find(t=>t.delay===350&&t.active).fn();assert.equal(h.focus(),null);await h.api.refresh();assert.equal(section.open,false);assert.equal(form.hidden,true);await h.api.saveUsername('保存');assert.equal(section.open,false);assert.equal(form.hidden,true);assert.equal(h.nodes.find(n=>n.className==='kn-profile-name').textContent,'保存');
 });
 test('changing identity closes and clears drafts and invalidates delayed focus before loading the next account',async()=>{
-  const h=fixture({user:account('a',profile('Aの名前','Aの紹介','star'))});h.api.mount(h.container);await h.api.ready();h.api.open();const section=h.document.getElementById('knProfile'),form=h.nodes.find(n=>n.tagName==='FORM'),name=h.document.getElementById('knProfileUsername'),bio=h.document.getElementById('knProfileBio');name.value='Aの下書き';bio.value='非公開の下書き';await form.fire('input');h.auth(account('b',profile('Bの名前','Bの紹介','moon')));assert.equal(section.open,false);assert.equal(form.hidden,true);assert.equal(name.value,'');assert.equal(bio.value,'');assert.equal(h.nodes.find(n=>n.className==='kn-profile-name').hidden,true);h.timers().find(t=>t.delay===350&&t.active).fn();assert.equal(h.focus(),null);await h.flush();await h.api.ready();assert.equal(section.open,false);assert.equal(form.hidden,true);assert.equal(name.value,'Bの名前');assert.equal(bio.value,'Bの紹介');assert.equal(h.nodes.find(n=>n.className==='kn-profile-name').textContent,'Bの名前');assert.equal(h.api.open(),true);assert.equal(section.open,true);assert.equal(form.hidden,false);
+  const h=fixture({user:account('a',profile('Aの名前','Aの紹介','star'))});h.api.mount(h.container);await h.api.ready();h.api.open();const section=h.document.getElementById('knProfile'),form=h.nodes.find(n=>n.tagName==='FORM'),name=h.document.getElementById('knProfileUsername'),bio=h.document.getElementById('knProfileBio');name.value='Aの下書き';bio.value='非公開の下書き';await form.fire('input');h.auth(account('b',profile('Bの名前','Bの紹介','moon')));assert.equal(section.open,false);assert.equal(form.hidden,true);assert.equal(name.value,'');assert.equal(bio.value,'');assert.equal(h.nodes.find(n=>n.className==='kn-profile-name').textContent,'ユーザー');h.timers().find(t=>t.delay===350&&t.active).fn();assert.equal(h.focus(),null);await h.flush();await h.api.ready();assert.equal(section.open,false);assert.equal(form.hidden,true);assert.equal(name.value,'Bの名前');assert.equal(bio.value,'Bの紹介');assert.equal(h.nodes.find(n=>n.className==='kn-profile-name').textContent,'Bの名前');assert.equal(h.api.open(),true);assert.equal(section.open,true);assert.equal(form.hidden,false);
 });
 test('an intentional API open for a newly changed owner remains open while that profile refreshes',async()=>{
   let pending=null;const h=fixture({user:account('a',profile('A')),getUser:async w=>pending?pending.promise:{data:{user:w.knUser}}});h.api.mount(h.container);await h.api.ready();pending=deferred();h.w.knUser=account('b',profile('B'));assert.equal(h.api.open(),true);const section=h.document.getElementById('knProfile'),form=h.nodes.find(n=>n.tagName==='FORM');assert.equal(section.open,true);assert.equal(form.hidden,false);assert.equal(h.document.getElementById('knProfileUsername').value,'');pending.resolve({data:{user:account('b',profile('B'))}});await h.api.ready();assert.equal(section.open,true);assert.equal(form.hidden,false);assert.equal(h.document.getElementById('knProfileUsername').value,'B');
@@ -404,10 +406,10 @@ test('collapsing the editor keeps an unsaved photo draft and reopening or Cancel
   const old='data:image/jpeg;base64,'+Buffer.from([255,216,255,224,8,9,255,217]).toString('base64'),h=fixture({legacy:'保存済み',extra:{version:1,bio:'',avatar:'leaf',avatar_image:old}});const section=h.api.mount(h.container);await h.api.ready();section.open=true;await section.fire('toggle');await selectPhoto(h);const form=h.nodes.find(n=>n.tagName==='FORM');await h.document.getElementById('knProfileIconButton').fire('click');section.open=false;await section.fire('toggle');assert.equal(form.hidden,true);assert.equal(h.document.getElementById('knProfileIconChoices').hidden,true);assert.equal(imageSource(h),JPEG);assert.equal(imageSource(h,'kn-profile-avatar'),old);assert.equal(h.api.snapshot().avatar_image,old);assert.equal(JSON.parse(h.storage.get('kn_profile_guest_v1')).avatar_image,old);section.open=true;await section.fire('toggle');assert.equal(form.hidden,false);assert.equal(imageSource(h),JPEG);await h.nodes.find(n=>n.className==='kn-profile-cancel').fire('click');assert.equal(imageSource(h),old);assert.equal(h.api.snapshot().avatar_image,old);
 });
 test('collapsing during native photo preparation hides the editor without canceling or saving the draft',async()=>{
-  const pending=deferred(),closed=[],h=fixture({decode:()=>pending.promise});const section=h.api.mount(h.container);await h.api.ready();section.open=true;await section.fire('toggle');const selecting=selectPhoto(h);await settle();section.open=false;await section.fire('toggle');const form=h.nodes.find(n=>n.tagName==='FORM');assert.equal(form.hidden,true);assert.equal(h.nodes.find(n=>n.type==='submit').disabled,true);pending.resolve({width:400,height:600,close(){closed.push(true);}});await selecting;assert.equal(section.open,false);assert.equal(form.hidden,true);assert.equal(imageSource(h),JPEG);assert.equal(closed.length,1);assert.equal(h.api.snapshot().avatar_image,undefined);assert.equal(h.storage.size,0);section.open=true;await section.fire('toggle');assert.equal(form.hidden,false);assert.equal(imageSource(h),JPEG);await form.fire('submit');assert.equal(h.api.snapshot().avatar_image,JPEG);assert.equal(imageSource(h,'kn-profile-avatar'),JPEG);
+  const pending=deferred(),closed=[],h=fixture({decode:()=>pending.promise});const section=h.api.mount(h.container);await h.api.ready();section.open=true;await section.fire('toggle');const selecting=selectPhoto(h);await settle();section.open=false;await section.fire('toggle');const form=h.nodes.find(n=>n.tagName==='FORM');assert.equal(form.hidden,true);assert.equal(h.nodes.find(n=>n.type==='submit').disabled,true);pending.resolve({width:400,height:600,close(){closed.push(true);}});await selecting;assert.equal(section.open,false);assert.equal(form.hidden,true);assert.equal(imageSource(h),JPEG);assert.equal(closed.length,1);assert.equal(h.api.snapshot().avatar_image,undefined);assert.equal([...h.storage.keys()].filter(k=>k!=='kn_profile_initial_name_v1').length,0);section.open=true;await section.fire('toggle');assert.equal(form.hidden,false);assert.equal(imageSource(h),JPEG);await form.fire('submit');assert.equal(h.api.snapshot().avatar_image,JPEG);assert.equal(imageSource(h,'kn-profile-avatar'),JPEG);
 });
 test('a collapsed member profile still fetches its private photo for the saved summary preview',async()=>{
-  const h=fixture({user:account('a',photoProfile('保存済み'))});const section=h.api.mount(h.container);await h.api.ready();await settle();assert.equal(section.open,false);assert.equal(h.nodes.find(n=>n.tagName==='FORM').hidden,true);assert.match(imageSource(h,'kn-profile-avatar'),/^blob:/);assert.equal(h.nodes.find(n=>n.className==='kn-profile-label').textContent,'プロフィール');assert.equal(h.nodes.find(n=>n.className==='kn-profile-name').textContent,'保存済み');const request=h.requests().find(r=>r.options.method==='GET');assert.equal(request.url,'/api/user-profile/avatar');assert.equal(request.options.headers.Authorization,'Bearer fixture-token-a');assert.ok(h.events.every(e=>!e.detail||!('avatar_image'in e.detail)));
+  const h=fixture({user:account('a',photoProfile('保存済み'))});const section=h.api.mount(h.container);await h.api.ready();await settle();assert.equal(section.open,false);assert.equal(h.nodes.find(n=>n.tagName==='FORM').hidden,true);assert.match(imageSource(h,'kn-profile-avatar'),/^blob:/);assert.equal(h.nodes.some(n=>n.className==='kn-profile-label'),false);assert.equal(h.nodes.find(n=>n.className==='kn-profile-name').textContent,'保存済み');const request=h.requests().find(r=>r.options.method==='GET');assert.equal(request.url,'/api/user-profile/avatar');assert.equal(request.options.headers.Authorization,'Bearer fixture-token-a');assert.ok(h.events.every(e=>!e.detail||!('avatar_image'in e.detail)));
 });
 
 test('external profile opening restores the sheet main view before exposing the editor',async()=>{
@@ -464,4 +466,36 @@ test('icon-only guest saves do not wait on or rewrite the unchanged encrypted na
     assert.equal(h.storage.get('cm_nick')??'',legacy);assert.equal(h.nodes.find(n=>n.type==='submit').textContent,'保存する');
     assert.equal(h.updates().length,0);assert.match(h.nodes.find(n=>n.getAttribute('role')==='status').textContent,/保存しました/);
   }
+});
+
+
+test('an unset guest gets one stable initial label across paint, refresh and a new instance, without becoming a posting name',async()=>{
+  const h=fixture();h.api.mount(h.container);await h.api.ready();const name=h.nodes.find(n=>n.className==='kn-profile-name').textContent;
+  assert.match(name,/^ユーザー[0-9]{10}$/);assert.equal(h.api.username(),'');assert.equal(h.api.snapshot().username,'');assert.equal(h.storage.get('cm_nick'),undefined);assert.equal(h.updates().length,0);
+  h.api.open();await h.api.refresh();assert.equal(h.nodes.find(n=>n.className==='kn-profile-name').textContent,name);
+  const again=fixture({initialName:h.storage.get('kn_profile_initial_name_v1')});again.api.mount(again.container);await again.api.ready();assert.equal(again.nodes.find(n=>n.className==='kn-profile-name').textContent,name);
+  await h.api.saveUsername('新しい名前');assert.equal(h.nodes.find(n=>n.className==='kn-profile-name').textContent,'新しい名前');
+});
+async function waitForInitialLabel(h){for(let i=0;i<100;i++){const value=h.nodes.find(n=>n.className==='kn-profile-name').textContent;if(/^ユーザー[0-9]{10}$/.test(value))return value;await new Promise(resolve=>setTimeout(resolve,1));}assert.fail('initial label did not finish');}
+test('member initial labels are stable per account and do not leak provider names or Auth IDs into UI, storage or events',async()=>{
+  const h=fixture({user:account('first-private-id',profile(''))});h.api.mount(h.container);await h.api.ready();const first=await waitForInitialLabel(h),label=()=>h.nodes.find(n=>n.className==='kn-profile-name').textContent;
+  assert.match(first,/^ユーザー[0-9]{10}$/);h.auth(account('second-private-id',profile('')));assert.equal(label(),'ユーザー');await h.flush();await h.api.ready();const second=await waitForInitialLabel(h);assert.match(second,/^ユーザー[0-9]{10}$/);assert.notEqual(second,first);
+  h.auth(account('first-private-id',profile('')));await h.flush();await h.api.ready();assert.equal(label(),first);
+  const again=fixture({user:account('first-private-id',profile(''))});again.api.mount(again.container);await again.api.ready();assert.equal(await waitForInitialLabel(again),first);
+  assert.equal(h.storage.size,0);assert.equal(h.updates().length,0);assert.equal(h.api.username(),'');assert.ok(h.events.every(e=>!e.detail||e.detail.username===''));assert.doesNotMatch(first,/private|Provider|@/);
+});
+test('an account digest finishing late cannot overwrite a different account or a newly saved username',async()=>{
+  const digest=deferred(),h=fixture({user:account('a',profile(''))});h.w.crypto={subtle:{digest:()=>digest.promise}};h.api.mount(h.container);await h.api.ready();
+  h.auth(account('b',profile('Bの名前')));await h.flush();await h.api.ready();digest.resolve(new Uint8Array([1,2,3,4,5,6]).buffer);await settle();assert.equal(h.nodes.find(n=>n.className==='kn-profile-name').textContent,'Bの名前');
+  h.auth(account('a',profile('')));await h.flush();await h.api.ready();await h.api.saveUsername('Aの新しい名前');assert.equal(h.nodes.find(n=>n.className==='kn-profile-name').textContent,'Aの新しい名前');assert.equal(h.updates().length,1);
+});
+test('blocked initial-label storage stays stable in the page and does not turn a profile read into an error',async()=>{
+  const h=fixture();h.w.localStorage.setItem=()=>{throw new Error('blocked');};h.api.mount(h.container);await h.api.ready();const node=h.nodes.find(n=>n.className==='kn-profile-name'),name=node.textContent;await h.api.refresh();assert.match(name,/^ユーザー[0-9]{10}$/);assert.equal(node.textContent,name);assert.equal(h.api.snapshot().error,'');assert.equal(h.api.username(),'');
+});
+
+for(const unavailable of [true,false])test('unavailable or rejected crypto keeps a usable member initial label without writes ('+unavailable+')',async()=>{
+  const h=fixture({user:account('a',profile(''))});h.w.crypto=unavailable?undefined:{subtle:{digest:()=>Promise.reject(Error('unavailable'))}};h.api.mount(h.container);await h.api.ready();const first=await waitForInitialLabel(h);await h.api.refresh();assert.equal(h.nodes.find(n=>n.className==='kn-profile-name').textContent,first);assert.equal(h.api.snapshot().error,'');assert.equal(h.api.username(),'');assert.equal(h.storage.size,0);assert.equal(h.updates().length,0);
+});
+test('a first digest resolving after a successful name Save cannot replace the saved heading',async()=>{
+  const digest=deferred(),h=fixture({user:account('a',profile(''))});h.w.crypto={subtle:{digest:()=>digest.promise}};h.api.mount(h.container);await h.api.ready();await h.api.saveUsername('保存した名前');digest.resolve(new Uint8Array([1,2,3,4,5,6]).buffer);await settle();assert.equal(h.nodes.find(n=>n.className==='kn-profile-name').textContent,'保存した名前');assert.equal(h.api.username(),'保存した名前');assert.equal(h.updates().length,1);
 });
