@@ -2957,6 +2957,15 @@ test('room arrangement is available for eggs and bunnies, stays free, and does n
 
 
 async function villageFixture(config={}) { return fixture({species:'lilac',developerPreview:false,startAtVillage:true,...config}); }
+function tapTownGround(f, dx, dy, pointerType='mouse', viewport=f.host.querySelector('.ipg-town-viewport')) {
+  const avatar=f.host.querySelector('.ipg-town-avatar'),world=Town.createWorld(Core.getVillageLayout(f.store.getState()));
+  const position={x:parseFloat(avatar.style.left),y:parseFloat(avatar.style.top)},box=viewport.getBoundingClientRect();
+  const view=Town.camera(world,box.width,box.height,position),target={x:position.x+dx,y:position.y+dy};
+  const clientX=box.left+(target.x-view.x)*view.scale,clientY=box.top+(target.y-view.y)*view.scale;
+  assert.ok(clientX>=box.left&&clientX<=box.left+box.width&&clientY>=box.top&&clientY<=box.top+box.height,'tap lies inside the visible viewport');
+  const event={pointerId:47,button:0,isPrimary:true,pointerType,clientX,clientY};
+  viewport.emit('pointerdown',event);viewport.emit('pointerup',event);return target;
+}
 function villagePlace(f,id) { return f.focusButton('village-place-'+id); }
 function villagePositionInView(f,id) { const p=villagePlace(f,id);return p.className.includes('ipg-town-place')?{x:Number(p.dataset.layoutX),y:Number(p.dataset.layoutY)}:{x:Number.parseFloat(p.style.left),y:Number.parseFloat(p.style.top)}; }
 async function setVillageAxis(f,axis,value) { const field=f.focusButton('village-'+axis);field.value=String(value);field.emit('input');await flush(); }
@@ -2979,6 +2988,10 @@ test('public game enters the cafe village without initializing layout or changin
   assert.ok(f.host.querySelector('.ipg-village'));assert.equal(f.focusButton('tab-village').getAttribute('aria-current'),'page');
   assert.deepEqual(f.host.querySelectorAll('.ipg-village-place,.ipg-town-place').map(x=>x.dataset.place),Core.villagePlaces.map(x=>x.id));
   assert.equal(f.host.querySelector('.ipg-care-room'),null);assert.equal(Object.hasOwn(f.saved(),'villageLayout'),false);
+  assert.equal(f.host.querySelector('.ipg-town-controls'),null);assert.equal(f.buttons().filter(b=>b.dataset.direction).length,0);
+  assert.match(f.host.querySelector('.ipg-town-guide').textContent,/タップ/);
+  assert.match(f.host.querySelector('.ipg-town-viewport').getAttribute('aria-label'),/地面や建物をタップ/);
+  const actions=f.host.querySelector('.ipg-town-actions');assert.equal(f.focusButton('town-enter').parentNode,actions);assert.equal(f.focusButton('village-edit').parentNode,actions);
   assert.equal(f.data.get(Core.KEY),f.beforeMountRaw);assert.equal(f.writes.length,f.writesBeforeMount);assert.equal(f.saved().pet.exp,686);assert.equal(f.saved().coins,574);
   f.ui.render();await f.ui.close();await f.ui.open();assert.equal(f.data.get(Core.KEY),f.beforeMountRaw);assert.ok(f.host.querySelector('.ipg-village'));
 });
@@ -3003,34 +3016,58 @@ test('town uses exactly the raised clothed pet, moves continuously with its came
   const avatar=f.host.querySelector('.ipg-town-avatar'),visual=avatar.querySelector('.ipg-lilac-visual'),scene=f.host.querySelector('.ipg-town-world');
   assert.equal(f.host.querySelectorAll('.ipg-lilac-visual').length,1);assert.equal(visual.dataset.outfit,'cloth_cream_vest');
   assert.equal(f.activeMotions()[0].options.growthStage,Core.getLilacGrowth(before.pet.exp).key);
-  const x=parseFloat(avatar.style.left),camera=scene.style.transform,button=f.focusButton('town-right');
-  button.emit('pointerdown',{pointerId:1,button:0});await f.frame();for(let i=0;i<25;i++)await f.frame(50);
-  assert.equal(Math.round(parseFloat(avatar.style.left)-x),250);assert.notEqual(scene.style.transform,camera);
+  const x=parseFloat(avatar.style.left),camera=scene.style.transform;
+  const target=tapTownGround(f,180,0);assert.equal(parseFloat(avatar.style.left),x,'ground tap does not teleport');
+  await f.frame();for(let i=0;i<15;i++)await f.frame(50);
+  assert.equal(Math.round(parseFloat(avatar.style.left)-x),150);assert.notEqual(scene.style.transform,camera);
   assert.equal(avatar.dataset.walking,'true');assert.equal(avatar.style.zIndex,String(Math.round(parseFloat(avatar.style.top))));
   const moving=f.activeMotions()[0].changes.filter(row=>row.name==='moving');assert.ok(moving.length>=3);assert.ok(moving.every(row=>row.durationMs===1600&&row.elapsedMs>=0&&row.elapsedMs<1600));
-  f.window.emit('pointerup',{pointerId:1});await f.frame(50);assert.equal(avatar.dataset.walking,'false');
+  for(let i=0;i<6;i++)await f.frame(50);assert.equal(avatar.dataset.walking,'false');
+  assert.ok(Math.abs(parseFloat(avatar.style.left)-target.x)<.01);assert.equal(f.raf.size,0,'arrival does not keep an idle frame loop');
   assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
 });
 
 test('returning from a facility keeps the walked position while detached entry controls are inert',async()=>{
   const f=await villageFixture(),before=f.saved();await walkToVillagePlace(f,'shop',false);
-  const avatar=f.host.querySelector('.ipg-town-avatar'),position=[avatar.style.left,avatar.style.top],oldEnter=f.focusButton('town-enter'),oldRight=f.focusButton('town-right');
+  const avatar=f.host.querySelector('.ipg-town-avatar'),position=[avatar.style.left,avatar.style.top],oldEnter=f.focusButton('town-enter'),oldViewport=f.host.querySelector('.ipg-town-viewport');
   await f.click(oldEnter);assert.ok(f.host.querySelector('.ipg-village-market'));
   await f.click(f.focusButton('tab-village'));const current=f.host.querySelector('.ipg-town-avatar');
   assert.deepEqual([current.style.left,current.style.top],position);assert.equal(f.focusButton('town-enter').textContent,'マルシェに入る');
-  oldEnter.emit('click');oldRight.emit('pointerdown',{pointerId:8,button:0});await f.frame(50);
+  oldEnter.emit('click');oldViewport.emit('pointerdown',{pointerId:8,button:0,clientX:240,clientY:150});oldViewport.emit('pointerup',{pointerId:8,button:0,clientX:240,clientY:150});await f.frame(50);
   assert.ok(f.host.querySelector('.ipg-town'));assert.deepEqual([current.style.left,current.style.top],position);assert.deepEqual(f.saved(),before);
 });
 
 test('town hide and editing destroy all movement frames; reopening is still with the same durable pet',async()=>{
-  const f=await villageFixture(),before=f.saved(),button=f.focusButton('town-right');
-  button.emit('pointerdown',{pointerId:2,button:0});await f.frame();await f.frame(50);const stale=[...f.raf.values()];
+  const f=await villageFixture(),before=f.saved(),viewport=f.host.querySelector('.ipg-town-viewport');
+  tapTownGround(f,180,0,'touch');await f.frame();await f.frame(50);const stale=[...f.raf.values()];
   await f.ui.close();assert.equal(f.raf.size,0);stale.forEach(fn=>fn(999999));await f.ui.open();
   const avatar=f.host.querySelector('.ipg-town-avatar'),position=[avatar.style.left,avatar.style.top];
   await f.frame(500);assert.deepEqual([avatar.style.left,avatar.style.top],position);assert.equal(avatar.dataset.walking,'false');
-  f.focusButton('town-right').emit('pointerdown',{pointerId:3,button:0});await f.frame();await f.click(f.focusButton('village-edit'));
-  assert.equal(f.raf.size,0);button.emit('pointerdown',{pointerId:2,button:0});await f.frame(50);
+  tapTownGround(f,150,0);await f.frame();await f.click(f.focusButton('village-edit'));
+  assert.equal(f.raf.size,0);viewport.emit('pointerdown',{pointerId:2,button:0,clientX:240,clientY:150});viewport.emit('pointerup',{pointerId:2,button:0,clientX:240,clientY:150});await f.frame(50);
   assert.ok(f.host.querySelector('.ipg-village-editor'));assert.deepEqual(f.saved(),before);
+});
+
+test('mouse and touch ground taps work without a direction panel, finish at their targets and keep all saved fields',async()=>{
+  for(const pointerType of ['mouse','touch']){
+    const f=await villageFixture(),before=f.saved(),writes=f.writes.length,avatar=f.host.querySelector('.ipg-town-avatar');
+    const start=avatar.style.top,target=tapTownGround(f,0,100,pointerType);assert.equal(avatar.style.top,start);
+    await f.frame();for(let i=0;i<15;i++)await f.frame(50);
+    assert.ok(Math.abs(parseFloat(avatar.style.top)-target.y)<.01);assert.equal(avatar.dataset.walking,'false');assert.equal(f.raf.size,0);
+    assert.equal(f.host.querySelector('.ipg-town-controls'),null);assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);f.ui.close();
+  }
+});
+
+test('the focused town still accepts keyboard movement and ignores a dragged or canceled ground press',async()=>{
+  const f=await villageFixture(),before=f.saved(),viewport=f.host.querySelector('.ipg-town-viewport'),avatar=f.host.querySelector('.ipg-town-avatar');
+  const position=[avatar.style.left,avatar.style.top];
+  viewport.emit('pointerdown',{pointerId:1,button:0,clientX:150,clientY:150});viewport.emit('pointerup',{pointerId:1,button:0,clientX:195,clientY:150});
+  viewport.emit('pointerdown',{pointerId:2,button:0,clientX:210,clientY:150});f.window.emit('pointercancel',{pointerId:2});viewport.emit('pointerup',{pointerId:2,button:0,clientX:210,clientY:150});
+  assert.equal(f.raf.size,0);assert.deepEqual([avatar.style.left,avatar.style.top],position);
+  viewport.focus();let prevented=0;
+  f.window.emit('keydown',{key:'ArrowRight',target:viewport,preventDefault(){prevented++;}});await f.frame();for(let i=0;i<4;i++)await f.frame(50);
+  f.window.emit('keyup',{key:'ArrowRight'});assert.ok(parseFloat(avatar.style.left)>parseFloat(position[0]));assert.equal(prevented,1);
+  assert.equal(avatar.dataset.walking,'false');assert.deepEqual(f.saved(),before);f.ui.close();
 });
 
 test('missing town movement code reports a loading failure without showing teleport controls or changing a save',async()=>{
@@ -3042,6 +3079,7 @@ test('missing town movement code reports a loading failure without showing telep
 test('village editor keeps all six entrances free, blocks navigation and updates only local integer positions before save',async()=>{
   const f=await villageFixture(),before=f.saved(),writes=f.writes.length,oldRoomTab=f.focusButton('tab-care'),oldShop=villagePlace(f,'shop');
   await f.click(f.focusButton('village-edit'));assert.ok(f.host.querySelector('.ipg-village-editor'));
+  assert.equal(f.host.querySelector('.ipg-town-actions'),null);assert.equal(f.host.querySelector('.ipg-notice').parentNode,f.host.querySelector('.ipg'));
   assert.equal(f.host.querySelectorAll('.ipg-village-place,.ipg-town-place').length,6);assert.equal(f.host.querySelector('.ipg-backup'),null);
   assert.ok(f.host.querySelector('.ipg-tabs').querySelectorAll('button').every(x=>x.disabled));oldRoomTab.emit('click');oldShop.emit('click');await flush();
   assert.ok(f.host.querySelector('.ipg-village-editor'));
@@ -3062,6 +3100,9 @@ test('village save waits for durability and publishes exactly the edited layout 
   const expected=Core.defaultVillageLayout();Object.assign(expected.items.find(x=>x.id==='shop'),{x:33,y:77});
   assert.deepEqual(f.saved(),{...before,villageLayout:expected,revision:before.revision+1});assert.equal(f.host.querySelector('.ipg-village-editor'),null);
   assert.ok(f.host.textContent.includes('村の配置を保存しました'));assert.equal(f.document.activeElement,f.focusButton('village-edit'));
+  const status=f.host.querySelector('.ipg-notice'),actions=f.host.querySelector('.ipg-town-actions');
+  assert.equal(status.parentNode,actions);assert.equal(actions.children[0],status);assert.equal(status.getAttribute('role'),'status');assert.equal(status.getAttribute('aria-live'),'polite');
+  assert.equal(f.focusButton('village-edit').parentNode,actions);assert.equal(f.focusButton('town-enter').parentNode,actions);
   f.ui.render();await f.ui.close();await f.ui.open();assert.deepEqual(villagePositionInView(f,'shop'),{x:33,y:77});
 });
 

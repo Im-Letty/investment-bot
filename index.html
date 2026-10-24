@@ -4351,7 +4351,7 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
 <link rel="stylesheet" href="/static/pet-game.css?v=20261024-village-economy1">
 <link rel="stylesheet" href="/static/pet-cozy-room.css?v=20261024-cozy-room1">
 <link rel="stylesheet" href="/static/pet-village.css?v=20261024-no-minigames1">
-<link rel="stylesheet" href="/static/pet-town-walk.css?v=20261024-town-walk1">
+<link rel="stylesheet" href="/static/pet-town-walk.css?v=20261025-direct-walk1">
 <link rel="stylesheet" href="/static/pet-village-economy-scene.css?v=20261024-village-economy1">
 <style id="independent-pet-shell">
 #sect-pet{position:fixed;inset:0;z-index:9996;display:flex;flex-direction:column;background:var(--kn-a-bg,#f4f7f5);color:var(--kn-a-text,#223b31);overflow:hidden}
@@ -4465,7 +4465,7 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
       loadRequired('/static/pet-cozy-room.js?v=20261024-cozy-room1',function(){return !!window.PetCozyRoom&&typeof window.PetCozyRoom.mount==='function';}),
       // UI registration has no eager core access. Fetch it in parallel while
       // retaining economy -> core and walking engine -> scene execution order.
-      loadRequired('/static/pet-game.js?v=20261025-load1',uiReady)
+      loadRequired('/static/pet-game.js?v=20261025-direct-walk1',uiReady)
     ]).then(function(){if(!apiReady())throw assetFailure('invalid');});
     loadScript('/static/pet-lilac-motion.js?v=20261023-reference-blink1',function(){return !!window.PetLilacMotion;},5000,enhanceOptional).catch(function(){});
     loadScript('/static/pet-room-behavior.js?v=4306c88f116b',function(){return !!window.PetRoomBehavior;},5000,enhanceOptional).catch(function(){});
