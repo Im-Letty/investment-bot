@@ -1,8 +1,8 @@
 (function (root, factory) {
   'use strict';
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./pet-village-economy.js'));
-  else root.PetGameCore = factory(root.PetVillageEconomy);
-}(typeof globalThis !== 'undefined' ? globalThis : this, function (VillageEconomy) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./pet-village-economy.js'), require('./pet-shop-layout.js'));
+  else root.PetGameCore = factory(root.PetVillageEconomy, root.PetShopLayout);
+}(typeof globalThis !== 'undefined' ? globalThis : this, function (VillageEconomy, ShopLayout) {
   'use strict';
 
   // One record contains the entire economy. A rejected write never publishes a
@@ -148,6 +148,8 @@
     appearance_locked:'さいしゅうしんかすると姿を選べます。',invalid_appearance:'姿と表示方法を確認してください。',
     invalid_room_layout:'家具の配置を確認してください。保存済みのお部屋は変更していません。',
     invalid_cozy_room_layout:'家具や壁紙・床の配置を確認してください。保存済みのお部屋は変更していません。',
+    invalid_shop_interior:'お店を確認してください。保存済みの配置は変更していません。',
+    invalid_shop_interior_layout:'家具の位置や通路を確認してください。保存済みのお店は変更していません。',
     invalid_village_layout:'村の配置を確認してください。保存済みの村は変更していません。',
     village_invalid:'食品の数・値段・株数を確認してください。',village_listing_limit:'出品は8件までです。',
     village_not_found:'商品や出品の最新の状態を確認してください。',village_wait:'村の一日を進めるには60秒あけてください。',
@@ -314,6 +316,7 @@
     if(own(s,'roomLayout'))validateRoomLayout(s.roomLayout,s,'corrupt_data');
     if(own(s,'cozyRoomLayout'))validateCozyRoomLayout(s.cozyRoomLayout,s,'corrupt_data');
     if(own(s,'villageLayout'))validateVillageLayout(s.villageLayout,'corrupt_data');
+    if(own(s,'shopInteriorLayouts'))validateShopInteriorLayouts(s.shopInteriorLayouts,'corrupt_data');
     check(Array.isArray(s.achievements)&&s.achievements.length<=300,'corrupt_data');s.achievements.forEach(function(x){check(text(x,100),'corrupt_data');});
     var c=s.care;check(plain(c)&&validDay(c.day,false)&&validDay(c.dailyRewardDay,true)&&plain(c.counts)&&plain(c.total),'corrupt_data');
     ['feed','play','rest'].forEach(function(k){check(integer(c.counts[k])&&c.counts[k]<=LIMITS.care[k]&&integer(c.total[k]),'corrupt_data');});
@@ -417,6 +420,23 @@
     return defaultRoomLayout(s);
   }
   function cozyRoomType(id) {return COZY_ROOM_TYPES.find(function(row){return row.id===id;});}
+  function validateShopInteriorLayout(layout,roomId,code) {
+    check(ShopLayout&&ShopLayout.validRoom(roomId),code||'invalid_shop_interior');
+    try { return ShopLayout.validateLayout(layout,roomId); }
+    catch (_) { check(false,code||'invalid_shop_interior_layout'); }
+  }
+  function validateShopInteriorLayouts(layouts,code) {
+    check(plain(layouts)&&Object.keys(layouts).length<=2&&Reflect.ownKeys(layouts).length===Object.keys(layouts).length,code||'corrupt_data');
+    Object.keys(layouts).forEach(function(id){validateShopInteriorLayout(layouts[id],id,code);});return layouts;
+  }
+  function getShopInteriorLayout(s,roomId) {
+    check(ShopLayout&&ShopLayout.validRoom(roomId),'invalid_shop_interior');
+    if(s&&own(s,'shopInteriorLayouts')) {
+      validateShopInteriorLayouts(s.shopInteriorLayouts,'corrupt_data');
+      if(own(s.shopInteriorLayouts,roomId))return clone(validateShopInteriorLayout(s.shopInteriorLayouts[roomId],roomId,'corrupt_data'));
+    }
+    return ShopLayout.defaultLayout(roomId);
+  }
   function validateCozyRoomLayout(layout,s,code) {
     code=code||'invalid_cozy_room_layout';
     check(exactKeys(layout,['version','wall','floor','objects','nextId'])&&layout.version===1&&
@@ -566,6 +586,14 @@
         // Moving or removing furniture never charges, rewards or backfills achievements.
         return reward;
       }
+      if(a.type==='saveShopInteriorLayout') {
+        check(integer(a.expectedRevision)&&a.expectedRevision===next.revision,'stale_state');
+        var shopLayout=validateShopInteriorLayout(a.layout,a.roomId);
+        next.shopInteriorLayouts=Object.assign({},next.shopInteriorLayouts||{});
+        next.shopInteriorLayouts[a.roomId]=clone(shopLayout);
+        // Shop fixtures are view preferences, separate from home and all ownership/economy.
+        return reward;
+      }
       if(a.type==='saveCozyRoomLayout') {
         check(integer(a.expectedRevision)&&a.expectedRevision===next.revision,'stale_state');
         validateCozyRoomLayout(a.layout,next);next.cozyRoomLayout=clone(a.layout);
@@ -688,6 +716,7 @@
   return {create:create,getStage:getStage,getLilacGrowth:getLilacGrowth,lilacGrowthStages:lilacGrowthStages,getLilacAppearance:getLilacAppearance,lilacAppearanceStages:lilacAppearanceStages,getLilacEvolution:getLilacEvolution,lilacEvolutionPaths:lilacEvolutionPaths,getMarketSummary:summary,eggCatalogue:eggCatalogue,eggProfile:eggProfile,getEggOrigin:getEggOrigin,needsEggChoice:needsEggChoice,KEY:KEY,STORAGE_KEY:KEY,
     roomFurniture:clone(ROOM_FURNITURE),defaultRoomLayout:defaultRoomLayout,getRoomLayout:getRoomLayout,
     cozyRoomFurniture:clone(COZY_ROOM_FURNITURE),cozyRoomTypes:clone(COZY_ROOM_TYPES),defaultCozyRoomLayout:defaultCozyRoomLayout,getCozyRoomLayout:getCozyRoomLayout,
+    getShopInteriorLayout:getShopInteriorLayout,
     villagePlaces:VILLAGE_PLACES,defaultVillageLayout:defaultVillageLayout,getVillageLayout:getVillageLayout,
     getVillageEconomyView:function(s,ms){return VillageEconomy.view(s,ms===undefined?Date.now():ms);},
     STOCKS:clone(STOCKS),stocks:clone(STOCKS),ITEMS:clone(ITEMS),items:clone(ITEMS),catalogue:clone(ITEMS),

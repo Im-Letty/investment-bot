@@ -51,7 +51,7 @@ function fixture({ origin = 'morning', preloaded = true, hydration, mounting } =
     addEventListener(type, fn, capture = false) { docs.push({ type, fn, capture: !!capture }); },
     getElementById(id) { return id === 'knBottomNav' ? navEl : nodes[id] || null; },
     querySelector(selector) { return selector.includes('[data-act="pet"]') ? pet : null; },
-    head: { appendChild(script) { assets.push(script); } } };
+    head: { appendChild(asset) { if (asset.tagName === 'LINK') asset.onload(); else assets.push(asset); } } };
   const window = { __knGateReady: hydration?.promise || Promise.resolve(true),
     __knReadGameStorage: () => 'saved-progress', __knPersistLocalSetting: async () => { storageWrites++; },
     location: { reload() { reloads++; } }, scrollTo() {},
@@ -64,7 +64,7 @@ function fixture({ origin = 'morning', preloaded = true, hydration, mounting } =
     render() { visibleRenders.push(!pane.hidden); },
     refreshVisuals(target) { enhancements.push(target); }
   };
-  if (preloaded) { window.PetVillageEconomy = {}; window.PetTownWalk = {}; window.PetVillageEconomyScene = {mount(){}}; window.PetGameCore = {}; window.PetCozyRoom = {mount(){}}; window.IndependentPetGame = ui; }
+  if (preloaded) { window.PetVillageEconomy = {}; window.PetShopLayout = {}; window.PetTownWalk = {}; window.PetVillageEconomyScene = {mount(){}}; window.PetGameCore = {}; window.PetCozyRoom = {mount(){}}; window.IndependentPetGame = ui; }
   const context = vm.createContext({ document, window, Promise, nav: navEl, ms: sourceView,
     setTimeout(fn, delay) { const id = ++timerId; timers.set(id, { fn, delay }); return id; }, clearTimeout(id) { timers.delete(id); } });
   function click(button) {
@@ -93,6 +93,7 @@ function fixture({ origin = 'morning', preloaded = true, hydration, mounting } =
     pagehide() { windows.filter(x => x.type === 'pagehide').forEach(x => x.fn()); },
     async loadPrerequisites() {
       if(!window.PetVillageEconomy){window.PetVillageEconomy={};assets.findLast(x=>x.src.includes('/pet-village-economy.js')).onload();}
+      if(!window.PetShopLayout){window.PetShopLayout={};assets.findLast(x=>x.src.includes('/pet-shop-layout.js')).onload();}
       if(!window.PetTownWalk){window.PetTownWalk={};assets.findLast(x=>x.src.includes('/pet-town-walk.js')).onload();}
       await flush();
       if(!window.PetVillageEconomyScene){window.PetVillageEconomyScene={mount(){}};assets.findLast(x=>x.src.includes('/pet-village-economy-scene.js')).onload();}
@@ -139,10 +140,10 @@ test('all previous routes remain visible through hydration and mount; only ready
 });
 test('repeated taps share assets/mount and never replay navigation repeatedly', async () => {
   const mounting = deferred(), f = fixture({ preloaded: false, mounting });
-  f.click('pet'); f.click('pet'); const pending = f.window.openPetTab(); assert.equal(f.assets.length, 6);
+  f.click('pet'); f.click('pet'); const pending = f.window.openPetTab(); assert.equal(f.assets.length, 7);
   await f.loadAssets(); assert.equal(f.counts().mounts, 1); assert.equal(f.pane.hidden, true);
   mounting.resolve(true); assert.equal(await pending, true); f.click('pet'); await flush();
-  assert.equal(f.assets.length, 8); assert.equal(f.counts().mounts, 1); assert.deepEqual(f.commits, ['実ゲーム']);
+  assert.equal(f.assets.length, 9); assert.equal(f.counts().mounts, 1); assert.deepEqual(f.commits, ['実ゲーム']);
 });
 test('other navigation cancels downloads; late assets cannot mount or steal the selected route', async () => {
   const f = fixture({ preloaded: false }); f.click('pet'); const pending = f.window.openPetTab();

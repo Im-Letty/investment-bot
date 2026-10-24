@@ -41,10 +41,10 @@ class Element {
 
 function loaderFixture(options = {}) {
   const pane = new Element('section'); pane.hidden = true;
-  pane.roomEditing = false; pane.villageEditing = false;
-  pane.querySelector = selector => selector === '.ipg-room-editor' && pane.roomEditing || selector === '.ipg-village-editor' && pane.villageEditing ? {} : null;
+  pane.roomEditing = false; pane.villageEditing = false; pane.shopEditing = false;
+  pane.querySelector = selector => selector === '.ipg-room-editor' && pane.roomEditing || selector === '.ipg-village-editor' && pane.villageEditing || selector === '.ipg-shop-editor-actions' && pane.shopEditing ? {} : null;
   const host = new Element(), focus = new Element('button'), petButton = new Element('button');
-  const scripts = [], listeners = { document: {}, window: {} }, timers = new Map();
+  const scripts = [], styles = [], listeners = { document: {}, window: {} }, timers = new Map();
   let timerId = 0, mounts = 0, closes = 0, reloads = 0, recordCloses = 0, renders = 0, received;
   const enhancements = [];
   const record = { open: !!options.recordOpen, classList: { contains: () => record.open } };
@@ -64,10 +64,11 @@ function loaderFixture(options = {}) {
     querySelector: () => petButton,
     createElement: tag => new Element(tag),
     addEventListener: (name, fn) => { (listeners.document[name] ||= []).push(fn); },
-    head: { appendChild: script => { scripts.push(script); } }
+    head: { appendChild: asset => { if (asset.tagName === 'LINK') { styles.push(asset); if (!options.stylePending) asset.onload(); } else scripts.push(asset); } }
   };
   const window = {
     PetVillageEconomy: options.economyMissing ? undefined : {},
+    PetShopLayout: options.layoutMissing ? undefined : {},
     PetTownWalk: options.townMissing ? undefined : {},
     PetVillageEconomyScene: options.sceneMissing ? undefined : {mount(){}},
     PetCozyRoom: options.cozyMissing ? undefined : {mount(){}},
@@ -86,12 +87,13 @@ function loaderFixture(options = {}) {
   });
   vm.runInContext(loader, context);
   return {
-    window, document, pane, host, focus, petButton, scripts, timers, listeners, ui, context, enhancements,
+    window, document, pane, host, focus, petButton, scripts, styles, timers, listeners, ui, context, enhancements,
     get mounts() { return mounts; }, get closes() { return closes; }, get received() { return received; },
     get renders() { return renders; },
     get reloads() { return reloads; }, get recordCloses() { return recordCloses; }, record,
     asset(name) { return scripts.findLast(script => script.src.includes('/' + name + '.js?')); },
     economyLoaded() { window.PetVillageEconomy = {}; this.asset('pet-village-economy').onload(); },
+    layoutLoaded() { window.PetShopLayout = {}; this.asset('pet-shop-layout').onload(); },
     townLoaded() { window.PetTownWalk = {}; this.asset('pet-town-walk').onload(); },
     sceneLoaded() { window.PetVillageEconomyScene = {mount(){}}; this.asset('pet-village-economy-scene').onload(); },
     coreLoaded() { window.PetGameCore = {}; this.asset('pet-game-core').onload(); },
@@ -245,6 +247,47 @@ test('a cold entry loads the economy before core and the walking engine before i
   f.motionLoaded();f.roomLoaded();
   f.window.closePetTab();await f.window.openPetTab();
   for(const name of ['pet-village-economy','pet-game-core','pet-town-walk','pet-village-economy-scene'])assert.equal(f.scripts.filter(s=>s.src.includes('/'+name+'.js?')).length,1,name+' is shared across reopening');
+});
+
+test('both lightweight core dependencies must finish before core executes and are shared across concurrent opens and reopen', async () => {
+  const f = loaderFixture({ economyMissing: true, layoutMissing: true }), first = f.window.openPetTab(), second = f.window.openPetTab();
+  assert.equal(first, second); assert.equal(f.asset('pet-game-core'), undefined);
+  assert.ok(f.asset('pet-village-economy')); assert.ok(f.asset('pet-shop-layout'));
+  f.uiLoaded(); f.economyLoaded(); await flush();
+  assert.equal(f.asset('pet-game-core'), undefined, 'economy alone cannot execute a factory without its layout dependency');
+  assert.equal(f.mounts, 0); assert.equal(f.pane.hidden, true);
+  f.layoutLoaded(); await flush(); assert.ok(f.asset('pet-game-core')); assert.equal(f.mounts, 0);
+  f.coreLoaded(); assert.equal(await first, true); assert.equal(f.mounts, 1);
+  assert.equal(f.scripts.some(s => /pet-shop-interior|\/vendor\/three/.test(s.src)), false, 'the lightweight model does not preload the interior renderer');
+  f.window.closePetTab(); assert.equal(await f.window.openPetTab(), true);
+  for (const name of ['pet-shop-layout', 'pet-village-economy', 'pet-game-core']) assert.equal(f.scripts.filter(s => s.src.includes('/' + name + '.js?')).length, 1);
+  assert.equal(f.styles.length, 1); assert.equal(f.styles[0].href, '/static/pet-shop-entry.css?v=20261025-shop1');
+});
+
+test('a failed layout dependency never executes core and uses the same bounded retry and recoverable boot error', async () => {
+  const f = loaderFixture({ layoutMissing: true }), opening = f.window.openPetTab();
+  f.uiLoaded(); f.asset('pet-shop-layout').onerror(); await flush();
+  assert.equal(f.asset('pet-game-core'), undefined); assert.equal(f.scripts.filter(s => s.src.includes('/pet-shop-layout.js?')).length, 1);
+  f.fireTimers(1200); await flush(); assert.equal(f.scripts.filter(s => s.src.includes('/pet-shop-layout.js?')).length, 2);
+  f.asset('pet-shop-layout').onerror(); assert.equal(await opening, false);
+  assert.equal(f.mounts, 0); assert.equal(f.asset('pet-game-core'), undefined); assert.match(f.host.textContent, /もう一度読み込む/);
+});
+
+test('entry styles gate the first usable game, stay shared through cancellation, and do not load interior art', async () => {
+  const f = loaderFixture({ preloaded: true, stylePending: true }), first = f.window.openPetTab(); await flush();
+  assert.equal(f.styles.length, 1); assert.equal(f.styles[0].rel, 'stylesheet'); assert.equal(f.mounts, 0); assert.equal(f.pane.hidden, true);
+  f.window.closePetTab(false); const second = f.window.openPetTab(); await flush(); assert.equal(f.styles.length, 1);
+  f.styles[0].onload(); assert.equal(await first, false); assert.equal(await second, true); assert.equal(f.mounts, 1);
+  assert.equal(f.styles.some(style => /pet-shop-interior/.test(style.href)), false);
+  f.window.closePetTab(); assert.equal(await f.window.openPetTab(), true); assert.equal(f.styles.length, 1);
+});
+
+test('entry stylesheet errors permit one retry then show the normal boot error without mounting', async () => {
+  const f = loaderFixture({ preloaded: true, stylePending: true }), opening = f.window.openPetTab();
+  f.styles[0].onerror(); await flush(); assert.equal(f.styles.length, 1); assert.equal(f.mounts, 0);
+  f.fireTimers(1200); await flush(); assert.equal(f.styles.length, 2);
+  assert.equal(f.styles[1].href, f.styles[0].href); f.styles[1].onerror(); assert.equal(await opening, false);
+  assert.equal(f.mounts, 0); assert.match(f.host.textContent, /もう一度読み込む/);
 });
 
 test('an economy or scene download failure preserves the previous page and cannot execute dependent modules', async () => {
@@ -582,14 +625,25 @@ test('the outer loader also protects village arrangement from Escape until the e
   assert.equal(f.pane.hidden, true); assert.equal(f.closes, 1); assert.equal(f.mounts, 1);
 });
 
+test('the outer loader leaves Escape to the shop editor until the draft is saved or cancelled', async () => {
+  const f = loaderFixture({ preloaded: true }); assert.equal(await f.window.openPetTab(), true);
+  f.pane.shopEditing = true;
+  for (const listener of f.listeners.document.keydown) listener({ key: 'Escape' });
+  assert.equal(f.pane.hidden, false); assert.equal(f.closes, 0); assert.equal(f.mounts, 1);
+  f.pane.shopEditing = false;
+  for (const listener of f.listeners.document.keydown) listener({ key: 'Escape' });
+  assert.equal(f.pane.hidden, true); assert.equal(f.closes, 1); assert.equal(f.mounts, 1);
+});
+
 test('main game does not load a removed minigame runtime and updates only changed game asset revisions',()=>{
   assert.doesNotMatch(html,/<script\b[^>]*src=["'][^"']*pet-cafe\.js/);
   assert.equal(fs.existsSync(path.join(root,'static/pet-cafe.js')),false);
   for(const asset of ['pet-village.css']){
     assert.ok(html.includes('/static/'+asset+'?v=20261024-no-minigames1'),asset);
   }
-  for(const asset of ['pet-game-core.js','pet-game.css','pet-village-economy.js','pet-village-economy-scene.js','pet-village-economy-scene.css'])assert.ok(html.includes('/static/'+asset+'?v=20261024-village-economy1'),asset);
-  assert.ok(html.includes('/static/pet-game.js?v=20261025-color1'),'changed village palette loader pin');
-  for(const asset of ['pet-town-walk.js','pet-town-walk.css','pet-lilac-motion.js'])assert.ok(html.includes('/static/'+asset+'?v=20261025-lively1'),asset);
+  for(const asset of ['pet-game.css','pet-village-economy.js','pet-village-economy-scene.js','pet-village-economy-scene.css'])assert.ok(html.includes('/static/'+asset+'?v=20261024-village-economy1'),asset);
+  for(const asset of ['pet-game-core.js','pet-game.js','pet-town-walk.js','pet-shop-layout.js','pet-shop-entry.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-shop1'),asset);
+  assert.ok(html.includes('/static/pet-town-walk.css?v=20261025-lively1'),'unchanged walking stylesheet pin is preserved');
+  assert.ok(html.includes('/static/pet-lilac-motion.js?v=20261025-harmony1'),'unchanged character renderer pin is preserved');
   assert.ok(html.includes('/static/pet-cozy-room.css?v=20261024-cozy-room1'),'unchanged room asset pin is preserved');
 });
