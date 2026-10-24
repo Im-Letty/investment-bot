@@ -292,6 +292,9 @@
     listen(win, 'keydown', function (event) {
       var name = keyName(event), direction = keyVector(name);
       if (!direction || !active() || event.altKey || event.ctrlKey || event.metaKey || !within(doc.activeElement) || editing(event.target) || editing(doc.activeElement)) return;
+      // A key held while input was unavailable must not become a new command
+      // when a loading, focus or entry gate opens during an OS repeat.
+      if (event.repeat && !Object.prototype.hasOwnProperty.call(keys, name)) { prevent(event); return; }
       if (entryLatched && event.repeat) { prevent(event); return; }
       if (!event.repeat) entryLatched = false;
       if (!Object.prototype.hasOwnProperty.call(keys, name)) resetDoorContact();
@@ -392,6 +395,7 @@
       destroy: function () { if (dead) return; stop(); dead = true; if (observer) observer.disconnect(); removers.forEach(function (remove) { remove(); }); removers = []; },
       approach: approach,
       enterDoor: enterDoor,
+      refresh: draw,
       stop: stop,
       position: function () { return copy(position); }
     };
