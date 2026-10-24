@@ -20,7 +20,7 @@
   function trimRange(start,end,duration){
     start=Number(start);end=Number(end);duration=Number(duration);
     if(!Number.isFinite(duration)||duration<=0||duration>MAX_SECONDS+0.05)throw new Error('invalid_file');
-    if(!Number.isFinite(start)||!Number.isFinite(end)||start<0||end>duration+0.01||end-start<0.1||end-start>MAX_SECONDS+0.01)throw new Error('invalid_trim');
+    if(!Number.isFinite(start)||!Number.isFinite(end)||start<0||end>duration+0.01||end-start<0.1-1e-8||end-start>MAX_SECONDS+0.01)throw new Error('invalid_trim');
     return {start:start,end:Math.min(end,duration),duration:Math.min(end,duration)-start};
   }
   function recorderMime(host,hasAudio){
@@ -59,14 +59,68 @@
     s.recordButton.textContent=recordLabel;s.recordButton.setAttribute('aria-label',recordLabel);s.recordButton.setAttribute('aria-pressed',String(!!s.recording));s.recordButton.setAttribute('data-recording',String(!!s.recording));
     s.cameraStop.hidden=!s.stream&&!s.cameraPending;
     s.next.disabled=busy||!s.source||s.loadingFile||!!s.recording||s.cameraPending;
-    s.next.textContent=busy?'動画を作成しています…':'次へ';s.cancelExport.hidden=!busy;s.returnClip.hidden=!s.source||s.view!=='capture';s.returnClip.disabled=locked;
+    s.next.textContent=busy?'作成中…':'次へ';s.cancelExport.hidden=!busy;s.returnClip.hidden=!s.source||s.view!=='capture';s.returnClip.disabled=locked;
     [s.trimStart,s.trimEnd,s.text,s.position,s.color,s.muted,s.reset].forEach(function(el){el.disabled=busy||!s.source||!!s.recording;});
     s.settings.hidden=!s.source||s.view!=='edit';s.previewButton.disabled=busy||!s.source||!!s.recording;
+    [s.startRange,s.endRange].concat(s.toolButtons).forEach(function(el){el.disabled=busy||!s.source||!!s.recording;});
+    s.playerControls.hidden=!s.source||s.view!=='edit';s.headTitle.textContent=s.view==='edit'?'動画を編集':s.view==='photos'?'写真を動画にする':'動画をつくる';syncTimeline(s);
     s.empty.hidden=!!s.source||s.cameraVisible||s.cameraPending;s.captureHint.textContent=s.recording?'タップして録画を停止':s.stream?'タップして撮影':'タップしてカメラを開く';
     s.durationButtons.forEach(function(el){el.disabled=locked;el.setAttribute('aria-pressed',String(Number(el.getAttribute('data-seconds'))===s.recordLimit));});
     s.photosPanel.hidden=s.view!=='photos';s.photosBuild.disabled=locked||!s.photos.length;s.photoDuration.disabled=locked;
     Array.from(s.photosList.querySelectorAll('button')).forEach(function(el){el.disabled=locked||el.getAttribute('data-unavailable')==='true';});
     if(s.view!=='capture')showAlbum(s,false);
+  }
+  function timeLabel(value){var seconds=Math.max(0,Number(value)||0);return Math.floor(seconds/60)+':'+String(Math.floor(seconds%60)).padStart(2,'0');}
+  function syncTimeline(s){
+    if(!s.source)return;var duration=s.source.duration,start=Number(s.trimStart.value),end=Number(s.trimEnd.value),valid=true;
+    try{trimRange(start,end,duration);}catch(_){valid=false;}
+    s.textCount.textContent=Array.from(s.text.value).length+' / 100';
+    s.playTime.textContent=timeLabel(s.preview.currentTime)+' / '+timeLabel(duration);
+    s.previewButton.textContent=s.preview.paused?'▶':'Ⅱ';s.previewButton.setAttribute('aria-label',s.preview.paused?'選んだ範囲を再生':'動画を一時停止');
+    if(!valid)return;
+    s.startRange.max=String(duration);s.endRange.max=String(duration);s.startRange.value=String(start);s.endRange.value=String(end);
+    s.startRange.setAttribute('aria-valuetext',start.toFixed(1)+'秒');s.endRange.setAttribute('aria-valuetext',end.toFixed(1)+'秒');
+    s.selection.style.left=(start/duration*100)+'%';s.selection.style.width=((end-start)/duration*100)+'%';s.playhead.style.left=(Math.min(duration,Number(s.preview.currentTime)||0)/duration*100)+'%';
+    s.trimSummary.textContent=start.toFixed(1)+'秒 〜 '+end.toFixed(1)+'秒';s.selectedDuration.textContent=(end-start).toFixed(1)+'秒を使用';
+  }
+  function adjustRange(s,which){
+    if(!active(s)||!s.source||s.job||s.photoJob||s.recording||s.view!=='edit')return;
+    var d=s.source.duration,start=Number(s.trimStart.value),end=Number(s.trimEnd.value),gap=Math.min(.1,d);
+    if(!Number.isFinite(start)||start<0||start>d-gap)start=0;if(!Number.isFinite(end)||end<start+gap||end>d)end=d;
+    if(which==='start'){start=Math.max(0,Math.min(Number(s.startRange.value)||0,end-gap));s.trimStart.value=String(Math.round(start*1000)/1000);}
+    else{end=Math.min(d,Math.max(Number(s.endRange.value)||0,start+gap));s.trimEnd.value=String(Math.round(end*1000)/1000);}
+    s.trimStart.value=String(start);s.trimEnd.value=String(end);
+    s.preview.pause();try{s.preview.currentTime=which==='start'?Number(s.trimStart.value):Math.max(Number(s.trimStart.value),Number(s.trimEnd.value)-.01);}catch(_){}syncTimeline(s);
+  }
+  function timelinePointer(s,event,begin){
+    if(!active(s)||!s.source||s.job||s.photoJob||s.recording||s.loadingFile||s.view!=='edit')return;
+    if(begin&&typeof event.button==='number'&&event.button!==0)return;
+    var rect=s.filmstrip.getBoundingClientRect(),d=s.source.duration;if(!rect.width||!Number.isFinite(event.clientX))return;
+    if(begin){var start=Number(s.trimStart.value)||0,end=Number(s.trimEnd.value);if(!Number.isFinite(end))end=d;
+      var x=event.clientX-rect.left,a=start/d*rect.width,b=end/d*rect.width,near=Math.min(Math.abs(x-a),Math.abs(x-b));
+      s.timelineDrag={id:event.pointerId,which:near<=24?(Math.abs(x-a)<=Math.abs(x-b)?'start':'end'):'seek'};
+      try{if(s.timeline.setPointerCapture)s.timeline.setPointerCapture(event.pointerId);}catch(_){}
+    }
+    var drag=s.timelineDrag;if(!drag||drag.id!==event.pointerId)return;event.preventDefault();
+    var seconds=Math.max(0,Math.min(d,(event.clientX-rect.left)/rect.width*d));
+    if(drag.which==='seek'){s.preview.pause();try{s.preview.currentTime=Math.max(Number(s.trimStart.value)||0,Math.min(Number(s.trimEnd.value)-.001,seconds));}catch(_){}syncTimeline(s);}
+    else{var control=drag.which==='start'?s.startRange:s.endRange;control.value=String(Math.round(seconds*10)/10);adjustRange(s,drag.which);}
+  }
+  function finishTimelinePointer(s,event){
+    var drag=s.timelineDrag;if(!drag||drag.id!==event.pointerId)return;s.timelineDrag=null;
+    try{if(s.timeline.releasePointerCapture)s.timeline.releasePointerCapture(event.pointerId);}catch(_){}
+    if(drag.which!=='seek')(drag.which==='start'?s.startRange:s.endRange).focus({preventScroll:true});
+  }
+  function setTool(s,tool){
+    if(!active(s)||s.job||s.photoJob||s.recording)return;s.tool=tool;
+    [['trim',s.trimPanel],['text',s.textPanel],['audio',s.audioPanel]].forEach(function(pair){pair[1].hidden=tool!==pair[0];});
+    s.toolButtons.forEach(function(control){control.setAttribute('aria-pressed',String(control.getAttribute('data-tool')===tool));});
+  }
+  function cancelThumbnails(s){if(s.thumbnailJob){s.thumbnailJob.cancel();s.thumbnailJob=null;}}
+  function startThumbnails(s){
+    cancelThumbnails(s);s.thumbnailFrames.forEach(function(image){image.removeAttribute('src');image.hidden=true;});
+    var source=s.source,engine=w.KNShortsTimeline;if(!source||!engine||typeof engine.start!=='function')return;
+    try{s.thumbnailJob=engine.start(source.url,source.duration,function(index,data){if(active(s)&&s.source===source&&s.thumbnailFrames[index]){s.thumbnailFrames[index].src=data;s.thumbnailFrames[index].hidden=false;}});}catch(_){/* Time handles remain usable without thumbnails. */}
   }
   function showAlbum(s,open){s.albumPanel.hidden=!open;s.albumButton.setAttribute('aria-expanded',String(open));if(open){var first=s.albumPanel.querySelector('button');if(first)first.focus();}}
   function clearPhotos(s){s.photoUrls.forEach(revoke);s.photoUrls=[];s.photos=[];if(s.photosList)s.photosList.textContent='';}
@@ -103,7 +157,7 @@
   }
   function resetEdits(s){
     if(!s.source)return;s.trimStart.value='0';s.trimEnd.value=String(s.source.duration);s.text.value='';s.position.value='bottom';s.color.value='#ffffff';s.muted.checked=false;
-    s.preview.muted=false;renderOverlay(s);say(s,'編集を元に戻しました。');
+    s.preview.muted=false;renderOverlay(s);syncTimeline(s);say(s,'編集を元に戻しました。');
   }
   function editSettings(s){var range=trimRange(s.trimStart.value,s.trimEnd.value,s.source.duration);return {start:range.start,end:range.end,duration:range.duration,text:s.text.value.trim(),position:s.position.value,color:s.color.value,muted:s.muted.checked};}
   function hasEdits(s,settings){return settings.start>0.005||Math.abs(settings.end-s.source.duration)>0.005||!!settings.text||settings.muted;}
@@ -140,11 +194,11 @@
         if(!Number.isFinite(duration)||duration<=0||!width||!height){discard('invalid_file');return;}
         if(duration>MAX_SECONDS+0.05){discard('file_too_long');return;}
         if(width>3840||height>3840){discard('unsupported_file');return;}
-        cleanup();cancelled=true;stopCamera(s,true);clearVideo(s.preview);s.preview.remove();if(s.source)revoke(s.source.url);
+        cleanup();cancelled=true;cancelThumbnails(s);stopCamera(s,true);clearVideo(s.preview);s.preview.remove();if(s.source)revoke(s.source.url);
         s.source={file:file,url:url,duration:duration,width:width,height:height};s.preview=video;video.hidden=false;video.className='ks-edit-preview';video.controls=true;video.muted=false;
         s.stage.insertBefore(video,s.overlay);stageRatio(s,width,height);s.cameraVisible=false;s.cameraPreview.hidden=true;
-        video.addEventListener('timeupdate',function(){if(active(s)&&!s.job&&s.source){var end=Number(s.trimEnd.value);if(Number.isFinite(end)&&video.currentTime>=end){video.pause();}}});
-        s.loadingFile=false;s.view='edit';resetEdits(s);setButtons(s);say(s,'切り取り・文字・音声を編集して、次へ進めます。');resolve(true);
+        video.addEventListener('timeupdate',function(){if(active(s)&&!s.job&&s.source){var end=Number(s.trimEnd.value);if(Number.isFinite(end)&&video.currentTime>=end){video.pause();}syncTimeline(s);}});video.addEventListener('play',function(){if(active(s))syncTimeline(s);});video.addEventListener('pause',function(){if(active(s))syncTimeline(s);});
+        s.loadingFile=false;s.view='edit';resetEdits(s);setTool(s,'trim');setButtons(s);startThumbnails(s);say(s,'両端のつまみで使う範囲を選べます。');resolve(true);
       }
       s.cancelLoad=cancel;video.addEventListener('loadedmetadata',loaded);video.addEventListener('error',failed);timer=w.setTimeout(function(){discard('invalid_file');},10000);
       try{video.load();}catch(_){failed();}
@@ -269,18 +323,18 @@
     }catch(e){if(active(s))say(s,message(e&&e.message||'export_failed'));}
   }
   function closeSession(s,cancel){
-    if(!s||s.closed)return;s.closed=true;s.cameraRevision++;cancelLoading(s);stopCamera(s,true);cancelJob(s);cancelPhotos(s);clearPhotos(s);clearVideo(s.preview);if(s.source)revoke(s.source.url);s.source=null;
+    if(!s||s.closed)return;s.closed=true;s.cameraRevision++;cancelThumbnails(s);cancelLoading(s);stopCamera(s,true);cancelJob(s);cancelPhotos(s);clearPhotos(s);clearVideo(s.preview);if(s.source)revoke(s.source.url);s.source=null;
     w.document.removeEventListener('visibilitychange',s.visibility);w.removeEventListener('pagehide',s.pagehide);w.removeEventListener('popstate',s.pagehide);s.modal.remove();if(current===s)current=null;
     if(s.previousFocus&&s.previousFocus.isConnected&&typeof s.previousFocus.focus==='function'&&!w.document.hidden)s.previousFocus.focus();
     if(cancel!==false&&!s.confirmed&&typeof s.options.onCancel==='function')s.options.onCancel();
   }
-  function stopSession(s){if(!active(s))return;stopCamera(s,false);cancelJob(s);cancelPhotos(s);s.preview.pause();say(s,'撮影と保存を停止しました。選択した動画は残っています。');}
+  function stopSession(s){if(!active(s))return;cancelThumbnails(s);stopCamera(s,false);cancelJob(s);cancelPhotos(s);s.preview.pause();say(s,'撮影と保存を停止しました。選択した動画は残っています。');}
   function open(options){
     if(!w||!w.document)throw new Error('browser_required');options=options||{};if(typeof options.onConfirm!=='function')throw new Error('onConfirm_required');
     if(current)closeSession(current,true);
-    var s={options:options,closed:false,confirmed:false,facing:'user',cameraRevision:0,source:null,view:'capture',recordLimit:60,photos:[],photoUrls:[],previousFocus:w.document.activeElement};current=s;
+    var s={options:options,closed:false,confirmed:false,facing:'user',cameraRevision:0,source:null,view:'capture',recordLimit:60,tool:'trim',photos:[],photoUrls:[],previousFocus:w.document.activeElement};current=s;
     s.modal=node('div','ks-edit-modal');s.modal.id='knShortsEditor';s.dialog=node('section','ks-edit-dialog');s.dialog.setAttribute('role','dialog');s.dialog.setAttribute('aria-modal','true');s.dialog.setAttribute('aria-labelledby','ksEditTitle');s.modal.appendChild(s.dialog);
-    var head=node('div','ks-edit-head'),title=node('h2','','動画をつくる');title.id='ksEditTitle';s.closeButton=button('ks-edit-close','閉じる',function(){closeSession(s,true);});s.closeButton.setAttribute('aria-label','作成を閉じる');head.appendChild(s.closeButton);head.appendChild(title);s.dialog.appendChild(head);
+    var head=node('div','ks-edit-head'),title=node('h2','','動画をつくる');title.id='ksEditTitle';s.headTitle=title;s.closeButton=button('ks-edit-close','閉じる',function(){closeSession(s,true);});s.closeButton.setAttribute('aria-label','作成を閉じる');head.appendChild(s.closeButton);head.appendChild(title);s.dialog.appendChild(head);
     s.status=node('p','ks-edit-status');s.status.setAttribute('role','status');s.status.setAttribute('aria-live','polite');s.dialog.appendChild(s.status);
     s.stage=node('div','ks-edit-stage');s.preview=node('video','ks-edit-preview');s.preview.controls=true;s.preview.playsInline=true;s.preview.setAttribute('playsinline','');s.preview.preload='metadata';s.stage.appendChild(s.preview);
     s.cameraPreview=node('video','ks-edit-camera-preview');s.cameraPreview.muted=true;s.cameraPreview.playsInline=true;s.cameraPreview.setAttribute('playsinline','');s.cameraPreview.hidden=true;s.cameraPreview.addEventListener('click',function(){if(s.stream){var playing=s.cameraPreview.play();if(playing&&playing.catch)playing.catch(function(){});}});s.cameraPreview.addEventListener('loadedmetadata',function(){if(active(s)&&s.cameraVisible)stageRatio(s,s.cameraPreview.videoWidth,s.cameraPreview.videoHeight);});s.stage.appendChild(s.cameraPreview);
@@ -296,21 +350,35 @@
     s.albumPanel=node('div','ks-edit-album-panel');s.albumPanel.hidden=true;s.albumPanel.id='ksEditAlbumChoices';s.albumPanel.setAttribute('aria-label','アルバムの種類');s.albumPanel.appendChild(button('ks-edit-choose-video','動画を選ぶ',function(){showAlbum(s,false);s.fileInput.click();}));s.albumPanel.appendChild(button('ks-edit-choose-photos','写真から動画をつくる',function(){showAlbum(s,false);s.photoInput.click();}));s.albumPanel.appendChild(button('ks-edit-album-close','閉じる',function(){showAlbum(s,false);s.albumButton.focus();}));s.dialog.appendChild(s.albumPanel);
     s.photosPanel=node('div','ks-edit-photos-panel');s.photosPanel.appendChild(node('h3','','写真を動画にする'));s.photosPanel.appendChild(node('p','','写真を12枚まで選んで、順番と表示時間を変えられます。'));
     s.photosList=node('div','ks-edit-photos-list');s.photosPanel.appendChild(s.photosList);s.photoDuration=node('select','ks-edit-photo-duration');[1,2,3,4,5].forEach(function(seconds){var option=node('option','',seconds+'秒');option.value=String(seconds);s.photoDuration.appendChild(option);});s.photoDuration.value='3';label(s.photosPanel,'1枚の表示時間',s.photoDuration);s.photosSummary=node('p','ks-edit-photos-summary');s.photosPanel.appendChild(s.photosSummary);s.photosBuild=button('ks-edit-photos-build','動画を作成',function(){buildPhotos(s);});s.photosPanel.appendChild(s.photosBuild);s.photosPanel.appendChild(button('ks-edit-photos-camera','カメラに戻る',function(){if(s.photoJob||s.job)return;s.view='capture';setButtons(s);}));s.photosPanel.appendChild(button('ks-edit-photos-back','選び直す',function(){if(!s.photoJob)s.photoInput.click();}));s.dialog.appendChild(s.photosPanel);
-    s.settings=node('div','ks-edit-settings');s.dialog.appendChild(s.settings);var trim=node('div','ks-edit-trim');s.settings.appendChild(trim);
-    s.trimStart=node('input','ks-edit-trim-start');s.trimEnd=node('input','ks-edit-trim-end');[s.trimStart,s.trimEnd].forEach(function(el){el.type='number';el.min='0';el.max='180';el.step='0.1';el.inputMode='decimal';});label(trim,'開始（秒）',s.trimStart);label(trim,'終了（秒）',s.trimEnd);
-    s.previewButton=button('ks-edit-preview-play','切り取りを再生',function(){try{var range=editSettings(s);s.preview.currentTime=range.start;s.preview.muted=s.muted.checked;var playing=s.preview.play();if(playing&&playing.catch)playing.catch(function(){say(s,'動画の再生を開始できませんでした。');});}catch(e){say(s,message(e.message));}});s.settings.appendChild(s.previewButton);
-    s.text=node('textarea','ks-edit-text');s.text.rows=2;s.text.maxLength=100;s.text.placeholder='動画に表示する文字（任意）';label(s.settings,'文字を入れる（100文字まで）',s.text);
-    var appearance=node('div','ks-edit-appearance');s.settings.appendChild(appearance);s.position=node('select','ks-edit-position');[['top','上'],['middle','中央'],['bottom','下']].forEach(function(pair){var opt=node('option','',pair[1]);opt.value=pair[0];s.position.appendChild(opt);});s.position.value='bottom';label(appearance,'文字の位置',s.position);
+    s.playerControls=node('div','ks-edit-player-controls');s.previewButton=button('ks-edit-preview-play','▶',function(){
+      if(!s.source||s.job)return;try{var range=editSettings(s);if(!s.preview.paused){s.preview.pause();syncTimeline(s);return;}if(s.preview.currentTime<range.start||s.preview.currentTime>=range.end-.01)s.preview.currentTime=range.start;s.preview.muted=s.muted.checked;var playing=s.preview.play();if(playing&&playing.catch)playing.catch(function(){say(s,'動画の再生を開始できませんでした。');});syncTimeline(s);}catch(e){say(s,message(e.message));}
+    });s.previewButton.setAttribute('aria-label','選んだ範囲を再生');s.playerControls.appendChild(s.previewButton);s.playTime=node('span','ks-edit-play-time');s.playerControls.appendChild(s.playTime);s.selectedDuration=node('span','ks-edit-selected-duration');s.playerControls.appendChild(s.selectedDuration);s.dialog.appendChild(s.playerControls);
+    s.settings=node('div','ks-edit-settings');s.dialog.appendChild(s.settings);
+    s.trimPanel=node('div','ks-edit-tool-panel ks-edit-trim-panel');s.trimPanel.id='ksEditTrimPanel';s.settings.appendChild(s.trimPanel);
+    var timeline=node('div','ks-edit-timeline'),strip=node('div','ks-edit-filmstrip');s.timeline=timeline;s.filmstrip=strip;s.thumbnailFrames=[];
+    timeline.addEventListener('pointerdown',function(event){timelinePointer(s,event,true);});timeline.addEventListener('pointermove',function(event){timelinePointer(s,event,false);});['pointerup','pointercancel'].forEach(function(name){timeline.addEventListener(name,function(event){finishTimelinePointer(s,event);});});
+    for(var frameIndex=0;frameIndex<6;frameIndex++){var cell=node('span','ks-edit-frame'),image=node('img');image.alt='';image.hidden=true;cell.appendChild(image);strip.appendChild(cell);s.thumbnailFrames.push(image);}timeline.appendChild(strip);
+    s.selection=node('div','ks-edit-selection');s.selection.setAttribute('aria-hidden','true');strip.appendChild(s.selection);s.playhead=node('div','ks-edit-playhead');s.playhead.setAttribute('aria-hidden','true');strip.appendChild(s.playhead);
+    s.startRange=node('input','ks-edit-range ks-edit-range-start');s.endRange=node('input','ks-edit-range ks-edit-range-end');[s.startRange,s.endRange].forEach(function(el){el.type='range';el.min='0';el.step='.1';strip.appendChild(el);});s.startRange.setAttribute('aria-label','動画の開始位置');s.endRange.setAttribute('aria-label','動画の終了位置');s.startRange.addEventListener('input',function(){adjustRange(s,'start');});s.endRange.addEventListener('input',function(){adjustRange(s,'end');});s.trimPanel.appendChild(timeline);
+    s.trimSummary=node('p','ks-edit-trim-summary');s.trimPanel.appendChild(s.trimSummary);
+    var precise=node('details','ks-edit-precise'),preciseSummary=node('summary','','秒数で細かく調整');precise.appendChild(preciseSummary);var trim=node('div','ks-edit-trim');precise.appendChild(trim);s.trimPanel.appendChild(precise);
+    s.trimStart=node('input','ks-edit-trim-start');s.trimEnd=node('input','ks-edit-trim-end');[s.trimStart,s.trimEnd].forEach(function(el){el.type='number';el.min='0';el.max='180';el.step='0.1';el.inputMode='decimal';el.addEventListener('change',function(){syncTimeline(s);});});label(trim,'開始（秒）',s.trimStart);label(trim,'終了（秒）',s.trimEnd);
+    s.textPanel=node('div','ks-edit-tool-panel ks-edit-text-panel');s.textPanel.id='ksEditTextPanel';s.textPanel.hidden=true;s.settings.appendChild(s.textPanel);
+    s.text=node('textarea','ks-edit-text');s.text.rows=2;s.text.maxLength=100;s.text.placeholder='動画に入れる文字（任意）';label(s.textPanel,'動画に文字を入れる',s.text);s.textCount=node('span','ks-edit-text-count','0 / 100');s.textPanel.appendChild(s.textCount);
+    var appearance=node('div','ks-edit-appearance');s.textPanel.appendChild(appearance);s.position=node('select','ks-edit-position');[['top','上'],['middle','中央'],['bottom','下']].forEach(function(pair){var opt=node('option','',pair[1]);opt.value=pair[0];s.position.appendChild(opt);});s.position.value='bottom';label(appearance,'文字の位置',s.position);
     s.color=node('select','ks-edit-color');[['#ffffff','白'],['#ffe45c','黄色'],['#000000','黒']].forEach(function(pair){var opt=node('option','',pair[1]);opt.value=pair[0];s.color.appendChild(opt);});s.color.value='#ffffff';label(appearance,'文字の色',s.color);
-    s.muted=node('input','ks-edit-muted');s.muted.type='checkbox';label(s.settings,'音声を消す',s.muted);s.reset=button('ks-edit-reset','編集を元に戻す',function(){resetEdits(s);});s.settings.appendChild(s.reset);
-    var footer=node('div','ks-edit-footer');s.next=button('ks-edit-next','次へ',function(){confirm(s);});s.cancelExport=button('ks-edit-export-cancel','作成を中断',function(){cancelJob(s);cancelPhotos(s);say(s,message('cancelled'));});footer.appendChild(s.next);footer.appendChild(s.cancelExport);s.dialog.appendChild(footer);s.dialog.appendChild(node('p','ks-edit-limits','動画は3分・20MBまで'));
+    s.audioPanel=node('div','ks-edit-tool-panel ks-edit-audio-panel');s.audioPanel.id='ksEditAudioPanel';s.audioPanel.hidden=true;s.settings.appendChild(s.audioPanel);s.audioPanel.appendChild(node('p','','元の動画の音声'));s.muted=node('input','ks-edit-muted');s.muted.type='checkbox';label(s.audioPanel,'音声を消す',s.muted);
+    var tools=node('div','ks-edit-tools');tools.setAttribute('role','group');tools.setAttribute('aria-label','動画の編集ツール');s.toolButtons=[];
+    [['trim','切り取り','✂','ksEditTrimPanel'],['text','文字','Aa','ksEditTextPanel'],['audio','音声','♪','ksEditAudioPanel']].forEach(function(pair){var control=button('ks-edit-tool','',function(){setTool(s,pair[0]);});control.appendChild(node('span','ks-edit-tool-symbol',pair[2]));control.appendChild(node('span','',pair[1]));control.setAttribute('data-tool',pair[0]);control.setAttribute('aria-controls',pair[3]);control.setAttribute('aria-pressed',String(pair[0]==='trim'));tools.appendChild(control);s.toolButtons.push(control);});
+    s.reset=button('ks-edit-reset','',function(){resetEdits(s);});s.reset.appendChild(node('span','ks-edit-tool-symbol','↶'));s.reset.appendChild(node('span','','元に戻す'));tools.appendChild(s.reset);s.settings.appendChild(tools);
+    var footer=node('div','ks-edit-footer');s.next=button('ks-edit-next','次へ',function(){confirm(s);});head.appendChild(s.next);s.cancelExport=button('ks-edit-export-cancel','作成を中断',function(){cancelJob(s);cancelPhotos(s);say(s,message('cancelled'));});footer.appendChild(s.cancelExport);s.dialog.appendChild(footer);s.dialog.appendChild(node('p','ks-edit-limits','動画は3分・20MBまで'));
     s.fileInput.addEventListener('change',function(){var file=s.fileInput.files&&s.fileInput.files[0];if(file)loadFile(s,file);s.fileInput.value='';});s.photoInput.addEventListener('change',function(){if(s.photoInput.files&&s.photoInput.files.length)selectPhotos(s,s.photoInput.files);s.photoInput.value='';});s.photoDuration.addEventListener('change',function(){renderPhotos(s);});
-    [s.text,s.position,s.color].forEach(function(el){el.addEventListener(el===s.text?'input':'change',function(){renderOverlay(s);});});s.muted.addEventListener('change',function(){s.preview.muted=s.muted.checked;});
+    [s.text,s.position,s.color].forEach(function(el){el.addEventListener(el===s.text?'input':'change',function(){renderOverlay(s);syncTimeline(s);});});s.muted.addEventListener('change',function(){s.preview.muted=s.muted.checked;});
     s.modal.addEventListener('click',function(e){if(e.target===s.modal)closeSession(s,true);});s.modal.addEventListener('keydown',function(e){
       if(e.key==='Escape'){e.preventDefault();closeSession(s,true);return;}
       if(e.key==='Tab'){var controls=Array.from(s.dialog.querySelectorAll('button,input,textarea,select,[tabindex]')).filter(function(el){return !el.disabled&&!el.hidden&&el.getClientRects().length;});if(!controls.length){e.preventDefault();return;}var first=controls[0],last=controls[controls.length-1];if(e.shiftKey&&w.document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&w.document.activeElement===last){e.preventDefault();first.focus();}}
     });
-    s.visibility=function(){if(w.document.hidden){stopCamera(s,false);cancelJob(s);cancelPhotos(s);s.preview.pause();say(s,'画面が非表示になったため撮影と保存を停止しました。');}};s.pagehide=function(){closeSession(s,true);};w.document.addEventListener('visibilitychange',s.visibility);w.addEventListener('pagehide',s.pagehide);w.addEventListener('popstate',s.pagehide);
+    s.visibility=function(){if(w.document.hidden){cancelThumbnails(s);stopCamera(s,false);cancelJob(s);cancelPhotos(s);s.preview.pause();say(s,'画面が非表示になったため撮影と保存を停止しました。');}};s.pagehide=function(){closeSession(s,true);};w.document.addEventListener('visibilitychange',s.visibility);w.addEventListener('pagehide',s.pagehide);w.addEventListener('popstate',s.pagehide);
     w.document.body.appendChild(s.modal);setButtons(s);s.closeButton.focus();if(options.initialFile)loadFile(s,options.initialFile);
     return {close:function(){closeSession(s,true);},stop:function(){stopSession(s);}};
   }

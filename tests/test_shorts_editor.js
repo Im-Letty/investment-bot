@@ -182,3 +182,45 @@ test('closing a pending photo movie cancels it and a late completion cannot reop
 test('hiding or cancelling photo export retains photos for deliberate retry without confirming',async()=>{
  const h=harness(),pending=deferred(),engine=photosEngine(h,pending);h.open();selectPhotos(h);h.node('.ks-edit-photos-build').click();h.hidden();await settle();assert.equal(engine.cancelled(),1);assert.equal(h.node('.ks-edit-photos-list').children.length,2);assert.equal(h.node('.ks-edit-photos-build').disabled,false);assert.equal(h.confirmed.length,0);h.editor.close();assert.equal(h.urls.size,0);
 });
+
+
+test('visual trim handles clamp crossing and update the real edit values without recording or confirming',()=>{
+  const h=harness();h.open();h.select();const video=h.metadata(12);
+  h.node('.ks-edit-range-start').value='3';h.node('.ks-edit-range-start').emit('input');h.node('.ks-edit-range-end').value='8';h.node('.ks-edit-range-end').emit('input');
+  assert.equal(h.node('.ks-edit-trim-start').value,'3');assert.equal(h.node('.ks-edit-trim-end').value,'8');assert.equal(video.currentTime,7.99);assert.equal(h.node('.ks-edit-selected-duration').textContent,'5.0秒を使用');
+  h.node('.ks-edit-range-start').value='12';h.node('.ks-edit-range-start').emit('input');assert.equal(h.node('.ks-edit-trim-start').value,'7.9');assert.equal(trimRange(7.9,8,12).duration,8-7.9);
+  h.node('.ks-edit-range-end').value='0';h.node('.ks-edit-range-end').emit('input');assert.equal(h.node('.ks-edit-trim-end').value,'8');assert.equal(h.recorders.length,0);assert.equal(h.confirmed.length,0);assert.equal(h.deviceCalls.length,0);h.editor.close();
+});
+test('tool panels keep edits while switching and exact seconds stay in a closed optional disclosure',()=>{
+  const h=harness();h.open();h.select();h.metadata();assert.equal(h.node('.ks-edit-trim-panel').hidden,false);assert.equal(h.node('.ks-edit-text-panel').hidden,true);assert.notEqual(h.node('.ks-edit-precise').open,true);
+  h.node('.ks-edit-tool[data-tool="text"]').click();assert.equal(h.node('.ks-edit-trim-panel').hidden,true);h.node('.ks-edit-text').value='わたしの動画';h.node('.ks-edit-text').emit('input');h.node('.ks-edit-position').value='top';h.node('.ks-edit-position').emit('change');
+  h.node('.ks-edit-tool[data-tool="audio"]').click();h.node('.ks-edit-muted').checked=true;h.node('.ks-edit-muted').emit('change');h.node('.ks-edit-tool[data-tool="text"]').click();assert.equal(h.node('.ks-edit-text').value,'わたしの動画');assert.equal(h.node('.ks-edit-position').value,'top');assert.equal(h.node('.ks-edit-muted').checked,true);assert.equal(h.node('.ks-edit-text-count').textContent,'6 / 100');assert.equal(h.recorders.length,0);assert.equal(h.confirmed.length,0);h.editor.close();
+});
+test('reset and replacement synchronize the handles and selected window with the original media',()=>{
+  const h=harness();h.open();h.select();h.metadata();h.node('.ks-edit-range-start').value='4';h.node('.ks-edit-range-start').emit('input');h.node('.ks-edit-text').value='draft';h.node('.ks-edit-text').emit('input');h.node('.ks-edit-muted').checked=true;h.node('.ks-edit-reset').click();assert.equal(h.node('.ks-edit-range-start').value,'0');assert.equal(h.node('.ks-edit-range-end').value,'12');assert.equal(h.node('.ks-edit-selection').style.width,'100%');assert.equal(h.node('.ks-edit-text').value,'');assert.equal(h.node('.ks-edit-muted').checked,false);
+  h.select(h.file('replacement.mp4'));h.metadata(5);assert.equal(h.node('.ks-edit-range-end').value,'5');assert.equal(h.node('.ks-edit-selected-duration').textContent,'5.0秒を使用');assert.equal(h.recorders.length,0);h.editor.close();
+});
+test('range gestures drive the existing exported MP4 range and remain locked until completion',async()=>{
+  const h=harness({autoExportMetadata:true});h.open();h.select();h.metadata();h.node('.ks-edit-range-start').value='3';h.node('.ks-edit-range-start').emit('input');h.node('.ks-edit-range-end').value='7';h.node('.ks-edit-range-end').emit('input');h.node('.ks-edit-muted').checked=true;h.node('.ks-edit-muted').emit('change');h.node('.ks-edit-next').click();await settle();h.node('video.ks-edit-scratch').emit('seeked');await settle();assert.equal(h.recorders.length,1);assert.equal(h.node('.ks-edit-range-start').disabled,true);assert.equal(h.node('.ks-edit-tool[data-tool="text"]').disabled,true);
+  h.node('.ks-edit-range-start').value='6';h.node('.ks-edit-range-start').emit('input');assert.equal(h.node('.ks-edit-trim-start').value,'3');h.node('video.ks-edit-scratch').currentTime=7;const frames=[...h.frames.values()];h.frames.clear();frames.forEach(fn=>fn());await settle();assert.equal(h.confirmed.length,1);assert.equal(h.confirmed[0].details.duration,4);assert.equal(h.confirmed[0].details.edited,true);assert.equal(h.urls.size,0);
+});
+test('thumbnail jobs stop on media replacement and close, with stale frames ignored',()=>{
+  const h=harness(),jobs=[];h.window.KNShortsTimeline={start(url,duration,onFrame){const job={url,duration,onFrame,cancels:0,cancel(){this.cancels++;}};jobs.push(job);return job;}};h.open();h.select();h.metadata();jobs[0].onFrame(0,'data:image/jpeg;base64,first');assert.equal(h.document.querySelectorAll('img')[0].src,'data:image/jpeg;base64,first');h.select(h.file('new.mp4'));h.metadata(6);assert.equal(jobs[0].cancels,1);jobs[0].onFrame(0,'data:image/jpeg;base64,stale');assert.equal(h.document.querySelectorAll('img')[0].hidden,true);h.editor.close();assert.equal(jobs[1].cancels,1);jobs[1].onFrame(0,'data:image/jpeg;base64,late');assert.equal(h.document.body.children.length,0);
+});
+test('precise invalid inputs can recover through handles and decimal 0.1-second intervals remain valid',()=>{
+  assert.doesNotThrow(()=>trimRange(.3,.4,12));assert.throws(()=>trimRange(.3,.399,12),/invalid_trim/);
+  const h=harness();h.open();h.select();h.metadata();h.node('.ks-edit-trim-start').value='99';h.node('.ks-edit-trim-end').value='bad';h.node('.ks-edit-range-start').value='2';h.node('.ks-edit-range-start').emit('input');assert.equal(h.node('.ks-edit-trim-start').value,'2');assert.equal(h.node('.ks-edit-trim-end').value,'12');h.editor.close();
+});
+
+test('a fractional source duration keeps a full minimum interval when handles meet the source edge',()=>{
+  const h=harness();h.open();h.select();h.metadata(12.3475);h.node('.ks-edit-range-start').value='12.3';h.node('.ks-edit-range-start').emit('input');const range=trimRange(h.node('.ks-edit-trim-start').value,h.node('.ks-edit-trim-end').value,12.3475);assert.ok(Math.abs(range.duration-.1)<1e-8);assert.equal(Number(h.node('.ks-edit-trim-end').value),12.3475);assert.equal(h.node('.ks-edit-selected-duration').textContent,'0.1秒を使用');h.editor.close();
+});
+
+test('pointer dragging selects the nearest boundary even when the handles overlap',()=>{
+  const h=harness();h.open();h.select();h.metadata(3);const timeline=h.node('.ks-edit-timeline');h.node('.ks-edit-trim-start').value='2.9';h.node('.ks-edit-trim-end').value='3';h.node('.ks-edit-trim-end').emit('change');
+  timeline.emit('pointerdown',{button:0,pointerId:7,clientX:348});timeline.emit('pointermove',{pointerId:7,clientX:120});timeline.emit('pointerup',{pointerId:7});assert.equal(h.node('.ks-edit-trim-start').value,'1');assert.equal(h.node('.ks-edit-trim-end').value,'3');assert.equal(h.document.activeElement,h.node('.ks-edit-range-start'));
+  timeline.emit('pointerdown',{button:0,pointerId:8,clientX:360});timeline.emit('pointermove',{pointerId:8,clientX:240});timeline.emit('pointercancel',{pointerId:8});assert.equal(h.node('.ks-edit-trim-end').value,'2');assert.equal(h.recorders.length,0);assert.equal(h.confirmed.length,0);h.editor.close();
+});
+test('clicking the filmstrip middle scrubs without trimming or starting media export',()=>{
+  const h=harness();h.open();h.select();const video=h.metadata(12);h.node('.ks-edit-timeline').emit('pointerdown',{button:0,pointerId:1,clientX:180});h.node('.ks-edit-timeline').emit('pointerup',{pointerId:1});assert.equal(video.currentTime,6);assert.equal(h.node('.ks-edit-trim-start').value,'0');assert.equal(h.node('.ks-edit-trim-end').value,'12');assert.equal(h.recorders.length,0);h.editor.close();
+});
