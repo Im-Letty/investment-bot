@@ -76,3 +76,24 @@
 #tab-assets .po-hero,#tab-assets .po-panel{padding:14px}#tab-assets .po-goal-current-target{grid-template-columns:1fr;gap:14px}#tab-assets .po-goal-target{text-align:left}#tab-assets .po-goal-amount{font-size:calc(32px * var(--kn-ledger-scale,1))}#tab-assets .po-holding{gap:5px}#tab-assets .po-asset{grid-template-columns:minmax(0,1fr);gap:4px}#tab-assets .po-asset-values{text-align:left}#tab-assets .po-asset-values small{display:inline-block;margin-left:10px}}
 
 #tab-assets #poRetry{margin:0 0 16px}#tab-assets[data-po-ready="true"] #poRetry{display:none}
+
+/* Adopted Natural / standard asset entry. Scope stays within this editor and its launchers. */
+#tab-assets #poEditor,#tab-assets [data-po-add]{--po-entry-paper:#fcfbf5;--po-entry-panel:#fffef8;--po-entry-ink:#53583c;--po-entry-muted:#70765e;--po-entry-line:#d2d3bf;--po-entry-button:#747b4e;--po-entry-on-button:#fffef8}
+body[data-kn-ledger-dark="true"] #tab-assets :is(#poEditor,[data-po-add]){--po-entry-paper:#252820;--po-entry-panel:#2d3227;--po-entry-ink:#e7e8d5;--po-entry-muted:#bdc3a8;--po-entry-line:#62684f;--po-entry-button:#bfc994;--po-entry-on-button:#242b17}
+#tab-assets [data-po-add]{min-height:46px;padding:11px 16px;border:1px solid transparent;border-radius:10px;background:var(--po-entry-button);color:var(--po-entry-on-button);font-weight:400;line-height:1.4}
+#tab-assets #poEditor{container-type:inline-size;box-sizing:border-box;max-width:580px;margin-inline:auto;padding:18px;border:1px solid var(--po-entry-line);border-radius:16px;background:var(--po-entry-panel);color:var(--po-entry-ink);box-shadow:none}
+#tab-assets #poEditor .po-fields{grid-template-columns:minmax(0,1fr);gap:16px}
+#tab-assets #poEditor .po-field{gap:7px;font-size:calc(14px * var(--kn-ledger-scale,1));line-height:1.5;color:var(--po-entry-ink)}
+#tab-assets #poEditor .po-entry-value{display:flex;align-items:center;gap:8px;min-width:0;min-height:52px;padding:0 12px;border:1px solid var(--po-entry-line);border-radius:10px;background:var(--po-entry-paper)}
+#tab-assets #poEditor .po-entry-value:focus-within{outline:2px solid var(--po-entry-button);outline-offset:3px}
+#tab-assets #poEditor .po-entry-value:has([aria-invalid="true"]){border-color:var(--kn-ledger-expense,#a15f54)}
+#tab-assets #poEditor .po-entry-value .inp{box-sizing:border-box;flex:1;width:100%;min-width:0;min-height:50px;margin:0;padding:12px 0;border:0!important;border-radius:0!important;background:transparent!important;color:var(--po-entry-ink)!important;font-size:max(16px,calc(20px * var(--kn-ledger-scale,1)))!important;line-height:1.35;font-weight:400;box-shadow:none}
+#tab-assets #poEditor #ast-amount{font-size:max(16px,calc(22px * var(--kn-ledger-scale,1)))!important;font-variant-numeric:tabular-nums}
+#tab-assets #poEditor .po-entry-value .inp::placeholder{color:var(--po-entry-muted)}
+#tab-assets #poEditor .po-entry-value .inp:focus-visible{outline:none!important}
+#tab-assets #poEditor .po-entry-yen{flex:none;font-size:calc(14px * var(--kn-ledger-scale,1));color:var(--po-entry-muted)}
+#tab-assets #poEditor .po-actions{align-items:center;gap:10px;margin-top:18px}
+#tab-assets #poEditor .po-actions .po-button{min-height:46px;padding:11px 16px;border:1px solid var(--po-entry-line);border-radius:10px;background:transparent;color:var(--po-entry-ink);font-size:calc(15px * var(--kn-ledger-scale,1));font-weight:400;line-height:1.4}
+#tab-assets #poEditor .po-actions .po-button-primary{min-width:72px;border-color:transparent;background:var(--po-entry-button);color:var(--po-entry-on-button)}
+@container(min-width:440px){#tab-assets #poEditor .po-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:420px){#tab-assets #poEditor{padding:16px}#tab-assets [data-po-add],#tab-assets #poEditor .po-actions .po-button{padding-inline:13px}}

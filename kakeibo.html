@@ -31,7 +31,7 @@
   <script defer src="/static/kakeibo-receipt-sources.js?v=20261016-receipts1"></script>
   <link rel="stylesheet" href="/static/portfolio-advice.css?v=20261018-advice1">
 <script defer src="/static/portfolio-advice.js?v=20261024-advice-simple1"></script>
-  <link rel="stylesheet" href="/static/portfolio-overview.css?v=20261024-simple-assets1">
+  <link rel="stylesheet" href="/static/portfolio-overview.css?v=20261024-natural-entry1">
   <script defer src="/static/portfolio-overview.js?v=20261024-goal-save-copy1"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Outfit:wght@400;600;700;800&amp;family=M+PLUS+Rounded+1c:wght@400;700&amp;family=Klee+One:wght@400;600&amp;family=Shippori+Mincho:wght@400;700&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -369,9 +369,9 @@ body{padding-bottom:24px;}
   <form class="po-panel" id="poEditor" hidden novalidate>
     <div class="po-heading"><h3 id="poEditorTitle">資産を追加</h3></div>
     <fieldset class="po-fieldset" id="poFieldset" disabled><div class="po-fields">
-      <label class="po-field" for="ast-cat"><span>資産の種類</span><input class="inp" id="ast-cat" type="text" list="poAssetKinds" maxlength="80" autocomplete="off" placeholder="例：現金・預金、国内株"></label>
+      <label class="po-field" for="ast-cat"><span>資産の種類</span><span class="po-entry-value"><input class="inp" id="ast-cat" type="text" list="poAssetKinds" maxlength="80" autocomplete="off" placeholder="例：現金・預金、国内株"></span></label>
       <datalist id="poAssetKinds"><option value="現金・預金"></option><option value="国内株"></option><option value="米国株"></option><option value="投資信託"></option><option value="ETF"></option><option value="債券"></option><option value="不動産"></option><option value="仮想通貨"></option><option value="その他"></option></datalist>
-      <label class="po-field" for="ast-amount"><span>金額（円）</span><input class="inp" id="ast-amount" type="text" inputmode="decimal" autocomplete="off" oninput="kkClearEntryError(this)" placeholder="例：100,000"></label>
+      <label class="po-field" for="ast-amount"><span>金額</span><span class="po-entry-value"><input class="inp" id="ast-amount" type="text" inputmode="decimal" autocomplete="off" aria-label="金額（円）" oninput="kkClearEntryError(this)" placeholder="例：100,000"><span class="po-entry-yen" aria-hidden="true">円</span></span></label>
     </div>
     <p id="poEditorError" class="po-error" role="alert"></p>
     <div class="po-actions"><button type="button" class="po-button" id="poCancelButton">キャンセル</button><button type="submit" class="po-button po-button-primary" id="poSaveButton">追加する</button></div></fieldset>
