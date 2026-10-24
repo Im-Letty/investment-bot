@@ -4195,6 +4195,55 @@ test('own-home door loads the exact inherited layout, forwards canonical frames 
   room.options.onFacing({ walking: true, yawDeg: 190, distance: 2 }); assert.equal(source.locomotion.at(-1).yawDeg, 190);
   assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); room.options.onExit(); await flush(); assert.ok(f.host.querySelector('.ipg-town')); f.ui.close();
 });
+test('home manual intent closes the transient care panel without rebuilding the room or writing progress', async () => {
+  const f = await lifeFixture(), room = await enterOwnHome(f), before = f.saved(), writes = f.writes.length;
+  assert.ok(room.options.keyboardScope.contains(room.stage));
+  assert.ok(room.options.keyboardScope.contains(f.document.activeElement), 'the door-entry heading belongs to this room keyboard scope');
+  await f.click(f.focusButton('village-life-open'));
+  assert.equal(room.options.canWalk(), false);
+  room.options.onManualInput({ kind: 'keyboard', key: 'ArrowUp' });
+  assert.equal(room.options.canWalk(), true); assert.equal(f.host.querySelector('.ipg-life-panel').hidden, true);
+  assert.equal(f.focusButton('village-life-open').getAttribute('aria-expanded'), 'false');
+  assert.equal(homeView(f), room); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+  await f.click(f.focusButton('village-life-open')); await f.click(f.focusButton('village-life-close'));
+  assert.equal(f.document.activeElement, f.host.querySelector('.ipg-home-viewport'), 'closing care restores the walkable region rather than leaving arrow focus on a button');
+  f.ui.close();
+});
+test('the first manual home movement interrupts only a confirmed care presentation and keeps its durable reward', async () => {
+  const f = await lifeFixture(); await enterOwnHome(f); await f.click(f.focusButton('village-life-open'));
+  await f.click(f.focusButton('village-gift-rice'));
+  const room = homeView(f), source = f.activeMotions()[0], afterGift = f.saved(), writes = f.writes.length;
+  assert.equal(room.options.canWalk(), false); assert.equal(source.options.situation, 'feeding');
+  room.options.onManualInput({ kind: 'pointer', pointerId: 7 });
+  assert.equal(room.options.canWalk(), true); assert.equal(f.host.querySelector('.ipg-life-panel').hidden, true);
+  assert.ok(source.changes.some(row => row.name === 'idle'));
+  const frame = { walking: true, yawDeg: 180, distance: .12 }; room.options.onFacing(frame);
+  assert.deepEqual(source.locomotion.at(-1), frame); assert.equal(homeView(f), room);
+  assert.deepEqual(f.saved(), afterGift); assert.equal(f.writes.length, writes); f.ui.close();
+});
+test('pending saves and stale interior callbacks cannot dismiss another visit care or alter its movement gate', async () => {
+  const f = await lifeFixture(), old = await enterOwnHome(f);
+  await f.click(f.focusButton('village-life-open')); f.control.pending = deferred(); await f.click(f.focusButton('village-gift-rice'));
+  old.options.onManualInput({ kind: 'keyboard', key: 'w' });
+  assert.equal(f.host.querySelector('.ipg-life-panel').hidden, false); assert.equal(old.options.canWalk(), false);
+  f.control.pending.resolve(); f.control.pending = null; await flush();
+  const current = homeView(f), confirmed = f.saved(), writes = f.writes.length;
+  assert.notEqual(current, old); old.options.onManualInput({ kind: 'pointer', pointerId: 9 });
+  assert.equal(current.options.canWalk(), false); assert.equal(f.host.querySelector('.ipg-life-panel').hidden, false);
+  current.options.onManualInput({ kind: 'keyboard', key: 'ArrowLeft' }); assert.equal(current.options.canWalk(), true);
+  assert.deepEqual(f.saved(), confirmed); assert.equal(f.writes.length, writes); f.ui.close();
+});
+for (const roomId of ['shop', 'cafe']) test(roomId + ' connects manual walking to its own neutral entry focus and keeps the same canonical protagonist', async () => {
+  const f = await lifeFixture(); await walkToVillagePlace(f, roomId); await flush();
+  const room = shopView(f), source = f.activeMotions()[0], before = f.saved(), writes = f.writes.length;
+  assert.ok(room.options.keyboardScope.contains(room.stage)); assert.ok(room.options.keyboardScope.contains(f.document.activeElement));
+  assert.equal(room.options.canWalk(), true); room.options.onManualInput({ kind: 'keyboard', key: 'ArrowUp' });
+  const frame = { walking: true, yawDeg: 210, distance: .2 }; room.options.onFacing(frame);
+  assert.deepEqual(source.locomotion.at(-1), frame); assert.equal(f.activeMotions().length, 1);
+  const count = source.changes.length; f.window.emit('blur'); await f.ui.close();
+  room.options.onManualInput({ kind: 'pointer', pointerId: 2 }); assert.equal(room.options.canWalk(), false); assert.equal(source.changes.length, count);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
 test('saved empty own-home layout remains empty and does not receive default furniture on view', async () => {
   const f = await lifeFixture({ setup: async s => { const layout = Core.getCozyRoomLayout(s.getState()); layout.objects = []; assert.equal((await s.dispatch({ type: 'saveCozyRoomLayout', layout, expectedRevision: s.getState().revision })).ok, true); } });
   const before = f.saved(), room = await enterOwnHome(f); assert.deepEqual(copy(room.options.layout.objects), []); assert.deepEqual(f.saved(), before); f.ui.close();

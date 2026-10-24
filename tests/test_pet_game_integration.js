@@ -644,7 +644,8 @@ test('main game does not load a removed minigame runtime and updates only change
   for(const asset of ['pet-game.css','pet-village-economy.js','pet-village-economy-scene.js','pet-village-economy-scene.css'])assert.ok(html.includes('/static/'+asset+'?v=20261024-village-economy1'),asset);
   for(const asset of ['pet-shop-layout.js','pet-shop-entry.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-shop1'),asset);
   for(const asset of ['pet-town-walk.js','pet-town-walk.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-reveal1'),asset+' first-frame reveal pin');
-  for(const asset of ['pet-game.js','pet-game-core.js','pet-cozy-room.js','pet-home-interior.css','pet-village-life.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-life1'),asset+' village-life pin');
+  for(const asset of ['pet-game-core.js','pet-cozy-room.js','pet-home-interior.css','pet-village-life.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-life1'),asset+' village-life pin');
+  assert.ok(html.includes('/static/pet-game.js?v=20261025-manual1'),'updated manual-control UI pin');
   assert.ok(html.includes('/static/pet-lilac-motion.js?v=20261025-harmony1'),'unchanged character renderer pin is preserved');
   assert.ok(html.includes('/static/pet-cozy-room.css?v=20261024-cozy-room1'),'unchanged room asset pin is preserved');
 });
