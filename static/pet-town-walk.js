@@ -151,6 +151,28 @@
     var dead = false, raf = null, last = null, keys = {}, pointers = {}, destination = null, waypoints = [], ground = null;
     var removers = [], observer = null, lastMotion = '', view = null;
     var enter = options.enterButton, controls = options.controls || [], enterableIds = Array.isArray(options.enterableIds) ? options.enterableIds.slice() : null;
+    var doorMode = options.doorEntry === true, doorIntent = null, doorContact = null, doorHeldMs = 0, entryLatched = false;
+    function resetDoorContact() { doorContact = null; doorHeldMs = 0; }
+    function doorPlace(id) {
+      if (!doorMode || ['home', 'shop', 'cafe'].indexOf(id) < 0 || enterableIds && enterableIds.indexOf(id) < 0) return null;
+      var place = world.places.filter(function (row) { return row.id === id; })[0], f = place && place.footprint;
+      return place && point(place.entrance) && f && point(f) && finite(f.rx) && finite(f.ry) && f.rx > 0 && f.ry > 0 ? place : null;
+    }
+    function doorContactPlace(direction, distance) {
+      if (!doorMode || entryLatched || !(distance > 0) || direction.y > -.65) return null;
+      for (var i = 0; i < world.places.length; i++) {
+        var place = doorPlace(world.places[i].id); if (!place || doorIntent && doorIntent !== place.id) continue;
+        var f = place.footprint, dx = position.x - f.x, rx = f.rx + RADIUS, ry = f.ry + RADIUS;
+        if (Math.abs(dx) > Math.min(30, Math.max(18, f.rx * .28))) continue;
+        var front = f.y + ry * Math.sqrt(Math.max(0, 1 - dx * dx / (rx * rx)));
+        if (position.y < front - .001 || position.y > front + 12) continue;
+        // The attempted movement must meet this door's own front collision,
+        // not merely another obstacle within the old 110px nearby band.
+        var probe = Math.max(8, distance), px = (position.x + direction.x * probe - f.x) / rx, py = (position.y + direction.y * probe - f.y) / ry;
+        if (px * px + py * py < 1) return place;
+      }
+      return null;
+    }
     function active() {
       if (dead || !viewport || !surface || !avatar || !doc || doc.hidden || viewport.isConnected === false || surface.isConnected === false || avatar.isConnected === false) return false;
       try { return typeof options.canRun !== 'function' || !!options.canRun(); } catch (_) { return false; }
@@ -175,7 +197,8 @@
       avatar.style.left = position.x.toFixed(3) + 'px'; avatar.style.top = position.y.toFixed(3) + 'px';
       avatar.style.zIndex = String(Math.round(position.y));
       callback('onDraw', copy(position));
-      if (enter) {
+      if (enter && doorMode) { enter.disabled = true; enter.hidden = true; }
+      else if (enter) {
         var nearby = nearestFacility(world, position, enterableIds);
         enter.disabled = !nearby; enter.hidden = !nearby;
         if (nearby) { enter.textContent = nearby.label + 'に入る'; enter.setAttribute('aria-label', nearby.label + 'に入る'); }
@@ -189,6 +212,7 @@
         try { var projected = options.projectDirection(x, y); if (point(projected)) { x = projected.x; y = projected.y; } } catch (_) {}
       }
       if (!x && !y && destination) { x = destination.x - position.x; y = destination.y - position.y; }
+      if (!x && !y && doorIntent) { x = 0; y = -1; }
       var length = Math.hypot(x, y);
       return length > 0 ? { x: x / length, y: y / length, length: length } : { x: 0, y: 0, length: 0 };
     }
@@ -204,16 +228,17 @@
       pointers = {};
     }
     function stop() {
-      keys = {}; destination = null; waypoints = []; ground = null; releasePointers(); cancelFrame(); motion(false, 0, 0);
+      keys = {}; destination = null; waypoints = []; ground = null; doorIntent = null; resetDoorContact(); releasePointers(); cancelFrame(); motion(false, 0, 0);
     }
     function schedule() {
       if (!active()) { stop(); return; }
-      if (!vector().length) { cancelFrame(); motion(false, 0, 0); return; }
+      if (!vector().length) { resetDoorContact(); cancelFrame(); motion(false, 0, 0); return; }
       if (raf === null && win.requestAnimationFrame) raf = win.requestAnimationFrame(tick);
     }
     function tick(stamp) {
       raf = null;
       if (!active()) { stop(); return; }
+      if (doorIntent && !doorPlace(doorIntent)) { stop(); return; }
       var direction = vector(), elapsed = last === null ? 0 : clamp(finite(stamp) ? stamp - last : 0, 0, 50);
       last = finite(stamp) ? stamp : null;
       if (!direction.length) { stop(); return; }
@@ -225,11 +250,31 @@
         position = next; draw(); callback('onPosition', copy(position)); motion(true, dx / moved, dy / moved);
       }
       if (destination && Math.hypot(destination.x - position.x, destination.y - position.y) <= 1) destination = waypoints.shift() || null;
+      if (!active()) { stop(); return; }
+      var manual = Object.keys(keys).length > 0 || Object.keys(pointers).length > 0;
+      var contact = distance > 0 && moved < distance * .5 && (manual || doorIntent && !destination) ? doorContactPlace(direction, distance) : null;
+      if (contact) {
+        if (doorContact !== contact.id) { resetDoorContact(); doorContact = contact.id; }
+        doorHeldMs += elapsed;
+        motion(true, direction.x, direction.y);
+        if (doorHeldMs >= 280) {
+          var entryId = contact.id; entryLatched = true; stop();
+          if (active()) callback('onEnter', entryId);
+          return;
+        }
+        schedule(); return;
+      }
+      resetDoorContact();
       if (destination && distance > 0 && moved < .001) { destination = null; waypoints = []; }
-      if (distance > 0 && moved < .001) { cancelFrame(); motion(false, 0, 0); return; }
+      if (distance > 0 && moved < .001) { doorIntent = null; cancelFrame(); motion(false, 0, 0); return; }
       schedule();
     }
-    function focusViewport() { try { viewport.focus({ preventScroll: true }); } catch (_) {} }
+    function focusViewport() {
+      try { viewport.focus({ preventScroll: true }); } catch (_) {}
+      // Focusing an accessible building can scroll an overflow-hidden viewport
+      // before its click handler runs. Camera translation is not DOM scrolling.
+      viewport.scrollLeft = 0; viewport.scrollTop = 0;
+    }
     function editing(target) {
       for (var n = target; n; n = n.parentNode) {
         if (n.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(n.tagName || '')) return true;
@@ -247,19 +292,23 @@
     listen(win, 'keydown', function (event) {
       var name = keyName(event), direction = keyVector(name);
       if (!direction || !active() || event.altKey || event.ctrlKey || event.metaKey || !within(doc.activeElement) || editing(event.target) || editing(doc.activeElement)) return;
-      prevent(event); keys[name] = direction; destination = null; waypoints = []; schedule();
+      if (entryLatched && event.repeat) { prevent(event); return; }
+      if (!event.repeat) entryLatched = false;
+      if (!Object.prototype.hasOwnProperty.call(keys, name)) resetDoorContact();
+      prevent(event); keys[name] = direction; destination = null; waypoints = []; doorIntent = null; schedule();
     });
     listen(win, 'keyup', function (event) {
       var name = keyName(event);
+      if (keyVector(name)) entryLatched = false;
       if (!Object.prototype.hasOwnProperty.call(keys, name)) return;
-      prevent(event); delete keys[name]; schedule();
+      prevent(event); delete keys[name]; resetDoorContact(); schedule();
     });
     controls.forEach(function (control) {
       var element = control.element, skipPointerClick = false;
       if (!element || !finite(control.x) || !finite(control.y)) return;
       listen(element, 'pointerdown', function (event) {
         if (!active() || element.isConnected === false || event.button !== undefined && event.button !== 0) return;
-        prevent(event); focusViewport(); destination = null; waypoints = []; ground = null;
+        prevent(event); focusViewport(); destination = null; waypoints = []; ground = null; doorIntent = null; resetDoorContact(); entryLatched = false;
         skipPointerClick = true;
         pointers[event.pointerId] = { x: control.x, y: control.y, element: element };
         try { if (element.setPointerCapture) element.setPointerCapture(event.pointerId); } catch (_) {}
@@ -284,7 +333,7 @@
       try { if (entry.element.releasePointerCapture) entry.element.releasePointerCapture(event.pointerId); } catch (_) {}
       schedule();
     }
-    listen(win, 'pointerup', pointerEnd); listen(win, 'pointercancel', function (event) { ground = null; pointerEnd(event); });
+    listen(win, 'pointerup', pointerEnd); listen(win, 'pointercancel', function (event) { ground = null; if (doorMode) stop(); else pointerEnd(event); });
     function interactive(target) {
       for (var n = target; n && n !== viewport; n = n.parentNode) {
         if (/^(BUTTON|INPUT|TEXTAREA|SELECT|A)$/.test(n.tagName || '') || n.isContentEditable || n.getAttribute && n.getAttribute('role') === 'button') return true;
@@ -293,6 +342,7 @@
     }
     listen(viewport, 'pointerdown', function (event) {
       if (!active() || interactive(event.target) || event.isPrimary === false || event.button !== undefined && event.button !== 0 || !finite(event.clientX) || !finite(event.clientY)) return;
+      entryLatched = false;
       ground = { id: event.pointerId, x: event.clientX, y: event.clientY };
     });
     listen(viewport, 'pointerup', function (event) {
@@ -301,17 +351,17 @@
       var box = viewport.getBoundingClientRect(), target = { x: (event.clientX - box.left) / view.scale + view.x, y: (event.clientY - box.top) / view.scale + view.y };
       if (typeof options.resolveTap === 'function') {
         try { target = options.resolveTap(event, view); } catch (_) { return; }
-        if (target && typeof target.placeId === 'string') { approach(target.placeId); return; }
+        if (target && typeof target.placeId === 'string') { if (doorMode && target.door === true) enterDoor(target.placeId); else approach(target.placeId); return; }
       }
       if (!point(target)) return;
       if (!isWalkable(world, target.x, target.y)) return;
-      prevent(event); focusViewport(); keys = {}; releasePointers(); destination = target; waypoints = []; schedule();
+      prevent(event); focusViewport(); keys = {}; releasePointers(); doorIntent = null; resetDoorContact(); destination = target; waypoints = []; schedule();
     });
     listen(viewport, 'focusout', function (event) { if (!within(event.relatedTarget)) stop(); });
     listen(win, 'blur', stop); listen(win, 'pagehide', stop);
     listen(doc, 'visibilitychange', function () { if (doc.hidden) stop(); else draw(); });
     listen(enter, 'click', function () {
-      if (!active() || enter.isConnected === false || enter.disabled || enter.hidden) return;
+      if (doorMode || !active() || enter.isConnected === false || enter.disabled || enter.hidden) return;
       var nearby = nearestFacility(world, position, enterableIds);
       if (!nearby) return;
       stop(); callback('onEnter', nearby.id);
@@ -328,9 +378,20 @@
       if (!path) return false;
       stop(); destination = path.shift(); waypoints = path; focusViewport(); schedule(); return true;
     }
+    function enterDoor(id) {
+      if (!active() || entryLatched) return false;
+      var place = doorPlace(id); if (!place) return false;
+      if (doorIntent === id) return true;
+      var f = place.footprint, contact = { x: f.x, y: f.y + f.ry + RADIUS + .25 };
+      if (!isWalkable(world, place.entrance.x, place.entrance.y) || !isWalkable(world, contact.x, contact.y) || !clearSegment(world, place.entrance, contact)) return false;
+      var path = route(world, position, place.entrance); if (!path) return false;
+      path.push(contact);
+      stop(); doorIntent = id; destination = path.shift(); waypoints = path; focusViewport(); schedule(); return true;
+    }
     return {
       destroy: function () { if (dead) return; stop(); dead = true; if (observer) observer.disconnect(); removers.forEach(function (remove) { remove(); }); removers = []; },
       approach: approach,
+      enterDoor: enterDoor,
       stop: stop,
       position: function () { return copy(position); }
     };

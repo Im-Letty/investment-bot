@@ -8,6 +8,7 @@ const Motion = require('../static/pet-lilac-motion.js');
 const Room = require('../static/pet-room-behavior.js');
 const Town = require('../static/pet-town-walk.js');
 const EconomyScene = require('../static/pet-village-economy-scene.js');
+const ShopLayout = require('../static/pet-shop-layout.js');
 const source = fs.readFileSync(require.resolve('../static/pet-game.js'), 'utf8');
 
 const copy = value => JSON.parse(JSON.stringify(value));
@@ -43,6 +44,8 @@ class Element {
   removeChild(child) { if(child.parentNode!==this)throw new Error('not a child');child.remove();return child; }
   setAttribute(name, value) { this.attributes[name] = String(value); }
   getAttribute(name) { return this.attributes[name] ?? null; }
+  removeAttribute(name) { delete this.attributes[name]; }
+  get classList() { return { add: name => { if (!this.className.split(/\s+/).includes(name)) this.className = (this.className + ' ' + name).trim(); }, remove: name => { this.className = this.className.split(/\s+/).filter(x => x !== name).join(' '); }, contains: name => this.className.split(/\s+/).includes(name) }; }
   focus(options) { this.lastFocusOptions = options; this.ownerDocument.activeElement = this; }
   scrollIntoView(options) { this.scrollCalls = this.scrollCalls || []; this.scrollCalls.push(options);
     this.ownerDocument.scrollEvents = this.ownerDocument.scrollEvents || []; this.ownerDocument.scrollEvents.push({ node: this, options }); }
@@ -102,6 +105,7 @@ async function fixture(config = {}) {
   document.getElementById = id => id === 'sect-pet' ? pane : id === 'pet-game-root' ? host : null;
   const raf = new Map(), intervals = new Map(), timers = new Map(), mounts = [], actionCues = [], anchorCalls = [], hitTests = [];
   const cozyMounts = [], cozyControl = { pending: null, reject: false }, economyScenes = [], townScenes = [], townSceneControl = { pending: config.scenePending ? deferred() : null };
+  const shopMounts = [], shopControl = { pending: null, reject: false, frameReady: true };
   const rendererControl = { mode: config.rendererMode || 'pending', mappingThrows: false, hit: null, hitThrows: false };
   const renderer = {
     durations: Motion.durations, catalogue: Motion.catalogue, bodyCatalogue: Motion.bodyCatalogue, directionCatalogue: Motion.directionCatalogue, appearanceProfile: Motion.appearanceProfile, eggVisualProfile: Motion.eggVisualProfile, roomWalkFrame: Motion.roomWalkFrame, feedingPhase: Motion.feedingPhase, feedingAnchor(stage, path, appearanceKey, eggOrigin) { anchorCalls.push({ stage, path, appearanceKey, eggOrigin }); return Motion.feedingAnchor(stage, path, appearanceKey, eggOrigin); }, growthProfile: Motion.growthProfile, growthPoint: Motion.growthPoint,
@@ -112,7 +116,7 @@ async function fixture(config = {}) {
       return cue;
     },
     mount(canvas, options) {
-      const controller = { canvas, options, destroyed: false, changes: [], destroy() { this.destroyed = true; },
+      const controller = { canvas, options, destroyed: false, changes: [], locomotion: [], destroy() { this.destroyed = true; },
         hitTest(x, y) {
           hitTests.push({ x, y, controller: this });
           if (rendererControl.hitThrows) throw new Error('private hit-test failure');
@@ -120,6 +124,7 @@ async function fixture(config = {}) {
           return typeof rendererControl.hit === 'function' ? rendererControl.hit(x, y) : rendererControl.hit;
         },
         setSituation(name, detail) { this.changes.push({ name, ...(detail == null ? {} : copy(detail)) }); },
+        setLocomotion(frame) { this.locomotion.push(copy(frame)); },
         refreshFrame() { if (!this.destroyed && rendererControl.mode === 'ready' && options.onFrame) options.onFrame(canvas); } };
       mounts.push(controller);
       if (rendererControl.onMount) rendererControl.onMount(controller);
@@ -129,8 +134,16 @@ async function fixture(config = {}) {
       return controller;
     }
   };
-  const window = events({ document, PetTownWalk: config.townUnavailable ? undefined : Town, PetLilacMotion: renderer, PetRoomBehavior: config.roomUnavailable ? undefined : Room, matchMedia: () => ({ matches: !!config.reducedMotion }), confirm: () => true,
-    PetGameCore: { ...Core, create(opts) { store = Core.create(opts); return store; } },
+  const window = events({ document, PetShopLayout: ShopLayout, PetTownWalk: config.townUnavailable ? undefined : Town, PetLilacMotion: renderer, PetRoomBehavior: config.roomUnavailable ? undefined : Room, matchMedia: () => ({ matches: !!config.reducedMotion }), confirm: () => true,
+    PetGameCore: { ...Core, create(opts) {
+      store = Core.create(opts);
+      // This UI is in a VM while the real core/model are required in Node.
+      // Keep JSON action records in the model's realm, as in the browser, so
+      // strict prototype validation tests the data rather than the VM boundary.
+      const dispatch = store.dispatch;
+      store.dispatch = action => dispatch(action?.type === 'saveShopInteriorLayout' ? { ...action, layout: copy(action.layout) } : action);
+      return store;
+    } },
     requestAnimationFrame(fn) { const id = ++sequence; raf.set(id, fn); return id; },
     cancelAnimationFrame(id) { raf.delete(id); },
     setInterval(fn) { const id = ++sequence; intervals.set(id, fn); return id; },
@@ -138,6 +151,17 @@ async function fixture(config = {}) {
     clearTimeout(id) { timers.delete(id); }, URL: { createObjectURL: () => 'blob:synthetic', revokeObjectURL() {} }
   });
   document.defaultView = window;
+  const shopInteriorAPI = { async mount(options) {
+    const stage = document.createElement('div'); stage.className = 'shop-stage'; options.host.appendChild(stage);
+    const controller = { options, stage, destroyed: false, destroyCount: 0, frames: [], stops: 0, edits: [],
+      destroy() { this.destroyed = true; this.destroyCount++; },
+      setFrame(canvas) { if (this.destroyed || !options.canRun()) return false; this.frames.push(canvas); if (shopControl.frameReady) options.onReady(); return true; },
+      stop() { this.stops++; }, setEditing(value) { this.edits.push(value); },
+      rotateSelected() { return true; }, removeSelected() {}, undo() {}, reset() {}, add() { return true; } };
+    shopMounts.push(controller); if (shopControl.pending) await shopControl.pending.promise;
+    if (shopControl.reject) throw Error('private unavailable shop renderer'); return controller;
+  } };
+  coreOptions.shopInteriorAPI = shopInteriorAPI;
   if(config.townScene)window.PetTownScene={async mount(options){
     const controller={options,destroyed:false,frames:[],positions:[],motions:[],destroy(){this.destroyed=true;options.viewport.dataset.visualMode='flat';},
       setFrame(canvas){if(this.destroyed||!options.canRun())return false;this.frames.push(canvas);options.viewport.dataset.visualMode='three';options.onReady();return true;},
@@ -179,7 +203,7 @@ async function fixture(config = {}) {
     assert.ok(room, 'existing room scenarios can enter the room from the village');
     room.emit('click'); await flush();
   }
-  return { ui, host, pane, document, window, data, storage, writes, control, renderer, rendererControl, mounts, actionCues, anchorCalls, hitTests, raf, timers, beforeMountRaw, writesBeforeMount, cozyMounts, cozyControl, economyScenes, townScenes, townSceneControl,
+  return { ui, host, pane, document, window, data, storage, writes, control, renderer, rendererControl, mounts, actionCues, anchorCalls, hitTests, raf, timers, intervals, beforeMountRaw, writesBeforeMount, cozyMounts, cozyControl, economyScenes, townScenes, townSceneControl, shopMounts, shopControl, shopInteriorAPI,
     get store() { return store; },
     get now() { return clock; },
     saved() { return JSON.parse(data.get(Core.KEY)); },
@@ -214,6 +238,7 @@ async function fixture(config = {}) {
     async frame(ms = 0) { clock += ms; const callbacks = [...raf.values()]; raf.clear(); callbacks.forEach(fn => fn(clock)); await flush(); },
     activeMotions() { return mounts.filter(m => !m.destroyed && m.canvas.isConnected); },
     activeCozy() { return cozyMounts.filter(m => !m.destroyed && m.options.host.isConnected && m.options.canRun()); },
+    activeShops() { return shopMounts.filter(m => !m.destroyed && m.options.host.isConnected && m.options.canRun()); },
     scrolls() { return document.scrollEvents || []; }
   };
 }
@@ -2999,9 +3024,17 @@ test('scene ground and facility hits use the existing movement/entry engine, cam
  const x=parseFloat(avatar.style.left),y=parseFloat(avatar.style.top);viewport.focus();f.window.emit('keydown',{key:'ArrowUp',target:viewport});await f.frame();await f.frame(50);f.window.emit('keyup',{key:'ArrowUp'});
  assert.ok(parseFloat(avatar.style.left)>x);assert.equal(parseFloat(avatar.style.top),y);
  scene.hit={placeId:'shop'};viewport.emit('pointerdown',{pointerId:2,clientX:150,clientY:150});viewport.emit('pointerup',{pointerId:2,clientX:150,clientY:150});
- for(let i=0;i<1000&&f.raf.size;i++)await f.frame(50);assert.equal(f.focusButton('town-enter').hidden,false);assert.ok(f.host.querySelector('.ipg-town'));
- scene.fail();assert.equal(viewport.dataset.visualMode,'flat');assert.equal(f.host.querySelector('.ipg-town-controls'),null);assert.match(f.host.querySelector('.ipg-town-guide').textContent,/タップ/);assert.doesNotMatch(viewport.getAttribute('aria-label'),/ドラッグ/);
- assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);await f.click(f.focusButton('town-enter'));assert.ok(f.host.querySelector('.ipg-village-market'));f.ui.close();
+ for(let i=0;i<1000&&f.raf.size;i++)await f.frame(50);assert.equal(f.host.querySelector('[data-focus-key="town-enter"]'),null);assert.ok(f.host.querySelector('.ipg-town'));
+ scene.fail();assert.equal(viewport.dataset.visualMode,'flat');assert.equal(f.host.querySelector('.ipg-town-controls'),null);assert.match(f.host.querySelector('.ipg-town-guide').textContent,/ドアへ進む/);assert.doesNotMatch(viewport.getAttribute('aria-label'),/ドラッグ/);
+ assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);await walkToVillagePlace(f,'shop');assert.ok(f.host.querySelector('.ipg-shop-interior-card'));f.ui.close();
+});
+test('a real Three door hit routes through the push engine into the matching shop without an entry button', async () => {
+ const f=await villageFixture({rendererMode:'ready',townScene:true}),before=f.saved(),writes=f.writes.length,scene=f.townScenes[0],viewport=f.host.querySelector('.ipg-town-viewport');
+ scene.hit={placeId:'cafe',door:true};viewport.emit('pointerdown',{pointerId:2,clientX:150,clientY:150});viewport.emit('pointerup',{pointerId:2,clientX:150,clientY:150});
+ assert.ok(f.host.querySelector('.ipg-town'),'a door hit starts walking instead of teleporting');
+ for(let i=0;i<650&&f.host.querySelector('.ipg-town');i++)await f.frame(50);
+ assert.ok(f.host.querySelector('.ipg-shop-interior-card'));assert.equal(f.shopMounts.at(-1).options.roomId,'cafe');assert.equal(f.host.querySelector('[data-focus-key="town-enter"]'),null);
+ assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);f.ui.close();
 });
 test('a current source failure invalidates the Three frame while an old source failure cannot hide the reopened pet',async()=>{
  const f=await villageFixture({rendererMode:'ready',townScene:true}),before=f.saved(),first=f.townScenes[0],source=f.activeMotions()[0];
@@ -3022,18 +3055,156 @@ function villagePlace(f,id) { return f.focusButton('village-place-'+id); }
 function villagePositionInView(f,id) { const p=villagePlace(f,id);return p.className.includes('ipg-town-place')?{x:Number(p.dataset.layoutX),y:Number(p.dataset.layoutY)}:{x:Number.parseFloat(p.style.left),y:Number.parseFloat(p.style.top)}; }
 async function setVillageAxis(f,axis,value) { const field=f.focusButton('village-'+axis);field.value=String(value);field.emit('input');await flush(); }
 async function walkToVillagePlace(f,id,enter=true) {
-  await f.click(villagePlace(f,id));
+  const entering = enter && ['home','shop','cafe'].includes(id);
+  await f.click(entering ? f.focusButton('village-door-'+id) : villagePlace(f,id));
   for(let frame=0;frame<650;frame++) {
     await f.frame(50);
     const avatar=f.host.querySelector('.ipg-town-avatar'),world=Town.createWorld(Core.getVillageLayout(f.store.getState()));
+    if (!avatar) { assert.equal(entering, true); return; }
     const pos={x:parseFloat(avatar.style.left),y:parseFloat(avatar.style.top)},place=world.places.find(row=>row.id===id);
-    if(Math.hypot(pos.x-place.entrance.x,pos.y-place.entrance.y)<1)break;
+    if(!entering && Math.hypot(pos.x-place.entrance.x,pos.y-place.entrance.y)<1)break;
   }
-  if(enter&&['home','shop'].includes(id)) {
-    const button=f.focusButton('town-enter');assert.equal(button.hidden,false,id+' is in reach');
-    assert.ok(button.textContent.startsWith(Town.createWorld().places.find(p=>p.id===id).label));await f.click(button);
-  }
+  if (entering) assert.fail(id + ' door push did not reach its interior');
 }
+
+function shopView(f, editing = false) {
+  const controller = f.shopMounts.findLast(m => !m.destroyed && m.options.host.isConnected && m.options.editing === editing);
+  assert.ok(controller, editing ? 'current shop layout editor' : 'current walkable shop'); return controller;
+}
+function changedShop(layout) {
+  const draft = copy(layout), plant = draft.items.find(row => row.id === 'plant');
+  plant.x += plant.x < 0 ? .25 : -.25; plant.turn = (plant.turn + 1) % 4; return draft;
+}
+async function shopFixture(roomId = 'shop', config = {}) {
+  const f = await villageFixture({ rendererMode: 'ready', ...config }); await walkToVillagePlace(f, roomId); await flush(); return f;
+}
+
+test('both shop interiors consume one canonical raised pet frame, forward real facing and never initialize a layout save', async () => {
+  for (const roomId of ['shop', 'cafe']) {
+    const f = await shopFixture(roomId, { seed: { pg_exp: '686', pg_name: 'いっしょに育つこ' } }), before = f.saved(), writes = f.writes.length;
+    const shop = shopView(f), motion = f.activeMotions()[0]; assert.equal(shop.options.roomId, roomId);
+    assert.deepEqual(copy(shop.options.layout), ShopLayout.defaultLayout(roomId)); assert.equal(Object.hasOwn(before, 'shopInteriorLayouts'), false);
+    assert.equal(f.activeMotions().length, 1); assert.equal(f.host.querySelectorAll('.ipg-lilac-visual').length, 1);
+    assert.equal(shop.frames.at(-1), motion.canvas); assert.equal(motion.options.appearanceKey, Core.getLilacAppearance(before.pet.exp).key);
+    const facing = { yaw: Math.PI, pitch: .15, roll: 0, speed: .8, walking: true }; shop.options.onFacing(facing);
+    assert.deepEqual(motion.locomotion.at(-1), facing);
+    assert.equal(f.host.querySelector('.ipg-village-market'), null); assert.equal(f.host.querySelector('.ipg-shop-grid'), null);
+    shop.options.onExit(); await flush(); assert.ok(f.host.querySelector('.ipg-town')); assert.equal(shop.destroyed, true); assert.equal(shop.options.canRun(), false);
+    assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+  }
+});
+
+test('window focus preserves the live indoor controller, camera, focused stage and canonical frame bridge', async () => {
+  const f = await shopFixture('cafe'), before = f.saved(), writes = f.writes.length, shop = shopView(f), motion = f.activeMotions()[0];
+  const camera = { yaw: .8, pitch: .5, distance: 7 }, cameraSnapshot = copy(camera);
+  shop.options.onCamera(camera); camera.yaw = 99; shop.options.onPosition({ x: 1, z: 2 }); shop.stage.focus({ preventScroll: true });
+  const shopCount = f.shopMounts.length, motionCount = f.mounts.length, frames = shop.frames.length, stage = shop.stage;
+  f.window.emit('focus'); await flush();
+  assert.equal(shopView(f) === shop, true, 'returning to the window must not destroy the controller during a floor press');
+  assert.equal(shop.destroyed, false); assert.equal(f.shopMounts.length, shopCount); assert.equal(f.mounts.length, motionCount);
+  assert.equal(f.document.activeElement === stage, true); assert.equal(f.activeMotions()[0] === motion, true);
+  motion.options.onFrame(motion.canvas); assert.equal(shop.frames.length, frames + 1); assert.equal(shop.frames.at(-1), motion.canvas);
+  shop.options.onExit(); await flush(); await walkToVillagePlace(f, 'cafe');
+  assert.deepEqual(copy(shopView(f).options.camera), cameraSnapshot, 'the retained camera is detached and reused on a later visit');
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+});
+
+test('shop editing retains a detached draft through focus and rerender, locks navigation, and cancel does no durable work', async () => {
+  const f = await shopFixture(), before = f.saved(), writes = f.writes.length, walking = shopView(f), oldNav = f.focusButton('tab-care');
+  await f.click(f.focusButton('shop-layout-edit')); const editor = shopView(f, true), draft = changedShop(editor.options.layout), retained = copy(draft);
+  assert.equal(walking.destroyed, true); assert.equal(f.activeMotions().length, 0); editor.options.onDraft(draft); draft.items[0].x = 99;
+  assert.ok(f.host.querySelector('.ipg-tabs').querySelectorAll('button').every(b => b.disabled)); oldNav.emit('click'); editor.options.onExit(); await flush();
+  f.window.emit('focus'); await flush(); assert.equal(shopView(f, true), editor, 'focus preserves the renderer-owned undo session');
+  f.advance(86400000); [...f.intervals.values()].forEach(fn => fn()); await flush();
+  assert.equal(shopView(f, true) === editor, true, 'midnight availability refresh must retain the live undo and draft controller');
+  f.ui.render(); await flush(); const next = shopView(f, true); assert.equal(editor.destroyed, true); assert.deepEqual(copy(next.options.layout), retained);
+  await f.click(f.focusButton('shop-layout-cancel')); assert.equal(next.destroyed, true); assert.equal(f.host.querySelector('.ipg-shop-editor-actions'), null);
+  assert.deepEqual(copy(shopView(f).options.layout), ShopLayout.defaultLayout('shop')); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+});
+
+test('shop save keeps the same editor pending, freezes draft callbacks and publishes only the durable confirmed room', async () => {
+  const f = await shopFixture(), before = f.saved(), writes = f.writes.length; await f.click(f.focusButton('shop-layout-edit'));
+  const editor = shopView(f, true), draft = changedShop(editor.options.layout), held = deferred(); editor.options.onDraft(draft); f.control.pending = held;
+  const save = f.focusButton('shop-layout-save'); await f.click(save);
+  assert.equal(f.host.getAttribute('aria-busy'), 'true'); assert.equal(shopView(f, true), editor); assert.equal(editor.destroyed, false); assert.ok(editor.stops >= 1);
+  assert.equal(save.disabled, true); assert.equal(f.focusButton('shop-layout-cancel').disabled, true);
+  editor.options.onDraft(ShopLayout.defaultLayout('shop')); save.emit('click'); await flush(); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+  held.resolve(); f.control.pending = null; await flush();
+  assert.equal(editor.destroyed, true); assert.equal(f.host.getAttribute('aria-busy'), 'false'); assert.equal(f.host.querySelector('.ipg-shop-editor-actions'), null);
+  assert.deepEqual(f.saved(), { ...before, revision: before.revision + 1, updatedAt: f.now, shopInteriorLayouts: { shop: draft } });
+  assert.deepEqual(copy(shopView(f).options.layout), draft); assert.equal(f.writes.length, writes + 1); assert.match(f.host.textContent, /お店の配置を保存しました/); await f.ui.close();
+});
+
+for (const outcome of ['false', 'throw']) test('shop ' + outcome + ' save failure keeps the live editor and draft for an explicit retry', async () => {
+  const f = await shopFixture('cafe'), before = f.saved(), raw = f.data.get(Core.KEY), writes = f.writes.length; await f.click(f.focusButton('shop-layout-edit'));
+  const editor = shopView(f, true), draft = changedShop(editor.options.layout); editor.options.onDraft(draft); f.control.outcome = outcome;
+  await f.click(f.focusButton('shop-layout-save'));
+  assert.equal(shopView(f, true), editor); assert.equal(editor.destroyed, false); assert.equal(f.host.getAttribute('aria-busy'), 'false');
+  assert.equal(f.focusButton('shop-layout-save').disabled, false); assert.match(f.host.textContent, /下書きは残っています/); assert.doesNotMatch(f.host.textContent, /private storage failure/);
+  assert.deepEqual(f.saved(), before); assert.equal(f.data.get(Core.KEY), raw); assert.equal(f.writes.length, writes);
+  f.control.outcome = 'ok'; await f.click(f.focusButton('shop-layout-save'));
+  assert.equal(editor.destroyed, true); assert.deepEqual(f.saved(), { ...before, revision: before.revision + 1, updatedAt: f.now, shopInteriorLayouts: { cafe: draft } }); await f.ui.close();
+});
+
+test('shop stale revision retains its draft and refuses to overwrite newer real progress', async () => {
+  const f = await shopFixture(); await f.click(f.focusButton('shop-layout-edit')); const editor = shopView(f, true), draft = changedShop(editor.options.layout); editor.options.onDraft(draft);
+  const other = Core.create({ storage: f.storage, now: () => f.now }); await other.ready;
+  assert.equal((await other.dispatch({ type: 'rename', name: '別の画面でつけた名前' })).ok, true); const raw = f.data.get(Core.KEY), writes = f.writes.length;
+  await f.click(f.focusButton('shop-layout-save'));
+  assert.equal(shopView(f, true), editor); assert.equal(f.data.get(Core.KEY), raw); assert.equal(f.writes.length, writes); assert.match(f.host.textContent, /ほかの操作で記録が変わりました。下書きは残っています/);
+  assert.equal(Object.hasOwn(f.saved(), 'shopInteriorLayouts'), false); await f.click(f.focusButton('shop-layout-cancel')); await f.ui.close();
+});
+
+for (const interrupt of ['close', 'pagehide', 'visibility']) test(interrupt + ' discards a shop draft and stale callbacks cannot save, exit or corrupt the reopened visit', async () => {
+  const f = await shopFixture(), before = f.saved(), writes = f.writes.length; await f.click(f.focusButton('shop-layout-edit'));
+  const old = shopView(f, true), save = f.focusButton('shop-layout-save'), cancel = f.focusButton('shop-layout-cancel'); old.options.onDraft(changedShop(old.options.layout));
+  if (interrupt === 'close') await f.ui.close(); else if (interrupt === 'pagehide') f.window.emit('pagehide'); else { f.document.hidden = true; f.document.emit('visibilitychange'); }
+  f.document.hidden = false; await f.ui.open(); await flush(); const current = shopView(f);
+  assert.equal(old.destroyed, true); assert.equal(old.destroyCount, 1); assert.equal(old.options.canRun(), false);
+  old.options.onDraft(changedShop(old.options.layout)); old.options.onSelection('counter'); old.options.onReady(); old.options.onFailure(); old.options.onExit(); save.emit('click'); cancel.emit('click'); await flush();
+  assert.equal(shopView(f), current); assert.equal(current.destroyed, false); assert.equal(f.host.querySelector('.ipg-shop-editor-actions'), null);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+});
+
+test('a late shop mount is destroyed after close and cannot announce a failure or replace the reopened interior', async () => {
+  const f = await shopFixture(), before = f.saved(), writes = f.writes.length, held = deferred(); f.shopControl.pending = held;
+  await f.click(f.focusButton('shop-layout-edit')); const old = f.shopMounts.at(-1); await f.ui.close();
+  f.shopControl.pending = null; await f.ui.open(); await flush(); const current = shopView(f); held.resolve(); await flush();
+  assert.equal(old.destroyed, true); assert.equal(old.destroyCount, 1); old.options.onFailure(); old.options.onDraft(changedShop(old.options.layout)); old.options.onExit(); await flush();
+  assert.equal(shopView(f), current); assert.equal(current.destroyed, false); assert.doesNotMatch(f.host.textContent, /店内を表示できません/);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+});
+
+test('a late shop save may finish in its original store but never overwrites a reopened editor or reports success there', async () => {
+  const f = await shopFixture(); await f.click(f.focusButton('shop-layout-edit')); const old = shopView(f, true), first = changedShop(old.options.layout), held = deferred(); old.options.onDraft(first);
+  f.control.pending = held; await f.click(f.focusButton('shop-layout-save')); await f.ui.close(); await f.ui.open(); await flush();
+  await f.click(f.focusButton('shop-layout-edit')); const current = shopView(f, true), newDraft = copy(current.options.layout); newDraft.items.find(x => x.id === 'plant').z -= .25; current.options.onDraft(newDraft);
+  held.resolve(); f.control.pending = null; await flush();
+  assert.equal(old.destroyed, true); assert.equal(shopView(f, true) === current, true, 'old completion must retain the new editor controller'); assert.equal(current.destroyed, false); assert.equal(f.host.getAttribute('aria-busy'), 'false');
+  assert.equal(f.focusButton('shop-layout-save').disabled, false); assert.deepEqual(f.saved().shopInteriorLayouts.shop, first); assert.doesNotMatch(f.host.textContent, /お店の配置を保存しました/);
+  f.ui.render(); await flush(); assert.deepEqual(copy(shopView(f, true).options.layout), newDraft); await f.ui.close();
+});
+
+test('new owner mounting isolates a pending shop save and even still-connected old controls remain powerless', async () => {
+  const f = await shopFixture(), before = f.saved(); await f.click(f.focusButton('shop-layout-edit')); const old = shopView(f, true), draft = changedShop(old.options.layout), held = deferred();
+  old.options.onDraft(draft); const oldSave = f.focusButton('shop-layout-save'), oldCancel = f.focusButton('shop-layout-cancel'); f.control.pending = held; await f.click(oldSave);
+  const other = copy(before); other.pet.name = '別の保存先のこ'; other.coins = 1234;
+  const data = new Map([[Core.KEY, JSON.stringify(other)]]), writes = [], storage = { getItem: k => data.get(k) ?? null, setItem(k, v) { data.set(k, v); writes.push([k, v]); } };
+  const target = f.document.createElement('div'); f.pane.appendChild(target);
+  const opening = f.ui.mount(target, { storage, developerPreview: false, now: () => f.now, random: () => .5, shopInteriorAPI: f.shopInteriorAPI }); await flush();
+  assert.equal(oldSave.isConnected, true); const text = target.textContent; oldSave.emit('click'); oldCancel.emit('click'); old.options.onDraft(draft); old.options.onFailure(); old.options.onReady(); old.options.onExit();
+  assert.equal(target.textContent, text); held.resolve(); f.control.pending = null; assert.equal(await opening, true); await flush();
+  assert.equal(old.destroyed, true); assert.equal(old.options.canRun(), false); assert.ok(target.querySelector('.ipg-town')); assert.equal(target.getAttribute('aria-busy'), 'false');
+  assert.doesNotMatch(target.textContent, /お店の配置を保存しました/);
+  assert.deepEqual(JSON.parse(data.get(Core.KEY)), other); assert.equal(writes.length, 0); assert.deepEqual(f.saved().shopInteriorLayouts.shop, draft); await f.ui.close();
+});
+
+test('a failed interior renderer preserves the saved layout and its explicit display retry succeeds without new durable writes', async () => {
+  const f = await shopFixture(), before = f.saved(), writes = f.writes.length, first = shopView(f); first.options.onFailure(); await flush();
+  assert.equal(first.destroyed, true); assert.match(f.host.textContent, /保存済みの配置はそのまま/); assert.equal(f.focusButton('shop-interior-retry').hidden, false);
+  await f.click(f.focusButton('shop-interior-retry')); assert.notEqual(shopView(f), first); assert.equal(f.focusButton('shop-interior-retry').hidden, true);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+});
 
 test('public game enters the cafe village without initializing layout or changing legacy pet and economy',async()=>{
   const f=await villageFixture({seed:{pg_exp:'686',pg_coins:'574',pg_items:'{"rice":2}'}});
@@ -3041,23 +3212,23 @@ test('public game enters the cafe village without initializing layout or changin
   assert.deepEqual(f.host.querySelectorAll('.ipg-village-place,.ipg-town-place').map(x=>x.dataset.place),Core.villagePlaces.map(x=>x.id));
   assert.equal(f.host.querySelector('.ipg-care-room'),null);assert.equal(Object.hasOwn(f.saved(),'villageLayout'),false);
   assert.equal(f.host.querySelector('.ipg-town-controls'),null);assert.equal(f.buttons().filter(b=>b.dataset.direction).length,0);
-  assert.match(f.host.querySelector('.ipg-town-guide').textContent,/タップ/);
+  assert.match(f.host.querySelector('.ipg-town-guide').textContent,/ドアへ進む/);
   assert.match(f.host.querySelector('.ipg-town-viewport').getAttribute('aria-label'),/地面や建物をタップ/);
-  const actions=f.host.querySelector('.ipg-town-actions');assert.equal(f.focusButton('town-enter').parentNode,actions);assert.equal(f.focusButton('village-edit').parentNode,actions);
+  const actions=f.host.querySelector('.ipg-town-actions');assert.equal(f.host.querySelector('[data-focus-key="town-enter"]'),null);assert.equal(f.focusButton('village-edit').parentNode,actions);
   assert.equal(f.data.get(Core.KEY),f.beforeMountRaw);assert.equal(f.writes.length,f.writesBeforeMount);assert.equal(f.saved().pet.exp,686);assert.equal(f.saved().coins,574);
   f.ui.render();await f.ui.close();await f.ui.open();assert.equal(f.data.get(Core.KEY),f.beforeMountRaw);assert.ok(f.host.querySelector('.ipg-village'));
 });
 
-test('walking to nearby entrances opens the existing facilities only after explicit entry, without granting rewards',async()=>{
-  const f=await villageFixture(),before=f.saved(),writes=f.writes.length;
+test('ordinary approaches cannot enter while door pushes open home and both original shop interiors without granting rewards',async()=>{
+  const f=await villageFixture({rendererMode:'ready'}),before=f.saved(),writes=f.writes.length;
   const start=f.host.querySelector('.ipg-town-avatar').style.left;
   await f.click(villagePlace(f,'home'));assert.ok(f.host.querySelector('.ipg-town'));assert.equal(f.host.querySelector('.ipg-town-avatar').style.left,start,'tap cannot teleport or enter');
   await walkToVillagePlace(f,'home');assert.ok(f.host.querySelector('.ipg-care-room'));assert.equal(f.focusButton('tab-care').getAttribute('aria-current'),'page');
-  await f.click(f.focusButton('tab-village'));await walkToVillagePlace(f,'shop');assert.ok(f.host.querySelector('.ipg-village-market'));
-  await f.click(f.focusButton('tab-village'));await walkToVillagePlace(f,'cafe');assert.ok(f.host.querySelector('.ipg-town'));assert.equal(f.focusButton('town-enter').hidden,true);
-  await f.click(f.focusButton('tab-village'));await walkToVillagePlace(f,'playground');assert.ok(f.host.querySelector('.ipg-town'));assert.equal(f.focusButton('town-enter').hidden,true);
+  await f.click(f.focusButton('tab-village'));await walkToVillagePlace(f,'shop');assert.ok(f.host.querySelector('.ipg-shop-interior-card'));assert.equal(f.shopMounts.at(-1).options.roomId,'shop');
+  await f.click(f.focusButton('tab-village'));await walkToVillagePlace(f,'cafe');assert.ok(f.host.querySelector('.ipg-shop-interior-card'));assert.equal(f.shopMounts.at(-1).options.roomId,'cafe');
+  await f.click(f.focusButton('tab-village'));await walkToVillagePlace(f,'playground');assert.ok(f.host.querySelector('.ipg-town'));assert.equal(f.host.querySelector('[data-focus-key="town-enter"]'),null);
   await f.click(f.focusButton('tab-village'));await walkToVillagePlace(f,'tree',false);assert.ok(f.host.querySelector('.ipg-town'));
-  await walkToVillagePlace(f,'flowers',false);assert.equal(f.focusButton('town-enter').hidden,true);
+  await walkToVillagePlace(f,'flowers',false);assert.equal(f.host.querySelector('[data-focus-key="town-enter"]'),null);
   assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
 });
 
@@ -3079,12 +3250,12 @@ test('town uses exactly the raised clothed pet, moves continuously with its came
   assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
 });
 
-test('returning from a facility keeps the walked position while detached entry controls are inert',async()=>{
-  const f=await villageFixture(),before=f.saved();await walkToVillagePlace(f,'shop',false);
-  const avatar=f.host.querySelector('.ipg-town-avatar'),position=[avatar.style.left,avatar.style.top],oldEnter=f.focusButton('town-enter'),oldViewport=f.host.querySelector('.ipg-town-viewport');
-  await f.click(oldEnter);assert.ok(f.host.querySelector('.ipg-village-market'));
+test('returning from a facility keeps the walked position while detached door controls are inert',async()=>{
+  const f=await villageFixture({rendererMode:'ready'}),before=f.saved();await walkToVillagePlace(f,'shop',false);
+  const avatar=f.host.querySelector('.ipg-town-avatar'),oldEnter=f.focusButton('village-door-shop'),oldViewport=f.host.querySelector('.ipg-town-viewport');
+  await walkToVillagePlace(f,'shop');const position=[avatar.style.left,avatar.style.top];assert.ok(f.host.querySelector('.ipg-shop-interior-card'));
   await f.click(f.focusButton('tab-village'));const current=f.host.querySelector('.ipg-town-avatar');
-  assert.deepEqual([current.style.left,current.style.top],position);assert.equal(f.focusButton('town-enter').textContent,'マルシェに入る');
+  assert.deepEqual([current.style.left,current.style.top],position);assert.equal(f.host.querySelector('[data-focus-key="town-enter"]'),null);
   oldEnter.emit('click');oldViewport.emit('pointerdown',{pointerId:8,button:0,clientX:240,clientY:150});oldViewport.emit('pointerup',{pointerId:8,button:0,clientX:240,clientY:150});await f.frame(50);
   assert.ok(f.host.querySelector('.ipg-town'));assert.deepEqual([current.style.left,current.style.top],position);assert.deepEqual(f.saved(),before);
 });
@@ -3154,7 +3325,7 @@ test('village save waits for durability and publishes exactly the edited layout 
   assert.ok(f.host.textContent.includes('村の配置を保存しました'));assert.equal(f.document.activeElement,f.focusButton('village-edit'));
   const status=f.host.querySelector('.ipg-notice'),actions=f.host.querySelector('.ipg-town-actions');
   assert.equal(status.parentNode,actions);assert.equal(actions.children[0],status);assert.equal(status.getAttribute('role'),'status');assert.equal(status.getAttribute('aria-live'),'polite');
-  assert.equal(f.focusButton('village-edit').parentNode,actions);assert.equal(f.focusButton('town-enter').parentNode,actions);
+  assert.equal(f.focusButton('village-edit').parentNode,actions);assert.equal(f.host.querySelector('[data-focus-key="town-enter"]'),null);
   f.ui.render();await f.ui.close();await f.ui.open();assert.deepEqual(villagePositionInView(f,'shop'),{x:33,y:77});
 });
 
@@ -3204,14 +3375,15 @@ test('mounting a different host isolates a pending village save and all detached
   assert.equal(target.textContent,text);assert.deepEqual(f.saved(),saved);assert.equal(f.writes.length,writes);assert.equal(saved.villageLayout.items.find(x=>x.id==='home').y,78);
 });
 
-test('cafe and playground remain walkable scenery with no minigame entry, timers or rewards',async()=>{
+test('the cafe shop and playground never mount removed minigames or grant rewards',async()=>{
   const f=await villageFixture(),before=f.saved(),writes=f.writes.length;
   f.window.PetCafe={mount(){assert.fail('removed cafe runtime must never mount');}};
   for(const id of ['cafe','playground']){
-    await walkToVillagePlace(f,id);assert.ok(f.host.querySelector('.ipg-town'));
-    assert.equal(f.focusButton('town-enter').hidden,true);assert.equal(f.host.querySelector('.ipg-cafe-activity'),null);assert.equal(f.host.querySelector('.ipg-catch-board'),null);
+    await walkToVillagePlace(f,id);assert.ok(f.host.querySelector(id==='cafe'?'.ipg-shop-interior-card':'.ipg-town'));
+    assert.equal(f.host.querySelector('[data-focus-key="town-enter"]'),null);assert.equal(f.host.querySelector('.ipg-cafe-activity'),null);assert.equal(f.host.querySelector('.ipg-catch-board'),null);
     assert.equal(f.raf.size,0);assert.doesNotMatch(f.host.textContent,/おやつづくり|おにぎりキャッチ|25秒|ミニゲーム|準備中/);
     await f.frame(30000);assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
+    if(id==='cafe')await f.click(f.focusButton('tab-village'));
   }
   await f.ui.close();assert.equal(f.raf.size,0);
 });

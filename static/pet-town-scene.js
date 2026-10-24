@@ -236,12 +236,13 @@
           }
           box(g, w * 1.25, .11, depth + .36, '#dfcbb0', 0, 1.79, 0);
           box(g, w * 1.04, .12, depth * 1.04, '#d8bb93', 0, .2, 0);
-          box(g, .47, 1.06, .09, '#f7ecda', 0, .57, depth / 2 + .03);
-          box(g, .36, .94, .1, '#b58a69', 0, .53, depth / 2 + .08);
-          ball(g, '#f5e7cf', 0, 1.08, depth / 2 + .045, .235, .25, .065); ball(g, '#b58a69', 0, 1.07, depth / 2 + .09, .18, .21, .055);
-          box(g, .22, .32, .015, '#b8d8c8', 0, .78, depth / 2 + .138);
-          ball(g, '#b79461', .115, .48, depth / 2 + .16, .035, .035, .025);
-          box(g, .53, .1, .26, '#e3ceae', 0, .065, depth / 2 + .1);
+          function doorPart(m) { m.userData.door = true; return m; }
+          doorPart(box(g, .47, 1.06, .09, '#f7ecda', 0, .57, depth / 2 + .03));
+          doorPart(box(g, .36, .94, .1, '#b58a69', 0, .53, depth / 2 + .08));
+          doorPart(ball(g, '#f5e7cf', 0, 1.08, depth / 2 + .045, .235, .25, .065)); doorPart(ball(g, '#b58a69', 0, 1.07, depth / 2 + .09, .18, .21, .055));
+          doorPart(box(g, .22, .32, .015, '#b8d8c8', 0, .78, depth / 2 + .138));
+          doorPart(ball(g, '#b79461', .115, .48, depth / 2 + .16, .035, .035, .025));
+          doorPart(box(g, .53, .1, .26, '#e3ceae', 0, .065, depth / 2 + .1));
           for (var wx = -1; wx <= 1; wx += 2) {
             var windowX = wx * w * .32;
             ball(g, '#ccab80', windowX, 1.23, depth / 2 + .035, .18, .28, .065);
@@ -445,7 +446,7 @@
         var hits = ray.intersectObjects(model.pickables.concat(model.surfaces), false);
         if (!hits.length) return null;
         var hit = hits[0], id = hit.object.userData.placeId;
-        if (id) return { placeId: id };
+        if (id) return hit.object.userData.door ? { placeId: id, door: true } : { placeId: id };
         var p = townPoint(world, hit.point); return Town.isWalkable(world, p.x, p.y) ? p : null;
       }
     };

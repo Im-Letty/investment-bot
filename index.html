@@ -4397,11 +4397,12 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
   if(window.__independentPetLoader) return;
   window.__independentPetLoader=true;
   var moduleLoading=null,openLoading=null,generation=0,returnFocus=null,viewReady=false;
-  var scriptLoads=Object.create(null);
+  var scriptLoads=Object.create(null),styleLoads=Object.create(null);
+  var shopEntryStyle='/static/pet-shop-entry.css?v=20261025-shop1';
   function section(){return document.getElementById('sect-pet');}
   function host(){return document.getElementById('pet-game-root');}
   function uiReady(){return !!(window.IndependentPetGame&&typeof window.IndependentPetGame.mount==='function'&&typeof window.IndependentPetGame.close==='function');}
-  function apiReady(){return !!(window.PetVillageEconomy&&window.PetGameCore&&window.PetTownWalk&&window.PetVillageEconomyScene&&typeof window.PetVillageEconomyScene.mount==='function'&&window.PetCozyRoom&&typeof window.PetCozyRoom.mount==='function'&&uiReady());}
+  function apiReady(){return !!(window.PetVillageEconomy&&window.PetShopLayout&&window.PetGameCore&&window.PetTownWalk&&window.PetVillageEconomyScene&&typeof window.PetVillageEconomyScene.mount==='function'&&window.PetCozyRoom&&typeof window.PetCozyRoom.mount==='function'&&uiReady());}
   function assetFailure(kind){var error=new Error('Game unavailable');error.petAssetFailure=kind;return error;}
   function enhanceOptional(){
     var pane=section(),target=host();
@@ -4410,16 +4411,17 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
     // Only the current visible host may adopt it; never rebuild or navigate.
     window.IndependentPetGame.refreshVisuals(target);
   }
-  function loadScript(src,ready,timeout,onReady){
+  function loadScript(src,ready,timeout,onReady,stylesheet){
     if(ready())return Promise.resolve();
     var record=scriptLoads[src],fresh=!record;
     if(record&&record.invalid)return Promise.reject(assetFailure('invalid'));
     if(fresh){
-      var script=document.createElement('script');
+      var script=document.createElement(stylesheet?'link':'script');
       record={script:script,waiters:[],done:false};scriptLoads[src]=record;
       function finish(kind){
         if(record.done)return;
         record.done=true;
+        if(stylesheet&&kind==='load')styleLoads[src]=true;
         var ok=ready();
         if(!ok&&kind==='load')record.invalid=true;
         else if(scriptLoads[src]===record)delete scriptLoads[src];
@@ -4430,7 +4432,8 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
         if(ok&&typeof onReady==='function'){try{onReady();}catch(_){}}
         if(!ok)script.remove();
       }
-      script.src=src;script.async=true;
+      if(stylesheet){script.rel='stylesheet';script.href=src;}
+      else{script.src=src;script.async=true;}
       script.onload=function(){finish('load');};
       script.onerror=function(){finish('error');};
     }
@@ -4447,25 +4450,29 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
       if(fresh)document.head.appendChild(record.script);
     });
   }
-  function loadRequired(src,ready){
-    return loadScript(src,ready).catch(function(error){
+  function loadRequired(src,ready,stylesheet){
+    return loadScript(src,ready,undefined,undefined,stylesheet).catch(function(error){
       // Only a definitive download error permits one new request at the same URL.
       if(error.petAssetFailure!=='network')throw error;
-      return new Promise(function(resolve){setTimeout(resolve,1200);}).then(function(){return loadScript(src,ready);});
+      return new Promise(function(resolve){setTimeout(resolve,1200);}).then(function(){return loadScript(src,ready,undefined,undefined,stylesheet);});
     });
   }
   function loadModules(){
-    if(apiReady())return Promise.resolve();
+    if(apiReady()&&styleLoads[shopEntryStyle])return Promise.resolve();
     if(moduleLoading)return moduleLoading;
-    function loadGameCore(){return loadRequired('/static/pet-game-core.js?v=20261024-village-economy1',function(){return !!window.PetGameCore;});}
+    function loadGameCore(){return loadRequired('/static/pet-game-core.js?v=20261025-shop1',function(){return !!window.PetGameCore;});}
     function loadVillageScene(){return loadRequired('/static/pet-village-economy-scene.js?v=20261024-village-economy1',function(){return !!window.PetVillageEconomyScene&&typeof window.PetVillageEconomyScene.mount==='function';});}
     var required=Promise.all([
-      window.PetVillageEconomy?loadGameCore():loadRequired('/static/pet-village-economy.js?v=20261024-village-economy1',function(){return !!window.PetVillageEconomy;}).then(loadGameCore),
-      window.PetTownWalk?loadVillageScene():loadRequired('/static/pet-town-walk.js?v=20261025-lively1',function(){return !!window.PetTownWalk;}).then(loadVillageScene),
+      window.PetVillageEconomy&&window.PetShopLayout?loadGameCore():Promise.all([
+        loadRequired('/static/pet-village-economy.js?v=20261024-village-economy1',function(){return !!window.PetVillageEconomy;}),
+        loadRequired('/static/pet-shop-layout.js?v=20261025-shop1',function(){return !!window.PetShopLayout;})
+      ]).then(loadGameCore),
+      window.PetTownWalk?loadVillageScene():loadRequired('/static/pet-town-walk.js?v=20261025-shop1',function(){return !!window.PetTownWalk;}).then(loadVillageScene),
       loadRequired('/static/pet-cozy-room.js?v=20261024-cozy-room1',function(){return !!window.PetCozyRoom&&typeof window.PetCozyRoom.mount==='function';}),
+      loadRequired(shopEntryStyle,function(){return !!styleLoads[shopEntryStyle];},true),
       // UI registration has no eager core access. Fetch it in parallel while
-      // retaining economy -> core and walking engine -> scene execution order.
-      loadRequired('/static/pet-game.js?v=20261025-harmony1',uiReady)
+      // retaining economy/layout -> core and walking engine -> scene execution order.
+      loadRequired('/static/pet-game.js?v=20261025-shop1',uiReady)
     ]).then(function(){if(!apiReady())throw assetFailure('invalid');});
     loadScript('/static/pet-lilac-motion.js?v=20261025-harmony1',function(){return !!window.PetLilacMotion;},5000,enhanceOptional).catch(function(){});
     loadScript('/static/pet-room-behavior.js?v=4306c88f116b',function(){return !!window.PetRoomBehavior;},5000,enhanceOptional).catch(function(){});
@@ -4545,7 +4552,7 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
   document.addEventListener('keydown',function(event){
     var pane=section();if(event.key!=='Escape'||!pane)return;
     if(pane.hidden){if(openLoading)window.closePetTab(false);return;}
-    if(pane.querySelector('.ipg-room-editor')||pane.querySelector('.ipg-village-editor'))return;
+    if(pane.querySelector('.ipg-room-editor')||pane.querySelector('.ipg-village-editor')||pane.querySelector('.ipg-shop-editor-actions'))return;
     var record=document.getElementById('mrOv');
     if(record&&record.classList.contains('on')&&typeof window.mrClose==='function')window.mrClose();
     else window.closePetTab();

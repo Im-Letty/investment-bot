@@ -43,9 +43,9 @@ function fixture(options = {}) {
   });
   doc.activeElement = viewport;
   const world = options.world || Town.createWorld();
-  const controller = Town.mount({ viewport, worldElement: surface, avatar, enterButton: enter, world,
+  const controller = Town.mount({ viewport, worldElement: surface, avatar, enterButton: options.noEnter ? null : enter, world,
     position: options.position || { x: 1100, y: 1100 }, controls, canRun: () => allowed, enterableIds: options.enterableIds,
-    onPosition: p => positions.push(p), onMotion: m => motions.push(m), onEnter: id => entries.push(id),
+    doorEntry: options.doorEntry, onPosition: p => positions.push(p), onMotion: m => motions.push(m), onEnter: id => { entries.push(id); if (options.onEnter) options.onEnter(id); },
     resolveTap: options.resolveTap, projectDirection: options.projectDirection, onDraw: options.onDraw });
   function frame(ms = 50) { stamp += ms; const calls = [...raf.values()]; raf.clear(); calls.forEach(fn => fn(stamp)); }
   function advance(count, ms = 50) { for (let i = 0; i < count; i++) frame(ms); }
@@ -53,6 +53,22 @@ function fixture(options = {}) {
   return { win, doc, world, viewport, surface, avatar, enter, buttons, controls, controller, raf, observed, positions, motions, entries,
     frame, advance, settle, allow(value) { allowed = value; }, key(key, type = 'keydown', values = {}) { return win.emit(type, { target: doc.activeElement, key, ...values }); } };
 }
+
+test('approach and intentional door travel clear clipped-world DOM scrolling without making an ordinary approach enter', () => {
+  const f = fixture({ doorEntry: true, noEnter: true }), nativeFocus = f.viewport.focus.bind(f.viewport);
+  // A real browser may scroll an overflow-hidden ancestor while focusing its
+  // offscreen semantic landmark. World travel uses transforms instead.
+  f.viewport.focus = options => { nativeFocus(options); f.viewport.scrollLeft = 245; f.viewport.scrollTop = 212; };
+  f.viewport.scrollLeft = 100; f.viewport.scrollTop = 80;
+  assert.equal(f.controller.approach('shop'), true);
+  assert.equal(f.viewport.scrollLeft, 0); assert.equal(f.viewport.scrollTop, 0); assert.deepEqual(f.viewport.focusOptions, { preventScroll: true });
+  f.settle(); assert.deepEqual(f.entries, []); const shop = f.world.places.find(p => p.id === 'shop');
+  near(f.controller.position().x, shop.entrance.x); near(f.controller.position().y, shop.entrance.y);
+  f.viewport.scrollLeft = 245; f.viewport.scrollTop = 212;
+  assert.equal(f.controller.enterDoor('shop'), true);
+  assert.equal(f.viewport.scrollLeft, 0); assert.equal(f.viewport.scrollTop, 0);
+  f.settle(); assert.deepEqual(f.entries, ['shop']); assert.equal(f.raf.size, 0); f.controller.destroy();
+});
 
 test('an optional scene projects input into the same collision and explicit entry rules without teleporting',()=>{
   let target={x:1200,y:1100},draws=0;const f=fixture({resolveTap:()=>target,projectDirection:(x,y)=>({x:-y,y:x}),onDraw:()=>draws++});
@@ -250,4 +266,140 @@ test('main UI can limit entry to home and shop while former minigame places rema
   allowed.push('cafe');f.observed[0].fn();assert.equal(f.enter.hidden,true,'a later caller mutation cannot restore a removed entrance');
   f.enter.hidden=false;f.enter.disabled=false;f.enter.emit('click');assert.deepEqual(f.entries,[],'stale/forged former entry is inert');
   assert.equal(f.controller.approach('shop'),true);f.settle();assert.equal(f.enter.hidden,false);f.enter.emit('click');assert.deepEqual(f.entries,['shop']);f.controller.destroy();
+});
+
+function frontContact(place) { return { x: place.footprint.x, y: place.footprint.y + place.footprint.ry + 19 }; }
+function doorFixture(options = {}) {
+  const world = options.world || Town.createWorld(), home = world.places.find(p => p.id === 'home');
+  const f = fixture({ doorEntry: true, noEnter: true, enterableIds: ['home', 'shop', 'cafe'], world, position: frontContact(home), ...options });
+  return f;
+}
+
+test('door mode requires genuine sustained inward contact, stops input before entry and latches a held key', () => {
+  const f = doorFixture(), start = f.controller.position(), home = f.world.places[0];
+  assert.equal(Town.isWalkable(f.world, start.x, start.y), true);
+  assert.equal(Town.isWalkable(f.world, start.x, start.y - 8), false, 'the test touches the real building collision');
+  f.key('ArrowUp'); f.frame(); f.advance(5);
+  assert.deepEqual(f.entries, [], '250ms of pressure is not yet a deliberate entry');
+  assert.equal(f.raf.size, 1, 'contact keeps only one bounded movement frame');
+  f.frame(); assert.deepEqual(f.entries, ['home']);
+  assert.equal(f.raf.size, 0); assert.equal(f.motions.at(-1).walking, false);
+  assert.deepEqual(f.controller.position(), start, 'the player does not teleport through the wall');
+  assert.equal(f.key('ArrowUp', 'keydown', { repeat: true }).prevented, true); f.advance(30);
+  assert.deepEqual(f.entries, ['home']); assert.equal(f.raf.size, 0);
+  f.key('ArrowUp', 'keyup'); f.key('ArrowUp'); f.frame(); f.advance(6);
+  assert.deepEqual(f.entries, ['home', 'home'], 'a new released-and-pressed intent can enter again if navigation was not mounted');
+  assert.equal(home.id, 'home'); f.controller.destroy();
+});
+
+test('door entry is opt-in and cannot expose or forge the old nearby button', () => {
+  const world = Town.createWorld(), home = world.places[0], f = fixture({ world, position: home.entrance, doorEntry: true });
+  assert.equal(f.enter.hidden, true); assert.equal(f.enter.disabled, true);
+  f.enter.hidden = false; f.enter.disabled = false; f.enter.emit('click');
+  assert.deepEqual(f.entries, []); f.controller.destroy();
+  const legacy = fixture({ world, position: frontContact(home) });
+  assert.equal(legacy.controller.enterDoor('home'), false); legacy.key('ArrowUp'); legacy.advance(40);
+  assert.deepEqual(legacy.entries, []); assert.equal(legacy.raf.size, 0); legacy.controller.destroy();
+});
+
+test('nearby, sideways, backside and unimplemented-building contact cannot open a door', () => {
+  const world = Town.createWorld(), home = world.places[0], f = doorFixture({ world, position: home.entrance });
+  f.advance(100); assert.deepEqual(f.entries, []); assert.equal(f.raf.size, 0);
+  f.controller.destroy();
+  for (const [position, key] of [
+    [{ x: home.footprint.x + home.footprint.rx + 19, y: home.footprint.y }, 'ArrowLeft'],
+    [{ x: home.footprint.x, y: home.footprint.y - home.footprint.ry - 19 }, 'ArrowDown'],
+    [frontContact(home), 'ArrowRight']
+  ]) {
+    const side = doorFixture({ world, position }); side.key(key); side.advance(40);
+    assert.deepEqual(side.entries, []); side.controller.destroy();
+  }
+  const cafe = world.places.find(p => p.id === 'cafe'), allowed = ['home', 'shop'];
+  const limited = doorFixture({ world, position: frontContact(cafe), enterableIds: allowed });
+  allowed.push('cafe'); limited.key('ArrowUp'); limited.advance(40);
+  assert.deepEqual(limited.entries, []); assert.equal(limited.controller.enterDoor('cafe'), false);
+  assert.equal(limited.controller.enterDoor('flowers'), false); assert.equal(limited.controller.enterDoor('playground'), false);
+  assert.equal(limited.controller.enterDoor('economy-tea'), false); limited.controller.destroy();
+});
+
+test('an explicit door intent walks around saved footprints, then pushes and enters once without a button', () => {
+  const world = Town.createWorld(), before = JSON.stringify(world), start = { ...world.spawn }, f = doorFixture({ world, position: start });
+  assert.equal(f.controller.enterDoor('shop'), true); assert.equal(f.controller.enterDoor('shop'), true, 'the same in-flight phone request is not restarted');
+  assert.deepEqual(f.controller.position(), start); assert.deepEqual(f.entries, []);
+  f.settle(); assert.deepEqual(f.entries, ['shop']); assert.equal(f.raf.size, 0);
+  assert.ok(f.positions.length > 20, 'the route actually walked across the village');
+  assert.ok(f.positions.every(p => Town.isWalkable(world, p.x, p.y)));
+  assert.equal(JSON.stringify(world), before); assert.equal(f.motions.at(-1).walking, false);
+  assert.equal(f.controller.enterDoor('shop'), false, 'a stale completed request cannot re-enter without a new user gesture');
+  f.controller.destroy();
+});
+
+test('ordinary approach, roof taps and ground taps never acquire door intent', () => {
+  let target = { placeId: 'home' };
+  const f = doorFixture({ position: { x: 1100, y: 1100 }, resolveTap: () => target });
+  f.viewport.emit('pointerdown', { pointerId: 1, button: 0, clientX: 100, clientY: 100 });
+  f.viewport.emit('pointerup', { pointerId: 1, clientX: 100, clientY: 100 }); f.settle();
+  assert.deepEqual(f.entries, []); near(f.controller.position().y, f.world.places[0].entrance.y, 1);
+  target = frontContact(f.world.places[0]); target.y += .25;
+  f.viewport.emit('pointerdown', { pointerId: 2, button: 0, clientX: 100, clientY: 100 });
+  f.viewport.emit('pointerup', { pointerId: 2, clientX: 100, clientY: 100 }); f.settle();
+  assert.deepEqual(f.entries, []); assert.equal(f.raf.size, 0);
+  target = { placeId: 'home', door: true };
+  f.viewport.emit('pointerdown', { pointerId: 3, button: 0, clientX: 100, clientY: 100 });
+  f.viewport.emit('pointerup', { pointerId: 3, clientX: 100, clientY: 100 }); f.settle();
+  assert.deepEqual(f.entries, ['home']); f.controller.destroy();
+});
+
+test('door contact follows projected world movement and caps dwell elapsed rather than using a suspended wall clock', () => {
+  const f = doorFixture({ projectDirection: (x, y) => ({ x: -y, y: x }) });
+  f.key('ArrowLeft'); f.frame(); f.frame(5000);
+  assert.deepEqual(f.entries, [], 'one delayed frame counts at most 50ms');
+  f.advance(4); assert.deepEqual(f.entries, []); f.frame(); assert.deepEqual(f.entries, ['home']);
+  f.controller.destroy();
+});
+
+for (const reason of ['blur', 'pagehide', 'visibility', 'pointercancel', 'focusout', 'stop', 'destroy', 'denied', 'detached', 'release', 'away']) test('door pressure cannot survive ' + reason, () => {
+  const f = doorFixture(); f.key('ArrowUp'); f.frame(); f.advance(5); assert.deepEqual(f.entries, []);
+  const stale = [...f.raf.values()][0];
+  if (reason === 'visibility') { f.doc.hidden = true; f.doc.emit('visibilitychange'); }
+  else if (reason === 'pointercancel') f.win.emit('pointercancel', { pointerId: 99 });
+  else if (reason === 'focusout') f.viewport.emit('focusout', { relatedTarget: new Element(f.doc) });
+  else if (reason === 'stop' || reason === 'destroy') f.controller[reason]();
+  else if (reason === 'denied') { f.allow(false); f.frame(); }
+  else if (reason === 'detached') { f.viewport.isConnected = false; f.frame(); }
+  else if (reason === 'release') f.key('ArrowUp', 'keyup');
+  else if (reason === 'away') { f.key('ArrowDown'); f.key('ArrowUp', 'keyup'); }
+  else f.win.emit(reason);
+  if (reason !== 'away') assert.equal(f.raf.size, 0);
+  f.doc.hidden = false; f.allow(true); f.viewport.isConnected = true;
+  if (stale) stale(10000); f.advance(30);
+  assert.deepEqual(f.entries, []); f.controller.destroy();
+});
+
+test('a canceled phone door route and a lost held pointer cannot finish an old entry', () => {
+  const f = doorFixture({ position: { x: 1100, y: 1100 } });
+  assert.equal(f.controller.enterDoor('shop'), true); f.advance(4); f.win.emit('pointercancel', { pointerId: 100 });
+  f.advance(1200); assert.deepEqual(f.entries, []); assert.equal(f.raf.size, 0); f.controller.destroy();
+  const p = doorFixture(), north = p.buttons[6]; north.emit('pointerdown', { pointerId: 7, button: 0 }); p.frame(); p.advance(5);
+  north.emit('lostpointercapture', { pointerId: 7 }); p.advance(30);
+  assert.deepEqual(p.entries, []); assert.equal(p.raf.size, 0); p.controller.destroy();
+});
+
+test('an occluded, invalid or changed door safely refuses the route and cannot mutate the world', () => {
+  const world = Town.createWorld(), home = world.places[0], cafe = world.places[1];
+  cafe.footprint = { x: home.entrance.x, y: home.entrance.y - 10, rx: 38, ry: 38 };
+  const f = doorFixture({ world, position: { x: 1100, y: 1100 } }), before = JSON.stringify(world);
+  assert.equal(f.controller.enterDoor('home'), false); assert.equal(f.raf.size, 0); assert.deepEqual(f.entries, []); assert.equal(JSON.stringify(world), before);
+  assert.equal(f.controller.enterDoor(null), false); assert.equal(f.controller.enterDoor('missing'), false);
+  f.controller.destroy();
+  const changed = doorFixture({ position: { x: 1100, y: 1100 } }); assert.equal(changed.controller.enterDoor('shop'), true);
+  changed.world.places = changed.world.places.filter(p => p.id !== 'shop'); changed.frame();
+  assert.deepEqual(changed.entries, []); assert.equal(changed.raf.size, 0); changed.controller.destroy();
+});
+
+test('synchronous entry navigation may destroy its old controller without resurrecting movement or re-entering', () => {
+  let f; f = doorFixture({ onEnter: () => { assert.equal(f.raf.size, 0); assert.equal(f.motions.at(-1).walking, false); f.controller.destroy(); } });
+  f.key('ArrowUp'); f.frame(); f.advance(6); assert.deepEqual(f.entries, ['home']);
+  f.advance(1000); assert.equal(f.raf.size, 0); assert.equal(f.controller.enterDoor('home'), false);
+  assert.equal(f.viewport.count() + f.win.count() + f.doc.count(), 0);
 });
