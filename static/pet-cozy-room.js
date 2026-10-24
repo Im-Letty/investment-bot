@@ -143,6 +143,7 @@ const definitions={
   for(const [key,def] of Object.entries(definitions)){const meta=metadata.get(key);if(meta){def.label=meta.name;def.w=meta.width;def.d=meta.depth;def.flat=!!meta.flat;}}
   for(const o of state.objects)if(!definitions[o.type])throw new Error('room_layout');
   const catalogTypes=(Array.isArray(opts.furniture)?opts.furniture:[]).filter(row=>metadata.has(row.id)&&definitions[row.id]&&!row.sourceId&&['bed','table','chair','cupboard','plant','counter','lamp','rug'].includes(row.id));
+  function canAddType(key){const spec=catalogTypes.find(row=>row.id===key);return !!spec&&(!Number.isSafeInteger(spec.limit)||state.objects.filter(row=>row.type===key).length<spec.limit);}
   selected=state.objects.some(o=>o.id===opts.initialSelectedId)?opts.initialSelectedId:(state.objects.find(o=>o.type==='table')||state.objects[0]||{}).id;
   const objectLayer=new THREE.Group();scene.add(objectLayer);
   const selectionGeometry=new THREE.PlaneGeometry(1,1);geometries.add(selectionGeometry);
@@ -174,6 +175,7 @@ const definitions={
    disable(actions.querySelector('[data-action="undo"]'),!history.length);
    disable(top.querySelector('[data-action="restore"]'),!dirty());disable(top.querySelector('[data-action="save"]'),false);
    root.querySelectorAll('[data-furniture],[data-surface],[data-category],[data-camera]').forEach(b=>{disable(b,false);});
+   root.querySelectorAll('[data-furniture]').forEach(b=>disable(b,!canAddType(b.dataset.furniture)));
    if(o){const b=bounds(o);selection.scale.set(b.w+.2,b.d+.2,1);selection.position.set(o.x,.075,o.z);}
   }
   refreshControls=syncSelection;
@@ -232,6 +234,7 @@ const definitions={
   }
   function releaseDrag(e){if(!drag||e.pointerId!==drag.pointerId)return;moveDrag(e);finishDrag(true,e);}
   function addFurniture(key){
+   if(!canAddType(key))return;
    if(!canEdit()||!catalogTypes.some(row=>row.id===key))return;if(state.objects.length>=24){announce('家具がいっぱいです。いったんしまってから置いてください。');return;}
    const next={id:state.nextId,type:key,x:0,z:0,r:0};let spot=null;for(let z=2.5;z>=-3.5&&!spot;z-=.5)for(let x=-3;x<=3;x+=.5){const test={...next,x,z};if(valid(test)){spot=test;break;}}
    if(!spot){announce('空いている場所がありません。家具をしまうか動かしてください。');return;}remember();state.objects.push(spot);state.nextId++;selected=spot.id;drawObjects();emitDraft();announce(definitions[key].label+'を置きました。');

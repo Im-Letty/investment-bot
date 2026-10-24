@@ -86,7 +86,8 @@ async function fixture(config = {}) {
       data.set(key, value); writes.push([key, value]);
     }
   };
-  const coreOptions = { storage, now: () => clock, random: () => .5, developerPreview: config.developerPreview !== false };
+  const coreOptions = { storage, now: () => clock, random: () => .5, developerPreview: config.developerPreview !== false,
+    developerLegacyCarePreview: config.legacyCarePreview ?? (!config.startAtVillage && config.developerPreview === false) };
   const setup = Core.create(coreOptions); assert.equal((await setup.ready).ok, true);
   if (config.species) assert.equal((await setup.dispatch({ type: 'chooseSpecies', species: config.species })).ok, true);
   if (config.setup) await config.setup(setup);
@@ -110,6 +111,7 @@ async function fixture(config = {}) {
     pending: config.scenePending ? deferred() : null, acceptFrame: config.sceneAcceptFrame !== false, failBeforeReturn: !!config.sceneEarlyFailure, reject: !!config.sceneReject
   };
   const shopMounts = [], shopControl = { pending: null, reject: false, frameReady: true };
+  const homeMounts = [], homeControl = { pending: null, reject: false, frameReady: true };
   const rendererControl = { mode: config.rendererMode || 'pending', mappingThrows: false, hit: null, hitThrows: false };
   const renderer = {
     durations: Motion.durations, catalogue: Motion.catalogue, bodyCatalogue: Motion.bodyCatalogue, directionCatalogue: Motion.directionCatalogue, appearanceProfile: Motion.appearanceProfile, eggVisualProfile: Motion.eggVisualProfile, roomWalkFrame: Motion.roomWalkFrame, feedingPhase: Motion.feedingPhase, feedingAnchor(stage, path, appearanceKey, eggOrigin) { anchorCalls.push({ stage, path, appearanceKey, eggOrigin }); return Motion.feedingAnchor(stage, path, appearanceKey, eggOrigin); }, growthProfile: Motion.growthProfile, growthPoint: Motion.growthPoint,
@@ -166,6 +168,25 @@ async function fixture(config = {}) {
     if (shopControl.reject) throw Error('private unavailable shop renderer'); return controller;
   } };
   coreOptions.shopInteriorAPI = shopInteriorAPI;
+  const homeInteriorAPI = { async mount(options) {
+    const stage = document.createElement('div'); stage.className = 'ipg-home-stage'; options.host.appendChild(stage);
+    let draft = copy(options.layout), selected = null;
+    const controller = { options, stage, destroyed: false, destroyCount: 0, frames: [], stops: 0,
+      destroy() { this.destroyed = true; this.destroyCount++; },
+      setFrame(canvas) { if (this.destroyed || !options.canRun()) return false; this.frames.push(canvas); if (homeControl.frameReady) options.onReady(); return true; },
+      stop() { this.stops++; }, getDraft() { return copy(draft); },
+      select(id) { selected = id; options.onSelection(id); },
+      setSurface(kind, value) { draft[kind] = value; options.onDraft(copy(draft)); },
+      rotateSelected() { const row = draft.objects.find(row => row.id === selected); if (!row) return false; row.r = (row.r + 1) % 4; options.onDraft(copy(draft)); return true; },
+      removeSelected() { draft.objects = draft.objects.filter(row => row.id !== selected); options.onDraft(copy(draft)); selected = null; options.onSelection(null); },
+      undo() {}, reset() { draft = copy(options.layout); options.onDraft(copy(draft)); },
+      add(type, sourceId) { const spec = options.types.find(row => row.id === type); if (!spec?.allowed || draft.objects.filter(row => row.type === type).length >= spec.limit) return false;
+        const row = { id: draft.nextId++, type, x: 0, z: 0, r: 0 }; if (sourceId) row.sourceId = sourceId; draft.objects.push(row); options.onDraft(copy(draft)); return true; } };
+    homeMounts.push(controller); if (homeControl.pending) await homeControl.pending.promise;
+    if (homeControl.reject) throw Error('synthetic unavailable home renderer');
+    if (options.editing) options.onReady(); return controller;
+  } };
+  if (!config.homeModuleDeferred) coreOptions.homeInteriorAPI = homeInteriorAPI;
   const townSceneAPI={async mount(options){
     const controller={options,destroyed:false,destroyCount:0,frames:[],positions:[],motions:[],destroy(){if(this.destroyed)return;this.destroyed=true;this.destroyCount++;options.viewport.dataset.visualMode='flat';},
       setFrame(canvas){if(this.destroyed||!options.canRun()||!townSceneControl.acceptFrame)return false;this.frames.push(canvas);options.viewport.dataset.visualMode='three';options.onReady();return true;},
@@ -202,14 +223,14 @@ async function fixture(config = {}) {
   vm.runInContext(source, context);
   const ui = window.IndependentPetGame;
   const opening = ui.mount(host, coreOptions); assert.equal(await opening, true); await flush();
-  // Existing room/animation cases explicitly enter the room through the same
-  // public tab as players; village-entry cases opt into the new initial screen.
+  // Retain the historical room/animation fixtures behind an explicit private
+  // preview. Actual village-life fixtures do not expose the retired care tab.
   if (!config.startAtVillage && config.developerPreview === false && !Core.needsEggChoice(store.getState())) {
     const room = host.querySelector('[data-focus-key="tab-care"]');
     assert.ok(room, 'existing room scenarios can enter the room from the village');
     room.emit('click'); await flush();
   }
-  return { ui, host, pane, document, window, data, storage, writes, control, renderer, rendererControl, mounts, actionCues, anchorCalls, hitTests, raf, timers, intervals, beforeMountRaw, writesBeforeMount, cozyMounts, cozyControl, economyScenes, townScenes, townSceneControl, townSceneAPI, townAssets, shopMounts, shopControl, shopInteriorAPI,
+  return { ui, host, pane, document, window, data, storage, writes, control, renderer, rendererControl, mounts, actionCues, anchorCalls, hitTests, raf, timers, intervals, beforeMountRaw, writesBeforeMount, cozyMounts, cozyControl, economyScenes, townScenes, townSceneControl, townSceneAPI, townAssets, shopMounts, shopControl, shopInteriorAPI, homeMounts, homeControl, homeInteriorAPI,
     get store() { return store; },
     get now() { return clock; },
     saved() { return JSON.parse(data.get(Core.KEY)); },
@@ -434,7 +455,7 @@ test('a pending old 3D controller cannot project or save into a different host a
   const otherRecord = copy(before); otherRecord.pet.name = '別の保存先のこ'; otherRecord.cozyRoomLayout = changedCozy(Core.defaultCozyRoomLayout(), 'mint');
   const values = new Map([[Core.KEY, JSON.stringify(otherRecord)]]), otherWrites = [], storage = { getItem: key => values.get(key) ?? null, setItem(key, text) { values.set(key, text); otherWrites.push([key, text]); } };
   const target = f.document.createElement('div'); f.pane.appendChild(target);
-  assert.equal(await f.ui.mount(target, { storage, developerPreview: false, now: () => new Date(2026, 9, 21, 12).getTime(), random: () => .5 }), true);
+  assert.equal(await f.ui.mount(target, { storage, developerPreview: false, developerLegacyCarePreview: true, now: () => new Date(2026, 9, 21, 12).getTime(), random: () => .5 }), true);
   target.querySelector('[data-focus-key="tab-care"]').emit('click'); await flush(); const current = f.cozyMounts.at(-1);
   assert.notEqual(current, old); assert.equal(current.options.editable, false); assert.equal(old.options.canRun(), false);
   old.options.onProjectPet({ left: 1, top: 1, scale: 99 }); old.options.onDraftChange(changedCozy(old.options.layout)); old.options.onCancel(); old.options.onError();
@@ -601,11 +622,11 @@ test('one successful care cue is finite, does not restart on render and respects
   assert.equal(f.focusButton('care-feed').disabled, true);
   await f.click(f.focusButton('care-feed'));
   assert.equal(f.writes.length, written); assert.deepEqual(f.saved(), full); assert.equal(f.actionCues.length, mapped);
-  // A previously queued handler still has to respect the core's actual cap;
-  // this deliberately bypasses the disabled DOM control, not the real store.
+  // A queued event on a now-disabled control is ignored before dispatch. The
+  // real core's daily cap is independently exercised by its transaction tests.
   f.focusButton('care-feed').emit('click'); await flush();
   assert.equal(f.writes.length, written); assert.deepEqual(f.saved(), full); assert.equal(f.actionCues.length, mapped);
-  assert.match(f.host.querySelector('.ipg-error').textContent, /今日の回数/);
+  assert.equal(f.host.querySelector('.ipg-error'), null);
   assert.equal(f.activeMotions().length, 1);
 });
 
@@ -2998,7 +3019,9 @@ test('room arrangement is available for eggs and bunnies, stays free, and does n
 });
 
 
-async function villageFixture(config={}) { return fixture({species:'lilac',developerPreview:false,startAtVillage:true,...config}); }
+// Archived town/room routing regressions retain their explicit legacy screen.
+// New village-life cases below exercise production without this preview option.
+async function villageFixture(config={}) { return fixture({species:'lilac',developerPreview:false,startAtVillage:true,legacyCarePreview:true,...config}); }
 
 function townPresentationState(f, expected, host = f.host) {
   const viewport = host.querySelector('.ipg-town-viewport'), loading = host.querySelector('.ipg-town-loading');
@@ -3589,7 +3612,7 @@ test('the cafe shop and playground never mount removed minigames or grant reward
 });
 
 async function archivedMinigame(kind){
-  return fixture({species:'lilac',developerPreview:false,startAtVillage:true,rendererMode:'ready',setup:async store=>{
+  return fixture({species:'lilac',developerPreview:false,startAtVillage:true,legacyCarePreview:true,rendererMode:'ready',setup:async store=>{
     const backup=JSON.parse(store.exportBackup());backup.state.minigames={day:backup.state.minigames.day,started:2,active:{id:'archived-'+kind,kind,startedAt:backup.exportedAt-30000},completed:['historic-result'],bestScore:17};
     assert.equal((await store.importBackup(JSON.stringify(backup))).ok,true);
   }});
@@ -4107,4 +4130,121 @@ test('a fully NPC-funded open shop still offers shares to a player with no previ
   const raw=f.data.get(Core.KEY),writes=f.writes.length;villageInput(f,'village-buy-shares-orchard',2);f.control.outcome='false';await f.click(f.focusButton('village-buy-shares-orchard-buy'));
   assert.equal(f.data.get(Core.KEY),raw);assert.equal(f.writes.length,writes);assert.equal(f.focusButton('village-buy-shares-orchard').value,'2');
   f.control.outcome='ok';await f.click(f.focusButton('village-buy-shares-orchard-buy'));assert.equal(villageView(f).shops.find(x=>x.id==='orchard').playerShares,2);assert.equal(f.writes.length,writes+1);f.ui.close();
+});
+
+async function lifeFixture(config = {}) {
+  return fixture({ species: 'lilac', developerPreview: false, startAtVillage: true, legacyCarePreview: false, rendererMode: 'ready', townScene: true, ...config });
+}
+function homeView(f, editing = false) {
+  const result = f.homeMounts.findLast(row => !row.destroyed && row.options.host.isConnected && row.options.editing === editing);
+  assert.ok(result, editing ? 'current own-home editor' : 'current own-home scene'); return result;
+}
+async function enterOwnHome(f) {
+  if (!f.host.querySelector('.ipg-life-panel').hidden) await f.click(f.focusButton('village-life-close'));
+  f.advance(Motion.durations.feeding + 100); await f.fireTimers();
+  await walkToVillagePlace(f, 'home'); assert.ok(f.host.querySelector('.ipg-home-viewport')); return homeView(f);
+}
+async function starterSetup(store, purchases = 0, care = false) {
+  assert.equal((await store.dispatch({ type: 'chooseEgg', eggOrigin: 'lilac' })).ok, true);
+  for (let i = 0; i < purchases; i++) assert.equal((await store.dispatch({ type: 'buyItem', itemId: 'apple' })).ok, true);
+  if (care) for (const kind of ['feed', 'play', 'rest']) assert.equal((await store.dispatch({ type: 'care', kind })).ok, true);
+}
+
+test('production village-life has three tabs, no retired care screen, and its first movement is not blocked by greeting', async () => {
+  const f = await lifeFixture(), before = f.saved(), viewport = f.host.querySelector('.ipg-town-viewport'), avatar = f.host.querySelector('.ipg-town-avatar');
+  assert.deepEqual(f.host.querySelector('.ipg-tabs').children.map(b => b.dataset.focusKey), ['tab-village', 'tab-shop', 'tab-market']);
+  assert.equal(f.host.querySelector('.ipg-care-room'), null); assert.equal(f.host.querySelector('.ipg-life-panel').hidden, true);
+  const position = [avatar.style.left, avatar.style.top]; viewport.focus(); f.window.emit('keydown', { key: 'ArrowUp', target: viewport }); await f.frame(); await f.frame(50); f.window.emit('keyup', { key: 'ArrowUp' });
+  assert.notDeepEqual([avatar.style.left, avatar.style.top], position); assert.deepEqual(f.saved(), before); f.ui.close();
+});
+test('a real scene pet hit opens in-village care without movement, rewards, or a second pet', async () => {
+  const f = await lifeFixture(), before = f.saved(), scene = f.townScenes.at(-1), viewport = f.host.querySelector('.ipg-town-viewport'), avatar = f.host.querySelector('.ipg-town-avatar'), position = [avatar.style.left, avatar.style.top];
+  scene.hit = { pet: true }; const event = { pointerId: 5, button: 0, isPrimary: true, clientX: 150, clientY: 150 };
+  viewport.emit('pointerdown', event); viewport.emit('pointerup', event); await f.frame(50);
+  assert.equal(f.host.querySelector('.ipg-life-panel').hidden, false); assert.deepEqual([avatar.style.left, avatar.style.top], position);
+  assert.equal(f.activeMotions().length, 1); assert.deepEqual(f.saved(), before); f.ui.close();
+});
+test('village harvest credits the same bag once, and giving it consumes one item only after durable confirmation', async () => {
+  const f = await lifeFixture(), before = f.saved(); await f.click(f.focusButton('village-life-open'));
+  await f.click(f.focusButton('village-harvest-orchard')); const harvested = f.saved();
+  assert.equal(harvested.inventory.apple, (before.inventory.apple || 0) + 1); assert.equal(harvested.pet.exp, before.pet.exp); assert.equal(harvested.coins, before.coins);
+  assert.equal(f.focusButton('village-harvest-orchard').disabled, true); const old = f.focusButton('village-gift-apple'), writes = f.writes.length;
+  f.control.pending = deferred(); await f.click(old); assert.deepEqual(f.saved(), harvested); assert.equal(f.focusButton('village-gift-apple').disabled, true);
+  f.control.pending.resolve(); f.control.pending = null; await flush();
+  const after = f.saved(), food = Core.items.find(row => row.id === 'apple');
+  assert.equal(after.inventory.apple || 0, (harvested.inventory.apple || 0) - 1); assert.equal(after.pet.exp, harvested.pet.exp + food.exp); assert.equal(f.writes.length, writes + 1);
+  assert.equal(f.activeMotions()[0].options.situation, 'feeding'); f.townScenes.at(-1).options.onFacing({ walking: false, yawDeg: 180, distance: 0 }); assert.equal(f.activeMotions()[0].locomotion.at(-1), null);
+  old.emit('click'); await flush(); assert.deepEqual(f.saved(), after); assert.equal(f.writes.length, writes + 1);
+  assert.equal(f.host.querySelector('.ipg-care-room'), null); assert.match(f.host.querySelector('.ipg-notice').textContent, /りんごを渡しました/); f.ui.close();
+});
+for (const outcome of ['false', 'throw']) test('denied ' + outcome + ' village food save keeps inventory, growth and finite reaction uncommitted', async () => {
+  const f = await lifeFixture(), before = f.saved(), mapped = f.actionCues.length; await f.click(f.focusButton('village-life-open')); f.control.outcome = outcome;
+  await f.click(f.focusButton('village-gift-rice')); assert.deepEqual(f.saved(), before); assert.equal(f.actionCues.length, mapped); assert.notEqual(f.activeMotions()[0].options.situation, 'feeding');
+  assert.ok(f.host.querySelector('.ipg-error')); f.control.outcome = 'ok'; await f.click(f.focusButton('village-gift-rice')); assert.equal(f.saved().inventory.rice, before.inventory.rice - 1); f.ui.close();
+});
+test('new visitors stay in village after choosing an egg, and their own home begins with only bed and rug', async () => {
+  const f = await lifeFixture({ fresh: true, species: undefined }); await chooseFirstEgg(f, 'lilac');
+  assert.equal(f.host.querySelector('[data-focus-key="tab-care"]'), null); assert.ok(f.host.querySelector('.ipg-town'));
+  const before = f.saved(), controller = await enterOwnHome(f);
+  assert.deepEqual(controller.options.layout.objects.map(row => row.type).sort(), ['bed', 'rug']); assert.deepEqual(f.saved(), before); assert.equal(f.activeMotions().length, 1); f.ui.close();
+});
+test('own-home door loads the exact inherited layout, forwards canonical frames and preserves camera on focus', async () => {
+  const f = await lifeFixture(), before = f.saved(), writes = f.writes.length, room = await enterOwnHome(f), source = f.activeMotions()[0];
+  assert.deepEqual(copy(room.options.layout), Core.getCozyRoomLayout(before)); assert.equal(room.frames.at(-1), source.canvas);
+  room.options.onCamera({ yaw: 1.7, pitch: .6, distance: 7 }); f.window.emit('focus'); await flush(); assert.equal(homeView(f), room);
+  room.options.onFacing({ walking: true, yawDeg: 190, distance: 2 }); assert.equal(source.locomotion.at(-1).yawDeg, 190);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); room.options.onExit(); await flush(); assert.ok(f.host.querySelector('.ipg-town')); f.ui.close();
+});
+test('saved empty own-home layout remains empty and does not receive default furniture on view', async () => {
+  const f = await lifeFixture({ setup: async s => { const layout = Core.getCozyRoomLayout(s.getState()); layout.objects = []; assert.equal((await s.dispatch({ type: 'saveCozyRoomLayout', layout, expectedRevision: s.getState().revision })).ok, true); } });
+  const before = f.saved(), room = await enterOwnHome(f); assert.deepEqual(copy(room.options.layout.objects), []); assert.deepEqual(f.saved(), before); f.ui.close();
+});
+test('growth gift and paid furnishing are separate owned routes inside the actual own-home UI', async () => {
+  const grown = await lifeFixture({ fresh: true, species: undefined, setup: s => starterSetup(s, 0, true) }); await enterOwnHome(grown);
+  const before = grown.saved(); assert.equal(grown.focusButton('home-furniture-claim-table').disabled, false); await grown.click(grown.focusButton('home-furniture-claim-table'));
+  assert.equal(grown.saved().coins, before.coins); assert.equal(grown.saved().pet.exp, before.pet.exp); assert.equal(Core.getHomeFurnishingsView(grown.store.getState()).items.find(row => row.id === 'table').owned, true); assert.equal(homeView(grown).options.layout.objects.length, 2, 'a new owned fixture waits for explicit placement'); grown.ui.close();
+  const shopper = await lifeFixture({ fresh: true, species: undefined, setup: s => starterSetup(s, 2) }); await enterOwnHome(shopper);
+  const paid = shopper.saved(), price = Core.getHomeFurnishingsView(shopper.store.getState()).items.find(row => row.id === 'chair').price;
+  assert.equal(shopper.focusButton('home-furniture-claim-chair').disabled, true); assert.equal(shopper.focusButton('home-furniture-buy-chair').disabled, false); await shopper.click(shopper.focusButton('home-furniture-buy-chair'));
+  assert.equal(shopper.saved().coins, paid.coins - price); assert.equal(shopper.saved().pet.exp, paid.pet.exp); assert.equal(Core.getHomeFurnishingsView(shopper.store.getState()).items.find(row => row.id === 'chair').owned, true); assert.equal(homeView(shopper).options.layout.objects.length, 2); shopper.ui.close();
+});
+test('home editor accepts only owned furniture and keeps its live draft until a real durable layout save', async () => {
+  const f = await lifeFixture({ fresh: true, species: undefined, setup: s => starterSetup(s) }); await enterOwnHome(f); await f.click(f.focusButton('room-edit')); const edit = homeView(f, true), before = f.saved();
+  assert.equal(edit.options.types.find(row => row.id === 'table').allowed, false); assert.equal(edit.add('table'), false);
+  edit.setSurface('floor', 'oak'); f.control.pending = deferred(); await f.click(f.focusButton('room-save'));
+  assert.equal(homeView(f, true), edit); assert.deepEqual(f.saved(), before); assert.equal(f.focusButton('room-save').disabled, true); assert.match(f.host.querySelector('.ipg-home-status').textContent, /配置を保存しています/);
+  f.control.pending.resolve(); f.control.pending = null; await flush(); assert.equal(f.saved().cozyRoomLayout.floor, 'oak'); assert.equal(f.saved().pet.exp, before.pet.exp); assert.equal(f.saved().coins, before.coins); assert.equal(edit.destroyed, true); f.ui.close();
+});
+for (const outcome of ['false', 'throw']) test('home layout ' + outcome + ' save retains the same editable draft for an explicit retry', async () => {
+  const f = await lifeFixture(); await enterOwnHome(f); await f.click(f.focusButton('room-edit')); const edit = homeView(f, true), before = f.saved(); edit.setSurface('wall', 'mint');
+  f.control.outcome = outcome; await f.click(f.focusButton('room-save')); assert.equal(homeView(f, true), edit); assert.equal(edit.getDraft().wall, 'mint'); assert.deepEqual(f.saved(), before); assert.ok(f.host.querySelector('.ipg-error'));
+  f.control.outcome = 'ok'; await f.click(f.focusButton('room-save')); assert.equal(f.saved().cozyRoomLayout.wall, 'mint'); f.ui.close();
+});
+test('home preparation deadline covers a stalled renderer promise and rejects its late completion', async () => {
+  const f = await lifeFixture(); f.homeControl.pending = deferred(); await walkToVillagePlace(f, 'home'); const late = f.homeMounts.at(-1), before = f.saved();
+  f.advance(20001); await f.fireTimers(); assert.equal(f.focusButton('home-retry').hidden, false); assert.match(f.host.querySelector('.ipg-home-status').textContent, /表示できません/);
+  f.homeControl.pending.resolve(); f.homeControl.pending = null; await flush(); assert.equal(late.destroyed, true); assert.deepEqual(f.saved(), before); f.ui.close();
+});
+test('a pending old gift may commit but cannot remount a newly opened home editor or clear its draft at midnight', async () => {
+  const f = await lifeFixture(); await f.click(f.focusButton('village-life-open')); f.control.pending = deferred(); await f.click(f.focusButton('village-gift-rice')); const pending = f.control.pending;
+  f.ui.close(); await f.ui.open(); await flush(); await enterOwnHome(f); await f.click(f.focusButton('room-edit')); const edit = homeView(f, true); edit.setSurface('wall', 'mint');
+  pending.resolve(); f.control.pending = null; await flush(); assert.equal(homeView(f, true), edit); assert.equal(edit.getDraft().wall, 'mint');
+  f.advance(86400000); for (const tick of f.intervals.values()) tick(); await flush(); assert.equal(homeView(f, true), edit); assert.equal(edit.getDraft().wall, 'mint'); f.ui.close();
+});
+test('still-connected old life controls and furniture catalogue cannot touch a newly mounted owner', async () => {
+  const f = await lifeFixture({ fresh: true, species: undefined, setup: s => starterSetup(s, 2) }); await f.click(f.focusButton('village-life-open')); const close = f.focusButton('village-life-close');
+  await f.click(close); await enterOwnHome(f); const buy = f.focusButton('home-furniture-buy-chair'), oldHost = f.host;
+  const target = f.document.createElement('div'); f.pane.appendChild(target); const map = new Map([['pg_exp', '30'], ['pg_coins', '1000'], ['pg_name', '別の子']]), storage = { getItem: k => map.get(k) || null, setItem: async (k, v) => map.set(k, v) };
+  await f.ui.mount(target, { storage, developerPreview: false, now: () => f.now, random: () => .5, homeInteriorAPI: f.homeInteriorAPI, shopInteriorAPI: f.shopInteriorAPI }); await flush();
+  assert.equal(oldHost.isConnected, true); const current = f.store.getState(), root = target.children[0]; buy.emit('click'); close.emit('click'); await flush(); assert.deepEqual(f.store.getState(), current); assert.equal(target.children[0], root); f.ui.close();
+});
+test('late rename completion cannot clear a new owner name draft or rebuild its current village', { timeout: 2000 }, async () => {
+  const f = await lifeFixture(); await f.click(f.focusButton('village-life-open')); const input = f.host.querySelector('.ipg-pet-settings input'), form = f.host.querySelector('.ipg-pet-settings form');
+  input.value = '前の子の名前'; input.emit('input'); f.control.pending = deferred(); form.emit('submit'); await flush(); const pending = f.control.pending;
+  const target = f.document.createElement('div'); f.pane.appendChild(target); const map = new Map([['pg_exp', '30'], ['pg_coins', '1000'], ['pg_name', '別の子']]), storage = { getItem: k => map.get(k) || null, setItem: async (k, v) => map.set(k, v) };
+  const presented = [], replace = target.replaceChildren.bind(target); target.replaceChildren = (...nodes) => { presented.push(nodes.map(n => n.textContent).join('')); return replace(...nodes); };
+  const opening = f.ui.mount(target, { storage, developerPreview: false, now: () => f.now, random: () => .5, homeInteriorAPI: f.homeInteriorAPI }); await flush();
+  pending.resolve(); f.control.pending = null; await opening; await flush();
+  const nextInput = target.querySelector('.ipg-pet-settings input'), root = target.children[0]; nextInput.value = '新しい下書き'; nextInput.emit('input');
+  await flush(); assert.equal(target.children[0], root); assert.equal(nextInput.value, '新しい下書き'); assert.equal(f.store.getState().pet.name, '別の子'); assert.ok(presented.every(text => !text.includes('前の子の名前'))); f.ui.close();
 });

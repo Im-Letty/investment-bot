@@ -4350,6 +4350,8 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
 <!-- Independent pet game: legacy records are migrated once; household and study remain separate. -->
 <link rel="stylesheet" href="/static/pet-game.css?v=20261024-village-economy1">
 <link rel="stylesheet" href="/static/pet-cozy-room.css?v=20261024-cozy-room1">
+<link rel="stylesheet" href="/static/pet-home-interior.css?v=20261025-life1">
+<link rel="stylesheet" href="/static/pet-village-life.css?v=20261025-life1">
 <link rel="stylesheet" href="/static/pet-village.css?v=20261024-no-minigames1">
 <link rel="stylesheet" href="/static/pet-town-walk.css?v=20261025-reveal1">
 <link rel="stylesheet" href="/static/pet-village-economy-scene.css?v=20261024-village-economy1">
@@ -4460,7 +4462,7 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
   function loadModules(){
     if(apiReady()&&styleLoads[shopEntryStyle])return Promise.resolve();
     if(moduleLoading)return moduleLoading;
-    function loadGameCore(){return loadRequired('/static/pet-game-core.js?v=20261025-shop1',function(){return !!window.PetGameCore;});}
+    function loadGameCore(){return loadRequired('/static/pet-game-core.js?v=20261025-life1',function(){return !!window.PetGameCore;});}
     function loadVillageScene(){return loadRequired('/static/pet-village-economy-scene.js?v=20261024-village-economy1',function(){return !!window.PetVillageEconomyScene&&typeof window.PetVillageEconomyScene.mount==='function';});}
     var required=Promise.all([
       window.PetVillageEconomy&&window.PetShopLayout?loadGameCore():Promise.all([
@@ -4468,11 +4470,11 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
         loadRequired('/static/pet-shop-layout.js?v=20261025-shop1',function(){return !!window.PetShopLayout;})
       ]).then(loadGameCore),
       window.PetTownWalk?loadVillageScene():loadRequired('/static/pet-town-walk.js?v=20261025-reveal1',function(){return !!window.PetTownWalk;}).then(loadVillageScene),
-      loadRequired('/static/pet-cozy-room.js?v=20261024-cozy-room1',function(){return !!window.PetCozyRoom&&typeof window.PetCozyRoom.mount==='function';}),
+      loadRequired('/static/pet-cozy-room.js?v=20261025-life1',function(){return !!window.PetCozyRoom&&typeof window.PetCozyRoom.mount==='function';}),
       loadRequired(shopEntryStyle,function(){return !!styleLoads[shopEntryStyle];},true),
       // UI registration has no eager core access. Fetch it in parallel while
       // retaining economy/layout -> core and walking engine -> scene execution order.
-      loadRequired('/static/pet-game.js?v=20261025-reveal1',uiReady)
+      loadRequired('/static/pet-game.js?v=20261025-life1',uiReady)
     ]).then(function(){if(!apiReady())throw assetFailure('invalid');});
     loadScript('/static/pet-lilac-motion.js?v=20261025-harmony1',function(){return !!window.PetLilacMotion;},5000,enhanceOptional).catch(function(){});
     loadScript('/static/pet-room-behavior.js?v=4306c88f116b',function(){return !!window.PetRoomBehavior;},5000,enhanceOptional).catch(function(){});

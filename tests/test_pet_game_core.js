@@ -709,7 +709,7 @@ test('clothing catalogue has six fixed prices and purchases never equip or grant
   const paid=await command(g,'buyItem',{itemId:'cloth_rose_cape',price:0,exp:999});
   assert.equal(paid.ok,true);assert.deepEqual(paid.reward,{});assert.equal(paid.state.coins,70);
   const after=persisted(g.storage);
-  assert.deepEqual(after,{...before,coins:70,wardrobe:{owned:{cloth_cream_vest:true,cloth_rose_cape:true},equipped:null},revision:before.revision+2});
+  assert.deepEqual(after,{...before,coins:70,wardrobe:{owned:{cloth_cream_vest:true,cloth_rose_cape:true},equipped:null},villageLife:{...before.villageLife,purchaseCount:1},revision:before.revision+2});
   assert.deepEqual(after.achievements,[],'even the free vest must not trigger the generic rich achievement');
 });
 
@@ -1124,7 +1124,7 @@ test('a pending layout write publishes no candidate and detaches caller input be
 
 test('throw false and explicit rejected writes retain both old and absent layouts and allow exact retry',async()=>{
   for(const previous of [undefined,roomLayout([]),roomLayout([roomItem('room_toy')])])for(const mode of ['throw','false','object_false']){
-    const g=await game();if(previous)assert.equal((await saveRoom(g,previous)).ok,true);
+    const g=await game({pg_exp:'0'});if(previous)assert.equal((await saveRoom(g,previous)).ok,true);
     const raw=g.storage.data.get(Core.KEY),before=persisted(g.storage),write=g.storage.setItem.bind(g.storage);
     g.storage.setItem=async()=>{if(mode==='throw')throw new Error('private key=https://hidden.invalid');return mode==='false'?false:{ok:false};};
     const layout=roomLayout([roomItem('room_window')]),r=await saveRoom(g,layout);assert.equal(r.ok,false);assert.equal(r.error.code,'storage_failed');assert.equal(g.storage.data.get(Core.KEY),raw);
@@ -1134,7 +1134,7 @@ test('throw false and explicit rejected writes retain both old and absent layout
 });
 
 test('concurrent layout saves accept once and external CAS keeps the newer wallet and room untouched',async()=>{
-  const g=await game(),revision=g.app.getState().revision,layouts=[roomLayout([roomItem('room_window')]),roomLayout([roomItem('room_bed')])];
+  const g=await game({pg_exp:'0',pg_coins:'100'}),revision=g.app.getState().revision,layouts=[roomLayout([roomItem('room_window')]),roomLayout([roomItem('room_bed')])];
   const results=await Promise.all(layouts.map(layout=>saveRoom(g,layout,revision)));assert.equal(results.filter(r=>r.ok).length,1);assert.equal(results[1].error.code,'stale_state');
   assert.deepEqual(g.app.getState().roomLayout,layouts[0]);
   const other=Core.create(g.options);assert.equal((await other.ready).ok,true);const otherRevision=other.getState().revision;
@@ -1144,7 +1144,7 @@ test('concurrent layout saves accept once and external CAS keeps the newer walle
 });
 
 test('invalid saved layouts fail closed and malformed backups preserve the current room and economy',async()=>{
-  const base=await game(),valid=persisted(base.storage),badLayouts=[null,{},roomLayout([roomItem('house')]),roomLayout([roomItem('room_bed',{x:101})]),roomLayout([roomItem('room_bed'),roomItem('room_bed')])];
+  const base=await game({pg_exp:'0'}),valid=persisted(base.storage),badLayouts=[null,{},roomLayout([roomItem('house')]),roomLayout([roomItem('room_bed',{x:101})]),roomLayout([roomItem('room_bed'),roomItem('room_bed')])];
   for(const room of badLayouts){const record={...valid,roomLayout:room},raw=JSON.stringify(record),storage=memory({[Core.KEY]:raw}),app=Core.create({storage,now:base.options.now});
     const r=await app.ready;assert.equal(r.ok,false);assert.equal(r.error.code,'corrupt_data');assert.equal(r.state.readOnly,true);assert.equal(storage.data.get(Core.KEY),raw);assert.equal(storage.writes.length,0);
     assert.equal((await app.dispatch({type:'care',kind:'feed'})).error.code,'read_only');
