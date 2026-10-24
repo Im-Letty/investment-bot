@@ -1553,7 +1553,7 @@
     var focus = host.querySelector('[data-focus-key="' + (villageEdit ? 'village-save' : 'village-edit') + '"]');
     if (focus) focus.focus({ preventScroll: true });
   }
-  function renderTown(s, body) {
+  function renderTown(s, body, messages) {
     var village = card('', 'ipg-village ipg-town'), engine = w.PetTownWalk;
     village.appendChild(node('h3', '', 'カフェとお店の村'));
     if (!engine || typeof engine.mount !== 'function') {
@@ -1565,7 +1565,7 @@
     var world = engine.createWorld(core().getVillageLayout(s));
     var viewport = node('div', 'ipg-town-viewport'); viewport.tabIndex = 0;
     viewport.dataset.focusKey = 'town-walk'; viewport.setAttribute('role', 'region');
-    viewport.setAttribute('aria-label', '街をおさんぽ。方向ボタン、矢印キー、WASDで歩きます。おうちやお店の近くで入れます。');
+    viewport.setAttribute('aria-label', '街をおさんぽ。地面や建物をタップすると、その場所へ歩きます。矢印キーやWASDでも歩けます。おうちやお店の近くで入れます。');
     var scene = node('div', 'ipg-town-world'); scene.style.width = world.width + 'px'; scene.style.height = world.height + 'px';
     var layout = { items: world.places.map(function (p) { return { id: p.id, x: p.x / world.width * 100, y: p.y / world.height * 100 }; }) };
     drawVillageRoads(scene, layout);
@@ -1602,21 +1602,17 @@
     if (request) request.townCue = { situation: 'idle', durationMs: 0, startedAt: Date.now() };
     pet.appendChild(visual); append(avatar, shadow, pet); scene.appendChild(avatar); viewport.appendChild(scene);
     village.appendChild(viewport);
-    var guide = text('方向ボタンで、おさんぽ', 'ipg-town-guide'); village.appendChild(guide);
-    var controls = node('div', 'ipg-town-controls'); controls.setAttribute('role', 'group'); controls.setAttribute('aria-label', '歩く方向');
-    var directions = [['up', '↑', '奥へ歩く', 0, -1], ['left', '←', '左へ歩く', -1, 0], ['down', '↓', '手前へ歩く', 0, 1], ['right', '→', '右へ歩く', 1, 0]];
-    var inputs = directions.map(function (row) {
-      var b = button(row[1], function () {}, true); b.dataset.direction = row[0]; b.setAttribute('aria-label', row[2]);
-      b.dataset.focusKey = 'town-' + row[0]; controls.appendChild(b); return { element: b, x: row[3], y: row[4] };
-    });
-    village.appendChild(controls);
+    var guide = text('行きたい場所をタップして、おさんぽ', 'ipg-town-guide'); village.appendChild(guide);
     var enter = button('入る', function () {}, false); enter.hidden = true; enter.className += ' ipg-town-enter'; enter.dataset.focusKey = 'town-enter';
-    village.appendChild(enter);
     var edit = button('村の配置を変える', function () {
       if (!active() || state().readOnly) return;
       villageEdit = { draft: copyVillage(core().getVillageLayout(state())), revision: state().revision, selected: 'home', error: '', saving: false };
       failure = ''; notice = ''; render();
-    }, true, s.readOnly); edit.dataset.focusKey = 'village-edit'; village.appendChild(edit);
+    }, true, s.readOnly); edit.dataset.focusKey = 'village-edit';
+    // Status and actions share one flow so wrapped messages cannot cover a button.
+    var actions = node('div', 'ipg-town-actions');
+    (messages || []).forEach(function (message) { actions.appendChild(message); });
+    append(actions, edit, enter); village.appendChild(actions);
     body.appendChild(village);
     townPending = function () {
       if (!active()) return;
@@ -1625,7 +1621,7 @@
           view: core().getVillageEconomyView(s, (options && options.now || Date.now)()), canRun: active,
           onOpenMarket: function () { if (active()) villageDestination('market'); } });
       }
-      townController = engine.mount({ viewport: viewport, worldElement: scene, avatar: avatar, controls: inputs, enterButton: enter,
+      townController = engine.mount({ viewport: viewport, worldElement: scene, avatar: avatar, enterButton: enter,
         world: world, position: townPosition, canRun: active, enterableIds: ['home', 'shop'],
         onPosition: function (point) { if (active()) townPosition = { x: point.x, y: point.y }; },
         onEnter: function (id) { if (active()) villageDestination(id); },
@@ -1645,8 +1641,8 @@
       });
     };
   }
-  function renderVillage(s, body) {
-    if (!villageEdit) return renderTown(s, body);
+  function renderVillage(s, body, messages) {
+    if (!villageEdit) return renderTown(s, body, messages);
     return renderVillageLayout(s, body);
   }
   function renderVillageLayout(s, body) {
@@ -2239,7 +2235,8 @@
     var status = node('p', 'ipg-notice' + (failure ? ' ipg-error' : ''), failure || notice || (tab === 'care' || tab === 'village' ? '' : 'おかえりなさい。今日は何をして過ごそう？'));
     status.setAttribute('role', failure ? 'alert' : 'status'); status.setAttribute('aria-live', failure ? 'assertive' : 'polite');
     root.appendChild(status);
-    if (s.error && !failure) root.appendChild(text(s.error.message || '記録の読み込みに確認が必要です。', 'ipg-error'));
+    var stateError = s.error && !failure ? text(s.error.message || '記録の読み込みに確認が必要です。', 'ipg-error') : null;
+    if (stateError) root.appendChild(stateError);
     if (choosing) {
       var welcome = node('div', 'ipg-body'); renderEggChoice(s, welcome); root.appendChild(welcome);
       host.replaceChildren(root); setBusy(busy);
@@ -2259,7 +2256,7 @@
     });
     root.appendChild(nav);
     var body = node('div', 'ipg-body');
-    if (tab === 'village') renderVillage(s, body);
+    if (tab === 'village') renderVillage(s, body, stateError ? [status, stateError] : [status]);
     else if (tab === 'care') renderCare(s, body);
     else if (tab === 'shop') renderShop(s, body);
     else renderMarket(s, body);

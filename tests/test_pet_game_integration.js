@@ -589,6 +589,7 @@ test('main game does not load a removed minigame runtime and updates only change
     assert.ok(html.includes('/static/'+asset+'?v=20261024-no-minigames1'),asset);
   }
   for(const asset of ['pet-game-core.js','pet-game.css','pet-village-economy.js','pet-village-economy-scene.js','pet-village-economy-scene.css'])assert.ok(html.includes('/static/'+asset+'?v=20261024-village-economy1'),asset);
-  assert.ok(html.includes('/static/pet-game.js?v=20261025-load1'),'changed visual refresh code uses a new cache revision');
+  assert.ok(html.includes('/static/pet-game.js?v=20261025-direct-walk1'),'direct walking UI uses a new cache revision');
+  assert.ok(html.includes('/static/pet-town-walk.css?v=20261025-direct-walk1'),'removed direction panel styles use a new cache revision');
   assert.ok(html.includes('/static/pet-cozy-room.css?v=20261024-cozy-room1'),'unchanged room asset pin is preserved');
 });

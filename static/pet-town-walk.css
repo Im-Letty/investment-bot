@@ -1,7 +1,6 @@
 /* Walking uses the existing village art and one camera-controlled world.
    The engine owns world transforms, coordinates and every depth index. */
 .ipg-village.ipg-town:not(.ipg-village-editor) {
-  --ipg-town-control-bottom: calc(90px + env(safe-area-inset-bottom, 0px));
   --ipg-town-edge-left: max(12px, env(safe-area-inset-left, 0px));
   --ipg-town-edge-right: max(12px, env(safe-area-inset-right, 0px));
   overflow: hidden;
@@ -199,70 +198,49 @@
   25%, 75% { transform: translateY(-4px); }
 }
 
-.ipg-town .ipg-town-controls {
+.ipg-town .ipg-town-actions {
   position: absolute;
-  bottom: var(--ipg-town-control-bottom);
-  left: var(--ipg-town-edge-left);
-  z-index: 5;
-  display: grid;
-  grid-template-columns: repeat(3, 44px);
-  grid-template-rows: repeat(3, 44px);
-  gap: 4px;
-  width: max-content;
-  margin: 0;
-  padding: 6px;
-  border: 1px solid #d8ddbf;
-  border-radius: 23px;
-  background: #fffcedeb;
-  color: #3e4c34;
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.ipg .ipg-town-controls button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  min-height: 44px;
-  margin: 0;
-  padding: 0;
-  border: 1px solid #d5dcc0;
-  border-radius: 13px;
-  background: #fafbef;
-  color: #4e6242;
-  font: 500 21px/1 var(--kn-a-sans, system-ui, sans-serif);
-  box-shadow: none;
-  touch-action: none;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.ipg-town-controls [data-direction="up"] { grid-column: 2; grid-row: 1; }
-.ipg-town-controls [data-direction="left"] { grid-column: 1; grid-row: 2; }
-.ipg-town-controls [data-direction="down"] { grid-column: 2; grid-row: 3; }
-.ipg-town-controls [data-direction="right"] { grid-column: 3; grid-row: 2; }
-
-.ipg .ipg-town-controls button:is(:active, [aria-pressed="true"]) {
-  background: #e5ecd4;
-  color: #344d2e;
-  border-color: #aabb91;
-}
-
-.ipg .ipg-town-controls button:focus-visible {
-  outline: 2px solid #607765;
-  outline-offset: 2px;
-}
-
-.ipg .ipg-town > .ipg-town-enter {
-  position: absolute;
+  bottom: calc(96px + env(safe-area-inset-bottom, 0px));
   right: var(--ipg-town-edge-right);
-  bottom: calc(120px + env(safe-area-inset-bottom, 0px));
   z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
   width: max-content;
-  max-width: calc(100% - 184px);
+  max-width: calc(100% - var(--ipg-town-edge-left) - var(--ipg-town-edge-right));
+  /* Leave the guide above this scrollable stack, including wrapped notices. */
+  max-height: calc(100% - 180px - 96px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  pointer-events: auto;
+}
+
+.ipg-town .ipg-town-actions > :is(.ipg-notice, .ipg-error) {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  width: max-content;
+  max-width: 100%;
+  min-height: 0;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--ipg-paper);
+  font: 400 14px/1.5 var(--kn-a-sans, system-ui, sans-serif);
+  overflow-wrap: anywhere;
+  pointer-events: none;
+}
+
+.ipg-town .ipg-town-actions > button {
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  pointer-events: auto;
+}
+
+.ipg .ipg-town-actions > .ipg-town-enter {
+  width: max-content;
+  max-width: 100%;
   min-width: 0;
   min-height: 48px;
   margin: 0;
@@ -280,12 +258,9 @@
 
 .ipg-town .ipg-town-enter[hidden] { display: none !important; }
 
-.ipg-village.ipg-town:not(.ipg-village-editor) > [data-focus-key="village-edit"] {
-  right: var(--ipg-town-edge-right);
-  bottom: calc(185px + env(safe-area-inset-bottom, 0px));
-  z-index: 5;
+.ipg-town .ipg-town-actions > [data-focus-key="village-edit"] {
   width: max-content;
-  max-width: calc(100% - 184px);
+  max-width: 100%;
   min-height: 44px;
   padding: 8px 12px;
   border: 1px solid #d1d8b8;
@@ -300,6 +275,7 @@
   position: absolute;
   top: calc(135px + env(safe-area-inset-top, 0px));
   left: 50%;
+  transform: translateX(-50%);
   z-index: 4;
   width: max-content;
   max-width: calc(100% - 32px);
@@ -346,6 +322,7 @@
 
 /* The existing compact-landscape tabs move to the first row. */
 @media (min-width: 640px) and (max-height: 480px) {
+  .ipg-town .ipg-town-actions { max-height: calc(100% - 120px - 96px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); }
   .ipg-town .ipg-town-guide { top: calc(72px + env(safe-area-inset-top, 0px)); }
   .ipg-town .ipg-town-location { top: calc(112px + env(safe-area-inset-top, 0px)); }
 }
