@@ -100,9 +100,17 @@
       else if(loading)announce('プロフィールを確認しています…',false);
       else if(status&&status.textContent==='プロフィールを確認しています…')announce('',false);
     }
+    // SDK reads can wait on a session-refresh lock before any HTTP timer exists.
+    // Bound the read itself so its caller stops; a late SDK result cannot resume save().
+    async function boundedAuthRead(read){
+      var timer=null;
+      var timeout=new Promise(function(_,reject){timer=w.setTimeout(function(){reject(new Error('auth_unavailable'));},12000);});
+      try{return await Promise.race([Promise.resolve().then(read),timeout]);}
+      finally{if(timer!==null&&typeof w.clearTimeout==='function')w.clearTimeout(timer);}
+    }
     async function capturedSession(key){
       var auth=w.sb&&w.sb.auth;if(!auth||typeof auth.getSession!=='function'||typeof w.fetch!=='function')throw new Error('auth_unavailable');
-      var result;try{result=await auth.getSession();}catch(_){throw new Error('auth_unavailable');}
+      var result;try{result=await boundedAuthRead(function(){return auth.getSession();});}catch(_){throw new Error('auth_unavailable');}
       if(!same(key))throw new Error('account_changed');var session=result&&result.data&&result.data.session;
       if(!result||result.error||!session||!member(session.user)||'member:'+session.user.id!==key||typeof session.access_token!=='string'||!session.access_token||session.access_token.length>8192||/[\u0000-\u0020\u007f-\uffff]/.test(session.access_token))throw new Error('auth_unavailable');
       return session.access_token;
@@ -177,7 +185,7 @@
     async function verifiedUser(key){
       var auth=w.sb&&w.sb.auth;
       if(!auth||typeof auth.getUser!=='function')throw new Error('auth_unavailable');
-      var result;try{result=await auth.getUser();}catch(_){throw new Error('auth_unavailable');}
+      var result;try{result=await boundedAuthRead(function(){return auth.getUser();});}catch(_){throw new Error('auth_unavailable');}
       if(!same(key))throw new Error('account_changed');
       var user=result&&result.data&&result.data.user;
       if(!result||result.error||!member(user)||'member:'+user.id!==key)throw new Error('auth_unavailable');
@@ -224,7 +232,8 @@
         var record={version:1,bio:next.bio,avatar:next.avatar};if(hasOwn.call(next,'avatar_image'))record.avatar_image=next.avatar_image;
         var extra=JSON.stringify(record);
         w.localStorage.setItem(guestKey,extra);if(w.localStorage.getItem(guestKey)!==extra)throw new Error('not_saved');
-        if(typeof w.__knPersistLocalSetting==='function'){await w.__knPersistLocalSetting('cm_nick',next.username);if(w.localStorage.getItem('cm_nick')!==next.username)throw new Error('not_saved');}
+        if(next.username===(oldName||'')){/* An icon-only edit does not rewrite the unchanged encrypted name. */}
+        else if(typeof w.__knPersistLocalSetting==='function'){await w.__knPersistLocalSetting('cm_nick',next.username);if(w.localStorage.getItem('cm_nick')!==next.username)throw new Error('not_saved');}
         else{w.localStorage.setItem('cm_nick',next.username);if(w.localStorage.getItem('cm_nick')!==next.username)throw new Error('not_saved');}
       }catch(_){
         try{if(oldExtra===null)w.localStorage.removeItem(guestKey);else if(oldExtra!==undefined)w.localStorage.setItem(guestKey,oldExtra);}catch(ignored){}

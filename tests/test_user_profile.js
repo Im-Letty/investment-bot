@@ -420,3 +420,48 @@ test('profile fallback opens a closed menu but never toggles an already-open she
   const trigger=h.document.createElement('button');trigger.id='knHomeAMenu';trigger.click=()=>{clicks++;opened=!opened;};
   h.w.KNMenuSheet={showMain(){}};h.api.mount(h.container);await h.api.ready();h.api.open();assert.equal(clicks,1);assert.equal(opened,true);h.api.open();assert.equal(clicks,1);assert.equal(opened,true);assert.equal(h.updates().length,0);
 });
+
+for(const phase of ['getUser','getSession']){
+  test('a stalled '+phase+' during photo Save releases saving, preserves the draft and ignores a late SDK result',async()=>{
+    let hold=false;const pending=deferred();
+    const h=fixture({user:account(),[phase]:async w=>hold?pending.promise:(phase==='getUser'?{data:{user:w.knUser}}:{data:{session:{user:w.knUser,access_token:'fixture-token-a'}}})});
+    const section=h.api.mount(h.container);await h.api.ready();section.open=true;await section.fire('toggle');await selectPhoto(h);
+    const form=h.nodes.find(n=>n.tagName==='FORM'),save=h.nodes.find(n=>n.type==='submit'),status=h.nodes.find(n=>n.getAttribute('role')==='status');
+    hold=true;const writing=form.fire('submit');await settle();
+    assert.equal(save.textContent,'保存しています…');assert.equal(save.disabled,true);assert.equal(section.getAttribute('aria-busy'),'true');
+    const deadline=h.timers().find(t=>t.active&&t.delay===12000);assert.ok(deadline,'SDK wait must already have a deadline before PUT');
+    deadline.fn();await writing;
+    assert.equal(save.textContent,'保存する');assert.equal(save.disabled,false);assert.equal(section.getAttribute('aria-busy'),'false');
+    assert.match(status.textContent,/アカウントを確認できませんでした/);assert.doesNotMatch(status.textContent,/保存しました/);
+    assert.equal(imageSource(h),JPEG);assert.equal(h.api.snapshot().avatar_image,undefined);assert.equal(h.updates().length,0);
+    hold=false;await form.fire('submit');assert.equal(h.updates().length,1);assert.equal(h.api.snapshot().avatar_image,PHOTO_REF);
+    pending.resolve(phase==='getUser'?{data:{user:account()}}:{data:{session:{user:account(),access_token:'fixture-token-a'}}});await settle();
+    assert.equal(h.updates().length,1,'An expired SDK read cannot resume the old write after retry');
+    assert.equal(h.api.snapshot().avatar_image,PHOTO_REF);assert.match(status.textContent,/保存しました/);
+    assert.ok(h.timers().filter(t=>t.delay===12000).every(t=>!t.active),'Completed SDK/API timers are cleared');
+  });
+}
+test('an initial SDK read deadline also clears loading and permits a fresh verified read',async()=>{
+  let stuck=true;const pending=deferred(),h=fixture({user:account(),getUser:async w=>stuck?pending.promise:{data:{user:w.knUser}}});
+  h.api.mount(h.container);const loading=h.api.ready();await settle();const timeout=h.timers().find(t=>t.active&&t.delay===12000);assert.ok(timeout);timeout.fn();
+  await assert.rejects(loading,/auth_unavailable/);assert.equal(h.api.snapshot().loading,false);
+  stuck=false;await h.api.ready();assert.equal(h.api.snapshot().loaded,true);assert.equal(h.api.snapshot().error,'');
+  pending.resolve({data:{user:account('a',profile('古い応答'))}});await settle();assert.equal(h.api.username(),'みどり');
+});
+test('an account switch after a save SDK timeout cannot adopt the late old-account result',async()=>{
+  let hold=false;const pending=deferred(),h=fixture({user:account(),getSession:async w=>hold?pending.promise:{data:{session:{user:w.knUser,access_token:'fixture-token-'+w.knUser.id}}}});
+  h.api.mount(h.container);await h.api.ready();await selectPhoto(h);hold=true;const writing=h.api.save(photoProfile('下書き',JPEG));await settle();
+  h.timers().find(t=>t.active&&t.delay===12000).fn();await assert.rejects(writing,/auth_unavailable/);
+  h.auth(account('b',profile('二人目')));hold=false;await h.flush();await h.api.ready();
+  pending.resolve({data:{session:{user:account('a'),access_token:'fixture-token-a'}}});await settle();
+  assert.equal(h.api.username(),'二人目');assert.equal(h.updates().length,0);assert.equal(h.api.snapshot().avatar_image,undefined);
+});
+test('icon-only guest saves do not wait on or rewrite the unchanged encrypted name',async()=>{
+  for(const legacy of ['', '既存の名前']){
+    let persisted=0;const h=fixture({legacy,persist:()=>{persisted++;return new Promise(()=>{});}});
+    h.api.mount(h.container);await h.api.ready();await selectPhoto(h);await h.nodes.find(n=>n.tagName==='FORM').fire('submit');
+    assert.equal(persisted,0);assert.equal(h.api.snapshot().avatar_image,JPEG);assert.equal(h.api.username(),legacy);
+    assert.equal(h.storage.get('cm_nick')??'',legacy);assert.equal(h.nodes.find(n=>n.type==='submit').textContent,'保存する');
+    assert.equal(h.updates().length,0);assert.match(h.nodes.find(n=>n.getAttribute('role')==='status').textContent,/保存しました/);
+  }
+});
