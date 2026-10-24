@@ -589,6 +589,7 @@ test('main game does not load a removed minigame runtime and updates only change
     assert.ok(html.includes('/static/'+asset+'?v=20261024-no-minigames1'),asset);
   }
   for(const asset of ['pet-game-core.js','pet-game.css','pet-village-economy.js','pet-village-economy-scene.js','pet-village-economy-scene.css'])assert.ok(html.includes('/static/'+asset+'?v=20261024-village-economy1'),asset);
-  for(const asset of ['pet-game.js','pet-town-walk.js','pet-town-walk.css','pet-lilac-motion.js'])assert.ok(html.includes('/static/'+asset+'?v=20261025-lively1'),asset);
+  assert.ok(html.includes('/static/pet-game.js?v=20261025-color1'),'changed village palette loader pin');
+  for(const asset of ['pet-town-walk.js','pet-town-walk.css','pet-lilac-motion.js'])assert.ok(html.includes('/static/'+asset+'?v=20261025-lively1'),asset);
   assert.ok(html.includes('/static/pet-cozy-room.css?v=20261024-cozy-room1'),'unchanged room asset pin is preserved');
 });
