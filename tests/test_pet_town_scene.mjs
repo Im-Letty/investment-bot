@@ -33,7 +33,7 @@ async function fixture(options={}){
   dispose(){this.disposed=true;}
   forceContextLoss(){this.lost=true;}
  }
- const world=options.world||Town.createWorld(),controller=await Scene.mount({viewport:host,world,position:options.position||{x:1100,y:1100},camera:options.camera,view:options.view,canRun:()=>allowed,three:{...THREE,WebGLRenderer:Renderer},onReady:()=>ready++,onFailure:c=>failures.push(c)});
+ const world=options.world||Town.createWorld(),controller=await Scene.mount({viewport:host,world,position:options.position||{x:1100,y:1100},camera:options.camera,view:options.view,canRun:()=>allowed,three:{...THREE,WebGLRenderer:Renderer},onReady:()=>ready++,onFailure:c=>failures.push(c),onFacing:options.onFacing});
  const source=new Element(doc,'CANVAS');source.getContext=()=>({RGBA:1,UNSIGNED_BYTE:2,readPixels(x,y,w,h,format,type,pixels){pixels[(2*w+8)*4+3]=255;}});
  return {doc,win,host,media,frames,renderers,images,observers,world,source,controller,failures,get ready(){return ready;},get now(){return stamp;},allow:v=>{allowed=v;},time:v=>{stamp=v;},frame(ms=16){stamp+=ms;const callbacks=[...frames.values()];frames.clear();callbacks.forEach(fn=>fn(stamp));},project(p){const camera=renderers[0].calls.at(-1).camera,g=Scene.groundPoint(world,p),v=new THREE.Vector3(g.x,Scene.heightAt(p),g.z).project(camera);return {clientX:(v.x+1)*195,clientY:(1-v.y)*350};}};
 }
@@ -170,4 +170,86 @@ test('a renderer failure during ambient animation restores the flat view and can
  const f=await fixture();f.controller.setFrame(f.source);f.renderers[0].fail=true;f.frame(100);
  assert.deepEqual(f.failures,['town_render_failed']);assert.equal(f.host.dataset.visualMode,'flat');assert.equal(f.host.children.length,0);assert.equal(f.frames.size,0);
  assert.equal(f.controller.setFrame(f.source),false);assert.equal(f.host.dataset.visualMode,'flat');
+});
+
+
+test('village facing packets use the rendered camera at arbitrary yaw, including a blocked requested camera', async t => {
+ const cases = [
+  {yaw:0,position:{x:1100,y:1100}}, {yaw:.731,position:{x:1100,y:1100}},
+  {yaw:-2.413,position:{x:1100,y:1100}}, {yaw:13*Math.PI/16,pitch:22*Math.PI/180,position:{x:633.6,y:511.6}}
+ ];
+ let blockedYawObserved=false;
+ for(const {yaw,pitch=.6835987756,position} of cases){
+  const packets=[],f=await fixture({position,camera:{yaw,pitch,distance:8},onFacing:p=>packets.push(p)});
+  t.after(()=>f.controller.destroy()); f.controller.setFrame(f.source); f.frame(40);
+  const actual=JSON.parse(f.host.dataset.townCamera);
+  if(Math.abs(actual.actualYaw-actual.yaw)>.01)blockedYawObserved=true;
+  for(const [x,y,expected,label] of [[0,-1,180,'away/back'],[0,1,0,'toward/front'],[-1,0,270,'left'],[1,0,90,'right']]){
+   const d=f.controller.direction(x,y);f.controller.setMotion({walking:true,dx:d.x,dy:d.y});f.frame(40);
+   const p=packets.at(-1),error=((p.yawDeg-expected+540)%360)-180;
+   assert.ok(Math.abs(error)<1e-8,label+' must use actual camera yaw, requested '+yaw);
+   assert.equal(p.walking,true);assert.ok(Number.isFinite(p.distance));
+   f.controller.setMotion({walking:false,dx:0,dy:0});f.frame(40);
+   assert.ok(Math.abs(((packets.at(-1).yawDeg-expected+540)%360)-180)<1e-8,'idle retains the heading');
+   assert.equal(packets.at(-1).walking,false);
+  }
+  f.controller.destroy();
+ }
+ assert.equal(blockedYawObserved,true,'fixture must actually exercise an adjusted yaw');
+});
+
+test('village gait distance counts accepted ground displacement and does not advance while idle or on rejected positions',async t=>{
+ const packets=[],f=await fixture({onFacing:p=>packets.push(p)});t.after(()=>f.controller.destroy());
+ f.controller.setFrame(f.source);f.controller.setMotion({walking:true,dx:1,dy:0});
+ f.controller.setPosition({x:1110,y:1100});f.frame(40);
+ assert.ok(Math.abs(packets.at(-1).distance-.1)<1e-10);
+ f.controller.setPosition({x:1110,y:1110});f.frame(40);
+ assert.ok(Math.abs(packets.at(-1).distance-.2)<1e-10);
+ f.controller.setMotion({walking:false,dx:0,dy:0});f.controller.setPosition({x:1110,y:1110});
+ for(const p of [null,{x:NaN,y:1100},{x:Infinity,y:1100},{x:2700,y:1600}])f.controller.setPosition(p);
+ f.frame(400);const idle=packets.at(-1);assert.ok(Math.abs(idle.distance-.2)<1e-10);assert.equal(idle.walking,false);
+ f.frame(400);assert.equal(packets.at(-1).distance,idle.distance);
+});
+
+test('zero and malformed village vectors cannot replace the last finite heading',async t=>{
+ const packets=[],f=await fixture({onFacing:p=>packets.push(p)});t.after(()=>f.controller.destroy());f.controller.setFrame(f.source);
+ const right=f.controller.direction(1,0);f.controller.setMotion({walking:true,dx:right.x,dy:right.y});f.frame(40);const held=packets.at(-1).yawDeg;
+ for(const motion of [{walking:true,dx:0,dy:0},{walking:true,dx:NaN,dy:1},{walking:true,dx:Infinity,dy:Infinity},{walking:true,dx:1,dy:-Infinity},null,undefined]){
+  assert.doesNotThrow(()=>f.controller.setMotion(motion));f.frame(40);
+  assert.ok(Number.isFinite(packets.at(-1).yawDeg));assert.equal(packets.at(-1).yawDeg,held);
+ }
+});
+
+test('facing callbacks obey reduced motion and cannot continue from hidden or destroyed world frames',async t=>{
+ const packets=[],f=await fixture({reduced:true,onFacing:p=>packets.push(p)});t.after(()=>f.controller.destroy());
+ f.controller.setFrame(f.source);assert.equal(f.frames.size,0);
+ f.controller.setMotion({walking:true,dx:0,dy:-1});assert.equal(f.frames.size,1);f.frame(40);
+ assert.equal(packets.at(-1).yawDeg,((Math.PI-JSON.parse(f.host.dataset.townCamera).actualYaw)*180/Math.PI+360)%360);
+ assert.equal(f.frames.size,0,'one explicit reduced-motion facing update has no ambient loop');
+ const count=packets.length;f.doc.hidden=true;f.doc.emit('visibilitychange');f.controller.setMotion({walking:true,dx:1,dy:0});f.frame(100);assert.equal(packets.length,count);
+ f.doc.hidden=false;f.doc.emit('visibilitychange');const late=[...f.frames.values()];f.controller.destroy();
+ late.forEach(fn=>fn(1000));f.controller.setMotion({walking:true,dx:1,dy:0});f.controller.setPosition({x:1120,y:1100});f.controller.setFrame(f.source);f.frame(100);
+ assert.equal(packets.length,count);assert.equal(f.frames.size,0);assert.equal(f.host.children.length,0);
+});
+
+
+test('a reduced-motion facing paint at t64 replaces the t50 source in that same world draw without another RAF',async t=>{
+ let f;const facingPackets=[],facingUploads=[];
+ f=await fixture({reduced:true,onFacing:frame=>{
+  facingPackets.push(frame);
+  facingUploads.push(f.controller.setFrame(f.source));
+ }});
+ t.after(()=>f.controller.destroy());
+ f.controller.setFrame(f.source);const renderer=f.renderers[0],initialDraws=renderer.calls.length;
+ assert.equal(f.frames.size,0);assert.equal(facingPackets.length,0);
+ f.time(50);const away=f.controller.direction(0,-1);f.controller.setMotion({walking:true,dx:away.x,dy:away.y});f.controller.setFrame(f.source);
+ const t50Version=renderer.uploads.at(-1).version,uploads=renderer.uploads.length;
+ assert.equal(renderer.calls.length,initialDraws,'the ordinary source paint at t50 still shares the world cadence');assert.equal(f.frames.size,1);
+ f.frame(14);
+ assert.equal(f.now,64);assert.equal(facingPackets.length,1);assert.equal(facingPackets[0].walking,true);assert.ok(Math.abs(facingPackets[0].yawDeg-180)<1e-8);assert.deepEqual(facingUploads,[true]);
+ assert.equal(renderer.uploads.length,uploads+1,'a source painted 14ms after the preceding upload must not be discarded in reduced motion');
+ assert.ok(renderer.uploads.at(-1).version>t50Version);
+ assert.equal(renderer.calls.at(-1).sourceVersion,renderer.uploads.at(-1).version,'this world draw sees the new facing rather than the t50 texture');
+ assert.equal(renderer.calls.length,initialDraws+1);assert.equal(f.frames.size,0,'a synchronous facing upload must not schedule a redundant or continuous world loop');
+ f.frame(1000);assert.equal(renderer.calls.length,initialDraws+1);assert.equal(facingPackets.length,1);assert.equal(f.frames.size,0);
 });

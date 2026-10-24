@@ -1566,7 +1566,7 @@
     if (townSceneLoading) return townSceneLoading;
     if (!d.head) return Promise.resolve(null);
     townSceneLoading = new Promise(function (resolve) {
-      var script = d.createElement('script'); script.src = '/static/pet-town-scene.js?v=20261025-color1'; script.async = true;
+      var script = d.createElement('script'); script.src = '/static/pet-town-scene.js?v=20261025-harmony1'; script.async = true;
       script.onload = function () { resolve(w.PetTownScene && typeof w.PetTownScene.mount === 'function' ? w.PetTownScene : null); };
       script.onerror = function () { townSceneLoading = null; script.remove(); resolve(null); };
       d.head.appendChild(script);
@@ -1654,6 +1654,7 @@
         visualAttempted = true;
         return api.mount({ viewport: viewport, world: world, position: townController.position(), camera: townCamera,
           view: townPresentation(s), canRun: active,
+          onFacing: function (frame) { if (active() && request && request.controller && typeof request.controller.setLocomotion === 'function') request.controller.setLocomotion(frame); },
           onCamera: function (camera) { if (active()) townCamera = { yaw: camera.yaw, pitch: camera.pitch, distance: camera.distance }; },
           onReady: function () { if (active()) { guide.textContent = '地面をタップで歩く・ドラッグで見渡す'; viewport.setAttribute('aria-label', '街をおさんぽ。地面や建物をタップして歩き、ドラッグで見渡せます。矢印キーやWASDでも歩けます。'); } },
           onFailure: function () {

@@ -1326,6 +1326,18 @@
   // premultiplied additive blending. Drawing and touch picking must own the
   // same single, fully opaque view throughout every turn.
   function directionSourceIndex(frame) { return frame.blend < .5 ? frame.currentIndex : frame.nextIndex; }
+  // Village travel owns a persistent facing, separate from timed room cues.
+  // These are the saved directional drawings, not a claim of volumetric 360.
+  function locomotionFrame(value, seconds, reduced) {
+    if (!value || !Number.isFinite(value.yawDeg)) return null;
+    var yaw = ((value.yawDeg % 360) + 360) % 360, index = Math.floor(yaw / 22.5), fraction = yaw / 22.5 - index;
+    var blend = smooth((fraction - .46) / .08), selected = blend < .5 ? index : (index + 1) % 16;
+    var walking = !!value.walking, phase = Number.isFinite(value.distance) ? value.distance / .42 * TAU : Math.max(0, finite(seconds, 0)) * TAU * 1.8;
+    return { id: 'village_locomotion', yawDeg: yaw, currentIndex: index, nextIndex: (index + 1) % 16,
+      blend: blend, front: selected === 0, done: false,
+      roomWalk: { x: 0, walking: walking, speed: walking ? 1 : 0, phase: walking ? 'walking' : 'idle',
+        yawDeg: yaw, footPhase: reduced ? 0 : phase, travel: walking ? 1 : 0 } };
+  }
   // Materials and landmarks belong to each real view, never to a flattened
   // frontal face. View zero deliberately uses the unchanged original B image.
   var directionViews=Object.freeze([[0.55,0.92,0.03,0.6,0.675,[0.525,0.79,0.258,0.125],[0.4665,0.429,0.7281,0.3405],[0.16,0.145,0.137,0.14],[0.527,0.743,0.718,0.729],[0.155,0.728,0.115,0.19],[0.625,0.48,0.105,0.095],[0.03,0.025,0.945,0.93]],[0.5177411,0.953748,0.0733652,0.57,0.68,[0.54,0.8,0.26,0.135],[0.5128357,0.4497756,0.7367077,0.3978536],[0.13622,0.12,0.107512,0.12],[0.48,0.73,0.71,0.71],[0.22,0.76,0.14,0.17],[0.68,0.51,0.09,0.08],[0.0685805,0.0733652,0.9106858,0.9569378]],[0.5363906,0.953748,0.0701754,0.61,0.68,[0.57,0.8,0.26,0.135],[0.6164672,0.4537189,0.8091025,0.4049876],[0.130478,0.121124,0.087416,0.12],[0.57,0.73,0.77,0.7],[0.22,0.75,0.15,0.19],[0.79,0.51,0.09,0.08],[0.0988836,0.0701754,0.9314195,0.9569378]],[0.5623347,0.9569378,0.076555,0.67,0.69,[0.61,0.8,0.25,0.135],[0.7314195,0.4664469,0.8675954,0.4251034],[0.110383,0.121124,0.075,0.12],[0.7,0.73,0.86,0.7],[0.25,0.75,0.18,0.18],[0.92,0.52,0.07,0.08],[0.1004785,0.076555,0.9425837,0.9569378]],[0.5470762,0.9489633,0.0558214,0.65,0.69,[0.58,0.8,0.26,0.135],[0.7812299,0.4414894,-2,-2],[0.075933,0.12,0.1,0.13],[0.68,0.75,-2,-2],[0.23,0.72,0.16,0.19],[0.88,0.53,0.08,0.08],[0.0861244,0.0558214,0.8867624,0.9489633]],[0.5251596,0.9457735,0.0366826,0.58,0.69,[0.6,0.8,0.26,0.135],[-2,-2,-2,-2],[0.1,0.13,0.1,0.13],[0.82,0.77,-2,-2],[0.28,0.72,0.18,0.19],[-2,-2,0.08,0.08],[0.122807,0.0366826,0.8979266,0.9457735]],[0.5329364,0.9457735,0.046252,0.57,0.69,[0.58,0.81,0.26,0.135],[-2,-2,-2,-2],[0.1,0.13,0.1,0.13],[0.87,0.78,-2,-2],[0.29,0.72,0.18,0.19],[-2,-2,0.08,0.08],[0.1339713,0.046252,0.9601276,0.9457735]],[0.5351673,0.9425837,0.062201,0.56,0.69,[0.56,0.81,0.27,0.135],[-2,-2,-2,-2],[0.1,0.13,0.1,0.13],[-2,-2,-2,-2],[0.425,0.74,0.15,0.19],[-2,-2,0.08,0.08],[0.1164274,0.062201,0.9457735,0.9457735]],[0.5153392,0.9441786,0.0510367,0.51,0.69,[0.51,0.82,0.27,0.135],[-2,-2,-2,-2],[0.1,0.13,0.1,0.13],[-2,-2,-2,-2],[0.55,0.77,0.135,0.2],[-2,-2,0.08,0.08],[0.0637959,0.0510367,0.969697,0.9441786]],[0.5127876,0.9505582,0.0669856,0.46,0.69,[0.46,0.81,0.27,0.135],[-2,-2,-2,-2],[0.1,0.13,0.1,0.13],[0.15,0.77,-2,-2],[0.69,0.77,0.16,0.2],[-2,-2,0.08,0.08],[0.1068581,0.0669856,0.8724083,0.9505582]],[0.499275,0.9505582,0.0574163,0.45,0.69,[0.45,0.81,0.26,0.135],[-2,-2,-2,-2],[0.1,0.13,0.1,0.13],[0.16,0.77,-2,-2],[0.76,0.75,0.18,0.2],[-2,-2,0.08,0.08],[0.1371611,0.0574163,0.9314195,0.9505582]],[0.4968049,0.953748,0.0669856,0.41,0.69,[0.42,0.81,0.26,0.135],[0.1888764,0.4297058,-2,-2],[0.075,0.12,0.1,0.13],[0.19,0.76,-2,-2],[0.78,0.75,0.17,0.2],[0.1,0.54,0.07,0.08],[0.1323764,0.0669856,0.9266348,0.953748]],[0.4638351,0.9362041,0.0398724,0.41,0.69,[0.44,0.81,0.26,0.135],[0.2525561,0.3982873,-2,-2],[0.081675,0.12,0.1,0.13],[0.32,0.76,-2,-2],[0.84,0.72,0.12,0.18],[0.12,0.53,0.08,0.08],[0.1403509,0.0398724,0.9282297,0.9362041]],[0.4761936,0.9393939,0.0334928,0.44,0.69,[0.45,0.81,0.26,0.135],[0.2255743,0.376582,0.4075728,0.4150417],[0.084545,0.123995,0.127608,0.123995],[0.29,0.76,0.48,0.73],[0.82,0.73,0.12,0.17],[0.28,0.54,0.09,0.08],[0.1132376,0.0334928,0.9138756,0.9393939]],[0.4846426,0.9362041,0.0334928,0.5,0.69,[0.5,0.81,0.27,0.135],[0.2512477,0.394183,0.4801505,0.4271089],[0.116124,0.123995,0.139091,0.132608],[0.38,0.76,0.61,0.75],[0.81,0.74,0.1,0.15],[0.47,0.54,0.1,0.08],[0.1052632,0.0334928,0.9441786,0.9393939]],[0.5246005,0.9362041,0.0366826,0.52,0.69,[0.52,0.81,0.27,0.135],[0.4078037,0.4390801,0.6547938,0.3940143],[0.139091,0.123995,0.130478,0.132608],[0.39,0.76,0.66,0.75],[-2,-2,0.1,0.1],[0.49,0.53,0.1,0.08],[0.0398724,0.0366826,0.923445,0.9362041]]].map(function(row,index){
@@ -2498,7 +2510,7 @@
     doc = doc || win && win.document;
     var gl, dead = false, loaded = false, readyNotified = false, pageVisible = true, frame = null, timer = null, cueTimer=null, cueTimerVersion=0,observer = null;
     var media = null, removers = [], images = [], resources = [], locations = {};
-    var phaseMs = 0, cue = 'idle', cueMs = 0, cueAnchor = 0, cueDuration = 0, cueInitialYaw = 0, last = null;
+    var phaseMs = 0, cue = 'idle', cueMs = 0, cueAnchor = 0, cueDuration = 0, cueInitialYaw = 0, last = null, locomotion = null;
     var scale = clamp(finite(options.scale, 1), .35, 1.15), stageProfile = growthProfile(options.growthStage), branchProfile = evolutionProfile(options.evolutionPath), selectedOutfit = outfitProfile(options.outfit);
     var appearance=appearanceProfile(options.appearanceKey),family=appearance.family,assetFiles=appearanceAssets(options.appearanceKey),eggOrigin=eggOriginProfile(options.eggOrigin).key;
     var materialProfile=eggVisualProfile(branchProfile.key,eggOrigin),originProfile=eggOriginProfile(eggOrigin);
@@ -2619,7 +2631,17 @@
       }
       return null;
     }
-    var controller = { setSituation: setSituation, destroy: destroy, hitTest:hitTest, refreshFrame: function () { if (!dead && loaded) paint(); } };
+    var controller = { setSituation: setSituation, destroy: destroy, hitTest:hitTest,
+      setLocomotion: function (value) {
+        if (dead || family === 'egg') return false;
+        if (value && !Number.isFinite(value.yawDeg)) return false;
+        var next = value ? { yawDeg: value.yawDeg, walking: !!value.walking, distance: Number.isFinite(value.distance) ? value.distance : 0 } : null;
+        if (JSON.stringify(next) === JSON.stringify(locomotion)) return true;
+        locomotion = next;
+        if (loaded && media && media.matches) paint();
+        schedule(); return true;
+      },
+      refreshFrame: function () { if (!dead && loaded) paint(); } };
     if (!canvas || !win || !doc || typeof win.Image !== 'function' || !win.requestAnimationFrame || !win.cancelAnimationFrame) { fail('environment_unavailable'); return controller; }
     if (mounted) mounted.set(canvas, controller);
     var assetRoot = options.assetRoot == null ? '/static/' : options.assetRoot;
@@ -2718,12 +2740,18 @@
         var endedDirection=cue!=='idle'&&age>=cueDuration?directionFrame(cue,0).id:null;
         if (cue !== 'idle' && age >= cueDuration) { cue = 'idle'; cueMs = 0; cueDuration = 0; }
         var elapsed = cueDuration ? age / cueDuration * durations[cue] / 1000 : 0;
-        var p = reduced ? pose(0, 'idle', 0, stageProfile.key, branchProfile.key) : pose(phaseMs / 1000, cue, elapsed, stageProfile.key, branchProfile.key);
+        var turn=locomotionFrame(locomotion,phaseMs/1000,reduced)||directionFrame(cue,elapsed*1000,reduced,cueInitialYaw);
+        var p = reduced ? pose(0, 'idle', 0, stageProfile.key, branchProfile.key) : pose(phaseMs / 1000, locomotion && locomotion.walking ? 'moving' : cue, elapsed, stageProfile.key, branchProfile.key);
+        if (locomotion && !reduced) {
+          p.situation = 'moving'; p.presence = 1;
+          p.step = locomotion.walking ? Math.sin(turn.roomWalk.footPhase) : 0;
+          p.bounce = .25 * Math.abs(p.step); p.bodyAngle = .035 * p.step;
+          p.shiftX = 0; p.wave = locomotion.walking ? .25 : 0;
+        }
         if (reduced) { p.tail = 0; }
         var rig=family==='egg'?null:rigFrame(p,reduced?0:phaseMs/1000,elapsed,stageProfile.key,branchProfile.key,scale,appearance.key,eggOrigin);
         gl.viewport(0, 0, canvas.width, canvas.height);
         gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
-        var turn=directionFrame(cue,elapsed*1000,reduced,cueInitialYaw);
         if(family==='egg')paintEgg(p,elapsed,reduced);
         else if(turn.id&&!turn.front&&!turn.done)paintTurn(turn,rig);
         else {
@@ -2883,7 +2911,7 @@
   }
   return Object.freeze({ mount: mount, pose: pose, rigPose: rigPose, rigPoint: rigPoint, rigParts: rigParts, torsoMaterialPoint: torsoMaterialPoint, eggOrigins:eggOrigins,eggOriginProfile:eggOriginProfile,eggVisualProfile:eggVisualProfile,eggOriginColor:eggOriginColor,evolutionCatalogue: evolutionCatalogue, evolutionProfile: evolutionProfile, evolutionFurColor: evolutionFurColor, growthProfile: growthProfile, growthPoint: growthPoint, appearanceCatalogue:appearanceCatalogue,appearanceProfile:appearanceProfile,feedingAnchor: feedingAnchor, feedingPhase: feedingPhase, outfitCatalogue: outfitCatalogue, outfitProfile: outfitProfile, outfitCoverage: outfitCoverage, situationForAction: situationForAction,
     appearanceAssets:appearanceAssets,appearancePoint:appearancePoint,toothFaceBinding:toothFaceBinding,toothMouthRegion:toothMouthRegion,toothMouthCoverage:toothMouthCoverage,handVolumeFrame:handVolumeFrame,handVolumeMesh:handVolumeMesh,handVolumeProfiles:handVolumeProfiles,nurseryLandmarks:nurseryLandmarks,nurseryFootLandmarks:nurseryFootLandmarks,nurseryRigParts:nurseryRigParts,nurseryFaceMaps:nurseryFaceMaps,nurseryFaceUV:nurseryFaceUV,nurseryDirectionViews:nurseryDirectionViews,nurseryClothingCoverage:nurseryClothingCoverage,nurserySmileCoverage:nurserySmileCoverage,nurserySmilePhase:nurserySmilePhase,eyePaintRegions:eyePaintRegions,eyePaintCoverage:eyePaintCoverage,faceMaterialThresholds:faceMaterialThresholds,faceMaterialPhase:faceMaterialPhase,faceDonorOpacity:faceDonorOpacity,
-    catalogue: catalogue, bodyCatalogue: bodyCatalogue, armFlapCoverage: armFlapCoverage, directionCatalogue: directionCatalogue, directionFrame: directionFrame,shortestYawDelta:shortestYawDelta,roomWalkFrame:roomWalkFrame,roomWalkPoint:roomWalkPoint,
+    catalogue: catalogue, bodyCatalogue: bodyCatalogue, armFlapCoverage: armFlapCoverage, directionCatalogue: directionCatalogue, directionFrame: directionFrame,locomotionFrame:locomotionFrame,shortestYawDelta:shortestYawDelta,roomWalkFrame:roomWalkFrame,roomWalkPoint:roomWalkPoint,
     directionViews:directionViews,directionPoint:directionPoint,directionCellUV:directionCellUV,directionClothingCoverage:directionClothingCoverage,directionFurColor:directionFurColor,directionProjection:directionProjection,
     durations: durations, situations: Object.freeze(catalogue.map(function(row){return row.id;})), sourceType: '2d_image_motion' });
 });

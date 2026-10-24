@@ -2444,3 +2444,71 @@ test('optional direction origins do not modify reduced previews, eggs, view pixe
   assert.equal(f.drawCalls.slice(-9).filter(d=>d.volume).length,2,'existing independent volume hands return with the ordinary front rig');
   f.api.destroy();assert.equal(f.created.length,f.deleted.length);
 });
+
+
+test('village locomotion keeps a persistent normalized heading and uses distance rather than RAF time for gait',()=>{
+ for(const [yaw,expected] of [[0,0],[180,180],[270,270],[-90,270],[450,90]]){
+  const value={yawDeg:yaw,walking:true,distance:.105},before=JSON.stringify(value);
+  const a=Motion.locomotionFrame(value,0,false),b=Motion.locomotionFrame(value,999,false);
+  assert.equal(a.yawDeg,expected);assert.deepEqual(a,b,'holding distance cannot skate at later RAF time');
+  assert.ok(Math.abs(a.roomWalk.footPhase-Math.PI/2)<1e-10);assert.equal(a.roomWalk.walking,true);assert.equal(JSON.stringify(value),before);
+  const reduced=Motion.locomotionFrame(value,500,true);assert.equal(reduced.roomWalk.footPhase,0);
+  const stopped=Motion.locomotionFrame({...value,walking:false},500,false);
+  assert.equal(stopped.yawDeg,expected);assert.equal(stopped.roomWalk.walking,false);assert.equal(stopped.roomWalk.speed,0);
+ }
+ for(const value of [null,undefined,{}, {yawDeg:NaN},{yawDeg:Infinity},{yawDeg:'90'}])assert.equal(Motion.locomotionFrame(value,0,false),null);
+ for(const distance of [undefined,NaN,Infinity,-Infinity])assert.ok(Number.isFinite(Motion.locomotionFrame({yawDeg:90,walking:true,distance},2,false).roomWalk.footPhase));
+});
+
+test('village back and side movement draw one opaque saved direction, never two ghosted silhouettes',t=>{
+ for(const key of [null,'adult']) {
+  const packets=[],f=fixture({options:{appearanceKey:key,onPose:p=>packets.push(p)}});t.after(()=>f.api.destroy());f.complete();
+  const textures=f.created.filter(r=>r.type==='Texture'),family=Motion.appearanceProfile(key).family;
+  for(const yaw of [11.26,22.5,90,179.9,180,270,348.7]){
+   assert.equal(f.api.setLocomotion({yawDeg:yaw,walking:true,distance:.105}),true);f.api.refreshFrame();
+   const draws=f.drawCalls.filter(d=>d.frame===f.clears);
+   assert.equal(draws.length,1,'one saved drawing owns yaw '+yaw);assert.equal(draws[0].uniforms.u_motionA[0],1);
+   assert.equal(draws[0].volume,false);assert.strictEqual(draws[0].texture5,textures[family==='baby'?5:13]);
+   assert.ok(Math.abs(packets.at(-1).yawDeg-yaw)<1e-9);assert.equal(packets.at(-1).walking,true);
+   assert.ok(Array.from(f.liveVertices).every(Number.isFinite));
+  }
+  f.api.setLocomotion({yawDeg:180,walking:false,distance:.105});f.api.refreshFrame();
+  assert.equal(f.drawCalls.at(-1).part,18,'stopping does not face front after a timed cue');
+  const uploads=f.uploads.length;for(let i=0;i<20;i++)f.advance(100);
+  assert.equal(f.drawCalls.at(-1).part,18);assert.equal(f.uploads.length,uploads,'persistent movement reuses the already loaded original assets');
+  f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+ }
+});
+
+test('village directional foot vertices move only when distance changes and settle on idle',t=>{
+ for(const key of [null,'adult'])for(const yaw of [0,90,180,270]){
+  const f=fixture({options:{appearanceKey:key}});t.after(()=>f.api.destroy());f.complete();
+  function sample(walking,distance){f.api.setLocomotion({yawDeg:yaw,walking,distance});f.api.refreshFrame();return Array.from(f.liveVertices);}
+  const a=sample(true,0),b=sample(true,.105),same=sample(true,.105);
+  assert.notDeepEqual(a,b,String(key)+' yaw '+yaw+': real foot vertices must change with travelled distance');
+  assert.deepEqual(b,same,'repainting the same movement position cannot advance gait');
+  const idle=sample(false,.105);assert.deepEqual(idle,sample(false,.315),'idle never continues the distance gait');
+  f.api.destroy();
+ }
+});
+
+test('village locomotion cannot draw late after hidden, detached, pagehide, destroy or egg lifecycle',t=>{
+ for(const kind of ['hidden','detached','pagehide','destroy']){
+  const packets=[],f=fixture({options:{onPose:p=>packets.push(p)}});t.after(()=>f.api.destroy());f.complete();
+  f.api.setLocomotion({yawDeg:180,walking:true,distance:.105});f.api.refreshFrame();const count=f.draws,poses=packets.length;
+  if(kind==='hidden')f.hide(true);else if(kind==='detached')f.canvas.isConnected=false;else if(kind==='pagehide')f.win.emit('pagehide');else f.api.destroy();
+  f.api.setLocomotion({yawDeg:90,walking:true,distance:.2});f.api.refreshFrame();f.advance(1000);
+  assert.equal(f.draws,count,kind);assert.equal(packets.length,poses,kind);
+  f.api.destroy();assert.equal(f.created.length,f.deleted.length);assert.equal(f.raf.size,0);
+ }
+ for(const key of ['egg','hatching']){
+  const f=fixture({options:{appearanceKey:key}});t.after(()=>f.api.destroy());f.complete();const count=f.draws;
+  assert.equal(f.api.setLocomotion({yawDeg:180,walking:true,distance:.1}),false);
+  assert.equal(f.draws,count);assert.equal(f.drawCalls.at(-1).part,0);f.api.destroy();
+ }
+ const f=fixture({reduced:true,options:{appearanceKey:'adult'}});t.after(()=>f.api.destroy());f.complete();
+ f.api.setLocomotion({yawDeg:180,walking:true,distance:0});const neutral=Array.from(f.liveVertices);
+ f.api.setLocomotion({yawDeg:180,walking:true,distance:100});assert.deepEqual(Array.from(f.liveVertices),neutral);
+ assert.equal(f.raf.size,0);f.api.setLocomotion({yawDeg:Infinity,walking:true,distance:NaN});
+ assert.ok(Array.from(f.liveVertices).every(Number.isFinite));assert.equal(f.raf.size,0);f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+});

@@ -19,6 +19,11 @@
       distance: clamp(finite(value.distance) ? value.distance : 8, 5, 10) };
   }
   function cameraDirection(x, y, yaw) { return { x: Math.cos(yaw) * x + Math.sin(yaw) * y, y: -Math.sin(yaw) * x + Math.cos(yaw) * y }; }
+  function facingFrame(heading, cameraYaw, walking, distance) {
+    heading = finite(heading) ? heading : 0; cameraYaw = finite(cameraYaw) ? cameraYaw : 0;
+    var yaw = ((heading - cameraYaw) * 180 / Math.PI % 360 + 360) % 360;
+    return { yawDeg: yaw, walking: !!walking, distance: finite(distance) ? distance : 0 };
+  }
   function cameraDistance(distance, hit) { return finite(hit) ? Math.min(distance, Math.max(.001, hit - .12)) : distance; }
   function safeCamera(THREE, targets, center, requested) {
     var state = cameraState(requested), ray = new THREE.Raycaster(), direction = new THREE.Vector3(), minimum = Math.min(5.5, state.distance);
@@ -64,17 +69,17 @@
     if (!doc || !doc.createElement) return null;
     var canvas = doc.createElement('canvas'); canvas.width = canvas.height = 512;
     var ctx = canvas.getContext && canvas.getContext('2d'); if (!ctx) return null;
-    ctx.fillStyle = '#afc172'; ctx.fillRect(0, 0, 512, 512);
+    ctx.fillStyle = '#b1cf83'; ctx.fillRect(0, 0, 512, 512);
     function unit(i) { var n = Math.sin(i * 17.13 + 3.1) * 43758.5453; return n - Math.floor(n); }
     function wrapped(x, y, draw) { for (var dx = -512; dx <= 512; dx += 512) for (var dy = -512; dy <= 512; dy += 512) draw(x + dx, y + dy); }
     // Broad, softly blended moss and warm dappled light, rather than uniform grain.
     for (var i = 0; i < 95; i++) {
       var x = unit(i) * 512, y = unit(i + 4000) * 512, radius = 24 + unit(i + 9) * 76;
       wrapped(x, y, function (cx, cy) { var gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-        gradient.addColorStop(0, i % 3 ? 'rgba(223,221,142,.24)' : 'rgba(94,132,62,.22)'); gradient.addColorStop(1, 'rgba(176,194,121,0)');
+        gradient.addColorStop(0, i % 3 ? 'rgba(222,231,161,.22)' : 'rgba(91,143,72,.20)'); gradient.addColorStop(1, 'rgba(177,207,131,0)');
         ctx.fillStyle = gradient; ctx.fillRect(cx - radius, cy - radius, radius * 2, radius * 2); });
     }
-    for (var c = 0; c < 500; c++) { var cx = unit(c + 8000) * 512, cy = unit(c + 10000) * 512; ctx.fillStyle = c % 4 ? 'rgba(145,169,85,.19)' : 'rgba(221,222,151,.25)'; wrapped(cx, cy, function (wx, wy) { for (var leaf = 0; leaf < 3; leaf++) { ctx.beginPath(); ctx.ellipse(wx + Math.sin(leaf * TAU / 3) * 2.7, wy + Math.cos(leaf * TAU / 3) * 2.7, 2.8, 1.7, leaf, 0, TAU); ctx.fill(); } }); }
+    for (var c = 0; c < 500; c++) { var cx = unit(c + 8000) * 512, cy = unit(c + 10000) * 512; ctx.fillStyle = c % 4 ? 'rgba(129,171,89,.23)' : 'rgba(224,234,173,.27)'; wrapped(cx, cy, function (wx, wy) { for (var leaf = 0; leaf < 3; leaf++) { ctx.beginPath(); ctx.ellipse(wx + Math.sin(leaf * TAU / 3) * 2.7, wy + Math.cos(leaf * TAU / 3) * 2.7, 2.8, 1.7, leaf, 0, TAU); ctx.fill(); } }); }
     var texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.anisotropy = 4; return texture;
   }
   function buildWorld(THREE, world, view, avoid, doc) {
@@ -87,9 +92,27 @@
     for (var vi = 0; vi < vertices.count; vi++) { vector.fromBufferAttribute(vertices, vi); inside.set(clamp(vector.x, -.43, .43), clamp(vector.y, -.43, .43), clamp(vector.z, -.43, .43)); vector.sub(inside).normalize().multiplyScalar(.07).add(inside); vertices.setXYZ(vi, vector.x, vector.y, vector.z); }
     boxGeometry.computeVertexNormals();
     geometries.add(boxGeometry); geometries.add(sphereGeometry); geometries.add(leafGeometry); geometries.add(cylinderGeometry);
-    function mat(color, transparent) {
-      var key = color + ':' + !!transparent;
-      if (!cache[key]) { cache[key] = new THREE.MeshStandardMaterial({ color: color, roughness: .66, transparent: !!transparent, opacity: transparent ? .72 : 1 }); materials.add(cache[key]); }
+    // Match the saved cream/peach/mint artwork with distinct, softly lit surfaces.
+    // Grass and plaster stay matte; glazed roof tiles keep a small clear highlight.
+    var finishes = {
+      grass: { roughness: .96, metalness: 0 }, foliage: { roughness: .88, metalness: 0 },
+      plaster: { roughness: .82, metalness: 0 }, wood: { roughness: .68, metalness: 0 },
+      ceramic: { roughness: .46, metalness: 0 }, stone: { roughness: .8, metalness: 0 },
+      water: { roughness: .26, metalness: 0 }, metal: { roughness: .45, metalness: .18 }
+    };
+    var roleColors = {
+      foliage: ['#80ab6b','#9bc67e','#bbd998','#78aa65','#82ad6b','#a0c783','#b9d79a','#8eb875','#c2dda8','#82aa68','#a0c583','#a2c786','#a3bd7e','#b0ceac','#c4dbb9','#bad4b1'],
+      plaster: ['#f6e8d6','#f2ead9','#f7ecda','#f5e7cf','#fcf0dd','#f6e7cf','#f5e9d5'],
+      wood: ['#af936d','#bda278','#aa895f','#d5b68a','#b28e63','#ddc7a4','#b99c73','#ded0b1','#cda97d','#dfcbb0','#d8bb93','#b58a69','#e3ceae','#ccab80','#d2af91','#e3ceb1','#ccb18c','#d9b58b','#bd9c73','#cdae85','#dfbf95','#b38e65','#cda47a','#dcc29c','#d1b68f'],
+      ceramic: ['#d4a5b3','#e1bbc5','#a6c4b0','#bfd7c7','#d6a18b','#e7b49b','#cbb394','#ddc6a7','#c7ab88','#ccae8f'],
+      water: ['#86c8c8','#91cece','#b9e2df','#c6e8dd'],
+      metal: ['#b79461','#b49a6b','#c2ac83','#a59169','#b3976c','#c5a777','#bda071']
+    }, colorRoles = {};
+    Object.keys(roleColors).forEach(function (role) { roleColors[role].forEach(function (color) { colorRoles[color] = role; }); });
+    function mat(color, transparent, role) {
+      role = role || colorRoles[color] || 'stone';
+      var key = color + ':' + !!transparent + ':' + role, finish = finishes[role] || finishes.stone;
+      if (!cache[key]) { cache[key] = new THREE.MeshStandardMaterial({ color: color, roughness: finish.roughness, metalness: finish.metalness, transparent: !!transparent, opacity: transparent ? .72 : 1 }); cache[key].userData.surfaceRole = role; materials.add(cache[key]); }
       return cache[key];
     }
     function mesh(geo, material, parent, x, y, z) {
@@ -104,33 +127,33 @@
     }
     function leafBush(parent, x, y, z, size, seed) {
       var bush = new THREE.Group(); bush.name = 'layered-leaf-bush'; bush.position.set(x, y, z); parent.add(bush);
-      ball(bush, '#90a65a', 0, size * .25, 0, size * .65, size * .4, size * .55);
+      ball(bush, '#80ab6b', 0, size * .25, 0, size * .65, size * .4, size * .55);
       for (var l = 0; l < 13; l++) { var a = l * 2.4 + seed, ring = l < 8 ? .48 : .24, ly = l < 8 ? .24 : .5;
-        var petal = leaf(bush, ['#9eb26b', '#b5c481', '#8ba55d'][l % 3], Math.sin(a) * size * ring, size * ly, Math.cos(a) * size * ring, size * .34, .6, a); petal.rotation.z += .35 * Math.sin(a); }
+        var petal = leaf(bush, ['#9bc67e', '#bbd998', '#78aa65'][l % 3], Math.sin(a) * size * ring, size * ly, Math.cos(a) * size * ring, size * .34, .6, a); petal.rotation.z += .35 * Math.sin(a); }
       return bush;
     }
     function daisy(parent, x, y, z, size, blush) {
       var g = new THREE.Group(); g.name = 'five-petal-daisy'; g.position.set(x, y, z); parent.add(g);
-      cylinder(g, .012 * size, .19 * size, '#8d9f62', 0, .095 * size, 0);
-      for (var d = 0; d < 5; d++) { var angle = d * TAU / 5; var petal = ball(g, blush ? '#e5c4bc' : '#f6eed7', Math.sin(angle) * .069 * size, .21 * size, Math.cos(angle) * .069 * size, .058 * size, .035 * size, .078 * size); petal.rotation.y = angle; }
-      ball(g, '#d6b970', 0, .23 * size, 0, .042 * size, .033 * size, .042 * size);
-      leaf(g, '#a1b76d', -.035 * size, .06 * size, .02 * size, .08 * size, 1.1, -.8); return g;
+      cylinder(g, .012 * size, .19 * size, '#82aa68', 0, .095 * size, 0);
+      for (var d = 0; d < 5; d++) { var angle = d * TAU / 5; var petal = ball(g, blush ? '#edc0c1' : '#fff1d9', Math.sin(angle) * .069 * size, .21 * size, Math.cos(angle) * .069 * size, .058 * size, .035 * size, .078 * size); petal.rotation.y = angle; }
+      ball(g, '#dfb666', 0, .23 * size, 0, .042 * size, .033 * size, .042 * size);
+      leaf(g, '#a0c583', -.035 * size, .06 * size, .02 * size, .08 * size, 1.1, -.8); return g;
     }
     function softTree(parent, seed, scale) {
-      var trunk = cylinder(parent, .17 * scale, 1.36 * scale, '#a98f63', 0, .68 * scale, 0); trunk.name = 'rounded-tree-trunk';
-      ball(parent, '#b19768', 0, .18 * scale, 0, .24 * scale, .28 * scale, .21 * scale);
-      for (var root = 0; root < 5; root++) { var ra = root * TAU / 5 + seed; var foot = ball(parent, '#ab9164', Math.sin(ra) * .16 * scale, .07 * scale, Math.cos(ra) * .16 * scale, .1 * scale, .08 * scale, .28 * scale); foot.rotation.y = ra; }
-      for (var branch = -1; branch <= 1; branch += 2) { var arm = cylinder(parent, .075 * scale, .7 * scale, '#a98f63', branch * .22 * scale, 1.08 * scale, .02); arm.rotation.z = -branch * .55; }
+      var trunk = cylinder(parent, .17 * scale, 1.36 * scale, '#af936d', 0, .68 * scale, 0); trunk.name = 'rounded-tree-trunk';
+      ball(parent, '#bda278', 0, .18 * scale, 0, .24 * scale, .28 * scale, .21 * scale);
+      for (var root = 0; root < 5; root++) { var ra = root * TAU / 5 + seed; var foot = ball(parent, '#aa895f', Math.sin(ra) * .16 * scale, .07 * scale, Math.cos(ra) * .16 * scale, .1 * scale, .08 * scale, .28 * scale); foot.rotation.y = ra; }
+      for (var branch = -1; branch <= 1; branch += 2) { var arm = cylinder(parent, .075 * scale, .7 * scale, '#af936d', branch * .22 * scale, 1.08 * scale, .02); arm.rotation.z = -branch * .55; }
       var crown = new THREE.Group(); crown.name = 'overlapping-leaf-crown'; crown.position.y = 1.23 * scale; parent.add(crown);
-      ball(crown, '#8ca25b', 0, .34 * scale, 0, .56 * scale, .5 * scale, .5 * scale);
+      ball(crown, '#82ad6b', 0, .34 * scale, 0, .56 * scale, .5 * scale, .5 * scale);
       for (var tier = 0; tier < 5; tier++) { var ly = -.12 + tier * .235, surface = Math.sqrt(Math.max(0, 1 - Math.pow((ly - .34) / .61, 2))), count = 14 - tier * 2, radius = (.75 * surface + .055) * scale;
         for (var l = 0; l < count; l++) { var a = l * TAU / count + tier * .3 + seed, size = (.43 - tier * .022) * scale;
-          var m = leaf(crown, ['#a0b171', '#b0bf80', '#93a665'][(l + tier) % 3], Math.sin(a) * radius, ly * scale, Math.cos(a) * radius * .91, size);
+          var m = leaf(crown, ['#a0c783', '#b9d79a', '#8eb875'][(l + tier) % 3], Math.sin(a) * radius, ly * scale, Math.cos(a) * radius * .91, size);
           var normal = new THREE.Vector3(Math.sin(a) * radius / (.75 * .75), (ly - .34) * scale / (.61 * .61), Math.cos(a) * radius * .91 / (.68 * .68)).normalize();
           m.scale.set(size * .8, size, size * .22); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal); m.rotateZ(.14 * Math.sin(a));
         }
       }
-      for (var top = 0; top < 3; top++) { var tip = leaf(crown, '#b5c488', Math.sin(top * TAU / 3) * .1 * scale, .96 * scale, Math.cos(top * TAU / 3) * .1 * scale, .3 * scale); tip.scale.x = .24 * scale; tip.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 1, 0)); tip.rotateZ(top * TAU / 3 + seed); } trees.push(crown); return crown;
+      for (var top = 0; top < 3; top++) { var tip = leaf(crown, '#c2dda8', Math.sin(top * TAU / 3) * .1 * scale, .96 * scale, Math.cos(top * TAU / 3) * .1 * scale, .3 * scale); tip.scale.x = .24 * scale; tip.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 1, 0)); tip.rotateZ(top * TAU / 3 + seed); } trees.push(crown); return crown;
     }
     function solid(g, place) { g.traverse(function (m) { if (m.isMesh) { m.castShadow = true; occluders.push(m); if (place) { m.userData.placeId = place.id; pickables.push(m); } } }); }
     var landShape = new THREE.Shape();
@@ -138,31 +161,31 @@
     shoreline.forEach(function (row) { landShape.lineTo((row[1] - world.width / 2) / UNIT, -(row[0] - world.height / 2) / UNIT); });
     landShape.lineTo(-world.width / 200, -world.height / 200); landShape.closePath();
     // ShapeGeometry is XY; rotate it into XZ. The shoreline shares the collision model's coordinates.
-    var land = mesh(new THREE.ShapeGeometry(landShape), '#a6bc80', group, 0, .025, 0); land.rotation.x = -Math.PI / 2; land.name = 'dry-land'; surfaces.push(land);
+    var land = mesh(new THREE.ShapeGeometry(landShape), '#b1cf83', group, 0, .025, 0); land.rotation.x = -Math.PI / 2; land.name = 'dry-land'; surfaces.push(land);
     var grassTexture = groundTexture(THREE, doc);
-    if (grassTexture) { textures.add(grassTexture); grassTexture.repeat.set(world.width / 640, world.height / 640); land.material = mat('#ffffff'); land.material.map = grassTexture;
+    if (grassTexture) { textures.add(grassTexture); grassTexture.repeat.set(world.width / 640, world.height / 640); land.material = mat('#ffffff', false, 'grass'); land.material.map = grassTexture;
       var landVertices = land.geometry.attributes.position, uv = land.geometry.attributes.uv; for (var li = 0; li < uv.count; li++) uv.setXY(li, (landVertices.getX(li) + world.width / 200) / (world.width / UNIT), (landVertices.getY(li) + world.height / 200) / (world.height / UNIT)); uv.needsUpdate = true; }
-    var sea = box(group, 160, .06, 160, '#8fc1c2', 0, -.08, 0); sea.name = 'water';
+    var sea = box(group, 160, .06, 160, '#86c8c8', 0, -.08, 0); sea.name = 'water';
     for (var r = 0; r < 26; r++) {
       var py = (r + .5) / 26 * world.height, bankIndex = Math.min(shoreline.length - 2, Math.floor(py / 500));
       while (bankIndex > 0 && py < shoreline[bankIndex][0]) bankIndex--;
       var a = shoreline[bankIndex], b = shoreline[bankIndex + 1], edge = a[1] + (b[1] - a[1]) * clamp((py - a[0]) / (b[0] - a[0]), 0, 1);
       var rp = groundPoint(world, { x: Math.min(world.width - 25, edge + 40 + r % 3 * 55), y: py });
-      var ripple = box(group, .4, .009, .025, '#cde3db', rp.x, -.035, rp.z); ripple.userData.baseX = rp.x; ripples.push(ripple);
+      var ripple = box(group, .4, .009, .025, '#c6e8dd', rp.x, -.035, rp.z); ripple.userData.baseX = rp.x; ripples.push(ripple);
     }
     var bridgeCenter = groundPoint(world, { x: 2645, y: 1160 });
-    var bridge = mesh(new THREE.BoxGeometry(3.3, .14, 1.8), '#c9ac80', group, bridgeCenter.x, .12, bridgeCenter.z); bridge.name = 'bridge-deck'; surfaces.push(bridge);
-    for (var rail = -1; rail <= 1; rail += 2) { box(group, 3.3, .09, .07, '#a98f68', bridgeCenter.x, .8, bridgeCenter.z + rail * .85); }
+    var bridge = mesh(new THREE.BoxGeometry(3.3, .14, 1.8), '#d5b68a', group, bridgeCenter.x, .12, bridgeCenter.z); bridge.name = 'bridge-deck'; surfaces.push(bridge);
+    for (var rail = -1; rail <= 1; rail += 2) { box(group, 3.3, .09, .07, '#b28e63', bridgeCenter.x, .8, bridgeCenter.z + rail * .85); }
     function road(a, b) {
       var aa = groundPoint(world, a), bb = groundPoint(world, b), dx = bb.x - aa.x, dz = bb.z - aa.z;
       var curve = new THREE.CatmullRomCurve3([new THREE.Vector3(aa.x, .027, aa.z), new THREE.Vector3(aa.x + dx * .42, .027, aa.z + dz * .22), new THREE.Vector3(aa.x + dx * .78, .027, aa.z + dz * .68), new THREE.Vector3(bb.x, .027, bb.z)]);
       function ribbon(width, color, y) { var positions = [], indices = [], points = curve.getPoints(24);
         points.forEach(function (p, index) { var tangent = curve.getTangent(index / 24), normal = new THREE.Vector3(-tangent.z, 0, tangent.x).normalize().multiplyScalar(width / 2); positions.push(p.x + normal.x, y, p.z + normal.z, p.x - normal.x, y, p.z - normal.z); if (index < 24) { var k = index * 2; indices.push(k, k + 2, k + 1, k + 1, k + 2, k + 3); } });
         var geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3)); geo.setIndex(indices); geo.computeVertexNormals(); var strip = mesh(geo, color, group); strip.name = 'curved-path'; return strip; }
-      ribbon(.88, '#abb276', .027); ribbon(.73, '#c8bb89', .029);
+      ribbon(.88, '#a3bd7e', .027); ribbon(.73, '#d4be91', .029);
       var stones = Math.max(2, Math.floor(curve.getLength() / .36));
       for (var stone = 0; stone <= stones; stone++) { var t = stone / stones, at = curve.getPoint(t), tangent = curve.getTangent(t), offset = stone % 2 ? .13 : -.13;
-        var paver = ball(group, stone % 3 ? '#d4c5a3' : '#bfb397', at.x - tangent.z * offset, .03, at.z + tangent.x * offset, .23 + stone % 3 * .012, .025, .19); paver.name = 'rounded-path-stone'; paver.rotation.y = -Math.atan2(tangent.z, tangent.x);
+        var paver = ball(group, stone % 3 ? '#e0cfad' : '#cfbf9e', at.x - tangent.z * offset, .03, at.z + tangent.x * offset, .23 + stone % 3 * .012, .025, .19); paver.name = 'rounded-path-stone'; paver.rotation.y = -Math.atan2(tangent.z, tangent.x);
         if (stone % 5 === 1 && t > .1 && t < .9) {
           var bx = at.x - tangent.z * .68, bz = at.z + tangent.x * .68, point = townPoint(world, { x: bx, z: bz });
           if (Town.isWalkable(world, point.x, point.y) && !world.places.some(function (place) { return Math.hypot(place.x - point.x, place.y - point.y) < 145; })) {
@@ -181,82 +204,82 @@
       if (p.id === 'tree') {
         softTree(g, .4, 1.08);
       } else if (p.id === 'flowers') {
-        var flowerBase = cylinder(g, rx * .83, .13, '#bca484', 0, .065, 0); flowerBase.scale.z *= rz / rx;
+        var flowerBase = cylinder(g, rx * .83, .13, '#c7ab88', 0, .065, 0); flowerBase.scale.z *= rz / rx;
         leafBush(g, 0, .1, 0, Math.min(rx, rz) * .7, .6);
         for (var f = 0; f < 7; f++) { var fx = Math.sin(f * 2.4) * rx * .6, fz = Math.cos(f * 2.4) * rz * .55; daisy(g, fx, .12, fz, .95, f % 3 === 0); }
       } else if (p.id === 'playground') {
-        var base = cylinder(g, rx * .85, .2, '#d7cbb6', 0, .1, 0); base.scale.z *= rz / rx;
-        var basin = cylinder(g, .48, .15, '#ded6c5', 0, .38, 0); basin.scale.z *= .8;
-        var water = cylinder(g, .42, .02, '#8fbfc1', 0, .465, 0); water.scale.z *= .8;
-        cylinder(g, .08, .65, '#d0c3ab', 0, .63, 0);
-        for (var drop = 0; drop < 9; drop++) { var droplet = ball(g, '#badbd8', 0, .8, 0, .035, .08, .035); droplet.userData.phase = drop / 9; droplets.push(droplet); }
+        var base = cylinder(g, rx * .85, .2, '#e0d1bc', 0, .1, 0); base.scale.z *= rz / rx;
+        var basin = cylinder(g, .48, .15, '#e9ddcc', 0, .38, 0); basin.scale.z *= .8;
+        var water = cylinder(g, .42, .02, '#91cece', 0, .465, 0); water.scale.z *= .8;
+        cylinder(g, .08, .65, '#d8c7ad', 0, .63, 0);
+        for (var drop = 0; drop < 9; drop++) { var droplet = ball(g, '#b9e2df', 0, .8, 0, .035, .08, .035); droplet.userData.phase = drop / 9; droplets.push(droplet); }
       } else {
         // The solid base is inscribed in the existing elliptical footprint; roofs can overhang above the pet.
         var cafe = p.id === 'cafe' || p.shopId === 'cafe', market = p.id === 'shop' || p.shopId && !cafe;
         var w = rx * (cafe || market ? 1.15 : 1.7), depth = rz, funding = p.status === 'funding' || p.status === 'building';
-        box(g, w, .13, depth, '#d4bf9a', 0, .065, 0);
+        box(g, w, .13, depth, '#ddc7a4', 0, .065, 0);
         if (funding) {
-          for (var sx = -1; sx <= 1; sx += 2) for (var sz = -1; sz <= 1; sz += 2) box(g, .08, .6, .08, '#af9770', sx * w / 2, .3, sz * depth / 2);
-          box(g, w, .17, .06, '#d3c7a8', 0, .45, depth / 2);
+          for (var sx = -1; sx <= 1; sx += 2) for (var sz = -1; sz <= 1; sz += 2) box(g, .08, .6, .08, '#b99c73', sx * w / 2, .3, sz * depth / 2);
+          box(g, w, .17, .06, '#ded0b1', 0, .45, depth / 2);
         } else {
-          box(g, w, 1.8, depth, cafe ? '#f0e4c8' : '#eee3c5', 0, .96, 0);
+          box(g, w, 1.8, depth, cafe ? '#f6e8d6' : '#f2ead9', 0, .96, 0);
           var roof = new THREE.Shape(); roof.moveTo(-w * .62, 0); roof.lineTo(0, .8); roof.lineTo(w * .62, 0); roof.closePath();
           var roofGeo = new THREE.ExtrudeGeometry(roof, { depth: depth + .3, bevelEnabled: true, bevelThickness: .045, bevelSize: .04, bevelSegments: 3, steps: 1 }); roofGeo.translate(0, 1.8, -depth / 2 - .15);
-          var roofColor = p.id === 'home' ? '#b79b99' : cafe || market ? '#9ea981' : '#c4b090';
-          mesh(roofGeo, [mat('#eee3c5'), mat(roofColor)], g);
-          for (var gableSide = -1; gableSide <= 1; gableSide += 2) for (var gableEdge = -1; gableEdge <= 1; gableEdge += 2) { var trim = box(g, Math.hypot(w * .62, .8), .065, .065, '#c4a77c', gableEdge * w * .31, 2.2, gableSide * (depth / 2 + .19)); trim.rotation.z = -gableEdge * Math.atan2(.8, w * .62); }
+          var roofColor = p.id === 'home' ? '#d4a5b3' : cafe ? '#a6c4b0' : market ? '#d6a18b' : '#cbb394';
+          mesh(roofGeo, [mat('#f2ead9'), mat(roofColor)], g);
+          for (var gableSide = -1; gableSide <= 1; gableSide += 2) for (var gableEdge = -1; gableEdge <= 1; gableEdge += 2) { var trim = box(g, Math.hypot(w * .62, .8), .065, .065, '#cda97d', gableEdge * w * .31, 2.2, gableSide * (depth / 2 + .19)); trim.rotation.z = -gableEdge * Math.atan2(.8, w * .62); }
           // Thick overlapping ceramic shingles follow both real sloping roof planes.
           var roofRun = w * .62, roofAngle = Math.atan2(.8, roofRun), tileRows = 4, tileColumns = Math.max(3, Math.ceil((depth + .3) / .3));
           for (var roofSide = -1; roofSide <= 1; roofSide += 2) for (var tileRow = 0; tileRow < tileRows; tileRow++) for (var tileColumn = 0; tileColumn < tileColumns; tileColumn++) {
             var fraction = (tileRow + .4) / tileRows, tz = -depth / 2 - .12 + (tileColumn + .5) * (depth + .24) / tileColumns;
-            var tile = ball(g, tileRow % 2 ? roofColor : p.id === 'home' ? '#c3a7a1' : '#afb78f', roofSide * roofRun * fraction, 2.6 - fraction * .8 + .035, tz, roofRun / tileRows * .72, .065, (depth + .3) / tileColumns * .61); tile.name = 'overlapping-round-roof-tile'; tile.rotation.z = -roofSide * roofAngle;
+            var tile = ball(g, tileRow % 2 ? roofColor : p.id === 'home' ? '#e1bbc5' : cafe ? '#bfd7c7' : market ? '#e7b49b' : '#ddc6a7', roofSide * roofRun * fraction, 2.6 - fraction * .8 + .035, tz, roofRun / tileRows * .72, .065, (depth + .3) / tileColumns * .61); tile.name = 'overlapping-round-roof-tile'; tile.rotation.z = -roofSide * roofAngle;
           }
-          box(g, w * 1.25, .11, depth + .36, '#d5c4a9', 0, 1.79, 0);
-          box(g, w * 1.04, .12, depth * 1.04, '#d1b895', 0, .2, 0);
-          box(g, .47, 1.06, .09, '#f2e5cc', 0, .57, depth / 2 + .03);
-          box(g, .36, .94, .1, '#af8f70', 0, .53, depth / 2 + .08);
-          ball(g, '#f0e2c4', 0, 1.08, depth / 2 + .045, .235, .25, .065); ball(g, '#af8f70', 0, 1.07, depth / 2 + .09, .18, .21, .055);
-          box(g, .22, .32, .015, '#b8cbc0', 0, .78, depth / 2 + .138);
-          ball(g, '#aa936b', .115, .48, depth / 2 + .16, .035, .035, .025);
-          box(g, .53, .1, .26, '#d8c6a8', 0, .065, depth / 2 + .1);
+          box(g, w * 1.25, .11, depth + .36, '#dfcbb0', 0, 1.79, 0);
+          box(g, w * 1.04, .12, depth * 1.04, '#d8bb93', 0, .2, 0);
+          box(g, .47, 1.06, .09, '#f7ecda', 0, .57, depth / 2 + .03);
+          box(g, .36, .94, .1, '#b58a69', 0, .53, depth / 2 + .08);
+          ball(g, '#f5e7cf', 0, 1.08, depth / 2 + .045, .235, .25, .065); ball(g, '#b58a69', 0, 1.07, depth / 2 + .09, .18, .21, .055);
+          box(g, .22, .32, .015, '#b8d8c8', 0, .78, depth / 2 + .138);
+          ball(g, '#b79461', .115, .48, depth / 2 + .16, .035, .035, .025);
+          box(g, .53, .1, .26, '#e3ceae', 0, .065, depth / 2 + .1);
           for (var wx = -1; wx <= 1; wx += 2) {
             var windowX = wx * w * .32;
-            ball(g, '#c2a681', windowX, 1.23, depth / 2 + .035, .18, .28, .065);
-            ball(g, '#acc2ad', windowX, 1.23, depth / 2 + .08, .137, .226, .04);
-            box(g, .22, .38, .09, '#98b7af', windowX, 1.22, depth / 2 + .07);
-            box(g, .035, .4, .11, '#f4e8d1', windowX, 1.22, depth / 2 + .11);
-            box(g, .25, .035, .11, '#f4e8d1', windowX, 1.22, depth / 2 + .115);
-            box(g, .34, .12, .18, '#c6ab91', windowX, .92, depth / 2 + .1);
-            for (var fl = -1; fl <= 1; fl++) { leaf(g, '#a7b97b', windowX + fl * .09, 1.02, depth / 2 + .13, .09, .5, fl); daisy(g, windowX + fl * .09, .93, depth / 2 + .14, .42, fl === 0); }
+            ball(g, '#ccab80', windowX, 1.23, depth / 2 + .035, .18, .28, .065);
+            ball(g, '#b5d5c0', windowX, 1.23, depth / 2 + .08, .137, .226, .04);
+            box(g, .22, .38, .09, '#99c9be', windowX, 1.22, depth / 2 + .07);
+            box(g, .035, .4, .11, '#fcf0dd', windowX, 1.22, depth / 2 + .11);
+            box(g, .25, .035, .11, '#fcf0dd', windowX, 1.22, depth / 2 + .115);
+            box(g, .34, .12, .18, '#d2af91', windowX, .92, depth / 2 + .1);
+            for (var fl = -1; fl <= 1; fl++) { leaf(g, '#a2c786', windowX + fl * .09, 1.02, depth / 2 + .13, .09, .5, fl); daisy(g, windowX + fl * .09, .93, depth / 2 + .14, .42, fl === 0); }
           }
           // Rear and side windows keep orbiting views finished as well as the front.
-          for (var side = -1; side <= 1; side += 2) { box(g, .055, .48, .32, '#f0dfc2', side * (w / 2 + .025), 1.12, 0); box(g, .065, .36, .22, '#aac1b8', side * (w / 2 + .055), 1.12, 0); box(g, .075, .035, .25, '#f2e5cc', side * (w / 2 + .065), 1.12, 0); }
-          box(g, .35, .5, .06, '#efe0c6', 0, 1.18, -depth / 2 - .02); box(g, .26, .39, .075, '#b0c3bc', 0, 1.18, -depth / 2 - .05);
-          box(g, .22, .42, .22, '#d9c9b0', w * .28, 2.4, -.12); box(g, .3, .09, .3, '#c3af92', w * .28, 2.64, -.12);
+          for (var side = -1; side <= 1; side += 2) { box(g, .055, .48, .32, '#f6e7cf', side * (w / 2 + .025), 1.12, 0); box(g, .065, .36, .22, '#abd1c4', side * (w / 2 + .055), 1.12, 0); box(g, .075, .035, .25, '#f7ecda', side * (w / 2 + .065), 1.12, 0); }
+          box(g, .35, .5, .06, '#f5e9d5', 0, 1.18, -depth / 2 - .02); box(g, .26, .39, .075, '#b4d3ca', 0, 1.18, -depth / 2 - .05);
+          box(g, .22, .42, .22, '#e3ceb1', w * .28, 2.4, -.12); box(g, .3, .09, .3, '#ccb18c', w * .28, 2.64, -.12);
           if (cafe || market) {
-            for (var stripe = 0; stripe < 7; stripe++) { var awning = box(g, w * .14, .09, .38, stripe % 2 ? '#efe3c7' : cafe ? '#caa7aa' : '#a9b293', (stripe - 3) * w * .14, 1.5, depth / 2 + .14); awning.rotation.x = .12; }
-            box(g, .48, .2, .09, cafe ? '#d0b0b3' : '#b1bd9d', 0, 1.75, depth / 2 + .08);
+            for (var stripe = 0; stripe < 7; stripe++) { var awning = box(g, w * .14, .09, .38, stripe % 2 ? '#faf0db' : cafe ? '#ddb1bc' : '#a5c4aa', (stripe - 3) * w * .14, 1.5, depth / 2 + .14); awning.rotation.x = .12; }
+            box(g, .48, .2, .09, cafe ? '#d8afc0' : '#b6cfae', 0, 1.75, depth / 2 + .08);
           }
           if (cafe) {
             var tx = rx * .7;
-            cylinder(g, .15, .05, '#cfb18b', tx, .43, .02); cylinder(g, .035, .4, '#b49a76', tx, .2, .02);
-            for (var chair = -1; chair <= 1; chair += 2) { box(g, .15, .05, .15, '#c3aa83', tx, .24, chair * .26); box(g, .15, .25, .035, '#d2ba93', tx, .36, chair * .32); for (var leg = -1; leg <= 1; leg += 2) box(g, .025, .22, .025, '#a88f6d', tx + leg * .05, .11, chair * .26); }
-            cylinder(g, .035, .06, '#e8deca', tx, .49, .02);
+            cylinder(g, .15, .05, '#d9b58b', tx, .43, .02); cylinder(g, .035, .4, '#bd9c73', tx, .2, .02);
+            for (var chair = -1; chair <= 1; chair += 2) { box(g, .15, .05, .15, '#cdae85', tx, .24, chair * .26); box(g, .15, .25, .035, '#dfbf95', tx, .36, chair * .32); for (var leg = -1; leg <= 1; leg += 2) box(g, .025, .22, .025, '#b38e65', tx + leg * .05, .11, chair * .26); }
+            cylinder(g, .035, .06, '#f3e7d2', tx, .49, .02);
           } else if (market) {
-            for (var crate = 0; crate < 2; crate++) { box(g, .22, .2, .24, '#c4a178', rx * .7, .13 + crate * .17, .05 + crate * .13); for (var fruit = 0; fruit < 3; fruit++) ball(g, crate ? '#c5bf82' : '#d4a493', rx * .7 + (fruit - 1) * .055, .27 + crate * .17, .05 + crate * .13, .045, .045, .045); }
+            for (var crate = 0; crate < 2; crate++) { box(g, .22, .2, .24, '#cda47a', rx * .7, .13 + crate * .17, .05 + crate * .13); for (var fruit = 0; fruit < 3; fruit++) ball(g, crate ? '#c4cf8c' : '#e5a795', rx * .7 + (fruit - 1) * .055, .27 + crate * .17, .05 + crate * .13, .045, .045, .045); }
           }
           for (var yard = -1; yard <= 1; yard += 2) {
             var px = yard * Math.min(rx * .58, .54), pz = depth / 2 + .13;
-            var pot = cylinder(g, .09, .17, '#c2ac91', px, .085, pz); pot.scale.z *= .85;
+            var pot = cylinder(g, .09, .17, '#ccae8f', px, .085, pz); pot.scale.z *= .85;
             leafBush(g, px, .17, pz, .2, yard); daisy(g, px, .2, pz, .85, false);
-            box(g, .26, .07, .045, '#d1bf9b', yard * rx * .66, .21, .38);
-            for (var fence = -1; fence <= 1; fence += 2) box(g, .035, .28, .045, '#c5b18e', yard * rx * .66 + fence * .1, .14, .38);
+            box(g, .26, .07, .045, '#dcc29c', yard * rx * .66, .21, .38);
+            for (var fence = -1; fence <= 1; fence += 2) box(g, .035, .28, .045, '#d1b68f', yard * rx * .66 + fence * .1, .14, .38);
           }
-          var lampGlobe = ball(g, '#eadbb6', -.26, 1.3, depth / 2 + .14, .065, .08, .06); box(g, .12, .04, .1, '#ac9671', -.26, 1.4, depth / 2 + .13);
+          var lampGlobe = ball(g, '#f9e6b5', -.26, 1.3, depth / 2 + .14, .065, .08, .06); box(g, .12, .04, .1, '#b49a6b', -.26, 1.4, depth / 2 + .13);
         }
         if (doc && doc.createElement) {
           var signCanvas = doc.createElement('canvas'); signCanvas.width = 256; signCanvas.height = 64; var signContext = signCanvas.getContext && signCanvas.getContext('2d');
-          if (signContext) { signContext.fillStyle = '#eee2ca'; signContext.fillRect(0, 0, 256, 64); signContext.fillStyle = '#586245'; signContext.font = '500 28px sans-serif'; signContext.textAlign = 'center'; signContext.fillText(p.label + (funding ? p.status === 'building' ? '・建設中' : '・予定地' : ''), 128, 42, 244);
+          if (signContext) { signContext.fillStyle = '#f5e9d6'; signContext.fillRect(0, 0, 256, 64); signContext.fillStyle = '#526449'; signContext.font = '500 28px sans-serif'; signContext.textAlign = 'center'; signContext.fillText(p.label + (funding ? p.status === 'building' ? '・建設中' : '・予定地' : ''), 128, 42, 244);
             var signTexture = new THREE.CanvasTexture(signCanvas); signTexture.colorSpace = THREE.SRGBColorSpace; textures.add(signTexture); var signMaterial = new THREE.MeshBasicMaterial({ map: signTexture }); materials.add(signMaterial); mesh(new THREE.PlaneGeometry(funding ? 1.05 : .78, funding ? .26 : .2), signMaterial, g, 0, funding ? .7 : 1.67, depth / 2 + .13); }
         }
         g.scale.y = .9;
@@ -268,9 +291,9 @@
     [[31, 32], [64, 32], [31, 72], [64, 72]].forEach(function (v) {
       var p = groundPoint(world, { x: v[0] / 100 * world.width, y: v[1] / 100 * world.height });
       var lamp = new THREE.Group(); lamp.position.set(p.x, .025, p.z); group.add(lamp);
-      cylinder(lamp, .075, .09, '#b7a583', 0, .045, 0); cylinder(lamp, .035, 1.2, '#9d926f', 0, .6, 0);
-      var bracket = new THREE.TorusGeometry(.12, .018, 6, 14, Math.PI); var arm = mesh(bracket, '#aa9572', lamp, .1, 1.23, 0); arm.rotation.z = -Math.PI / 2;
-      ball(lamp, '#ecdfba', .21, 1.16, 0, .12, .15, .12); cylinder(lamp, .14, .055, '#b9a17e', .21, 1.31, 0); ball(lamp, '#b29b77', .21, 1.36, 0, .1, .06, .1);
+      cylinder(lamp, .075, .09, '#c2ac83', 0, .045, 0); cylinder(lamp, .035, 1.2, '#a59169', 0, .6, 0);
+      var bracket = new THREE.TorusGeometry(.12, .018, 6, 14, Math.PI); var arm = mesh(bracket, '#b3976c', lamp, .1, 1.23, 0); arm.rotation.z = -Math.PI / 2;
+      ball(lamp, '#f6e7bc', .21, 1.16, 0, .12, .15, .12); cylinder(lamp, .14, .055, '#c5a777', .21, 1.31, 0); ball(lamp, '#bda071', .21, 1.36, 0, .1, .06, .1);
     });
     for (var flower = 0; flower < 65; flower++) {
       var fp = { x: 80 + flower % 13 * 193 + Math.sin(flower * 7.3) * 48, y: 110 + Math.floor(flower / 13) * 353 + Math.cos(flower * 3.1) * 64 };
@@ -278,7 +301,7 @@
       var fpos = groundPoint(world, fp), clump = new THREE.Group(); clump.position.set(fpos.x, .026, fpos.z); group.add(clump);
       leafBush(clump, -.08, 0, -.04, .18 + flower % 3 * .025, flower);
       daisy(clump, .04, 0, .03, .75 + flower % 4 * .08, flower % 7 === 0);
-      if (flower % 3 === 0) { daisy(clump, -.15, 0, .12, .6, false); var rock = ball(clump, '#c4bfaa', .16, .035, -.05, .12, .065, .1); rock.rotation.y = flower; }
+      if (flower % 3 === 0) { daisy(clump, -.15, 0, .12, .6, false); var rock = ball(clump, '#d0cbb9', .16, .035, -.05, .12, .065, .1); rock.rotation.y = flower; }
     }
     // Unreachable border planting and low distant hills avoid a bare horizon.
     for (var edgeTree = 0; edgeTree < 26; edgeTree++) {
@@ -287,10 +310,11 @@
       var treeScale = .75 + (edgeTree * 7 % 9) * .055; softTree(edgeGroup, edgeTree * 2.4, treeScale);
       if (edgeTree % 2) { leafBush(group, ex + .5, .025, ez + .5, .6, edgeTree); for (var edgeFlower = 0; edgeFlower < 3; edgeFlower++) daisy(group, ex + .25 + edgeFlower * .2, .026, ez + .85, .85, false); }
     }
-    for (var hill = 0; hill < 7; hill++) { ball(group, hill % 2 ? '#bacba5' : '#c5d2b1', -16 + hill * 5, -.45, -14.5, 3.2, 2.4, 3.2); if (hill < 5) ball(group, '#c2d0ad', -16 + hill * 4.5, -.65, 14.5, 3, 2.3, 3); }
-    scene.background = new THREE.Color('#dfe8d9'); scene.fog = new THREE.Fog('#dfe8d9', 16, 34);
-    scene.add(new THREE.HemisphereLight('#fff7e5', '#a8b889', 1.8));
-    var sun = new THREE.DirectionalLight('#fff0d4', 2.2); sun.position.set(-7, 12, 8); sun.castShadow = true; sun.shadow.mapSize.set(512, 512); sun.shadow.radius = 3;
+    for (var hill = 0; hill < 7; hill++) { ball(group, hill % 2 ? '#b0ceac' : '#c4dbb9', -16 + hill * 5, -.45, -14.5, 3.2, 2.4, 3.2); if (hill < 5) ball(group, '#bad4b1', -16 + hill * 4.5, -.65, 14.5, 3, 2.3, 3); }
+    // A clear finite village needs no white fog wash over the character's colors.
+    scene.background = new THREE.Color('#cbe7e8'); scene.fog = null;
+    scene.add(new THREE.HemisphereLight('#f5f8ff', '#90a77e', 1.45));
+    var sun = new THREE.DirectionalLight('#fff8ed', 2.2); sun.position.set(-7, 12, 8); sun.castShadow = true; sun.shadow.mapSize.set(512, 512); sun.shadow.radius = 3;
     Object.assign(sun.shadow.camera, { left: -16, right: 16, top: 12, bottom: -12, near: .1, far: 45 }); sun.shadow.normalBias = .04; scene.add(sun);
     // Batch repeated primitives by material and neighborhood. Keep the original
     // meshes only as exact picking/camera collision targets; never draw them twice.
@@ -320,9 +344,9 @@
   async function mount(options) {
     options = options || {};
     var host = options.viewport, doc = host && host.ownerDocument, win = doc && doc.defaultView;
-    var dead = false, failed = false, ready = false, dirty = false, renderer = null, observer = null, raf = null, lastPaint = -Infinity, lastSourceUpload = -Infinity;
+    var dead = false, failed = false, ready = false, dirty = false, rendering = false, renderer = null, observer = null, raf = null, lastPaint = -Infinity, lastSourceUpload = -Infinity;
     var removers = [], texture = null, source = null, sourceAnchor = .08, cameraView = cameraState(options.camera), actualYaw = cameraView.yaw, drag = null, intervals = [];
-    var world = options.world, position = Town.spawn(world, options.position), model = null, motion = { walking: false, dx: 0, dy: 0 };
+    var world = options.world, position = Town.spawn(world, options.position), model = null, motion = { walking: false, dx: 0, dy: 0 }, heading = cameraView.yaw, travelled = 0;
     var media = win && win.matchMedia ? win.matchMedia('(prefers-reduced-motion: reduce)') : null, reduced = !!(media && media.matches);
     function active() { if (dead || failed || !host || host.isConnected === false || !doc || doc.hidden) return false; try { return !options.canRun || !!options.canRun(); } catch (_) { return false; } }
     function listen(target, name, fn) { if (!target || !target.addEventListener) return; target.addEventListener(name, fn); removers.push(function () { target.removeEventListener(name, fn); }); }
@@ -359,14 +383,18 @@
     function render(stamp) {
       if (!active() || !renderer) return false;
       try {
+        rendering = true;
         var p = groundPoint(world, position); sprite.position.set(p.x, heightAt(position), p.z);
         playerShadow.position.set(p.x, heightAt(position) + .003, p.z); playerShadow.visible = sprite.visible;
         sprite.updateMatrixWorld(true); playerShadow.updateMatrixWorld(true);
-        model.animate(stamp || 0, reduced); syncCamera(); renderer.render(model.scene, camera);
+        model.animate(stamp || 0, reduced); syncCamera();
+        if (ready) report('onFacing', facingFrame(heading, actualYaw, motion.walking, travelled));
+        renderer.render(model.scene, camera);
         if (renderer.info) { host.dataset.townRenderCalls = String(renderer.info.render.calls); host.dataset.townTriangles = String(renderer.info.render.triangles); }
         var interval = stamp - lastPaint; if (finite(interval) && interval > 0 && interval < 1000) { intervals.push(interval); if (intervals.length > 30) intervals.shift(); host.dataset.townFrameMs = (intervals.reduce(function (sum, n) { return sum + n; }, 0) / intervals.length).toFixed(2); }
         lastPaint = finite(stamp) ? stamp : 0; dirty = false; return true;
       } catch (_) { fail('town_render_failed'); return false; }
+      finally { rendering = false; }
     }
     function schedule() { if (active() && ready && (!reduced || dirty) && raf === null) raf = win.requestAnimationFrame(tick); }
     function requestRender() { dirty = true; schedule(); }
@@ -381,7 +409,9 @@
       if (!active() || !renderer || !size) return false;
       try {
         var stamp = win.performance ? win.performance.now() : Date.now(), changed = source !== canvas;
-        if (!changed && stamp - lastSourceUpload < 32) return true;
+        // Reduced-motion direction changes are explicit, not an ambient stream.
+        // Consume their newly painted buffer even inside the current world draw.
+        if (!changed && !reduced && stamp - lastSourceUpload < 32) return true;
         if (changed) {
           var anchor = metadata && finite(metadata.anchor) ? metadata.anchor : canvas.tagName === 'CANVAS' ? alphaAnchor(canvas) : .08;
           if (anchor === null) return false;
@@ -392,14 +422,20 @@
         // r160 initTexture synchronously uploads the borrowed nonpreserved buffer.
         // Subsequent world renders use that GPU copy, and share one 32ms RAF cadence.
         renderer.initTexture(texture); lastSourceUpload = stamp;
-        if (!ready) { if (!render(stamp)) return false; } else requestRender();
+        if (!ready) { if (!render(stamp)) return false; } else if (!rendering) requestRender();
         if (!ready) { ready = true; host.dataset.visualMode = 'three'; report('onReady', controller); schedule(); }
         return true;
       } catch (_) { fail('town_frame_unavailable'); return false; }
     }
     var controller = { destroy: destroy, setFrame: setFrame,
-      setPosition: function (p) { if (active() && p && Town.isWalkable(world, p.x, p.y)) { position = { x: p.x, y: p.y }; requestRender(); } },
-      setMotion: function (m) { if (active()) { motion = { walking: !!m.walking, dx: m.dx, dy: m.dy }; host.dataset.townWalking = String(motion.walking); if (m.walking && Math.hypot(m.dx || 0, m.dy || 0) > .001) { var relative = cameraDirection(m.dx || 0, m.dy || 0, -actualYaw); host.dataset.townFacing = Math.abs(relative.x) > .4 ? relative.x < 0 ? 'left' : 'right' : relative.y < 0 ? 'away' : 'toward'; } } },
+      setPosition: function (p) { if (active() && p && Town.isWalkable(world, p.x, p.y)) { travelled += Math.hypot(p.x-position.x,p.y-position.y)/UNIT; position = { x: p.x, y: p.y }; requestRender(); } },
+      setMotion: function (m) { if (active()) {
+        var valid = m && finite(m.dx) && finite(m.dy) && Math.hypot(m.dx, m.dy) > .001;
+        motion = { walking: !!(valid && m.walking), dx: valid ? m.dx : 0, dy: valid ? m.dy : 0 };
+        host.dataset.townWalking = String(motion.walking);
+        if (motion.walking) { heading = Math.atan2(motion.dx, motion.dy); var relative = cameraDirection(motion.dx, motion.dy, -actualYaw); host.dataset.townFacing = Math.abs(relative.x) > .4 ? relative.x < 0 ? 'left' : 'right' : relative.y < 0 ? 'away' : 'toward'; }
+        requestRender();
+      } },
       camera: function () { return cameraState(cameraView); },
       direction: function (x, y) { return cameraDirection(x, y, actualYaw); },
       resolveTap: function (event) {
@@ -440,5 +476,5 @@
     } catch (_) { fail('town_renderer_unavailable'); return null; }
   }
   return Object.freeze({ mount: mount, buildWorld: buildWorld, groundPoint: groundPoint, townPoint: townPoint, cameraState: cameraState,
-    cameraDirection: cameraDirection, cameraDistance: cameraDistance, safeCamera: safeCamera, natureFrame: natureFrame, people: people, alphaAnchor: alphaAnchor, sourceSize: sourceSize, groundTexture: groundTexture, heightAt: heightAt });
+    cameraDirection: cameraDirection, facingFrame: facingFrame, cameraDistance: cameraDistance, safeCamera: safeCamera, natureFrame: natureFrame, people: people, alphaAnchor: alphaAnchor, sourceSize: sourceSize, groundTexture: groundTexture, heightAt: heightAt });
 }));
