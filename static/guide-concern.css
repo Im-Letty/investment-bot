@@ -1,0 +1,49 @@
+/* Adopted “悩みから選ぶ” design; all rules stay inside the existing guide dialog. */
+#bgModal.kn-concern-guide{--gc-bg:#faf8ee;--gc-paper:#fffef8;--gc-text:#555638;--gc-muted:#717253;--gc-line:#dcd8c2;--gc-soft:#eeeddc;--gc-accent:#73764d}
+#bgModal.kn-concern-guide #bgSheet{width:min(480px,100%);height:min(820px,calc(100dvh - 32px));background:var(--gc-bg);color:var(--gc-text);border:1px solid var(--gc-line);border-radius:24px;box-shadow:0 8px 30px #57533715}
+#bgModal.kn-concern-guide .kn-guide-hub-head{gap:10px;padding:20px 22px 16px;border:0}
+#bgModal.kn-concern-guide .kn-guide-hub-head h2{font-size:calc(16px * var(--kn-type-scale,1));color:var(--gc-text)}
+#bgModal.kn-concern-guide .kn-concern-icon{display:block;width:25px;height:25px}
+#bgModal.kn-concern-guide .kn-concern-icon svg{display:block;width:100%;height:100%}
+#bgModal.kn-concern-guide .kn-concern-mark{display:grid;place-items:center;flex:none;width:34px;height:34px;padding:7px;background:var(--gc-soft);border-radius:50%}
+#bgModal.kn-concern-guide .kn-guide-hub-close{color:var(--gc-muted)}
+#bgModal.kn-concern-guide .kn-concern-back{flex:none;min-width:44px;min-height:44px;padding:0;border:0;border-radius:10px;background:transparent;color:var(--gc-text);font-size:28px;font-family:inherit;font-weight:400;line-height:1;cursor:pointer}
+#bgModal.kn-concern-guide .kn-guide-tabs{margin:0 22px 10px;padding:3px;gap:3px;background:var(--gc-soft);border:0;border-radius:12px}
+#bgModal.kn-concern-guide .kn-guide-tab{min-height:44px;padding:8px;border:1px solid transparent;border-radius:10px;color:var(--gc-muted);font-weight:400}
+#bgModal.kn-concern-guide .kn-guide-tab[aria-selected=true]{border-color:var(--gc-line);background:var(--gc-paper);color:var(--gc-text);font-weight:600}
+#bgModal.kn-concern-guide #knChatPanel{max-width:none!important;background:var(--gc-bg)}
+#bgModal.kn-concern-guide .kn-concern-home{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:10px 22px 4px;font-size:calc(14px * var(--kn-type-scale,1))}
+#bgModal.kn-concern-guide .kn-concern-eyebrow{margin:0 0 12px;font-size:calc(13px * var(--kn-type-scale,1));line-height:1.65;color:var(--gc-muted)}
+#bgModal.kn-concern-guide #knConcernTitle{margin:8px 0 24px;font:600 calc(23px * var(--kn-type-scale,1))/1.5 var(--kn-a-sans,system-ui,sans-serif);letter-spacing:.01em;color:var(--gc-text);overflow-wrap:anywhere}
+#bgModal.kn-concern-guide .kn-concern-topics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#bgModal.kn-concern-guide .kn-concern-topic{display:grid;grid-template-columns:minmax(0,1fr) auto;align-content:center;align-items:center;row-gap:14px;min-width:0;min-height:112px;padding:16px 13px;border:1px solid var(--gc-line);border-radius:16px;background:var(--gc-paper);color:var(--gc-text);font:inherit;line-height:1.6;text-align:left;cursor:pointer}
+#bgModal.kn-concern-guide .kn-concern-topic>.kn-concern-icon{grid-column:1/-1}
+#bgModal.kn-concern-guide .kn-concern-topic-label{overflow-wrap:anywhere}
+#bgModal.kn-concern-guide .kn-concern-topic[aria-pressed=true]{background:var(--gc-soft);border-color:var(--gc-accent)}
+#bgModal.kn-concern-guide .kn-concern-arrow{flex:none;font-size:19px;line-height:1}
+#bgModal.kn-concern-guide .kn-concern-questions{margin-top:18px}
+#bgModal.kn-concern-guide .kn-concern-questions .kn-concern-eyebrow{margin-bottom:8px}
+#bgModal.kn-concern-guide .kn-concern-question{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;min-height:44px;padding:11px 0;border:0;border-bottom:1px solid var(--gc-line);background:transparent;color:var(--gc-text);font:inherit;line-height:1.65;text-align:left;cursor:pointer}
+#bgModal.kn-concern-guide .kn-concern-question:last-child{border-bottom:0}
+#bgModal.kn-concern-guide .kn-concern-read{display:block;min-height:44px;margin:20px 0 8px;padding:0;border:0;background:transparent;color:var(--gc-muted);font:inherit;text-align:left;cursor:pointer}
+#bgModal.kn-concern-guide .kn-concern-compose-label{display:block;flex:none;margin:16px 22px 8px;font-size:calc(12px * var(--kn-type-scale,1));line-height:1.5;color:var(--gc-muted)}
+#bgModal.kn-concern-guide .kn-chat-foot{flex:none;gap:6px;margin:0 22px;padding:6px;border:1px solid var(--gc-line);border-radius:16px;background:var(--gc-paper)}
+#bgModal.kn-concern-guide #knChatInput{min-width:0;min-height:44px;margin:0;padding:9px 8px;border:0;border-radius:10px;background:transparent;color:var(--gc-text);font-size:max(16px,calc(16px * var(--kn-type-scale,1)));line-height:1.5}
+#bgModal.kn-concern-guide #knChatInput::placeholder{color:var(--gc-muted);opacity:1;font-size:calc(13px * var(--kn-type-scale,1))}
+#bgModal.kn-concern-guide #knChatSend{flex:none;align-self:flex-end;display:grid;place-items:center;width:44px;height:44px;min-height:44px;padding:0;border:0;border-radius:12px;background:var(--gc-soft);color:var(--gc-text);box-shadow:none;font-size:24px;line-height:1}
+#bgModal.kn-concern-guide .kn-disclaimer{padding:10px 22px calc(14px + env(safe-area-inset-bottom,0px));border:0;background:var(--gc-bg);color:var(--gc-muted);font-size:calc(11px * var(--kn-type-scale,1));line-height:1.6;text-align:left}
+#bgModal.kn-concern-guide .kn-chat-body{background:var(--gc-bg);padding:12px 22px}
+#bgModal.kn-concern-guide .kn-chat-msg.bot .kn-chat-bub{background:var(--gc-paper);border-color:var(--gc-line);color:var(--gc-text)}
+#bgModal.kn-concern-guide .kn-chat-msg.user .kn-chat-bub{background:var(--gc-soft);color:var(--gc-text);box-shadow:none}
+#bgModal.kn-concern-guide #knChatSuggestRefresh,#bgModal.kn-concern-guide .kn-chip{background:var(--gc-paper);border-color:var(--gc-line);color:var(--gc-text)}
+#bgModal.kn-concern-guide .kn-guide-content{padding:8px 22px 24px;color:var(--gc-text)}
+#bgModal.kn-concern-guide .kn-guide-content .bg-box{padding:16px;border-color:var(--gc-line);background:var(--gc-paper)}
+#bgModal.kn-concern-guide .kn-guide-content :is(h3,.bg-a,.bg-step-t,.bg-step-d,.bg-it-t,.bg-it-d,.bg-pct,.bg-tip,.bg-note,.bg-cat,.bg-dict-note,.bg-q summary){color:var(--gc-text)}
+#bgModal.kn-concern-guide .kn-guide-content .bg-q{border-color:var(--gc-line);background:transparent}
+#bgModal.kn-concern-guide .kn-guide-content .bg-q summary::after{color:var(--gc-muted)}
+#bgModal.kn-concern-guide .kn-concern-guide-nav{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+#bgModal.kn-concern-guide .kn-concern-section{padding:8px 12px;border:1px solid var(--gc-line);border-radius:20px;background:var(--gc-paper);color:var(--gc-text);font:inherit;font-size:calc(13px * var(--kn-type-scale,1));cursor:pointer}
+#bgModal.kn-concern-guide :is(button,input,textarea,select,summary,a):focus-visible{outline:2px solid var(--gc-accent);outline-offset:3px}
+#bgModal.kn-concern-guide #knConcernTitle:focus{outline:none}
+@media(max-width:640px){#bgModal.kn-concern-guide #bgSheet{height:calc(100dvh - 20px);max-height:calc(100dvh - 20px);border-radius:20px}}
+@media(max-width:360px){#bgModal.kn-concern-guide .kn-guide-hub-head{padding-inline:16px}#bgModal.kn-concern-guide .kn-concern-home,#bgModal.kn-concern-guide .kn-guide-content{padding-inline:16px}#bgModal.kn-concern-guide .kn-concern-compose-label{margin-inline:16px}#bgModal.kn-concern-guide .kn-chat-foot{margin-inline:16px}#bgModal.kn-concern-guide .kn-concern-topic{padding:13px 10px}#bgModal.kn-concern-guide .kn-guide-tabs{margin-inline:16px}}

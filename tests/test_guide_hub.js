@@ -258,3 +258,73 @@ test('the keyboard trap keeps lower rendered guide controls in order and wraps o
   assert.equal(h.document.activeElement,h.node('knGuideHubClose'));
   assert.equal(h.oldOpenCalls(),1);assert.equal(h.network(),0);
 });
+
+
+// Use the same retained guide controller and DOM fixture for the concern entrance.
+const {install:installConcern}=require('../static/guide-concern.js');
+function concernHarness(){
+  const h=harness();install(h.window);
+  const foot=h.document.createElement('div');foot.className='kn-chat-foot';h.panel.appendChild(foot);
+  foot.appendChild(h.input);foot.appendChild(h.node('knChatSend'));
+  const hint=h.document.createElement('button');hint.id='knChatSuggestRefresh';h.panel.insertBefore(hint,h.node('knChatBody'));
+  const guide=h.node('knGuideContent'),faq=h.node('existing-guide-faq');
+  const dictionary=h.document.createElement('div'),feelings=h.document.createElement('div');
+  dictionary.className=feelings.className='bg-box';guide.appendChild(dictionary);guide.appendChild(feelings);
+  const details=[...faq.children];
+  details.slice(8,18).forEach(n=>dictionary.appendChild(n));details.slice(18).forEach(n=>feelings.appendChild(n));
+  for(const [box,title] of [[faq,'③ よくある疑問'],[dictionary,'④ ことばの意味'],[feelings,'⑤ こんな気持ちのときは？']]){
+    const heading=h.document.createElement('h3');heading.textContent=title;box.insertBefore(heading,box.firstChild);
+  }
+  const sourceDetails=[...h.nodes('.bg-q')],api=installConcern(h.window);
+  return{...h,api,sourceDetails};
+}
+test('concern entrance uses four topics and three editable examples without requests or storage writes',()=>{
+  const h=concernHarness(),saved=new Map(h.storage);h.window.openBeginnerGuide();
+  assert.equal(h.node('knConcernHome').hidden,false);assert.equal(h.node('knChatBody').hidden,true);
+  assert.equal(h.document.activeElement,h.node('knConcernTitle'),'Opening must not focus the input and open a mobile keyboard');
+  assert.equal(h.nodes('.kn-concern-topic').length,4);assert.equal(h.nodes('.kn-concern-question').length,3);
+  for(let i=0;i<4;i++){
+    h.node('knConcernTopic'+i).click();assert.equal(h.node('knConcernTopic'+i).getAttribute('aria-pressed'),'true');
+    h.node('knConcernQuestion0').click();assert.ok(h.input.value);assert.equal(h.document.activeElement,h.input);
+    assert.equal(h.node('knConcernHome').hidden,false,'Examples prepare a draft, not a conversation');
+  }
+  assert.equal(h.nodes('#knChatInput').length,1);assert.equal(h.network(),0);assert.equal(h.storageWrites(),0);assert.deepEqual(h.storage,saved);
+});
+test('reading the guide retains all 8/10/5 source details and returns without losing an unsent draft',()=>{
+  const h=concernHarness();h.api.open();h.input.value='an unsent question';h.node('knConcernRead').click();
+  assert.equal(h.node('knGuideContent').hidden,false);assert.equal(h.node('knConcernHome').hidden,true);
+  assert.deepEqual([h.node('existing-guide-faq'),h.node('knConcernSection4'),h.node('knConcernSection5')].map(n=>n.querySelectorAll('.bg-q').length),[8,10,5]);
+  assert.deepEqual(h.nodes('.bg-q'),h.sourceDetails);
+  assert.equal(h.node('bgList').children.length,5);assert.equal(h.node('bgBar').style.width,'20%');
+  h.node('knConcernBack').click();assert.equal(h.node('knConcernHome').hidden,false);assert.equal(h.input.value,'an unsent question');
+  assert.equal(h.oldOpenCalls(),1);assert.equal(h.network(),0);assert.equal(h.storageWrites(),0);
+});
+test('only a nonempty explicit send enters the retained conversation and back keeps the draft and nodes',()=>{
+  const h=concernHarness();h.api.open();h.input.value=' ';h.node('knChatSend').click();assert.equal(h.node('knConcernHome').hidden,false);
+  h.input.value='edited question';h.node('knChatSend').click();
+  assert.equal(h.node('knConcernHome').hidden,true);assert.equal(h.node('knChatBody').hidden,false);
+  assert.equal(h.node('knConcernBack').hidden,false);h.node('knConcernBack').click();
+  h.input.value='question with a newline';h.input.emit('keydown',{key:'Enter',shiftKey:true});assert.equal(h.node('knConcernHome').hidden,false);
+  h.input.emit('keydown',{key:'Enter',shiftKey:false});assert.equal(h.node('knConcernHome').hidden,true);
+  assert.equal(h.network(),0,'The fixture has no assistant sender; this verifies presentation only');
+});
+test('concern locale changes refresh examples and labels without replacing a typed draft or saved data',()=>{
+  const h=concernHarness();h.api.open();h.node('knConcernTopic3').click();h.input.value='keep this exact draft';const saved=new Map(h.storage);
+  for(const [lang,title] of [['en','What is on your mind?'],['ko','무엇이 궁금한가요?'],['zh','你在关心什么？'],['ja','何が気になっていますか？']]){
+    h.document.documentElement.lang=lang;h.dispatch('langChanged');assert.equal(h.node('knConcernTitle').textContent,title);
+    assert.equal(h.input.value,'keep this exact draft');assert.equal(h.node('knConcernTopic3').getAttribute('aria-pressed'),'true');
+  }
+  assert.deepEqual(h.storage,saved);assert.equal(h.storageWrites(),0);assert.equal(h.network(),0);
+});
+test('concern return, native Escape, reopening and repeated install reuse one modal and preserve source progress',()=>{
+  const h=concernHarness();assert.equal(installConcern(h.window),h.api);assert.equal(h.nodes('#knConcernHome').length,1);
+  h.api.open();h.input.value='keep after closing';h.node('knConcernRead').click();
+  const cb=h.node('bgList').children[1].children[0];cb.checked=true;cb.onchange();
+  h.input.emit('keydown',{key:'Escape'});assert.equal(h.modal.classList.contains('bg-open'),false);assert.equal(h.document.activeElement,h.entrance);
+  h.window.openBeginnerGuide();assert.equal(h.node('knConcernHome').hidden,false);assert.equal(h.input.value,'keep after closing');
+  assert.equal(h.node('bgBar').style.width,'40%');assert.equal(h.storageWrites(),1);assert.equal(h.network(),0);
+});
+test('new concern attachment is inert when required original controls are unavailable',()=>{
+  const h=harness();const children=[...h.panel.children];assert.equal(installConcern(h.window),null);
+  assert.deepEqual(h.panel.children,children);assert.equal(h.network(),0);assert.equal(h.storageWrites(),0);
+});
