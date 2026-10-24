@@ -86,6 +86,60 @@ class BuildTests(unittest.TestCase):
         future_rows, _ = candidate.build(self.legacy, self.additions, self.identities, date(2027, 1, 1), self.root)
         self.assertEqual(future_rows[9]["reward"], "3000円分")
 
+    def test_one_time_record_is_descriptive_not_an_ongoing_active_programme(self):
+        self.version["one_time_record_date"] = "2026-09-30"
+        self.version["grant_summary"] = "2026年11月中旬ごろ発送予定"
+        self.version["tiers"][0]["holding_months_min"] = None
+        original = deepcopy(self.additions)
+        for as_of in (date(2026, 10, 17), date(2026, 12, 1), date(2027, 9, 30)):
+            with self.subTest(as_of=as_of):
+                rows, report = candidate.build(self.legacy, self.additions, self.identities, as_of, self.root)
+                row = rows[9]
+                self.assertEqual(row["programmeStatus"], "one_time")
+                self.assertEqual(row["oneTimeRecordDate"], "2026-09-30")
+                self.assertIsNone(row["programmeEffectiveFrom"])
+                self.assertIsNone(row["programmeEffectiveUntil"])
+                self.assertIsNone(row["tiers"][0]["holding_months_min"])
+                self.assertEqual(row["grant"], "2026年11月中旬ごろ発送予定")
+                self.assertEqual(row["schedules"], [])
+                self.assertEqual(report["one_time_count"], 1)
+                self.assertEqual(report["new_active_companies"], 0)
+                self.assertEqual(report["published_total"], 10)
+                self.assertEqual(rows[:9], self.legacy)
+        self.assertEqual(self.additions, original)
+
+    def test_one_time_record_requires_real_non_null_ISO_date(self):
+        for invalid in (None, True, "", "2026-02-30", "2026-9-30", "2026-09-30T00:00:00Z"):
+            with self.subTest(invalid=invalid):
+                self.version["one_time_record_date"] = invalid
+                self.rejected("one_time_record_date")
+
+    def test_one_time_record_cannot_mix_purchase_schedules(self):
+        self.version["one_time_record_date"] = "2026-09-30"
+        self.version["schedules"] = [{"date": "2026-09-28", "record": "2026-09-30",
+            "ex_dividend_date": "2026-09-29", "verified": "2026-10-16", "status": "confirmed",
+            "holding_basis": "continuous_holding", "source": "https://example.com/trade-days",
+            "basis": "Synthetic checked timetable", "holdUntil": "2026/09/28取引終了まで",
+            "holdExplanation": "Synthetic long-term condition", "grant": "発送予定は本文を確認",
+            "delivery": "Synthetic dispatch note"}]
+        self.rejected("one_time_schedules")
+
+    def test_one_time_record_requires_reviewed_active_version_and_matching_interval(self):
+        self.version.update(one_time_record_date="2026-09-30", status="suspended", effective_from="2026-09-01")
+        self.rejected("one_time_status")
+        self.version.update(status="active", effective_from="2026-10-01")
+        self.rejected("one_time_wrong_version")
+        self.version["effective_from"] = None
+        self.version["review"]["eligibility"] = False
+        self.rejected("manual_review_incomplete")
+
+    def test_optional_one_time_metadata_does_not_change_ordinary_projection(self):
+        rows, report = self.build()
+        self.assertEqual(rows[9]["programmeStatus"], "active")
+        self.assertNotIn("oneTimeRecordDate", rows[9])
+        self.assertEqual(report["new_active_companies"], 1)
+        self.assertEqual(report["one_time_count"], 0)
+
     def test_announced_future_only_is_withheld_with_reason(self):
         self.version["effective_from"] = "2027-01-01"
         rows, report = self.build()

@@ -1,0 +1,98 @@
+{
+  "schema_version": 1,
+  "code": "1770",
+  "name": "藤田エンジニアリング",
+  "note_authored_at_jst": "2026-10-24T15:56:36.865700+09:00",
+  "evidence_kind": "authored_primary_page_observation_note_not_original_PDF",
+  "actual_primary_observed_at_jst": "2026-10-24T14:50:29.621551+09:00",
+  "original_PDF_url": "https://www.fujita-eng.co.jp/wordpress/wp-content/uploads/ir-info/rel_20260915.pdf",
+  "original_PDF_sha256": "4f2d86becc8a97fc081d1294821c2ba498df8a0620341a49985605d73a0980b0",
+  "original_PDF_bytes": 123494,
+  "source_fact_confirmation_date": "2026-10-24",
+  "proposal_and_separate_visual_review": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261024-154806/company-1770/candidate-proposal.json",
+    "sha256": "4871482b4b87077108c56a8e030620834ced611ba71b72064e6a58318d109b45"
+  },
+  "original_source_note": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261024-144706/company-1770/observation-note.json",
+    "sha256": "0b5f984e9cbcda493459724b20585a6c150ed8d539aaa314643250ed8c3e8de7"
+  },
+  "known_programme_facts": {
+    "announced_on": "2026-09-15",
+    "record_date": "2026-09-30",
+    "one_time_only": true,
+    "trading_unit_shares": 100,
+    "reward_yen_equivalent": 2500,
+    "reward_is_cash": false,
+    "uniform_per_eligible_holder": true,
+    "tiers": [
+      {
+        "id": "one-time-20260930-100",
+        "shares_min": 100,
+        "shares_max": null,
+        "holding_months_min": null,
+        "holding_requirement": "保有期間・同じ株主番号・連続名簿回数の条件は、この告知には記載がありません。",
+        "reward": "ペヤング商品の詰め合わせ2,500円相当（対象者一律）",
+        "conditions": "2026年9月30日の株主名簿が対象です。今回限りで、現在購入してもこの基準日の対象にはなりません。"
+      }
+    ],
+    "dispatch": {
+      "status": "planned",
+      "year": 2026,
+      "month": 11,
+      "part_of_month": "mid",
+      "approximate": true,
+      "actual_dispatch_verified": false,
+      "individual_arrival_verified": false
+    }
+  },
+  "unknown_conditions_remain_null": {
+    "same_shareholder_number_requirement": null,
+    "continuous_register_count": null,
+    "each_historical_record_minimum_shares": null,
+    "application_required": null,
+    "application_deadline": null,
+    "choice_or_combination_rules": null,
+    "benefit_or_product_expiry": null,
+    "next_record_date": null,
+    "next_purchase_deadline": null,
+    "recurring_programme_start": null,
+    "abolition_date": null,
+    "fulfilment_completion_date": null
+  },
+  "scope": "One-time September30record, plannedmid-November dispatch. No annual entitlement, inferred purchase cutoff, completed shipment, arrival, abolition or automatic expiry. Independently authored shortfacts only; originalPDF/prose/table/image not republished.",
+  "source_conditions": {
+    "scope": "Saved root observation-note review of IR disclaimer, privacy and general copyright, not an independent reread of unavailable HTML bodies.",
+    "prior_note_says_no_explicit_normal_link_contact_or_fact_prohibition_found_in_read_pages": true,
+    "exhaustive_terms_search_verified": false,
+    "blanket_reuse_licence_verified": false,
+    "independent_facts_not_blanket_prohibited_from_copyright_alone": true,
+    "proposed_public_copy": "Short independently worded programme facts with the actual official source link only.",
+    "original_prose_tables_images_or_long_text_republication": false
+  },
+  "identity": {
+    "official_issuer_PDF_code_market_verified": true,
+    "market": "東証スタンダード",
+    "trading_unit_shares": 100,
+    "StockSearch_catalogue_as_of": "2026-09-30",
+    "StockSearch_catalogue_evidence": {
+      "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/portfolio-simple-assets-20261024/source/static/jpx-company-catalogue.json",
+      "sha256": "064b9f5361ec50e33fd5d25cadfc0b423b08debbcff75ee0bc02c91d9da699c1",
+      "bytes": 438233
+    },
+    "StockSearch_exact_row": {
+      "code": "1770",
+      "name": "藤田エンジニアリング",
+      "market": "スタンダード（内国株式）",
+      "industry": "建設業"
+    },
+    "saved_stock_page_observed_at": "2026-10-24T14:50:26.532995+09:00",
+    "saved_stock_page_url": "https://www.fujita-eng.co.jp/ir/stock/",
+    "saved_stock_page_original_SHA": "b2eaf69464e564fbb645ee2809963fe9d8f9709735d4a912b70f1585c88c932d",
+    "clocks_unchanged_from_prior_acquisition": true,
+    "not_freshly_refetched_now": true,
+    "current_entire_exchange_universe_not_verified": true
+  },
+  "all_amendments_exhaustively_verified": false,
+  "new_primary_HTTP": 0
+}

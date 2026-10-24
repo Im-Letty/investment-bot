@@ -19,7 +19,10 @@ function schedulesFor(company){
     seen.add(schedule.date);return true;
   }).map(schedule=>({...company,...schedule})).sort((a,b)=>a.date.localeCompare(b.date));
 }
+function oneTimeProgramme(company){return company.programmeStatus==='one_time'||Object.prototype.hasOwnProperty.call(company,'oneTimeRecordDate');}
+function validOneTime(company){return company.programmeStatus==='one_time'&&validDay(company.oneTimeRecordDate);}
 function currentProgramme(company,today){
+  if(oneTimeProgramme(company))return false;
   if(company.programmeStatus===undefined)return true;
   const start=company.programmeEffectiveFrom,end=company.programmeEffectiveUntil;
   return company.programmeStatus==='active'&&(start===null||validDay(start)&&start<=today)&&(end===null||validDay(end)&&end>=today);
@@ -33,13 +36,20 @@ function nextRow(company,today){
   const dates=schedulesFor(company),next=dates.find(row=>row.date>=today);
   return next||{...company,date:null,record:null,holdUntil:'次回の保有締切は確認中',grant:company.grant||'発送・付与の案内は詳細を確認',lastConfirmed:dates.length?dates[dates.length-1].date:null};
 }
+function oneTimeRow(company,today){
+  const record=company.oneTimeRecordDate,passed=record<today;
+  return {...company,date:null,record,oneTime:true,
+    holdUntil:record.replaceAll('-','/')+(passed?'（経過）':''),
+    holdExplanation:passed?'基準日は経過しています。今からの購入では、この基準日の対象にはなりません。':'この基準日の株主名簿が対象です。購入締切日や取引日程を確認した案内ではありません。',
+    grant:company.grant||'発送・付与の案内は詳細を確認'};
+}
 function create(w,mount,cal){
   const doc=w.document;
-  let month=cal.today().slice(0,7),selected=null,limit=5,pendingLimit=5;
+  let month=cal.today().slice(0,7),selected=null,limit=5,pendingLimit=5,oneTimeLimit=5;
   const dateButtons=new Map();
   function el(tag,cls,text){const node=doc.createElement(tag);node.className=cls||'';if(text!==undefined)node.textContent=text;return node;}
   function btn(text,cls,fn){const node=el('button',cls,text);node.type='button';node.addEventListener('click',fn);return node;}
-  function reset(){selected=null;limit=pendingLimit=5;}
+  function reset(){selected=null;limit=pendingLimit=oneTimeLimit=5;}
   const nav=el('div','dc-month-navigation'),label=el('h3','dc-month');
   const prev=btn('‹','dc-month-arrow',()=>move(-1)),next=btn('›','dc-month-arrow',()=>move(1));
   prev.setAttribute('aria-label','優待カレンダーの前の月');next.setAttribute('aria-label','優待カレンダーの次の月');
@@ -59,24 +69,27 @@ function create(w,mount,cal){
   const pending=el('details','bc-pending'),pendingHeading=el('summary'),pendingBody=el('div','bc-pending-body');pending.open=true;
   const pendingMore=btn('もっと見る','dc-more bc-pending-more',()=>{pendingLimit+=5;render();});
   [pendingHeading,pendingBody,pendingMore].forEach(node=>pending.appendChild(node));
+  const oneTime=el('details','bc-one-time bc-pending'),oneTimeHeading=el('summary'),oneTimeBody=el('div','bc-one-time-body');oneTime.open=true;
+  const oneTimeMore=btn('もっと見る','dc-more bc-one-time-more',()=>{oneTimeLimit+=5;render();});
+  [oneTimeHeading,oneTimeBody,oneTimeMore].forEach(node=>oneTime.appendChild(node));
   const note=el('p','dc-coverage','カレンダーは購入締切日です。現行制度に基づく予定を含みます。長期保有が必要な優待は、締切当日の購入だけでは対象になりません。空欄は、優待がないという意味ではありません。');
-  const coverage=el('p','bc-coverage dc-coverage','優待制度を'+programmes.length+'社掲載。公式情報を確認して順次追加しています。全社の確認は継続中です。会社ごとに確認日が異なります。');
-  [nav,todayButton,layout,pending,coverage,note].forEach(node=>mount.appendChild(node));
+  const coverage=el('p','bc-coverage dc-coverage',(programmes.some(validOneTime)?'優待情報を'+programmes.length+'社掲載。今回限りの優待を含みます。':'優待制度を'+programmes.length+'社掲載。')+'公式情報を確認して順次追加しています。全社の確認は継続中です。会社ごとに確認日が異なります。');
+  [nav,todayButton,layout,pending,oneTime,coverage,note].forEach(node=>mount.appendChild(node));
   function favorites(){try{const saved=JSON.parse(w.localStorage.getItem('alert_watchlist_v1')||'[]');return new Set(Array.isArray(saved)?saved.map(code=>String(code).normalize('NFKC').toUpperCase().replace(/\.(?:T|JP)$/,'')):[]);}catch(_){return new Set();}}
   function sortRows(rows){const saved=favorites();return rows.slice().sort((a,b)=>Number(saved.has(b.code))-Number(saved.has(a.code))||(a.date||'9999').localeCompare(b.date||'9999')||a.code.localeCompare(b.code));}
   function card(row,opened){
     const box=el('details','bc-card dc-disclosure'),summary=el('summary','bc-summary dc-event-summary');
-    box.dataset.benefitKey=row.code+':'+(row.date||'pending');box.open=opened.has(box.dataset.benefitKey);
-    const hold=row.date?(row.holdUntil||row.date.replaceAll('-','/')+'の取引終了まで'):'次回の保有締切は確認中';
-    const date=el('span','dc-event-date',row.date?shortDay(row.date):'未確認'),body=el('span','dc-event-body');
-    [el('span','dc-company bc-company',row.name),el('span','dc-company-code',row.code),el('strong','bc-reward',row.reward),el('span','bc-tags',row.shares+' ／ '+row.holding),el('span','bc-date','保有はいつまで？ '+hold+(row.status==='planned'?'（予定）':'')),el('span','bc-date','いつもらえる？ '+(row.grant||'付与時期は会社の案内で確認'))].forEach(node=>body.appendChild(node));
+    box.dataset.benefitKey=row.code+':'+(row.oneTime?'one-time-'+row.record:(row.date||'pending'));box.open=opened.has(box.dataset.benefitKey);
+    const hold=row.oneTime?row.holdUntil:row.date?(row.holdUntil||row.date.replaceAll('-','/')+'の取引終了まで'):'次回の保有締切は確認中';
+    const date=el('span','dc-event-date',row.oneTime?'今回限り':row.date?shortDay(row.date):'未確認'),body=el('span','dc-event-body');
+    [el('span','dc-company bc-company',row.name),el('span','dc-company-code',row.code),el('strong','bc-reward',row.reward),el('span','bc-tags',row.shares+' ／ '+row.holding),el('span','bc-date',(row.oneTime?'対象の基準日 ':'保有はいつまで？ ')+hold+(row.status==='planned'?'（予定）':'')),el('span','bc-date','いつもらえる？ '+(row.grant||'付与時期は会社の案内で確認'))].forEach(node=>body.appendChild(node));
     if(row.basis)body.appendChild(el('span','dc-coverage bc-basis',row.basis));
     const badge=el('span','dc-favorite','★');badge.setAttribute('aria-label','お気に入り');badge.hidden=!favorites().has(row.code);
     [date,body,badge].forEach(node=>summary.appendChild(node));
     box.appendChild(summary);
     const details=el('dl','bc-detail');
     const period=(row.record?row.record.replaceAll('-','/')+'の株主名簿で確認。':'')+(row.period||'会社の案内で確認');
-    [['何がもらえる？',row.use],['保有はいつまで？',row.holdExplanation||'次回の保有締切は未確認です。必要な株数・保有条件は「優待を受け取る条件」と会社の案内をご確認ください。'],['優待を受け取る条件',row.conditions],['いつもらえる？',row.delivery||'次回の詳しい付与日程は未確認です。会社の案内をご確認ください。'],['対象になる時期',period]].forEach(([title,text])=>{details.appendChild(el('dt','',title));details.appendChild(el('dd','',text||'会社の案内で確認'));});
+    [['何がもらえる？',row.use],[row.oneTime?'対象の基準日':'保有はいつまで？',row.holdExplanation||'次回の保有締切は未確認です。必要な株数・保有条件は「優待を受け取る条件」と会社の案内をご確認ください。'],['優待を受け取る条件',row.conditions],['いつもらえる？',row.delivery||'次回の詳しい付与日程は未確認です。会社の案内をご確認ください。'],['対象になる時期',period]].forEach(([title,text])=>{details.appendChild(el('dt','',title));details.appendChild(el('dd','',text||'会社の案内で確認'));});
     box.appendChild(details);
     if(row.lastConfirmed)box.appendChild(el('p','dc-coverage','前回掲載した締切：'+row.lastConfirmed.replaceAll('-','/')+'。次回の日程は未確認です。'));
     const verified=dates.label(row.programmeVerified||row.verified,'確認');
@@ -110,9 +123,12 @@ function create(w,mount,cal){
     head.textContent=selected?agendaLabel(selected):'この月の優待の購入締切';
     drawList(list,rows,limit);more.hidden=rows.length<=limit;
     if(!rows.length)list.appendChild(el('p','dc-empty','この月・日付の掲載日程はありません。優待がないという意味ではありません。'));
-    const unknown=sortRows(programmes.map(company=>nextRow(company,today)).filter(row=>!row.date));
+    const unknown=sortRows(programmes.filter(company=>!validOneTime(company)).map(company=>nextRow(company,today)).filter(row=>!row.date));
     pending.hidden=!unknown.length;pendingHeading.textContent='制度を掲載済み・購入締切日は未確認 '+unknown.length+'社';
     drawList(pendingBody,unknown,pendingLimit);pendingMore.hidden=unknown.length<=pendingLimit;
+    const dated=sortRows(programmes.filter(validOneTime).map(company=>oneTimeRow(company,today)));
+    oneTime.hidden=!dated.length;oneTimeHeading.textContent='一回限りの優待・発送予定 '+dated.length+'社';
+    drawList(oneTimeBody,dated,oneTimeLimit);oneTimeMore.hidden=dated.length<=oneTimeLimit;
   }
   if(doc.addEventListener)doc.addEventListener('visibilitychange',()=>{if(!doc.hidden)render();});
   if(w.addEventListener)w.addEventListener('kn:watchlist-change',render);

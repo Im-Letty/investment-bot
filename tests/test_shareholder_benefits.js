@@ -148,3 +148,54 @@ test('expired generated programme does not retain its old grant date as current'
  assert.match(card.find('bc-summary').textContent,/次回の付与時期は確認中/);
  assert.doesNotMatch(card.textContent,/2027年3月6日/);
 });
+
+function oneTimeCompany(code='130A',changes={}){return company(code,{name:'一回限りの試験会社',programmeStatus:'one_time',programmeEffectiveFrom:null,programmeEffectiveUntil:null,oneTimeRecordDate:'2026-09-30',schedules:[],holding:'保有期間の記載なし',period:'2026年9月30日が対象の今回限りの優待',grant:'2026年11月中旬ごろ発送予定',delivery:'2026年11月中旬ごろ発送予定。実際の発送や到着は未確認です。',...changes});}
+test('past one-time record has its own dated section without a next purchase or annual event',()=>{
+ const row=oneTimeCompany(),h=harness([row,company('2000',{schedules:[]})],{today:'2026-10-24'});
+ const section=h.mount.find('bc-one-time'),card=h.mount.find('bc-one-time-body').children[0];
+ assert.equal(section.hidden,false);assert.match(section.textContent,/一回限りの優待・発送予定 1社/);
+ assert.match(card.textContent,/今回限り/);assert.match(card.textContent,/対象の基準日 2026\/09\/30（経過）/);
+ assert.match(h.mount.find('bc-coverage').textContent,/優待情報を2社掲載。今回限りの優待を含みます/);
+ assert.match(card.textContent,/今からの購入では、この基準日の対象にはなりません/);
+ assert.match(card.textContent,/2026年11月中旬ごろ発送予定/);
+ assert.doesNotMatch(card.textContent,/次回|年1回|年2回|の取引終了まで/);
+ assert.doesNotMatch(h.mount.find('bc-pending-body').textContent,/一回限りの試験会社/);
+ assert.match(h.mount.find('bc-pending').textContent,/未確認 1社/);
+ assert.equal(h.api.rowsForMonth('2026-09','2026-09-01').length,0);
+ assert.equal(h.api.rowsForMonth('2027-09','2027-09-01').length,0);
+ assert.equal(h.mount.find('dc-grid').find('dc-day-count'),undefined);
+ assert.equal(card.find('dc-help-source').href,row.url);assert.equal(card.find('bc-verified').textContent,'2026/09/24 確認');
+});
+test('one-time before and on record date do not invent a buy cutoff or prematurely claim record passed',()=>{
+ for(const today of ['2026-09-29','2026-09-30']){
+  const h=harness([oneTimeCompany()],{today}),card=h.mount.find('bc-one-time-body').children[0];
+  assert.match(card.textContent,/対象の基準日 2026\/09\/30/);assert.doesNotMatch(card.textContent,/（経過）|今からの購入では/);
+  assert.match(card.textContent,/購入締切日や取引日程を確認した案内ではありません/);
+  assert.equal(h.api.rowsForMonth('2026-09',today).length,0);
+ }
+});
+test('dated one-time dispatch plan remains a plan after its month and next year, with disclosure state retained',()=>{
+ const h=harness([oneTimeCompany()],{today:'2026-10-24'});let card=h.mount.find('bc-one-time-body').children[0];card.open=true;
+ for(const today of ['2026-11-30','2027-09-30']){
+  h.setToday(today);h.view.render();card=h.mount.find('bc-one-time-body').children[0];
+  assert.equal(card.open,true);assert.match(card.textContent,/2026年11月中旬ごろ発送予定/);
+  assert.match(card.textContent,/実際の発送や到着は未確認/);assert.doesNotMatch(card.textContent,/2027年11月|次回|発送済み|到着済み/);
+  assert.equal(h.cards().length,0);assert.equal(h.mount.find('bc-pending').hidden,true);
+ }
+});
+test('malformed one-time metadata fails closed to unconfirmed without old amounts or purchase events',()=>{
+ for(const invalid of ['2026-02-30',null,'2026-9-30']){
+  const h=harness([oneTimeCompany('130A',{oneTimeRecordDate:invalid,reward:'旧給付9999円',schedules:[schedule('2026-09-28')]})]);
+  assert.equal(h.mount.find('bc-one-time').hidden,true);assert.equal(h.api.rowsForMonth('2026-09','2026-09-01').length,0);
+  assert.match(h.mount.find('bc-pending-body').textContent,/現在の優待内容は未確認/);
+  assert.doesNotMatch(h.mount.find('bc-pending-body').textContent,/旧給付9999円/);
+ }
+});
+test('one-time pagination and favorites are independent from ordinary pending and calendar lists',()=>{
+ const h=harness(Array.from({length:7},(_,i)=>oneTimeCompany(String(1000+i))),{today:'2026-10-24',favorites:['1006.JP']});
+ const body=h.mount.find('bc-one-time-body');assert.equal(body.children.length,5);
+ assert.equal(body.children[0].find('dc-company-code').textContent,'1006');assert.equal(body.children[0].find('dc-favorite').hidden,false);
+ h.mount.find('bc-one-time-more').dispatch('click');assert.equal(body.children.length,7);
+ assert.equal(h.mount.find('bc-one-time-more').hidden,true);assert.equal(h.mount.find('bc-pending').hidden,true);
+ assert.equal(h.mount.find('bc-more').hidden,true);
+});

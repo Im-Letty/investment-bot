@@ -1856,6 +1856,76 @@
           "schedules": []
         }
       ]
+    },
+    {
+      "code": "1770",
+      "symbol": "1770.T",
+      "name": "藤田エンジニアリング",
+      "category": "食品",
+      "aliases": "ペヤング",
+      "versions": [
+        {
+          "id": "one-time-20260930-reviewed-20261024",
+          "status": "active",
+          "one_time_record_date": "2026-09-30",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": "2026-09-15",
+          "verified_on": "2026-10-24",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://www.fujita-eng.co.jp/wordpress/wp-content/uploads/ir-info/rel_20260915.pdf",
+            "title": "藤田エンジニアリング 特別株主優待の公式告知",
+            "security_code": "1770",
+            "issuer_name": "藤田エンジニアリング",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-24T14:50:29.621551+09:00",
+            "observed_at_kind": "actual_saved_official_PDF_GET_finished_at_jst_not_new_offline_review",
+            "evidence_path": "evidence/reviewed-1770-observation-note-20261024.json",
+            "evidence_sha256": "945d3f37e6ac3da2d13b3b115d453a9ee4318b8eb875204d5d5e717730feced2",
+            "original_PDF_sha256": "4f2d86becc8a97fc081d1294821c2ba498df8a0620341a49985605d73a0980b0",
+            "original_PDF_bytes": 123494
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "root_visual_and_independent_saved_source_wording_review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "9月15日告知と既取得IR一覧5行を限定確認。全改廃や将来の不存在を保証しない。今回限りの2026/09/30基準日と発送予定を採用し、現在購入による権利・年次継続・実発送/到着/廃止は確認していない。",
+            "all_future_amendments_verified_absent": false,
+            "general_reuse_licence_claimed": false,
+            "primary_original_SHA_separate_from_note_SHA": true,
+            "independent_numeric_source_review": {
+              "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261024-154806/company-1770/candidate-proposal.json",
+              "sha256": "4871482b4b87077108c56a8e030620834ced611ba71b72064e6a58318d109b45"
+            },
+            "final_public_record_wording_reviewed": true,
+            "independent_final_wording_review": {
+              "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261024-154806/company-1770/final-wording-review.json",
+              "sha256": "d6b9b4d61144a689dd265ca0efbf09811bcfe73d0671c37ac7d48ca752b3a273"
+            }
+          },
+          "period": "2026年9月30日が対象の、今回限りの記念優待です。基準日は経過しています。",
+          "conditions": "2026年9月30日の株主名簿に記載・記録された100株以上の保有者が対象です。100株は1単元です。対象者への内容は一律で、保有株数に応じた加算区分はありません。 保有期間・同じ株主番号・連続名簿回数は未記載です。申請や選択の要否・期限、商品の期限も未確認です。",
+          "use": "ペヤング商品の詰め合わせです。2,500円相当の品物で、現金の支給ではありません。",
+          "delivery": "2026年11月中旬ごろの発送予定です。実際の発送や到着は確認していません。",
+          "grant_summary": "2026年11月中旬ごろに発送予定",
+          "tiers": [
+            {
+              "id": "one-time-20260930-100",
+              "shares_min": 100,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "保有期間・同じ株主番号・連続名簿回数の条件は、この告知には記載がありません。",
+              "reward": "ペヤング商品の詰め合わせ2,500円相当（対象者一律）",
+              "conditions": "2026年9月30日の株主名簿が対象です。今回限りで、現在購入してもこの基準日の対象にはなりません。"
+            }
+          ],
+          "schedules": []
+        }
+      ]
     }
   ]
 }

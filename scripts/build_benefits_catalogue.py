@@ -228,6 +228,12 @@ def validate_company(company, identities, as_of, evidence_root):
             text(version["grant_summary"], "version_grant_summary", 500)
         validate_tiers(version.get("tiers"))
         validate_schedules(version.get("schedules"), version, as_of)
+        if "one_time_record_date" in version:
+            record = day(version["one_time_record_date"], "one_time_record_date")
+            need(version["status"] == "active", "one_time_status")
+            need(not version["schedules"], "one_time_schedules")
+            need((start is None or start <= record) and (end is None or record <= end),
+                 "one_time_wrong_version")
     intervals.sort()
     need(all(previous[1] < current[0] for previous, current in zip(intervals, intervals[1:])), "version_intervals_overlap")
 
@@ -263,6 +269,10 @@ def project(company, version):
         row["aliases"] = company["aliases"]
     if "grant_summary" in version:
         row["grant"] = version["grant_summary"]
+    if "one_time_record_date" in version:
+        # A known dated entitlement is not an ongoing/annual active programme.
+        row["programmeStatus"] = "one_time"
+        row["oneTimeRecordDate"] = version["one_time_record_date"]
     return row
 
 
@@ -295,7 +305,9 @@ def build(legacy, additions, identity_document, as_of, evidence_root):
     need(base[:len(legacy)] == legacy, "legacy_records_changed")
     report = {"schema_version": 1, "as_of_jst": as_of.isoformat(), "identity_as_of": identity_as_of,
               "identity_companies": len(identities), "legacy_preserved": len(legacy), "new_reviewed_companies": len(reviewed),
-              "new_active_companies": len(base) - len(legacy), "published_total": len(base),
+              "new_active_companies": sum(row.get("programmeStatus") == "active" for row in base[len(legacy):]),
+              "one_time_count": sum(row.get("programmeStatus") == "one_time" for row in base[len(legacy):]),
+              "published_total": len(base),
               "withheld": withheld, "unreviewed_identity_companies": len(set(identities) - seen),
               "all_company_coverage": False, "automatic_source_refresh": False,
               "no_benefit_inferred_from_missing_record": False, "calendar_dates_inferred": False,

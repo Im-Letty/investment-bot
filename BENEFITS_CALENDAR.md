@@ -1,9 +1,11 @@
 # Shareholder benefits calendar
 
-The catalogue contains 34 companies: the original nine reviewed on 2026-09-25,
-fifteen additions reviewed on 2026-10-17, three on 2026-10-18, three on
-2026-10-19, two on 2026-10-20 and two on 2026-10-23. The owner chose phased expansion using free
-official sources only. This remains a partial, manually reviewed catalogue, not a
+The catalogue contains 35 company information records: the original nine reviewed
+on 2026-09-25, fifteen additions on 2026-10-17, three on 2026-10-18, three on
+2026-10-19, two on 2026-10-20, two on 2026-10-23 and one dated one-time benefit
+on 2026-10-24. This total includes past-record information; it is not a count of
+companies currently offering an annual programme. The owner chose phased
+expansion using free official sources only. This remains a partial, manually reviewed catalogue, not a
 complete benefit-issuer list or automatic data updater. Missing records never mean
 "no benefit". A build does not refresh the original nine's confirmation dates.
 
@@ -30,6 +32,20 @@ they are not represented as an explicit year-specific company announcement. No
 unreviewed next-year dates are generated from the recurring months or dividend API.
 Schedules with continuity conditions need their own holding explanation and must not
 use the basic no-minimum-holding schedule helper.
+
+A reviewed one-time benefit may instead carry an explicit `one_time_record_date`.
+It must have no purchase schedules. The public projection uses
+`programmeStatus: "one_time"` and `oneTimeRecordDate`, rather than an ongoing
+active programme. The builder counts these separately as `one_time_count`; they
+do not increase `new_active_companies`. A record date is not a programme inception,
+abolition date, purchase deadline or fulfilment-completion date.
+
+These dated facts appear in **一回限りの優待・発送予定**, outside calendar counts
+and the next-deadline-unconfirmed list. After the record date, the card explains
+that buying now cannot qualify for that record. A known dated dispatch plan stays
+a plan after that month and in later years; shipment and arrival are not inferred.
+No recurring year, exact mid-month day or expiry is generated. Publication still
+requires separate source and condition review; lifecycle support alone adds no issuer.
 
 ## Reviewed programme sources
 
@@ -617,3 +633,26 @@ All previous 33 companies, 24 reviewed additions, nine fixed records and 12
 explicit schedules retain their values and confirmation dates. This addition
 has no schedule and coverage remains partial. Build and public verification
 are separate steps.
+
+
+## Dated one-time benefit reviewed on 2026-10-24
+
+- 1770 Fujita Engineering:
+  https://www.fujita-eng.co.jp/wordpress/wp-content/uploads/ir-info/rel_20260915.pdf
+  The September 15 announcement applies only to the September 30, 2026 register.
+  All holders of 100+ shares (one100-share lot) receive the same Peyang product
+  assortment worth 2,500yen equivalent, without adding share brackets. Dispatch
+  is planned around mid-November2026; actual shipment and arrival remain unknown.
+  Holding duration, same-number/continuous-register tests, application or choice
+  procedures, deadlines and product expiry are unstated. Buying now cannot meet
+  that past register. No annual repetition,2027 entitlement, purchase schedule,
+  abolition or fulfilment-completion date is inferred. The official single table
+  was visually checked against the saved original PDF. Its actual byte SHA and
+  acquisition clock remain separate from the authored evidence note and offline
+  review time. Source/link observations do not establish a blanket reuse grant;
+  only short independently worded facts and the actual official link are adopted.
+
+All previous34 public records, their confirmation dates and12 explicit schedules
+are preserved. The new dated one-time record is shown outside the purchase
+calendar and ordinary next-deadline list. Asset and actual public UI verification
+remain separate from repository build and this source note.
