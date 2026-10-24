@@ -119,6 +119,7 @@ async function fixture(config = {}) {
         },
         setSituation(name, detail) { this.changes.push({ name, ...(detail == null ? {} : copy(detail)) }); } };
       mounts.push(controller);
+      if (rendererControl.onMount) rendererControl.onMount(controller);
       if (rendererControl.mode === 'throw') throw new Error('private GPU failure');
       if (rendererControl.mode === 'ready') options.onReady();
       if (rendererControl.mode === 'error') options.onError('unavailable');
@@ -167,7 +168,7 @@ async function fixture(config = {}) {
     assert.ok(room, 'existing room scenarios can enter the room from the village');
     room.emit('click'); await flush();
   }
-  return { ui, host, pane, document, window, data, storage, writes, control, rendererControl, mounts, actionCues, anchorCalls, hitTests, raf, timers, beforeMountRaw, writesBeforeMount, cozyMounts, cozyControl, economyScenes,
+  return { ui, host, pane, document, window, data, storage, writes, control, renderer, rendererControl, mounts, actionCues, anchorCalls, hitTests, raf, timers, beforeMountRaw, writesBeforeMount, cozyMounts, cozyControl, economyScenes,
     get store() { return store; },
     get now() { return clock; },
     saved() { return JSON.parse(data.get(Core.KEY)); },
@@ -207,6 +208,101 @@ async function fixture(config = {}) {
 }
 
 async function cozyFixture(config = {}) { return fixture({ species: 'lilac', developerPreview: false, rendererMode: 'ready', cozyRenderer: true, ...config }); }
+
+test('late optional visuals enhance the same room DOM without losing a name draft, focus or saved state', async () => {
+  const f = await fixture({species: 'lilac', developerPreview: false, rendererUnavailable: true, roomUnavailable: true, rendererMode: 'ready'});
+  const before = f.saved(), writes = f.writes.length, root = f.host.children[0], visual = f.host.querySelector('.ipg-lilac-visual');
+  const input = f.host.querySelector('.ipg-pet-settings input'), settings = f.host.querySelector('.ipg-pet-settings');
+  settings.open = true; input.value = '入力している途中'; input.emit('input'); input.focus();
+  assert.equal(f.mounts.length, 0); f.window.PetLilacMotion = f.renderer;
+  assert.equal(f.ui.refreshVisuals(f.host), true); const first = f.activeMotions()[0]; assert.ok(first);
+  assert.equal(f.host.children[0], root); assert.equal(f.host.querySelector('.ipg-lilac-visual'), visual);
+  assert.equal(f.host.querySelector('.ipg-pet-settings input'), input); assert.equal(input.value, '入力している途中');
+  assert.equal(settings.open, true); assert.equal(f.document.activeElement, input);
+  let behaviorCreates = 0;
+  f.window.PetRoomBehavior = {create(options) { behaviorCreates++; return Room.create(options); }};
+  for (let i = 0; i < 3; i++) assert.equal(f.ui.refreshVisuals(f.host), true);
+  assert.equal(f.activeMotions()[0], first); assert.equal(f.mounts.length, 1); assert.equal(behaviorCreates, 1);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); f.ui.close();
+});
+
+test('visual enhancement keeps an in-progress touch gesture and never duplicates an existing controller', async () => {
+  const f = await fixture({species: 'lilac', developerPreview: false, rendererMode: 'ready'}), before = f.saved(), writes = f.writes.length;
+  f.advance(3000); // The ordinary greeting has finished before this real touch.
+  const motion = f.activeMotions()[0], count = f.mounts.length; f.rendererControl.hit = {part: 'head'};
+  motion.canvas.emit('pointerdown', {pointerId: 51, clientX: 140, clientY: 120, button: 0});
+  assert.equal(f.ui.refreshVisuals(f.host), true);
+  motion.canvas.emit('pointerup', {pointerId: 51, clientX: 140, clientY: 120, button: 0});
+  assert.equal(f.activeMotions()[0], motion); assert.equal(f.mounts.length, count);
+  assert.equal(f.host.querySelector('.ipg-lilac-visual').dataset.touchPart, 'head');
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); f.ui.close();
+});
+
+test('late optional visuals leave a live 3D room editor and its unsaved furniture draft untouched', async () => {
+  const f = await cozyFixture({rendererUnavailable: true}), before = f.saved(), writes = f.writes.length;
+  await f.click(f.focusButton('room-edit')); const editor = f.activeCozy()[0], root = f.host.children[0];
+  const draft = copy(editor.options.layout); draft.wall = 'mint'; editor.options.onDraftChange(draft);
+  f.window.PetLilacMotion = f.renderer;
+  assert.equal(f.ui.refreshVisuals(f.host), false); assert.equal(f.activeCozy()[0], editor);
+  assert.equal(f.host.children[0], root); assert.equal(editor.destroyed, false); assert.equal(f.mounts.length, 0);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+  await f.click(f.focusButton('room-cancel')); assert.ok(f.activeMotions()[0], 'normal editor exit adopts the now-ready module'); f.ui.close();
+});
+
+test('closed, hidden and detached hosts reject late enhancement; stale image callbacks stay inert after reopening', async () => {
+  const f = await fixture({species: 'lilac', developerPreview: false, rendererUnavailable: true}), before = f.saved(), writes = f.writes.length;
+  f.window.PetLilacMotion = f.renderer;
+  assert.equal(f.ui.refreshVisuals(f.document.createElement('div')), false); assert.equal(f.mounts.length, 0);
+  f.pane.hidden = true; assert.equal(f.ui.refreshVisuals(f.host), false);
+  f.pane.hidden = false; assert.equal(f.ui.refreshVisuals(f.host), true); const old = f.activeMotions()[0], oldStill = f.host.querySelector('.ipg-lilac-still');
+  await f.ui.close(); assert.equal(old.destroyed, true); assert.equal(f.ui.refreshVisuals(f.host), false);
+  assert.equal(await f.ui.mount(f.host), true); const current = f.activeMotions()[0]; assert.notEqual(current, old);
+  old.options.onReady(); old.options.onError('image_failed'); old.options.onPose({situation: 'idle'});
+  assert.equal(oldStill.hidden, false, 'stale callbacks do not reveal an old canvas');
+  assert.equal(f.activeMotions()[0], current); assert.equal(current.destroyed, false);
+  f.host.remove(); assert.equal(f.ui.refreshVisuals(f.host), false);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); f.ui.close();
+});
+
+test('a late renderer failure keeps its fallback and is not automatically retried on behavior load', async () => {
+  const f = await fixture({species: 'lilac', developerPreview: false, rendererUnavailable: true, rendererMode: 'error'}), before = f.saved(), writes = f.writes.length;
+  f.window.PetLilacMotion = f.renderer; assert.equal(f.ui.refreshVisuals(f.host), true);
+  const count = f.mounts.length; assert.equal(f.host.querySelector('.ipg-lilac-still').hidden, false);
+  f.window.PetRoomBehavior = Room; assert.equal(f.ui.refreshVisuals(f.host), true);
+  assert.equal(f.mounts.length, count); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); f.ui.close();
+});
+
+test('late motion refreshes open palette catalogues and availability while preserving the search, drawers and focus', async () => {
+  const f = await fixture({species: 'lilac', rendererUnavailable: true, rendererMode: 'ready'}), before = f.saved(), writes = f.writes.length;
+  const root = f.host.children[0], panel = f.host.querySelector('.ipg-emotion-panel'), search = f.focusButton('pet-emotion-search');
+  const body = await f.bodyDrawer(), direction = await f.directionDrawer();
+  search.value = 'sad'; search.emit('input'); search.focus();
+  assert.equal(panel.querySelector('.ipg-emotion-grid').children.length, 36);
+  assert.equal(body.querySelector('.ipg-body-motion-grid').children.length, 0);
+  assert.equal(direction.querySelector('.ipg-direction-motion-grid').children.length, 0);
+  f.window.PetLilacMotion = f.renderer; assert.equal(f.ui.refreshVisuals(f.host), true);
+  assert.equal(f.host.children[0], root); assert.equal(f.host.querySelector('.ipg-emotion-panel'), panel);
+  assert.equal(f.focusButton('pet-emotion-search'), search); assert.equal(search.value, 'sad'); assert.equal(f.document.activeElement, search);
+  assert.equal(body.open, true); assert.equal(direction.open, true); assert.equal(f.focusButton('pet-body-motion'), body); assert.equal(f.focusButton('pet-direction-motion'), direction);
+  assert.equal(panel.querySelector('.ipg-emotion-grid').children.length, Motion.catalogue.length);
+  assert.match(panel.querySelector('h4').textContent, /100種類/); assert.match(panel.getAttribute('aria-label'), /100種類/);
+  assert.equal(search.getAttribute('aria-label'), '全100種類からしぐさを検索');
+  assert.equal(body.querySelector('.ipg-body-motion-grid').children.length, 7); assert.equal(direction.querySelector('.ipg-direction-motion-grid').children.length, 4);
+  for (const choice of panel.querySelectorAll('button').filter(b => b.dataset.emotion || b.dataset.bodyMotion || b.dataset.directionMotion)) {
+    assert.equal(choice.disabled, false); assert.notEqual(choice.dataset.ipgDisabled, '1');
+  }
+  await f.click(f.focusButton('pet-body-motion-body_hands'));
+  assert.ok(f.activeMotions()[0].changes.some(c => c.name === 'body_hands'));
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); f.ui.close();
+});
+
+test('a synchronous renderer callback that closes the visit cannot retain its returned controller or resurrect old DOM', async () => {
+  const f = await fixture({species: 'lilac', rendererUnavailable: true, rendererMode: 'ready'}), before = f.saved(), writes = f.writes.length;
+  f.window.PetLilacMotion = f.renderer; f.rendererControl.onMount = () => f.ui.close();
+  f.ui.refreshVisuals(f.host); assert.equal(f.mounts.length, 1); assert.equal(f.mounts[0].destroyed, true); assert.equal(f.activeMotions().length, 0);
+  f.rendererControl.onMount = null; assert.equal(await f.ui.mount(f.host), true); assert.equal(f.activeMotions().length, 1);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); f.ui.close();
+});
 function cozyView(f, editable) {
   const controller = f.activeCozy().find(m => m.options.editable === editable);
   assert.ok(controller, editable ? 'current 3D room editor' : 'current 3D care room'); return controller;

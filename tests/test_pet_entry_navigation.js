@@ -41,7 +41,7 @@ function fixture({ origin = 'morning', preloaded = true, hydration, mounting } =
   pane.hidden = true; host.textContent = 'ゲームを開くと読み込みます。'; sourceView.classList.add('open');
   const buttons = [new Element('button', 'morning'), pet, new Element('button', 'mypage'), new Element('button', 'talk')];
   buttons.find(x => x.act === (origin === 'community' ? 'talk' : origin)).classList.add('active');
-  const docs = [], windows = [], assets = [], timers = new Map(), commits = [], visibleRenders = [];
+  const docs = [], windows = [], assets = [], timers = new Map(), commits = [], visibleRenders = [], enhancements = [];
   let timerId = 0, mounts = 0, closes = 0, reloads = 0, communityCloses = 0, storageWrites = 0;
   const nodes = { 'sect-pet': pane, 'pet-game-root': host, 'morning-section': sourceView,
     myPageOv: origin === 'mypage' ? sourceView : new Element(), cmOv: origin === 'community' ? sourceView : null };
@@ -61,7 +61,8 @@ function fixture({ origin = 'morning', preloaded = true, hydration, mounting } =
   const ui = {
     async mount(target) { mounts++; target.textContent = '記録を準備中'; const result = mounting ? await mounting.promise : true; target.textContent = result === false ? '記録を読み込めませんでした。' : '実ゲーム'; return result; },
     async close() { closes++; },
-    render() { visibleRenders.push(!pane.hidden); }
+    render() { visibleRenders.push(!pane.hidden); },
+    refreshVisuals(target) { enhancements.push(target); }
   };
   if (preloaded) { window.PetVillageEconomy = {}; window.PetTownWalk = {}; window.PetVillageEconomyScene = {mount(){}}; window.PetGameCore = {}; window.PetCozyRoom = {mount(){}}; window.IndependentPetGame = ui; }
   const context = vm.createContext({ document, window, Promise, nav: navEl, ms: sourceView,
@@ -84,7 +85,7 @@ function fixture({ origin = 'morning', preloaded = true, hydration, mounting } =
   vm.runInContext(nav, context);
   vm.runInContext(targetCapture, context);
   vm.runInContext(loader, context);
-  return { window, context, pet, pane, host, sourceView, body, assets, ui, commits, visibleRenders,
+  return { window, context, pet, pane, host, sourceView, body, assets, ui, commits, visibleRenders, enhancements,
     counts: () => ({ mounts, closes, reloads, communityCloses, storageWrites }),
     selected: () => buttons.filter(x => x.classList.contains('active')).map(x => x.act),
     click: act => click(buttons.find(x => x.act === act)),
@@ -103,6 +104,12 @@ function fixture({ origin = 'morning', preloaded = true, hydration, mounting } =
       window.PetCozyRoom = {mount(){}}; assets.findLast(x => x.src.includes('/pet-cozy-room.js')).onload();
       window.PetLilacMotion = {}; assets.findLast(x => x.src.includes('/pet-lilac-motion.js')).onload();
       window.PetRoomBehavior = {}; assets.findLast(x => x.src.includes('/pet-room-behavior.js')).onload();
+      await flush(); window.IndependentPetGame = ui; assets.findLast(x => x.src.includes('/pet-game.js')).onload(); await flush();
+    },
+    async loadRequiredAssets() {
+      await this.loadPrerequisites();
+      window.PetGameCore = {}; assets.findLast(x => x.src.includes('/pet-game-core.js')).onload();
+      window.PetCozyRoom = {mount(){}}; assets.findLast(x => x.src.includes('/pet-cozy-room.js')).onload();
       await flush(); window.IndependentPetGame = ui; assets.findLast(x => x.src.includes('/pet-game.js')).onload(); await flush();
     },
     async failCore() { await this.loadPrerequisites(); assets.findLast(x => x.src.includes('/pet-game-core.js')).onerror(); },
@@ -132,7 +139,7 @@ test('all previous routes remain visible through hydration and mount; only ready
 });
 test('repeated taps share assets/mount and never replay navigation repeatedly', async () => {
   const mounting = deferred(), f = fixture({ preloaded: false, mounting });
-  f.click('pet'); f.click('pet'); const pending = f.window.openPetTab(); assert.equal(f.assets.length, 5);
+  f.click('pet'); f.click('pet'); const pending = f.window.openPetTab(); assert.equal(f.assets.length, 6);
   await f.loadAssets(); assert.equal(f.counts().mounts, 1); assert.equal(f.pane.hidden, true);
   mounting.resolve(true); assert.equal(await pending, true); f.click('pet'); await flush();
   assert.equal(f.assets.length, 8); assert.equal(f.counts().mounts, 1); assert.deepEqual(f.commits, ['実ゲーム']);
@@ -142,6 +149,18 @@ test('other navigation cancels downloads; late assets cannot mount or steal the 
   f.click('mypage'); await f.loadAssets(); assert.equal(await pending, false);
   assert.equal(f.counts().mounts, 0); assert.equal(f.pane.hidden, true); assert.deepEqual(f.selected(), ['mypage']);
   assert.deepEqual(f.commits, []); assert.equal(f.pet.getAttribute('aria-busy'), null);
+});
+test('ready navigation commits before optional visuals and late loads never replay or steal the route', async () => {
+  const f = fixture({preloaded: false, origin: 'mypage'});
+  f.click('pet'); const opening = f.window.openPetTab();
+  await f.loadRequiredAssets(); assert.equal(await opening, true);
+  assert.equal(f.pane.hidden, false); assert.deepEqual(f.commits, ['実ゲーム']); assert.deepEqual(f.visibleRenders, [true]);
+  f.timer(5000);
+  f.window.PetLilacMotion = {}; f.assets.find(x => x.src.includes('/pet-lilac-motion.js')).onload();
+  assert.deepEqual(f.enhancements, [f.host]); assert.deepEqual(f.commits, ['実ゲーム']); assert.deepEqual(f.visibleRenders, [true]);
+  f.click('mypage'); f.window.PetRoomBehavior = {}; f.assets.find(x => x.src.includes('/pet-room-behavior.js')).onload();
+  assert.deepEqual(f.enhancements, [f.host]); assert.equal(f.pane.hidden, true); assert.deepEqual(f.selected(), ['mypage']);
+  assert.equal(f.counts().storageWrites, 0);
 });
 test('Escape cancels hydration without changing the previous screen or focusing another control', async () => {
   const hydration = deferred(), f = fixture({ hydration, origin: 'community' });

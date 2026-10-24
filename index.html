@@ -4400,9 +4400,17 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
   var scriptLoads=Object.create(null);
   function section(){return document.getElementById('sect-pet');}
   function host(){return document.getElementById('pet-game-root');}
-  function apiReady(){return !!(window.PetVillageEconomy&&window.PetGameCore&&window.PetTownWalk&&window.PetVillageEconomyScene&&typeof window.PetVillageEconomyScene.mount==='function'&&window.PetCozyRoom&&typeof window.PetCozyRoom.mount==='function'&&window.IndependentPetGame&&typeof window.IndependentPetGame.mount==='function'&&typeof window.IndependentPetGame.close==='function');}
+  function uiReady(){return !!(window.IndependentPetGame&&typeof window.IndependentPetGame.mount==='function'&&typeof window.IndependentPetGame.close==='function');}
+  function apiReady(){return !!(window.PetVillageEconomy&&window.PetGameCore&&window.PetTownWalk&&window.PetVillageEconomyScene&&typeof window.PetVillageEconomyScene.mount==='function'&&window.PetCozyRoom&&typeof window.PetCozyRoom.mount==='function'&&uiReady());}
   function assetFailure(kind){var error=new Error('Game unavailable');error.petAssetFailure=kind;return error;}
-  function loadScript(src,ready,timeout){
+  function enhanceOptional(){
+    var pane=section(),target=host();
+    if(!viewReady||!pane||pane.hidden||!target||!window.IndependentPetGame||typeof window.IndependentPetGame.refreshVisuals!=='function')return;
+    // A shared download can finish after its original visit was cancelled.
+    // Only the current visible host may adopt it; never rebuild or navigate.
+    window.IndependentPetGame.refreshVisuals(target);
+  }
+  function loadScript(src,ready,timeout,onReady){
     if(ready())return Promise.resolve();
     var record=scriptLoads[src],fresh=!record;
     if(record&&record.invalid)return Promise.reject(assetFailure('invalid'));
@@ -4417,6 +4425,9 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
         else if(scriptLoads[src]===record)delete scriptLoads[src];
         var waiters=record.waiters.slice();record.waiters.length=0;
         waiters.forEach(function(waiter){waiter.finish(ok,kind==='error'?'network':'invalid');});
+        // Keep this notification on the real load event, including after a
+        // waiter timed out. The still-pending script remains shared on reopen.
+        if(ok&&typeof onReady==='function'){try{onReady();}catch(_){}}
         if(!ok)script.remove();
       }
       script.src=src;script.async=true;
@@ -4451,14 +4462,16 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
     var required=Promise.all([
       window.PetVillageEconomy?loadGameCore():loadRequired('/static/pet-village-economy.js?v=20261024-village-economy1',function(){return !!window.PetVillageEconomy;}).then(loadGameCore),
       window.PetTownWalk?loadVillageScene():loadRequired('/static/pet-town-walk.js?v=20261024-no-minigames1',function(){return !!window.PetTownWalk;}).then(loadVillageScene),
-      loadRequired('/static/pet-cozy-room.js?v=20261024-cozy-room1',function(){return !!window.PetCozyRoom&&typeof window.PetCozyRoom.mount==='function';})
-    ]).then(function(){
-      return loadRequired('/static/pet-game.js?v=20261024-village-economy1',apiReady);
-    });
-    var motion=loadScript('/static/pet-lilac-motion.js?v=20261023-reference-blink1',function(){return !!window.PetLilacMotion;},5000).catch(function(){});
-    var room=loadScript('/static/pet-room-behavior.js?v=4306c88f116b',function(){return !!window.PetRoomBehavior;},5000).catch(function(){});
-    // Optional visuals never block the required UI download.
-    moduleLoading=Promise.all([required,motion,room]).catch(function(error){moduleLoading=null;throw error;});
+      loadRequired('/static/pet-cozy-room.js?v=20261024-cozy-room1',function(){return !!window.PetCozyRoom&&typeof window.PetCozyRoom.mount==='function';}),
+      // UI registration has no eager core access. Fetch it in parallel while
+      // retaining economy -> core and walking engine -> scene execution order.
+      loadRequired('/static/pet-game.js?v=20261025-load1',uiReady)
+    ]).then(function(){if(!apiReady())throw assetFailure('invalid');});
+    loadScript('/static/pet-lilac-motion.js?v=20261023-reference-blink1',function(){return !!window.PetLilacMotion;},5000,enhanceOptional).catch(function(){});
+    loadScript('/static/pet-room-behavior.js?v=4306c88f116b',function(){return !!window.PetRoomBehavior;},5000,enhanceOptional).catch(function(){});
+    // The protected game is usable as soon as its required UI is ready.
+    // Optional visuals enhance the existing DOM when their own load completes.
+    moduleLoading=required.catch(function(error){moduleLoading=null;throw error;});
     return moduleLoading;
   }
   function notice(failed,error){
