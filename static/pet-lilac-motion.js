@@ -2619,7 +2619,7 @@
       }
       return null;
     }
-    var controller = { setSituation: setSituation, destroy: destroy, hitTest:hitTest };
+    var controller = { setSituation: setSituation, destroy: destroy, hitTest:hitTest, refreshFrame: function () { if (!dead && loaded) paint(); } };
     if (!canvas || !win || !doc || typeof win.Image !== 'function' || !win.requestAnimationFrame || !win.cancelAnimationFrame) { fail('environment_unavailable'); return controller; }
     if (mounted) mounted.set(canvas, controller);
     var assetRoot = options.assetRoot == null ? '/static/' : options.assetRoot;
@@ -2783,6 +2783,9 @@
             try{options.onPose(endPacket);}catch(_){}
           }
         }
+        // Optional scene consumers must upload before the drawing buffer is released.
+        // Their lifecycle or upload errors must not break the original pet renderer.
+        if (!dead && typeof options.onFrame === 'function') { try { options.onFrame(canvas); } catch (_) {} }
       } catch (_) { fail('render_failed'); }
     }
     function schedule() {

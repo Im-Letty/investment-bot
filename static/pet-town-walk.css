@@ -26,6 +26,10 @@
   outline: 2px solid #fffced;
   outline-offset: -5px;
 }
+.ipg-town .ipg-town-canvas { position:absolute; inset:0; width:100%; height:100%; opacity:0; pointer-events:none; }
+.ipg-town .ipg-town-viewport[data-visual-mode="three"] > .ipg-town-canvas { opacity:1; }
+/* Keep the original canvas alive for its frame consumer and immediate fallback. */
+.ipg-town .ipg-town-viewport[data-visual-mode="three"] > .ipg-town-world { opacity:0; pointer-events:none; }
 .ipg-town .ipg-town-load-error { position: absolute; top: 38%; left: 50%; transform: translateX(-50%); width: min(320px, calc(100% - 48px)); padding: 20px; box-sizing: border-box; border-radius: 18px; background: var(--ipg-paper); color: var(--ipg-ink); text-align: center; }
 
 .ipg-town .ipg-town-world {

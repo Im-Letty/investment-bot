@@ -585,11 +585,10 @@ test('the outer loader also protects village arrangement from Escape until the e
 test('main game does not load a removed minigame runtime and updates only changed game asset revisions',()=>{
   assert.doesNotMatch(html,/<script\b[^>]*src=["'][^"']*pet-cafe\.js/);
   assert.equal(fs.existsSync(path.join(root,'static/pet-cafe.js')),false);
-  for(const asset of ['pet-village.css','pet-town-walk.js']){
+  for(const asset of ['pet-village.css']){
     assert.ok(html.includes('/static/'+asset+'?v=20261024-no-minigames1'),asset);
   }
   for(const asset of ['pet-game-core.js','pet-game.css','pet-village-economy.js','pet-village-economy-scene.js','pet-village-economy-scene.css'])assert.ok(html.includes('/static/'+asset+'?v=20261024-village-economy1'),asset);
-  assert.ok(html.includes('/static/pet-game.js?v=20261025-direct-walk1'),'direct walking UI uses a new cache revision');
-  assert.ok(html.includes('/static/pet-town-walk.css?v=20261025-direct-walk1'),'removed direction panel styles use a new cache revision');
+  for(const asset of ['pet-game.js','pet-town-walk.js','pet-town-walk.css','pet-lilac-motion.js'])assert.ok(html.includes('/static/'+asset+'?v=20261025-lively1'),asset);
   assert.ok(html.includes('/static/pet-cozy-room.css?v=20261024-cozy-room1'),'unchanged room asset pin is preserved');
 });
