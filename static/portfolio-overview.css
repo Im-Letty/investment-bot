@@ -97,3 +97,18 @@ body[data-kn-ledger-dark="true"] #tab-assets :is(#poEditor,[data-po-add]){--po-e
 #tab-assets #poEditor .po-actions .po-button-primary{min-width:72px;border-color:transparent;background:var(--po-entry-button);color:var(--po-entry-on-button)}
 @container(min-width:440px){#tab-assets #poEditor .po-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:420px){#tab-assets #poEditor{padding:16px}#tab-assets [data-po-add],#tab-assets #poEditor .po-actions .po-button{padding-inline:13px}}
+
+/* Adopted goal input: Natural / current atmosphere, with its own reference palette. */
+#tab-assets #poGoalForm{--po-goal-paper:#fcfbf5;--po-goal-field:#fffef8;--po-goal-ink:#53583c;--po-goal-muted:#70765e;--po-goal-line:#d2d3bf;--po-goal-button:#7b8055;--po-goal-on-button:#fffef8;container:po-goal-entry / inline-size;box-sizing:border-box;max-width:580px;margin:22px auto 0;padding:0;border:0;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--po-goal-paper);color:var(--po-goal-ink)}
+body[data-kn-ledger-dark="true"] #tab-assets #poGoalForm{--po-goal-paper:#252820;--po-goal-field:#2d3227;--po-goal-ink:#e7e8d5;--po-goal-muted:#bdc3a8;--po-goal-line:#62684f;--po-goal-button:#bfc994;--po-goal-on-button:#242b17}
+#tab-assets #poGoalForm .po-goal-input-label{grid-column:1/-1;grid-row:1;display:block;font-size:calc(14px * var(--kn-ledger-scale,1));font-weight:400;line-height:1.5;letter-spacing:.02em;color:var(--po-goal-ink)}
+#tab-assets #poGoalForm .po-goal-input-value{grid-column:1;grid-row:2;display:flex;align-items:center;gap:8px;min-width:0;min-height:52px;padding:0 14px;border:1px solid var(--po-goal-line);border-radius:10px;background:var(--po-goal-field)}
+#tab-assets #poGoalForm .po-goal-input-value:focus-within{outline:2px solid var(--po-goal-button);outline-offset:3px}
+#tab-assets #poGoalForm .po-goal-input-value:has([aria-invalid="true"]){border-color:var(--kn-ledger-expense,#a15f54)}
+#tab-assets #poGoalForm #poGoalAmount{flex:1;width:100%;min-width:0;min-height:50px;margin:0;padding:12px 0;border:0!important;border-radius:0!important;background:transparent!important;color:var(--po-goal-ink)!important;font-size:max(16px,calc(22px * var(--kn-ledger-scale,1)))!important;font-weight:400;line-height:1.35;font-variant-numeric:tabular-nums;box-shadow:none}
+#tab-assets #poGoalForm #poGoalAmount:focus-visible{outline:none!important}
+#tab-assets #poGoalForm .po-goal-input-yen{flex:none;font-size:calc(14px * var(--kn-ledger-scale,1));color:var(--po-goal-muted)}
+#tab-assets #poGoalForm #poGoalSave{grid-column:2;grid-row:2;min-width:64px;min-height:48px;padding:12px 16px;border:1px solid transparent;border-radius:10px;background:var(--po-goal-button);color:var(--po-goal-on-button);font-size:calc(15px * var(--kn-ledger-scale,1));font-weight:400;line-height:1.4;white-space:nowrap}
+@media(max-width:420px){#tab-assets #poGoalForm{column-gap:10px}}
+/* A narrow form gives the amount a full row when enlarged type needs it. */
+@container po-goal-entry (max-width:260px){#tab-assets #poGoalForm .po-goal-input-value{grid-column:1/-1}#tab-assets #poGoalForm #poGoalSave{grid-column:1/-1;grid-row:3;justify-self:end}}
