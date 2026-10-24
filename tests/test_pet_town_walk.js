@@ -45,13 +45,22 @@ function fixture(options = {}) {
   const world = options.world || Town.createWorld();
   const controller = Town.mount({ viewport, worldElement: surface, avatar, enterButton: enter, world,
     position: options.position || { x: 1100, y: 1100 }, controls, canRun: () => allowed, enterableIds: options.enterableIds,
-    onPosition: p => positions.push(p), onMotion: m => motions.push(m), onEnter: id => entries.push(id) });
+    onPosition: p => positions.push(p), onMotion: m => motions.push(m), onEnter: id => entries.push(id),
+    resolveTap: options.resolveTap, projectDirection: options.projectDirection, onDraw: options.onDraw });
   function frame(ms = 50) { stamp += ms; const calls = [...raf.values()]; raf.clear(); calls.forEach(fn => fn(stamp)); }
   function advance(count, ms = 50) { for (let i = 0; i < count; i++) frame(ms); }
   function settle(limit = 1200) { for (let i = 0; raf.size && i < limit; i++) frame(); assert.equal(raf.size, 0, 'movement must reach or safely stop in a bounded number of frames'); }
   return { win, doc, world, viewport, surface, avatar, enter, buttons, controls, controller, raf, observed, positions, motions, entries,
     frame, advance, settle, allow(value) { allowed = value; }, key(key, type = 'keydown', values = {}) { return win.emit(type, { target: doc.activeElement, key, ...values }); } };
 }
+
+test('an optional scene projects input into the same collision and explicit entry rules without teleporting',()=>{
+  let target={x:1200,y:1100},draws=0;const f=fixture({resolveTap:()=>target,projectDirection:(x,y)=>({x:-y,y:x}),onDraw:()=>draws++});
+  const before=f.controller.position();f.viewport.emit('pointerdown',{pointerId:1,clientX:100,clientY:100});f.viewport.emit('pointerup',{pointerId:1,clientX:100,clientY:100});assert.deepEqual(f.controller.position(),before);f.settle();near(f.controller.position().x,1200);
+  f.key('ArrowUp');f.advance(4);f.key('ArrowUp','keyup');assert.ok(f.controller.position().x>1200);assert.ok(draws>4);
+  target={placeId:'shop'};f.viewport.emit('pointerdown',{pointerId:2,clientX:100,clientY:100});f.viewport.emit('pointerup',{pointerId:2,clientX:100,clientY:100});f.settle();assert.equal(f.entries.length,0);assert.equal(f.enter.hidden,false);f.enter.emit('click');assert.deepEqual(f.entries,['shop']);
+  target=null;f.viewport.emit('pointerdown',{pointerId:3,clientX:100,clientY:100});f.viewport.emit('pointerup',{pointerId:3,clientX:100,clientY:100});assert.equal(f.raf.size,0);f.controller.destroy();
+});
 
 test('world projections use the six saved places and safe display bands without rewriting the saved layout', () => {
   const layout = { version: 1, theme: 'cafe', items: [

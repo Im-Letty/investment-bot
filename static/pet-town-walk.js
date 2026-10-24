@@ -174,6 +174,7 @@
       surface.style.transform = 'translate3d(' + (-view.x * view.scale).toFixed(3) + 'px,' + (-view.y * view.scale).toFixed(3) + 'px,0) scale(' + view.scale.toFixed(6) + ')';
       avatar.style.left = position.x.toFixed(3) + 'px'; avatar.style.top = position.y.toFixed(3) + 'px';
       avatar.style.zIndex = String(Math.round(position.y));
+      callback('onDraw', copy(position));
       if (enter) {
         var nearby = nearestFacility(world, position, enterableIds);
         enter.disabled = !nearby; enter.hidden = !nearby;
@@ -184,6 +185,9 @@
       var x = 0, y = 0;
       Object.keys(keys).forEach(function (key) { x += keys[key].x; y += keys[key].y; });
       Object.keys(pointers).forEach(function (id) { x += pointers[id].x; y += pointers[id].y; });
+      if ((x || y) && typeof options.projectDirection === 'function') {
+        try { var projected = options.projectDirection(x, y); if (point(projected)) { x = projected.x; y = projected.y; } } catch (_) {}
+      }
       if (!x && !y && destination) { x = destination.x - position.x; y = destination.y - position.y; }
       var length = Math.hypot(x, y);
       return length > 0 ? { x: x / length, y: y / length, length: length } : { x: 0, y: 0, length: 0 };
@@ -295,6 +299,11 @@
       var tap = ground; ground = null;
       if (!tap || tap.id !== event.pointerId || !active() || interactive(event.target) || !view || !finite(event.clientX) || !finite(event.clientY) || Math.hypot(event.clientX - tap.x, event.clientY - tap.y) > 10) return;
       var box = viewport.getBoundingClientRect(), target = { x: (event.clientX - box.left) / view.scale + view.x, y: (event.clientY - box.top) / view.scale + view.y };
+      if (typeof options.resolveTap === 'function') {
+        try { target = options.resolveTap(event, view); } catch (_) { return; }
+        if (target && typeof target.placeId === 'string') { approach(target.placeId); return; }
+      }
+      if (!point(target)) return;
       if (!isWalkable(world, target.x, target.y)) return;
       prevent(event); focusViewport(); keys = {}; releasePointers(); destination = target; waypoints = []; schedule();
     });
@@ -311,16 +320,18 @@
       observer = new win.ResizeObserver(function () { if (!dead) draw(); }); observer.observe(viewport);
     } else listen(win, 'resize', draw);
     draw();
+    function approach(id) {
+      if (!active()) return false;
+      var place = world.places.filter(function (row) { return row.id === id; })[0];
+      if (!place || !isWalkable(world, place.entrance.x, place.entrance.y)) return false;
+      var path = route(world, position, place.entrance);
+      if (!path) return false;
+      stop(); destination = path.shift(); waypoints = path; focusViewport(); schedule(); return true;
+    }
     return {
       destroy: function () { if (dead) return; stop(); dead = true; if (observer) observer.disconnect(); removers.forEach(function (remove) { remove(); }); removers = []; },
-      approach: function (id) {
-        if (!active()) return false;
-        var place = world.places.filter(function (row) { return row.id === id; })[0];
-        if (!place || !isWalkable(world, place.entrance.x, place.entrance.y)) return false;
-        var path = route(world, position, place.entrance);
-        if (!path) return false;
-        stop(); destination = path.shift(); waypoints = path; focusViewport(); schedule(); return true;
-      },
+      approach: approach,
+      stop: stop,
       position: function () { return copy(position); }
     };
   }

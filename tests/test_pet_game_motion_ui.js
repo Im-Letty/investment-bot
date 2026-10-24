@@ -7,6 +7,7 @@ const Core = require('../static/pet-game-core.js');
 const Motion = require('../static/pet-lilac-motion.js');
 const Room = require('../static/pet-room-behavior.js');
 const Town = require('../static/pet-town-walk.js');
+const EconomyScene = require('../static/pet-village-economy-scene.js');
 const source = fs.readFileSync(require.resolve('../static/pet-game.js'), 'utf8');
 
 const copy = value => JSON.parse(JSON.stringify(value));
@@ -39,6 +40,7 @@ class Element {
   appendChild(child) { child.remove(); child.parentNode = this; this.children.push(child); return child; }
   replaceChildren(...children) { this.children.forEach(child => { child.parentNode = null; }); this.children = []; this._text = ''; children.forEach(child => this.appendChild(child)); }
   remove() { if (this.parentNode) this.parentNode.children = this.parentNode.children.filter(child => child !== this); this.parentNode = null; }
+  removeChild(child) { if(child.parentNode!==this)throw new Error('not a child');child.remove();return child; }
   setAttribute(name, value) { this.attributes[name] = String(value); }
   getAttribute(name) { return this.attributes[name] ?? null; }
   focus(options) { this.lastFocusOptions = options; this.ownerDocument.activeElement = this; }
@@ -99,7 +101,7 @@ async function fixture(config = {}) {
   pane.hidden = !!config.paneHidden; document.body.appendChild(pane); pane.appendChild(host);
   document.getElementById = id => id === 'sect-pet' ? pane : id === 'pet-game-root' ? host : null;
   const raf = new Map(), intervals = new Map(), timers = new Map(), mounts = [], actionCues = [], anchorCalls = [], hitTests = [];
-  const cozyMounts = [], cozyControl = { pending: null, reject: false }, economyScenes = [];
+  const cozyMounts = [], cozyControl = { pending: null, reject: false }, economyScenes = [], townScenes = [], townSceneControl = { pending: config.scenePending ? deferred() : null };
   const rendererControl = { mode: config.rendererMode || 'pending', mappingThrows: false, hit: null, hitThrows: false };
   const renderer = {
     durations: Motion.durations, catalogue: Motion.catalogue, bodyCatalogue: Motion.bodyCatalogue, directionCatalogue: Motion.directionCatalogue, appearanceProfile: Motion.appearanceProfile, eggVisualProfile: Motion.eggVisualProfile, roomWalkFrame: Motion.roomWalkFrame, feedingPhase: Motion.feedingPhase, feedingAnchor(stage, path, appearanceKey, eggOrigin) { anchorCalls.push({ stage, path, appearanceKey, eggOrigin }); return Motion.feedingAnchor(stage, path, appearanceKey, eggOrigin); }, growthProfile: Motion.growthProfile, growthPoint: Motion.growthPoint,
@@ -117,7 +119,8 @@ async function fixture(config = {}) {
           if (this.destroyed || !canvas.isConnected || canvas.hidden || !Number.isFinite(x) || !Number.isFinite(y) || x < 0 || x > 1 || y < 0 || y > 1) return null;
           return typeof rendererControl.hit === 'function' ? rendererControl.hit(x, y) : rendererControl.hit;
         },
-        setSituation(name, detail) { this.changes.push({ name, ...(detail == null ? {} : copy(detail)) }); } };
+        setSituation(name, detail) { this.changes.push({ name, ...(detail == null ? {} : copy(detail)) }); },
+        refreshFrame() { if (!this.destroyed && rendererControl.mode === 'ready' && options.onFrame) options.onFrame(canvas); } };
       mounts.push(controller);
       if (rendererControl.onMount) rendererControl.onMount(controller);
       if (rendererControl.mode === 'throw') throw new Error('private GPU failure');
@@ -135,7 +138,15 @@ async function fixture(config = {}) {
     clearTimeout(id) { timers.delete(id); }, URL: { createObjectURL: () => 'blob:synthetic', revokeObjectURL() {} }
   });
   document.defaultView = window;
-  if (config.villageScene) window.PetVillageEconomyScene = {
+  if(config.townScene)window.PetTownScene={async mount(options){
+    const controller={options,destroyed:false,frames:[],positions:[],motions:[],destroy(){this.destroyed=true;options.viewport.dataset.visualMode='flat';},
+      setFrame(canvas){if(this.destroyed||!options.canRun())return false;this.frames.push(canvas);options.viewport.dataset.visualMode='three';options.onReady();return true;},
+      setPosition(p){this.positions.push({...p});},setMotion(m){this.motions.push({...m});},direction(x,y){return{x:-y,y:x};},resolveTap(){return this.hit||null;},
+      fail(){this.destroy();options.onFailure('synthetic_context_lost');}};
+    townScenes.push(controller);if(townSceneControl.pending)await townSceneControl.pending.promise;return controller;
+  }};
+  if (config.villageScene === 'actual') window.PetVillageEconomyScene = EconomyScene;
+  else if (config.villageScene) window.PetVillageEconomyScene = {
     mount(options) {
       const controller = { options, disposed: false, dispose() { this.disposed = true; } };
       economyScenes.push(controller); return controller;
@@ -168,7 +179,7 @@ async function fixture(config = {}) {
     assert.ok(room, 'existing room scenarios can enter the room from the village');
     room.emit('click'); await flush();
   }
-  return { ui, host, pane, document, window, data, storage, writes, control, renderer, rendererControl, mounts, actionCues, anchorCalls, hitTests, raf, timers, beforeMountRaw, writesBeforeMount, cozyMounts, cozyControl, economyScenes,
+  return { ui, host, pane, document, window, data, storage, writes, control, renderer, rendererControl, mounts, actionCues, anchorCalls, hitTests, raf, timers, beforeMountRaw, writesBeforeMount, cozyMounts, cozyControl, economyScenes, townScenes, townSceneControl,
     get store() { return store; },
     get now() { return clock; },
     saved() { return JSON.parse(data.get(Core.KEY)); },
@@ -2957,6 +2968,47 @@ test('room arrangement is available for eggs and bunnies, stays free, and does n
 
 
 async function villageFixture(config={}) { return fixture({species:'lilac',developerPreview:false,startAtVillage:true,...config}); }
+test('late Three readiness repaints the same reduced-motion pet without remounting, changing its cue, or writing a save',async()=>{
+ const f=await villageFixture({rendererMode:'ready',reducedMotion:true,townScene:true,scenePending:true}),before=f.saved(),writes=f.writes.length;
+ const source=f.activeMotions()[0],visual=f.host.querySelector('.ipg-lilac-visual'),viewport=f.host.querySelector('.ipg-town-viewport');
+ assert.equal(f.townScenes.length,1);assert.equal(f.townScenes[0].frames.length,0);assert.notEqual(viewport.dataset.visualMode,'three');
+ f.townSceneControl.pending.resolve();await flush();const scene=f.townScenes[0];
+ assert.equal(f.activeMotions().length,1);assert.equal(f.activeMotions()[0],source);assert.equal(scene.frames[0],source.canvas);assert.equal(viewport.dataset.visualMode,'three');
+ assert.equal(f.host.querySelector('.ipg-lilac-visual'),visual);assert.equal(source.options.outfit,visual.dataset.outfit==='none'?null:visual.dataset.outfit);
+ assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);assert.equal(source.changes.length,0,'fresh paint must not reset a cue');f.ui.close();
+});
+test('a pending old town import cannot resurrect a closed host; camera and position survive the same-store reopen only',async()=>{
+ const f=await villageFixture({rendererMode:'ready',townScene:true,scenePending:true}),before=f.saved(),old=f.townScenes[0],oldMotion=f.activeMotions()[0];
+ await f.ui.close();await f.ui.open();f.townSceneControl.pending.resolve();await flush();
+ const scene=f.townScenes.at(-1);assert.notEqual(scene,old);assert.equal(old.destroyed,true);assert.equal(scene.destroyed,false);assert.equal(scene.frames[0],f.activeMotions()[0].canvas);
+ const frameCount=scene.frames.length;oldMotion.options.onFrame(oldMotion.canvas);assert.equal(scene.frames.length,frameCount);
+ scene.options.onCamera({yaw:1,pitch:.55,distance:7});const viewport=f.host.querySelector('.ipg-town-viewport');viewport.focus();
+ f.window.emit('keydown',{key:'ArrowUp',target:viewport});await f.frame();await f.frame(50);f.window.emit('keyup',{key:'ArrowUp'});
+ const p=f.host.querySelector('.ipg-town-avatar'),position=[p.style.left,p.style.top];await f.ui.close();await f.ui.open();await flush();
+ const current=f.townScenes.at(-1);assert.equal(current.options.camera.yaw,1);assert.deepEqual([f.host.querySelector('.ipg-town-avatar').style.left,f.host.querySelector('.ipg-town-avatar').style.top],position);
+ old.options.onReady();assert.equal(old.destroyed,true);assert.deepEqual(f.saved(),before);f.ui.close();
+});
+test('walking and stopping during a delayed scene mount synchronizes the current position before its first pet frame',async()=>{
+ const f=await villageFixture({rendererMode:'ready',townScene:true,scenePending:true}),before=f.saved(),scene=f.townScenes[0],viewport=f.host.querySelector('.ipg-town-viewport');
+ const original={...scene.options.position};viewport.focus();f.window.emit('keydown',{key:'ArrowUp',target:viewport});await f.frame();for(let i=0;i<8;i++)await f.frame(50);f.window.emit('keyup',{key:'ArrowUp'});
+ const avatar=f.host.querySelector('.ipg-town-avatar'),current={x:parseFloat(avatar.style.left),y:parseFloat(avatar.style.top)};assert.notDeepEqual(current,original);assert.equal(scene.frames.length,0);
+ f.townSceneControl.pending.resolve();await flush();assert.deepEqual(scene.positions[0],current);assert.equal(scene.frames.length,1);assert.deepEqual(f.saved(),before);f.ui.close();
+});
+test('scene ground and facility hits use the existing movement/entry engine, camera-relative keys, and flat fallback',async()=>{
+ const f=await villageFixture({rendererMode:'ready',townScene:true}),before=f.saved(),writes=f.writes.length,scene=f.townScenes[0],viewport=f.host.querySelector('.ipg-town-viewport'),avatar=f.host.querySelector('.ipg-town-avatar');
+ const x=parseFloat(avatar.style.left),y=parseFloat(avatar.style.top);viewport.focus();f.window.emit('keydown',{key:'ArrowUp',target:viewport});await f.frame();await f.frame(50);f.window.emit('keyup',{key:'ArrowUp'});
+ assert.ok(parseFloat(avatar.style.left)>x);assert.equal(parseFloat(avatar.style.top),y);
+ scene.hit={placeId:'shop'};viewport.emit('pointerdown',{pointerId:2,clientX:150,clientY:150});viewport.emit('pointerup',{pointerId:2,clientX:150,clientY:150});
+ for(let i=0;i<1000&&f.raf.size;i++)await f.frame(50);assert.equal(f.focusButton('town-enter').hidden,false);assert.ok(f.host.querySelector('.ipg-town'));
+ scene.fail();assert.equal(viewport.dataset.visualMode,'flat');assert.equal(f.host.querySelector('.ipg-town-controls'),null);assert.match(f.host.querySelector('.ipg-town-guide').textContent,/タップ/);assert.doesNotMatch(viewport.getAttribute('aria-label'),/ドラッグ/);
+ assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);await f.click(f.focusButton('town-enter'));assert.ok(f.host.querySelector('.ipg-village-market'));f.ui.close();
+});
+test('a current source failure invalidates the Three frame while an old source failure cannot hide the reopened pet',async()=>{
+ const f=await villageFixture({rendererMode:'ready',townScene:true}),before=f.saved(),first=f.townScenes[0],source=f.activeMotions()[0];
+ source.options.onError('context_lost');assert.equal(first.destroyed,true);assert.equal(f.host.querySelector('.ipg-town-viewport').dataset.visualMode,'flat');assert.equal(f.host.querySelector('.ipg-lilac-still').hidden,false);
+ assert.doesNotMatch(f.host.querySelector('.ipg-town-viewport').getAttribute('aria-label'),/ドラッグ/);
+ await f.ui.close();await f.ui.open();await flush();const current=f.townScenes.at(-1);source.options.onError('context_lost');assert.equal(current.destroyed,false);assert.equal(f.host.querySelector('.ipg-town-viewport').dataset.visualMode,'three');assert.deepEqual(f.saved(),before);f.ui.close();
+});
 function tapTownGround(f, dx, dy, pointerType='mouse', viewport=f.host.querySelector('.ipg-town-viewport')) {
   const avatar=f.host.querySelector('.ipg-town-avatar'),world=Town.createWorld(Core.getVillageLayout(f.store.getState()));
   const position={x:parseFloat(avatar.style.left),y:parseFloat(avatar.style.top)},box=viewport.getBoundingClientRect();
@@ -3600,11 +3652,22 @@ test('closing a pending village save prevents late success messages and detached
 
 test('the town economy scene receives a detached read-only projection and is disposed on route, close and remount',async()=>{
   const f=await villageFixture({villageScene:true}),before=f.data.get(Core.KEY),writes=f.writes.length,first=f.economyScenes[0];
-  assert.ok(first.options.canRun());assert.equal(first.options.view.day,1);assert.equal(first.options.view.residents.length,2);assert.equal(first.options.view.shops.length,2);
-  first.options.view.residents[0].name='changed';assert.notEqual(villageView(f).residents[0].name,'changed');
+  assert.ok(first.options.canRun());assert.equal(first.options.view.day,1);assert.equal(first.options.view.residents.length,0);assert.equal(first.options.view.visitors.length,0);assert.equal(first.options.view.shops.length,2);
+  first.options.view.shops[0].name='changed';assert.notEqual(villageView(f).shops[0].name,'changed');assert.equal(villageView(f).residents.length,2);
   first.options.onOpenMarket();await flush();assert.ok(f.host.querySelector('.ipg-village-market'));assert.equal(first.disposed,true);assert.equal(first.options.canRun(),false);
   await f.click(f.focusButton('tab-village'));const second=f.economyScenes.at(-1);assert.notEqual(first,second);f.ui.close();assert.equal(second.disposed,true);
   await f.ui.open();assert.ok(f.economyScenes.at(-1).options.canRun());assert.equal(f.data.get(Core.KEY),before);assert.equal(f.writes.length,writes);f.ui.close();
+});
+
+test('Three and the real flat fallback begin with only the selected pet while all economy records and shops remain intact',async()=>{
+ for(const three of [false,true]){
+  const f=await villageFixture({rendererMode:'ready',villageScene:'actual',townScene:three}),before=f.saved(),economy=copy(villageView(f)),writes=f.writes.length;
+  assert.ok(economy.residents.length>0);assert.ok(economy.visitors.length>0);assert.equal(f.host.querySelectorAll('.pve-scene-person').length,0);assert.equal(f.host.querySelectorAll('.pve-scene-person-art').length,0);
+  assert.equal(f.host.querySelectorAll('.pve-scene-project').length,economy.shops.length);assert.equal(f.host.querySelectorAll('.ipg-town-avatar').length,1);assert.equal(f.activeMotions().length,1);
+  for(const el of f.host.querySelectorAll('div'))assert.doesNotMatch(el.getAttribute('aria-label')||'',/村の住人|遊びに来たお客さん/);
+  if(three){const view=f.townScenes[0].options.view;assert.deepEqual(copy(view.residents),[]);assert.deepEqual(copy(view.visitors),[]);assert.deepEqual(copy(view.shops),economy.shops);f.townScenes[0].fail();assert.equal(f.host.querySelectorAll('.pve-scene-person').length,0);}
+  assert.deepEqual(villageView(f),economy);assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);f.ui.close();
+ }
 });
 
 test('a pending village save remains in its original owner and connected old controls cannot change a newly mounted owner',async()=>{

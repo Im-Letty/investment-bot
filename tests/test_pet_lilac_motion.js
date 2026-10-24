@@ -1936,6 +1936,14 @@ test('fifteen-image load retains original cutout alpha with eight sampler units 
   f.api.destroy();
 });
 
+test('frame consumers get a fresh post-paint even in reduced motion, cannot fail the source, and stop after destroy',()=>{
+  let count=0,throws=false;const f=fixture({reduced:true,options:{onFrame(canvas){count++;assert.equal(canvas,f.canvas);if(throws)throw Error('synthetic consumer failure');}}});
+  f.complete();assert.ok(count>0);assert.equal(f.raf.size,0);const before=count,clears=f.clears,pose=structuredClone(f.uniforms);
+  f.api.refreshFrame();assert.equal(count,before+1);assert.equal(f.clears,clears+1);assert.deepEqual(f.uniforms,pose);
+  throws=true;f.api.refreshFrame();assert.deepEqual(f.errors,[]);assert.equal(f.canvas.hidden,false);
+  f.api.destroy();const closed=count;f.api.refreshFrame();assert.equal(count,closed);
+});
+
 test('all eight matching textures are required before onReady and expression failure stays honest', () => {
   const f = fixture();
   for (const image of f.images.slice(0, 7)) { image.complete = true; image.naturalWidth = image.naturalHeight = 1000; image.onload(); }
