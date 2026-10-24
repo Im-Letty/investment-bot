@@ -499,3 +499,16 @@ for(const unavailable of [true,false])test('unavailable or rejected crypto keeps
 test('a first digest resolving after a successful name Save cannot replace the saved heading',async()=>{
   const digest=deferred(),h=fixture({user:account('a',profile(''))});h.w.crypto={subtle:{digest:()=>digest.promise}};h.api.mount(h.container);await h.api.ready();await h.api.saveUsername('保存した名前');digest.resolve(new Uint8Array([1,2,3,4,5,6]).buffer);await settle();assert.equal(h.nodes.find(n=>n.className==='kn-profile-name').textContent,'保存した名前');assert.equal(h.api.username(),'保存した名前');assert.equal(h.updates().length,1);
 });
+
+
+test('the only avatar edit button belongs beside the summary and is available only while the profile is expanded',async()=>{
+  const h=fixture(),section=h.api.mount(h.container);await h.api.ready();const button=h.document.getElementById('knProfileIconButton'),summary=h.nodes.find(n=>n.tagName==='SUMMARY'),form=h.nodes.find(n=>n.tagName==='FORM'),choices=h.document.getElementById('knProfileIconChoices');
+  assert.equal(button.parentNode,section);assert.notEqual(button.parentNode,summary);assert.equal(button.hidden,true);assert.equal(h.nodes.filter(n=>n.className==='kn-profile-icon-button').length,1);assert.equal(h.nodes.some(n=>n.className==='kn-profile-icon-label'||n.className==='kn-profile-icon-hint'),false);
+  section.open=true;await section.fire('toggle');assert.equal(button.hidden,false);assert.equal(form.hidden,false);await button.fire('click');assert.equal(section.open,true);assert.equal(choices.hidden,false);assert.equal(choices.parentNode.hidden,false);
+  await choices.children.find(n=>n.getAttribute('data-avatar')==='star').fire('click');assert.equal(section.open,true);assert.equal(button.hidden,false);assert.equal(choices.hidden,true);assert.equal(choices.parentNode.hidden,true);assert.equal(h.api.snapshot().avatar,'leaf');assert.equal(imageSource(h),'');assert.equal(button.textContent,'⭐');
+  section.open=false;await section.fire('toggle');assert.equal(button.hidden,true);assert.equal(choices.hidden,true);section.open=true;await section.fire('toggle');assert.equal(button.hidden,false);assert.equal(button.textContent,'⭐');assert.equal(choices.parentNode.hidden,true);assert.equal(h.updates().length,0);
+});
+test('Escape from the header avatar button closes the chooser without closing the profile or losing its draft',async()=>{
+  const h=fixture();h.api.mount(h.container);await h.api.ready();h.api.open();const section=h.document.getElementById('knProfile'),button=h.document.getElementById('knProfileIconButton'),choices=h.document.getElementById('knProfileIconChoices');await button.fire('click');const event=await button.fire('keydown',{key:'Escape'});assert.equal(event.defaultPrevented,true);assert.equal(event.propagationStopped,true);assert.equal(choices.hidden,true);assert.equal(choices.parentNode.hidden,true);assert.equal(section.open,true);assert.equal(h.focus(),button);
+  const closed=await button.fire('keydown',{key:'Escape'});assert.equal(closed.defaultPrevented,false);assert.equal(closed.propagationStopped,false);
+});
