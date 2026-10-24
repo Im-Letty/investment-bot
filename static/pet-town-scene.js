@@ -64,17 +64,17 @@
     if (!doc || !doc.createElement) return null;
     var canvas = doc.createElement('canvas'); canvas.width = canvas.height = 512;
     var ctx = canvas.getContext && canvas.getContext('2d'); if (!ctx) return null;
-    ctx.fillStyle = '#b6c77e'; ctx.fillRect(0, 0, 512, 512);
+    ctx.fillStyle = '#afc172'; ctx.fillRect(0, 0, 512, 512);
     function unit(i) { var n = Math.sin(i * 17.13 + 3.1) * 43758.5453; return n - Math.floor(n); }
     function wrapped(x, y, draw) { for (var dx = -512; dx <= 512; dx += 512) for (var dy = -512; dy <= 512; dy += 512) draw(x + dx, y + dy); }
     // Broad, softly blended moss and warm dappled light, rather than uniform grain.
     for (var i = 0; i < 95; i++) {
       var x = unit(i) * 512, y = unit(i + 4000) * 512, radius = 24 + unit(i + 9) * 76;
       wrapped(x, y, function (cx, cy) { var gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-        gradient.addColorStop(0, i % 3 ? 'rgba(227,226,151,.24)' : 'rgba(100,139,69,.22)'); gradient.addColorStop(1, 'rgba(176,194,121,0)');
+        gradient.addColorStop(0, i % 3 ? 'rgba(223,221,142,.24)' : 'rgba(94,132,62,.22)'); gradient.addColorStop(1, 'rgba(176,194,121,0)');
         ctx.fillStyle = gradient; ctx.fillRect(cx - radius, cy - radius, radius * 2, radius * 2); });
     }
-    for (var c = 0; c < 500; c++) { var cx = unit(c + 8000) * 512, cy = unit(c + 10000) * 512; ctx.fillStyle = c % 4 ? 'rgba(153,177,94,.19)' : 'rgba(221,222,151,.25)'; wrapped(cx, cy, function (wx, wy) { for (var leaf = 0; leaf < 3; leaf++) { ctx.beginPath(); ctx.ellipse(wx + Math.sin(leaf * TAU / 3) * 2.7, wy + Math.cos(leaf * TAU / 3) * 2.7, 2.8, 1.7, leaf, 0, TAU); ctx.fill(); } }); }
+    for (var c = 0; c < 500; c++) { var cx = unit(c + 8000) * 512, cy = unit(c + 10000) * 512; ctx.fillStyle = c % 4 ? 'rgba(145,169,85,.19)' : 'rgba(221,222,151,.25)'; wrapped(cx, cy, function (wx, wy) { for (var leaf = 0; leaf < 3; leaf++) { ctx.beginPath(); ctx.ellipse(wx + Math.sin(leaf * TAU / 3) * 2.7, wy + Math.cos(leaf * TAU / 3) * 2.7, 2.8, 1.7, leaf, 0, TAU); ctx.fill(); } }); }
     var texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.anisotropy = 4; return texture;
   }
   function buildWorld(THREE, world, view, avoid, doc) {
@@ -104,9 +104,9 @@
     }
     function leafBush(parent, x, y, z, size, seed) {
       var bush = new THREE.Group(); bush.name = 'layered-leaf-bush'; bush.position.set(x, y, z); parent.add(bush);
-      ball(bush, '#98ae64', 0, size * .25, 0, size * .65, size * .4, size * .55);
+      ball(bush, '#90a65a', 0, size * .25, 0, size * .65, size * .4, size * .55);
       for (var l = 0; l < 13; l++) { var a = l * 2.4 + seed, ring = l < 8 ? .48 : .24, ly = l < 8 ? .24 : .5;
-        var petal = leaf(bush, ['#a6ba74', '#bdcb8b', '#93ad65'][l % 3], Math.sin(a) * size * ring, size * ly, Math.cos(a) * size * ring, size * .34, .6, a); petal.rotation.z += .35 * Math.sin(a); }
+        var petal = leaf(bush, ['#9eb26b', '#b5c481', '#8ba55d'][l % 3], Math.sin(a) * size * ring, size * ly, Math.cos(a) * size * ring, size * .34, .6, a); petal.rotation.z += .35 * Math.sin(a); }
       return bush;
     }
     function daisy(parent, x, y, z, size, blush) {
@@ -117,20 +117,20 @@
       leaf(g, '#a1b76d', -.035 * size, .06 * size, .02 * size, .08 * size, 1.1, -.8); return g;
     }
     function softTree(parent, seed, scale) {
-      var trunk = cylinder(parent, .17 * scale, 1.36 * scale, '#b1986c', 0, .68 * scale, 0); trunk.name = 'rounded-tree-trunk';
-      ball(parent, '#b79e71', 0, .18 * scale, 0, .24 * scale, .28 * scale, .21 * scale);
-      for (var root = 0; root < 5; root++) { var ra = root * TAU / 5 + seed; var foot = ball(parent, '#b39a6d', Math.sin(ra) * .16 * scale, .07 * scale, Math.cos(ra) * .16 * scale, .1 * scale, .08 * scale, .28 * scale); foot.rotation.y = ra; }
-      for (var branch = -1; branch <= 1; branch += 2) { var arm = cylinder(parent, .075 * scale, .7 * scale, '#b1986c', branch * .22 * scale, 1.08 * scale, .02); arm.rotation.z = -branch * .55; }
+      var trunk = cylinder(parent, .17 * scale, 1.36 * scale, '#a98f63', 0, .68 * scale, 0); trunk.name = 'rounded-tree-trunk';
+      ball(parent, '#b19768', 0, .18 * scale, 0, .24 * scale, .28 * scale, .21 * scale);
+      for (var root = 0; root < 5; root++) { var ra = root * TAU / 5 + seed; var foot = ball(parent, '#ab9164', Math.sin(ra) * .16 * scale, .07 * scale, Math.cos(ra) * .16 * scale, .1 * scale, .08 * scale, .28 * scale); foot.rotation.y = ra; }
+      for (var branch = -1; branch <= 1; branch += 2) { var arm = cylinder(parent, .075 * scale, .7 * scale, '#a98f63', branch * .22 * scale, 1.08 * scale, .02); arm.rotation.z = -branch * .55; }
       var crown = new THREE.Group(); crown.name = 'overlapping-leaf-crown'; crown.position.y = 1.23 * scale; parent.add(crown);
-      ball(crown, '#94aa64', 0, .34 * scale, 0, .56 * scale, .5 * scale, .5 * scale);
+      ball(crown, '#8ca25b', 0, .34 * scale, 0, .56 * scale, .5 * scale, .5 * scale);
       for (var tier = 0; tier < 5; tier++) { var ly = -.12 + tier * .235, surface = Math.sqrt(Math.max(0, 1 - Math.pow((ly - .34) / .61, 2))), count = 14 - tier * 2, radius = (.75 * surface + .055) * scale;
         for (var l = 0; l < count; l++) { var a = l * TAU / count + tier * .3 + seed, size = (.43 - tier * .022) * scale;
-          var m = leaf(crown, ['#a7b978', '#b8c68a', '#9bae6e'][(l + tier) % 3], Math.sin(a) * radius, ly * scale, Math.cos(a) * radius * .91, size);
+          var m = leaf(crown, ['#a0b171', '#b0bf80', '#93a665'][(l + tier) % 3], Math.sin(a) * radius, ly * scale, Math.cos(a) * radius * .91, size);
           var normal = new THREE.Vector3(Math.sin(a) * radius / (.75 * .75), (ly - .34) * scale / (.61 * .61), Math.cos(a) * radius * .91 / (.68 * .68)).normalize();
           m.scale.set(size * .8, size, size * .22); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal); m.rotateZ(.14 * Math.sin(a));
         }
       }
-      for (var top = 0; top < 3; top++) { var tip = leaf(crown, '#bdca91', Math.sin(top * TAU / 3) * .1 * scale, .96 * scale, Math.cos(top * TAU / 3) * .1 * scale, .3 * scale); tip.scale.x = .24 * scale; tip.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 1, 0)); tip.rotateZ(top * TAU / 3 + seed); } trees.push(crown); return crown;
+      for (var top = 0; top < 3; top++) { var tip = leaf(crown, '#b5c488', Math.sin(top * TAU / 3) * .1 * scale, .96 * scale, Math.cos(top * TAU / 3) * .1 * scale, .3 * scale); tip.scale.x = .24 * scale; tip.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), new THREE.Vector3(0, 1, 0)); tip.rotateZ(top * TAU / 3 + seed); } trees.push(crown); return crown;
     }
     function solid(g, place) { g.traverse(function (m) { if (m.isMesh) { m.castShadow = true; occluders.push(m); if (place) { m.userData.placeId = place.id; pickables.push(m); } } }); }
     var landShape = new THREE.Shape();
@@ -138,11 +138,11 @@
     shoreline.forEach(function (row) { landShape.lineTo((row[1] - world.width / 2) / UNIT, -(row[0] - world.height / 2) / UNIT); });
     landShape.lineTo(-world.width / 200, -world.height / 200); landShape.closePath();
     // ShapeGeometry is XY; rotate it into XZ. The shoreline shares the collision model's coordinates.
-    var land = mesh(new THREE.ShapeGeometry(landShape), '#aec28b', group, 0, .025, 0); land.rotation.x = -Math.PI / 2; land.name = 'dry-land'; surfaces.push(land);
+    var land = mesh(new THREE.ShapeGeometry(landShape), '#a6bc80', group, 0, .025, 0); land.rotation.x = -Math.PI / 2; land.name = 'dry-land'; surfaces.push(land);
     var grassTexture = groundTexture(THREE, doc);
     if (grassTexture) { textures.add(grassTexture); grassTexture.repeat.set(world.width / 640, world.height / 640); land.material = mat('#ffffff'); land.material.map = grassTexture;
       var landVertices = land.geometry.attributes.position, uv = land.geometry.attributes.uv; for (var li = 0; li < uv.count; li++) uv.setXY(li, (landVertices.getX(li) + world.width / 200) / (world.width / UNIT), (landVertices.getY(li) + world.height / 200) / (world.height / UNIT)); uv.needsUpdate = true; }
-    var sea = box(group, 160, .06, 160, '#97c8c8', 0, -.08, 0); sea.name = 'water';
+    var sea = box(group, 160, .06, 160, '#8fc1c2', 0, -.08, 0); sea.name = 'water';
     for (var r = 0; r < 26; r++) {
       var py = (r + .5) / 26 * world.height, bankIndex = Math.min(shoreline.length - 2, Math.floor(py / 500));
       while (bankIndex > 0 && py < shoreline[bankIndex][0]) bankIndex--;
@@ -159,10 +159,10 @@
       function ribbon(width, color, y) { var positions = [], indices = [], points = curve.getPoints(24);
         points.forEach(function (p, index) { var tangent = curve.getTangent(index / 24), normal = new THREE.Vector3(-tangent.z, 0, tangent.x).normalize().multiplyScalar(width / 2); positions.push(p.x + normal.x, y, p.z + normal.z, p.x - normal.x, y, p.z - normal.z); if (index < 24) { var k = index * 2; indices.push(k, k + 2, k + 1, k + 1, k + 2, k + 3); } });
         var geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3)); geo.setIndex(indices); geo.computeVertexNormals(); var strip = mesh(geo, color, group); strip.name = 'curved-path'; return strip; }
-      ribbon(.88, '#b5bd83', .027); ribbon(.73, '#c9c395', .029);
+      ribbon(.88, '#abb276', .027); ribbon(.73, '#c8bb89', .029);
       var stones = Math.max(2, Math.floor(curve.getLength() / .36));
       for (var stone = 0; stone <= stones; stone++) { var t = stone / stones, at = curve.getPoint(t), tangent = curve.getTangent(t), offset = stone % 2 ? .13 : -.13;
-        var paver = ball(group, stone % 3 ? '#d9cdb0' : '#c5bca0', at.x - tangent.z * offset, .03, at.z + tangent.x * offset, .23 + stone % 3 * .012, .025, .19); paver.name = 'rounded-path-stone'; paver.rotation.y = -Math.atan2(tangent.z, tangent.x);
+        var paver = ball(group, stone % 3 ? '#d4c5a3' : '#bfb397', at.x - tangent.z * offset, .03, at.z + tangent.x * offset, .23 + stone % 3 * .012, .025, .19); paver.name = 'rounded-path-stone'; paver.rotation.y = -Math.atan2(tangent.z, tangent.x);
         if (stone % 5 === 1 && t > .1 && t < .9) {
           var bx = at.x - tangent.z * .68, bz = at.z + tangent.x * .68, point = townPoint(world, { x: bx, z: bz });
           if (Town.isWalkable(world, point.x, point.y) && !world.places.some(function (place) { return Math.hypot(place.x - point.x, place.y - point.y) < 145; })) {
@@ -187,7 +187,7 @@
       } else if (p.id === 'playground') {
         var base = cylinder(g, rx * .85, .2, '#d7cbb6', 0, .1, 0); base.scale.z *= rz / rx;
         var basin = cylinder(g, .48, .15, '#ded6c5', 0, .38, 0); basin.scale.z *= .8;
-        var water = cylinder(g, .42, .02, '#96c6c7', 0, .465, 0); water.scale.z *= .8;
+        var water = cylinder(g, .42, .02, '#8fbfc1', 0, .465, 0); water.scale.z *= .8;
         cylinder(g, .08, .65, '#d0c3ab', 0, .63, 0);
         for (var drop = 0; drop < 9; drop++) { var droplet = ball(g, '#badbd8', 0, .8, 0, .035, .08, .035); droplet.userData.phase = drop / 9; droplets.push(droplet); }
       } else {
@@ -202,28 +202,28 @@
           box(g, w, 1.8, depth, cafe ? '#f0e4c8' : '#eee3c5', 0, .96, 0);
           var roof = new THREE.Shape(); roof.moveTo(-w * .62, 0); roof.lineTo(0, .8); roof.lineTo(w * .62, 0); roof.closePath();
           var roofGeo = new THREE.ExtrudeGeometry(roof, { depth: depth + .3, bevelEnabled: true, bevelThickness: .045, bevelSize: .04, bevelSegments: 3, steps: 1 }); roofGeo.translate(0, 1.8, -depth / 2 - .15);
-          var roofColor = p.id === 'home' ? '#bda2a0' : cafe || market ? '#a6b18a' : '#c4b090';
+          var roofColor = p.id === 'home' ? '#b79b99' : cafe || market ? '#9ea981' : '#c4b090';
           mesh(roofGeo, [mat('#eee3c5'), mat(roofColor)], g);
           for (var gableSide = -1; gableSide <= 1; gableSide += 2) for (var gableEdge = -1; gableEdge <= 1; gableEdge += 2) { var trim = box(g, Math.hypot(w * .62, .8), .065, .065, '#c4a77c', gableEdge * w * .31, 2.2, gableSide * (depth / 2 + .19)); trim.rotation.z = -gableEdge * Math.atan2(.8, w * .62); }
           // Thick overlapping ceramic shingles follow both real sloping roof planes.
           var roofRun = w * .62, roofAngle = Math.atan2(.8, roofRun), tileRows = 4, tileColumns = Math.max(3, Math.ceil((depth + .3) / .3));
           for (var roofSide = -1; roofSide <= 1; roofSide += 2) for (var tileRow = 0; tileRow < tileRows; tileRow++) for (var tileColumn = 0; tileColumn < tileColumns; tileColumn++) {
             var fraction = (tileRow + .4) / tileRows, tz = -depth / 2 - .12 + (tileColumn + .5) * (depth + .24) / tileColumns;
-            var tile = ball(g, tileRow % 2 ? roofColor : p.id === 'home' ? '#c9afaa' : '#b7bf97', roofSide * roofRun * fraction, 2.6 - fraction * .8 + .035, tz, roofRun / tileRows * .72, .065, (depth + .3) / tileColumns * .61); tile.name = 'overlapping-round-roof-tile'; tile.rotation.z = -roofSide * roofAngle;
+            var tile = ball(g, tileRow % 2 ? roofColor : p.id === 'home' ? '#c3a7a1' : '#afb78f', roofSide * roofRun * fraction, 2.6 - fraction * .8 + .035, tz, roofRun / tileRows * .72, .065, (depth + .3) / tileColumns * .61); tile.name = 'overlapping-round-roof-tile'; tile.rotation.z = -roofSide * roofAngle;
           }
           box(g, w * 1.25, .11, depth + .36, '#d5c4a9', 0, 1.79, 0);
           box(g, w * 1.04, .12, depth * 1.04, '#d1b895', 0, .2, 0);
           box(g, .47, 1.06, .09, '#f2e5cc', 0, .57, depth / 2 + .03);
-          box(g, .36, .94, .1, '#b89a7c', 0, .53, depth / 2 + .08);
-          ball(g, '#f0e2c4', 0, 1.08, depth / 2 + .045, .235, .25, .065); ball(g, '#b89a7c', 0, 1.07, depth / 2 + .09, .18, .21, .055);
+          box(g, .36, .94, .1, '#af8f70', 0, .53, depth / 2 + .08);
+          ball(g, '#f0e2c4', 0, 1.08, depth / 2 + .045, .235, .25, .065); ball(g, '#af8f70', 0, 1.07, depth / 2 + .09, .18, .21, .055);
           box(g, .22, .32, .015, '#b8cbc0', 0, .78, depth / 2 + .138);
           ball(g, '#aa936b', .115, .48, depth / 2 + .16, .035, .035, .025);
           box(g, .53, .1, .26, '#d8c6a8', 0, .065, depth / 2 + .1);
           for (var wx = -1; wx <= 1; wx += 2) {
             var windowX = wx * w * .32;
             ball(g, '#c2a681', windowX, 1.23, depth / 2 + .035, .18, .28, .065);
-            ball(g, '#b6c9b6', windowX, 1.23, depth / 2 + .08, .137, .226, .04);
-            box(g, .22, .38, .09, '#a2bfb8', windowX, 1.22, depth / 2 + .07);
+            ball(g, '#acc2ad', windowX, 1.23, depth / 2 + .08, .137, .226, .04);
+            box(g, .22, .38, .09, '#98b7af', windowX, 1.22, depth / 2 + .07);
             box(g, .035, .4, .11, '#f4e8d1', windowX, 1.22, depth / 2 + .11);
             box(g, .25, .035, .11, '#f4e8d1', windowX, 1.22, depth / 2 + .115);
             box(g, .34, .12, .18, '#c6ab91', windowX, .92, depth / 2 + .1);
