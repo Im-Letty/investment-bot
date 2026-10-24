@@ -45,7 +45,8 @@ function loaderFixture(options = {}) {
   pane.querySelector = selector => selector === '.ipg-room-editor' && pane.roomEditing || selector === '.ipg-village-editor' && pane.villageEditing ? {} : null;
   const host = new Element(), focus = new Element('button'), petButton = new Element('button');
   const scripts = [], listeners = { document: {}, window: {} }, timers = new Map();
-  let timerId = 0, mounts = 0, closes = 0, reloads = 0, recordCloses = 0, received;
+  let timerId = 0, mounts = 0, closes = 0, reloads = 0, recordCloses = 0, renders = 0, received;
+  const enhancements = [];
   const record = { open: !!options.recordOpen, classList: { contains: () => record.open } };
   const ui = {
     mount: async function (target, config) {
@@ -53,7 +54,9 @@ function loaderFixture(options = {}) {
       if (options.mount) return options.mount(target, config);
       target.textContent = 'Synthetic game'; return true;
     },
-    close: async function () { closes++; }
+    close: async function () { closes++; },
+    render() { renders++; },
+    refreshVisuals(target) { enhancements.push(target); if (options.refresh) options.refresh(target); }
   };
   const document = {
     activeElement: focus,
@@ -83,8 +86,9 @@ function loaderFixture(options = {}) {
   });
   vm.runInContext(loader, context);
   return {
-    window, document, pane, host, focus, petButton, scripts, timers, listeners, ui, context,
+    window, document, pane, host, focus, petButton, scripts, timers, listeners, ui, context, enhancements,
     get mounts() { return mounts; }, get closes() { return closes; }, get received() { return received; },
+    get renders() { return renders; },
     get reloads() { return reloads; }, get recordCloses() { return recordCloses; }, record,
     asset(name) { return scripts.findLast(script => script.src.includes('/' + name + '.js?')); },
     economyLoaded() { window.PetVillageEconomy = {}; this.asset('pet-village-economy').onload(); },
@@ -200,21 +204,24 @@ test('household recording remains but it does not produce game rewards', () => {
   }
 });
 
-test('UI downloads after core without waiting for optional visuals; concurrent opens share work', async () => {
+test('UI downloads in parallel and required readiness opens without optional visuals; concurrent opens share work', async () => {
   const f = loaderFixture();
   assert.equal(f.scripts.length, 0); assert.equal(f.mounts, 0);
   const first = f.window.openPetTab(), second = f.window.openPetTab();
   assert.equal(first, second);
-  assert.equal(f.pane.hidden, true, 'do not show the old check-in/loading screen'); assert.equal(f.scripts.length, 3);
+  assert.equal(f.pane.hidden, true, 'do not show the old check-in/loading screen'); assert.equal(f.scripts.length, 4);
   assert.equal(f.petButton.getAttribute('aria-busy'), 'true');
   assert.doesNotMatch(f.host.textContent, /ゲームを読み込んでいます/);
   assert.match(f.scripts[0].src, /pet-game-core\.js/);
-  assert.match(f.scripts[1].src, /pet-lilac-motion\.js/);
-  assert.match(f.scripts[2].src, /pet-room-behavior\.js/);
+  assert.match(f.scripts[1].src, /pet-game\.js/);
+  assert.match(f.scripts[2].src, /pet-lilac-motion\.js/);
+  assert.match(f.scripts[3].src, /pet-room-behavior\.js/);
   f.coreLoaded(); await flush();
-  assert.equal(f.scripts.length, 4); assert.match(f.scripts[3].src, /pet-game\.js/);
-  f.uiLoaded(); await flush(); assert.equal(f.mounts, 0, 'mount still allows optional visuals to become ready');
-  f.motionLoaded(); f.roomLoaded(); assert.equal(await first, true);
+  assert.equal(f.scripts.length, 4); assert.ok(f.asset('pet-game'));
+  f.uiLoaded(); assert.equal(await first, true);
+  assert.equal(f.mounts, 1, 'usable UI does not wait for optional visuals');
+  f.motionLoaded(); f.roomLoaded();
+  assert.deepEqual(f.enhancements, [f.host, f.host]); assert.equal(f.renders, 1, 'late visuals do not rebuild the visible UI');
   assert.equal(f.mounts, 1); assert.equal(f.received.target, f.host);
   assert.equal(f.pane.hidden, false); assert.equal(f.petButton.getAttribute('aria-busy'), null);
   assert.equal(await f.window.openPetTab(), true);
@@ -228,12 +235,14 @@ test('a cold entry loads the economy before core and the walking engine before i
   const f=loaderFixture({economyMissing:true,townMissing:true,sceneMissing:true}),opening=f.window.openPetTab();
   assert.equal(f.asset('pet-game-core'),undefined);assert.equal(f.asset('pet-village-economy-scene'),undefined);
   assert.ok(f.asset('pet-village-economy'));assert.ok(f.asset('pet-town-walk'));
+  assert.ok(f.asset('pet-game')); f.uiLoaded(); await flush();
+  assert.equal(f.mounts,0,'UI registration alone cannot create a game before core/economy');
   assert.equal(f.pane.hidden,true);assert.equal(f.mounts,0);
-  f.townLoaded();await flush();assert.ok(f.asset('pet-village-economy-scene'));assert.equal(f.asset('pet-game'),undefined);
-  f.economyLoaded();await flush();assert.ok(f.asset('pet-game-core'));assert.equal(f.asset('pet-game'),undefined);
-  f.coreLoaded();await flush();assert.equal(f.asset('pet-game'),undefined,'scene is a required entry point');
-  f.sceneLoaded();await flush();assert.ok(f.asset('pet-game'));
-  f.uiLoaded();f.motionLoaded();f.roomLoaded();assert.equal(await opening,true);assert.equal(f.mounts,1);
+  f.townLoaded();await flush();assert.ok(f.asset('pet-village-economy-scene'));assert.equal(f.mounts,0);
+  f.economyLoaded();await flush();assert.ok(f.asset('pet-game-core'));assert.equal(f.mounts,0);
+  f.coreLoaded();await flush();assert.equal(f.mounts,0,'scene remains a required entry point');
+  f.sceneLoaded();assert.equal(await opening,true);assert.equal(f.mounts,1);
+  f.motionLoaded();f.roomLoaded();
   f.window.closePetTab();await f.window.openPetTab();
   for(const name of ['pet-village-economy','pet-game-core','pet-town-walk','pet-village-economy-scene'])assert.equal(f.scripts.filter(s=>s.src.includes('/'+name+'.js?')).length,1,name+' is shared across reopening');
 });
@@ -241,9 +250,10 @@ test('a cold entry loads the economy before core and the walking engine before i
 test('an economy or scene download failure preserves the previous page and cannot execute dependent modules', async () => {
   for(const missing of ['economy','scene']){
     const f=loaderFixture({economyMissing:missing==='economy',sceneMissing:missing==='scene'}),opening=f.window.openPetTab();
+    f.uiLoaded(); await flush(); assert.equal(f.mounts,0);
     const name=missing==='economy'?'pet-village-economy':'pet-village-economy-scene';
     f.asset(name).onerror();await flush();f.fireTimers(1200);await flush();f.asset(name).onerror();
-    assert.equal(await opening,false);assert.equal(f.mounts,0);assert.equal(f.asset('pet-game'),undefined);
+    assert.equal(await opening,false);assert.equal(f.mounts,0);assert.ok(f.asset('pet-game'));
     if(missing==='economy')assert.equal(f.asset('pet-game-core'),undefined);
     assert.match(f.host.textContent,/もう一度読み込む/);
   }
@@ -251,19 +261,19 @@ test('an economy or scene download failure preserves the previous page and canno
 
 test('room presentation loads once before mounting without downloading the heavy 3D vendor at game entry', async () => {
   const f=loaderFixture({cozyMissing:true}),opening=f.window.openPetTab();
-  assert.equal(f.scripts.length,4);f.coreLoaded();f.motionLoaded();f.roomLoaded();await flush();
-  assert.equal(f.asset('pet-game'),undefined,'UI waits for the room entry point');
+  assert.equal(f.scripts.length,5);f.uiLoaded();f.coreLoaded();f.motionLoaded();f.roomLoaded();await flush();
+  assert.equal(f.mounts,0,'UI may arrive first but mounting waits for the room entry point');
   assert.equal(f.scripts.filter(s=>s.src.includes('pet-cozy-room')).length,1);
   assert.equal(f.scripts.some(s=>s.src.includes('/vendor/three')),false,'Three stays lazy until the actual room opens');
-  f.cozyLoaded();await flush();f.uiLoaded();assert.equal(await opening,true);assert.equal(f.mounts,1);
+  f.cozyLoaded();assert.equal(await opening,true);assert.equal(f.mounts,1);
 });
 
 test('a missing room presentation reports the existing recoverable load error without entering an obsolete editor', async () => {
   const f=loaderFixture({cozyMissing:true}),opening=f.window.openPetTab();
-  f.coreLoaded();f.motionLoaded();f.roomLoaded();await flush();
+  f.uiLoaded();f.coreLoaded();f.motionLoaded();f.roomLoaded();await flush();
   f.asset('pet-cozy-room').onerror();await flush();f.fireTimers(1200);await flush();
   f.asset('pet-cozy-room').onerror();assert.equal(await opening,false);assert.equal(f.mounts,0);
-  assert.match(f.host.textContent,/もう一度読み込む/);assert.equal(f.asset('pet-game'),undefined);
+  assert.match(f.host.textContent,/もう一度読み込む/);assert.equal(f.scripts.filter(s=>s.src.includes('/pet-game.js?')).length,1);
 });
 
 test('mount waits for protected hydration and storage adapter awaits durable writes', async () => {
@@ -303,10 +313,10 @@ test('a download error retries once, then offers manual retry without reloading 
   f.coreLoaded(); await flush();
   f.motionLoaded(); await flush();
   f.roomLoaded(); await flush();
-  f.scripts[3].onerror(new Error('do not display this synthetic raw detail'));
+  const initialUI = f.asset('pet-game'); initialUI.onerror(new Error('do not display this synthetic raw detail'));
   await flush(); assert.equal(f.mounts, 0); assert.equal(f.scripts.length, 4);
   assert.equal(f.fireTimers(1200), 1); await flush();
-  assert.equal(f.scripts.length, 5); assert.equal(f.scripts[4].src, f.scripts[3].src);
+  assert.equal(f.scripts.length, 5); assert.equal(f.asset('pet-game').src, initialUI.src);
   f.scripts[4].onerror(new Error('second failure'));
   assert.equal(await opening, false); assert.equal(f.mounts, 0);
   assert.equal(f.fireTimers(1200), 0, 'automatic retry stops after one additional request');
@@ -332,12 +342,12 @@ test('a transient core download failure recovers automatically at the same URL',
 
 test('a slow core is shared on manual retry and may finish late without duplicate execution', async () => {
   const f = loaderFixture(), first = f.window.openPetTab();
-  f.motionLoaded(); f.roomLoaded();
+  f.uiLoaded(); f.motionLoaded(); f.roomLoaded();
   assert.equal(f.fireTimers(15000), 1); assert.equal(await first, false);
   const original = f.asset('pet-game-core'), second = f.window.openPetTab();
-  assert.equal(f.scripts.length, 3); assert.equal(f.fireTimers(1200), 0);
+  assert.equal(f.scripts.length, 4); assert.equal(f.fireTimers(1200), 0);
   assert.equal(f.asset('pet-game-core'), original);
-  f.coreLoaded(); await flush(); f.uiLoaded();
+  f.coreLoaded(); await flush();
   assert.equal(await second, true); assert.equal(f.mounts, 1);
   assert.equal(f.scripts.filter(script => script.src === original.src).length, 1);
 });
@@ -379,19 +389,50 @@ test('late invalid UI after timeout moves the shared retry to explicit page relo
 test('close and reopen during downloads share scripts and only mount the current generation', async () => {
   const f = loaderFixture(), first = f.window.openPetTab();
   f.window.closePetTab(false); const second = f.window.openPetTab();
-  assert.equal(f.scripts.length, 3);
+  assert.equal(f.scripts.length, 4);
   f.coreLoaded(); f.motionLoaded(); f.roomLoaded(); await flush(); f.uiLoaded();
   assert.equal(await first, false); assert.equal(await second, true);
   assert.equal(f.scripts.length, 4); assert.equal(f.mounts, 1); assert.equal(f.pane.hidden, false);
 });
 
-test('optional timeouts share a five second window and never prevent required UI download', async () => {
+test('optional timeouts do not delay display and real late loads enhance the current host once', async () => {
   const f = loaderFixture(), opening = f.window.openPetTab();
   assert.equal(Array.from(f.timers.values()).filter(timer => timer.delay === 5000).length, 2);
   f.coreLoaded(); await flush(); f.uiLoaded(); await flush();
-  assert.equal(f.scripts.length, 4); assert.equal(f.mounts, 0);
-  assert.equal(f.fireTimers(5000), 2); assert.equal(await opening, true);
+  assert.equal(f.scripts.length, 4); assert.equal(await opening, true); assert.equal(f.mounts, 1);
+  assert.equal(f.enhancements.length, 0); assert.equal(f.fireTimers(5000), 2);
   assert.equal(f.mounts, 1); assert.equal(f.fireTimers(1200), 0);
+  f.motionLoaded(); f.roomLoaded(); await flush();
+  assert.deepEqual(f.enhancements, [f.host, f.host]); assert.equal(f.renders, 1);
+  f.asset('pet-lilac-motion').onload(); f.asset('pet-room-behavior').onload();
+  assert.equal(f.enhancements.length, 2, 'duplicate load delivery cannot create duplicate controllers');
+  assert.equal(f.scripts.length, 4, 'timeouts never inject another optional script');
+});
+
+test('late optional loads cannot enhance a closed visit and reopening shares only the current host', async () => {
+  const f = loaderFixture(), opening = f.window.openPetTab();
+  f.coreLoaded(); await flush(); f.uiLoaded(); assert.equal(await opening, true);
+  f.window.closePetTab(false); f.fireTimers(5000); f.motionLoaded(); await flush();
+  assert.equal(f.enhancements.length, 0); assert.equal(f.pane.hidden, true); assert.equal(f.mounts, 1);
+  assert.equal(await f.window.openPetTab(), true); f.roomLoaded();
+  assert.deepEqual(f.enhancements, [f.host]); assert.equal(f.mounts, 2); assert.equal(f.renders, 2);
+  assert.equal(f.scripts.length, 4);
+});
+
+test('an optional load before hydration cannot bypass the storage gate or create an enhancement', async () => {
+  const hydration = deferred(), f = loaderFixture({gate: hydration.promise}), opening = f.window.openPetTab();
+  f.coreLoaded(); await flush(); f.uiLoaded(); f.motionLoaded(); f.roomLoaded(); await flush();
+  assert.equal(f.mounts, 0); assert.equal(f.enhancements.length, 0); assert.equal(f.pane.hidden, true);
+  hydration.resolve(true); assert.equal(await opening, true); assert.equal(f.mounts, 1);
+});
+
+test('an invalid optional module or a failing enhancement cannot replace the usable game', async () => {
+  const f = loaderFixture({refresh() { throw new Error('private visual detail'); }}), opening = f.window.openPetTab();
+  f.coreLoaded(); await flush(); f.uiLoaded(); assert.equal(await opening, true);
+  f.asset('pet-room-behavior').onload();
+  assert.equal(f.enhancements.length, 0, 'missing globals are not enhanced');
+  assert.doesNotThrow(() => f.motionLoaded());
+  assert.equal(f.host.textContent, 'Synthetic game'); assert.equal(f.pane.hidden, false); assert.equal(f.mounts, 1);
 });
 
 test('a rejected protected-storage gate fails closed and offers explicit page reload', async () => {
@@ -408,12 +449,12 @@ test('optional motion download failure keeps the game and saved records availabl
   const f = loaderFixture();
   const opening = f.window.openPetTab();
   f.coreLoaded(); await flush();
-  assert.match(f.scripts[1].src, /pet-lilac-motion\.js/);
-  f.scripts[1].onerror(new Error('private transport details must stay hidden'));
+  assert.match(f.asset('pet-lilac-motion').src, /pet-lilac-motion\.js/);
+  f.asset('pet-lilac-motion').onerror(new Error('private transport details must stay hidden'));
   await flush();
-  assert.match(f.scripts[2].src, /pet-room-behavior\.js/);
-  f.scripts[2].onerror(new Error('optional room behavior unavailable')); await flush();
-  assert.match(f.scripts[3].src, /pet-game\.js/);
+  assert.match(f.asset('pet-room-behavior').src, /pet-room-behavior\.js/);
+  f.asset('pet-room-behavior').onerror(new Error('optional room behavior unavailable')); await flush();
+  assert.ok(f.asset('pet-game'));
   f.uiLoaded(); assert.equal(await opening, true);
   assert.equal(f.mounts, 1);
   assert.doesNotMatch(f.host.textContent, /private transport details/);
@@ -547,6 +588,7 @@ test('main game does not load a removed minigame runtime and updates only change
   for(const asset of ['pet-village.css','pet-town-walk.js']){
     assert.ok(html.includes('/static/'+asset+'?v=20261024-no-minigames1'),asset);
   }
-  for(const asset of ['pet-game-core.js','pet-game.js','pet-game.css','pet-village-economy.js','pet-village-economy-scene.js','pet-village-economy-scene.css'])assert.ok(html.includes('/static/'+asset+'?v=20261024-village-economy1'),asset);
+  for(const asset of ['pet-game-core.js','pet-game.css','pet-village-economy.js','pet-village-economy-scene.js','pet-village-economy-scene.css'])assert.ok(html.includes('/static/'+asset+'?v=20261024-village-economy1'),asset);
+  assert.ok(html.includes('/static/pet-game.js?v=20261025-load1'),'changed visual refresh code uses a new cache revision');
   assert.ok(html.includes('/static/pet-cozy-room.css?v=20261024-cozy-room1'),'unchanged room asset pin is preserved');
 });
