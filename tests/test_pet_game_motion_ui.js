@@ -89,6 +89,7 @@ async function fixture(config = {}) {
   };
   const coreOptions = { storage, now: () => clock, random: () => .5, developerPreview: config.developerPreview !== false,
     developerLegacyCarePreview: config.legacyCarePreview ?? (!config.startAtVillage && config.developerPreview === false) };
+  coreOptions.seasonNow=config.seasonNow;coreOptions.seasonSubscribe=config.seasonSubscribe;
   const setup = Core.create(coreOptions); assert.equal((await setup.ready).ok, true);
   if (config.species) assert.equal((await setup.dispatch({ type: 'chooseSpecies', species: config.species })).ok, true);
   if (config.setup) await config.setup(setup);
@@ -4354,4 +4355,13 @@ test('fishing aria-live status remains unchanged across waiting ticks and announ
  Object.defineProperty(toggle,'textContent',{get(){return descriptor.get.call(this);},set(v){labels++;descriptor.set.call(this,v);}});
  for(let i=0;i<3;i++){f.advance(250);await f.fireTimers();}assert.equal(changes,0);assert.equal(labels,0);
  f.advance(Fishing.WAIT);await f.fireTimers();assert.equal(changes,1);assert.match(status.textContent,/食いついた/);assert.equal(labels,0);f.ui.close();
+});
+
+test('season display clock is forwarded only to Town and cannot advance saved care, economy or fishing clocks',async()=>{
+ let displayTime=Date.parse('2027-01-05T00:00:00Z');
+ const now=()=>displayTime,subscribe=()=>()=>{};
+ const f=await villageFixture({rendererMode:'ready',townScene:true,seasonNow:now,seasonSubscribe:subscribe}),saved=f.saved(),writes=f.writes.length,coreTime=f.now;
+ const scene=f.townScenes.at(-1);assert.equal(scene.options.seasonNow,now);assert.equal(scene.options.seasonSubscribe,subscribe);assert.equal(scene.options.seasonNow(),displayTime);
+ displayTime=Date.parse('2027-06-05T00:00:00Z');assert.equal(scene.options.seasonNow(),displayTime);
+ assert.equal(f.now,coreTime);assert.deepEqual(f.saved(),saved);assert.equal(f.writes.length,writes);f.ui.close();
 });
