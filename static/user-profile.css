@@ -47,6 +47,7 @@
 #sideDrawer.kn-menu-a .kn-profile-field{display:grid;gap:6px;margin:0;font-size:calc(13px * var(--kn-a-scale,1));color:var(--kn-a-muted)}
 #sideDrawer.kn-menu-a .kn-profile-field :is(input,textarea,select){box-sizing:border-box;width:100%;min-width:0;min-height:44px;padding:10px 11px;border:1px solid var(--kn-a-line);border-radius:8px;background:var(--kn-a-paper);color:var(--kn-a-ink);font:400 max(16px,calc(15px * var(--kn-a-scale,1)))/1.5 var(--kn-a-sans)}
 #sideDrawer.kn-menu-a .kn-profile-field textarea{resize:vertical;max-height:240px}
+#sideDrawer.kn-menu-a .kn-profile-bio-limit{margin:-8px 0 0;color:var(--kn-a-muted);text-align:right;font-size:calc(12px * var(--kn-a-scale,1));line-height:1.7}
 #sideDrawer.kn-menu-a .kn-profile-field :is(input,textarea,select):focus-visible{outline:2px solid var(--kn-a-button);outline-offset:2px}
 #sideDrawer.kn-menu-a .kn-profile-field :is(input,textarea,select):disabled{opacity:.65}
 #sideDrawer.kn-menu-a .kn-profile-private{padding-top:12px;border-top:1px solid var(--kn-a-line)}
