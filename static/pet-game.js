@@ -22,7 +22,7 @@
   // Walking is a view of the existing pet, not a second pet or a save action.
   // Retain the spot when visiting a facility; never write a frame into the store.
   var townController = null, townEconomyScene = null, townPending = null, townPosition = null;
-  var townVisual = null, townEnhance = null, townCamera = null, townSceneLoading = null;
+  var townVisual = null, townEnhance = null, townCamera = null, townSceneLoading = null, townLoadCleanup = null;
   var villageListingDraft = null, villageTradeDrafts = {}, villageActionAttempt = null, villageRefreshTimer = null;
   var imageRoot = '/static/';
   var stageLabels = { egg: 'たまご', baby: 'あかちゃん', child: 'こども', final: 'さいしゅうしんか' };
@@ -242,6 +242,7 @@
     motionRequests.forEach(refreshRoomTouch);
   }
   function stopMotions() {
+    if (townLoadCleanup) { townLoadCleanup(); townLoadCleanup = null; }
     shopGeneration++; shopPending = null;
     if (shopCleanup) { shopCleanup(); shopCleanup = null; }
     if (shopController) { shopController.destroy(); shopController = null; }
@@ -1752,16 +1753,23 @@
     }
     var world = engine.createWorld(core().getVillageLayout(s));
     var viewport = node('div', 'ipg-town-viewport'); viewport.tabIndex = 0;
+    viewport.dataset.sceneState = 'loading'; viewport.setAttribute('aria-busy', 'true');
     viewport.dataset.focusKey = 'town-walk'; viewport.setAttribute('role', 'region');
     viewport.setAttribute('aria-label', '街をおさんぽ。地面や建物をタップすると、その場所へ歩きます。矢印キーやWASDでも歩けます。おうちやお店の近くで入れます。');
     var scene = node('div', 'ipg-town-world'); scene.style.width = world.width + 'px'; scene.style.height = world.height + 'px';
+    // Keep the live character source sized, without previewing the old scenery.
+    scene.style.opacity = '0'; scene.style.pointerEvents = 'none';
+    scene.setAttribute('aria-hidden', 'true'); scene.setAttribute('inert', '');
     var layout = { items: world.places.map(function (p) { return { id: p.id, x: p.x / world.width * 100, y: p.y / world.height * 100 }; }) };
     drawVillageRoads(scene, layout);
     var images = { home: 'pet-items-v1/house.webp', cafe: 'pet-village-art/cafe.webp', shop: 'pet-village-art/shop.webp', playground: 'pet-items-v1/fountain.webp', tree: 'pet-village-art/tree-v2.webp', flowers: 'pet-village-art/flowerbed-v2.webp' };
     var mountedStore = store, epoch = lifecycleEpoch;
     function active() { return village.isConnected && store === mountedStore && epoch === lifecycleEpoch && tab === 'village' && motionsVisible() && !busy && !villageEdit && !roomEdit; }
+    var sceneState = 'loading', walkingMounted = false, loadTimer = null;
+    // Initial layout draw is needed by the walking engine; later input waits.
+    function canWalk() { return active() && (!walkingMounted || sceneState !== 'loading'); }
     world.places.forEach(function (p) {
-      var place = button('', function () { if (active() && townController) townController.approach(p.id); }, true);
+      var place = button('', function () { if (canWalk() && townController) townController.approach(p.id); }, true);
       place.className = 'ipg-town-place'; place.dataset.place = p.id; place.dataset.focusKey = 'village-place-' + p.id;
       // Keyboard travel uses the viewport and nearby entry. An offscreen
       // landmark must not scroll the clipped world as focus advances.
@@ -1774,7 +1782,7 @@
       image.addEventListener('error', function () { image.hidden = true; place.dataset.unavailable = 'true'; });
       append(place, image, node('strong', '', p.label)); scene.appendChild(place);
       if (['home','shop','cafe'].indexOf(p.id)>=0) {
-        var door = button('', function () { if (active() && townController && typeof townController.enterDoor==='function') townController.enterDoor(p.id); }, true);
+        var door = button('', function () { if (canWalk() && townController && typeof townController.enterDoor==='function') townController.enterDoor(p.id); }, true);
         door.className = 'ipg-town-door-hotspot'; door.setAttribute('aria-label',p.label+'のドアへ歩く');
         door.dataset.focusKey='village-door-'+p.id;door.style.left=p.entrance.x+'px';door.style.top=p.entrance.y+'px';door.style.zIndex=String(Math.round(p.y)+1);
         scene.appendChild(door);
@@ -1795,60 +1803,88 @@
     var visual = petVisual(s, 'ipg-town-character'), request = motionRequests.filter(function (r) { return r.wrap === visual; })[0];
     if (request) request.townCue = { situation: 'idle', durationMs: 0, startedAt: Date.now() };
     pet.appendChild(visual); append(avatar, shadow, pet); scene.appendChild(avatar); viewport.appendChild(scene);
+    var loadingView = node('div', 'ipg-town-loading'); loadingView.setAttribute('role', 'status'); loadingView.setAttribute('aria-live', 'polite');
+    append(loadingView, node('span', 'ipg-town-loading-mark'), text('村を準備しています…'));
+    viewport.appendChild(loadingView);
     village.appendChild(viewport);
     var guide = text('ドアへ進むと中に入れるよ', 'ipg-town-guide'); village.appendChild(guide);
+    guide.hidden = true;
     function flatGuide() {
-      guide.textContent = 'ドアへ進むと中に入れるよ';
+      guide.textContent = 'この環境では簡易表示になります。地面をタップで歩けます。';
       viewport.setAttribute('aria-label', '街をおさんぽ。地面や建物をタップすると、その場所へ歩きます。矢印キーやWASDでも歩けます。おうちやお店の近くで入れます。');
     }
     var enter = null;
     var edit = button('村の配置を変える', function () {
-      if (!active() || state().readOnly) return;
+      if (!canWalk() || state().readOnly) return;
       villageEdit = { draft: copyVillage(core().getVillageLayout(state())), revision: state().revision, selected: 'home', error: '', saving: false };
       failure = ''; notice = ''; render();
     }, true, s.readOnly); edit.dataset.focusKey = 'village-edit';
+    edit.disabled = true; edit.dataset.ipgDisabled = '1';
+    var retry = button('村をもう一度表示する', function () { if (active()) render(); }, true);
+    retry.dataset.focusKey = 'town-scene-retry'; retry.hidden = true;
     // Status and actions share one flow so wrapped messages cannot cover a button.
     var actions = node('div', 'ipg-town-actions');
     (messages || []).forEach(function (message) { actions.appendChild(message); });
-    append(actions, edit, enter); village.appendChild(actions);
+    append(actions, edit, enter, retry); village.appendChild(actions);
     body.appendChild(village);
     var visualStarting = false, visualAttempted = false;
+    function clearLoadingWait() { if (loadTimer != null) w.clearTimeout(loadTimer); loadTimer = null; }
+    function reveal(mode) {
+      sceneState = mode; viewport.dataset.sceneState = mode; viewport.setAttribute('aria-busy', 'false');
+      loadingView.hidden = true; guide.hidden = false; clearLoadingWait();
+      scene.style.opacity = mode === 'fallback' ? '1' : '0'; scene.style.pointerEvents = '';
+      scene.removeAttribute('aria-hidden'); scene.removeAttribute('inert');
+      if (!s.readOnly) { delete edit.dataset.ipgDisabled; edit.disabled = false; }
+      if (townController && typeof townController.refresh === 'function') townController.refresh();
+    }
+    function fallback() {
+      if (!active() || sceneState === 'fallback') return;
+      visualStarting = false; visualAttempted = true;
+      if (request) { request.frameConsumer = null; request.frameFailure = null; }
+      var failedVisual = townVisual; townVisual = null;
+      if (failedVisual) failedVisual.destroy();
+      if (townController) townController.stop();
+      viewport.dataset.visualMode = 'flat'; reveal('fallback'); flatGuide(); retry.hidden = false;
+    }
     function enhanceTown() {
-      if (!active() || !townController || townVisual || visualStarting || visualAttempted) return;
+      if (!active() || sceneState !== 'loading' || !townController || townVisual || visualStarting || visualAttempted) return;
       visualStarting = true;
       var controllerAtStart = townController;
       loadTownScene().then(function (api) {
-        if (!api || !active() || townController !== controllerAtStart) return null;
+        if (!active() || sceneState !== 'loading' || townController !== controllerAtStart) return null;
+        if (!api) { fallback(); return null; }
         visualAttempted = true;
         return api.mount({ viewport: viewport, world: world, position: townController.position(), camera: townCamera,
-          view: townPresentation(s), canRun: active,
+          view: townPresentation(s), canRun: function () { return active() && sceneState !== 'fallback'; },
           onFacing: function (frame) { if (active() && request && request.controller && typeof request.controller.setLocomotion === 'function') request.controller.setLocomotion(frame); },
           onCamera: function (camera) { if (active()) townCamera = { yaw: camera.yaw, pitch: camera.pitch, distance: camera.distance }; },
-          onReady: function () { if (active()) { guide.textContent = 'ドアへ進むと中に入る・ドラッグで見渡す'; viewport.setAttribute('aria-label', '街をおさんぽ。地面やドアをタップして歩き、ドア正面へ押し進むと入れます。ドラッグで見渡せます。矢印キーやWASDでも歩けます。'); } },
+          onReady: function () { if (active() && sceneState === 'loading' && townController === controllerAtStart) { reveal('ready'); guide.textContent = 'ドアへ進むと中に入る・ドラッグで見渡す'; viewport.setAttribute('aria-label', '街をおさんぽ。地面やドアをタップして歩き、ドア正面へ押し進むと入れます。ドラッグで見渡せます。矢印キーやWASDでも歩けます。'); } },
           onFailure: function () {
             if (!active() || townController !== controllerAtStart) return;
-            if (request) { request.frameConsumer = null; request.frameFailure = null; }
-            var failedVisual = townVisual; townVisual = null; if (failedVisual) failedVisual.destroy(); townController.stop(); flatGuide();
+            fallback();
           }
         });
       }).then(function (mounted) {
         visualStarting = false;
-        if (!mounted) return;
-        if (!active() || townController !== controllerAtStart) { mounted.destroy(); return; }
+        if (!mounted) { if (active() && townController === controllerAtStart && sceneState === 'loading') fallback(); return; }
+        if (!active() || sceneState === 'fallback' || townController !== controllerAtStart) { mounted.destroy(); return; }
         townVisual = mounted;
         mounted.setPosition(controllerAtStart.position());
         if (request) {
-          request.frameConsumer = function (canvas) { if (active() && townVisual === mounted) mounted.setFrame(canvas); };
+          request.frameConsumer = function (canvas) { if (active() && sceneState !== 'fallback' && townVisual === mounted) mounted.setFrame(canvas); };
           request.frameFailure = function () {
             if (!active() || townVisual !== mounted) return;
-            request.frameConsumer = null; request.frameFailure = null; townVisual = null; mounted.destroy(); townController.stop(); flatGuide();
+            fallback();
           };
+          if (request.failed) { fallback(); return; }
           if (request.controller && typeof request.controller.refreshFrame === 'function') request.controller.refreshFrame();
         } else {
           function stillFrame() { if (active() && townVisual === mounted) mounted.setFrame(visual, { anchor: .08 }); }
-          if (visual.complete) stillFrame(); else visual.addEventListener('load', stillFrame, { once: true });
+          if (visual.complete && visual.naturalWidth === 0) fallback();
+          else if (visual.complete) stillFrame();
+          else { visual.addEventListener('load', stillFrame, { once: true }); visual.addEventListener('error', fallback, { once: true }); }
         }
-      }).catch(function () { visualStarting = false; if (active() && townController === controllerAtStart) flatGuide(); });
+      }).catch(function () { visualStarting = false; if (active() && townController === controllerAtStart) fallback(); });
     }
     townPending = function () {
       if (!active()) return;
@@ -1858,7 +1894,7 @@
           onOpenMarket: function () { if (active()) villageDestination('market'); } });
       }
       townController = engine.mount({ viewport: viewport, worldElement: scene, avatar: avatar, enterButton: enter,
-        world: world, position: townPosition, canRun: active, doorEntry: true, enterableIds: ['home', 'shop', 'cafe'],
+        world: world, position: townPosition, canRun: canWalk, doorEntry: true, enterableIds: ['home', 'shop', 'cafe'],
         resolveTap: function (event, view) {
           if (townVisual && viewport.dataset.visualMode === 'three') return townVisual.resolveTap(event);
           var box = viewport.getBoundingClientRect(); return { x: (event.clientX - box.left) / view.scale + view.x, y: (event.clientY - box.top) / view.scale + view.y };
@@ -1882,6 +1918,9 @@
           if (request.controller) { try { request.controller.setSituation(name, { durationMs: request.townCue.durationMs, elapsedMs: name === 'moving' ? (now - request.townCue.startedAt) % 1600 : 0 }); } catch (_) {} }
         }
       });
+      walkingMounted = true;
+      townLoadCleanup = clearLoadingWait;
+      loadTimer = w.setTimeout(fallback, 20000);
       townEnhance = enhanceTown; enhanceTown();
     };
   }
@@ -2571,7 +2610,7 @@
   });
   w.addEventListener('pagehide', suspend);
   w.addEventListener('pageshow', function () { suspended = false; if (store && !busy) render(); });
-  w.addEventListener('focus', function () { if (store && !busy && !(roomEdit && roomEdit.cozy) && !shopEdit && tab !== 'interior') render(); });
+  w.addEventListener('focus', function () { if (store && !busy && !(roomEdit && roomEdit.cozy) && !shopEdit && tab !== 'interior' && tab !== 'village') render(); });
   w.setInterval(function () { if (store && !busy && !shopEdit && renderedDay !== currentDay()) render(); }, 60000);
   w.IndependentPetGame = {
     mount: mount,

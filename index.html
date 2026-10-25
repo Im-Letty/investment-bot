@@ -4351,7 +4351,7 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
 <link rel="stylesheet" href="/static/pet-game.css?v=20261024-village-economy1">
 <link rel="stylesheet" href="/static/pet-cozy-room.css?v=20261024-cozy-room1">
 <link rel="stylesheet" href="/static/pet-village.css?v=20261024-no-minigames1">
-<link rel="stylesheet" href="/static/pet-town-walk.css?v=20261025-lively1">
+<link rel="stylesheet" href="/static/pet-town-walk.css?v=20261025-reveal1">
 <link rel="stylesheet" href="/static/pet-village-economy-scene.css?v=20261024-village-economy1">
 <style id="independent-pet-shell">
 #sect-pet{position:fixed;inset:0;z-index:9996;display:flex;flex-direction:column;background:var(--kn-a-bg,#f4f7f5);color:var(--kn-a-text,#223b31);overflow:hidden}
@@ -4467,12 +4467,12 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
         loadRequired('/static/pet-village-economy.js?v=20261024-village-economy1',function(){return !!window.PetVillageEconomy;}),
         loadRequired('/static/pet-shop-layout.js?v=20261025-shop1',function(){return !!window.PetShopLayout;})
       ]).then(loadGameCore),
-      window.PetTownWalk?loadVillageScene():loadRequired('/static/pet-town-walk.js?v=20261025-shop1',function(){return !!window.PetTownWalk;}).then(loadVillageScene),
+      window.PetTownWalk?loadVillageScene():loadRequired('/static/pet-town-walk.js?v=20261025-reveal1',function(){return !!window.PetTownWalk;}).then(loadVillageScene),
       loadRequired('/static/pet-cozy-room.js?v=20261024-cozy-room1',function(){return !!window.PetCozyRoom&&typeof window.PetCozyRoom.mount==='function';}),
       loadRequired(shopEntryStyle,function(){return !!styleLoads[shopEntryStyle];},true),
       // UI registration has no eager core access. Fetch it in parallel while
       // retaining economy/layout -> core and walking engine -> scene execution order.
-      loadRequired('/static/pet-game.js?v=20261025-fit1',uiReady)
+      loadRequired('/static/pet-game.js?v=20261025-reveal-fit1',uiReady)
     ]).then(function(){if(!apiReady())throw assetFailure('invalid');});
     loadScript('/static/pet-lilac-motion.js?v=20261025-harmony1',function(){return !!window.PetLilacMotion;},5000,enhanceOptional).catch(function(){});
     loadScript('/static/pet-room-behavior.js?v=4306c88f116b',function(){return !!window.PetRoomBehavior;},5000,enhanceOptional).catch(function(){});

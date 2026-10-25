@@ -103,8 +103,12 @@ async function fixture(config = {}) {
   const pane = document.createElement('section'), host = document.createElement('div');
   pane.hidden = !!config.paneHidden; document.body.appendChild(pane); pane.appendChild(host);
   document.getElementById = id => id === 'sect-pet' ? pane : id === 'pet-game-root' ? host : null;
+  const townAssets = [];
+  if (config.townModuleDeferred) document.head = { appendChild(asset) { townAssets.push(asset); return asset; } };
   const raf = new Map(), intervals = new Map(), timers = new Map(), mounts = [], actionCues = [], anchorCalls = [], hitTests = [];
-  const cozyMounts = [], cozyControl = { pending: null, reject: false }, economyScenes = [], townScenes = [], townSceneControl = { pending: config.scenePending ? deferred() : null };
+  const cozyMounts = [], cozyControl = { pending: null, reject: false }, economyScenes = [], townScenes = [], townSceneControl = {
+    pending: config.scenePending ? deferred() : null, acceptFrame: config.sceneAcceptFrame !== false, failBeforeReturn: !!config.sceneEarlyFailure, reject: !!config.sceneReject
+  };
   const shopMounts = [], shopControl = { pending: null, reject: false, frameReady: true };
   const rendererControl = { mode: config.rendererMode || 'pending', mappingThrows: false, hit: null, hitThrows: false };
   const renderer = {
@@ -162,13 +166,15 @@ async function fixture(config = {}) {
     if (shopControl.reject) throw Error('private unavailable shop renderer'); return controller;
   } };
   coreOptions.shopInteriorAPI = shopInteriorAPI;
-  if(config.townScene)window.PetTownScene={async mount(options){
-    const controller={options,destroyed:false,frames:[],positions:[],motions:[],destroy(){this.destroyed=true;options.viewport.dataset.visualMode='flat';},
-      setFrame(canvas){if(this.destroyed||!options.canRun())return false;this.frames.push(canvas);options.viewport.dataset.visualMode='three';options.onReady();return true;},
+  const townSceneAPI={async mount(options){
+    const controller={options,destroyed:false,destroyCount:0,frames:[],positions:[],motions:[],destroy(){if(this.destroyed)return;this.destroyed=true;this.destroyCount++;options.viewport.dataset.visualMode='flat';},
+      setFrame(canvas){if(this.destroyed||!options.canRun()||!townSceneControl.acceptFrame)return false;this.frames.push(canvas);options.viewport.dataset.visualMode='three';options.onReady();return true;},
       setPosition(p){this.positions.push({...p});},setMotion(m){this.motions.push({...m});},direction(x,y){return{x:-y,y:x};},resolveTap(){return this.hit||null;},
       fail(){this.destroy();options.onFailure('synthetic_context_lost');}};
-    townScenes.push(controller);if(townSceneControl.pending)await townSceneControl.pending.promise;return controller;
+    townScenes.push(controller);if(townSceneControl.failBeforeReturn)controller.fail();if(townSceneControl.pending)await townSceneControl.pending.promise;
+    if(townSceneControl.reject){controller.destroy();throw Error('private scene renderer failure');}return controller;
   }};
+  if(config.townScene)window.PetTownScene=townSceneAPI;
   if (config.villageScene === 'actual') window.PetVillageEconomyScene = EconomyScene;
   else if (config.villageScene) window.PetVillageEconomyScene = {
     mount(options) {
@@ -203,7 +209,7 @@ async function fixture(config = {}) {
     assert.ok(room, 'existing room scenarios can enter the room from the village');
     room.emit('click'); await flush();
   }
-  return { ui, host, pane, document, window, data, storage, writes, control, renderer, rendererControl, mounts, actionCues, anchorCalls, hitTests, raf, timers, intervals, beforeMountRaw, writesBeforeMount, cozyMounts, cozyControl, economyScenes, townScenes, townSceneControl, shopMounts, shopControl, shopInteriorAPI,
+  return { ui, host, pane, document, window, data, storage, writes, control, renderer, rendererControl, mounts, actionCues, anchorCalls, hitTests, raf, timers, intervals, beforeMountRaw, writesBeforeMount, cozyMounts, cozyControl, economyScenes, townScenes, townSceneControl, townSceneAPI, townAssets, shopMounts, shopControl, shopInteriorAPI,
     get store() { return store; },
     get now() { return clock; },
     saved() { return JSON.parse(data.get(Core.KEY)); },
@@ -2993,6 +2999,200 @@ test('room arrangement is available for eggs and bunnies, stays free, and does n
 
 
 async function villageFixture(config={}) { return fixture({species:'lilac',developerPreview:false,startAtVillage:true,...config}); }
+
+function townPresentationState(f, expected, host = f.host) {
+  const viewport = host.querySelector('.ipg-town-viewport'), loading = host.querySelector('.ipg-town-loading');
+  assert.ok(viewport); assert.equal(viewport.dataset.sceneState, expected); assert.ok(loading);
+  assert.equal(loading.hidden, expected !== 'loading'); assert.equal(viewport.getAttribute('aria-busy'), String(expected === 'loading'));
+  const world = host.querySelector('.ipg-town-world'); assert.ok(world); assert.equal(world.isConnected, true);
+  assert.equal(world.style.opacity, expected === 'fallback' ? '1' : '0', 'the old design is never an initial preview');
+  if (expected === 'loading') { assert.equal(world.style.pointerEvents, 'none'); assert.equal(world.getAttribute('aria-hidden'), 'true'); assert.equal(world.getAttribute('inert'), ''); }
+  if (expected === 'fallback') assert.match(host.querySelector('.ipg-town-guide').textContent, /簡易表示/);
+  return { viewport, loading };
+}
+
+for (const reducedMotion of [false, true]) test('village first frame stays neutral while the scene is deferred and never buffers old movement (' + (reducedMotion ? 'reduced' : 'normal') + ')', async () => {
+  const f = await villageFixture({ rendererMode: 'ready', townScene: true, scenePending: true, reducedMotion });
+  const before = f.saved(), writes = f.writes.length, source = f.activeMotions()[0], { viewport, loading } = townPresentationState(f, 'loading');
+  assert.equal(loading.getAttribute('role'), 'status'); assert.equal(source.canvas.isConnected, true); assert.equal(source.canvas.hidden, false);
+  const avatar = f.host.querySelector('.ipg-town-avatar'), start = [avatar.style.left, avatar.style.top], savedFrame = f.raf.size;
+  viewport.focus(); f.window.emit('keydown', { key: 'ArrowRight', target: viewport });
+  await f.click(villagePlace(f, 'shop')); await f.click(f.focusButton('village-door-home')); tapTownGround(f, 100, 0);
+  await f.frame(50); assert.deepEqual([avatar.style.left, avatar.style.top], start); assert.equal(f.raf.size, savedFrame);
+  f.townSceneControl.pending.resolve(); await flush(); townPresentationState(f, 'ready'); assert.equal(f.townScenes[0].frames.at(-1), source.canvas);
+  await f.frame(50); assert.deepEqual([avatar.style.left, avatar.style.top], start, 'a key held while hidden cannot start walking after reveal');
+  f.window.emit('keyup', { key: 'ArrowRight' }); f.window.emit('keydown', { key: 'ArrowUp', target: viewport }); await f.frame(); await f.frame(50); f.window.emit('keyup', { key: 'ArrowUp' });
+  assert.notDeepEqual([avatar.style.left, avatar.style.top], start, 'a fresh input works once the new world is ready');
+  assert.equal(f.activeMotions()[0] === source, true); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+});
+
+test('village first frame ignores real OS key repeats from a hold that began while input was unavailable', async () => {
+  const f = await villageFixture({ rendererMode: 'ready', townScene: true, scenePending: true }), before = f.saved(), writes = f.writes.length;
+  const { viewport } = townPresentationState(f, 'loading'), avatar = f.host.querySelector('.ipg-town-avatar'), start = [avatar.style.left, avatar.style.top]; viewport.focus();
+  f.window.emit('keydown', { key: 'ArrowRight', target: viewport, repeat: false });
+  f.townSceneControl.pending.resolve(); await flush(); townPresentationState(f, 'ready');
+  for (let i = 0; i < 4; i++) { f.window.emit('keydown', { key: 'ArrowRight', target: viewport, repeat: true }); await f.frame(50); }
+  assert.deepEqual([avatar.style.left, avatar.style.top], start, 'an OS repeat is not a fresh command after reveal'); assert.equal(f.raf.size, 0);
+  f.window.emit('keyup', { key: 'ArrowRight' }); f.window.emit('keydown', { key: 'ArrowRight', target: viewport, repeat: false }); await f.frame(); await f.frame(50);
+  assert.notDeepEqual([avatar.style.left, avatar.style.top], start, 'release and a new press starts camera-relative movement');
+  const moving = [avatar.style.left, avatar.style.top]; f.window.emit('keydown', { key: 'ArrowRight', target: viewport, repeat: true }); await f.frame(50);
+  assert.notDeepEqual([avatar.style.left, avatar.style.top], moving, 'an already accepted hold continues across normal OS repeats'); f.window.emit('keyup', { key: 'ArrowRight' });
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+});
+
+test('village first frame window focus preserves the pending visit and the ready first pointer gesture without remounting', async () => {
+  const f = await villageFixture({ rendererMode: 'ready', townScene: true, scenePending: true }), before = f.saved(), writes = f.writes.length;
+  const root = f.host.children[0], scene = f.townScenes[0], source = f.activeMotions()[0], { viewport } = townPresentationState(f, 'loading');
+  const pendingTimers = [...f.timers].map(([id, timer]) => [id, timer.at]); viewport.focus(); f.window.emit('focus'); await flush();
+  townPresentationState(f, 'loading'); assert.equal(f.host.children[0] === root, true); assert.equal(f.townScenes.length, 1); assert.equal(f.mounts.length, 1);
+  assert.deepEqual([...f.timers].map(([id, timer]) => [id, timer.at]), pendingTimers, 'focus must retain the original first-frame deadline');
+  f.townSceneControl.pending.resolve(); await flush(); townPresentationState(f, 'ready');
+  const avatar = f.host.querySelector('.ipg-town-avatar'), start = { x: parseFloat(avatar.style.left), y: parseFloat(avatar.style.top) }, target = { x: start.x + 100, y: start.y };
+  scene.hit = target; const event = { pointerId: 71, button: 0, isPrimary: true, pointerType: 'mouse', clientX: 150, clientY: 150 };
+  viewport.emit('pointerdown', event); f.window.emit('focus'); await flush();
+  assert.equal(f.host.children[0] === root, true); assert.equal(f.host.querySelector('.ipg-town-viewport') === viewport, true);
+  assert.equal(scene.destroyed, false); assert.equal(f.townScenes.length, 1); assert.equal(f.activeMotions()[0] === source, true); assert.equal(f.mounts.length, 1);
+  viewport.emit('pointerup', event); for (let i = 0; i < 25; i++) await f.frame(50);
+  assert.ok(Math.abs(parseFloat(avatar.style.left) - target.x) < .01); assert.ok(Math.abs(parseFloat(avatar.style.top) - target.y) < .01);
+  const frames = scene.frames.length; source.options.onFrame(source.canvas); assert.equal(scene.frames.length, frames + 1); assert.equal(scene.frames.at(-1), source.canvas);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+});
+
+test('village first frame refreshes a viewport resize that occurred while pending before the fallback first tap', async () => {
+  const f = await villageFixture({ rendererMode: 'ready', townModuleDeferred: true }), before = f.saved(), writes = f.writes.length;
+  const { viewport } = townPresentationState(f, 'loading'), surface = f.host.querySelector('.ipg-town-world'), avatar = f.host.querySelector('.ipg-town-avatar');
+  const oldTransform = surface.style.transform, position = { x: parseFloat(avatar.style.left), y: parseFloat(avatar.style.top) };
+  viewport.getBoundingClientRect = () => ({ left: 0, top: 0, width: 600, height: 300 }); f.window.emit('resize');
+  assert.equal(surface.style.transform, oldTransform, 'pending input does not independently redraw the concealed world');
+  f.advance(20000); await f.fireTimers(); townPresentationState(f, 'fallback');
+  const world = Town.createWorld(Core.getVillageLayout(f.store.getState())), view = Town.camera(world, 600, 300, position);
+  const freshTransform = 'translate3d(' + (-view.x * view.scale).toFixed(3) + 'px,' + (-view.y * view.scale).toFixed(3) + 'px,0) scale(' + view.scale.toFixed(6) + ')';
+  assert.equal(surface.style.transform, freshTransform); assert.notEqual(surface.style.transform, oldTransform);
+  assert.deepEqual([avatar.style.left, avatar.style.top], [position.x.toFixed(3) + 'px', position.y.toFixed(3) + 'px']);
+  const target = tapTownGround(f, 100, 0); for (let i = 0; i < 50; i++) await f.frame(50);
+  assert.ok(Math.abs(parseFloat(avatar.style.left) - target.x) < .01); assert.ok(Math.abs(parseFloat(avatar.style.top) - target.y) < .01);
+  assert.equal(f.raf.size, 0); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+});
+
+test('village first frame waits independently for the scene module and the selected pet canvas without changing the live DOM', async () => {
+  const f = await villageFixture({ rendererUnavailable: true, townModuleDeferred: true }), before = f.saved(), writes = f.writes.length;
+  const root = f.host.children[0], world = f.host.querySelector('.ipg-town-world'); townPresentationState(f, 'loading');
+  assert.equal(f.townAssets.length, 1); assert.match(f.townAssets[0].src, /pet-town-scene\.js/); assert.equal(f.townScenes.length, 0);
+  f.window.PetTownScene = f.townSceneAPI; f.townAssets[0].onload(); await flush(); townPresentationState(f, 'loading');
+  assert.equal(f.townScenes.length, 1); assert.equal(f.townScenes[0].frames.length, 0);
+  f.window.PetLilacMotion = f.renderer; f.rendererControl.mode = 'ready'; assert.equal(f.ui.refreshVisuals(f.host), true); await flush();
+  townPresentationState(f, 'loading'); const source = f.activeMotions()[0]; assert.ok(source, 'the canonical source starts while its flat parent stays concealed');
+  source.refreshFrame(); await flush(); townPresentationState(f, 'ready');
+  assert.equal(f.host.children[0] === root, true); assert.equal(f.host.querySelector('.ipg-town-world') === world, true); assert.equal(f.mounts.length, 1);
+  assert.equal(f.townScenes[0].frames.at(-1), source.canvas); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+});
+
+test('village first frame rejects source readiness without an accepted world frame and cancels the deadline after real readiness', async () => {
+  const f = await villageFixture({ rendererMode: 'pending', townScene: true }), before = f.saved(), writes = f.writes.length;
+  const source = f.activeMotions()[0], scene = f.townScenes[0]; townPresentationState(f, 'loading');
+  source.options.onReady(); await flush(); townPresentationState(f, 'loading'); assert.equal(scene.frames.length, 0);
+  source.options.onFrame(source.canvas); await flush(); townPresentationState(f, 'ready'); assert.equal(scene.frames.at(-1), source.canvas);
+  f.advance(25000); await f.fireTimers(); townPresentationState(f, 'ready'); assert.equal(scene.destroyed, false);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+});
+
+test('village first frame turns a definite module error into terminal fallback and retries only when explicitly requested', async () => {
+  const f = await villageFixture({ rendererMode: 'ready', townModuleDeferred: true }), before = f.saved(), writes = f.writes.length;
+  townPresentationState(f, 'loading'); f.townAssets[0].onerror(); await flush(); const fallback = townPresentationState(f, 'fallback').viewport;
+  const retry = f.focusButton('town-scene-retry'); assert.equal(retry.hidden, false); assert.equal(f.townAssets.length, 1);
+  f.window.PetTownScene = f.townSceneAPI; f.activeMotions()[0].options.onFrame(f.activeMotions()[0].canvas); await flush();
+  townPresentationState(f, 'fallback'); assert.equal(f.townScenes.length, 0, 'late availability cannot silently replace the fallback');
+  await f.click(retry); townPresentationState(f, 'ready'); assert.equal(fallback.isConnected, false); assert.equal(f.townScenes.length, 1);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+});
+
+test('village first frame reaches fallback after a bounded missing-module deadline and ignores its late successful load', async () => {
+  const f = await villageFixture({ rendererMode: 'ready', townModuleDeferred: true }), before = f.saved(), writes = f.writes.length, asset = f.townAssets[0];
+  f.advance(19999); await f.fireTimers(); townPresentationState(f, 'loading');
+  f.advance(1); await f.fireTimers(); const { viewport } = townPresentationState(f, 'fallback');
+  f.window.PetTownScene = f.townSceneAPI; asset.onload(); await flush(); townPresentationState(f, 'fallback'); assert.equal(f.townScenes.length, 0);
+  const avatar = f.host.querySelector('.ipg-town-avatar'), start = avatar.style.left; viewport.focus(); f.window.emit('keydown', { key: 'ArrowRight', target: viewport });
+  await f.frame(); await f.frame(50); f.window.emit('keyup', { key: 'ArrowRight' }); assert.notEqual(avatar.style.left, start, 'explicit fallback retains the working existing movement');
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+});
+
+for (const rendererUnavailable of [false, true]) test('village first frame bounds a missing selected-pet ' + (rendererUnavailable ? 'module' : 'frame') + ' and a late source cannot resurrect the disposed scene', async () => {
+  const f = await villageFixture({ rendererMode: 'pending', townScene: true, rendererUnavailable }), before = f.saved(), writes = f.writes.length, source = f.activeMotions()[0], scene = f.townScenes[0];
+  townPresentationState(f, 'loading'); f.advance(20000); await f.fireTimers(); townPresentationState(f, 'fallback');
+  assert.equal(scene.destroyed, true); assert.equal(scene.destroyCount, 1); const frames = scene.frames.length;
+  if (source) { source.options.onReady(); source.options.onFrame(source.canvas); }
+  else { f.window.PetLilacMotion = f.renderer; f.rendererControl.mode = 'ready'; f.ui.refreshVisuals(f.host); await flush(); f.activeMotions()[0].refreshFrame(); }
+  scene.options.onReady(); await flush(); townPresentationState(f, 'fallback'); assert.equal(scene.frames.length, frames);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+});
+
+test('village first frame keeps rejected source frames concealed until an actual world frame is accepted', async () => {
+  const f = await villageFixture({ rendererMode: 'ready', townScene: true, sceneAcceptFrame: false }), before = f.saved(), writes = f.writes.length;
+  const source = f.activeMotions()[0], scene = f.townScenes[0]; townPresentationState(f, 'loading'); assert.equal(scene.frames.length, 0);
+  f.advance(19999); await f.fireTimers(); townPresentationState(f, 'loading');
+  f.townSceneControl.acceptFrame = true; source.refreshFrame(); await flush(); townPresentationState(f, 'ready');
+  f.advance(1); await f.fireTimers(); townPresentationState(f, 'ready'); assert.equal(scene.frames.at(-1), source.canvas);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+});
+
+test('village first frame turns a rejected scene mount and a nonlilac image error into labelled fallback without altering records', async () => {
+  for (const config of [{ rendererMode: 'ready', townScene: true, sceneReject: true }, { species: 'bunny', townScene: true }]) {
+    const f = await villageFixture(config), before = f.saved(), writes = f.writes.length;
+    if (config.species) { townPresentationState(f, 'loading'); f.host.querySelector('.ipg-town-character').emit('error'); await flush(); }
+    townPresentationState(f, 'fallback'); assert.match(f.host.querySelector('.ipg-town-guide').textContent, /この環境では簡易表示/);
+    assert.doesNotMatch(f.host.textContent, /private scene renderer failure/); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+  }
+});
+
+test('village first frame handles selected-pet failure before the scene hook and does not display raw renderer errors', async () => {
+  const f = await villageFixture({ rendererMode: 'error', townScene: true }), before = f.saved(), writes = f.writes.length;
+  townPresentationState(f, 'fallback'); assert.equal(f.host.querySelector('.ipg-lilac-still').hidden, false);
+  const source = f.activeMotions()[0]; if (source) { source.options.onReady(); source.options.onFrame(source.canvas); }
+  await flush(); townPresentationState(f, 'fallback'); assert.doesNotMatch(f.host.textContent, /private|synthetic|context_lost/);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+});
+
+test('village first frame handles an early scene failure before its delayed controller returns exactly once', async () => {
+  const f = await villageFixture({ rendererMode: 'ready', townScene: true, scenePending: true, sceneEarlyFailure: true }), before = f.saved(), writes = f.writes.length, scene = f.townScenes[0];
+  townPresentationState(f, 'fallback'); assert.equal(scene.destroyed, true); f.townSceneControl.pending.resolve(); await flush();
+  scene.options.onReady(); await flush(); townPresentationState(f, 'fallback'); assert.equal(scene.destroyCount, 1); assert.equal(scene.frames.length, 0);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+});
+
+test('village first frame closes one pending visit without letting old scene/source/deadline callbacks reveal its reopened view', async () => {
+  const f = await villageFixture({ rendererMode: 'ready', townScene: true, scenePending: true }), before = f.saved(), writes = f.writes.length;
+  const old = f.townScenes[0], source = f.activeMotions()[0], firstGate = f.townSceneControl.pending; f.advance(5000); await f.ui.close();
+  const nextGate = deferred(); f.townSceneControl.pending = nextGate; await f.ui.open(); await flush(); const next = f.townScenes.at(-1); townPresentationState(f, 'loading');
+  firstGate.resolve(); await flush(); old.options.onReady(); old.options.onFailure('private old failure'); source.options.onFrame(source.canvas); await flush();
+  assert.equal(old.destroyed, true); assert.equal(old.destroyCount, 1); assert.equal(next.destroyed, false); townPresentationState(f, 'loading');
+  f.advance(15000); await f.fireTimers(); townPresentationState(f, 'loading');
+  nextGate.resolve(); await flush(); townPresentationState(f, 'ready'); assert.equal(next.frames.at(-1), f.activeMotions()[0].canvas);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+});
+
+test('village first frame late results from a still-connected old owner cannot reveal, fail or alter a new owner', async () => {
+  const f = await villageFixture({ rendererMode: 'ready', townScene: true, scenePending: true }), before = f.saved(), writes = f.writes.length;
+  const old = f.townScenes[0], oldSource = f.activeMotions()[0], oldGate = f.townSceneControl.pending, oldViewport = f.host.querySelector('.ipg-town-viewport');
+  const other = copy(before); other.pet.name = '別の保存先のこ'; other.coins = 1234;
+  const data = new Map([[Core.KEY, JSON.stringify(other)]]), otherWrites = [], storage = { getItem: k => data.get(k) ?? null, setItem(k, v) { data.set(k, v); otherWrites.push([k, v]); } };
+  const nextGate = deferred(); f.townSceneControl.pending = nextGate; const target = f.document.createElement('div'); f.pane.appendChild(target);
+  assert.equal(await f.ui.mount(target, { storage, developerPreview: false, now: () => f.now, random: () => .5, shopInteriorAPI: f.shopInteriorAPI }), true); await flush();
+  const current = f.townScenes.at(-1); townPresentationState(f, 'loading', target); assert.equal(oldViewport.isConnected, true);
+  oldGate.resolve(); await flush(); old.options.onReady(); old.options.onFailure('private old owner'); oldSource.options.onFrame(oldSource.canvas); await flush();
+  assert.equal(old.destroyed, true); assert.equal(current.destroyed, false); townPresentationState(f, 'loading', target);
+  nextGate.resolve(); await flush(); townPresentationState(f, 'ready', target); assert.doesNotMatch(target.textContent, /private old owner/);
+  assert.deepEqual(JSON.parse(data.get(Core.KEY)), other); assert.equal(otherWrites.length, 0); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); await f.ui.close();
+});
+
+test('village first frame CSS hides both old world and unready canvas while preserving source layout and reduced-motion status', () => {
+  const css = fs.readFileSync(require.resolve('../static/pet-town-walk.css'), 'utf8');
+  assert.match(css, /\[data-scene-state="loading"\]\s*>\s*:is\(\.ipg-town-world,\.ipg-town-canvas\)\s*\{[^}]*opacity:0;[^}]*pointer-events:none/);
+  const pendingRule = css.match(/\[data-scene-state="loading"\]\s*>\s*:is\(\.ipg-town-world,\.ipg-town-canvas\)\s*\{([^}]+)\}/)[1];
+  assert.doesNotMatch(pendingRule, /display\s*:\s*none|visibility\s*:\s*hidden/);
+  assert.match(css, /\.ipg-town-loading\[hidden\][^{]*\{\s*display:none!important/);
+  assert.match(css, /@media\(prefers-reduced-motion:reduce\)[^{]*\{\s*\.ipg-town \.ipg-town-loading-mark\s*\{\s*animation:none/);
+});
+
 test('late Three readiness repaints the same reduced-motion pet without remounting, changing its cue, or writing a save',async()=>{
  const f=await villageFixture({rendererMode:'ready',reducedMotion:true,townScene:true,scenePending:true}),before=f.saved(),writes=f.writes.length;
  const source=f.activeMotions()[0],visual=f.host.querySelector('.ipg-lilac-visual'),viewport=f.host.querySelector('.ipg-town-viewport');
@@ -3013,10 +3213,10 @@ test('a pending old town import cannot resurrect a closed host; camera and posit
  const current=f.townScenes.at(-1);assert.equal(current.options.camera.yaw,1);assert.deepEqual([f.host.querySelector('.ipg-town-avatar').style.left,f.host.querySelector('.ipg-town-avatar').style.top],position);
  old.options.onReady();assert.equal(old.destroyed,true);assert.deepEqual(f.saved(),before);f.ui.close();
 });
-test('walking and stopping during a delayed scene mount synchronizes the current position before its first pet frame',async()=>{
+test('a delayed scene mount synchronizes the current position before its first pet frame while movement waits for reveal',async()=>{
  const f=await villageFixture({rendererMode:'ready',townScene:true,scenePending:true}),before=f.saved(),scene=f.townScenes[0],viewport=f.host.querySelector('.ipg-town-viewport');
  const original={...scene.options.position};viewport.focus();f.window.emit('keydown',{key:'ArrowUp',target:viewport});await f.frame();for(let i=0;i<8;i++)await f.frame(50);f.window.emit('keyup',{key:'ArrowUp'});
- const avatar=f.host.querySelector('.ipg-town-avatar'),current={x:parseFloat(avatar.style.left),y:parseFloat(avatar.style.top)};assert.notDeepEqual(current,original);assert.equal(scene.frames.length,0);
+ const avatar=f.host.querySelector('.ipg-town-avatar'),current={x:parseFloat(avatar.style.left),y:parseFloat(avatar.style.top)};assert.deepEqual(current,original);assert.equal(scene.frames.length,0);
  f.townSceneControl.pending.resolve();await flush();assert.deepEqual(scene.positions[0],current);assert.equal(scene.frames.length,1);assert.deepEqual(f.saved(),before);f.ui.close();
 });
 test('scene ground and facility hits use the existing movement/entry engine, camera-relative keys, and flat fallback',async()=>{
@@ -3025,7 +3225,7 @@ test('scene ground and facility hits use the existing movement/entry engine, cam
  assert.ok(parseFloat(avatar.style.left)>x);assert.equal(parseFloat(avatar.style.top),y);
  scene.hit={placeId:'shop'};viewport.emit('pointerdown',{pointerId:2,clientX:150,clientY:150});viewport.emit('pointerup',{pointerId:2,clientX:150,clientY:150});
  for(let i=0;i<1000&&f.raf.size;i++)await f.frame(50);assert.equal(f.host.querySelector('[data-focus-key="town-enter"]'),null);assert.ok(f.host.querySelector('.ipg-town'));
- scene.fail();assert.equal(viewport.dataset.visualMode,'flat');assert.equal(f.host.querySelector('.ipg-town-controls'),null);assert.match(f.host.querySelector('.ipg-town-guide').textContent,/ドアへ進む/);assert.doesNotMatch(viewport.getAttribute('aria-label'),/ドラッグ/);
+ scene.fail();assert.equal(viewport.dataset.visualMode,'flat');assert.equal(f.host.querySelector('.ipg-town-controls'),null);assert.match(f.host.querySelector('.ipg-town-guide').textContent,/簡易表示/);assert.doesNotMatch(viewport.getAttribute('aria-label'),/ドラッグ/);
  assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);await walkToVillagePlace(f,'shop');assert.ok(f.host.querySelector('.ipg-shop-interior-card'));f.ui.close();
 });
 test('a real Three door hit routes through the push engine into the matching shop without an entry button', async () => {
@@ -3212,7 +3412,7 @@ test('public game enters the cafe village without initializing layout or changin
   assert.deepEqual(f.host.querySelectorAll('.ipg-village-place,.ipg-town-place').map(x=>x.dataset.place),Core.villagePlaces.map(x=>x.id));
   assert.equal(f.host.querySelector('.ipg-care-room'),null);assert.equal(Object.hasOwn(f.saved(),'villageLayout'),false);
   assert.equal(f.host.querySelector('.ipg-town-controls'),null);assert.equal(f.buttons().filter(b=>b.dataset.direction).length,0);
-  assert.match(f.host.querySelector('.ipg-town-guide').textContent,/ドアへ進む/);
+  assert.match(f.host.querySelector('.ipg-town-guide').textContent,/簡易表示/);
   assert.match(f.host.querySelector('.ipg-town-viewport').getAttribute('aria-label'),/地面や建物をタップ/);
   const actions=f.host.querySelector('.ipg-town-actions');assert.equal(f.host.querySelector('[data-focus-key="town-enter"]'),null);assert.equal(f.focusButton('village-edit').parentNode,actions);
   assert.equal(f.data.get(Core.KEY),f.beforeMountRaw);assert.equal(f.writes.length,f.writesBeforeMount);assert.equal(f.saved().pet.exp,686);assert.equal(f.saved().coins,574);

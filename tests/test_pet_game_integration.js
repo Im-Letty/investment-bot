@@ -648,10 +648,10 @@ test('main game does not load a removed minigame runtime and updates only change
     assert.ok(html.includes('/static/'+asset+'?v=20261024-no-minigames1'),asset);
   }
   for(const asset of ['pet-game.css','pet-village-economy.js','pet-village-economy-scene.js','pet-village-economy-scene.css'])assert.ok(html.includes('/static/'+asset+'?v=20261024-village-economy1'),asset);
-  for(const asset of ['pet-game-core.js','pet-town-walk.js','pet-shop-layout.js','pet-shop-entry.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-shop1'),asset);
-  assert.ok(html.includes('/static/pet-game.js?v=20261025-fit1'),'changed UI pins lazy renderers');
+  for(const asset of ['pet-game-core.js','pet-shop-layout.js','pet-shop-entry.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-shop1'),asset);
+  for(const asset of ['pet-town-walk.js','pet-town-walk.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-reveal1'),asset+' first-frame reveal pin');
+  assert.ok(html.includes('/static/pet-game.js?v=20261025-reveal-fit1'),'merged loading UI retains fit1 lazy renderers');
   assert.equal(loader.includes('/static/pet-frame-fit.js?'),false,'visual-only frame contract stays out of game boot');
-  assert.ok(html.includes('/static/pet-town-walk.css?v=20261025-lively1'),'unchanged walking stylesheet pin is preserved');
   assert.ok(html.includes('/static/pet-lilac-motion.js?v=20261025-harmony1'),'unchanged character renderer pin is preserved');
   assert.ok(html.includes('/static/pet-cozy-room.css?v=20261024-cozy-room1'),'unchanged room asset pin is preserved');
 });
