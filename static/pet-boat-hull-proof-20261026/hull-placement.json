@@ -1,0 +1,135 @@
+{
+  "measure": {
+    "bounds": {
+      "min": [
+        -0.5534261465072631,
+        -0.1599999964237213,
+        -0.8999999761581418
+      ],
+      "max": [
+        0.5534261465072637,
+        0.3499999940395355,
+        0.8999999761581424
+      ],
+      "size": [
+        1.1068522930145268,
+        0.5099999904632568,
+        1.7999999523162842
+      ]
+    },
+    "horizontalRadiusUnits": 0.8999999761581426,
+    "vertices": 499
+  },
+  "floorY": 0.04000000000000001,
+  "minRimY": 0.06,
+  "volume": 0.21386449272828614,
+  "placement": {
+    "ok": true,
+    "candidate": {
+      "id": "south-landing-measured-hull-v2",
+      "version": 2,
+      "approach": {
+        "x": 2181.7725636212645,
+        "y": 1598.3938991554123
+      },
+      "shore": {
+        "x": 2255.5319311954445,
+        "y": 1680
+      },
+      "head": {
+        "x": 2285.706217930336,
+        "y": 1713.3843139818769
+      },
+      "socket": {
+        "x": 2366.1709825567145,
+        "y": 1802.4091512668815
+      },
+      "route": [
+        {
+          "x": 2366.1709825567145,
+          "y": 1802.4091512668815
+        },
+        {
+          "x": 2424.155569791184,
+          "y": 1750
+        },
+        {
+          "x": 2490.538542038756,
+          "y": 1690
+        }
+      ],
+      "vesselRadius": 89.99999761581421,
+      "margin": 24,
+      "width": 84,
+      "deckTop": 0.04299999999999787,
+      "boardingEnabled": false,
+      "sailingEnabled": false,
+      "boatHullCreated": true,
+      "gameCollisionChanged": false,
+      "saveConnected": false
+    },
+    "routeReport": {
+      "valid": true,
+      "reasons": [],
+      "metrics": {
+        "minimumWaterClearance": 165,
+        "minimumBridgeClearance": 440.0000023841858,
+        "minimumFishingClearance": 120,
+        "minimumPierClearance": 119.99999999999994
+      },
+      "requiredClearance": 113.99999761581421
+    },
+    "measured": {
+      "bounds": {
+        "min": [
+          -0.5534261465072632,
+          -0.1599999964237213,
+          -0.8999999761581421
+        ],
+        "max": [
+          0.5534261465072632,
+          0.3499999940395355,
+          0.8999999761581421
+        ],
+        "size": [
+          1.1068522930145264,
+          0.5099999904632568,
+          1.7999999523162842
+        ]
+      },
+      "horizontalRadiusUnits": 0.8999999761581421,
+      "vertices": 499
+    },
+    "pierFishingClearancePixels": 74.57433759404293,
+    "worldPosition": {
+      "x": 9.261709825567145,
+      "y": -0.05,
+      "z": 8.424091512668815
+    },
+    "yaw": 0.7349360379086964,
+    "boarding": {
+      "start": {
+        "x": 8.43024059109457,
+        "y": 0.04299999999999787,
+        "z": 7.504168194057099
+      },
+      "end": {
+        "x": 8.926439972957235,
+        "y": -0.010000000894069674,
+        "z": 8.053154690647963
+      },
+      "width": 0.4,
+      "thickness": 0.035,
+      "stepHeight": -0.05300000089406755,
+      "inclineDeg": 4.096621512018987,
+      "floorY": -0.010000000894069674,
+      "fishingClearancePixels": 116.31898004289576,
+      "locomotionVerified": false,
+      "geometryEligible": true
+    },
+    "normalGameIntegration": false,
+    "sailing": false,
+    "save": false
+  },
+  "waterline_points": 160
+}

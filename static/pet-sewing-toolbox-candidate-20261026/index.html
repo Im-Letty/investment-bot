@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>物語の裁縫道具箱・デザイン見本</title>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:24px 16px 40px;background:#f7f5e9;color:#50563a;font:16px/1.8 system-ui,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif}main{max-width:900px;margin:auto}h1{font-size:clamp(22px,4vw,32px);margin:0 0 8px}p{margin:8px 0 20px}figure{margin:0;border:1px solid #d8d7bf;border-radius:24px;overflow:hidden;background:#fff}img{display:block;width:100%;height:auto;max-height:70vh;object-fit:contain;padding:22px}.controls{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}button{font:inherit;color:inherit;border:1px solid #c9cdb4;border-radius:18px;background:#fffdf6;padding:9px 18px;cursor:pointer}button[aria-pressed="true"]{background:#e3e9d2;border-color:#78815d}button:focus-visible{outline:3px solid #738661;outline-offset:3px}.note{font-size:14px;color:#68704e}
+</style>
+<main><h1>物語の裁縫道具箱</h1>
+<p>木と布のやさしい質感を合わせた、小さな工房のデザイン見本です。</p>
+<figure id="matte"><img src="./storybook-sewing-toolbox-v1.png" alt="持ち手と左右に開くトレイのある、木と布の裁縫道具箱の静止見本"></figure>
+<div class="controls" aria-label="背景色"><button type="button" data-color="#ffffff" aria-pressed="true">白</button><button type="button" data-color="#edf5e9" aria-pressed="false">薄い緑</button><button type="button" data-color="#224b36" aria-pressed="false">濃い緑</button></div>
+<p class="note">デザイン見本です。村への配置や、開閉・道具を使う動きは準備中です。</p>
+</main><script>
+for(const b of document.querySelectorAll('[data-color]'))b.addEventListener('click',()=>{document.getElementById('matte').style.backgroundColor=b.dataset.color;for(const x of document.querySelectorAll('[data-color]'))x.setAttribute('aria-pressed',String(x===b))});
+</script></html>

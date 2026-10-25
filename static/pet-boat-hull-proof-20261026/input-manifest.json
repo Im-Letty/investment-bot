@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "source_merge": "cecbdcc",
+  "technical_unit": "village:river-boat:hull-and-boarding-geometry:v1",
+  "files": [
+    {
+      "path": "index.html",
+      "sha256": "63762c89bc6ab57571f75b7eb059909fcf4823b452f775e1bcdc78013d67a427",
+      "bytes": 4716
+    },
+    {
+      "path": "preview.mjs",
+      "sha256": "bf8891e82ce24cf082b82063ba0676c0685a33d665e0650e2d14d096c83c2e10",
+      "bytes": 11610
+    },
+    {
+      "path": "hull.js",
+      "sha256": "752f517f152de9bb1dc81184099d2eb431e347300baba7983851d8f7d0d5df9e",
+      "bytes": 10875
+    },
+    {
+      "path": "hull-placement.json",
+      "sha256": "698f51c8cbffd1e80c21bb8769c1aa6651705d284681e4491c0f81ab0efc2f7e",
+      "bytes": 3202
+    },
+    {
+      "path": "runtime/pet-lilac-motion.js",
+      "sha256": "948e0f2336be4b9d34965c96dc8e038a763832d82c8841585e55c955de0f6321",
+      "bytes": 222029
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/static/pet-boat-route-proof-20261026/runtime/pet-town-walk.js",
+      "sha256": "e5394a48f76449dddec52e497d1b231ad1ed213d1fa69aec3657bbb3045b1aac",
+      "bytes": 24418
+    },
+    {
+      "path": "/static/pet-boat-route-proof-20261026/runtime/pet-town-scene.js",
+      "sha256": "9e179ada2f07f108076621028ad1a1673f2713273ac1b8ec174d6dc155254fd7",
+      "bytes": 69017
+    },
+    {
+      "path": "/static/pet-boat-route-proof-20261026/runtime/pet-town-style.js",
+      "sha256": "67ebab2270f8637d3b3a09a2678cc6d078b1bb67180c35fbe24c829d130d6677",
+      "bytes": 7864
+    },
+    {
+      "path": "/static/pet-boat-route-proof-20261026/runtime/pet-japan-seasons.js",
+      "sha256": "87ddb9845d84ea5eb50c14d5f8f04dd13c5646489ad7103d549e2af1d4c96110",
+      "bytes": 4126
+    },
+    {
+      "path": "/static/pet-boat-route-proof-20261026/runtime/pet-frame-fit.js",
+      "sha256": "7b3b730dc7834e1c56f455161d59005f8352a3cd918e52be1893bc4b7706dc13",
+      "bytes": 2434
+    },
+    {
+      "path": "/static/pet-boat-route-proof-20261026/runtime/pet-river-fishing.js",
+      "sha256": "8b4e1d2d9f2b9fda72f66e79b2105dccdadd2e6de5230c24e920cbdcf561aedb",
+      "bytes": 8325
+    },
+    {
+      "path": "/static/pet-boat-route-proof-20261026/runtime/vendor/three-0.160.1.module.js",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    {
+      "path": "/static/pet-boat-route-proof-20261026/runtime/vendor/three-0.160.1.LICENSE.txt",
+      "sha256": "852e0e8699169bf9f6fdc6bda3e682d078dcbc738b5d33e74df594721bff271d",
+      "bytes": 1081
+    },
+    {
+      "path": "/static/pet-boat-route-proof-20261026/index.html",
+      "sha256": "4d2a4dfbaf49e1d5a7e349f952457f86fbd312936059cb48bf1fa4d143486fb7",
+      "bytes": 4232
+    },
+    {
+      "path": "/static/pet-boat-route-proof-20261026/preview.mjs",
+      "sha256": "baceb9688d1f82ac07a6ce6a5d6faad511620e1f74efd120ff1d86e29036149d",
+      "bytes": 8246
+    },
+    {
+      "path": "/static/pet-boat-route-proof-20261026/dock-route.js",
+      "sha256": "b383a68ee054ad5c993d716830577e159998f41b80f2d542117e3a26458f249f",
+      "bytes": 14847
+    },
+    {
+      "path": "/static/pet-boat-route-proof-20261026/landing-route.json",
+      "sha256": "0a043328b5c1f596f311434302c0b8a1b7c84e7feb97487f2d6aba0343e81102",
+      "bytes": 4317
+    },
+    {
+      "path": "/static/pet_lilac_reference_v2.png",
+      "sha256": "2d2cc24745bc74dadeb6dd861c8f85c16e8f36c3cdfbec956e118b0d469e3de6",
+      "bytes": 1300225
+    },
+    {
+      "path": "/static/pet_lilac_baby_expressions_v1.png",
+      "sha256": "2c8ed9dd59803ed5e37d41e7dfd88f1b106f1e5a576fe947e968af8538306c8f",
+      "bytes": 1918220
+    },
+    {
+      "path": "/static/pet_lilac_baby_turnaround_v1.png",
+      "sha256": "15a3bac17c80e94af54ce623ca0d0e11f083ee4b60fcd09aeb8936aec9134ea9",
+      "bytes": 1751068
+    },
+    {
+      "path": "/static/pet_lilac_tooth_baby_expressions_v1.png",
+      "sha256": "f8aeb21016062eb2885384d89a3ed1356b18c1b83e8355daaa6ad633554f56b8",
+      "bytes": 1807122
+    },
+    {
+      "path": "/static/pet_lilac_tooth_baby_turnaround_v1.png",
+      "sha256": "c727ab69ca309070b51e347500929fa63ac6e791e458aeeb1892f32f0bef1fe4",
+      "bytes": 1687564
+    },
+    {
+      "path": "/static/pet_lilac_reference_half_v1.png",
+      "sha256": "5cdf3fde47059263ea5b5a13050b411e595877106ede13d7d4e4bdc656b735f2",
+      "bytes": 1155633
+    },
+    {
+      "path": "/static/pet_lilac_reference_closed_v1.png",
+      "sha256": "375a82858a2a3db2044441a34adf5d0f7d4ff66c4551c3a966f98376e063ea38",
+      "bytes": 1148573
+    }
+  ],
+  "reference_case": {
+    "id": "existing-lilac-baby-fixed-idle",
+    "appearance_key": "baby",
+    "growth_stage": "baby",
+    "situation": "idle",
+    "renderer_repo_path": "static/pet-lilac-motion.js",
+    "source_asset_url": "/static/pet_lilac_reference_v2.png",
+    "world_frame_height": 1.65,
+    "anchor": "measured source alpha>=31 bottom row; see native proof",
+    "clock": 0,
+    "current_owner_linkage": false,
+    "full_body_360": false
+  },
+  "state_and_network": {
+    "normal_game_loaded": false,
+    "private_state_reads": 0,
+    "save_writes": 0,
+    "external_provider_requests": 0,
+    "local_capture_only": true
+  },
+  "limitations": [
+    "fixed geometry only, no navigation or boarding animation",
+    "2D reference does not verify full body volume or all-angle fitting",
+    "riverbed not modeled; supports not certified grounded",
+    "source stage1 remains immutable",
+    "only isolated technical sample is published"
+  ]
+}
