@@ -21,6 +21,7 @@
   var shopController = null, shopPending = null, shopLoading = null, shopGeneration = 0, shopMemory = {}, shopCleanup = null;
   var homeController = null, homePending = null, homeLoading = null, homeGeneration = 0, homeMemory = {}, homeCleanup = null;
   var lifePanelOpen = false;
+  var riverFishingCleanup = null, fishingPanelOpen = false, fishingCelebration = null;
   // Walking is a view of the existing pet, not a second pet or a save action.
   // Retain the spot when visiting a facility; never write a frame into the store.
   var townController = null, townEconomyScene = null, townPending = null, townPosition = null;
@@ -251,6 +252,7 @@
     motionRequests.forEach(refreshRoomTouch);
   }
   function stopMotions() {
+    if (riverFishingCleanup) { riverFishingCleanup(); riverFishingCleanup = null; }
     homeGeneration++; homePending = null;
     if (homeCleanup) { homeCleanup(); homeCleanup = null; }
     if (homeController) { homeController.destroy(); homeController = null; }
@@ -988,6 +990,7 @@
       if (!current()) return { ok: false, error: { code: 'view_changed' } };
       if (result && result.ok) {
         failure = ''; notice = (message || '保存しました。') + rewardText(result.reward);
+        if (action.type === 'reelRiverFishing') fishingCelebration = { owner: owner, until: (options && options.now || Date.now)() + 1800 };
         var afterStage = stage(result.state || state());
         rememberReaction(action, before, result.state || state(), result);
         if (grew(before, result.state || state())) notice += ' ' + afterStage.label + 'へ進化しました！';
@@ -1919,6 +1922,10 @@
       gift.dataset.focusKey = 'village-gift-' + row.id; gift.setAttribute('aria-label', row.name + 'をこの子にあげる');
       append(bag, append(node('div', 'ipg-life-food'), itemArtwork(row.id), append(node('div'), node('strong', '', row.name), node('small', '', number(count) + '個 · +' + row.exp + ' EXP')), gift));
     }); panel.appendChild(bag);
+    if (typeof core().getRiverFishingView === 'function') {
+      var fishCollection = core().getRiverFishingView(s, (options && options.now || Date.now)());
+      panel.appendChild(text('川の小魚 · ' + number(fishCollection.caught) + '尾（釣果コレクション）', 'ipg-small'));
+    }
     if (typeof core().getVillageHarvestView === 'function') {
       var harvest = core().getVillageHarvestView(s, (options && options.now || Date.now)()), plots = node('div', 'ipg-life-harvest');
       plots.appendChild(node('h4', '', '村の実り'));
@@ -1993,6 +2000,90 @@
     // A story and distinct inhabitants have not been adopted; start the scene alone.
     return Object.assign({}, view, { residents: [], visitors: [] });
   }
+  function renderRiverFishing(s, viewport, world, canUse) {
+    var api = w.PetRiverFishing;
+    if (!api || typeof core().getRiverFishingView !== 'function') return { refresh: function () {}, moved: function () {} };
+    var owner = store, target = host, epoch = lifecycleEpoch, dead = false, timer = null, cancelPending = false;
+    var wrap = node('section', 'ipg-river-fishing'), panel = node('div', 'ipg-fishing-panel');
+    wrap.setAttribute('aria-label', '川釣り'); panel.hidden = !fishingPanelOpen;
+    var toggle = button('川釣り', function () {
+      if (!alive() || busy) return;
+      fishingPanelOpen = !fishingPanelOpen; panel.hidden = !fishingPanelOpen;
+      if (fishingPanelOpen && townController) townController.stop();
+      refresh();
+    }, true);
+    toggle.dataset.focusKey = 'river-fishing-open';
+    var status = node('p', 'ipg-fishing-status'); status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
+    var detail = node('p', 'ipg-small', '南東の川岸にある小さな札が目印。竿は岸のホルダーで支えます。');
+    var cast = button('竿を投げる', function () {
+      if (!usable()) return;
+      var v = current(); if (!v.canCast) return;
+      if (townController) townController.stop();
+      resumeManualWorldControl(null);
+      run({ type: 'startRiverFishing', spotId: v.site.id, position: position(), expectedRevision: state().revision }, '浮きを投げました。沈んだら引き上げよう。');
+    }, true);
+    cast.dataset.focusKey = 'river-fishing-cast';
+    var reel = button('引き上げる', function () {
+      if (!usable()) return;
+      var v = current(); if (!v.active || !v.canReel) return;
+      run({ type: 'reelRiverFishing', attemptId: v.active.id, position: position(), expectedRevision: state().revision }, '川の小魚を1尾、釣果コレクションに保存しました。');
+    });
+    reel.dataset.focusKey = 'river-fishing-reel';
+    var cancel = button('釣りをやめる', function () { abandon(false); }, true); cancel.dataset.focusKey = 'river-fishing-cancel';
+    var close = button('閉じる', function () {
+      if (!alive()) return; fishingPanelOpen = false; panel.hidden = true; refresh(); viewport.focus({ preventScroll: true });
+    }, true); close.dataset.focusKey = 'river-fishing-close';
+    append(panel, status, detail, append(node('div', 'ipg-fishing-buttons'), cast, reel, cancel, close));
+    append(wrap, toggle, panel); viewport.appendChild(wrap);
+    ['pointerdown','pointermove','pointerup','keydown'].forEach(function (name) { wrap.addEventListener(name, function (event) { if (event.stopPropagation) event.stopPropagation(); }); });
+    function alive() { return !dead && viewport.isConnected && store === owner && host === target && lifecycleEpoch === epoch && !suspended && tab === 'village'; }
+    function writable() { return alive() && !busy && !state().readOnly && motionsVisible(); }
+    function usable() { return writable() && canUse(); }
+    function now() { return (options && options.now || Date.now)(); }
+    function position() { return townController ? townController.position() : townPosition || world.spawn; }
+    function current() { return core().getRiverFishingView(state(), now(), position()); }
+    function disable(element, value) { element.disabled = !!value; if (value) element.dataset.ipgDisabled = '1'; else delete element.dataset.ipgDisabled; }
+    function abandon(moved) {
+      if (!writable() || cancelPending) return;
+      var v = current(); if (!v.active) return;
+      cancelPending = true;
+      run({ type: 'cancelRiverFishing', attemptId: v.active.id, expectedRevision: state().revision }, moved ? '川岸から離れたので、釣りをやめました。釣果は増えていません。' : '釣りをやめました。').then(function () { cancelPending = false; });
+    }
+    function setLabel(element, value) { if (element.textContent !== value) element.textContent = value; }
+    function refresh() {
+      if (timer != null) w.clearTimeout(timer); timer = null;
+      if (!alive()) return;
+      var v = current(), ready = !!canUse(), celebrate = fishingCelebration && fishingCelebration.owner === owner && now() < fishingCelebration.until && v.nearBank && !v.active;
+      wrap.dataset.phase = celebrate ? 'caught' : v.phase;
+      toggle.hidden = fishingPanelOpen && ['waiting','bite','caught'].indexOf(wrap.dataset.phase) >= 0;
+      if (toggle.hidden && d.activeElement === toggle) close.focus({ preventScroll: true });
+      setLabel(toggle, '川釣り · ' + number(v.caught) + '尾'); toggle.setAttribute('aria-expanded', String(fishingPanelOpen));
+      disable(toggle, busy); panel.hidden = !fishingPanelOpen;
+      cast.hidden = !!v.active; reel.hidden = !v.active; cancel.hidden = !v.active;
+      disable(cast, !ready || busy || s.readOnly || !v.canCast);
+      disable(reel, !ready || busy || s.readOnly || !v.canReel);
+      disable(cancel, !writable() || !v.active);
+      var label;
+      if (s.readOnly) label = '保存内容を確認できないため、今は釣りを始められません。';
+      else if (!ready) label = viewport.dataset.sceneState === 'fallback' ? '簡易表示では新しい釣りはできません。前の釣りはやめられます。' : '村の表示を準備しています。';
+      else if (celebrate) label = '川の小魚が釣れました。1尾を保存済みです。';
+      else if (v.phase === 'waiting') label = v.nearBank ? '浮きを見よう。もうすぐ食いつきます…' : '前の釣りが残っています。南の川岸へ戻るか、やめられます。';
+      else if (v.phase === 'bite') label = v.nearBank ? '食いついた！ 今なら引き上げられます。' : '川岸に戻るか、釣りをやめよう。';
+      else if (v.phase === 'escaped') label = '魚が離れました。釣りをやめて、もう一度投げよう。';
+      else if (v.phase === 'clock_moved_back') label = '端末の日時を確認してください。魚は増えていません。';
+      else if (!v.nearBank) label = '南東の川岸まで歩いて近づこう。橋の上や水の中からは釣れません。';
+      else if (v.remainingMs > 0) label = '少し待ってから、また竿を投げよう。';
+      else label = 'この川岸から竿を投げられます。';
+      setLabel(status, label);
+      if (townVisual && typeof townVisual.setFishing === 'function') townVisual.setFishing({ phase: celebrate ? 'caught' : ready ? v.phase : 'idle' });
+      if (ready && (v.phase === 'waiting' || v.phase === 'bite' || v.phase === 'idle' && v.remainingMs > 0 || celebrate)) timer = w.setTimeout(refresh, 250);
+    }
+    function pause() { if (d.hidden && timer != null) { w.clearTimeout(timer); timer = null; } else if (!d.hidden) refresh(); }
+    d.addEventListener('visibilitychange', pause);
+    riverFishingCleanup = function () { dead = true; if (timer != null) w.clearTimeout(timer); timer = null; d.removeEventListener('visibilitychange', pause); };
+    refresh();
+    return { refresh: refresh, moved: function () { if (!alive()) return; var v = current(); if (v.active && !v.nearBank) abandon(true); else refresh(); } };
+  }
   function renderTown(s, body, messages) {
     var village = card('', 'ipg-village ipg-town'), engine = w.PetTownWalk;
     village.appendChild(node('h3', '', 'カフェとお店の村'));
@@ -2058,6 +2149,7 @@
     append(loadingView, node('span', 'ipg-town-loading-mark'), text('村を準備しています…'));
     viewport.appendChild(loadingView);
     var life = renderVillageLife(s, viewport, function () { return active() && sceneState !== 'loading'; });
+    var fishing = renderRiverFishing(s, viewport, world, function () { return active() && sceneState === 'ready'; });
     village.appendChild(viewport);
     var guide = text('ドアへ進むと中に入れるよ', 'ipg-town-guide'); village.appendChild(guide);
     guide.hidden = true;
@@ -2087,7 +2179,7 @@
       scene.style.opacity = mode === 'fallback' ? '1' : '0'; scene.style.pointerEvents = '';
       scene.removeAttribute('aria-hidden'); scene.removeAttribute('inert');
       if (!s.readOnly) { delete edit.dataset.ipgDisabled; edit.disabled = false; }
-      life.setReady();
+      life.setReady(); fishing.refresh();
       if (townController && typeof townController.refresh === 'function') townController.refresh();
     }
     function fallback() {
@@ -2158,7 +2250,7 @@
         },
         projectDirection: function (x, y) { return townVisual && viewport.dataset.visualMode === 'three' ? townVisual.direction(x, y) : { x: x, y: y }; },
         onDraw: function (point) { if (active() && townVisual) townVisual.setPosition(point); },
-        onPosition: function (point) { if (active()) townPosition = { x: point.x, y: point.y }; },
+        onPosition: function (point) { if (active()) { townPosition = { x: point.x, y: point.y }; fishing.moved(); } },
         onEnter: function (id) { if (active()) villageDestination(id); },
         onMotion: function (motion) {
           if (!active()) return;

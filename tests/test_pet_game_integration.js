@@ -70,6 +70,7 @@ function loaderFixture(options = {}) {
     PetVillageEconomy: options.economyMissing ? undefined : {},
     PetShopLayout: options.layoutMissing ? undefined : {},
     PetTownWalk: options.townMissing ? undefined : {},
+    PetRiverFishing: options.fishingMissing ? undefined : {},
     PetVillageEconomyScene: options.sceneMissing ? undefined : {mount(){}},
     PetCozyRoom: options.cozyMissing ? undefined : {mount(){}},
     __knGateReady: options.gate ?? Promise.resolve(true),
@@ -96,6 +97,7 @@ function loaderFixture(options = {}) {
     layoutLoaded() { window.PetShopLayout = {}; this.asset('pet-shop-layout').onload(); },
     townLoaded() { window.PetTownWalk = {}; this.asset('pet-town-walk').onload(); },
     sceneLoaded() { window.PetVillageEconomyScene = {mount(){}}; this.asset('pet-village-economy-scene').onload(); },
+    fishingLoaded() { window.PetRiverFishing = {}; this.asset('pet-river-fishing').onload(); },
     coreLoaded() { window.PetGameCore = {}; this.asset('pet-game-core').onload(); },
     motionLoaded() { window.PetLilacMotion = {}; this.asset('pet-lilac-motion').onload(); },
     roomLoaded() { window.PetRoomBehavior = {}; this.asset('pet-room-behavior').onload(); },
@@ -650,9 +652,18 @@ test('main game does not load a removed minigame runtime and updates only change
   for(const asset of ['pet-game.css','pet-village-economy.js','pet-village-economy-scene.js','pet-village-economy-scene.css'])assert.ok(html.includes('/static/'+asset+'?v=20261024-village-economy1'),asset);
   for(const asset of ['pet-shop-layout.js','pet-shop-entry.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-shop1'),asset);
   for(const asset of ['pet-town-walk.js','pet-town-walk.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-reveal1'),asset+' first-frame reveal pin');
-  for(const asset of ['pet-game-core.js','pet-cozy-room.js','pet-home-interior.css','pet-village-life.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-life1'),asset+' village-life pin');
-  assert.ok(html.includes('/static/pet-game.js?v=20261025-life-fit1'),'integrated manual-control UI retains fit1 renderer contract');
+  for(const asset of ['pet-cozy-room.js','pet-home-interior.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-life1'),asset+' village-life pin');
+  for(const asset of ['pet-game-core.js','pet-village-life.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-fishing1'),asset+' fishing pin');
+  assert.ok(html.includes('/static/pet-game.js?v=20261025-fishing1'),'integrated manual-control UI retains fit1 renderer contract');
   assert.equal(loader.includes('/static/pet-frame-fit.js?'),false,'visual-only frame contract stays out of game boot');
   assert.ok(html.includes('/static/pet-lilac-motion.js?v=20261025-harmony1'),'unchanged character renderer pin is preserved');
   assert.ok(html.includes('/static/pet-cozy-room.css?v=20261024-cozy-room1'),'unchanged room asset pin is preserved');
+});
+
+test('fishing is a required lightweight dependency after walking and before core, shared across cold concurrent opens',async()=>{
+ const f=loaderFixture({townMissing:true,fishingMissing:true}),a=f.window.openPetTab(),b=f.window.openPetTab();
+ assert.equal(a,b);assert.equal(f.asset('pet-river-fishing'),undefined);assert.equal(f.asset('pet-game-core'),undefined);f.uiLoaded();
+ f.townLoaded();await flush();assert.ok(f.asset('pet-river-fishing'));assert.equal(f.asset('pet-game-core'),undefined);
+ f.fishingLoaded();await flush();assert.ok(f.asset('pet-game-core'));f.coreLoaded();assert.equal(await a,true);assert.equal(f.mounts,1);
+ assert.equal(f.scripts.filter(x=>x.src.includes('/pet-river-fishing.js?')).length,1);
 });

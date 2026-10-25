@@ -2,10 +2,11 @@
 (function (root, factory) {
   'use strict';
   var api = factory(typeof module === 'object' && module.exports ? require('./pet-town-walk.js') : root.PetTownWalk,
-    typeof module === 'object' && module.exports ? require('./pet-frame-fit.js') : root.PetFrameFit);
+    typeof module === 'object' && module.exports ? require('./pet-frame-fit.js') : root.PetFrameFit,
+    typeof module === 'object' && module.exports ? require('./pet-river-fishing.js') : root.PetRiverFishing);
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.PetTownScene = api;
-}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit) {
+}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit, Fishing) {
   'use strict';
   var threeLoading = null, frameFitLoading = null, UNIT = 100, TAU = Math.PI * 2;
   var shoreline = [[0, 2880], [550, 2840], [1050, 2720], [1450, 2510], [1920, 1990]];
@@ -381,15 +382,16 @@
       if (dead) return; cancel(); dead = true; drag = null; sourceCoverage = null;
       function release(fn) { try { fn(); } catch (_) {} }
       if (observer) release(function () { observer.disconnect(); }); removers.forEach(release); removers = [];
+      if (fishingVisual) release(function () { fishingVisual.dispose(); });
       if (model) release(function () { model.dispose(); }); if (texture) release(function () { texture.dispose(); });
       if (renderer) { release(function () { renderer.renderLists.dispose(); }); release(function () { renderer.dispose(); }); release(function () { renderer.forceContextLoss(); }); release(function () { renderer.domElement.remove(); }); }
-      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; }
+      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; }
     }
     function fail(code) { if (dead || failed) return; failed = true; destroy(); report('onFailure', code); }
     var THREE;
     try { var dependencies = await Promise.all([options.three || loadThree(), loadFrameFit()]); THREE = dependencies[0]; } catch (_) { fail('town_module_unavailable'); return null; }
     if (!active()) { destroy(); return null; }
-    var sprite, playerShadow, camera, ray, pointer, direction, target, desired, contactMap = null;
+    var sprite, playerShadow, camera, ray, pointer, direction, target, desired, contactMap = null, fishingVisual = null, fishingState = null;
     function contactShadow(radius) {
       if (!contactMap && doc.createElement) {
         var pad = doc.createElement('canvas'); pad.width = pad.height = 64; var ctx = pad.getContext && pad.getContext('2d');
@@ -400,10 +402,17 @@
     }
     function syncCamera() {
       var p = groundPoint(world, position); target.set(p.x, heightAt(position) + .8, p.z);
-      var safe = safeCamera(THREE, model.occluders, target, cameraView); if (!safe) throw new Error('no_safe_camera');
+      var requested = cameraView, activityFraming = !!(fishingState && Fishing && Fishing.legal(world, position));
+      if (activityFraming) {
+        var water = groundPoint(world, Fishing.site().target), span = Math.hypot(water.x-p.x, water.z-p.z);
+        target.set((p.x+water.x)/2, .65, (p.z+water.z)/2);
+        var fitDistance = (span+1.05)/(2*Math.tan(25*Math.PI/180)*Math.max(.3,camera.aspect))*1.15;
+        requested = { yaw: cameraView.yaw, pitch: cameraView.pitch, distance: Math.max(cameraView.distance,Math.min(10,fitDistance)) };
+      }
+      var safe = safeCamera(THREE, model.occluders, target, requested); if (!safe) throw new Error('no_safe_camera');
       actualYaw = safe.yaw; direction.set(Math.sin(safe.yaw) * Math.cos(safe.pitch), Math.sin(safe.pitch), Math.cos(safe.yaw) * Math.cos(safe.pitch));
       desired.copy(target).addScaledVector(direction, safe.distance); camera.position.copy(desired); camera.lookAt(target); camera.updateMatrixWorld(true);
-      host.dataset.townCamera = JSON.stringify({ yaw: cameraView.yaw, pitch: cameraView.pitch, actualYaw: safe.yaw, actualPitch: safe.pitch, distance: safe.distance, desiredDistance: cameraView.distance });
+      host.dataset.townCamera = JSON.stringify({ yaw: cameraView.yaw, pitch: cameraView.pitch, actualYaw: safe.yaw, actualPitch: safe.pitch, distance: safe.distance, desiredDistance: cameraView.distance, activityFraming: activityFraming });
     }
     function render(stamp) {
       if (!active() || !renderer) return false;
@@ -412,8 +421,12 @@
         var p = groundPoint(world, position); sprite.position.set(p.x, heightAt(position), p.z);
         playerShadow.position.set(p.x, heightAt(position) + .003, p.z); playerShadow.visible = sprite.visible;
         sprite.updateMatrixWorld(true); playerShadow.updateMatrixWorld(true);
-        model.animate(stamp || 0, reduced); syncCamera();
-        if (ready) report('onFacing', facingFrame(heading, actualYaw, motion.walking, travelled));
+        model.animate(stamp || 0, reduced);
+        if (fishingVisual) fishingVisual.update(fishingState, position, stamp || 0, reduced);
+        syncCamera();
+        var facing = heading;
+        if (fishingState && !motion.walking && Fishing && Fishing.legal(world, position)) { var water = Fishing.site().target; facing = Math.atan2(water.x-position.x, water.y-position.y); }
+        if (ready) report('onFacing', facingFrame(facing, actualYaw, motion.walking, travelled));
         renderer.render(model.scene, camera);
         if (renderer.info) { host.dataset.townRenderCalls = String(renderer.info.render.calls); host.dataset.townTriangles = String(renderer.info.render.triangles); }
         var interval = stamp - lastPaint; if (finite(interval) && interval > 0 && interval < 1000) { intervals.push(interval); if (intervals.length > 30) intervals.shift(); host.dataset.townFrameMs = (intervals.reduce(function (sum, n) { return sum + n; }, 0) / intervals.length).toFixed(2); }
@@ -460,6 +473,7 @@
       } catch (_) { fail('town_frame_unavailable'); return false; }
     }
     var controller = { destroy: destroy, setFrame: setFrame,
+      setFishing: function (value) { if (!active()) return false; fishingState = value && ['waiting','bite','caught'].indexOf(value.phase) >= 0 ? { phase: value.phase } : null; host.dataset.fishingPhase = fishingState ? fishingState.phase : 'idle'; requestRender(); return true; },
       setPosition: function (p) { if (active() && p && Town.isWalkable(world, p.x, p.y)) { travelled += Math.hypot(p.x-position.x,p.y-position.y)/UNIT; position = { x: p.x, y: p.y }; requestRender(); } },
       setMotion: function (m) { if (active()) {
         var valid = m && finite(m.dx) && finite(m.dy) && Math.hypot(m.dx, m.dy) > .001;
@@ -489,6 +503,7 @@
     };
     try {
       model = buildWorld(THREE, world, options.view, position, doc);
+      if (Fishing && typeof Fishing.createVisual === 'function') { fishingVisual = Fishing.createVisual(THREE, world); model.scene.add(fishingVisual.group); }
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: false }); renderer.setPixelRatio(Math.min(win.devicePixelRatio || 1, 1.5));
       renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true; renderer.outputColorSpace = THREE.SRGBColorSpace;
       var canvas = renderer.domElement; canvas.className = 'ipg-town-canvas'; canvas.setAttribute('aria-hidden', 'true'); host.appendChild(canvas);

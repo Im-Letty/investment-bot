@@ -89,3 +89,21 @@ test('failed encrypted layout save retains previous ciphertext and confirmed fur
   assert.equal(denied.values.get('knenc:'+Core.KEY),ciphertext);assert.deepEqual(Core.getRoomLayout(reopened.getState()),layout);
   for(const key of ['pet','coins','inventory','wardrobe','decorations','care','market','achievements','revision'])assert.deepEqual(reopened.getState()[key],before[key],key);
 });
+
+test('river cast, rejected catch and confirmed collectible round-trip the real encrypted record without plaintext or economy changes',async()=>{
+ const Fishing=require('../static/pet-river-fishing.js'),first=gate({pg_exp:'30',private_account:'synthetic-unchanged'});await first.context.__knGateReady;
+ let ms=Date.UTC(2026,9,25,12);const now=()=>ms,app=Core.create({storage:gameAdapter(first.context),now});assert.equal((await app.ready).ok,true);
+ const before=app.getState(),position=Fishing.site().position;
+ assert.equal((await app.dispatch({type:'startRiverFishing',spotId:Fishing.site().id,position,expectedRevision:before.revision})).ok,true);
+ const cast=app.getState(),ciphertext=first.values.get('knenc:'+Core.KEY);assert.match(ciphertext,/^knv1:/);assert.equal(first.values.has(Core.KEY),false);assert.equal(ciphertext.includes('riverFishing'),false);
+ ms+=Fishing.WAIT;
+ const denied=gate(Object.fromEntries(first.values),true);await denied.context.__knGateReady;
+ const blocked=Core.create({storage:gameAdapter(denied.context),now});assert.equal((await blocked.ready).ok,true);
+ const action={type:'reelRiverFishing',attemptId:cast.riverFishing.active.id,position,expectedRevision:cast.revision};
+ assert.equal((await blocked.dispatch(action)).ok,false);assert.equal(denied.values.get('knenc:'+Core.KEY),ciphertext);assert.equal(blocked.getState().riverFishing.catches.river_silverfish,0);assert.deepEqual(blocked.getState().riverFishing.active,cast.riverFishing.active);
+ assert.equal((await app.dispatch(action)).ok,true);const confirmed=app.getState(),saved=first.values.get('knenc:'+Core.KEY);
+ const restored=gate(Object.fromEntries(first.values));await restored.context.__knGateReady;const reopened=Core.create({storage:gameAdapter(restored.context),now});assert.equal((await reopened.ready).ok,true);
+ assert.deepEqual(reopened.getState().riverFishing,confirmed.riverFishing);assert.equal(confirmed.riverFishing.catches.river_silverfish,1);assert.equal(restored.values.get('knenc:'+Core.KEY),saved,'read-only restore does not rewrite ciphertext');
+ for(const k of ['pet','coins','inventory','wardrobe','decorations','care','market','achievements','villageLife'])assert.deepEqual(reopened.getState()[k],before[k],k);
+ assert.equal(restored.values.get('private_account'),'synthetic-unchanged');
+});
