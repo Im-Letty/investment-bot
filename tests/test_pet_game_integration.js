@@ -233,6 +233,12 @@ test('UI downloads in parallel and required readiness opens without optional vis
   assert.equal(f.scripts.length, 4); assert.equal(f.mounts, 2, 'UI owns idempotent store reuse');
 });
 
+test('a visual-only frame helper is not a boot dependency of the usable game', async () => {
+  const f=loaderFixture();const first=f.window.openPetTab();f.coreLoaded();f.uiLoaded();
+  assert.equal(await first,true);assert.equal(f.mounts,1);assert.equal(f.window.PetFrameFit,undefined);
+  assert.equal(f.asset('pet-frame-fit'),undefined,'only lazy world renderers request the shared frame helper');
+});
+
 test('a cold entry loads the economy before core and the walking engine before its scene without showing a pending page', async () => {
   const f=loaderFixture({economyMissing:true,townMissing:true,sceneMissing:true}),opening=f.window.openPetTab();
   assert.equal(f.asset('pet-game-core'),undefined);assert.equal(f.asset('pet-village-economy-scene'),undefined);
@@ -642,7 +648,9 @@ test('main game does not load a removed minigame runtime and updates only change
     assert.ok(html.includes('/static/'+asset+'?v=20261024-no-minigames1'),asset);
   }
   for(const asset of ['pet-game.css','pet-village-economy.js','pet-village-economy-scene.js','pet-village-economy-scene.css'])assert.ok(html.includes('/static/'+asset+'?v=20261024-village-economy1'),asset);
-  for(const asset of ['pet-game-core.js','pet-game.js','pet-town-walk.js','pet-shop-layout.js','pet-shop-entry.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-shop1'),asset);
+  for(const asset of ['pet-game-core.js','pet-town-walk.js','pet-shop-layout.js','pet-shop-entry.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-shop1'),asset);
+  assert.ok(html.includes('/static/pet-game.js?v=20261025-fit1'),'changed UI pins lazy renderers');
+  assert.equal(loader.includes('/static/pet-frame-fit.js?'),false,'visual-only frame contract stays out of game boot');
   assert.ok(html.includes('/static/pet-town-walk.css?v=20261025-lively1'),'unchanged walking stylesheet pin is preserved');
   assert.ok(html.includes('/static/pet-lilac-motion.js?v=20261025-harmony1'),'unchanged character renderer pin is preserved');
   assert.ok(html.includes('/static/pet-cozy-room.css?v=20261024-cozy-room1'),'unchanged room asset pin is preserved');

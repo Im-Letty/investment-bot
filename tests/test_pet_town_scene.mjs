@@ -3,6 +3,9 @@ import assert from 'node:assert/strict';
 import * as THREE from '../static/vendor/three-0.160.1.module.js';
 import Scene from '../static/pet-town-scene.js';
 import Town from '../static/pet-town-walk.js';
+import FrameFit from '../static/pet-frame-fit.js';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
 
 class Events {
  constructor(){this.events=new Map();}
@@ -33,7 +36,7 @@ async function fixture(options={}){
   dispose(){this.disposed=true;}
   forceContextLoss(){this.lost=true;}
  }
- const world=options.world||Town.createWorld(),controller=await Scene.mount({viewport:host,world,position:options.position||{x:1100,y:1100},camera:options.camera,view:options.view,canRun:()=>allowed,three:{...THREE,WebGLRenderer:Renderer},onReady:()=>ready++,onFailure:c=>failures.push(c),onFacing:options.onFacing});
+ const world=options.world||Town.createWorld(),controller=await (options.sceneAPI||Scene).mount({viewport:host,world,position:options.position||{x:1100,y:1100},camera:options.camera,view:options.view,canRun:()=>allowed,three:{...THREE,WebGLRenderer:Renderer},onReady:()=>ready++,onFailure:c=>failures.push(c),onFacing:options.onFacing});
  const source=new Element(doc,'CANVAS');source.getContext=()=>({RGBA:1,UNSIGNED_BYTE:2,readPixels(x,y,w,h,format,type,pixels){pixels[(2*w+8)*4+3]=255;}});
  return {doc,win,host,media,frames,renderers,images,observers,world,source,controller,failures,get ready(){return ready;},get now(){return stamp;},allow:v=>{allowed=v;},time:v=>{stamp=v;},frame(ms=16){stamp+=ms;const callbacks=[...frames.values()];frames.clear();callbacks.forEach(fn=>fn(stamp));},project(p){const camera=renderers[0].calls.at(-1).camera,g=Scene.groundPoint(world,p),v=new THREE.Vector3(g.x,Scene.heightAt(p),g.z).project(camera);return {clientX:(v.x+1)*195,clientY:(1-v.y)*350};}};
 }
@@ -44,6 +47,18 @@ test('world coordinates round-trip and camera settings are bounded without touch
  for(const y of [-100,100])assert.ok(Scene.cameraState({pitch:y}).pitch>=22*Math.PI/180&&Scene.cameraState({pitch:y}).pitch<=56*Math.PI/180);
  const d=Scene.cameraDirection(0,-1,Math.PI/2);assert.ok(Math.abs(d.x+1)<1e-8&&Math.abs(d.y)<1e-8);
  assert.equal(Scene.cameraDistance(8,null),8);assert.ok(Scene.cameraDistance(8,.02)<.02);assert.equal(Scene.cameraDistance(8,4),3.88);
+});
+
+test('browser registration can precede the visual-only helper and mount adopts the later shared contract',async()=>{
+ const context=vm.createContext({PetTownWalk:Town});vm.runInContext(readFileSync(new URL('../static/pet-town-scene.js',import.meta.url),'utf8'),context);
+ assert.equal(context.PetFrameFit,undefined);assert.equal(typeof context.PetTownScene.mount,'function');
+ const size=context.PetTownScene.sourceSize({tagName:'IMG',complete:true,naturalWidth:64,naturalHeight:32});assert.equal(size.width,64);assert.equal(size.height,32);
+ assert.equal(context.PetTownScene.sourceSize({tagName:'CANVAS',width:Infinity,height:16}),null);
+ assert.equal(context.PetTownScene.alphaAnchor({tagName:'CANVAS',width:16,height:16,getContext:()=>null}),null);
+ const painted={tagName:'CANVAS',width:16,height:16,getContext:()=>({RGBA:1,UNSIGNED_BYTE:2,readPixels(x,y,w,h,a,b,p){p[(2*w+8)*4+3]=255;}})};
+ assert.equal(context.PetTownScene.alphaAnchor(painted),.125,'the existing public diagnostics work synchronously before any mount or helper import');
+ context.PetFrameFit=FrameFit;
+ const f=await fixture({sceneAPI:context.PetTownScene});try{assert.equal(f.controller.setFrame(f.source,{anchor:.3}),true);assert.equal(f.renderers[0].calls.at(-1).scene.getObjectByName('current-pet-2d-frame').center.y,.3);assert.deepEqual(f.failures,[]);}finally{f.controller.destroy();}
 });
 
 test('actual geometry uses the six saved facilities and funding/open economy sites, without a terrain painting',()=>{
@@ -87,6 +102,29 @@ test('source buffers upload synchronously while position, source and ambient cha
  assert.ok(r.uploads.at(-1).version>first+5,'world rendering cannot starve source uploads');assert.ok(r.calls.length<=12,'20 position+source pairs do not each render a whole world');
  const before=r.calls.length,uploads=r.uploads.length;f.time(1000);assert.equal(f.controller.setFrame(f.source),true);assert.equal(r.uploads.length,uploads+1,'the source buffer is consumed synchronously');assert.equal(r.calls.length,before,'world drawing waits for the one shared cadence');
  f.frame(16);assert.ok(r.calls.at(-1).sourceVersion>first+5);f.controller.destroy();
+});
+
+test('explicit contact metadata and resized dimensions update the same canvas before the upload cadence',async()=>{
+ const f=await fixture();try{
+  let scans=0;const context=f.source.getContext();f.source.getContext=()=>{scans++;return context;};
+  assert.equal(f.controller.setFrame(f.source),true);const r=f.renderers[0],sprite=r.calls.at(-1).scene.getObjectByName('current-pet-2d-frame'),texture=sprite.material.map;
+  assert.equal(scans,1);const uploads=r.uploads.length;
+  f.time(1);f.source.width=32;assert.equal(f.controller.setFrame(f.source,{anchor:.25}),true);
+  assert.equal(sprite.center.y,.25,'the explicit foot stays on the ground even when the canvas identity is unchanged');
+  assert.equal(sprite.scale.x,3.3);assert.equal(sprite.scale.y,1.65);assert.equal(r.uploads.length,uploads+1);assert.equal(sprite.material.map,texture);
+  f.time(2);assert.equal(f.controller.setFrame(f.source,{anchor:.4}),true);assert.equal(sprite.center.y,.4);
+  f.time(40);assert.equal(f.controller.setFrame(f.source),true);assert.equal(sprite.center.y,.4);assert.equal(scans,1,'ordinary animation frames do not rescan or cancel their bob');
+ }finally{f.controller.destroy();}
+});
+
+test('invalid frame dimensions or explicit contact metadata leave the last good town frame intact',async()=>{
+ const f=await fixture();try{
+  assert.equal(f.controller.setFrame(f.source,{anchor:.2}),true);const r=f.renderers[0],sprite=r.calls.at(-1).scene.getObjectByName('current-pet-2d-frame'),texture=sprite.material.map,uploads=r.uploads.length;
+  for(const anchor of [-.01,1.01,NaN,Infinity,'0.3',undefined]){f.time(f.now+40);assert.equal(f.controller.setFrame(f.source,{anchor}),false);assert.equal(sprite.center.y,.2);assert.equal(sprite.material.map,texture);}
+  for(const width of [Infinity,NaN,-1,0]){f.source.width=width;assert.equal(f.controller.setFrame(f.source),false);}
+  f.source.width=16;assert.equal(r.uploads.length,uploads);assert.deepEqual(f.failures,[]);assert.equal(f.ready,1);
+  f.time(f.now+40);assert.equal(f.controller.setFrame(f.source,{anchor:0}),true);assert.equal(sprite.center.y,0);assert.equal(f.controller.setFrame(f.source,{anchor:1}),true);assert.equal(sprite.center.y,1);
+ }finally{f.controller.destroy();}
 });
 
 test('reduced motion coalesces explicit changes without an ambient loop, and a source upload failure restores fallback',async()=>{

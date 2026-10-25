@@ -1565,7 +1565,7 @@
     }
     shopLoading = Promise.all([
       resource('link', '/static/pet-shop-interior.css?v=20261025-shop1'),
-      resource('script', '/static/pet-shop-interior.js?v=20261025-shop1', function () { return !!w.PetShopInterior && typeof w.PetShopInterior.mount === 'function'; })
+      resource('script', '/static/pet-shop-interior.js?v=20261025-fit1', function () { return !!w.PetShopInterior && typeof w.PetShopInterior.mount === 'function'; })
     ]).then(function () { return w.PetShopInterior; }).catch(function () { shopLoading = null; return null; });
     return shopLoading;
   }
@@ -1728,7 +1728,7 @@
     if (townSceneLoading) return townSceneLoading;
     if (!d.head) return Promise.resolve(null);
     townSceneLoading = new Promise(function (resolve) {
-      var script = d.createElement('script'); script.src = '/static/pet-town-scene.js?v=20261025-shop1'; script.async = true;
+      var script = d.createElement('script'); script.src = '/static/pet-town-scene.js?v=20261025-fit1'; script.async = true;
       script.onload = function () { resolve(w.PetTownScene && typeof w.PetTownScene.mount === 'function' ? w.PetTownScene : null); };
       script.onerror = function () { townSceneLoading = null; script.remove(); resolve(null); };
       d.head.appendChild(script);
