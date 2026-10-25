@@ -6,6 +6,7 @@ import Town from '../static/pet-town-walk.js';
 import Fishing from '../static/pet-river-fishing.js';
 import FrameFit from '../static/pet-frame-fit.js';
 import Seasons from '../static/pet-japan-seasons.js';
+import TownStyle from '../static/pet-town-style.js';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
@@ -60,7 +61,7 @@ test('browser registration can precede the visual-only helper and mount adopts t
  assert.equal(context.PetTownScene.alphaAnchor({tagName:'CANVAS',width:16,height:16,getContext:()=>null}),null);
  const painted={tagName:'CANVAS',width:16,height:16,getContext:()=>({RGBA:1,UNSIGNED_BYTE:2,readPixels(x,y,w,h,a,b,p){p[(2*w+8)*4+3]=255;}})};
  assert.equal(context.PetTownScene.alphaAnchor(painted),.125,'the existing public diagnostics work synchronously before any mount or helper import');
- context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;
+ context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;context.PetTownStyle=TownStyle;
  const f=await fixture({sceneAPI:context.PetTownScene});try{assert.equal(f.controller.setFrame(f.source,{anchor:.3}),true);assert.equal(f.renderers[0].calls.at(-1).scene.getObjectByName('current-pet-2d-frame').center.y,.3);assert.deepEqual(f.failures,[]);}finally{f.controller.destroy();}
 });
 
@@ -426,4 +427,15 @@ test('public geometry builder still works before the newly lazy calendar module 
   assert.equal(model.scene.background.getHexString(),'cbe7e8');assert.equal(model.setSeason('winter'),false);
   context.PetJapanSeasons=Seasons;assert.equal(model.setSeason('winter'),true);assert.equal(land.material.map.image.colors[0],Seasons.profile('winter').ground);
  }finally{model.dispose();}
+});
+
+test('botanical revision has closed pointed leaves, visible curved branches and bounded per-tree detail without any sphere core',()=>{
+ const m=Scene.buildWorld(THREE,Town.createWorld(),{}),trees=[];m.scene.traverse(o=>{if(o.name==='market-style-branching-tree')trees.push(o);});
+ try{
+  assert.equal(trees.length,27);for(const t of trees){assert.equal(t.userData.leafCount,144);assert.equal(t.userData.twigCount,9);
+   let pointed=0,twigs=0,cores=0;t.traverse(o=>{if(o.name==='small-pointed-tree-leaf'){pointed++;assert.equal(o.geometry.userData.styleRole,'closed-pointed-leaf');}if(o.name==='canopy-twig')twigs++;if(o.parent?.name==='overlapping-leaf-crown'&&o.geometry?.type==='SphereGeometry'&&o.geometry.userData.styleRole!=='closed-pointed-leaf')cores++;});
+   assert.equal(pointed,144);assert.equal(twigs,9);assert.equal(cores,0);
+  }
+  assert.equal(m.styleLimits.surfaceTextures,6);assert.equal(m.styleLimits.surfaceTextureSize,128);
+ }finally{m.dispose();}
 });
