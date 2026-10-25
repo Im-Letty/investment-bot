@@ -8,16 +8,16 @@
   'use strict';
   var OFFSET=9*60*60*1000, DAY=24*60*60*1000;
   var profiles={
-    spring:{key:'spring',label:'春',ground:'#c3dda7',light:'rgba(237,238,185,.22)',shade:'rgba(119,165,98,.18)',grain:'rgba(157,192,114,.22)',spark:'rgba(243,235,194,.27)',clear:'rgba(195,221,167,0)',sky:'#cce7eb',
-      foliage:['#93bd89','#b5d499','#cee4ae','#a1c58e'],hills:['#bdd6b2','#d2e2c1','#c9deb9'],flowers:['#f4bfd0','#fce2dd']},
-    summer:{key:'summer',label:'夏',ground:'#b4d58a',light:'rgba(223,233,155,.22)',shade:'rgba(96,151,83,.20)',grain:'rgba(132,178,94,.23)',spark:'rgba(226,234,173,.27)',clear:'rgba(180,213,138,0)',sky:'#b9dfe7',
-      foliage:['#85b477','#a3c880','#bad998','#90bc7a'],hills:['#a5c69a','#bfd9b0','#b6d0a9'],flowers:['#efc4b5','#fff1d9']},
-    autumn:{key:'autumn',label:'秋',ground:'#d8c995',light:'rgba(244,218,155,.24)',shade:'rgba(174,151,96,.17)',grain:'rgba(186,163,105,.22)',spark:'rgba(244,225,177,.28)',clear:'rgba(216,201,149,0)',sky:'#d1e5e8',
-      foliage:['#b98c62','#d3a86d','#dfbf7f','#a4b47b'],hills:['#c1be91','#d3cea6','#c4c69f'],flowers:['#c38375','#ebcb91']},
+    spring:{key:'spring',label:'春',ground:'#aecb83',light:'rgba(225,232,160,.19)',shade:'rgba(83,125,57,.20)',grain:'rgba(122,163,74,.20)',spark:'rgba(235,224,167,.24)',clear:'rgba(174,203,131,0)',sky:'#cce7eb',
+      foliage:['#648647','#89a95d','#a8bd75','#73934f'],hills:['#96ae79','#b2c38e','#a2b781'],flowers:['#edb1c7','#fae1d8'],accents:['#c4d48e','#d5ddb0']},
+    summer:{key:'summer',label:'夏',ground:'#9fbd70',light:'rgba(218,226,142,.18)',shade:'rgba(65,109,47,.20)',grain:'rgba(110,149,64,.22)',spark:'rgba(229,225,158,.23)',clear:'rgba(159,189,112,0)',sky:'#b9dfe7',
+      foliage:['#4f743c','#75974d','#a1b465','#668746'],hills:['#88a36a','#a7bc80','#96af75'],flowers:['#ecc3af','#fff0d2'],accents:['#adbb72','#b7c683']},
+    autumn:{key:'autumn',label:'秋',ground:'#afbc78',light:'rgba(231,221,153,.19)',shade:'rgba(87,118,55,.19)',grain:'rgba(135,157,77,.22)',spark:'rgba(235,222,164,.25)',clear:'rgba(175,188,120,0)',sky:'#d1e5e8',
+      foliage:['#677d43','#8d9c55','#a9b774','#7e904f'],hills:['#98a673','#b3bc8b','#a3b17e'],flowers:['#c78370','#e8c981'],accents:['#b88d50','#cbab6d']},
     winter:{key:'winter',label:'冬',ground:'#e0e7d9',light:'rgba(249,246,229,.25)',shade:'rgba(159,184,170,.16)',grain:'rgba(177,197,183,.20)',spark:'rgba(250,247,234,.32)',clear:'rgba(224,231,217,0)',sky:'#c9e2e9',
-      foliage:['#8caa99','#aac3ae','#bed1bf','#9bb69f'],hills:['#b7c9bb','#ccd8c9','#c3d3c3'],flowers:['#d3aab7','#f0e5da']}
+      foliage:['#658472','#86a18a','#a9bdaa','#779580'],hills:['#b7c9bb','#ccd8c9','#c3d3c3'],flowers:['#d3aab7','#f0e5da'],accents:['#c2d0c0','#dbe2d3']}
   };
-  Object.keys(profiles).forEach(function(k){Object.freeze(profiles[k].foliage);Object.freeze(profiles[k].hills);Object.freeze(profiles[k].flowers);Object.freeze(profiles[k]);});
+  Object.keys(profiles).forEach(function(k){Object.freeze(profiles[k].foliage);Object.freeze(profiles[k].hills);Object.freeze(profiles[k].flowers);Object.freeze(profiles[k].accents);Object.freeze(profiles[k]);});
   Object.freeze(profiles);
   function profile(key){return Object.prototype.hasOwnProperty.call(profiles,key)?profiles[key]:null;}
   function resolve(ms){
@@ -53,5 +53,5 @@
     check();
     return Object.freeze({check:check,destroy:function(){if(dead)return;dead=true;cancel();if(typeof unsubscribe==='function')unsubscribe();unsubscribe=null;}});
   }
-  return Object.freeze({resolve:resolve,profile:profile,profiles:profiles,watch:watch,timezone:'Asia/Tokyo',dayMs:DAY});
+  return Object.freeze({artRevision:'market-photo1',resolve:resolve,profile:profile,profiles:profiles,watch:watch,timezone:'Asia/Tokyo',dayMs:DAY});
 }));

@@ -94,20 +94,21 @@
   }
   function loadSeasons() {
     var current = Seasons || globalThis.PetJapanSeasons;
-    if (current && typeof current.watch === 'function') { Seasons = current; return Promise.resolve(current); }
-    if (!seasonsLoading) seasonsLoading = import('/static/pet-japan-seasons.js?v=20261026-brightness1').then(function () {
+    if (current && current.artRevision === 'market-photo1' && typeof current.watch === 'function') { Seasons = current; return Promise.resolve(current); }
+    if (!seasonsLoading) seasonsLoading = import('/static/pet-japan-seasons.js?v=20261026-market-photo1').then(function () {
       var api = globalThis.PetJapanSeasons;
-      if (!api || typeof api.watch !== 'function') throw new Error('seasons_unavailable');
+      if (!api || api.artRevision !== 'market-photo1' || typeof api.watch !== 'function') throw new Error('seasons_unavailable');
       Seasons = api; return api;
     }).catch(function (error) { seasonsLoading = null; throw error; });
     return seasonsLoading;
   }
+  function styleReady(api) { return !!api && api.revision === 'market-photo1' && ['leafGeometry','branchGeometry','tileGeometry','bowlGeometry','archGeometry','surfaceTexture'].every(function (key) { return typeof api[key] === 'function'; }); }
   function loadStyle() {
     var current = Style || globalThis.PetTownStyle;
-    if (current && typeof current.leafGeometry === 'function' && typeof current.surfaceTexture === 'function') { Style = current; return Promise.resolve(current); }
-    if (!styleLoading) styleLoading = import('/static/pet-town-style.js?v=20261025-market-style1').then(function () {
+    if (styleReady(current)) { Style = current; return Promise.resolve(current); }
+    if (!styleLoading) styleLoading = import('/static/pet-town-style.js?v=20261026-market-photo1').then(function () {
       var api = globalThis.PetTownStyle;
-      if (!api || typeof api.leafGeometry !== 'function' || typeof api.surfaceTexture !== 'function') throw new Error('town_style_unavailable');
+      if (!styleReady(api)) throw new Error('town_style_unavailable');
       Style = api; return api;
     }).catch(function (error) { styleLoading = null; throw error; });
     return styleLoading;
@@ -143,7 +144,8 @@
     scene.add(group); group.name = 'saved-town-geometry';
     var style = Style || globalThis.PetTownStyle, surfaceMaps = {}, cache = {}, boxGeometry = new THREE.BoxGeometry(1, 1, 1, 4, 4, 4), sphereGeometry = new THREE.SphereGeometry(1, 16, 10), leafGeometry = style ? style.leafGeometry(THREE) : new THREE.SphereGeometry(1, 10, 6), cylinderGeometry = new THREE.CylinderGeometry(1, 1, 1, 16);
     var trunkGeometry = style ? style.branchGeometry(THREE, 'trunk') : null, branchGeometry = style ? style.branchGeometry(THREE, 'branch') : null, roofTileGeometry = style ? style.tileGeometry(THREE) : null;
-    [trunkGeometry, branchGeometry, roofTileGeometry].forEach(function (g) { if (g) geometries.add(g); });
+    var bowlGeometry = style && style.bowlGeometry ? style.bowlGeometry(THREE) : null, archGeometry = style && style.archGeometry ? style.archGeometry(THREE) : null;
+    [trunkGeometry, branchGeometry, roofTileGeometry, bowlGeometry, archGeometry].forEach(function (g) { if (g) geometries.add(g); });
     // Shared bevelled box: small trim and furniture keep the adopted soft edges.
     var vertices = boxGeometry.attributes.position, vector = new THREE.Vector3(), inside = new THREE.Vector3();
     for (var vi = 0; vi < vertices.count; vi++) { vector.fromBufferAttribute(vertices, vi); inside.set(clamp(vector.x, -.43, .43), clamp(vector.y, -.43, .43), clamp(vector.z, -.43, .43)); vector.sub(inside).normalize().multiplyScalar(.07).add(inside); vertices.setXYZ(vi, vector.x, vector.y, vector.z); }
@@ -160,7 +162,7 @@
     var roleColors = {
       foliage: ['#80ab6b','#9bc67e','#bbd998','#78aa65','#82ad6b','#a0c783','#b9d79a','#8eb875','#c2dda8','#82aa68','#a0c583','#a2c786','#a3bd7e','#b0ceac','#c4dbb9','#bad4b1'],
       plaster: ['#f6e8d6','#f2ead9','#f7ecda','#f5e7cf','#fcf0dd','#f6e7cf','#f5e9d5'],
-      wood: ['#af936d','#bda278','#aa895f','#d5b68a','#b28e63','#ddc7a4','#b99c73','#ded0b1','#cda97d','#dfcbb0','#d8bb93','#b58a69','#e3ceae','#ccab80','#d2af91','#e3ceb1','#ccb18c','#d9b58b','#bd9c73','#cdae85','#dfbf95','#b38e65','#cda47a','#dcc29c','#d1b68f'],
+      wood: ['#9c704d','#b98a5e','#825b3e','#c4a171','#a67547','#d0af80','#b38657','#d8bd95','#b88555','#cba67c','#c7a06e','#a8754d','#d8b88b','#b98856','#bc916a','#d2b18a','#bc956b','#c39a6b','#a7794e','#bc8f5e','#cba46f','#a77549','#b98655','#ccaa7a','#c29b6b'],
       glass: ['#b8d8c8','#b5d5c0','#99c9be','#abd1c4','#b4d3ca'],
       ceramic: ['#f6e7bc','#f9e6b5','#d4a5b3','#e1bbc5','#a6c4b0','#bfd7c7','#d6a18b','#e7b49b','#cbb394','#ddc6a7','#c7ab88','#ccae8f'],
       water: ['#86c8c8','#91cece','#b9e2df','#c6e8dd'],
@@ -210,10 +212,10 @@
       leaf(g, '#a0c583', -.035 * size, .06 * size, .02 * size, .08 * size, 1.1, -.8); return g;
     }
     function legacySoftTree(parent, seed, scale) {
-      var trunk = cylinder(parent, .17 * scale, 1.36 * scale, '#af936d', 0, .68 * scale, 0); trunk.name = 'rounded-tree-trunk';
-      ball(parent, '#bda278', 0, .18 * scale, 0, .24 * scale, .28 * scale, .21 * scale);
-      for (var root = 0; root < 5; root++) { var ra = root * TAU / 5 + seed; var foot = ball(parent, '#aa895f', Math.sin(ra) * .16 * scale, .07 * scale, Math.cos(ra) * .16 * scale, .1 * scale, .08 * scale, .28 * scale); foot.rotation.y = ra; }
-      for (var branch = -1; branch <= 1; branch += 2) { var arm = cylinder(parent, .075 * scale, .7 * scale, '#af936d', branch * .22 * scale, 1.08 * scale, .02); arm.rotation.z = -branch * .55; }
+      var trunk = cylinder(parent, .17 * scale, 1.36 * scale, '#9c704d', 0, .68 * scale, 0); trunk.name = 'rounded-tree-trunk';
+      ball(parent, '#b98a5e', 0, .18 * scale, 0, .24 * scale, .28 * scale, .21 * scale);
+      for (var root = 0; root < 5; root++) { var ra = root * TAU / 5 + seed; var foot = ball(parent, '#825b3e', Math.sin(ra) * .16 * scale, .07 * scale, Math.cos(ra) * .16 * scale, .1 * scale, .08 * scale, .28 * scale); foot.rotation.y = ra; }
+      for (var branch = -1; branch <= 1; branch += 2) { var arm = cylinder(parent, .075 * scale, .7 * scale, '#9c704d', branch * .22 * scale, 1.08 * scale, .02); arm.rotation.z = -branch * .55; }
       var crown = new THREE.Group(); crown.name = 'overlapping-leaf-crown'; crown.position.y = 1.23 * scale; parent.add(crown);
       ball(crown, '#82ad6b', 0, .34 * scale, 0, .56 * scale, .5 * scale, .5 * scale);
       for (var tier = 0; tier < 5; tier++) { var ly = -.12 + tier * .235, surface = Math.sqrt(Math.max(0, 1 - Math.pow((ly - .34) / .61, 2))), count = 14 - tier * 2, radius = (.75 * surface + .055) * scale;
@@ -233,30 +235,34 @@
     function softTree(parent, seed, scale) {
       if (!style) return legacySoftTree(parent, seed, scale);
       var tree = new THREE.Group(); tree.name = 'market-style-branching-tree'; tree.userData.styleRole = 'botanical'; tree.scale.setScalar(scale); parent.add(tree);
-      var trunk = mesh(trunkGeometry, mat('#af936d', false, 'bark'), tree, 0, 0, 0); trunk.name = 'rounded-tree-trunk'; trunk.scale.set(.155, 1.43, .155); trunk.rotation.y = seed;
+      var trunk = mesh(trunkGeometry, mat('#8c6043', false, 'bark'), tree, 0, 0, 0); trunk.name = 'rounded-tree-trunk'; trunk.scale.set(.155, 1.43, .155); trunk.rotation.y = seed;
       for (var root = 0; root < 5; root++) {
         var ra = root * TAU / 5 + seed;
-        var exposed = branchBetween(tree, new THREE.Vector3(0, .12, 0), new THREE.Vector3(Math.sin(ra)*.30, .014, Math.cos(ra)*.28), .055, '#aa895f');
+        var exposed = branchBetween(tree, new THREE.Vector3(0, .12, 0), new THREE.Vector3(Math.sin(ra)*.30, .014, Math.cos(ra)*.28), .055, '#825b3e');
         exposed.name = 'tapered-tree-root';
       }
       for (var fork = 0; fork < 3; fork++) {
         var a = seed + fork * TAU / 3;
-        branchBetween(tree, new THREE.Vector3(.025, .64, 0), new THREE.Vector3(Math.sin(a)*.46, 1.67+fork*.04, Math.cos(a)*.36), .075-fork*.007, '#af936d').name='visible-tree-fork';
+        branchBetween(tree, new THREE.Vector3(.025, .64, 0), new THREE.Vector3(Math.sin(a)*.43, 1.56+fork*.055, Math.cos(a)*.35), .085-fork*.009, '#8c6043').name='visible-tree-fork';
       }
-      var moss = ball(tree, '#80ab6b', 0, .025, 0, .28, .025, .25); moss.name='quiet-root-moss';
+      for(var mossPart=0;mossPart<5;mossPart++){var ma=mossPart*2.4+seed,moss=ball(tree,'#80ab6b',Math.sin(ma)*.16,.025,Math.cos(ma)*.15,.17,.025,.13);moss.name='quiet-root-moss';}
       var crown = new THREE.Group(); crown.name = 'overlapping-leaf-crown'; crown.position.y=1.23; tree.add(crown);
       var leaves=0;
       for (var cluster=0; cluster<style.limits.treeTwigs; cluster++) {
-        var a=cluster*2.399963+seed, tier=cluster%3, radius=.36+(cluster%2)*.17;
-        var center=new THREE.Vector3(Math.sin(a)*radius,.05+tier*.29,Math.cos(a)*radius*.85);
-        var twig=branchBetween(crown,new THREE.Vector3(0,-.16,0),center,.025,'#aa895f');twig.name='canopy-twig';
+        var tier=Math.floor(cluster/3), a=seed+(cluster%3)*TAU/3+tier*.86, radius=tier===0?.344:tier===1?.328:.20;
+        var center=new THREE.Vector3(Math.sin(a)*radius,-.02+tier*.24,Math.cos(a)*radius*.9);
+        var twig=branchBetween(crown,new THREE.Vector3(-.156,-.19,.056),center,.028,'#825b3e');twig.name='canopy-twig';
         for(var l=0;l<style.limits.leavesPerTwig&&leaves<style.limits.treeLeaves;l++,leaves++){
-          var turn=l*2.399963+cluster*.43, spread=.11+(l%4)*.032;
-          var x=center.x+Math.sin(turn)*spread,y=center.y+(l%4-1.5)*.057,z=center.z+Math.cos(turn)*spread*.85;
-          var size=.155+(l%3)*.015;
-          var m=leaf(crown,['#a0c783','#b9d79a','#8eb875'][(l+cluster)%3],x,y,z,size);
-          var normal=new THREE.Vector3(Math.sin(turn)*.65,.52+(l%3)*.12,Math.cos(turn)*.65).normalize();
-          m.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),normal);m.rotateZ(turn*.24);m.name='small-pointed-tree-leaf';
+          var turn=l*2.399963+a, spread=.084+(l%4)*.0224;
+          var x=center.x+Math.sin(turn)*spread,y=center.y+(l%4-1.5)*.052,z=center.z+Math.cos(turn)*spread*.88;
+          var size=(.20+(l%3)*.014)*.72, color=['#82ad6b','#9bc67e','#bbd998','#78aa65'][(l+cluster)%4];
+          var material=mat(color,false,'foliage');
+          // Only a few botanical tips carry autumn gold. Evergreen midtones
+          // keep their reference green base; bark/wood are never season-tinted.
+          if(l===12){material=mat(cluster%2?'#adc17b':'#c6cc99',false,'foliage');material.userData.seasonRole='accent';material.userData.seasonIndex=cluster%2;}
+          var m=leaf(crown,material,x,y,z,size);
+          var normal=new THREE.Vector3(Math.sin(turn)*.64,.62+(l%3)*.12,Math.cos(turn)*.64).normalize();
+          m.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),normal);m.rotateZ(turn*.34);m.name='small-pointed-tree-leaf';
         }
       }
       tree.userData.leafCount=leaves;tree.userData.twigCount=style.limits.treeTwigs;trees.push(crown);return crown;
@@ -281,8 +287,8 @@
       var ripple = box(group, .4, .009, .025, '#c6e8dd', rp.x, -.035, rp.z); ripple.userData.baseX = rp.x; ripples.push(ripple);
     }
     var bridgeCenter = groundPoint(world, { x: 2645, y: 1160 });
-    var bridge = mesh(new THREE.BoxGeometry(3.3, .14, 1.8), '#d5b68a', group, bridgeCenter.x, .12, bridgeCenter.z); bridge.name = 'bridge-deck'; surfaces.push(bridge);
-    for (var rail = -1; rail <= 1; rail += 2) { box(group, 3.3, .09, .07, '#b28e63', bridgeCenter.x, .8, bridgeCenter.z + rail * .85); }
+    var bridge = mesh(new THREE.BoxGeometry(3.3, .14, 1.8), '#c4a171', group, bridgeCenter.x, .12, bridgeCenter.z); bridge.name = 'bridge-deck'; surfaces.push(bridge);
+    for (var rail = -1; rail <= 1; rail += 2) { box(group, 3.3, .09, .07, '#a67547', bridgeCenter.x, .8, bridgeCenter.z + rail * .85); }
     function road(a, b) {
       var aa = groundPoint(world, a), bb = groundPoint(world, b), dx = bb.x - aa.x, dz = bb.z - aa.z;
       var curve = new THREE.CatmullRomCurve3([new THREE.Vector3(aa.x, .027, aa.z), new THREE.Vector3(aa.x + dx * .42, .027, aa.z + dz * .22), new THREE.Vector3(aa.x + dx * .78, .027, aa.z + dz * .68), new THREE.Vector3(bb.x, .027, bb.z)]);
@@ -315,31 +321,44 @@
         leafBush(g, 0, .1, 0, Math.min(rx, rz) * .7, .6);
         for (var f = 0; f < 7; f++) { var fx = Math.sin(f * 2.4) * rx * .6, fz = Math.cos(f * 2.4) * rz * .55; daisy(g, fx, .12, fz, .95, f % 3 === 0); }
       } else if (p.id === 'playground') {
-        var base = cylinder(g, rx * .85, .2, '#e0d1bc', 0, .1, 0); base.scale.z *= rz / rx;
-        var basin = cylinder(g, .48, .15, '#e9ddcc', 0, .38, 0); basin.scale.z *= .8;
-        var water = cylinder(g, .42, .02, '#91cece', 0, .465, 0); water.scale.z *= .8;
-        cylinder(g, .08, .65, '#d8c7ad', 0, .63, 0);
-        for (var drop = 0; drop < 9; drop++) { var droplet = ball(g, '#b9e2df', 0, .8, 0, .035, .08, .035); droplet.userData.phase = drop / 9; droplets.push(droplet); }
+        var fountain=new THREE.Group();fountain.name='market-photo-fountain';g.add(fountain);
+        var foot=cylinder(fountain,.40,.12,mat('#eadbc3',false,'ceramic'),0,.06,0);foot.scale.z*=.78;foot.name='fountain-foot';
+        function bowl(name,xz,height,y){
+          var m=mesh(bowlGeometry||sphereGeometry,mat('#f2e4cd',false,'ceramic'),fountain,0,y,0);m.name=name;m.scale.set(xz,height,xz*.75);return m;
+        }
+        bowl('fountain-lower-bowl',.74,.42,.12);
+        bowl('fountain-upper-bowl',.37,.27,.77);
+        function rim(radius,y){var m=mesh(new THREE.TorusGeometry(radius,.026,6,32),mat('#ad94be',false,'ceramic'),fountain,0,y,0);m.rotation.x=-Math.PI/2;m.scale.y=.75;m.name='lilac-glazed-fountain-rim';return m;}
+        rim(.704,.536);rim(.352,1.038);
+        cylinder(fountain,.105,.43,mat('#eadbc3',false,'ceramic'),0,.66,0);
+        var lowerWater=cylinder(fountain,.61,.012,mat('#acd4d0',true,'water'),0,.469,0);lowerWater.scale.z*=.75;lowerWater.name='fountain-lower-water';
+        var upperWater=cylinder(fountain,.28,.012,mat('#beded8',true,'water'),0,.995,0);upperWater.scale.z*=.75;upperWater.name='fountain-upper-water';
+        for(var stream=0;stream<8;stream++){
+          var angle=(stream+.5)*TAU/8,start=new THREE.Vector3(Math.sin(angle)*.315,1.01,Math.cos(angle)*.236),end=new THREE.Vector3(Math.sin(angle)*.55,.48,Math.cos(angle)*.412);
+          var delta=end.clone().sub(start),cascade=mesh(branchGeometry||cylinderGeometry,mat('#b9deda',true,'water'),fountain,start.x,start.y,start.z);cascade.name='fountain-cascade';cascade.scale.set(.014,delta.length(),.014);cascade.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),delta.normalize());
+          var droplet=ball(fountain,mat('#d8eddf',true,'water'),start.x,start.y,start.z,.018,.045,.018);droplet.userData.phase=stream/8;droplet.userData.cascade={start:start,end:end};droplets.push(droplet);
+        }
+        var jet=ball(fountain,mat('#cde4db',true,'water'),0,1.075,0,.045,.10,.045);jet.name='fountain-top-jet';
       } else {
         // The solid base is inscribed in the existing elliptical footprint; roofs can overhang above the pet.
         var cafe = p.id === 'cafe' || p.shopId === 'cafe', market = p.id === 'shop' || p.shopId && !cafe;
         var w = rx * (cafe || market ? 1.15 : 1.7), depth = rz, funding = p.status === 'funding' || p.status === 'building';
-        box(g, w, .13, depth, '#ddc7a4', 0, .065, 0);
+        box(g, w, .13, depth, '#d0af80', 0, .065, 0);
         if (funding) {
-          for (var sx = -1; sx <= 1; sx += 2) for (var sz = -1; sz <= 1; sz += 2) box(g, .08, .6, .08, '#b99c73', sx * w / 2, .3, sz * depth / 2);
-          box(g, w, .17, .06, '#ded0b1', 0, .45, depth / 2);
+          for (var sx = -1; sx <= 1; sx += 2) for (var sz = -1; sz <= 1; sz += 2) box(g, .08, .6, .08, '#b38657', sx * w / 2, .3, sz * depth / 2);
+          box(g, w, .17, .06, '#d8bd95', 0, .45, depth / 2);
         } else {
           box(g, w, 1.8, depth, cafe ? '#f6e8d6' : '#f2ead9', 0, .96, 0);
           var roof = new THREE.Shape(); roof.moveTo(-w * .62, 0); roof.lineTo(0, .8); roof.lineTo(w * .62, 0); roof.closePath();
           var roofGeo = new THREE.ExtrudeGeometry(roof, { depth: depth + .3, bevelEnabled: true, bevelThickness: .045, bevelSize: .04, bevelSegments: 3, steps: 1 }); roofGeo.translate(0, 1.8, -depth / 2 - .15);
-          var roofColor = p.id === 'home' ? '#d4a5b3' : cafe ? '#a6c4b0' : market ? '#d6a18b' : '#cbb394';
-          mesh(roofGeo, [mat('#f2ead9'), mat(roofColor)], g);
-          for (var gableSide = -1; gableSide <= 1; gableSide += 2) for (var gableEdge = -1; gableEdge <= 1; gableEdge += 2) { var trim = box(g, Math.hypot(w * .62, .8), .065, .065, '#cda97d', gableEdge * w * .31, 2.2, gableSide * (depth / 2 + .19)); trim.rotation.z = -gableEdge * Math.atan2(.8, w * .62); }
+          var roofColor = p.id === 'home' ? '#9b7cb5' : cafe ? '#ad8fbe' : market ? '#9983b0' : '#ab91b8';
+          mesh(roofGeo, [mat('#f6e9d2',false,'plaster'), mat(roofColor,false,'ceramic')], g);
+          for (var gableSide = -1; gableSide <= 1; gableSide += 2) for (var gableEdge = -1; gableEdge <= 1; gableEdge += 2) { var trim = box(g, Math.hypot(w * .62, .8), .065, .065, '#b88555', gableEdge * w * .31, 2.2, gableSide * (depth / 2 + .19)); trim.rotation.z = -gableEdge * Math.atan2(.8, w * .62); }
           // Thick overlapping ceramic shingles follow both real sloping roof planes.
           var roofRun = w * .62, roofAngle = Math.atan2(.8, roofRun), tileRows = 4, tileColumns = Math.max(3, Math.ceil((depth + .3) / .3));
           for (var roofSide = -1; roofSide <= 1; roofSide += 2) for (var tileRow = 0; tileRow < tileRows; tileRow++) for (var tileColumn = 0; tileColumn < tileColumns; tileColumn++) {
             var fraction = (tileRow + .4) / tileRows, tz = -depth / 2 - .12 + (tileColumn + .5) * (depth + .24) / tileColumns;
-            var tile = (roofTileGeometry ? function (color, x, y, z, rx, ry, rz) { var m = mesh(roofTileGeometry, color, g, x, y, z); m.scale.set(rx, ry, rz); return m; } : function (color, x, y, z, rx, ry, rz) { return ball(g, color, x, y, z, rx, ry, rz); })(tileRow % 2 ? roofColor : p.id === 'home' ? '#e1bbc5' : cafe ? '#bfd7c7' : market ? '#e7b49b' : '#ddc6a7', roofSide * roofRun * fraction, 2.6 - fraction * .8 + .035, tz, roofRun / tileRows * .72, .065, (depth + .3) / tileColumns * .61); tile.name = 'overlapping-round-roof-tile';
+            var tile = (roofTileGeometry ? function (color, x, y, z, rx, ry, rz) { var m = mesh(roofTileGeometry, color, g, x, y, z); m.scale.set(rx, ry, rz); return m; } : function (color, x, y, z, rx, ry, rz) { return ball(g, color, x, y, z, rx, ry, rz); })(mat(tileRow % 2 ? roofColor : p.id === 'home' ? '#b39bc9' : cafe ? '#c1a5cf' : market ? '#b5a0c6' : '#c2a7cc',false,'ceramic'), roofSide * roofRun * fraction, 2.6 - fraction * .8 + .035, tz, roofRun / tileRows * .72, .065, (depth + .3) / tileColumns * .61); tile.name = 'overlapping-round-roof-tile';
             if (roofTileGeometry) {
               // The scallop is local -Z. Rotate it down the +/-X roof slope,
               // swapping local X/Z scale so its established box does not grow.
@@ -350,53 +369,72 @@
           }
           // Fine gable joinery, warm wood edges and door seams echo the shop art.
           // Everything sits inside the existing roof/porch projection.
-          ball(g, '#cda97d', 0, 2.12, depth / 2 + .175, .15, .18, .035);
-          ball(g, '#b8d8c8', 0, 2.12, depth / 2 + .203, .113, .14, .018);
-          box(g, .022, .28, .032, '#f7ecda', 0, 2.12, depth / 2 + .224);
-          box(g, .225, .022, .032, '#f7ecda', 0, 2.12, depth / 2 + .224);
-          for (var post=-1;post<=1;post+=2) box(g, .048, 1.56, .045, '#dfcbb0', post*w*.475, .98, depth/2+.027);
-          box(g, w * 1.25, .11, depth + .36, '#dfcbb0', 0, 1.79, 0);
-          box(g, w * 1.04, .12, depth * 1.04, '#d8bb93', 0, .2, 0);
+          ball(g, '#b88555', 0, 2.12, depth / 2 + .175, .15, .18, .035);
+          ball(g, mat('#715d47',false,'glass'), 0, 2.12, depth / 2 + .203, .113, .14, .018);
+          box(g, .022, .28, .032, mat('#c69b69',false,'wood'), 0, 2.12, depth / 2 + .224);
+          box(g, .225, .022, .032, mat('#c69b69',false,'wood'), 0, 2.12, depth / 2 + .224);
+          for (var post=-1;post<=1;post+=2) box(g, .048, 1.56, .045, '#cba67c', post*w*.475, .98, depth/2+.027);
+          box(g, w * 1.25, .11, depth + .36, '#cba67c', 0, 1.79, 0);
+          box(g, w * 1.04, .12, depth * 1.04, '#c7a06e', 0, .2, 0);
           function doorPart(m) { m.userData.door = true; return m; }
-          doorPart(box(g, .47, 1.06, .09, '#f7ecda', 0, .57, depth / 2 + .03));
-          doorPart(box(g, .36, .94, .1, '#b58a69', 0, .53, depth / 2 + .08));
-          doorPart(ball(g, '#f5e7cf', 0, 1.08, depth / 2 + .045, .235, .25, .065)); doorPart(ball(g, '#b58a69', 0, 1.07, depth / 2 + .09, .18, .21, .055));
-          doorPart(box(g, .22, .32, .015, '#b8d8c8', 0, .78, depth / 2 + .138));
+          doorPart(box(g, .47, 1.06, .09, mat('#c49b6f',false,'wood'), 0, .57, depth / 2 + .03));
+          doorPart(box(g, .36, .94, .1, '#a8754d', 0, .53, depth / 2 + .08));
+          doorPart(ball(g, mat('#c49b6f',false,'wood'), 0, 1.08, depth / 2 + .045, .235, .25, .065)); doorPart(ball(g, '#a8754d', 0, 1.07, depth / 2 + .09, .18, .21, .055));
+          doorPart(box(g, .22, .32, .015, mat('#b78658',false,'wood'), 0, .78, depth / 2 + .138));
           doorPart(ball(g, '#b79461', .115, .48, depth / 2 + .16, .035, .035, .025));
-          for (var seam=-1;seam<=1;seam++) doorPart(box(g,.006,.75,.006,'#aa895f',seam*.085,.55,depth/2+.133));
-          doorPart(box(g, .53, .1, .26, '#e3ceae', 0, .065, depth / 2 + .1));
+          for (var seam=-1;seam<=1;seam++) doorPart(box(g,.006,.75,.006,'#825b3e',seam*.085,.55,depth/2+.133));
+          doorPart(box(g, .53, .1, .26, '#d8b88b', 0, .065, depth / 2 + .1));
           for (var wx = -1; wx <= 1; wx += 2) {
             var windowX = wx * w * .32;
-            ball(g, '#ccab80', windowX, 1.23, depth / 2 + .035, .18, .28, .065);
-            ball(g, '#b5d5c0', windowX, 1.23, depth / 2 + .08, .137, .226, .04);
-            box(g, .22, .38, .09, '#99c9be', windowX, 1.22, depth / 2 + .07);
-            box(g, .035, .4, .11, '#fcf0dd', windowX, 1.22, depth / 2 + .11);
-            box(g, .25, .035, .11, '#fcf0dd', windowX, 1.22, depth / 2 + .115);
-            box(g, .34, .12, .18, '#d2af91', windowX, .92, depth / 2 + .1);
+            function arch(parent,color,x,y,z,width,height,depth){
+              var m=mesh(archGeometry||boxGeometry,mat(color,false,color==='#715d47'?'glass':'wood'),parent,x,y,z);m.scale.set(width,height,depth);return m;
+            }
+            arch(g,'#b98856',windowX,.96,depth/2+.06,.39,.58,.10).name='arched-window-frame';
+            arch(g,'#715d47',windowX,1.015,depth/2+.12,.28,.43,.035).name='arched-window-glass';
+            box(g,.035,.39,.055,mat('#c69b69',false,'wood'),windowX,1.205,depth/2+.145);
+            box(g,.28,.035,.055,mat('#c69b69',false,'wood'),windowX,1.21,depth/2+.145);
+            box(g,.43,.10,.20,mat('#b98856',false,'wood'),windowX,.955,depth/2+.09);
             for (var fl = -1; fl <= 1; fl++) { leaf(g, '#a2c786', windowX + fl * .09, 1.02, depth / 2 + .13, .09, .5, fl); daisy(g, windowX + fl * .09, .93, depth / 2 + .14, .42, fl === 0); }
           }
-          // Rear and side windows keep orbiting views finished as well as the front.
-          for (var side = -1; side <= 1; side += 2) { box(g, .055, .48, .32, '#f6e7cf', side * (w / 2 + .025), 1.12, 0); box(g, .065, .36, .22, '#abd1c4', side * (w / 2 + .055), 1.12, 0); box(g, .075, .035, .25, '#f7ecda', side * (w / 2 + .065), 1.12, 0); }
-          box(g, .35, .5, .06, '#f5e9d5', 0, 1.18, -depth / 2 - .02); box(g, .26, .39, .075, '#b4d3ca', 0, 1.18, -depth / 2 - .05);
-          box(g, .22, .42, .22, '#e3ceb1', w * .28, 2.4, -.12); box(g, .3, .09, .3, '#ccb18c', w * .28, 2.64, -.12);
+          if(archGeometry&&(p.id==='home'||cafe||market)){
+            var dormer=new THREE.Group();dormer.name='market-photo-dormer';dormer.position.set(-w*.32,2.02,-depth*.12);dormer.rotation.y=-Math.PI/2;g.add(dormer);
+            var face=mesh(archGeometry,mat('#f8ead3',false,'plaster'),dormer,0,0,.10);face.scale.set(.49,.49,.40);
+            var frame=mesh(archGeometry,mat('#b98856',false,'wood'),dormer,0,.055,.325);frame.scale.set(.32,.35,.075);frame.name='dormer-arched-frame';
+            var glass=mesh(archGeometry,mat('#715d47',false,'glass'),dormer,0,.095,.368);glass.scale.set(.225,.255,.025);
+            box(dormer,.028,.25,.035,mat('#c69b69',false,'wood'),0,.22,.389);box(dormer,.23,.028,.035,mat('#c69b69',false,'wood'),0,.23,.389);
+            box(dormer,.40,.065,.15,mat('#b98856',false,'wood'),0,.045,.34);
+            for(var ds=-1;ds<=1;ds+=2){var cap=mesh(roofTileGeometry,mat('#b39bc9',false,'ceramic'),dormer,ds*.14,.46,.1);cap.scale.set(.32,.055,.20);cap.rotation.z=-ds*.52;cap.name='dormer-rounded-cap';}
+          }
+          // The same warm arched joinery continues around both sides and rear.
+          function sideWindow(parent,turn,x,y,z){
+            var frameGroup=new THREE.Group();frameGroup.name='all-angle-arched-window';frameGroup.position.set(x,y,z);frameGroup.rotation.y=turn;parent.add(frameGroup);
+            var outer=mesh(archGeometry||boxGeometry,mat('#b98856',false,'wood'),frameGroup,0,0,0);outer.scale.set(.35,.52,.065);
+            var inner=mesh(archGeometry||boxGeometry,mat('#715d47',false,'glass'),frameGroup,0,.06,.04);inner.scale.set(.25,.39,.025);
+            box(frameGroup,.028,.35,.035,mat('#c69b69',false,'wood'),0,.24,.06);box(frameGroup,.25,.028,.035,mat('#c69b69',false,'wood'),0,.25,.06);
+            box(frameGroup,.40,.075,.11,mat('#b98856',false,'wood'),0,.025,.025);
+          }
+          for(var side=-1;side<=1;side+=2)sideWindow(g,side*Math.PI/2,side*(w/2+.025),.88,0);
+          sideWindow(g,Math.PI,0,.9,-depth/2-.025);
+
+          box(g, .22, .42, .22, '#d2b18a', w * .28, 2.4, -.12); box(g, .3, .09, .3, '#bc956b', w * .28, 2.64, -.12);
           if (cafe || market) {
             for (var stripe = 0; stripe < 7; stripe++) { var awning = box(g, w * .14, .09, .38, stripe % 2 ? '#faf0db' : cafe ? '#ddb1bc' : '#a5c4aa', (stripe - 3) * w * .14, 1.5, depth / 2 + .14); awning.rotation.x = .12; }
             box(g, .48, .2, .09, cafe ? '#d8afc0' : '#b6cfae', 0, 1.75, depth / 2 + .08);
           }
           if (cafe) {
             var tx = rx * .7;
-            cylinder(g, .15, .05, '#d9b58b', tx, .43, .02); cylinder(g, .035, .4, '#bd9c73', tx, .2, .02);
-            for (var chair = -1; chair <= 1; chair += 2) { box(g, .15, .05, .15, '#cdae85', tx, .24, chair * .26); box(g, .15, .25, .035, '#dfbf95', tx, .36, chair * .32); for (var leg = -1; leg <= 1; leg += 2) box(g, .025, .22, .025, '#b38e65', tx + leg * .05, .11, chair * .26); }
+            cylinder(g, .15, .05, '#c39a6b', tx, .43, .02); cylinder(g, .035, .4, '#a7794e', tx, .2, .02);
+            for (var chair = -1; chair <= 1; chair += 2) { box(g, .15, .05, .15, '#bc8f5e', tx, .24, chair * .26); box(g, .15, .25, .035, '#cba46f', tx, .36, chair * .32); for (var leg = -1; leg <= 1; leg += 2) box(g, .025, .22, .025, '#a77549', tx + leg * .05, .11, chair * .26); }
             cylinder(g, .035, .06, '#f3e7d2', tx, .49, .02);
           } else if (market) {
-            for (var crate = 0; crate < 2; crate++) { box(g, .22, .2, .24, '#cda47a', rx * .7, .13 + crate * .17, .05 + crate * .13); for (var fruit = 0; fruit < 3; fruit++) ball(g, crate ? '#c4cf8c' : '#e5a795', rx * .7 + (fruit - 1) * .055, .27 + crate * .17, .05 + crate * .13, .045, .045, .045); }
+            for (var crate = 0; crate < 2; crate++) { box(g, .22, .2, .24, '#b98655', rx * .7, .13 + crate * .17, .05 + crate * .13); for (var fruit = 0; fruit < 3; fruit++) ball(g, crate ? '#c4cf8c' : '#e5a795', rx * .7 + (fruit - 1) * .055, .27 + crate * .17, .05 + crate * .13, .045, .045, .045); }
           }
           for (var yard = -1; yard <= 1; yard += 2) {
             var px = yard * Math.min(rx * .58, .54), pz = depth / 2 + .13;
             var pot = cylinder(g, .09, .17, '#ccae8f', px, .085, pz); pot.scale.z *= .85;
             leafBush(g, px, .17, pz, .2, yard); daisy(g, px, .2, pz, .85, false);
-            box(g, .26, .07, .045, '#dcc29c', yard * rx * .66, .21, .38);
-            for (var fence = -1; fence <= 1; fence += 2) box(g, .035, .28, .045, '#d1b68f', yard * rx * .66 + fence * .1, .14, .38);
+            box(g, .26, .07, .045, '#ccaa7a', yard * rx * .66, .21, .38);
+            for (var fence = -1; fence <= 1; fence += 2) box(g, .035, .28, .045, '#c29b6b', yard * rx * .66 + fence * .1, .14, .38);
           }
           var lampGlobe = ball(g, '#f9e6b5', -.26, 1.3, depth / 2 + .14, .065, .08, .06); box(g, .12, .04, .1, '#b49a6b', -.26, 1.4, depth / 2 + .13);
         }
@@ -488,7 +526,7 @@
         if (role === 'foliage' && palette.foliage) {
           var index = roleColors.foliage.indexOf(base);
           m.color.set(index >= 13 ? palette.hills[(index - 13) % palette.hills.length] : palette.foliage[Math.max(0, index) % palette.foliage.length]);
-        } else if (role === 'flower' && palette.flowers) m.color.set(palette.flowers[base === '#edc0c1' ? 0 : 1]);
+        } else if(role==='accent'&&palette.accents){m.color.set(palette.accents[m.userData.seasonIndex||0]);} else if (role === 'flower' && palette.flowers) m.color.set(palette.flowers[base === '#edc0c1' ? 0 : 1]);
       });
       Object.keys(seasonGroups).forEach(function (k) { seasonGroups[k].visible = k === key; });
       activeSeason = key; scene.background.set(palette.sky); scene.userData.season = key;
@@ -498,7 +536,7 @@
     // A clear finite village needs no white fog wash over the character's colors.
     scene.background = new THREE.Color('#cbe7e8'); scene.fog = null;
     setSeason(seasonKey || 'summer');
-    scene.add(new THREE.HemisphereLight('#f5f8ff', '#bbc8a5', 1.5));
+    scene.add(new THREE.HemisphereLight('#f5f8ff', '#b4c49f', 1.45));
     var sun = new THREE.DirectionalLight('#fff8ed', 2.2); sun.position.set(-7, 12, 8); sun.castShadow = true; sun.shadow.mapSize.set(512, 512); sun.shadow.radius = 3;
     Object.assign(sun.shadow.camera, { left: -16, right: 16, top: 12, bottom: -12, near: .1, far: 45 }); sun.shadow.normalBias = .04; scene.add(sun);
     // Batch repeated primitives by material and neighborhood. Keep the original
@@ -518,7 +556,7 @@
       var frame = natureFrame(ms, reduced);
       trees.forEach(function (g, i) { g.rotation.z = frame.wind * Math.cos(i * 1.7); g.updateMatrixWorld(true); });
       ripples.forEach(function (m, i) { m.position.x = m.userData.baseX + (reduced ? 0 : Math.sin(frame.time * 1.1 + i) * .07); m.updateMatrixWorld(true); });
-      droplets.forEach(function (m) { var a = reduced ? m.userData.phase : (frame.fountain + m.userData.phase) % 1; m.position.set(Math.sin(a * TAU) * .2, .48 + Math.sin(a * Math.PI) * .65, Math.cos(a * TAU) * .15); m.updateMatrixWorld(true); });
+      droplets.forEach(function (m) { var a = reduced ? m.userData.phase : (frame.fountain + m.userData.phase) % 1; if(m.userData.cascade)m.position.lerpVectors(m.userData.cascade.start,m.userData.cascade.end,a);else m.position.set(Math.sin(a * TAU) * .2, .48 + Math.sin(a * Math.PI) * .65, Math.cos(a * TAU) * .15); m.updateMatrixWorld(true); });
       batches.forEach(function (b) { if (b.dynamic) { b.rows.forEach(function (m, i) { b.mesh.setMatrixAt(i, m.matrixWorld); }); b.mesh.instanceMatrix.needsUpdate = true; } });
       return frame;
     }
@@ -670,7 +708,7 @@
       var seasonNow = typeof options.seasonNow === 'function' ? options.seasonNow : Date.now, firstSeason = null;
       try { firstSeason = Seasons.resolve(seasonNow()); } catch (_) {}
       model = buildWorld(THREE, world, options.view, position, doc, firstSeason ? firstSeason.key : 'summer');
-      host.dataset.townStyle = model.styleLimits ? 'market-style1' : 'legacy';
+      host.dataset.townStyle = model.styleLimits ? 'market-photo1' : 'legacy';
       if (Fishing && typeof Fishing.createVisual === 'function') { fishingVisual = Fishing.createVisual(THREE, world); model.scene.add(fishingVisual.group); }
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: false }); renderer.setPixelRatio(Math.min(win.devicePixelRatio || 1, 1.5));
       renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true; renderer.outputColorSpace = THREE.SRGBColorSpace;
