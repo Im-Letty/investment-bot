@@ -7,6 +7,7 @@ const Core = require('../static/pet-game-core.js');
 const Motion = require('../static/pet-lilac-motion.js');
 const Room = require('../static/pet-room-behavior.js');
 const Town = require('../static/pet-town-walk.js');
+const Fishing = require('../static/pet-river-fishing.js');
 const EconomyScene = require('../static/pet-village-economy-scene.js');
 const ShopLayout = require('../static/pet-shop-layout.js');
 const source = fs.readFileSync(require.resolve('../static/pet-game.js'), 'utf8');
@@ -190,12 +191,13 @@ async function fixture(config = {}) {
   const townSceneAPI={async mount(options){
     const controller={options,destroyed:false,destroyCount:0,frames:[],positions:[],motions:[],destroy(){if(this.destroyed)return;this.destroyed=true;this.destroyCount++;options.viewport.dataset.visualMode='flat';},
       setFrame(canvas){if(this.destroyed||!options.canRun()||!townSceneControl.acceptFrame)return false;this.frames.push(canvas);options.viewport.dataset.visualMode='three';options.onReady();return true;},
-      setPosition(p){this.positions.push({...p});},setMotion(m){this.motions.push({...m});},direction(x,y){return{x:-y,y:x};},resolveTap(){return this.hit||null;},
+      setFishing(value){this.fishing=value;return true;},setPosition(p){this.positions.push({...p});},setMotion(m){this.motions.push({...m});},direction(x,y){return{x:-y,y:x};},resolveTap(){return this.hit||null;},
       fail(){this.destroy();options.onFailure('synthetic_context_lost');}};
     townScenes.push(controller);if(townSceneControl.failBeforeReturn)controller.fail();if(townSceneControl.pending)await townSceneControl.pending.promise;
     if(townSceneControl.reject){controller.destroy();throw Error('private scene renderer failure');}return controller;
   }};
   if(config.townScene)window.PetTownScene=townSceneAPI;
+  window.PetRiverFishing=Fishing;
   if (config.villageScene === 'actual') window.PetVillageEconomyScene = EconomyScene;
   else if (config.villageScene) window.PetVillageEconomyScene = {
     mount(options) {
@@ -4296,4 +4298,60 @@ test('late rename completion cannot clear a new owner name draft or rebuild its 
   pending.resolve(); f.control.pending = null; await opening; await flush();
   const nextInput = target.querySelector('.ipg-pet-settings input'), root = target.children[0]; nextInput.value = '新しい下書き'; nextInput.emit('input');
   await flush(); assert.equal(target.children[0], root); assert.equal(nextInput.value, '新しい下書き'); assert.equal(f.store.getState().pet.name, '別の子'); assert.ok(presented.every(text => !text.includes('前の子の名前'))); f.ui.close();
+});
+
+async function riverFixture(config={}) { return fixture({species:'lilac',developerPreview:false,startAtVillage:true,legacyCarePreview:false,rendererMode:'ready',townScene:true,...config}); }
+async function walkToRiver(f) {
+ const view=f.host.querySelector('.ipg-town-viewport'),scene=f.townScenes.at(-1);scene.hit=Fishing.site().position;
+ view.emit('pointerdown',{pointerId:91,button:0,isPrimary:true,clientX:100,clientY:100});
+ view.emit('pointerup',{pointerId:91,button:0,isPrimary:true,clientX:100,clientY:100});
+ for(let i=0;i<260&&f.focusButton('river-fishing-cast').disabled;i++)await f.frame(50);
+ assert.equal(f.focusButton('river-fishing-cast').disabled,false,'actual walking engine reaches legal bank');
+ await f.click(f.focusButton('river-fishing-open'));
+}
+test('river fishing stays near-only, credits a collectible only after bite and durable reel confirmation, and keeps old economy',async()=>{
+ const f=await riverFixture(),before=f.saved();assert.equal(f.focusButton('river-fishing-cast').disabled,true);
+ await walkToRiver(f);await f.click(f.focusButton('river-fishing-cast'));const cast=f.saved();
+ assert.ok(cast.riverFishing.active);assert.equal(cast.riverFishing.catches.river_silverfish,0);assert.equal(f.focusButton('river-fishing-reel').disabled,true);
+ assert.equal(f.focusButton('river-fishing-open').hidden,true,'open fishing panel removes duplicate floating toggle so it cannot cover the bobber');assert.equal(f.host.querySelector('.ipg-fishing-panel').hidden,false);
+ f.advance(Fishing.WAIT);await f.fireTimers();assert.equal(f.focusButton('river-fishing-reel').disabled,false);
+ const old=f.focusButton('river-fishing-reel'),writes=f.writes.length;f.control.pending=deferred();await f.click(old);old.emit('click');await flush();
+ assert.deepEqual(f.saved(),cast);assert.equal(f.focusButton('river-fishing-reel').disabled,true);
+ f.control.pending.resolve();f.control.pending=null;await flush();assert.equal(f.saved().riverFishing.catches.river_silverfish,1);assert.equal(f.writes.length,writes+1);
+ for(const key of ['pet','coins','inventory','care','wardrobe','decorations','villageLife'])assert.deepEqual(f.saved()[key],before[key],key);
+ assert.match(f.host.textContent,/保存しました/);assert.equal(f.townScenes.at(-1).fishing.phase,'caught');f.ui.close();
+});
+for(const mode of ['false','throw'])test('river '+mode+' persistence denial preserves pending fish and enables one deliberate retry',async()=>{
+ const f=await riverFixture();await walkToRiver(f);await f.click(f.focusButton('river-fishing-cast'));f.advance(Fishing.WAIT);await f.fireTimers();const raw=f.data.get(Core.KEY),writes=f.writes.length;
+ f.control.outcome=mode;await f.click(f.focusButton('river-fishing-reel'));assert.equal(f.data.get(Core.KEY),raw);assert.equal(f.writes.length,writes);assert.equal(f.saved().riverFishing.catches.river_silverfish,0);
+ f.control.outcome='ok';await f.click(f.focusButton('river-fishing-reel'));assert.equal(f.saved().riverFishing.catches.river_silverfish,1);f.ui.close();
+});
+test('moving away cancels a cast, and detached reel handlers cannot credit a fish after closing/reopening',async()=>{
+ const f=await riverFixture();await walkToRiver(f);await f.click(f.focusButton('river-fishing-cast'));const old=f.focusButton('river-fishing-reel'),view=f.host.querySelector('.ipg-town-viewport');
+ f.townScenes.at(-1).hit={x:2100,y:1500};view.emit('pointerdown',{pointerId:92,button:0,clientX:100,clientY:100});view.emit('pointerup',{pointerId:92,button:0,clientX:100,clientY:100});
+ for(let i=0;i<30&&f.saved().riverFishing.active;i++)await f.frame(50);
+ assert.equal(f.saved().riverFishing.active,null);assert.equal(f.saved().riverFishing.catches.river_silverfish,0);
+ const raw=f.data.get(Core.KEY);await f.ui.close();f.advance(3000);old.emit('click');await f.fireTimers();await f.ui.open();await flush();assert.equal(f.data.get(Core.KEY),raw);f.ui.close();
+});
+test('reopening a saved cast does not auto-catch and gives an explicit cancel action; old timers never write',async()=>{
+ const f=await riverFixture();await walkToRiver(f);await f.click(f.focusButton('river-fishing-cast'));const raw=f.data.get(Core.KEY),id=f.saved().riverFishing.active.id;
+ await f.ui.close();f.advance(Fishing.WAIT);await f.fireTimers();assert.equal(f.data.get(Core.KEY),raw);
+ await f.ui.open();await flush();assert.equal(f.saved().riverFishing.active.id,id);assert.equal(f.saved().riverFishing.catches.river_silverfish,0);
+ await f.click(f.focusButton('river-fishing-open'));assert.equal(f.focusButton('river-fishing-cancel').disabled,false);await f.click(f.focusButton('river-fishing-cancel'));assert.equal(f.saved().riverFishing.active,null);f.ui.close();
+});
+
+test('fallback keeps explicit cancellation of a previously saved cast available without 3D or a new reward',async()=>{
+ const f=await riverFixture();await walkToRiver(f);await f.click(f.focusButton('river-fishing-cast'));const raw=f.saved();
+ f.townScenes.at(-1).fail();await flush();assert.equal(f.host.querySelector('.ipg-town-viewport').dataset.sceneState,'fallback');
+ assert.equal(f.focusButton('river-fishing-open').disabled,false);assert.equal(f.focusButton('river-fishing-reel').disabled,true);assert.equal(f.focusButton('river-fishing-cancel').disabled,false);
+ await f.click(f.focusButton('river-fishing-cancel'));assert.equal(f.saved().riverFishing.active,null);assert.equal(f.saved().riverFishing.catches.river_silverfish,0);assert.deepEqual(f.saved().inventory,raw.inventory);f.ui.close();
+});
+
+test('fishing aria-live status remains unchanged across waiting ticks and announces the bite boundary once',async()=>{
+ const f=await riverFixture();await walkToRiver(f);await f.click(f.focusButton('river-fishing-cast'));
+ const status=f.host.querySelector('.ipg-fishing-status'),toggle=f.focusButton('river-fishing-open'),descriptor=Object.getOwnPropertyDescriptor(Element.prototype,'textContent');let changes=0,labels=0;
+ Object.defineProperty(status,'textContent',{get(){return descriptor.get.call(this);},set(v){changes++;descriptor.set.call(this,v);}});
+ Object.defineProperty(toggle,'textContent',{get(){return descriptor.get.call(this);},set(v){labels++;descriptor.set.call(this,v);}});
+ for(let i=0;i<3;i++){f.advance(250);await f.fireTimers();}assert.equal(changes,0);assert.equal(labels,0);
+ f.advance(Fishing.WAIT);await f.fireTimers();assert.equal(changes,1);assert.match(status.textContent,/食いついた/);assert.equal(labels,0);f.ui.close();
 });

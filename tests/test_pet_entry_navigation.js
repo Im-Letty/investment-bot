@@ -64,7 +64,7 @@ function fixture({ origin = 'morning', preloaded = true, hydration, mounting } =
     render() { visibleRenders.push(!pane.hidden); },
     refreshVisuals(target) { enhancements.push(target); }
   };
-  if (preloaded) { window.PetVillageEconomy = {}; window.PetShopLayout = {}; window.PetTownWalk = {}; window.PetVillageEconomyScene = {mount(){}}; window.PetGameCore = {}; window.PetCozyRoom = {mount(){}}; window.IndependentPetGame = ui; }
+  if (preloaded) { window.PetVillageEconomy = {}; window.PetShopLayout = {}; window.PetTownWalk = {}; window.PetRiverFishing = {}; window.PetVillageEconomyScene = {mount(){}}; window.PetGameCore = {}; window.PetCozyRoom = {mount(){}}; window.IndependentPetGame = ui; }
   const context = vm.createContext({ document, window, Promise, nav: navEl, ms: sourceView,
     setTimeout(fn, delay) { const id = ++timerId; timers.set(id, { fn, delay }); return id; }, clearTimeout(id) { timers.delete(id); } });
   function click(button) {
@@ -95,6 +95,8 @@ function fixture({ origin = 'morning', preloaded = true, hydration, mounting } =
       if(!window.PetVillageEconomy){window.PetVillageEconomy={};assets.findLast(x=>x.src.includes('/pet-village-economy.js')).onload();}
       if(!window.PetShopLayout){window.PetShopLayout={};assets.findLast(x=>x.src.includes('/pet-shop-layout.js')).onload();}
       if(!window.PetTownWalk){window.PetTownWalk={};assets.findLast(x=>x.src.includes('/pet-town-walk.js')).onload();}
+      await flush();
+      if(!window.PetRiverFishing){window.PetRiverFishing={};assets.findLast(x=>x.src.includes('/pet-river-fishing.js')).onload();}
       await flush();
       if(!window.PetVillageEconomyScene){window.PetVillageEconomyScene={mount(){}};assets.findLast(x=>x.src.includes('/pet-village-economy-scene.js')).onload();}
       await flush();
@@ -143,7 +145,7 @@ test('repeated taps share assets/mount and never replay navigation repeatedly', 
   f.click('pet'); f.click('pet'); const pending = f.window.openPetTab(); assert.equal(f.assets.length, 7);
   await f.loadAssets(); assert.equal(f.counts().mounts, 1); assert.equal(f.pane.hidden, true);
   mounting.resolve(true); assert.equal(await pending, true); f.click('pet'); await flush();
-  assert.equal(f.assets.length, 9); assert.equal(f.counts().mounts, 1); assert.deepEqual(f.commits, ['実ゲーム']);
+  assert.equal(f.assets.length, 10); assert.equal(f.counts().mounts, 1); assert.deepEqual(f.commits, ['実ゲーム']);
 });
 test('other navigation cancels downloads; late assets cannot mount or steal the selected route', async () => {
   const f = fixture({ preloaded: false }); f.click('pet'); const pending = f.window.openPetTab();

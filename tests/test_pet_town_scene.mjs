@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import * as THREE from '../static/vendor/three-0.160.1.module.js';
 import Scene from '../static/pet-town-scene.js';
 import Town from '../static/pet-town-walk.js';
+import Fishing from '../static/pet-river-fishing.js';
 import FrameFit from '../static/pet-frame-fit.js';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
@@ -297,4 +298,32 @@ test('a reduced-motion facing paint at t64 replaces the t50 source in that same 
  assert.equal(renderer.calls.at(-1).sourceVersion,renderer.uploads.at(-1).version,'this world draw sees the new facing rather than the t50 texture');
  assert.equal(renderer.calls.length,initialDraws+1);assert.equal(f.frames.size,0,'a synchronous facing upload must not schedule a redundant or continuous world loop');
  f.frame(1000);assert.equal(renderer.calls.length,initialDraws+1);assert.equal(facingPackets.length,1);assert.equal(f.frames.size,0);
+});
+
+test('manual fishing shows holder geometry, idle water-facing returns to manual heading, and dedicated GPU resources release',async()=>{
+ const positions=[],site=Fishing.site(),f=await fixture({position:site.position,onFacing:frame=>positions.push(frame)});
+ try{
+  assert.equal(f.controller.setFrame(f.source),true);f.controller.setFishing({phase:'waiting'});f.frame(50);
+  const scene=f.renderers[0].calls.at(-1).scene,rod=scene.getObjectByName('fishing-rod'),holder=scene.getObjectByName('river-rod-holder');
+  assert.equal(rod.visible,true);assert.equal(holder.visible,true);assert.equal(f.host.dataset.fishingPhase,'waiting');
+  const waterYaw=Math.atan2(site.target.x-site.position.x,site.target.y-site.position.y),actual=JSON.parse(f.host.dataset.townCamera).actualYaw;
+  assert.ok(Math.abs(positions.at(-1).yawDeg-Scene.facingFrame(waterYaw,actual,false,0).yawDeg)<1e-6);
+  f.controller.setFishing(null);f.frame(50);assert.ok(Math.abs(positions.at(-1).yawDeg)<1e-6,'ordinary heading is preserved rather than overwritten by casting');
+  const target=f.renderers[0].calls.at(-1).scene.getObjectByName('manual-river-fishing'),geometries=new Set(),materials=new Set();
+  target.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.material)materials.add(o.material);});
+  let g=0,m=0;geometries.forEach(x=>x.addEventListener('dispose',()=>g++));materials.forEach(x=>x.addEventListener('dispose',()=>m++));
+  f.controller.destroy();f.controller.destroy();assert.equal(g,geometries.size);assert.equal(m,materials.size);
+ }finally{f.controller.destroy();}
+});
+
+test('portrait fishing frames both visible pet and float, without altering saved user camera or player position',async()=>{
+ const pos={x:2340.29,y:1545.59},f=await fixture({position:pos,camera:{yaw:.18,pitch:Math.PI/6,distance:8}});
+ try{
+  f.controller.setFrame(f.source);const before=f.controller.camera();f.controller.setFishing({phase:'waiting'});f.frame(50);
+  const r=f.renderers[0].calls.at(-1),sprite=r.scene.getObjectByName('current-pet-2d-frame'),bobber=r.scene.getObjectByName('fishing-float');
+  const a=new THREE.Vector3().setFromMatrixPosition(sprite.matrixWorld).project(r.camera),b=new THREE.Vector3().setFromMatrixPosition(bobber.matrixWorld).project(r.camera);
+  assert.ok(Math.abs(a.x)<.96&&Math.abs(b.x)<.96,'both subjects stay inside the portrait viewport');assert.ok(Math.abs(b.y)<.96);
+  assert.deepEqual(f.controller.camera(),before);assert.equal(JSON.parse(f.host.dataset.townCamera).activityFraming,true);
+  f.controller.setFishing(null);f.frame(50);assert.equal(JSON.parse(f.host.dataset.townCamera).activityFraming,false);assert.deepEqual(f.controller.camera(),before);
+ }finally{f.controller.destroy();}
 });
