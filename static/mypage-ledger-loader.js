@@ -243,7 +243,7 @@
     hidePortfolioNote();
     var old=tabs.querySelector('.kb-tab');if(old)old.parentNode.removeChild(old);
     var top=document.createElement('div');top.className='mp-toptabs';
-    personal=document.createElement('div');personal.className='mp-toptab on';personal.textContent='マイページ';
+    personal=document.createElement('div');personal.className='mp-toptab on';personal.textContent='ポートフォリオ';
     ledger=document.createElement('div');ledger.className='mp-toptab';ledger.textContent='家計簿';
     top.appendChild(personal);top.appendChild(ledger);page.insertBefore(top,tabs);
     personal.addEventListener('click',function(){show(0);});
