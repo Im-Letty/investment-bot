@@ -31,7 +31,7 @@ async function fixture(opts={}){
  class Renderer {
   constructor(){this.domElement=new Element(doc,'CANVAS');this.shadowMap={};this.calls=[];this.uploads=[];this.renderLists={dispose:()=>{this.listsDisposed=true;}};renderers.push(this);}
   setPixelRatio(n){this.ratio=n;}setSize(w,h){this.domElement.width=w;this.domElement.height=h;}
-  initTexture(t){if(this.failUpload)throw Error('synthetic failure');this.uploads.push(t.version);}
+  initTexture(t){if(this.failUpload)throw Error('synthetic failure');this.allocations=this.allocations||new WeakMap();const size=[t.image.naturalWidth||t.image.width,t.image.naturalHeight||t.image.height],allocated=this.allocations.get(t);if(allocated&&(allocated[0]!==size[0]||allocated[1]!==size[1]))throw Error('synthetic immutable GPU texture dimensions changed');this.allocations.set(t,size);this.uploads.push(t.version);}
   render(scene,camera){if(this.fail)throw Error('synthetic failure');scene.updateMatrixWorld(true);camera.updateMatrixWorld(true);this.calls.push({scene,camera,sourceVersion:scene.getObjectByName('canonical-shop-pet-frame')?.material.map?.version});}
   dispose(){this.disposed=true;}forceContextLoss(){this.lost=true;}
  }
@@ -92,8 +92,8 @@ test('shop contact metadata and resized dimensions follow the same canonical can
  const f=await fixture();try{
   let scans=0;const context=f.source.getContext();f.source.getContext=()=>{scans++;return context;};
   assert.equal(f.controller.setFrame(f.source),true);const r=f.renderers[0],sprite=r.calls.at(-1).scene.getObjectByName('canonical-shop-pet-frame'),texture=sprite.material.map,uploads=r.uploads.length;
-  f.time(1);f.source.width=32;assert.equal(f.controller.setFrame(f.source,{anchor:.25}),true);assert.equal(sprite.center.y,.25);assert.equal(sprite.scale.x,3.3);assert.equal(sprite.scale.y,1.65);assert.equal(r.uploads.length,uploads+1);assert.equal(sprite.material.map,texture);
-  f.time(2);assert.equal(f.controller.setFrame(f.source,{anchor:.4}),true);assert.equal(sprite.center.y,.4);
+  f.time(1);f.source.width=32;assert.equal(f.controller.setFrame(f.source,{anchor:.25}),true);assert.equal(sprite.center.y,.25);assert.equal(sprite.scale.x,3.3);assert.equal(sprite.scale.y,1.65);assert.equal(r.uploads.length,uploads+1);assert.notEqual(sprite.material.map,texture);const resizedTexture=sprite.material.map;
+  f.time(2);assert.equal(f.controller.setFrame(f.source,{anchor:.4}),true);assert.equal(sprite.center.y,.4);assert.equal(sprite.material.map,resizedTexture);
   f.time(40);assert.equal(f.controller.setFrame(f.source),true);assert.equal(sprite.center.y,.4);assert.equal(scans,1,'a normal animated frame retains the original ground reference');
  }finally{f.controller.destroy();}
 });
@@ -173,4 +173,27 @@ test('a pointer release after a walk gate closes cannot queue a later route or c
 test('blur and hidden lifecycles discard manual travel and reset partial doorway exit intent',async()=>{
  for(const reason of ['blur','pagehide','visibilitychange']){const f=await fixture({camera:{yaw:0}});f.controller.setFrame(f.source);f.key('w');for(let i=0;i<5;i++)f.frame();const paused=f.controller.position();if(reason==='visibilitychange'){f.doc.hidden=true;f.doc.emit(reason);f.doc.hidden=false;f.doc.emit(reason);}else f.win.emit(reason);f.win.emit('focus');f.win.emit('keydown',{key:'w',target:f.stage,repeat:true});for(let i=0;i<20;i++)f.frame();assert.deepEqual(f.controller.position(),paused);assert.equal(f.frames.size,0);f.controller.destroy();}
  const f=await fixture({camera:{yaw:0},position:{x:0,z:3.5}});f.controller.setFrame(f.source);f.key('s');for(let i=0;i<5;i++)f.frame();assert.equal(f.exits,0);f.walkAllow(false);f.frame();f.walkAllow(true);f.win.emit('keydown',{key:'s',target:f.stage,repeat:true});for(let i=0;i<10;i++)f.frame();assert.equal(f.exits,0);f.key('s');for(let i=0;i<5;i++)f.frame();assert.equal(f.exits,0,'the old partial push must not shorten a fresh exit');for(let i=0;i<10;i++)f.frame();assert.equal(f.exits,1);for(let i=0;i<10;i++)f.frame();assert.equal(f.exits,1);f.controller.destroy();
+});
+
+test('intrinsic shrink/grow/aspect changes reallocate immutable GPU textures exactly once; same-size metadata and rejected frames keep allocation',async()=>{
+ const f=await fixture(),textures=[],disposed=new Map();
+ try{
+  assert.equal(f.controller.setFrame(f.source,{anchor:.2}),true);
+  const r=f.renderers[0],sprite=r.calls.at(-1).scene.getObjectByName('canonical-shop-pet-frame');
+  function track(t){textures.push(t);disposed.set(t,0);t.addEventListener('dispose',()=>disposed.set(t,disposed.get(t)+1));}
+  track(sprite.material.map);
+  for(const [width,height]of [[8,8],[32,16],[64,32],[16,32],[64,64]]){
+   const old=sprite.material.map;f.source.width=width;f.source.height=height;f.time(100+textures.length);
+   assert.equal(f.controller.setFrame(f.source,{anchor:.2}),true);
+   assert.notEqual(sprite.material.map,old);assert.equal(disposed.get(old),1);track(sprite.material.map);
+   assert.equal(sprite.scale.x,1.65*width/height);assert.equal(sprite.center.y,.2);
+   const current=sprite.material.map;assert.equal(f.controller.setFrame(f.source,{anchor:.3}),true);assert.equal(sprite.material.map,current);
+   f.time(200+textures.length);assert.equal(f.controller.setFrame(f.source),true);assert.equal(sprite.material.map,current);
+  }
+  const current=sprite.material.map,count=textures.length,uploads=r.uploads.length;
+  f.source.width=0;assert.equal(f.controller.setFrame(f.source,{anchor:.4}),false);assert.equal(sprite.material.map,current);
+  f.source.width=64;assert.equal(f.controller.setFrame(f.source,{anchor:NaN}),false);assert.equal(sprite.material.map,current);assert.equal(r.uploads.length,uploads);
+  assert.equal(textures.length,count);assert.deepEqual(f.failures,[]);
+  f.controller.destroy();f.controller.destroy();for(const t of textures)assert.equal(disposed.get(t),1,'each retired/current texture is disposed once');
+ }finally{f.controller.destroy();}
 });

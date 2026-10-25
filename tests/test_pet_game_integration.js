@@ -654,7 +654,7 @@ test('main game does not load a removed minigame runtime and updates only change
   for(const asset of ['pet-town-walk.js','pet-town-walk.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-reveal1'),asset+' first-frame reveal pin');
   for(const asset of ['pet-cozy-room.js','pet-home-interior.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-life1'),asset+' village-life pin');
   for(const asset of ['pet-game-core.js','pet-village-life.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-fishing1'),asset+' fishing pin');
-  assert.ok(html.includes('/static/pet-game.js?v=20261025-fishing1'),'integrated manual-control UI retains fit1 renderer contract');
+  assert.ok(html.includes('/static/pet-game.js?v=20261025-resize1'),'integrated manual-control UI retains fit1 renderer contract');
   assert.equal(loader.includes('/static/pet-frame-fit.js?'),false,'visual-only frame contract stays out of game boot');
   assert.ok(html.includes('/static/pet-lilac-motion.js?v=20261025-harmony1'),'unchanged character renderer pin is preserved');
   assert.ok(html.includes('/static/pet-cozy-room.css?v=20261024-cozy-room1'),'unchanged room asset pin is preserved');
@@ -666,4 +666,11 @@ test('fishing is a required lightweight dependency after walking and before core
  f.townLoaded();await flush();assert.ok(f.asset('pet-river-fishing'));assert.equal(f.asset('pet-game-core'),undefined);
  f.fishingLoaded();await flush();assert.ok(f.asset('pet-game-core'));f.coreLoaded();assert.equal(await a,true);assert.equal(f.mounts,1);
  assert.equal(f.scripts.filter(x=>x.src.includes('/pet-river-fishing.js?')).length,1);
+});
+
+test('resize repair refreshes only the three borrowed-frame consumer cache revisions, leaving source art/rig/core pins untouched',()=>{
+ const game=fs.readFileSync(path.join(root,'static/pet-game.js'),'utf8');
+ for(const name of ['pet-town-scene.js','pet-home-interior.js','pet-shop-interior.js'])assert.ok(game.includes('/static/'+name+'?v=20261025-resize1'),name);
+ assert.ok(html.includes('/static/pet-game-core.js?v=20261025-fishing1'));assert.ok(html.includes('/static/pet-lilac-motion.js?v=20261025-harmony1'));
+ assert.equal(loader.includes('/static/pet-frame-fit.js?'),false);
 });
