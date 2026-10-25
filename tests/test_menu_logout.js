@@ -110,11 +110,11 @@ function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true,col
   };
 }
 
-test('logout exists once directly before inline language and colors, without the old personal-page injector',()=>{
+test('logout exists once directly after inline language and colors, without the old personal-page injector',()=>{
   const h=fixture({user:{id:'synthetic-member',is_anonymous:false}}),group=h.group();
-  assert.ok(group);assert.equal(group.parentElement.className,'knAccPanel kn-menu-content');const order=group.parentElement.children;assert.equal(order.at(-3),group);assert.equal(order.at(-2),h.languageGrid.parentElement);assert.equal(order.at(-1),h.colors);
+  assert.ok(group);assert.equal(group.parentElement.className,'knAccPanel kn-menu-content');const order=group.parentElement.children;assert.equal(order.at(-3),h.languageGrid.parentElement);assert.equal(order.at(-2),h.colors);assert.equal(order.at(-1),group);
   assert.equal(h.nav.querySelectorAll('[data-menu-page="logout"]').length,1);assert.equal(h.button('logout').textContent,'ログアウト');assert.equal(group.hidden,false);
-  const html=read('index.html');assert.doesNotMatch(html,/ensureLogout|knLogoutBtn/);assert.match(html,/menu-a\.js\?v=20261025-language-inline1/);assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
+  const html=read('index.html');assert.doesNotMatch(html,/ensureLogout|knLogoutBtn/);assert.match(html,/menu-a\.js\?v=20261026-logout-after-color1/);assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
 });
 test('signed-out and guest users cannot invoke logout even through a programmatic menu click',()=>{
   for(const user of [null,undefined,{id:'synthetic-guest',is_anonymous:true}]){
@@ -255,14 +255,14 @@ test('an explicit close without navigation still restores the existing opener on
   assert.deepEqual(h.calls,[['close']]);
 });
 
-test('menu shows four language frames after logout with inline three-color controls directly below them',()=>{
+test('menu shows four language frames and colors with the existing logout group directly below colors',()=>{
   const h=fixture({user:{id:'synthetic-member'}}),panel=h.mounted[0];
   assert.equal(panel.className,'knAccPanel kn-menu-content');assert.equal(h.document.getElementById('knProfile').parentElement,panel);
   assert.deepEqual(panel.querySelectorAll('[data-menu-page]').map(n=>n.dataset.menuPage),['memo','guide','display','logout']);
   assert.equal(h.document.getElementById('knMenuView-display').hidden,true);assert.equal(h.document.getElementById('knMenuView-language'),null);assert.equal(h.button('language'),null);
   assert.equal(h.document.getElementById('knMenuView-color'),null);assert.equal(h.button('color'),null);
   const language=h.languageGrid.parentElement;assert.equal(language.className,'kn-menu-language');assert.equal(language.parentElement,panel);assert.equal(language.hidden,false);assert.equal(h.languageGrid.children.length,4);assert.equal(language.getAttribute('aria-labelledby'),'knMenuLanguageTitle');
-  assert.equal(panel.children.indexOf(language),panel.children.indexOf(h.group())+1);assert.equal(h.colors.parentElement,panel);assert.equal(panel.children.indexOf(h.colors),panel.children.indexOf(language)+1);
+  assert.equal(panel.children.indexOf(language),panel.children.indexOf(h.button('display'))+1);assert.equal(h.colors.parentElement,panel);assert.equal(panel.children.indexOf(h.colors),panel.children.indexOf(language)+1);assert.equal(panel.children.indexOf(h.group()),panel.children.indexOf(h.colors)+1);assert.equal(panel.children.at(-1),h.group());
   assert.equal(h.drawer.getAttribute('role'),'dialog');assert.equal(h.drawer.getAttribute('aria-modal'),'true');
   for(const key of ['account','kakeibo','saved','alert'])assert.equal(h.button(key),null);
   assert.equal(h.drawer.querySelector('[data-menu-style]'),null);
@@ -285,11 +285,11 @@ test('color, language and motion controls retain their original nodes and handle
   assert.equal(h.languageGrid.parentElement.className,'kn-menu-language');assert.equal(h.languageGrid.children.length,4);assert.deepEqual(h.languageGrid.children,h.originalLanguageButtons);
   h.activate('display');assert.equal(h.motion.parentElement,h.document.getElementById('knMenuView-display'));h.motion.click();assert.deepEqual(h.calls.at(-1),['motion']);
 });
-test('signed-out and guest menus always retain the four visible language buttons below the hidden logout group',()=>{
+test('signed-out and guest menus retain visible languages and colors before the hidden logout group',()=>{
   for(const user of [null,{id:'synthetic-guest',is_anonymous:true}]){
     const h=fixture({user}),section=h.languageGrid.parentElement,panel=h.mounted[0];
     assert.equal(h.group().hidden,true);assert.equal(section.hidden,false);assert.equal(section.getClientRects().length,1);assert.equal(h.languageGrid.getClientRects().length,1);
-    assert.equal(panel.children.indexOf(section),panel.children.indexOf(h.group())+1);assert.equal(panel.children.indexOf(h.colors),panel.children.indexOf(section)+1);
+    assert.equal(panel.children.indexOf(section),panel.children.indexOf(h.button('display'))+1);assert.equal(panel.children.indexOf(h.colors),panel.children.indexOf(section)+1);assert.equal(panel.children.indexOf(h.group()),panel.children.indexOf(h.colors)+1);
     assert.deepEqual(h.languageGrid.children,h.originalLanguageButtons);assert.deepEqual(h.languageGrid.children.map(b=>b.getAttribute('data-lang')),['ja','en','ko','zh']);
     assert.equal(h.button('language'),null);assert.equal(h.document.getElementById('knMenuView-language'),null);assert.deepEqual(h.calls,[]);
   }
@@ -361,11 +361,15 @@ test('preference navigation, drawer close and auth change close the color panel 
   h.drawer.classList.add('open');h.notifyDrawerState();plus.click();h.document.dispatch('knAuthChange');assert.equal(panel.hidden,true);assert.deepEqual(h.themeWrites,[]);
 });
 
-test('focus trap includes the visible color plane but excludes closed or negative-tabindex controls',()=>{
-  const h=fixture(),plus=h.document.getElementById('knMenuColorPlus');plus.click();const field=h.document.getElementById('knMenuColorSpectrum');assert.equal(h.document.activeElement,field);
+test('focus trap follows the reordered guest and member controls and excludes negative-tabindex controls',()=>{
+ for(const user of [null,{id:'synthetic-member'}]){
+  const h=fixture({user}),plus=h.document.getElementById('knMenuColorPlus');plus.click();const field=h.document.getElementById('knMenuColorSpectrum');assert.equal(h.document.activeElement,field);
   const excluded=h.node('button');excluded.tabIndex=-2;h.drawer.appendChild(excluded);
-  const controls=h.drawer.querySelectorAll('button,select,input,textarea,summary,a[href],[tabindex]').filter(n=>!n.disabled&&n.tabIndex>=0&&n.getClientRects().length);assert.ok(controls.includes(field));assert.ok(!controls.includes(excluded));assert.ok(!controls.includes(h.custom));assert.ok(!controls.includes(h.document.getElementById('knMenuColorTone')));
-  const last=controls.at(-1);last.focus();last.fire('keydown',{key:'Tab'});assert.equal(h.document.activeElement,controls[0]);
+  const controls=h.drawer.querySelectorAll('button,select,input,textarea,summary,a[href],[tabindex]').filter(n=>!n.disabled&&n.tabIndex>=0&&n.getClientRects().length);
+  assert.ok(controls.includes(field));assert.ok(!controls.includes(excluded));assert.ok(!controls.includes(h.custom));assert.ok(!controls.includes(h.document.getElementById('knMenuColorTone')));
+  const last=controls.at(-1);if(user)assert.equal(last,h.button('logout'));else assert.ok(!controls.includes(h.button('logout')));
+  last.focus();last.fire('keydown',{key:'Tab'});assert.equal(h.document.activeElement,controls[0]);assert.ok(!h.calls.some(call=>call[0]==='logout'));
+ }
 });
 
 test('language changes translate the inline caption, preset names and color plane controls',()=>{

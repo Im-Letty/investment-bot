@@ -133,7 +133,7 @@
     while(displayControls.firstChild)display.appendChild(displayControls.firstChild);
     var motion=document.getElementById('knHomeOrbitMotion');if(motion){motion.classList.add('kn-menu-motion');display.appendChild(motion);}
     var reset=document.createElement('button');reset.type='button';reset.className='kn-menu-reset';reset.dataset.menuReset='1';reset.dataset.menuCopy='reset';reset.textContent=text('reset');display.appendChild(reset);nav.appendChild(display);var displayTrigger=row('display');displayTrigger.setAttribute('aria-controls','knMenuView-display');viewTriggers.display=displayTrigger;panel.appendChild(displayTrigger);
-    var logout=group(['logout']);logout.id='knMenuLogoutGroup';logout.hidden=true;panel.appendChild(logout);
+    var logout=group(['logout']);logout.id='knMenuLogoutGroup';logout.hidden=true;
     var grid=drawer.querySelector('.lang-grid');if(grid){var language=document.createElement('section');language.className='kn-menu-language';language.setAttribute('aria-labelledby','knMenuLanguageTitle');var languageHeading=document.createElement('p');languageHeading.id='knMenuLanguageTitle';languageHeading.className='kn-menu-label';languageHeading.dataset.menuCopy='language';languageHeading.textContent=text('language');language.appendChild(languageHeading);language.appendChild(grid);panel.appendChild(language);}
     if(colors){
       panel.appendChild(colors);
@@ -146,6 +146,7 @@
         var unavailableText=document.createElement('p');unavailableText.className='kn-color-error';unavailableText.dataset.menuCopy='colorUnavailable';unavailableText.textContent=text('colorUnavailable');colors.appendChild(unavailableText);
       }
     }
+    panel.appendChild(logout);
     drawer.querySelectorAll(':scope > .drawer-section-label,:scope > .drawer-color-wrap,:scope > .drawer-footer').forEach(function(n){n.remove();});
     var oldSettings=document.getElementById('drawerSettingsBtn');if(oldSettings)oldSettings.parentElement.remove();
     nav.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.dataset.menuPage)navigate(b.dataset.menuPage);if(b.dataset.menuSize&&window.dsSetSize)window.dsSetSize(b.dataset.menuSize);if(b.dataset.menuStyle&&window._setUIStyle)window._setUIStyle(b.dataset.menuStyle);if(b.dataset.menuReset&&window.dsReset)window.dsReset();syncPreferences();});
