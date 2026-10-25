@@ -95,7 +95,7 @@
   function loadSeasons() {
     var current = Seasons || globalThis.PetJapanSeasons;
     if (current && typeof current.watch === 'function') { Seasons = current; return Promise.resolve(current); }
-    if (!seasonsLoading) seasonsLoading = import('/static/pet-japan-seasons.js?v=20261025-seasons1').then(function () {
+    if (!seasonsLoading) seasonsLoading = import('/static/pet-japan-seasons.js?v=20261026-brightness1').then(function () {
       var api = globalThis.PetJapanSeasons;
       if (!api || typeof api.watch !== 'function') throw new Error('seasons_unavailable');
       Seasons = api; return api;
@@ -498,7 +498,7 @@
     // A clear finite village needs no white fog wash over the character's colors.
     scene.background = new THREE.Color('#cbe7e8'); scene.fog = null;
     setSeason(seasonKey || 'summer');
-    scene.add(new THREE.HemisphereLight('#f5f8ff', '#90a77e', 1.45));
+    scene.add(new THREE.HemisphereLight('#f5f8ff', '#bbc8a5', 1.5));
     var sun = new THREE.DirectionalLight('#fff8ed', 2.2); sun.position.set(-7, 12, 8); sun.castShadow = true; sun.shadow.mapSize.set(512, 512); sun.shadow.radius = 3;
     Object.assign(sun.shadow.camera, { left: -16, right: 16, top: 12, bottom: -12, near: .1, far: 45 }); sun.shadow.normalBias = .04; scene.add(sun);
     // Batch repeated primitives by material and neighborhood. Keep the original

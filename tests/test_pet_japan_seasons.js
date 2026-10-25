@@ -47,3 +47,23 @@ test('hidden/disabled clocks wait for a valid resumed value; stale callbacks can
  f.set(at('2026-11-30T15:00:00Z'));f.notify();assert.equal(f.changes.at(-1).key,'winter');
  const old=[...f.timers.values()][0].fn;f.watcher.destroy();f.watcher.destroy();f.set(at('2027-03-01T15:00:00Z'));old();assert.equal(f.timers.size,0);assert.equal(f.changes.length,2);assert.equal(f.removed,1);
 });
+
+test('daylight palettes lift the former shaded midtones without whitening away four seasonal hues',()=>{
+ const legacy={
+  spring:{ground:'#b8d59a',foliage:['#82af78','#a7c98c','#c2db9f','#91b880']},
+  summer:{ground:'#a4c778',foliage:['#6e9e63','#91b96f','#acce88','#7baa69']},
+  autumn:{ground:'#c8b981',foliage:['#a77951','#c59457','#d5ad69','#8f9e66']},
+  winter:{ground:'#dae2d2',foliage:['#78998a','#98b4a1','#b0c6b3','#88a58e']}
+ };
+ function rgb(hex){return [1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)/255);}
+ function luminance(hex){return rgb(hex).map(c=>c<=.04045?c/12.92:((c+.055)/1.055)**2.4).reduce((s,c,i)=>s+c*[.2126,.7152,.0722][i],0);}
+ for(const [key,old] of Object.entries(legacy)){
+  const p=Seasons.profile(key),gain=luminance(p.ground)-luminance(old.ground);
+  assert.ok(gain>.015&&gain<.20,key+' ground lifts moderately rather than white-clipping');
+  const channels=rgb(p.ground);assert.ok(Math.max(...channels)<.93,key+' keeps a colored ground');
+  assert.ok(Math.max(...channels)-Math.min(...channels)>.035,key+' keeps seasonal chroma');
+  p.foliage.forEach((color,i)=>{const delta=luminance(color)-luminance(old.foliage[i]);assert.ok(delta>.02&&delta<.24,key+' leaf '+i+' remains a lighter midtone');});
+ }
+ assert.ok(rgb(Seasons.profile('summer').ground)[1]>rgb(Seasons.profile('summer').ground)[0],'summer stays green');
+ assert.ok(rgb(Seasons.profile('autumn').ground)[0]>rgb(Seasons.profile('autumn').ground)[1],'autumn stays warm');
+});

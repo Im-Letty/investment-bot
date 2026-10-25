@@ -439,3 +439,18 @@ test('botanical revision has closed pointed leaves, visible curved branches and 
   assert.equal(m.styleLimits.surfaceTextures,6);assert.equal(m.styleLimits.surfaceTextureSize,128);
  }finally{m.dispose();}
 });
+
+test('daylight fill lifts shadow-facing surfaces with the same two lights and retains authored material colors',()=>{
+ const m=Scene.buildWorld(THREE,Town.createWorld(),{},null,textureDocument(),'autumn');
+ try{
+  const lights=m.scene.children.filter(o=>o.isLight),fill=lights.find(o=>o.isHemisphereLight),sun=lights.find(o=>o.isDirectionalLight);
+  const luma=c=>.2126*c.r+.7152*c.g+.0722*c.b,old=new THREE.Color('#90a77e');
+  assert.equal(lights.length,2);assert.ok(luma(fill.groundColor)>luma(old)*1.3,'the lower hemisphere brightens dark sides');
+  assert.ok(luma(fill.groundColor)<.7,'fill retains shade instead of becoming white ambient');
+  assert.ok(fill.intensity>=1.45&&fill.intensity<=1.6);assert.equal(fill.color.getHexString(),'f5f8ff');assert.equal(sun.intensity,2.2);assert.equal(sun.color.getHexString(),'fff8ed');
+  for(const key of ['spring','summer','autumn','winter']){
+   m.setSeason(key);assert.deepEqual(m.scene.children.filter(o=>o.isLight),lights);assert.equal(m.scene.fog,null);
+   for(const material of m.materials)if(['wood','bark','plaster','ceramic','stone'].includes(material.userData.surfaceRole))assert.equal(material.color.getHex(),new THREE.Color(material.userData.baseColor).getHex(),'base finish is untouched');
+  }
+ }finally{m.dispose();}
+});
