@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "collection_id": "style-family-exploration-20261025",
+  "scope": "Static original style exploration gallery only",
+  "original_design_count": 3,
+  "source_originals_edited": false,
+  "cutout_ready": false,
+  "runtime_imports": false,
+  "cutout_quality_note": "輪郭の微細な色にじみは補修の確認待ちです。原画を未加工で展示し、着用・配置・食べる処理には接続していません。",
+  "fit_geometry_360_consumption_unlock_inventory_save_verified": false,
+  "game_prices_EXP_inventory_equipment_saved_data_changed": false,
+  "assets": [
+    {
+      "id": "nordic-atelier-dungaree-dress-v1",
+      "name": "北欧アトリエのサロペットドレス",
+      "category": "clothing",
+      "style_family": "nordic_textile_atelier",
+      "original_artwork_revision": "v1",
+      "image": "./assets/nordic-atelier-dungaree-dress-v1.png",
+      "sha256": "f481b03824bda9b57183908042a7390ac269c63a0966ad2e1e2024195c82977d",
+      "bytes": 2534403,
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "copied_without_retouch": true,
+      "status": "static_style_candidate",
+      "cutout_ready": false,
+      "runtime_imports": false,
+      "style_owner_adopted": false,
+      "fit_verified": false,
+      "geometry_verified": false,
+      "continuous_360_verified": false,
+      "motion_verified": false,
+      "hand_mouth_contact_verified": false,
+      "consumption_verified": false,
+      "unlock_verified": false,
+      "inventory_verified": false,
+      "save_restore_verified": false,
+      "production_game_registered": false
+    },
+    {
+      "id": "japandi-petal-low-table-v1",
+      "name": "花びらの低い木と陶器のテーブル",
+      "category": "interior",
+      "style_family": "warm_japandi",
+      "original_artwork_revision": "v1",
+      "image": "./assets/japandi-petal-low-table-v1.png",
+      "sha256": "9c1bc11d9453da40c188fb3127d594847fad22a2ac67f75cec48645882dc364b",
+      "bytes": 1036631,
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "copied_without_retouch": true,
+      "status": "static_style_candidate",
+      "cutout_ready": false,
+      "runtime_imports": false,
+      "style_owner_adopted": false,
+      "fit_verified": false,
+      "geometry_verified": false,
+      "continuous_360_verified": false,
+      "motion_verified": false,
+      "hand_mouth_contact_verified": false,
+      "consumption_verified": false,
+      "unlock_verified": false,
+      "inventory_verified": false,
+      "save_restore_verified": false,
+      "production_game_registered": false
+    },
+    {
+      "id": "pear-chestnut-patisserie-tart-v1",
+      "name": "洋梨と栗の小さな秋タルト",
+      "category": "food",
+      "style_family": "seasonal_patisserie",
+      "original_artwork_revision": "v1",
+      "image": "./assets/pear-chestnut-patisserie-tart-v1.png",
+      "sha256": "6f950cf1af9b307853f1fc75383a36d935cc427bf8993930cb48cc7edf036562",
+      "bytes": 2036127,
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "mode": "RGBA",
+      "alpha_extrema": [
+        0,
+        255
+      ],
+      "copied_without_retouch": true,
+      "status": "static_style_candidate",
+      "cutout_ready": false,
+      "runtime_imports": false,
+      "style_owner_adopted": false,
+      "fit_verified": false,
+      "geometry_verified": false,
+      "continuous_360_verified": false,
+      "motion_verified": false,
+      "hand_mouth_contact_verified": false,
+      "consumption_verified": false,
+      "unlock_verified": false,
+      "inventory_verified": false,
+      "save_restore_verified": false,
+      "production_game_registered": false
+    }
+  ]
+}
