@@ -3,8 +3,8 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const read=file=>fs.readFileSync(path.join(__dirname,'..',file),'utf8');
 
 // Execute the production drawer and confirmation code against synthetic DOM and auth objects.
-function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true}={}){
-  const calls=[],timers=[],observers=[],storage=new Map([['app_lang',language]]);let document,clock=0;
+function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true,colorModule=true,realColors=false,realLanguage=false,brandColor='#3da060',customColor=false,blockedColorStorage=false}={}){
+  const calls=[],timers=[],observers=[],themeWrites=[],entryColors=[],windowListeners=new Map(),storage=new Map([['app_lang',language],['userBrandColor',brandColor],['userBrandColorCustom',customColor?'1':'0']]);let document,clock=0;
   const dataKey=key=>key.slice(5).replace(/-([a-z])/g,(_,letter)=>letter.toUpperCase());
   function matches(node,selector){
     if(selector.includes(':has(')){const found=selector.match(/:has\(([^)]+)\)/);if(!found||!node.querySelector(found[1]))return false;selector=selector.replace(found[0],'');}
@@ -16,7 +16,8 @@ function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true}={}
     const tag=simple.match(/^[a-z][\w-]*/i);return !tag||node.tagName===tag[0].toLowerCase();
   }
   function node(tag){
-    const n={tagName:tag.toLowerCase(),parentElement:null,children:[],dataset:{},attrs:{},className:'',hidden:false,style:{removeProperty(){},setProperty(){}},listeners:new Map(),_text:'',_html:'',
+    const styles=new Map();
+    const n={tagName:tag.toLowerCase(),parentElement:null,children:[],dataset:{},attrs:{},className:'',hidden:false,style:{removeProperty(k){styles.delete(k);},setProperty(k,v){styles.set(k,String(v));},getPropertyValue(k){return styles.get(k)||'';}},listeners:new Map(),_text:'',_html:'',
       appendChild(child){child.remove();child.parentElement=this;this.children.push(child);return child;},
       insertBefore(child,before){child.remove();child.parentElement=this;const i=this.children.indexOf(before);this.children.splice(i<0?this.children.length:i,0,child);return child;},
       replaceChildren(...children){this.children.forEach(child=>child.parentElement=null);this.children=[];children.forEach(child=>this.appendChild(child));},
@@ -24,6 +25,8 @@ function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true}={}
       setAttribute(key,value){value=String(value);if(key==='id')this.id=value;else if(key==='class')this.className=value;else if(key==='hidden')this.hidden=true;else if(key.startsWith('data-'))this.dataset[dataKey(key)]=value;else this.attrs[key]=value;},
       getAttribute(key){if(key==='id')return this.id||null;if(key==='class')return this.className||null;if(key.startsWith('data-'))return this.dataset[dataKey(key)]??null;return this.attrs[key]??null;},
       hasAttribute(key){return this.getAttribute(key)!==null;},removeAttribute(key){delete this.attrs[key];},
+      toggleAttribute(key,force){const on=force===undefined?!this.hasAttribute(key):!!force;if(on)this.setAttribute(key,'');else this.removeAttribute(key);return on;},
+      contains(child){for(let el=child;el;el=el.parentElement)if(el===this)return true;return false;},
       querySelectorAll(selector){
         const results=[];const walk=parent=>parent.children.forEach(child=>{results.push(child);walk(child);});walk(this);
         return results.filter(child=>selector.split(',').some(part=>{
@@ -35,11 +38,13 @@ function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true}={}
       querySelector(selector){return this.querySelectorAll(selector)[0]||null;},
       closest(selector){for(let el=this;el;el=el.parentElement)if(matches(el,selector))return el;return null;},
       addEventListener(type,fn){if(!this.listeners.has(type))this.listeners.set(type,[]);this.listeners.get(type).push(fn);},
-      fire(type,event={}){const e={type,target:this,preventDefault(){},...event};if(type==='click'&&this.onclick)this.onclick(e);for(let el=this;el;el=el.parentElement)for(const fn of el.listeners.get(type)||[])fn(e);},
+      fire(type,event={}){const e={type,target:this,stopped:false,preventDefault(){},stopPropagation(){this.stopped=true;},...event};if(type==='click'&&this.onclick)this.onclick(e);for(let el=this;el;el=el.parentElement){e.currentTarget=el;for(const fn of el.listeners.get(type)||[])fn.call(el,e);if(e.stopped)break;}return e;},
       click(){this.fire('click');},scrollIntoView(options){calls.push(['scroll',this.id,options.behavior,options.block]);},focus(){document.activeElement=this;},getClientRects(){for(let el=this;el;el=el.parentElement)if(el.hidden)return [];return [{}];}
     };
-    n.classList={contains:name=>n.className.split(/\s+/).includes(name),add(...names){n.className=[...new Set([...n.className.split(/\s+/).filter(Boolean),...names])].join(' ');},remove(name){n.className=n.className.split(/\s+/).filter(n=>n!==name).join(' ');}};
+    n.classList={contains:name=>n.className.split(/\s+/).includes(name),add(...names){n.className=[...new Set([...n.className.split(/\s+/).filter(Boolean),...names])].join(' ');},remove(name){n.className=n.className.split(/\s+/).filter(n=>n!==name).join(' ');},toggle(name,on){if(on===undefined)on=!this.contains(name);if(on)this.add(name);else this.remove(name);return on;}};
     Object.defineProperties(n,{
+      ownerDocument:{get:()=>document},parentNode:{get:()=>n.parentElement},
+      tabIndex:{get:()=>n.attrs.tabindex===undefined?(['button','input','select','textarea','summary'].includes(n.tagName)?0:-1):Number(n.attrs.tabindex),set:value=>{n.attrs.tabindex=String(value);}},
       firstChild:{get:()=>n.children[0]||null},isConnected:{get:()=>{let el=n;while(el.parentElement)el=el.parentElement;return el===document?.documentElement;}},
       textContent:{get:()=>n._text+n.children.map(child=>child.textContent).join(''),set:value=>{n._text=String(value);n.replaceChildren();}},
       innerHTML:{get:()=>n._html,set:value=>{
@@ -54,13 +59,15 @@ function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true}={}
   }
   const root=node('html'),body=node('body');root.appendChild(body);
   document={readyState:'complete',documentElement:root,body,activeElement:null,listeners:new Map(),createElement:node,getElementById:id=>root.querySelector('#'+id),querySelector:selector=>root.querySelector(selector),querySelectorAll:selector=>root.querySelectorAll(selector),
-    addEventListener(type,fn){if(!this.listeners.has(type))this.listeners.set(type,[]);this.listeners.get(type).push(fn);},dispatch(type){for(const fn of this.listeners.get(type)||[])fn({type});}};
+    addEventListener(type,fn){if(!this.listeners.has(type))this.listeners.set(type,[]);this.listeners.get(type).push(fn);},dispatch(type,event={}){for(const fn of this.listeners.get(type)||[])fn({type,...event});},dispatchEvent(event){this.dispatch(event.type,event);}};
   function add(tag,attrs={},parent=body){const el=node(tag);Object.entries(attrs).forEach(([key,value])=>el.setAttribute(key,value));parent.appendChild(el);return el;}
   const drawer=add('aside',{id:'sideDrawer',class:'open'}),nav=add('nav',{id:'drawerNav'},drawer);
-  const languageGrid=add('div',{class:'lang-grid'},drawer);for(const language of ['ja','en','ko','zh'])add('button',{class:'lang-btn','data-lang':language},languageGrid).textContent=language;
+  const languageGrid=add('div',{class:'lang-grid'},drawer);for(const [language,label]of [['ja','🇯🇵 日本語'],['en','🇬🇧 English'],['ko','🇰🇷 한국어'],['zh','🇨🇳 中文']])add('button',{class:'lang-btn','data-lang':language},languageGrid).textContent=label;
+  const originalLanguageButtons=languageGrid.children.slice();
   const colors=add('div',{class:'drawer-color-wrap'},drawer),presets=add('div',{class:'drawer-color-presets'},colors);
   for(const [name,color]of [['グリーン','#3da060'],['ピンク','#e91e63'],['イエロー','#b2923a'],['ブルー','#2196f3']]){const b=add('button',{class:'drawer-color-preset','data-color':color},presets);b.title=name;b.onclick=()=>calls.push(['color',color]);}
   const custom=add('input',{type:'color',id:'drawerColorInput'},colors),colorReset=add('button',{id:'drawerColorReset'},colors);colorReset.onclick=()=>calls.push(['color-reset']);
+  custom.value=brandColor;root.toggleAttribute('data-custom-brand-color',customColor);
   const motion=add('button',{id:'knHomeOrbitMotion'},drawer);motion.onclick=()=>calls.push(['motion']);
   for(const id of ['knHomeAMenu','knFloatHam','hamburgerBtn'])add('button',{id});
   const mounted=[];
@@ -70,16 +77,29 @@ function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true}={}
   const mypage=add('div',{id:'myPageOv'});for(let i=0;i<2;i++)add('button',{class:'mp-toptab'},mypage).onclick=()=>calls.push(['mypage-tab',i]);
   add('button',{class:'mo-tab','data-i18n':'g2_mp_tab_memo'},mypage).onclick=()=>calls.push(['memo-tab']);
   const w={knUser:user,KNUserProfile:{mount(panel){const section=add('details',{id:'knProfile'},panel);add('summary',{},section).textContent='プロフィール';mounted.push(panel);return section;}},dsSetSize:value=>{storage.set('ui_fontscale',value);calls.push(['size',value]);},dsSetFont:value=>{storage.set('ui_font',value);calls.push(['font',value]);},dsReset:()=>calls.push(['reset']),closeDrawer:()=>{calls.push(['close']);drawer.classList.remove('open');},__knSetSub:value=>calls.push(['stock-view',value]),matchMedia:()=>({matches:false})};
+  w.document=document;document.defaultView=w;w.addEventListener=(type,fn)=>{if(!windowListeners.has(type))windowListeners.set(type,[]);windowListeners.get(type).push(fn);};
+  w.applyBrandColor=(hex,customSelection)=>{themeWrites.push([hex,customSelection]);custom.value=hex;root.toggleAttribute('data-custom-brand-color',customSelection);};
   w.knOpenMemo=()=>{calls.push(['open','memo']);if(mypageAllowed)mypage.classList.add('open');return mypageAllowed;};
   for(const [key,name]of Object.entries({openSimulatorSection:'sim',openSaved:'saved',openAlertSection:'alert',openBeginnerGuide:'guide'}))w[key]=()=>calls.push(['open',name]);
   if(logoutFlow)w.knLogoutFlow=()=>calls.push(['logout-flow']);
-  const context={window:w,document,localStorage:{getItem:key=>storage.get(key)||null},setTimeout:(fn,delay=0)=>{timers.push({fn,at:clock+delay,delay});return timers.length;},MutationObserver:class{constructor(fn){this.fn=fn;observers.push(this);}observe(target,options){this.target=target;this.options=options;}},console};
+  const context={window:w,document,localStorage:{getItem:key=>storage.get(key)||null,setItem(key,value){if(blockedColorStorage&&key.startsWith('userBrandColor'))throw Error('blocked');storage.set(key,String(value));}},setTimeout:(fn,delay=0)=>{timers.push({fn,at:clock+delay,delay});return timers.length;},MutationObserver:class{constructor(fn){this.fn=fn;observers.push(this);}observe(target,options){this.target=target;this.options=options;}},console};
+  if(realColors){
+    const html=read('index.html'),start=html.indexOf('function hexToRgb(hex){'),end=html.indexOf('loadBrandColor();',start);assert.ok(start>=0&&end>start);
+    vm.runInNewContext(html.slice(start,end),context);w.knApplyEntryColor=hex=>entryColors.push(hex);
+    const original=context.applyBrandColor;w.applyBrandColor=(hex,selected)=>{themeWrites.push([hex,selected]);return original(hex,selected);};context.initColorCustomizer();
+  }
+  if(realLanguage){
+    const html=read('index.html'),start=html.indexOf('  function applyLang(lang){'),end=html.indexOf('  // === Step 1: New translation keys',start);assert.ok(start>=0&&end>start);
+    context.I18N={ja:{},en:{},ko:{},zh:{}};context._lang=language;context.t=()=>undefined;context.CustomEvent=function(type,options){this.type=type;this.detail=options?.detail;};
+    vm.runInNewContext(html.slice(start,end),context);context.bindLangButtons();context.applyLang(language);
+  }
+  if(colorModule)vm.runInNewContext(read('static/menu-color-plane.js'),context);
   vm.runInNewContext(read('static/menu-a.js'),context);
   function flush(){for(let budget=20;timers.length;){assert.ok(budget-->0,'Unexpected repeated menu scheduling');timers.sort((a,b)=>a.at-b.at);const next=timers.shift();clock=Math.max(clock,next.at);next.fn();}}
   function advance(ms){const end=clock+ms;for(let budget=20;;){timers.sort((a,b)=>a.at-b.at);if(!timers.length||timers[0].at>end)break;assert.ok(budget-->0,'Unexpected repeated menu scheduling');const next=timers.shift();clock=next.at;next.fn();}clock=end;}
   function route(key){const b=node('button');b.dataset.menuPage=key;nav.appendChild(b);b.click();b.remove();}
   flush();
-  return {w,document,drawer,nav,calls,storage,flush,advance,route,now:()=>clock,pendingTimers:()=>timers.map(t=>t.delay),setMypageAllowed(value){mypageAllowed=value;},node,mounted,colors,languageGrid,motion,custom,colorReset,notifyDrawerState(){observers.find(o=>o.target===drawer).fn();},notifyNav(){observers.find(o=>o.target===nav).fn();},group:()=>document.getElementById('knMenuLogoutGroup'),button:key=>nav.querySelector('[data-menu-page="'+key+'"]'),activate(key,{nested=false}={}){const b=nav.querySelector('[data-menu-page="'+key+'"]');assert.ok(b,key+' menu row exists');(nested?b.querySelector('span'):b).click();flush();},
+  return {w,document,drawer,nav,calls,storage,themeWrites,entryColors,flush,advance,route,now:()=>clock,pendingTimers:()=>timers.map(t=>t.delay),setMypageAllowed(value){mypageAllowed=value;},node,mounted,colors,languageGrid,originalLanguageButtons,motion,custom,colorReset,notifyDrawerState(){observers.find(o=>o.target===drawer).fn();},notifyNav(){observers.find(o=>o.target===nav).fn();},group:()=>document.getElementById('knMenuLogoutGroup'),button:key=>nav.querySelector('[data-menu-page="'+key+'"]'),activate(key,{nested=false}={}){const b=nav.querySelector('[data-menu-page="'+key+'"]');assert.ok(b,key+' menu row exists');(nested?b.querySelector('span'):b).click();flush();},
     navigate(key){route(key);flush();},
     useConfirmation(){
       const html=read('index.html'),marker='(function(){window.knLogoutFlow=function(){',start=html.indexOf(marker);assert.ok(start>=0,'Existing confirmation IIFE exists');const end=html.indexOf('})();',start);assert.ok(end>start);
@@ -90,11 +110,11 @@ function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true}={}
   };
 }
 
-test('logout exists once at the end of the hamburger menu and the old personal-page injector is absent',()=>{
+test('logout exists once directly before inline language and colors, without the old personal-page injector',()=>{
   const h=fixture({user:{id:'synthetic-member',is_anonymous:false}}),group=h.group();
-  assert.ok(group);assert.equal(group.parentElement.className,'knAccPanel kn-menu-content');assert.equal(group.parentElement.children.at(-1),group);
+  assert.ok(group);assert.equal(group.parentElement.className,'knAccPanel kn-menu-content');const order=group.parentElement.children;assert.equal(order.at(-3),group);assert.equal(order.at(-2),h.languageGrid.parentElement);assert.equal(order.at(-1),h.colors);
   assert.equal(h.nav.querySelectorAll('[data-menu-page="logout"]').length,1);assert.equal(h.button('logout').textContent,'ログアウト');assert.equal(group.hidden,false);
-  const html=read('index.html');assert.doesNotMatch(html,/ensureLogout|knLogoutBtn/);assert.match(html,/menu-a\.js\?v=20261024-memo-menu1/);
+  const html=read('index.html');assert.doesNotMatch(html,/ensureLogout|knLogoutBtn/);assert.match(html,/menu-a\.js\?v=20261025-language-inline1/);assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
 });
 test('signed-out and guest users cannot invoke logout even through a programmatic menu click',()=>{
   for(const user of [null,undefined,{id:'synthetic-guest',is_anonymous:true}]){
@@ -201,14 +221,13 @@ test('the memo row keeps one translated node across all four initial and live la
   const labels=[['ja','自由メモ'],['en','Notes'],['ko','메모'],['zh','备忘录']];
   for(const [initial,label]of labels){
     const h=fixture({language:initial}),row=h.button('memo');assert.ok(row);assert.equal(row.textContent,label);
-    h.activate('language');
     for(const [language,translated]of labels){
       h.storage.set('app_lang',language);h.document.dispatch('langChanged');
       assert.equal(h.button('memo'),row);assert.equal(row.textContent,translated);
       assert.equal(h.nav.querySelectorAll('[data-menu-page="memo"]').length,1);
-      assert.equal(h.drawer.dataset.menuView,'language');assert.deepEqual(h.calls,[],'Translation must not navigate or open notes');
+      assert.equal(h.drawer.dataset.menuView,'main');assert.deepEqual(h.calls,[],'Translation must not navigate or open notes');
     }
-    h.drawer.querySelector('.kn-menu-back').click();assert.equal(h.mounted[0].hidden,false);assert.equal(h.button('memo'),row);
+    assert.equal(h.mounted[0].hidden,false);assert.equal(h.button('memo'),row);
   }
 });
 test('switching routes after household selection cannot be pulled back by a delayed memo or ledger callback',()=>{
@@ -236,18 +255,21 @@ test('an explicit close without navigation still restores the existing opener on
   assert.deepEqual(h.calls,[['close']]);
 });
 
-test('compact menu has only the selected primary rows and hides preference panels until requested',()=>{
+test('menu shows four language frames after logout with inline three-color controls directly below them',()=>{
   const h=fixture({user:{id:'synthetic-member'}}),panel=h.mounted[0];
   assert.equal(panel.className,'knAccPanel kn-menu-content');assert.equal(h.document.getElementById('knProfile').parentElement,panel);
-  assert.deepEqual(panel.querySelectorAll('[data-menu-page]').map(n=>n.dataset.menuPage),['memo','guide','color','display','language','logout']);
-  for(const key of ['color','display','language'])assert.equal(h.document.getElementById('knMenuView-'+key).hidden,true);
+  assert.deepEqual(panel.querySelectorAll('[data-menu-page]').map(n=>n.dataset.menuPage),['memo','guide','display','logout']);
+  assert.equal(h.document.getElementById('knMenuView-display').hidden,true);assert.equal(h.document.getElementById('knMenuView-language'),null);assert.equal(h.button('language'),null);
+  assert.equal(h.document.getElementById('knMenuView-color'),null);assert.equal(h.button('color'),null);
+  const language=h.languageGrid.parentElement;assert.equal(language.className,'kn-menu-language');assert.equal(language.parentElement,panel);assert.equal(language.hidden,false);assert.equal(h.languageGrid.children.length,4);assert.equal(language.getAttribute('aria-labelledby'),'knMenuLanguageTitle');
+  assert.equal(panel.children.indexOf(language),panel.children.indexOf(h.group())+1);assert.equal(h.colors.parentElement,panel);assert.equal(panel.children.indexOf(h.colors),panel.children.indexOf(language)+1);
   assert.equal(h.drawer.getAttribute('role'),'dialog');assert.equal(h.drawer.getAttribute('aria-modal'),'true');
   for(const key of ['account','kakeibo','saved','alert'])assert.equal(h.button(key),null);
   assert.equal(h.drawer.querySelector('[data-menu-style]'),null);
 });
-test('each preference page opens in place and Back restores the selected row focus',()=>{
+test('display preference opens in place and Back restores its row without adding a language subpage',()=>{
   const h=fixture();
-  for(const key of ['color','display','language']){
+  for(const key of ['display']){
     h.activate(key,{nested:true});const page=h.document.getElementById('knMenuView-'+key);
     assert.equal(h.mounted[0].hidden,true);assert.equal(page.hidden,false);assert.equal(h.drawer.dataset.menuView,key);assert.equal(h.document.activeElement,page.querySelector('h2'));
     assert.deepEqual(h.calls,[],'Opening a preference is not a route or account action');
@@ -256,22 +278,45 @@ test('each preference page opens in place and Back restores the selected row foc
   }
 });
 test('color, language and motion controls retain their original nodes and handlers',()=>{
-  const h=fixture();h.activate('color');
-  assert.equal(h.colors.parentElement,h.document.getElementById('knMenuView-color'));assert.equal(h.custom,h.document.getElementById('drawerColorInput'));
+  const h=fixture();
+  assert.equal(h.colors.parentElement,h.mounted[0]);assert.equal(h.custom,h.document.getElementById('drawerColorInput'));assert.equal(h.custom.hidden,true);assert.equal(h.custom.tabIndex,-1);
   h.colors.querySelector('.drawer-color-preset').click();h.colorReset.click();assert.deepEqual(h.calls,[['color','#3da060'],['color-reset']]);
-  assert.equal(h.colors.querySelectorAll('.drawer-color-preset').length,4);assert.equal(h.colors.querySelector('.drawer-color-preset').getAttribute('aria-label'),'グリーン');
-  h.drawer.querySelector('.kn-menu-back').click();h.activate('language');assert.equal(h.languageGrid.parentElement,h.document.getElementById('knMenuView-language'));assert.equal(h.languageGrid.children.length,4);
-  h.drawer.querySelector('.kn-menu-back').click();h.activate('display');assert.equal(h.motion.parentElement,h.document.getElementById('knMenuView-display'));h.motion.click();assert.deepEqual(h.calls.at(-1),['motion']);
+  assert.equal(h.colors.querySelectorAll('.drawer-color-preset').length,3);assert.equal(h.colors.querySelector('.drawer-color-preset').getAttribute('aria-label'),'グリーン');assert.equal(h.colors.querySelector('.drawer-color-presets').children.at(-1).id,'knMenuColorPlus');
+  assert.equal(h.languageGrid.parentElement.className,'kn-menu-language');assert.equal(h.languageGrid.children.length,4);assert.deepEqual(h.languageGrid.children,h.originalLanguageButtons);
+  h.activate('display');assert.equal(h.motion.parentElement,h.document.getElementById('knMenuView-display'));h.motion.click();assert.deepEqual(h.calls.at(-1),['motion']);
+});
+test('signed-out and guest menus always retain the four visible language buttons below the hidden logout group',()=>{
+  for(const user of [null,{id:'synthetic-guest',is_anonymous:true}]){
+    const h=fixture({user}),section=h.languageGrid.parentElement,panel=h.mounted[0];
+    assert.equal(h.group().hidden,true);assert.equal(section.hidden,false);assert.equal(section.getClientRects().length,1);assert.equal(h.languageGrid.getClientRects().length,1);
+    assert.equal(panel.children.indexOf(section),panel.children.indexOf(h.group())+1);assert.equal(panel.children.indexOf(h.colors),panel.children.indexOf(section)+1);
+    assert.deepEqual(h.languageGrid.children,h.originalLanguageButtons);assert.deepEqual(h.languageGrid.children.map(b=>b.getAttribute('data-lang')),['ja','en','ko','zh']);
+    assert.equal(h.button('language'),null);assert.equal(h.document.getElementById('knMenuView-language'),null);assert.deepEqual(h.calls,[]);
+  }
+});
+test('retained inline language buttons execute the actual index handler and close custom colors without touching color storage',()=>{
+  const h=fixture({realLanguage:true,language:'ko',brandColor:'#2196f3',customColor:true}),buttons=h.originalLanguageButtons,labels=buttons.map(b=>b.textContent),color=h.storage.get('userBrandColor'),flag=h.storage.get('userBrandColorCustom');
+  assert.deepEqual(buttons.filter(b=>b.classList.contains('active')).map(b=>b.getAttribute('data-lang')),['ko']);
+  assert.deepEqual(labels,['🇯🇵 日本語','🇬🇧 English','🇰🇷 한국어','🇨🇳 中文']);
+  for(const language of ['en','zh','ja','ko']){
+    const selected=buttons.find(b=>b.getAttribute('data-lang')===language);h.document.getElementById('knMenuColorPlus').click();assert.equal(h.document.getElementById('knMenuColorPanel').hidden,false);
+    h.document.dispatch('pointerdown',{target:selected,pointerId:9,isPrimary:true,button:0});h.colors.fire('focusout',{relatedTarget:selected});h.document.dispatch('pointerup',{target:selected,pointerId:9});
+    assert.equal(h.document.getElementById('knMenuColorPanel').hidden,false,'the language target must not move before its native click');
+    selected.click();h.flush();assert.equal(h.document.getElementById('knMenuColorPanel').hidden,true);assert.equal(h.drawer.dataset.menuView,'main');assert.equal(h.mounted[0].hidden,false);assert.equal(h.drawer.classList.contains('open'),true);
+    for(const key of ['app_lang','siteLang','kk_lang'])assert.equal(h.storage.get(key),language);assert.equal(h.document.documentElement.getAttribute('lang'),language);
+    assert.deepEqual(buttons.filter(b=>b.classList.contains('active')).map(b=>b.getAttribute('data-lang')),[language]);assert.deepEqual(h.languageGrid.children,buttons);assert.deepEqual(buttons.map(b=>b.textContent),labels);assert.equal(h.drawer.querySelectorAll('[data-lang]').length,4);
+    assert.equal(h.storage.get('userBrandColor'),color);assert.equal(h.storage.get('userBrandColorCustom'),flag);assert.equal(h.custom.value,color);assert.deepEqual(h.themeWrites,[]);assert.deepEqual(h.calls.filter(call=>call[0]!=='scroll'),[],'language selection must not close, route or run account actions');
+  }
 });
 test('display settings keep the existing setters and synchronize saved selections',()=>{
   const h=fixture();h.activate('display');const xl=h.drawer.querySelector('[data-menu-size="xl"]');xl.click();assert.deepEqual(h.calls,[['size','xl']]);assert.equal(xl.getAttribute('aria-pressed'),'true');
   const font=h.document.getElementById('knMenuFont');font.value='round';font.fire('change');assert.deepEqual(h.calls.at(-1),['font','round']);assert.equal(font.value,'round');
   h.drawer.querySelector('[data-menu-reset]').click();assert.deepEqual(h.calls.at(-1),['reset']);
 });
-test('all language changes update sheet title, back label and preference headings',()=>{
-  const h=fixture();h.activate('language');h.storage.set('app_lang','en');h.document.dispatch('langChanged');
+test('all language changes update the visible language heading and preserve the current menu view',()=>{
+  const h=fixture();h.storage.set('app_lang','en');h.document.dispatch('langChanged');
   assert.equal(h.drawer.getAttribute('aria-label'),'Menu');assert.equal(h.drawer.querySelector('.kn-menu-back span').textContent,'Back');
-  assert.equal(h.document.getElementById('knMenuTitle-language').textContent,'Language');assert.equal(h.drawer.dataset.menuView,'language');
+  assert.equal(h.document.getElementById('knMenuLanguageTitle').textContent,'Language');assert.equal(h.drawer.dataset.menuView,'main');assert.equal(h.document.getElementById('knMenuView-language'),null);
 });
 test('only open state transitions move focus, and both visible menu openers stay synchronized',()=>{
   const h=fixture(),opener=h.document.getElementById('knFloatHam');
@@ -283,16 +328,54 @@ test('only open state transitions move focus, and both visible menu openers stay
   h.drawer.classList.add('open');h.notifyDrawerState();assert.equal(h.drawer.dataset.menuView,'main');assert.equal(h.mounted[0].hidden,false);
 });
 test('focus trap uses only visible controls and Escape or the close button keep the existing closer',()=>{
-  const h=fixture();h.activate('language');const back=h.drawer.querySelector('.kn-menu-back'),last=h.languageGrid.children.at(-1);
-  last.focus();let blocked=0;last.fire('keydown',{key:'Tab',preventDefault(){blocked++;}});assert.equal(h.document.activeElement,back);assert.equal(blocked,1);
-  back.fire('keydown',{key:'Tab',shiftKey:true,preventDefault(){blocked++;}});assert.equal(h.document.activeElement,last);assert.equal(blocked,2);
+  const h=fixture(),first=h.drawer.querySelector('.kn-menu-close'),last=h.document.getElementById('knMenuColorPlus');
+  last.focus();let blocked=0;last.fire('keydown',{key:'Tab',preventDefault(){blocked++;}});assert.equal(h.document.activeElement,first);assert.equal(blocked,1);
+  first.fire('keydown',{key:'Tab',shiftKey:true,preventDefault(){blocked++;}});assert.equal(h.document.activeElement,last);assert.equal(blocked,2);
   last.fire('keydown',{key:'Escape'});h.drawer.querySelector('.kn-menu-close').click();assert.deepEqual(h.calls,[['close'],['close']]);
 });
 test('external profile hook reveals the existing profile panel without writing or losing its node',()=>{
-  const h=fixture();const profile=h.document.getElementById('knProfile');h.activate('color');h.w.KNMenuSheet.showMain();
+  const h=fixture();const profile=h.document.getElementById('knProfile');h.activate('display');h.w.KNMenuSheet.showMain();
   assert.equal(h.mounted[0].hidden,false);assert.equal(h.drawer.dataset.menuView,'main');assert.equal(h.document.getElementById('knProfile'),profile);assert.deepEqual(h.calls,[]);
 });
 test('legacy nav cleanup preserves each preference page and removes only injected siblings',()=>{
   const h=fixture();const obsolete=h.node('button');h.nav.appendChild(obsolete);h.notifyNav();assert.equal(obsolete.parentElement,null);
-  for(const key of ['color','display','language'])assert.equal(h.document.getElementById('knMenuView-'+key).parentElement,h.nav);
+  assert.equal(h.document.getElementById('knMenuView-display').parentElement,h.nav);assert.equal(h.languageGrid.parentElement.parentElement,h.mounted[0]);
+});
+
+test('opening and closing the rectangle keeps a saved blue and invokes no color writer',()=>{
+  const h=fixture({brandColor:'#2196f3',customColor:true}),plus=h.document.getElementById('knMenuColorPlus'),panel=h.document.getElementById('knMenuColorPanel');
+  assert.equal(h.colors.querySelectorAll('[data-color="#2196f3"]').length,0);plus.click();assert.equal(panel.hidden,false);assert.equal(h.custom.value,'#2196f3');assert.deepEqual(h.themeWrites,[]);
+  const field=h.document.getElementById('knMenuColorSpectrum'),event=field.fire('keydown',{key:'Escape'});assert.equal(event.stopped,true);assert.equal(panel.hidden,true);assert.equal(h.drawer.classList.contains('open'),true);assert.equal(h.document.activeElement,plus);assert.deepEqual(h.themeWrites,[]);
+});
+
+test('new plane commits through the current wrapper and the actual existing color storage and reset paths',()=>{
+  const h=fixture({realColors:true,brandColor:'#2196f3',customColor:true}),plus=h.document.getElementById('knMenuColorPlus');plus.click();
+  const field=h.document.getElementById('knMenuColorSpectrum');let wrapperCalls=0;const original=h.w.applyBrandColor;h.w.applyBrandColor=(...args)=>{wrapperCalls++;return original(...args);};
+  field.fire('keydown',{key:'ArrowRight'});assert.equal(wrapperCalls,1);assert.equal(h.themeWrites.length,1);assert.equal(h.themeWrites[0][1],true);assert.equal(h.storage.get('userBrandColor'),h.custom.value);assert.equal(h.storage.get('userBrandColorCustom'),'1');assert.equal(h.entryColors.at(-1),h.custom.value);assert.ok(h.document.documentElement.style.getPropertyValue('--knw-bg'));
+  h.colors.querySelector('.drawer-color-preset').click();assert.equal(h.storage.get('userBrandColor'),'#3da060');assert.equal(h.storage.get('userBrandColorCustom'),'1');h.colorReset.click();assert.equal(h.storage.get('userBrandColor'),'#3da060');assert.equal(h.storage.get('userBrandColorCustom'),'0');
+});
+
+test('preference navigation, drawer close and auth change close the color panel without color writes',()=>{
+  const h=fixture(),plus=h.document.getElementById('knMenuColorPlus'),panel=h.document.getElementById('knMenuColorPanel');
+  plus.click();h.activate('display');assert.equal(panel.hidden,true);h.drawer.querySelector('.kn-menu-back').click();plus.click();h.drawer.classList.remove('open');h.notifyDrawerState();assert.equal(panel.hidden,true);
+  h.drawer.classList.add('open');h.notifyDrawerState();plus.click();h.document.dispatch('knAuthChange');assert.equal(panel.hidden,true);assert.deepEqual(h.themeWrites,[]);
+});
+
+test('focus trap includes the visible color plane but excludes closed or negative-tabindex controls',()=>{
+  const h=fixture(),plus=h.document.getElementById('knMenuColorPlus');plus.click();const field=h.document.getElementById('knMenuColorSpectrum');assert.equal(h.document.activeElement,field);
+  const excluded=h.node('button');excluded.tabIndex=-2;h.drawer.appendChild(excluded);
+  const controls=h.drawer.querySelectorAll('button,select,input,textarea,summary,a[href],[tabindex]').filter(n=>!n.disabled&&n.tabIndex>=0&&n.getClientRects().length);assert.ok(controls.includes(field));assert.ok(!controls.includes(excluded));assert.ok(!controls.includes(h.custom));assert.ok(!controls.includes(h.document.getElementById('knMenuColorTone')));
+  const last=controls.at(-1);last.focus();last.fire('keydown',{key:'Tab'});assert.equal(h.document.activeElement,controls[0]);
+});
+
+test('language changes translate the inline caption, preset names and color plane controls',()=>{
+  const h=fixture();h.storage.set('app_lang','en');h.document.dispatch('langChanged');assert.equal(h.document.getElementById('knMenuColorTitle').textContent,'Display color');assert.equal(h.colors.querySelector('.drawer-color-preset').getAttribute('aria-label'),'Green');assert.equal(h.document.getElementById('knMenuColorPlus').getAttribute('aria-label'),'Choose a color');assert.equal(h.document.getElementById('knMenuColorToneButton').textContent,'Adjust shade');
+});
+
+test('missing color module retains presets and reset while exposing an unavailable custom selector without a native popup',()=>{
+  const h=fixture({colorModule:false});assert.equal(h.colors.querySelectorAll('.drawer-color-preset').length,3);assert.equal(h.colors.querySelector('.kn-color-plus').disabled,true);assert.equal(h.custom.hidden,true);h.colors.querySelector('.drawer-color-preset').click();h.colorReset.click();assert.deepEqual(h.calls,[['color','#3da060'],['color-reset']]);
+});
+
+test('blocked color storage does not erase the saved value or produce a persistence-success claim',()=>{
+  const h=fixture({realColors:true,blockedColorStorage:true,brandColor:'#2196f3',customColor:true});h.document.getElementById('knMenuColorPlus').click();h.document.getElementById('knMenuColorSpectrum').fire('keydown',{key:'ArrowRight'});assert.equal(h.storage.get('userBrandColor'),'#2196f3');assert.equal(h.themeWrites.length,1);assert.equal(h.colors.textContent.includes('保存しました'),false);
 });

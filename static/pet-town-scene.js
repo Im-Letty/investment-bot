@@ -1,12 +1,13 @@
 /* A view of the existing Town world. No game actions, storage or economy clock. */
 (function (root, factory) {
   'use strict';
-  var api = factory(typeof module === 'object' && module.exports ? require('./pet-town-walk.js') : root.PetTownWalk);
+  var api = factory(typeof module === 'object' && module.exports ? require('./pet-town-walk.js') : root.PetTownWalk,
+    typeof module === 'object' && module.exports ? require('./pet-frame-fit.js') : root.PetFrameFit);
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.PetTownScene = api;
-}(typeof window !== 'undefined' ? window : globalThis, function (Town) {
+}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit) {
   'use strict';
-  var threeLoading = null, UNIT = 100, TAU = Math.PI * 2;
+  var threeLoading = null, frameFitLoading = null, UNIT = 100, TAU = Math.PI * 2;
   var shoreline = [[0, 2880], [550, 2840], [1050, 2720], [1450, 2510], [1920, 1990]];
   function finite(n) { return typeof n === 'number' && Number.isFinite(n); }
   function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
@@ -49,21 +50,41 @@
   // The initial world is empty until a story and distinct appearances are adopted.
   function people() { return []; }
   function alphaAnchor(canvas) {
+    var api = FrameFit || globalThis.PetFrameFit;
+    if (api && typeof api.alphaAnchor === 'function') return api.alphaAnchor(canvas);
+    // These exported diagnostics predate the lazy renderer dependency. Keep
+    // them synchronous before mount; mounted frames use the shared contract.
+    var size = sourceSize(canvas);
+    if (!size || canvas.tagName !== 'CANVAS') return null;
     var gl = canvas.getContext && canvas.getContext('webgl');
-    if (!gl || !canvas.width || !canvas.height) return null;
-    var width = canvas.width, height = canvas.height, pixels = new Uint8Array(width * height * 4);
-    gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-    for (var y = 0; y < height; y++) for (var x = 0; x < width; x++) if (pixels[(y * width + x) * 4 + 3] >= 31) return y / height;
+    if (!gl) return null;
+    var pixels = new Uint8Array(size.width * size.height * 4);
+    gl.readPixels(0, 0, size.width, size.height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+    for (var y = 0; y < size.height; y++) for (var x = 0; x < size.width; x++) if (pixels[(y * size.width + x) * 4 + 3] >= 31) return y / size.height;
     return null;
   }
   function sourceSize(source) {
+    var api = FrameFit || globalThis.PetFrameFit;
+    if (api && typeof api.sourceSize === 'function') return api.sourceSize(source);
     if (!source) return null;
-    if (source.tagName === 'IMG') return source.complete && source.naturalWidth > 0 && source.naturalHeight > 0 ? { width: source.naturalWidth, height: source.naturalHeight } : null;
-    return source.tagName === 'CANVAS' && source.width > 0 && source.height > 0 ? { width: source.width, height: source.height } : null;
+    var image = source.tagName === 'IMG', canvas = source.tagName === 'CANVAS';
+    if (!canvas && (!image || !source.complete)) return null;
+    var width = image ? source.naturalWidth : source.width, height = image ? source.naturalHeight : source.height;
+    return Number.isSafeInteger(width) && width > 0 && Number.isSafeInteger(height) && height > 0 ? { width: width, height: height } : null;
   }
   function loadThree() {
     if (!threeLoading) threeLoading = import('/static/vendor/three-0.160.1.module.js').catch(function (e) { threeLoading = null; throw e; });
     return threeLoading;
+  }
+  function loadFrameFit() {
+    var current = FrameFit || globalThis.PetFrameFit;
+    if (current && typeof current.resolve === 'function') { FrameFit = current; return Promise.resolve(current); }
+    if (!frameFitLoading) frameFitLoading = import('/static/pet-frame-fit.js?v=20261025-fit1').then(function () {
+      var api = globalThis.PetFrameFit;
+      if (!api || typeof api.resolve !== 'function') throw new Error('frame_fit_unavailable');
+      FrameFit = api; return api;
+    }).catch(function (error) { frameFitLoading = null; throw error; });
+    return frameFitLoading;
   }
   function groundTexture(THREE, doc) {
     if (!doc || !doc.createElement) return null;
@@ -346,7 +367,7 @@
     options = options || {};
     var host = options.viewport, doc = host && host.ownerDocument, win = doc && doc.defaultView;
     var dead = false, failed = false, ready = false, dirty = false, rendering = false, renderer = null, observer = null, raf = null, lastPaint = -Infinity, lastSourceUpload = -Infinity;
-    var removers = [], texture = null, source = null, sourceAnchor = .08, cameraView = cameraState(options.camera), actualYaw = cameraView.yaw, drag = null, intervals = [];
+    var removers = [], texture = null, source = null, sourceFrame = null, cameraView = cameraState(options.camera), actualYaw = cameraView.yaw, drag = null, intervals = [];
     var world = options.world, position = Town.spawn(world, options.position), model = null, motion = { walking: false, dx: 0, dy: 0 }, heading = cameraView.yaw, travelled = 0;
     var media = win && win.matchMedia ? win.matchMedia('(prefers-reduced-motion: reduce)') : null, reduced = !!(media && media.matches);
     function active() { if (dead || failed || !host || host.isConnected === false || !doc || doc.hidden) return false; try { return !options.canRun || !!options.canRun(); } catch (_) { return false; } }
@@ -363,7 +384,7 @@
     }
     function fail(code) { if (dead || failed) return; failed = true; destroy(); report('onFailure', code); }
     var THREE;
-    try { THREE = options.three || await loadThree(); } catch (_) { fail('town_module_unavailable'); return null; }
+    try { var dependencies = await Promise.all([options.three || loadThree(), loadFrameFit()]); THREE = dependencies[0]; } catch (_) { fail('town_module_unavailable'); return null; }
     if (!active()) { destroy(); return null; }
     var sprite, playerShadow, camera, ray, pointer, direction, target, desired, contactMap = null;
     function contactShadow(radius) {
@@ -406,23 +427,22 @@
     }
     function resize() { if (!active()) return; try { var box = host.getBoundingClientRect(); if (!(box.width > 0 && box.height > 0)) return; renderer.setSize(box.width, box.height, false); camera.aspect = box.width / box.height; camera.updateProjectionMatrix(); requestRender(); } catch (_) { fail('town_resize_failed'); } }
     function setFrame(canvas, metadata) {
-      var size = sourceSize(canvas);
-      if (!active() || !renderer || !size) return false;
+      if (!active() || !renderer) return false;
       try {
+        var fit = FrameFit.resolve(canvas, metadata, sourceFrame);
+        if (!fit) return false;
         var stamp = win.performance ? win.performance.now() : Date.now(), changed = source !== canvas;
         // Reduced-motion direction changes are explicit, not an ambient stream.
         // Consume their newly painted buffer even inside the current world draw.
-        if (!changed && !reduced && stamp - lastSourceUpload < 32) return true;
+        if (!fit.changed && !reduced && stamp - lastSourceUpload < 32) return true;
         if (changed) {
-          var anchor = metadata && finite(metadata.anchor) ? metadata.anchor : canvas.tagName === 'CANVAS' ? alphaAnchor(canvas) : .08;
-          if (anchor === null) return false;
-          if (texture) texture.dispose(); texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.generateMipmaps = false; texture.minFilter = THREE.LinearFilter; source = canvas; sourceAnchor = anchor;
+          if (texture) texture.dispose(); texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.generateMipmaps = false; texture.minFilter = THREE.LinearFilter; source = canvas;
           sprite.material.map = texture; sprite.material.needsUpdate = true;
         }
-        sprite.center.set(.5, sourceAnchor); sprite.scale.set(1.65 * size.width / size.height, 1.65, 1); sprite.visible = true; texture.needsUpdate = true;
+        sprite.center.set(.5, fit.anchor); sprite.scale.set(fit.worldWidth, fit.worldHeight, 1); sprite.visible = true; texture.needsUpdate = true;
         // r160 initTexture synchronously uploads the borrowed nonpreserved buffer.
         // Subsequent world renders use that GPU copy, and share one 32ms RAF cadence.
-        renderer.initTexture(texture); lastSourceUpload = stamp;
+        renderer.initTexture(texture); lastSourceUpload = stamp; sourceFrame = fit;
         if (!ready) { if (!render(stamp)) return false; } else if (!rendering) requestRender();
         if (!ready) { ready = true; host.dataset.visualMode = 'three'; report('onReady', controller); schedule(); }
         return true;

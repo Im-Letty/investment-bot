@@ -126,19 +126,19 @@
 <link rel="stylesheet" href="/static/talk-theme.css?v=20261023-flat-selection1">
 <script defer src="/static/talk-theme.js?v=20261020-site-nickname1"></script>
 <link rel="stylesheet" href="/static/device-notifications.css?v=20261022-push1">
-<link rel="stylesheet" href="/static/mypage-theme.css?v=20261024-memo-menu2">
+<link rel="stylesheet" href="/static/mypage-theme.css?v=20261025-memo-dialog1">
 <script defer src="/static/mypage-theme.js?v=20261024-memo-menu1"></script>
 <link rel="stylesheet" href="/static/mypage-planner.css?v=20261023-flat-selection1">
 <script defer src="/static/mypage-note-editor.js?v=20261022-notesrich1"></script>
 <script defer src="/static/device-notifications.js?v=20261022-push1"></script>
 <script defer src="/static/mypage-planner.js?v=20261023-asset-goal1"></script>
-<script defer src="/static/mypage-ledger-loader.js?v=20261024-memo-menu2"></script>
+<script defer src="/static/mypage-ledger-loader.js?v=20261025-memo-dialog1"></script>
 <link rel="stylesheet" href="/static/stock-unified.css?v=20261023-watch-heart-sort1">
 <link rel="stylesheet" href="/static/watchlist-interactions.css?v=20261023-watch-heart-sort1">
 <link rel="stylesheet" href="/static/site-typography.css?v=20261012-section-mincho1">
 <link rel="stylesheet" href="/static/community.css?v=20261023-flat-selection1">
-<link rel="stylesheet" href="/static/user-profile.css?v=20261024-header-avatar">
-<script defer src="/static/user-profile.js?v=20261024-header-avatar"></script>
+<link rel="stylesheet" href="/static/user-profile.css?v=20261025-profile-actions1">
+<script defer src="/static/user-profile.js?v=20261025-inline-profile2"></script>
 <script defer src="/static/community.js?v=20261024-stock-voice1"></script>
 <link rel="stylesheet" href="/static/guide-hub.css?v=20261023-flat-selection1">
 <link rel="stylesheet" href="/static/guide-concern.css?v=20261024-concern1">
@@ -497,7 +497,7 @@ window.knRetryFetch=function(url,opts,onOk,onWait,tries){
 .morning-news-updated{font:400 11px/1.8 system-ui,sans-serif;color:#687a70;margin:12px 0 2px}
 .morning-news-retry{font:inherit;color:var(--brand-color,#205c49);background:transparent;border:1px solid currentColor;border-radius:16px;padding:5px 12px;cursor:pointer}
 </style>
-<link rel="stylesheet" href="/static/menu-a.css?v=20261024-tall-left1">
+<link rel="stylesheet" href="/static/menu-a.css?v=20261025-language-inline1">
 <link rel="stylesheet" href="/static/navigation-backgrounds.css?v=20261019-steps2">
 <link rel="stylesheet" href="/static/talk-timeline.css?v=20261024-stock-voice1">
 </head>
@@ -515,7 +515,7 @@ window.knRetryFetch=function(url,opts,onOk,onWait,tries){
     <button class="drawer-item" onclick="closeDrawer();openMorningSection()"><span class="drawer-item-icon">☀️</span> <span data-i18n="drawer_morning">朝の相場レター</span></button>
     <button class="drawer-item" onclick="closeDrawer();openDividendSection()"><span class="drawer-item-icon">💴</span> <span data-i18n="drawer_dividend">配当金・銘柄さがし</span></button><button class="drawer-item" onclick="closeDrawer();openBeginnerGuide()"><span class="drawer-item-icon">🧭</span> <span>はじめてガイド</span></button><button class="drawer-item" onclick="closeDrawer();openDisplaySettings()"><span class="drawer-item-icon">⚙️</span> <span>表示設定</span></button><button class="drawer-item" onclick="closeDrawer();openContact()"><span class="drawer-item-icon">&#128233;</span> <span>お問い合わせ</span></button><button class="drawer-item" onclick="closeDrawer();openSafe()"><span class="drawer-item-icon">🛡️</span><span>当アプリの安心ポイント</span></button><button class="drawer-item" onclick="closeDrawer();openCommunity()"><span class="drawer-item-icon">&#128172;</span> <span>コミュニティ</span></button>
   </nav>
-  <div class="drawer-section-label" data-i18n="sidebar_color_custom">カラーカスタム</div><div class="drawer-color-wrap"><div class="drawer-color-presets"><button class="drawer-color-preset" data-color="#3da060" style="background:#3da060" title="グリーン"></button><button class="drawer-color-preset" data-color="#e91e63" style="background:#e91e63" title="ピンク"></button><button class="drawer-color-preset" data-color="#b2923a" style="background:#b2923a" title="イエロー"></button><button class="drawer-color-preset" data-color="#2196f3" style="background:#2196f3" title="ブルー"></button></div><div class="drawer-color-custom"><label class="drawer-color-label" data-i18n="sidebar_color_picker">自由に選ぶ</label><input type="color" id="drawerColorInput" class="drawer-color-input" value="#3da060"></div><button class="drawer-color-reset" id="drawerColorReset" data-i18n="sidebar_color_reset">リセット</button></div><div style="padding:8px 16px"><button id="drawerSettingsBtn" onclick="if(window._closeDrawer)window._closeDrawer();if(window._openSettings)window._openSettings();" style="display:flex;align-items:center;gap:12px;padding:12px 24px;cursor:pointer;color:rgba(255,255,255,0.88);border:none;background:transparent;width:100%;text-align:left;font-weight:500;"><span style="font-size:18px">&#x2699;&#xfe0f;</span><span data-i18n="setting_open">Settings</span></button></div><div class="drawer-section-label" data-i18n="sect_language">言語 / Language</div><div class="drawer-color-wrap"><div class="lang-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 4px;"><button class="lang-btn" data-lang="ja" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇯🇵 日本語</button><button class="lang-btn" data-lang="en" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇬🇧 English</button><button class="lang-btn" data-lang="ko" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇰🇷 한국어</button><button class="lang-btn" data-lang="zh" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇨🇳 中文</button></div></div><div class="drawer-footer">© 2026 Investment Bot</div>
+  <div class="drawer-section-label" data-i18n="sidebar_color_custom">カラーカスタム</div><div class="drawer-color-wrap"><div class="drawer-color-presets"><button class="drawer-color-preset" data-color="#3da060" style="background:#3da060" title="グリーン"></button><button class="drawer-color-preset" data-color="#e91e63" style="background:#e91e63" title="ピンク"></button><button class="drawer-color-preset" data-color="#b2923a" style="background:#b2923a" title="イエロー"></button></div><div class="drawer-color-custom" hidden style="display:none"><label class="drawer-color-label" data-i18n="sidebar_color_picker">自由に選ぶ</label><input type="color" id="drawerColorInput" class="drawer-color-input" value="#3da060" hidden tabindex="-1" aria-hidden="true"></div><button class="drawer-color-reset" id="drawerColorReset" data-i18n="sidebar_color_reset">リセット</button></div><div style="padding:8px 16px"><button id="drawerSettingsBtn" onclick="if(window._closeDrawer)window._closeDrawer();if(window._openSettings)window._openSettings();" style="display:flex;align-items:center;gap:12px;padding:12px 24px;cursor:pointer;color:rgba(255,255,255,0.88);border:none;background:transparent;width:100%;text-align:left;font-weight:500;"><span style="font-size:18px">&#x2699;&#xfe0f;</span><span data-i18n="setting_open">Settings</span></button></div><div class="drawer-section-label" data-i18n="sect_language">言語 / Language</div><div class="drawer-color-wrap"><div class="lang-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 4px;"><button class="lang-btn" data-lang="ja" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇯🇵 日本語</button><button class="lang-btn" data-lang="en" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇬🇧 English</button><button class="lang-btn" data-lang="ko" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇰🇷 한국어</button><button class="lang-btn" data-lang="zh" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇨🇳 中文</button></div></div><div class="drawer-footer">© 2026 Investment Bot</div>
 </div>
 
 
@@ -4472,7 +4472,7 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
       loadRequired(shopEntryStyle,function(){return !!styleLoads[shopEntryStyle];},true),
       // UI registration has no eager core access. Fetch it in parallel while
       // retaining economy/layout -> core and walking engine -> scene execution order.
-      loadRequired('/static/pet-game.js?v=20261025-reveal1',uiReady)
+      loadRequired('/static/pet-game.js?v=20261025-reveal-fit1',uiReady)
     ]).then(function(){if(!apiReady())throw assetFailure('invalid');});
     loadScript('/static/pet-lilac-motion.js?v=20261025-harmony1',function(){return !!window.PetLilacMotion;},5000,enhanceOptional).catch(function(){});
     loadScript('/static/pet-room-behavior.js?v=4306c88f116b',function(){return !!window.PetRoomBehavior;},5000,enhanceOptional).catch(function(){});
@@ -5017,7 +5017,8 @@ setInterval(apply,500);
 
 </script>
 
-<script src="/static/menu-a.js?v=20261024-memo-menu1" defer></script>
+<script src="/static/menu-color-plane.js?v=20261025-language-inline1" defer></script>
+<script src="/static/menu-a.js?v=20261025-language-inline1" defer></script>
 
 </script>
 
