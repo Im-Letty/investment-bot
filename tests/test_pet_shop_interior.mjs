@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from '../static/vendor/three-0.160.1.module.js';
+import FrameFit from '../static/pet-frame-fit.js';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
 import Interior from '../static/pet-shop-interior.js';
 import Layout from '../static/pet-shop-layout.js';
 
@@ -33,7 +36,7 @@ async function fixture(opts={}){
   dispose(){this.disposed=true;}forceContextLoss(){this.lost=true;}
  }
  let controller;
- controller=await Interior.mount({host,roomId:opts.roomId||'shop',layout:opts.layout,camera:opts.camera,position:opts.position,editing:opts.editing,canRun:()=>allowed,three:{...THREE,WebGLRenderer:Renderer},onReady(){ready++;},onFailure:c=>failures.push(c),onPosition:opts.onPosition,onExit(){exits++;},onDraft:d=>drafts.push(d),onFacing:p=>{packets.push(p);if(opts.coupled&&controller)controller.setFrame(source);}});
+ controller=await (opts.interiorAPI||Interior).mount({host,roomId:opts.roomId||'shop',layout:opts.layout,camera:opts.camera,position:opts.position,editing:opts.editing,canRun:()=>allowed,three:{...THREE,WebGLRenderer:Renderer},onReady(){ready++;},onFailure:c=>failures.push(c),onPosition:opts.onPosition,onExit(){exits++;},onDraft:d=>drafts.push(d),onFacing:p=>{packets.push(p);if(opts.coupled&&controller)controller.setFrame(source);}});
  const source=new Element(doc,'CANVAS');source.getContext=()=>({RGBA:1,UNSIGNED_BYTE:2,readPixels(x,y,w,h,format,type,p){p[(2*w+8)*4+3]=255;}});
  const stage=host.children[0]?.children[0];
  return {doc,win,media,host,stage,source,controller,frames,renderers,observers,packets,drafts,failures,get ready(){return ready;},get exits(){return exits;},allow:v=>allowed=v,time:v=>stamp=v,
@@ -42,6 +45,12 @@ async function fixture(opts={}){
   key(k,down=true,target=stage){win.emit(down?'keydown':'keyup',{key:k,target});}
  };
 }
+
+test('browser shop registration tolerates a later shared frame helper without making it a game boot dependency',async()=>{
+ const context=vm.createContext({});vm.runInContext(readFileSync(new URL('../static/pet-shop-layout.js',import.meta.url),'utf8'),context);vm.runInContext(readFileSync(new URL('../static/pet-shop-interior.js',import.meta.url),'utf8'),context);
+ assert.equal(context.PetFrameFit,undefined);assert.equal(typeof context.PetShopInterior.mount,'function');context.PetFrameFit=FrameFit;
+ const f=await fixture({interiorAPI:context.PetShopInterior});try{assert.ok(f.controller);assert.equal(f.controller.setFrame(f.source,{anchor:.3}),true);assert.equal(f.renderers[0].calls.at(-1).scene.getObjectByName('canonical-shop-pet-frame').center.y,.3);assert.deepEqual(f.failures,[]);}finally{f.controller?.destroy();}
+});
 
 test('furniture uses actual bounded geometry and stable shared GPU resources without mutating layouts',()=>{
  for(const room of ['shop','cafe']){
@@ -77,6 +86,26 @@ test('a real canonical frame alone activates a single depth-tested player and so
  assert.equal(f.controller.setFrame(f.source),true);assert.equal(f.ready,1);assert.equal(r.ratio,1.5);assert.equal(r.calls.at(-1).sourceVersion,2);assert.equal(f.frames.size,0);
  const scene=r.calls.at(-1).scene,sprites=[];scene.traverse(o=>{if(o.isSprite)sprites.push(o);});assert.equal(sprites.length,1);assert.equal(sprites[0].center.y,2/16);assert.equal(sprites[0].material.depthTest,true);assert.equal(sprites[0].material.depthWrite,true);assert.ok(scene.getObjectByName('shop-pet-contact-shadow').material.map);
  f.controller.destroy();assert.equal(f.host.children.length,0);assert.equal(f.win.count()+f.doc.count()+f.stage.count()+f.media.count(),0);assert.ok(r.disposed&&r.lost&&f.observers[0].disconnected);
+});
+
+test('shop contact metadata and resized dimensions follow the same canonical canvas without per-frame scans',async()=>{
+ const f=await fixture();try{
+  let scans=0;const context=f.source.getContext();f.source.getContext=()=>{scans++;return context;};
+  assert.equal(f.controller.setFrame(f.source),true);const r=f.renderers[0],sprite=r.calls.at(-1).scene.getObjectByName('canonical-shop-pet-frame'),texture=sprite.material.map,uploads=r.uploads.length;
+  f.time(1);f.source.width=32;assert.equal(f.controller.setFrame(f.source,{anchor:.25}),true);assert.equal(sprite.center.y,.25);assert.equal(sprite.scale.x,3.3);assert.equal(sprite.scale.y,1.65);assert.equal(r.uploads.length,uploads+1);assert.equal(sprite.material.map,texture);
+  f.time(2);assert.equal(f.controller.setFrame(f.source,{anchor:.4}),true);assert.equal(sprite.center.y,.4);
+  f.time(40);assert.equal(f.controller.setFrame(f.source),true);assert.equal(sprite.center.y,.4);assert.equal(scans,1,'a normal animated frame retains the original ground reference');
+ }finally{f.controller.destroy();}
+});
+
+test('bad shop dimensions or explicit anchor reject only that frame and preserve the last good texture',async()=>{
+ const f=await fixture();try{
+  assert.equal(f.controller.setFrame(f.source,{anchor:.2}),true);const r=f.renderers[0],sprite=r.calls.at(-1).scene.getObjectByName('canonical-shop-pet-frame'),texture=sprite.material.map,uploads=r.uploads.length;
+  for(const anchor of [-.01,1.01,NaN,Infinity,'0.3',undefined]){f.time(40);assert.equal(f.controller.setFrame(f.source,{anchor}),false);assert.equal(sprite.center.y,.2);assert.equal(sprite.material.map,texture);}
+  for(const width of [Infinity,NaN,-1,0]){f.source.width=width;assert.equal(f.controller.setFrame(f.source),false);}
+  f.source.width=16;assert.equal(r.uploads.length,uploads);assert.deepEqual(f.failures,[]);assert.equal(f.ready,1);
+  f.time(80);assert.equal(f.controller.setFrame(f.source,{anchor:0}),true);assert.equal(sprite.center.y,0);assert.equal(f.controller.setFrame(f.source,{anchor:1}),true);assert.equal(sprite.center.y,1);
+ }finally{f.controller.destroy();}
 });
 test('keyboard locomotion counts accepted distance, collides with the counter, and releases keys after focus moves',async()=>{
  const f=await fixture({camera:{yaw:0}});f.controller.setFrame(f.source);f.key('w');for(let i=0;i<100;i++)f.frame();const pos=f.controller.position();assert.ok(pos.z<1);assert.ok(pos.z>-2.2,'counter blocks walking through it');assert.ok(f.packets.some(p=>p.walking&&p.yawDeg===180));
