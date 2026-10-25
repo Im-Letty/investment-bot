@@ -45,7 +45,7 @@
     var presets = colors.querySelector('.drawer-color-presets');
     if (!doc || !presets) return null;
     var input = colors.querySelector('#drawerColorInput'), reset = colors.querySelector('#drawerColorReset');
-    var opened = false, toneOpen = false, drag = null, committedRaw = '', committedCustom = false;
+    var opened = false, toneOpen = false, drag = null, outsidePointer = null, committedRaw = '', committedCustom = false;
     var hsv = { h: 0, s: 0, v: 1 }, previewRaw = '', previewCustom = false;
     function label(key) {
       var value;
@@ -128,7 +128,7 @@
     }
     function close(focus) {
       var wasOpened = opened;
-      opened = false; releaseDrag(); panel.hidden = true; tone.element.hidden = true; toneOpen = false;
+      opened = false; outsidePointer = null; releaseDrag(); panel.hidden = true; tone.element.hidden = true; toneOpen = false;
       plus.setAttribute('aria-expanded', 'false'); toneButton.setAttribute('aria-expanded', 'false');
       restorePreview();
       if (wasOpened && focus && available()) {
@@ -151,7 +151,7 @@
     }
     function open() {
       if (!available()) return;
-      releaseDrag(); restorePreview(); status.hidden = true;
+      outsidePointer = null; releaseDrag(); restorePreview(); status.hidden = true;
       opened = true; panel.hidden = false; plus.setAttribute('aria-expanded', 'true');
       spectrum.element.focus({ preventScroll: true });
       if (typeof spectrum.element.scrollIntoView === 'function') spectrum.element.scrollIntoView({ block: 'nearest', inline: 'nearest' });
@@ -250,15 +250,31 @@
     });
     doc.addEventListener('pointermove', moving);
     doc.addEventListener('pointerup', finish);
-    doc.addEventListener('pointercancel', cancel);
-    doc.addEventListener('pointerdown', function (event) { if (opened && !colors.contains(event.target)) close(false); }, true);
+    doc.addEventListener('pointercancel', function (event) {
+      cancel(event);
+      if (outsidePointer && (event.pointerId == null || event.pointerId === outsidePointer.pointerId)) close(false);
+    });
+    doc.addEventListener('pointerdown', function (event) {
+      outsidePointer = null;
+      if (opened && !colors.contains(event.target)) {
+        // Cancel color work immediately, but preserve the outside target's
+        // geometry until its native click has resolved. Collapsing here can
+        // clamp the drawer's scroll position between pointerdown and pointerup.
+        releaseDrag(); restorePreview(); outsidePointer = { pointerId: event.pointerId };
+      }
+    }, true);
+    doc.addEventListener('click', function (event) {
+      outsidePointer = null;
+      if (opened && !colors.contains(event.target)) close(false);
+    }, true);
+    doc.addEventListener('keydown', function () { outsidePointer = null; }, true);
     colors.addEventListener('keydown', function (event) {
       if (event.key !== 'Escape' || !opened) return;
       if (event.preventDefault) event.preventDefault();
       if (event.stopPropagation) event.stopPropagation();
       close(true);
     });
-    colors.addEventListener('focusout', function (event) { if (opened && !colors.contains(event.relatedTarget)) close(false); });
+    colors.addEventListener('focusout', function (event) { if (opened && !outsidePointer && !colors.contains(event.relatedTarget)) close(false); });
     colors.addEventListener('click', function (event) {
       var target = event.target && event.target.closest && event.target.closest('.drawer-color-preset');
       if (target && colors.contains(target)) close(false);

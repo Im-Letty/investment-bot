@@ -216,10 +216,37 @@ test('Escape closes only the color panel, returns plus focus and blocks drawer p
 test('outside pointer and focus changes never steal destination focus or save a canceled preview', () => {
   for (const reason of ['pointer', 'focus']) {
     const f = fixture(); f.open(); f.pointer('pointerdown', f.spectrum, 100, 50);
-    if (reason === 'pointer') { f.document.emit('pointerdown', { target: f.outside, pointerId: 9 }); f.outside.focus(); }
+    if (reason === 'pointer') { f.document.emit('pointerdown', { target: f.outside, pointerId: 9 }); f.outside.focus(); assert.equal(f.panel.hidden, false, 'pointer focus preserves layout until the native click target is resolved'); f.outside.click(); }
     else f.outside.focus();
     assert.equal(f.document.activeElement, f.outside); assert.equal(f.panel.hidden, true);
     f.pointer('pointerup'); assert.deepEqual(f.commits, []);
+  }
+});
+test('outside native pointer sequence keeps target geometry stable while canceling color work before its click', () => {
+  const f = fixture({ color: '#2196f3' }); let activations = 0;
+  f.outside.addEventListener('click', () => { activations++; });
+  f.outside.getBoundingClientRect = () => ({ left: 10, top: f.panel.hidden ? 20 : 180, width: 120, height: 44 });
+  f.open(); f.pointer('pointerdown', f.spectrum, 100, 50);
+  assert.notEqual(f.sample().style.backgroundColor, '#2196f3');
+  const targetTop = f.outside.getBoundingClientRect().top;
+  f.pointer('pointerdown', f.outside, 30, targetTop + 10, { pointerId: 9 }); f.outside.focus();
+  assert.equal(f.sample().style.backgroundColor, '#2196f3'); assert.equal(f.spectrum.captures.size, 0);
+  assert.equal(f.panel.hidden, false); assert.equal(f.outside.getBoundingClientRect().top, targetTop);
+  f.pointer('pointermove', f.spectrum, 250, 20); f.pointer('pointerup', f.spectrum, 250, 20);
+  f.pointer('pointerup', f.outside, 30, targetTop + 10, { pointerId: 9 });
+  assert.equal(f.panel.hidden, false); assert.equal(f.outside.getBoundingClientRect().top, targetTop, 'no scroll-clamping collapse before pointerup/click');
+  f.outside.click(); assert.equal(activations, 1); assert.equal(f.panel.hidden, true); assert.equal(f.document.activeElement, f.outside);
+  assert.equal(f.raw(), '#2196f3'); assert.deepEqual(f.commits, []);
+});
+test('abandoned outside presses cannot defer a later keyboard focus or survive cancellation and blur', () => {
+  for (const reason of ['keyboard', 'cancel', 'blur']) {
+    const f = fixture({ color: '#2196f3' }); f.open(); f.pointer('pointerdown', f.spectrum, 100, 50);
+    f.pointer('pointerdown', f.outside, 30, 40, { pointerId: 9 }); assert.equal(f.panel.hidden, false);
+    if (reason === 'keyboard') { f.document.emit('keydown', { target: f.spectrum, key: 'Tab' }); f.outside.focus(); }
+    if (reason === 'cancel') f.pointer('pointercancel', f.outside, 30, 40, { pointerId: 9 });
+    if (reason === 'blur') f.window.emit('blur');
+    assert.equal(f.panel.hidden, true, reason); f.pointer('pointerup', f.spectrum, 250, 20); f.outside.click();
+    assert.equal(f.raw(), '#2196f3'); assert.deepEqual(f.commits, [], reason);
   }
 });
 test('a preset keeps its own handler and closes the panel; translation does not write', () => {

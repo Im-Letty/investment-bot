@@ -68,6 +68,10 @@ body.kn-home-a #sideDrawer.kn-menu-a .kn-menu-row{background:transparent!importa
 #sideDrawer.kn-menu-a #knMenuFont{min-height:44px;width:100%;padding:8px;border:1px solid var(--kn-a-line);border-radius:6px;background:var(--kn-a-paper);color:var(--kn-a-ink);font:400 calc(15px * var(--kn-a-scale,1))/1.5 var(--kn-a-sans);}
 #sideDrawer.kn-menu-a .kn-menu-motion{display:block;background:transparent;color:var(--kn-a-ink);border:1px solid var(--kn-a-line);border-radius:6px;min-height:44px;width:100%;padding:8px;font:400 calc(14px * var(--kn-a-scale,1))/1.5 var(--kn-a-sans);cursor:pointer;}
 #sideDrawer.kn-menu-a .lang-grid{margin:6px 0 12px;padding:0!important;gap:8px!important;}
+#sideDrawer.kn-menu-a .kn-menu-language{margin:8px 0 14px;padding:15px 0 0;border-top:1px solid var(--kn-a-line);min-width:0}
+#sideDrawer.kn-menu-a .kn-menu-language .kn-menu-label{margin:0 0 10px}
+#sideDrawer.kn-menu-a .kn-menu-language .lang-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin:0}
+#sideDrawer.kn-menu-a .kn-menu-language .lang-btn{width:100%;box-sizing:border-box;white-space:normal;overflow-wrap:anywhere}
 body:has(#sideDrawer.kn-menu-a.open) #knChatFab{visibility:hidden;pointer-events:none;}
 body.kn-home-a[data-kn-a-custom-color] #sideDrawer.kn-menu-a{--kn-a-paper:color-mix(in srgb,var(--brand-color) 3%,#fffdf6);--kn-a-ink:color-mix(in srgb,var(--brand-color) 30%,#303c30);--kn-a-muted:color-mix(in srgb,var(--brand-color) 20%,#606b57);--kn-a-button:color-mix(in srgb,var(--brand-color) 45%,#4c6150);--kn-a-line:color-mix(in srgb,var(--brand-color) 12%,#dedccf);--kn-a-chip:color-mix(in srgb,var(--brand-color) 6%,#f0eedf);}
 @media(prefers-reduced-motion:reduce){body.kn-home-a #sideDrawer.kn-menu-a{transition:none;}}
