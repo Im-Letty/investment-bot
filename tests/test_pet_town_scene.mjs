@@ -32,7 +32,7 @@ async function fixture(options={}){
   constructor(){this.domElement=new Element(doc,'CANVAS');this.shadowMap={};this.renderLists={dispose:()=>{this.listsDisposed=true;}};this.calls=[];this.uploads=[];renderers.push(this);}
   setPixelRatio(v){this.ratio=v;}
   setSize(w,h){this.domElement.width=w;this.domElement.height=h;}
-  initTexture(texture){if(this.failUpload)throw Error('synthetic GPU upload failure');this.uploads.push({version:texture.version,source:texture.image});}
+  initTexture(texture){if(this.failUpload)throw Error('synthetic GPU upload failure');this.allocations=this.allocations||new WeakMap();const size=[texture.image.naturalWidth||texture.image.width,texture.image.naturalHeight||texture.image.height],allocated=this.allocations.get(texture);if(allocated&&(allocated[0]!==size[0]||allocated[1]!==size[1]))throw Error('synthetic immutable GPU texture dimensions changed');this.allocations.set(texture,size);this.uploads.push({version:texture.version,source:texture.image});}
   render(scene,camera){if(this.fail)throw Error('synthetic GPU render failure');if(scene.matrixWorldAutoUpdate)scene.updateMatrixWorld();camera.updateMatrixWorld(true);this.calls.push({camera,scene,sourceVersion:scene.getObjectByName('current-pet-2d-frame')?.material.map?.version});}
   dispose(){this.disposed=true;}
   forceContextLoss(){this.lost=true;}
@@ -112,9 +112,9 @@ test('explicit contact metadata and resized dimensions update the same canvas be
   assert.equal(scans,1);const uploads=r.uploads.length;
   f.time(1);f.source.width=32;assert.equal(f.controller.setFrame(f.source,{anchor:.25}),true);
   assert.equal(sprite.center.y,.25,'the explicit foot stays on the ground even when the canvas identity is unchanged');
-  assert.equal(sprite.scale.x,3.3);assert.equal(sprite.scale.y,1.65);assert.equal(r.uploads.length,uploads+1);assert.equal(sprite.material.map,texture);
-  f.time(2);assert.equal(f.controller.setFrame(f.source,{anchor:.4}),true);assert.equal(sprite.center.y,.4);
-  f.time(40);assert.equal(f.controller.setFrame(f.source),true);assert.equal(sprite.center.y,.4);assert.equal(scans,1,'ordinary animation frames do not rescan or cancel their bob');
+  assert.equal(sprite.scale.x,3.3);assert.equal(sprite.scale.y,1.65);assert.equal(r.uploads.length,uploads+1);assert.notEqual(sprite.material.map,texture);const resizedTexture=sprite.material.map;
+  f.time(2);assert.equal(f.controller.setFrame(f.source,{anchor:.4}),true);assert.equal(sprite.center.y,.4);assert.equal(sprite.material.map,resizedTexture);
+  f.time(40);assert.equal(f.controller.setFrame(f.source),true);assert.equal(sprite.center.y,.4);assert.equal(scans,2,'one resize refreshes picking coverage; ordinary animation frames do not rescan or cancel their bob');
  }finally{f.controller.destroy();}
 });
 
@@ -325,5 +325,42 @@ test('portrait fishing frames both visible pet and float, without altering saved
   assert.ok(Math.abs(a.x)<.96&&Math.abs(b.x)<.96,'both subjects stay inside the portrait viewport');assert.ok(Math.abs(b.y)<.96);
   assert.deepEqual(f.controller.camera(),before);assert.equal(JSON.parse(f.host.dataset.townCamera).activityFraming,true);
   f.controller.setFishing(null);f.frame(50);assert.equal(JSON.parse(f.host.dataset.townCamera).activityFraming,false);assert.deepEqual(f.controller.camera(),before);
+ }finally{f.controller.destroy();}
+});
+
+test('intrinsic shrink/grow/aspect changes reallocate immutable GPU textures exactly once; same-size metadata and rejected frames keep allocation',async()=>{
+ const f=await fixture(),textures=[],disposed=new Map();
+ try{
+  assert.equal(f.controller.setFrame(f.source,{anchor:.2}),true);
+  const r=f.renderers[0],sprite=r.calls.at(-1).scene.getObjectByName('current-pet-2d-frame');
+  function track(t){textures.push(t);disposed.set(t,0);t.addEventListener('dispose',()=>disposed.set(t,disposed.get(t)+1));}
+  track(sprite.material.map);
+  for(const [width,height]of [[8,8],[32,16],[64,32],[16,32],[64,64]]){
+   const old=sprite.material.map;f.source.width=width;f.source.height=height;f.time(100+textures.length);
+   assert.equal(f.controller.setFrame(f.source,{anchor:.2}),true);
+   assert.notEqual(sprite.material.map,old);assert.equal(disposed.get(old),1);track(sprite.material.map);
+   assert.equal(sprite.scale.x,1.65*width/height);assert.equal(sprite.center.y,.2);
+   const current=sprite.material.map;assert.equal(f.controller.setFrame(f.source,{anchor:.3}),true);assert.equal(sprite.material.map,current);
+   f.time(200+textures.length);assert.equal(f.controller.setFrame(f.source),true);assert.equal(sprite.material.map,current);
+  }
+  const current=sprite.material.map,count=textures.length,uploads=r.uploads.length;
+  f.source.width=0;assert.equal(f.controller.setFrame(f.source,{anchor:.4}),false);assert.equal(sprite.material.map,current);
+  f.source.width=64;assert.equal(f.controller.setFrame(f.source,{anchor:NaN}),false);assert.equal(sprite.material.map,current);assert.equal(r.uploads.length,uploads);
+  assert.equal(textures.length,count);assert.deepEqual(f.failures,[]);
+  f.controller.destroy();f.controller.destroy();for(const t of textures)assert.equal(disposed.get(t),1,'each retired/current texture is disposed once');
+ }finally{f.controller.destroy();}
+});
+
+test('resized Town coverage uses the new buffer for pet-only picking and normal animation does not rescan it',async()=>{
+ const f=await fixture();let scans=0;const original=f.source.getContext();f.source.getContext=()=>{scans++;return original;};
+ try{
+  assert.equal(f.controller.setFrame(f.source),true);assert.equal(scans,1);
+  f.source.width=32;f.time(50);assert.equal(f.controller.setFrame(f.source),true);f.frame(50);assert.equal(scans,2);
+  const r=f.renderers[0].calls.at(-1),sprite=r.scene.getObjectByName('current-pet-2d-frame');
+  function uv(u,v){const right=new THREE.Vector3(1,0,0).applyQuaternion(r.camera.quaternion),up=new THREE.Vector3(0,1,0).applyQuaternion(r.camera.quaternion),q=sprite.position.clone().addScaledVector(right,(u-sprite.center.x)*sprite.scale.x).addScaledVector(up,(v-sprite.center.y)*sprite.scale.y).project(r.camera);return{clientX:(q.x+1)*195,clientY:(1-q.y)*350};}
+  assert.equal(f.controller.resolveTap(uv(8.5/32,2.5/16)).pet,true,'new opaque cell is hittable after buffer resize');
+  assert.notEqual(f.controller.resolveTap(uv(8.5/16,2.5/16))?.pet,true,'old normalized opaque cell cannot stay in stale coverage');
+  f.time(150);assert.equal(f.controller.setFrame(f.source),true);assert.equal(scans,2);
+  f.source.width=0;assert.equal(f.controller.setFrame(f.source),false);assert.equal(scans,2);
  }finally{f.controller.destroy();}
 });

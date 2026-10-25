@@ -4480,7 +4480,7 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
       loadRequired(shopEntryStyle,function(){return !!styleLoads[shopEntryStyle];},true),
       // UI registration has no eager core access. Fetch it in parallel while
       // retaining economy/layout -> core and walking engine -> scene execution order.
-      loadRequired('/static/pet-game.js?v=20261025-fishing1',uiReady)
+      loadRequired('/static/pet-game.js?v=20261025-resize1',uiReady)
     ]).then(function(){if(!apiReady())throw assetFailure('invalid');});
     loadScript('/static/pet-lilac-motion.js?v=20261025-harmony1',function(){return !!window.PetLilacMotion;},5000,enhanceOptional).catch(function(){});
     loadScript('/static/pet-room-behavior.js?v=4306c88f116b',function(){return !!window.PetRoomBehavior;},5000,enhanceOptional).catch(function(){});

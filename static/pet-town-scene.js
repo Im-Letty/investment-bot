@@ -455,11 +455,15 @@
         }
         var fit = FrameFit.resolve(canvas, frameMetadata, sourceFrame);
         if (!fit) return false;
+        // A canvas object can keep its identity while its drawing buffer resizes.
+        // WebGL2 texture storage is immutable: allocate a fresh GPU texture then.
+        var resized = !!sourceFrame && (fit.width !== sourceFrame.width || fit.height !== sourceFrame.height);
+        if (resized && !changed && canvas.tagName === 'CANVAS') coverage = alphaCoverage(canvas);
         var stamp = win.performance ? win.performance.now() : Date.now();
         // Reduced-motion direction changes are explicit, not an ambient stream.
         // Consume their newly painted buffer even inside the current world draw.
         if (!fit.changed && !reduced && stamp - lastSourceUpload < 32) return true;
-        if (changed) {
+        if (changed || resized) {
           if (texture) texture.dispose(); texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.generateMipmaps = false; texture.minFilter = THREE.LinearFilter; source = canvas;
           sourceCoverage = coverage; sprite.material.map = texture; sprite.material.needsUpdate = true;
         }
