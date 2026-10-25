@@ -89,7 +89,8 @@ body.kn-home-a #myPageOv .mp-toptab.on {
   box-shadow: none;
 }
 
-body.kn-home-a #myPageOv .mo-tabs {
+body.kn-home-a #myPageOv > .mo-tabs {
+  display: none !important;
   flex: 0 0 auto;
   min-width: 0;
   gap: 0;
