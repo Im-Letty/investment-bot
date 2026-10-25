@@ -5,6 +5,7 @@ import Scene from '../static/pet-town-scene.js';
 import Town from '../static/pet-town-walk.js';
 import Fishing from '../static/pet-river-fishing.js';
 import FrameFit from '../static/pet-frame-fit.js';
+import Seasons from '../static/pet-japan-seasons.js';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
@@ -23,10 +24,10 @@ class Element extends Events {
  getBoundingClientRect(){return {left:0,top:0,width:390,height:700};}
 }
 async function fixture(options={}){
- const doc=new Events(),win=new Events(),host=new Element(doc),media=new Events(),frames=new Map(),renderers=[],images=[],observers=[];
+ const doc=new Events(),win=new Events(),host=new Element(doc),media=new Events(),frames=new Map(),renderers=[],images=[],observers=[],timers=new Map();
  let stamp=0,seq=0,allowed=true,ready=0;const failures=[];
  doc.defaultView=win;doc.hidden=false;media.matches=!!options.reduced;
- Object.assign(win,{devicePixelRatio:3,performance:{now:()=>stamp},matchMedia:()=>media,requestAnimationFrame:fn=>{frames.set(++seq,fn);return seq;},cancelAnimationFrame:id=>frames.delete(id),Image:class{constructor(){images.push(this);this.width=this.height=this.naturalWidth=this.naturalHeight=1254;this.tagName='IMG';this.complete=true;}removeAttribute(){this.src='';}}});
+ Object.assign(win,{setTimeout:(fn,delay)=>{timers.set(++seq,{fn,delay});return seq;},clearTimeout:id=>timers.delete(id),devicePixelRatio:3,performance:{now:()=>stamp},matchMedia:()=>media,requestAnimationFrame:fn=>{frames.set(++seq,fn);return seq;},cancelAnimationFrame:id=>frames.delete(id),Image:class{constructor(){images.push(this);this.width=this.height=this.naturalWidth=this.naturalHeight=1254;this.tagName='IMG';this.complete=true;}removeAttribute(){this.src='';}}});
  win.ResizeObserver=class{constructor(fn){this.fn=fn;observers.push(this);}observe(){}disconnect(){this.disconnected=true;}};
  class Renderer{
   constructor(){this.domElement=new Element(doc,'CANVAS');this.shadowMap={};this.renderLists={dispose:()=>{this.listsDisposed=true;}};this.calls=[];this.uploads=[];renderers.push(this);}
@@ -37,9 +38,10 @@ async function fixture(options={}){
   dispose(){this.disposed=true;}
   forceContextLoss(){this.lost=true;}
  }
- const world=options.world||Town.createWorld(),controller=await (options.sceneAPI||Scene).mount({viewport:host,world,position:options.position||{x:1100,y:1100},camera:options.camera,view:options.view,canRun:()=>allowed,three:{...THREE,WebGLRenderer:Renderer},onReady:()=>ready++,onFailure:c=>failures.push(c),onFacing:options.onFacing});
+ if(options.configureHost)options.configureHost(host);
+ const world=options.world||Town.createWorld(),controller=await (options.sceneAPI||Scene).mount({viewport:host,world,position:options.position||{x:1100,y:1100},camera:options.camera,view:options.view,canRun:()=>allowed,three:{...THREE,WebGLRenderer:Renderer},onReady:()=>ready++,onFailure:c=>failures.push(c),onFacing:options.onFacing,seasonNow:options.seasonNow,seasonSubscribe:options.seasonSubscribe});
  const source=new Element(doc,'CANVAS');source.getContext=()=>({RGBA:1,UNSIGNED_BYTE:2,readPixels(x,y,w,h,format,type,pixels){pixels[(2*w+8)*4+3]=255;}});
- return {doc,win,host,media,frames,renderers,images,observers,world,source,controller,failures,get ready(){return ready;},get now(){return stamp;},allow:v=>{allowed=v;},time:v=>{stamp=v;},frame(ms=16){stamp+=ms;const callbacks=[...frames.values()];frames.clear();callbacks.forEach(fn=>fn(stamp));},project(p){const camera=renderers[0].calls.at(-1).camera,g=Scene.groundPoint(world,p),v=new THREE.Vector3(g.x,Scene.heightAt(p),g.z).project(camera);return {clientX:(v.x+1)*195,clientY:(1-v.y)*350};}};
+ return {doc,win,host,media,frames,renderers,images,observers,timers,world,source,controller,failures,get ready(){return ready;},get now(){return stamp;},allow:v=>{allowed=v;},time:v=>{stamp=v;},frame(ms=16){stamp+=ms;const callbacks=[...frames.values()];frames.clear();callbacks.forEach(fn=>fn(stamp));},project(p){const camera=renderers[0].calls.at(-1).camera,g=Scene.groundPoint(world,p),v=new THREE.Vector3(g.x,Scene.heightAt(p),g.z).project(camera);return {clientX:(v.x+1)*195,clientY:(1-v.y)*350};}};
 }
 
 test('world coordinates round-trip and camera settings are bounded without touching the input',()=>{
@@ -58,7 +60,7 @@ test('browser registration can precede the visual-only helper and mount adopts t
  assert.equal(context.PetTownScene.alphaAnchor({tagName:'CANVAS',width:16,height:16,getContext:()=>null}),null);
  const painted={tagName:'CANVAS',width:16,height:16,getContext:()=>({RGBA:1,UNSIGNED_BYTE:2,readPixels(x,y,w,h,a,b,p){p[(2*w+8)*4+3]=255;}})};
  assert.equal(context.PetTownScene.alphaAnchor(painted),.125,'the existing public diagnostics work synchronously before any mount or helper import');
- context.PetFrameFit=FrameFit;
+ context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;
  const f=await fixture({sceneAPI:context.PetTownScene});try{assert.equal(f.controller.setFrame(f.source,{anchor:.3}),true);assert.equal(f.renderers[0].calls.at(-1).scene.getObjectByName('current-pet-2d-frame').center.y,.3);assert.deepEqual(f.failures,[]);}finally{f.controller.destroy();}
 });
 
@@ -363,4 +365,65 @@ test('resized Town coverage uses the new buffer for pet-only picking and normal 
   f.time(150);assert.equal(f.controller.setFrame(f.source),true);assert.equal(scans,2);
   f.source.width=0;assert.equal(f.controller.setFrame(f.source),false);assert.equal(scans,2);
  }finally{f.controller.destroy();}
+});
+
+function textureDocument(){
+ const canvases=[];
+ return {canvases,createElement(){
+  const colors=[],canvas={width:0,height:0};
+  const ctx={fillStyle:'',fillRect(){colors.push(this.fillStyle);},createRadialGradient(){return{addColorStop(){}};},beginPath(){},ellipse(){},fill(){},fillText(){}};
+  canvas.getContext=()=>ctx;canvas.colors=colors;canvases.push(canvas);return canvas;
+ }};
+}
+test('four seasons share exact facility, surface and collision geometry while changing only tagged outdoor finishes',()=>{
+ const world=Town.createWorld(),before=JSON.stringify(world),doc=textureDocument(),m=Scene.buildWorld(THREE,world,{},null,doc,'spring');
+ const matrices=m.occluders.map(o=>Array.from(o.matrixWorld.elements)),geos=[...m.geometries],materials=[...m.materials];
+ const placeColors=materials.filter(x=>['wood','ceramic','plaster','water'].includes(x.userData.surfaceRole)).map(x=>x.color.getHex());
+ const land=m.scene.getObjectByName('dry-land'),surfaceIds=m.surfaces.map(x=>x.uuid),textureHistory=[],disposed=[];
+ for(const key of ['spring','summer','autumn','winter','spring']){
+  const old=land.material.map;if(old&&!textureHistory.includes(old)){textureHistory.push(old);old.addEventListener('dispose',()=>disposed.push(old));}
+  assert.equal(m.setSeason(key),true);assert.equal(m.scene.userData.season,key);assert.equal(m.scene.fog,null);
+  assert.equal(land.material.map.image.colors[0],Seasons.profile(key).ground,'ground canvas is generated in the intended hue, not a white tint over green');
+  assert.deepEqual(m.surfaces.map(x=>x.uuid),surfaceIds);assert.deepEqual(m.occluders.map(o=>Array.from(o.matrixWorld.elements)),matrices);
+  assert.deepEqual([...m.geometries],geos);assert.deepEqual([...m.materials],materials);
+  assert.deepEqual(materials.filter(x=>['wood','ceramic','plaster','water'].includes(x.userData.surfaceRole)).map(x=>x.color.getHex()),placeColors);
+  assert.deepEqual(Object.entries(m.seasonGroups).filter(([,g])=>g.visible).map(([k])=>k),[key]);
+  const count=doc.canvases.length,tex=land.material.map;assert.equal(m.setSeason(key),true);assert.equal(doc.canvases.length,count);assert.equal(land.material.map,tex);
+ }
+ assert.equal(m.setSeason('rainy'),false);assert.equal(JSON.stringify(world),before);assert.ok(m.seasonGroups.spring.children.length>0);assert.ok(m.seasonGroups.spring.children.filter(o=>o.visible&&o.isMesh).length<=3,'spring accents have a three-draw-call budget rather than 48 individual meshes');assert.ok(m.seasonGroups.winter.children.every(o=>o.isMesh&&o.geometry.attributes.position));
+ assert.equal(m.seasonGroups.summer.children.length,0,'existing summer flowers are retained without extra weather particles');
+ for(const key of ['spring','autumn','winter'])assert.ok(new THREE.Box3().setFromObject(m.seasonGroups[key]).min.y>=.0249,key+' decorative stem/leaf/snow base meets the .025 floor instead of floating or sinking');
+ const current=land.material.map;current.addEventListener('dispose',()=>disposed.push(current));m.dispose();m.dispose();assert.equal(new Set(disposed).size,disposed.length);assert.ok(textureHistory.every(t=>disposed.includes(t)));assert.ok(disposed.includes(current));
+});
+test('same-scene JST changes preserve the selected frame, player position, camera, fishing and reduced-motion cadence without daily texture churn',async()=>{
+ let now=Date.parse('2026-05-31T14:59:59.999Z'),notify,unsubscribed=0;
+ const f=await fixture({reduced:true,seasonNow:()=>now,seasonSubscribe:fn=>{notify=fn;return()=>{unsubscribed++;};}});
+ try{
+  f.controller.setFrame(f.source);f.controller.setFishing({phase:'waiting'});f.frame(40);
+  const r=f.renderers[0],oldScene=r.calls.at(-1).scene,pet=oldScene.getObjectByName('current-pet-2d-frame'),map=pet.material.map,position=pet.position.clone(),camera=f.controller.camera(),calls=r.calls.length;
+  assert.equal(f.host.dataset.townSeason,'spring');assert.equal(f.host.dataset.townSeasonDate,'2026-05-31');assert.equal(f.timers.size,1);
+  now=Date.parse('2026-05-31T15:00:00Z');notify();assert.equal(f.host.dataset.townSeason,'summer');assert.equal(f.host.dataset.townSeasonDate,'2026-06-01');f.frame(40);
+  assert.equal(r.calls.at(-1).scene,oldScene);assert.equal(pet.material.map,map);assert.deepEqual(pet.position,position);assert.deepEqual(f.controller.camera(),camera);assert.equal(f.host.dataset.fishingPhase,'waiting');assert.equal(r.calls.length,calls+1);assert.equal(f.frames.size,0);
+  now+=86400000;const after=r.calls.length;notify();assert.equal(f.host.dataset.townSeasonDate,'2026-06-02');assert.equal(f.frames.size,0);assert.equal(r.calls.length,after,'a new day in one season does not redraw or allocate decorative geometry');
+  f.doc.hidden=true;now=Date.parse('2026-11-30T15:00:00Z');notify();assert.equal(f.host.dataset.townSeason,'summer');f.doc.hidden=false;f.doc.emit('visibilitychange');assert.equal(f.host.dataset.townSeason,'winter');f.frame(40);
+  now=NaN;notify();assert.equal(f.host.dataset.townSeason,'winter');assert.equal(f.failures.length,0);
+ }finally{f.controller.destroy();}const last=f.timers.size;notify();assert.equal(last,0);assert.equal(f.timers.size,0);assert.equal(unsubscribed,1);
+});
+
+test('a synchronous initial season presentation failure clears its just-created watcher and every borrowed scene resource',async()=>{
+ const f=await fixture({configureHost:host=>Object.defineProperty(host.dataset,'townSeason',{set(){throw Error('synthetic failed presentation target');},configurable:true})});
+ assert.equal(f.controller,null);assert.deepEqual(f.failures,['town_season_unavailable']);assert.equal(f.timers.size,0);assert.equal(f.frames.size,0);assert.equal(f.host.children.length,0);
+ assert.equal(f.renderers[0].disposed,true);assert.equal(f.win.count(),0);assert.equal(f.doc.count(),0);
+});
+
+test('public geometry builder still works before the newly lazy calendar module is registered',()=>{
+ const context=vm.createContext({PetTownWalk:Town});
+ vm.runInContext(readFileSync(new URL('../static/pet-town-scene.js',import.meta.url),'utf8'),context);
+ assert.equal(context.PetJapanSeasons,undefined);
+ const doc=textureDocument(),model=context.PetTownScene.buildWorld(THREE,Town.createWorld(),{},null,doc);
+ try{
+  const land=model.scene.getObjectByName('dry-land');assert.equal(land.material.map.image.colors[0],'#b1cf83');
+  assert.equal(model.scene.background.getHexString(),'cbe7e8');assert.equal(model.setSeason('winter'),false);
+  context.PetJapanSeasons=Seasons;assert.equal(model.setSeason('winter'),true);assert.equal(land.material.map.image.colors[0],Seasons.profile('winter').ground);
+ }finally{model.dispose();}
 });

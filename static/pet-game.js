@@ -1987,7 +1987,7 @@
     if (townSceneLoading) return townSceneLoading;
     if (!d.head) return Promise.resolve(null);
     townSceneLoading = new Promise(function (resolve) {
-      var script = d.createElement('script'); script.src = '/static/pet-town-scene.js?v=20261025-resize1'; script.async = true;
+      var script = d.createElement('script'); script.src = '/static/pet-town-scene.js?v=20261025-seasons1'; script.async = true;
       script.onload = function () { resolve(w.PetTownScene && typeof w.PetTownScene.mount === 'function' ? w.PetTownScene : null); };
       script.onerror = function () { townSceneLoading = null; script.remove(); resolve(null); };
       d.head.appendChild(script);
@@ -2200,7 +2200,8 @@
         if (!api) { fallback(); return null; }
         visualAttempted = true;
         return api.mount({ viewport: viewport, world: world, position: townController.position(), camera: townCamera,
-          view: townPresentation(s), canRun: function () { return active() && sceneState !== 'fallback'; },
+          view: townPresentation(s), seasonNow: options && options.seasonNow, seasonSubscribe: options && options.seasonSubscribe,
+          canRun: function () { return active() && sceneState !== 'fallback'; },
           onFacing: function (frame) { if (active() && request && request.controller && typeof request.controller.setLocomotion === 'function') request.controller.setLocomotion(currentWorldReaction() ? null : frame); },
           onCamera: function (camera) { if (active()) townCamera = { yaw: camera.yaw, pitch: camera.pitch, distance: camera.distance }; },
           onReady: function () { if (active() && sceneState === 'loading' && townController === controllerAtStart) { reveal('ready'); guide.textContent = 'ドアへ進むと中に入る・ドラッグで見渡す'; viewport.setAttribute('aria-label', '街をおさんぽ。地面やドアをタップして歩き、ドア正面へ押し進むと入れます。ドラッグで見渡せます。矢印キーやWASDでも歩けます。'); } },

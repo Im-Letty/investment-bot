@@ -3,12 +3,13 @@
   'use strict';
   var api = factory(typeof module === 'object' && module.exports ? require('./pet-town-walk.js') : root.PetTownWalk,
     typeof module === 'object' && module.exports ? require('./pet-frame-fit.js') : root.PetFrameFit,
-    typeof module === 'object' && module.exports ? require('./pet-river-fishing.js') : root.PetRiverFishing);
+    typeof module === 'object' && module.exports ? require('./pet-river-fishing.js') : root.PetRiverFishing,
+    typeof module === 'object' && module.exports ? require('./pet-japan-seasons.js') : root.PetJapanSeasons);
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.PetTownScene = api;
-}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit, Fishing) {
+}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit, Fishing, Seasons) {
   'use strict';
-  var threeLoading = null, frameFitLoading = null, UNIT = 100, TAU = Math.PI * 2;
+  var threeLoading = null, frameFitLoading = null, seasonsLoading = null, UNIT = 100, TAU = Math.PI * 2;
   var shoreline = [[0, 2880], [550, 2840], [1050, 2720], [1450, 2510], [1920, 1990]];
   function finite(n) { return typeof n === 'number' && Number.isFinite(n); }
   function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
@@ -90,26 +91,38 @@
     }).catch(function (error) { frameFitLoading = null; throw error; });
     return frameFitLoading;
   }
-  function groundTexture(THREE, doc) {
+  function loadSeasons() {
+    var current = Seasons || globalThis.PetJapanSeasons;
+    if (current && typeof current.watch === 'function') { Seasons = current; return Promise.resolve(current); }
+    if (!seasonsLoading) seasonsLoading = import('/static/pet-japan-seasons.js?v=20261025-seasons1').then(function () {
+      var api = globalThis.PetJapanSeasons;
+      if (!api || typeof api.watch !== 'function') throw new Error('seasons_unavailable');
+      Seasons = api; return api;
+    }).catch(function (error) { seasonsLoading = null; throw error; });
+    return seasonsLoading;
+  }
+  function groundTexture(THREE, doc, season) {
     if (!doc || !doc.createElement) return null;
     var canvas = doc.createElement('canvas'); canvas.width = canvas.height = 512;
     var ctx = canvas.getContext && canvas.getContext('2d'); if (!ctx) return null;
-    ctx.fillStyle = '#b1cf83'; ctx.fillRect(0, 0, 512, 512);
+    var api = Seasons || globalThis.PetJapanSeasons, palette = api && api.profile(season || 'summer');
+    palette = palette || {ground:'#b1cf83',light:'rgba(222,231,161,.22)',shade:'rgba(91,143,72,.20)',clear:'rgba(177,207,131,0)',grain:'rgba(129,171,89,.23)',spark:'rgba(224,234,173,.27)'};
+    ctx.fillStyle = palette.ground; ctx.fillRect(0, 0, 512, 512);
     function unit(i) { var n = Math.sin(i * 17.13 + 3.1) * 43758.5453; return n - Math.floor(n); }
     function wrapped(x, y, draw) { for (var dx = -512; dx <= 512; dx += 512) for (var dy = -512; dy <= 512; dy += 512) draw(x + dx, y + dy); }
     // Broad, softly blended moss and warm dappled light, rather than uniform grain.
     for (var i = 0; i < 95; i++) {
       var x = unit(i) * 512, y = unit(i + 4000) * 512, radius = 24 + unit(i + 9) * 76;
       wrapped(x, y, function (cx, cy) { var gradient = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
-        gradient.addColorStop(0, i % 3 ? 'rgba(222,231,161,.22)' : 'rgba(91,143,72,.20)'); gradient.addColorStop(1, 'rgba(177,207,131,0)');
+        gradient.addColorStop(0, i % 3 ? palette.light : palette.shade); gradient.addColorStop(1, palette.clear);
         ctx.fillStyle = gradient; ctx.fillRect(cx - radius, cy - radius, radius * 2, radius * 2); });
     }
-    for (var c = 0; c < 500; c++) { var cx = unit(c + 8000) * 512, cy = unit(c + 10000) * 512; ctx.fillStyle = c % 4 ? 'rgba(129,171,89,.23)' : 'rgba(224,234,173,.27)'; wrapped(cx, cy, function (wx, wy) { for (var leaf = 0; leaf < 3; leaf++) { ctx.beginPath(); ctx.ellipse(wx + Math.sin(leaf * TAU / 3) * 2.7, wy + Math.cos(leaf * TAU / 3) * 2.7, 2.8, 1.7, leaf, 0, TAU); ctx.fill(); } }); }
+    for (var c = 0; c < 500; c++) { var cx = unit(c + 8000) * 512, cy = unit(c + 10000) * 512; ctx.fillStyle = c % 4 ? palette.grain : palette.spark; wrapped(cx, cy, function (wx, wy) { for (var leaf = 0; leaf < 3; leaf++) { ctx.beginPath(); ctx.ellipse(wx + Math.sin(leaf * TAU / 3) * 2.7, wy + Math.cos(leaf * TAU / 3) * 2.7, 2.8, 1.7, leaf, 0, TAU); ctx.fill(); } }); }
     var texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.anisotropy = 4; return texture;
   }
-  function buildWorld(THREE, world, view, avoid, doc) {
+  function buildWorld(THREE, world, view, avoid, doc, seasonKey) {
     var scene = new THREE.Scene(), group = new THREE.Group(), geometries = new Set(), materials = new Set(), textures = new Set();
-    var surfaces = [], occluders = [], pickables = [], trees = [], ripples = [], droplets = [], placeGroups = [], disposed = false;
+    var surfaces = [], occluders = [], pickables = [], trees = [], ripples = [], droplets = [], placeGroups = [], seasonalSites = [], seasonGroups = {}, seasonBatches = [], activeSeason = null, disposed = false;
     scene.add(group); group.name = 'saved-town-geometry';
     var cache = {}, boxGeometry = new THREE.BoxGeometry(1, 1, 1, 4, 4, 4), sphereGeometry = new THREE.SphereGeometry(1, 16, 10), leafGeometry = new THREE.SphereGeometry(1, 10, 6), cylinderGeometry = new THREE.CylinderGeometry(1, 1, 1, 16);
     // Shared bevelled box: small trim and furniture keep the adopted soft edges.
@@ -120,7 +133,7 @@
     // Match the saved cream/peach/mint artwork with distinct, softly lit surfaces.
     // Grass and plaster stay matte; glazed roof tiles keep a small clear highlight.
     var finishes = {
-      grass: { roughness: .96, metalness: 0 }, foliage: { roughness: .88, metalness: 0 },
+      grass: { roughness: .96, metalness: 0 }, foliage: { roughness: .88, metalness: 0 }, flower: { roughness: .84, metalness: 0 },
       plaster: { roughness: .82, metalness: 0 }, wood: { roughness: .68, metalness: 0 },
       ceramic: { roughness: .46, metalness: 0 }, stone: { roughness: .8, metalness: 0 },
       water: { roughness: .26, metalness: 0 }, metal: { roughness: .45, metalness: .18 }
@@ -137,7 +150,7 @@
     function mat(color, transparent, role) {
       role = role || colorRoles[color] || 'stone';
       var key = color + ':' + !!transparent + ':' + role, finish = finishes[role] || finishes.stone;
-      if (!cache[key]) { cache[key] = new THREE.MeshStandardMaterial({ color: color, roughness: finish.roughness, metalness: finish.metalness, transparent: !!transparent, opacity: transparent ? .72 : 1 }); cache[key].userData.surfaceRole = role; materials.add(cache[key]); }
+      if (!cache[key]) { cache[key] = new THREE.MeshStandardMaterial({ color: color, roughness: finish.roughness, metalness: finish.metalness, transparent: !!transparent, opacity: transparent ? .72 : 1 }); cache[key].userData.surfaceRole = role; cache[key].userData.baseColor = color; if (role === 'foliage' || role === 'flower') cache[key].userData.seasonRole = role; materials.add(cache[key]); }
       return cache[key];
     }
     function mesh(geo, material, parent, x, y, z) {
@@ -160,7 +173,7 @@
     function daisy(parent, x, y, z, size, blush) {
       var g = new THREE.Group(); g.name = 'five-petal-daisy'; g.position.set(x, y, z); parent.add(g);
       cylinder(g, .012 * size, .19 * size, '#82aa68', 0, .095 * size, 0);
-      for (var d = 0; d < 5; d++) { var angle = d * TAU / 5; var petal = ball(g, blush ? '#edc0c1' : '#fff1d9', Math.sin(angle) * .069 * size, .21 * size, Math.cos(angle) * .069 * size, .058 * size, .035 * size, .078 * size); petal.rotation.y = angle; }
+      for (var d = 0; d < 5; d++) { var angle = d * TAU / 5; var petal = ball(g, mat(blush ? '#edc0c1' : '#fff1d9', false, 'flower'), Math.sin(angle) * .069 * size, .21 * size, Math.cos(angle) * .069 * size, .058 * size, .035 * size, .078 * size); petal.rotation.y = angle; }
       ball(g, '#dfb666', 0, .23 * size, 0, .042 * size, .033 * size, .042 * size);
       leaf(g, '#a0c583', -.035 * size, .06 * size, .02 * size, .08 * size, 1.1, -.8); return g;
     }
@@ -187,9 +200,10 @@
     landShape.lineTo(-world.width / 200, -world.height / 200); landShape.closePath();
     // ShapeGeometry is XY; rotate it into XZ. The shoreline shares the collision model's coordinates.
     var land = mesh(new THREE.ShapeGeometry(landShape), '#b1cf83', group, 0, .025, 0); land.rotation.x = -Math.PI / 2; land.name = 'dry-land'; surfaces.push(land);
-    var grassTexture = groundTexture(THREE, doc);
-    if (grassTexture) { textures.add(grassTexture); grassTexture.repeat.set(world.width / 640, world.height / 640); land.material = mat('#ffffff', false, 'grass'); land.material.map = grassTexture;
-      var landVertices = land.geometry.attributes.position, uv = land.geometry.attributes.uv; for (var li = 0; li < uv.count; li++) uv.setXY(li, (landVertices.getX(li) + world.width / 200) / (world.width / UNIT), (landVertices.getY(li) + world.height / 200) / (world.height / UNIT)); uv.needsUpdate = true; }
+    var grassTexture = null; land.material = mat('#ffffff', false, 'grass'); land.material.userData.seasonRole = 'ground';
+    var landVertices = land.geometry.attributes.position, uv = land.geometry.attributes.uv;
+    for (var li = 0; li < uv.count; li++) uv.setXY(li, (landVertices.getX(li) + world.width / 200) / (world.width / UNIT), (landVertices.getY(li) + world.height / 200) / (world.height / UNIT));
+    uv.needsUpdate = true;
     var sea = box(group, 160, .06, 160, '#86c8c8', 0, -.08, 0); sea.name = 'water';
     for (var r = 0; r < 26; r++) {
       var py = (r + .5) / 26 * world.height, bankIndex = Math.min(shoreline.length - 2, Math.floor(py / 500));
@@ -324,7 +338,8 @@
     for (var flower = 0; flower < 65; flower++) {
       var fp = { x: 80 + flower % 13 * 193 + Math.sin(flower * 7.3) * 48, y: 110 + Math.floor(flower / 13) * 353 + Math.cos(flower * 3.1) * 64 };
       if (!Town.isWalkable(world, fp.x, fp.y) || world.places.some(function (p) { return Math.hypot(p.x - fp.x, p.y - fp.y) < 155; })) continue;
-      var fpos = groundPoint(world, fp), clump = new THREE.Group(); clump.position.set(fpos.x, .026, fpos.z); group.add(clump);
+      var fpos = groundPoint(world, fp); if (flower % 4 === 0) seasonalSites.push(fpos);
+      var clump = new THREE.Group(); clump.position.set(fpos.x, .026, fpos.z); group.add(clump);
       leafBush(clump, -.08, 0, -.04, .18 + flower % 3 * .025, flower);
       daisy(clump, .04, 0, .03, .75 + flower % 4 * .08, flower % 7 === 0);
       if (flower % 3 === 0) { daisy(clump, -.15, 0, .12, .6, false); var rock = ball(clump, '#d0cbb9', .16, .035, -.05, .12, .065, .1); rock.rotation.y = flower; }
@@ -337,15 +352,76 @@
       if (edgeTree % 2) { leafBush(group, ex + .5, .025, ez + .5, .6, edgeTree); for (var edgeFlower = 0; edgeFlower < 3; edgeFlower++) daisy(group, ex + .25 + edgeFlower * .2, .026, ez + .85, .85, false); }
     }
     for (var hill = 0; hill < 7; hill++) { ball(group, hill % 2 ? '#b0ceac' : '#c4dbb9', -16 + hill * 5, -.45, -14.5, 3.2, 2.4, 3.2); if (hill < 5) ball(group, '#bad4b1', -16 + hill * 4.5, -.65, 14.5, 3, 2.3, 3); }
+    // Small, solid seasonal accents share this village's positions. They are
+    // decorative only: never added to walking surfaces, saved layouts or doors.
+    ['spring', 'summer', 'autumn', 'winter'].forEach(function (key) {
+      var decor = new THREE.Group(); decor.name = 'season-' + key + '-accents'; decor.userData.seasonRole = key; decor.visible = false;
+      scene.add(decor); seasonGroups[key] = decor;
+      seasonalSites.slice(0, 8).forEach(function (p, i) {
+        if (key === 'spring') {
+          cylinder(decor, .012, .18, '#82aa68', p.x, .115, p.z).name = 'spring-blossom-stem';
+          for (var b = 0; b < 5; b++) {
+            var a = b * TAU / 5, petal = ball(decor, '#f4c5d4', p.x + Math.sin(a) * .11, .20, p.z + Math.cos(a) * .11, .10, .045, .13);
+            petal.rotation.y = a; petal.name = 'spring-rounded-blossom';
+          }
+          ball(decor, '#e7c278', p.x, .23, p.z, .055, .035, .055);
+        } else if (key === 'autumn') {
+          var fallen = leaf(decor, i % 2 ? '#bd8756' : '#d7b16d', p.x + .22, .061, p.z + .13, .16, Math.PI / 2, 0);
+          fallen.rotation.set(Math.PI / 2, 0, i * 1.7);
+          fallen.name = 'autumn-fallen-leaf';
+        } else if (key === 'winter') {
+          var snow = ball(decor, '#f0eee0', p.x - .10, .08, p.z + .05, .28, .055, .18);
+          snow.name = 'winter-low-snow-edge'; snow.receiveShadow = true;
+        }
+      });
+    });
+    // Seasonal accents are static instances per season/material. Their parent
+    // visibility changes as one unit without adding dozens of mobile draw calls.
+    scene.updateMatrixWorld(true);
+    Object.keys(seasonGroups).forEach(function (key) {
+      var decor = seasonGroups[key], groups = {};
+      decor.children.slice().forEach(function (m) { var id = m.geometry.uuid + ':' + m.material.uuid; (groups[id] || (groups[id] = [])).push(m); });
+      Object.keys(groups).forEach(function (id) {
+        var rows = groups[id], batch = new THREE.InstancedMesh(rows[0].geometry, rows[0].material, rows.length);
+        batch.name = 'season-detail-batch'; batch.userData.seasonRole = key; batch.receiveShadow = true;
+        rows.forEach(function (m, i) { batch.setMatrixAt(i, m.matrixWorld); m.visible = false; });
+        batch.computeBoundingSphere(); decor.add(batch); seasonBatches.push({ mesh: batch, rows: rows, dynamic: false });
+      });
+    });
+    function setSeason(key) {
+      var api = Seasons || globalThis.PetJapanSeasons, palette = api ? api.profile(key) :
+        key === 'summer' ? { ground: '#b1cf83', sky: '#cbe7e8' } : null;
+      if (disposed || !palette) return false;
+      if (activeSeason === key) return true;
+      // Texture hues are authored for each season; a green bitmap tinted white
+      // would leave winter muddy. One replacement happens only at a season edge.
+      var nextTexture = groundTexture(THREE, doc, key);
+      if (nextTexture) { textures.add(nextTexture); nextTexture.repeat.set(world.width / 640, world.height / 640); }
+      land.material.map = nextTexture; land.material.color.set(nextTexture ? '#ffffff' : palette.ground); land.material.needsUpdate = true;
+      if (grassTexture) { textures.delete(grassTexture); grassTexture.dispose(); }
+      grassTexture = nextTexture;
+      materials.forEach(function (m) {
+        var role = m.userData.seasonRole, base = m.userData.baseColor;
+        if (role === 'foliage' && palette.foliage) {
+          var index = roleColors.foliage.indexOf(base);
+          m.color.set(index >= 13 ? palette.hills[(index - 13) % palette.hills.length] : palette.foliage[Math.max(0, index) % palette.foliage.length]);
+        } else if (role === 'flower' && palette.flowers) m.color.set(palette.flowers[base === '#edc0c1' ? 0 : 1]);
+      });
+      Object.keys(seasonGroups).forEach(function (k) { seasonGroups[k].visible = k === key; });
+      activeSeason = key; scene.background.set(palette.sky); scene.userData.season = key;
+      scene.updateMatrixWorld(true);
+      return true;
+    }
     // A clear finite village needs no white fog wash over the character's colors.
     scene.background = new THREE.Color('#cbe7e8'); scene.fog = null;
+    setSeason(seasonKey || 'summer');
     scene.add(new THREE.HemisphereLight('#f5f8ff', '#90a77e', 1.45));
     var sun = new THREE.DirectionalLight('#fff8ed', 2.2); sun.position.set(-7, 12, 8); sun.castShadow = true; sun.shadow.mapSize.set(512, 512); sun.shadow.radius = 3;
     Object.assign(sun.shadow.camera, { left: -16, right: 16, top: 12, bottom: -12, near: .1, far: 45 }); sun.shadow.normalBias = .04; scene.add(sun);
     // Batch repeated primitives by material and neighborhood. Keep the original
     // meshes only as exact picking/camera collision targets; never draw them twice.
     scene.updateMatrixWorld(true);
-    var buckets = {}, batches = [], originals = [];
+    var buckets = {}, batches = seasonBatches.slice(), originals = [];
     group.traverse(function (m) { if (!m.isMesh || !m.visible) return; var cell = Math.floor(m.matrixWorld.elements[12] / 5) + ':' + Math.floor(m.matrixWorld.elements[14] / 5);
       var key = m.geometry.uuid + ':' + m.material.uuid + ':' + cell; (buckets[key] || (buckets[key] = [])).push(m); });
     Object.keys(buckets).forEach(function (key) {
@@ -365,13 +441,14 @@
     }
     function dispose() { if (disposed) return; disposed = true; batches.forEach(function (b) { b.mesh.dispose(); }); geometries.forEach(function (g) { g.dispose(); }); materials.forEach(function (m) { m.dispose(); }); textures.forEach(function (t) { t.dispose(); }); sun.shadow.dispose(); scene.clear(); }
     return { scene: scene, surfaces: surfaces, occluders: occluders, pickables: pickables, placeGroups: placeGroups, animate: animate, dispose: dispose,
+      setSeason: setSeason, seasonGroups: seasonGroups,
       geometries: geometries, materials: materials, textures: textures, batches: batches, people: people(world, view, avoid) };
   }
   async function mount(options) {
     options = options || {};
     var host = options.viewport, doc = host && host.ownerDocument, win = doc && doc.defaultView;
     var dead = false, failed = false, ready = false, dirty = false, rendering = false, renderer = null, observer = null, raf = null, lastPaint = -Infinity, lastSourceUpload = -Infinity;
-    var removers = [], texture = null, source = null, sourceCoverage = null, sourceFrame = null, cameraView = cameraState(options.camera), actualYaw = cameraView.yaw, drag = null, intervals = [];
+    var removers = [], seasonWatch = null, texture = null, source = null, sourceCoverage = null, sourceFrame = null, cameraView = cameraState(options.camera), actualYaw = cameraView.yaw, drag = null, intervals = [];
     var world = options.world, position = Town.spawn(world, options.position), model = null, motion = { walking: false, dx: 0, dy: 0 }, heading = cameraView.yaw, travelled = 0;
     var media = win && win.matchMedia ? win.matchMedia('(prefers-reduced-motion: reduce)') : null, reduced = !!(media && media.matches);
     function active() { if (dead || failed || !host || host.isConnected === false || !doc || doc.hidden) return false; try { return !options.canRun || !!options.canRun(); } catch (_) { return false; } }
@@ -381,15 +458,16 @@
     function destroy() {
       if (dead) return; cancel(); dead = true; drag = null; sourceCoverage = null;
       function release(fn) { try { fn(); } catch (_) {} }
+      if (seasonWatch) release(function () { seasonWatch.destroy(); });
       if (observer) release(function () { observer.disconnect(); }); removers.forEach(release); removers = [];
       if (fishingVisual) release(function () { fishingVisual.dispose(); });
       if (model) release(function () { model.dispose(); }); if (texture) release(function () { texture.dispose(); });
       if (renderer) { release(function () { renderer.renderLists.dispose(); }); release(function () { renderer.dispose(); }); release(function () { renderer.forceContextLoss(); }); release(function () { renderer.domElement.remove(); }); }
-      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; }
+      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; }
     }
     function fail(code) { if (dead || failed) return; failed = true; destroy(); report('onFailure', code); }
     var THREE;
-    try { var dependencies = await Promise.all([options.three || loadThree(), loadFrameFit()]); THREE = dependencies[0]; } catch (_) { fail('town_module_unavailable'); return null; }
+    try { var dependencies = await Promise.all([options.three || loadThree(), loadFrameFit(), loadSeasons()]); THREE = dependencies[0]; } catch (_) { fail('town_module_unavailable'); return null; }
     if (!active()) { destroy(); return null; }
     var sprite, playerShadow, camera, ray, pointer, direction, target, desired, contactMap = null, fishingVisual = null, fishingState = null;
     function contactShadow(radius) {
@@ -506,7 +584,9 @@
       }
     };
     try {
-      model = buildWorld(THREE, world, options.view, position, doc);
+      var seasonNow = typeof options.seasonNow === 'function' ? options.seasonNow : Date.now, firstSeason = null;
+      try { firstSeason = Seasons.resolve(seasonNow()); } catch (_) {}
+      model = buildWorld(THREE, world, options.view, position, doc, firstSeason ? firstSeason.key : 'summer');
       if (Fishing && typeof Fishing.createVisual === 'function') { fishingVisual = Fishing.createVisual(THREE, world); model.scene.add(fishingVisual.group); }
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: false }); renderer.setPixelRatio(Math.min(win.devicePixelRatio || 1, 1.5));
       renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true; renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -525,8 +605,20 @@
       });
       function end(e) { if (drag && (e.pointerId === undefined || drag.id === e.pointerId)) drag = null; }
       listen(win, 'pointerup', end); listen(win, 'pointercancel', end); listen(win, 'blur', function () { drag = null; cancel(); });
-      listen(win, 'focus', schedule);
-      listen(doc, 'visibilitychange', function () { cancel(); drag = null; if (!doc.hidden && active()) requestRender(); });
+      seasonWatch = Seasons.watch({ now: seasonNow, subscribe: options.seasonSubscribe, enabled: active,
+        setTimeout: function (fn, ms) { return win.setTimeout(fn, ms); }, clearTimeout: function (id) { win.clearTimeout(id); },
+        onChange: function (value) {
+          if (!active()) return;
+          try {
+            var changed = model.scene.userData.season !== value.key;
+            model.setSeason(value.key); host.dataset.townSeason = value.key; host.dataset.townSeasonDate = value.dateJst;
+            if (changed) { renderer.shadowMap.needsUpdate = true; requestRender(); }
+          } catch (_) { fail('town_season_unavailable'); }
+        }
+      });
+      if (dead || failed) { seasonWatch.destroy(); return null; }
+      listen(win, 'focus', function () { if (seasonWatch) seasonWatch.check(); schedule(); });
+      listen(doc, 'visibilitychange', function () { cancel(); drag = null; if (!doc.hidden && active()) { if (seasonWatch) seasonWatch.check(); requestRender(); } });
       if (media) listen(media, 'change', function () { reduced = !!media.matches; cancel(); requestRender(); });
       if (win.ResizeObserver) { observer = new win.ResizeObserver(resize); observer.observe(host); } else listen(win, 'resize', resize);
       resize(); schedule(); return dead || failed ? null : controller;
