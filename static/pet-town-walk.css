@@ -3,14 +3,16 @@
 .ipg-village.ipg-town:not(.ipg-village-editor) {
   --ipg-town-edge-left: max(12px, env(safe-area-inset-left, 0px));
   --ipg-town-edge-right: max(12px, env(safe-area-inset-right, 0px));
-  overflow: hidden;
+  overflow: hidden; /* Older engines retain the scoped JS scroll guard. */
+  overflow: clip;
   isolation: isolate;
 }
 
 .ipg-town .ipg-town-viewport {
   position: absolute;
   inset: 0;
-  overflow: hidden;
+  overflow: hidden; /* Older engines retain the scoped JS scroll guard. */
+  overflow: clip;
   margin: 0;
   border: 0;
   border-radius: 0;

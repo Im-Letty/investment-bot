@@ -4365,3 +4365,38 @@ test('season display clock is forwarded only to Town and cannot advance saved ca
  displayTime=Date.parse('2027-06-05T00:00:00Z');assert.equal(scene.options.seasonNow(),displayTime);
  assert.equal(f.now,coreTime);assert.deepEqual(f.saved(),saved);assert.equal(f.writes.length,writes);f.ui.close();
 });
+
+
+test('ready scene keeps transparent legacy world unfocusable while the single live source and automatic fallback remain available', async () => {
+  const f = await villageFixture({ rendererMode: 'ready', townScene: true });
+  const before = f.saved(), writes = f.writes.length, source = f.activeMotions()[0];
+  const { viewport } = townPresentationState(f, 'ready'), world = f.host.querySelector('.ipg-town-world');
+  assert.equal(world.getAttribute('inert'), ''); assert.equal(world.getAttribute('aria-hidden'), 'true');
+  assert.equal(world.style.pointerEvents, 'none'); assert.ok(world.querySelector('.ipg-town-door-hotspot'));
+  assert.equal(world.hidden, false); assert.equal(source.canvas.isConnected, true); assert.equal(source.canvas.hidden, false);
+  assert.equal(f.activeMotions().length, 1); assert.equal(f.townScenes[0].frames.at(-1), source.canvas);
+  f.townScenes[0].fail(); await flush(); townPresentationState(f, 'fallback');
+  assert.equal(world.getAttribute('inert'), null); assert.equal(world.getAttribute('aria-hidden'), null);
+  assert.equal(world.style.pointerEvents, ''); assert.equal(source.canvas.isConnected, true);
+  assert.equal(f.activeMotions().length, 1); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+  f.ui.close();
+});
+
+test('closing fishing instructions and responsive roundtrip clear camera DOM scroll without changing panel scroll or game state', async () => {
+  const f = await riverFixture(), before = f.saved(), writes = f.writes.length, source = f.activeMotions()[0];
+  const viewport = f.host.querySelector('.ipg-town-viewport'), avatar = f.host.querySelector('.ipg-town-avatar');
+  let width = 883, height = 715;
+  viewport.getBoundingClientRect = () => ({ left: 0, top: 0, width, height }); f.window.emit('resize');
+  const position = [avatar.style.left, avatar.style.top];
+  width = 360; height = 800; f.window.emit('resize');
+  await f.click(f.focusButton('river-fishing-open')); const panel = f.host.querySelector('.ipg-fishing-panel'); panel.scrollTop = 57;
+  viewport.scrollTop = 213; viewport.scrollLeft = 45;
+  await f.click(f.focusButton('river-fishing-close'));
+  assert.equal(panel.hidden, true); assert.equal(panel.scrollTop, 57);
+  assert.equal(viewport.scrollTop, 0); assert.equal(viewport.scrollLeft, 0); assert.equal(f.document.activeElement, viewport);
+  width = 883; height = 715; viewport.scrollTop = 213; f.window.emit('resize');
+  assert.equal(viewport.scrollTop, 0); assert.deepEqual([avatar.style.left, avatar.style.top], position);
+  assert.equal(viewport.dataset.sceneState, 'ready'); assert.equal(f.activeMotions()[0], source);
+  assert.equal(f.host.querySelector('.ipg-town-world').style.opacity, '0');
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); f.ui.close();
+});

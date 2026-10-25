@@ -2032,6 +2032,7 @@
     var cancel = button('釣りをやめる', function () { abandon(false); }, true); cancel.dataset.focusKey = 'river-fishing-cancel';
     var close = button('閉じる', function () {
       if (!alive()) return; fishingPanelOpen = false; panel.hidden = true; refresh(); viewport.focus({ preventScroll: true });
+      if (townController && typeof townController.refresh === 'function') townController.refresh();
     }, true); close.dataset.focusKey = 'river-fishing-close';
     append(panel, status, detail, append(node('div', 'ipg-fishing-buttons'), cast, reel, cancel, close));
     append(wrap, toggle, panel); viewport.appendChild(wrap);
@@ -2176,8 +2177,12 @@
     function reveal(mode) {
       sceneState = mode; viewport.dataset.sceneState = mode; viewport.setAttribute('aria-busy', 'false');
       loadingView.hidden = true; guide.hidden = false; clearLoadingWait();
-      scene.style.opacity = mode === 'fallback' ? '1' : '0'; scene.style.pointerEvents = '';
-      scene.removeAttribute('aria-hidden'); scene.removeAttribute('inert');
+      scene.style.opacity = mode === 'fallback' ? '1' : '0';
+      scene.style.pointerEvents = mode === 'fallback' ? '' : 'none';
+      // The live canvas remains sized and connected in Three mode, but its
+      // transparent legacy controls must not focus-scroll the camera viewport.
+      if (mode === 'fallback') { scene.removeAttribute('aria-hidden'); scene.removeAttribute('inert'); }
+      else { scene.setAttribute('aria-hidden', 'true'); scene.setAttribute('inert', ''); }
       if (!s.readOnly) { delete edit.dataset.ipgDisabled; edit.disabled = false; }
       life.setReady(); fishing.refresh();
       if (townController && typeof townController.refresh === 'function') townController.refresh();

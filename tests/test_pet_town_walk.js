@@ -403,3 +403,37 @@ test('synchronous entry navigation may destroy its old controller without resurr
   f.advance(1000); assert.equal(f.raf.size, 0); assert.equal(f.controller.enterDoor('home'), false);
   assert.equal(f.viewport.count() + f.win.count() + f.doc.count(), 0);
 });
+
+
+test('native viewport scroll and focus restore only the camera boundary without movement or idle animation work', () => {
+  const f = fixture(), before = f.controller.position(), transform = f.surface.style.transform;
+  const positions = f.positions.length, panel = f.viewport.append(new Element(f.doc));
+  panel.scrollTop = 67; panel.scrollLeft = 19;
+  f.viewport.scrollTop = 213; f.viewport.scrollLeft = 45;
+  f.viewport.emit('scroll');
+  assert.equal(f.viewport.scrollTop, 0); assert.equal(f.viewport.scrollLeft, 0);
+  assert.equal(panel.scrollTop, 67); assert.equal(panel.scrollLeft, 19);
+  f.viewport.scrollTop = 213;
+  f.viewport.emit('scroll', { target: panel });
+  assert.equal(f.viewport.scrollTop, 213, 'a nested panel scroll is not handled as a viewport scroll');
+  f.viewport.emit('focusin', { target: panel });
+  assert.equal(f.viewport.scrollTop, 0); assert.equal(panel.scrollTop, 67);
+  assert.deepEqual(f.controller.position(), before); assert.equal(f.surface.style.transform, transform);
+  assert.equal(f.positions.length, positions); assert.equal(f.raf.size, 0); assert.deepEqual(f.entries, []);
+  f.controller.destroy();
+});
+
+test('resize and explicit refresh normalize viewport scroll during input gates and remove every guard on destroy', () => {
+  const f = fixture(), before = f.controller.position(), observer = f.observed[0];
+  f.allow(false); f.viewport.width = 360; f.viewport.scrollTop = 213; f.viewport.scrollLeft = 24;
+  observer.fn();
+  assert.equal(f.viewport.scrollTop, 0); assert.equal(f.viewport.scrollLeft, 0);
+  f.viewport.width = 883; f.viewport.scrollTop = 213; f.controller.refresh();
+  assert.equal(f.viewport.scrollTop, 0); assert.deepEqual(f.controller.position(), before); assert.equal(f.raf.size, 0);
+  f.allow(true); f.viewport.scrollTop = 213; f.doc.emit('visibilitychange');
+  assert.equal(f.viewport.scrollTop, 0);
+  f.controller.destroy(); f.viewport.scrollTop = 213; f.viewport.scrollLeft = 24;
+  f.viewport.emit('scroll'); f.viewport.emit('focusin'); observer.fn(); f.controller.refresh();
+  assert.equal(f.viewport.scrollTop, 213); assert.equal(f.viewport.scrollLeft, 24);
+  for (const target of [f.win, f.doc, f.viewport, f.enter, ...f.buttons]) assert.equal(target.count(), 0);
+});

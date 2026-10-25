@@ -188,7 +188,14 @@
       if (!walking && state === lastMotion) return;
       lastMotion = state; callback('onMotion', { walking: walking, dx: dx, dy: dy });
     }
+    function clearViewportScroll() {
+      if (dead || !viewport) return;
+      // The world camera uses transforms; only nested UI panels may scroll.
+      if (viewport.scrollLeft) viewport.scrollLeft = 0;
+      if (viewport.scrollTop) viewport.scrollTop = 0;
+    }
     function draw() {
+      clearViewportScroll();
       if (!active()) return;
       var box = viewport.getBoundingClientRect(), width = box.width || viewport.clientWidth, height = box.height || viewport.clientHeight;
       view = camera(world, width, height, position);
@@ -273,7 +280,7 @@
       try { viewport.focus({ preventScroll: true }); } catch (_) {}
       // Focusing an accessible building can scroll an overflow-hidden viewport
       // before its click handler runs. Camera translation is not DOM scrolling.
-      viewport.scrollLeft = 0; viewport.scrollTop = 0;
+      clearViewportScroll();
     }
     function editing(target) {
       for (var n = target; n; n = n.parentNode) {
@@ -360,6 +367,8 @@
       if (!isWalkable(world, target.x, target.y)) return;
       prevent(event); focusViewport(); keys = {}; releasePointers(); doorIntent = null; resetDoorContact(); destination = target; waypoints = []; schedule();
     });
+    listen(viewport, 'scroll', function (event) { if (event.target === viewport) clearViewportScroll(); }, { passive: true });
+    listen(viewport, 'focusin', clearViewportScroll);
     listen(viewport, 'focusout', function (event) { if (!within(event.relatedTarget)) stop(); });
     listen(win, 'blur', stop); listen(win, 'pagehide', stop);
     listen(doc, 'visibilitychange', function () { if (doc.hidden) stop(); else draw(); });
