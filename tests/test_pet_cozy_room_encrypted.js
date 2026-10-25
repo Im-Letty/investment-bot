@@ -25,9 +25,9 @@ async function open(g) { await g.window.__knGateReady; const app = Core.create({
 const empty = { version: 1, wall: 'floral', floor: 'check', objects: [], nextId: 1 };
 
 test('3D surfaces and original imported furniture round-trip the actual encrypted gate without plaintext, new keys or an initialization write', async () => {
-  const first = gate(), app = await open(first); await app.dispatch({ type: 'chooseEgg', eggOrigin: 'apricot' });
+  const first = gate({ pg_exp: '0' }), app = await open(first);
   const old = { version: 1, items: [{ id: 'room_window', x: 15, y: 22, flip: true }, { id: 'room_bed', x: 85, y: 75, flip: false }] };
-  await app.dispatch({ type: 'saveRoomLayout', layout: old, expectedRevision: app.getState().revision });
+  assert.equal((await app.dispatch({ type: 'saveRoomLayout', layout: old, expectedRevision: app.getState().revision })).ok, true);
   const before = app.getState(), keys = [...first.values.keys()].sort(), design = app.getCozyRoomLayout(); design.wall = 'mint'; design.floor = 'oak';
   assert.equal((await app.dispatch({ type: 'saveCozyRoomLayout', layout: design, expectedRevision: before.revision })).ok, true);
   const ciphertext = first.values.get('knenc:' + Core.KEY); assert.match(ciphertext, /^knv1:/); assert.equal(first.values.has(Core.KEY), false);
@@ -43,7 +43,7 @@ test('3D surfaces and original imported furniture round-trip the actual encrypte
 
 test('a rejected encrypted 3D-room save retains the prior ciphertext, design and complete selected pet record', async () => {
   const first = gate(), app = await open(first); await app.dispatch({ type: 'chooseEgg', eggOrigin: 'mint' });
-  const design = Core.defaultCozyRoomLayout(); await app.dispatch({ type: 'saveCozyRoomLayout', layout: design, expectedRevision: app.getState().revision });
+  const design = app.getCozyRoomLayout(); assert.equal((await app.dispatch({ type: 'saveCozyRoomLayout', layout: design, expectedRevision: app.getState().revision })).ok, true);
   const denied = gate(Object.fromEntries(first.values), true), reopened = await open(denied), before = reopened.getState(), ciphertext = denied.values.get('knenc:' + Core.KEY);
   const result = await reopened.dispatch({ type: 'saveCozyRoomLayout', layout: empty, expectedRevision: before.revision }); assert.equal(result.ok, false); assert.equal(result.error.code, 'storage_failed');
   assert.equal(denied.values.get('knenc:' + Core.KEY), ciphertext); assert.deepEqual(reopened.getCozyRoomLayout(), design); assert.equal(denied.values.has(Core.KEY), false);

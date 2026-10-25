@@ -49,19 +49,22 @@
   // Economic counterparties do not authorize cloned on-screen characters.
   // The initial world is empty until a story and distinct appearances are adopted.
   function people() { return []; }
+  function alphaCoverage(canvas) {
+    var size = sourceSize(canvas);
+    if (!size || canvas.tagName !== 'CANVAS') return null;
+    var gl = canvas.getContext && canvas.getContext('webgl');
+    if (!gl) return null;
+    var width = size.width, height = size.height, pixels = new Uint8Array(width * height * 4);
+    gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+    for (var y = 0; y < height; y++) for (var x = 0; x < width; x++) if (pixels[(y * width + x) * 4 + 3] >= 31) return { anchor: y / height, width: width, height: height, pixels: pixels };
+    return null;
+  }
   function alphaAnchor(canvas) {
     var api = FrameFit || globalThis.PetFrameFit;
     if (api && typeof api.alphaAnchor === 'function') return api.alphaAnchor(canvas);
     // These exported diagnostics predate the lazy renderer dependency. Keep
     // them synchronous before mount; mounted frames use the shared contract.
-    var size = sourceSize(canvas);
-    if (!size || canvas.tagName !== 'CANVAS') return null;
-    var gl = canvas.getContext && canvas.getContext('webgl');
-    if (!gl) return null;
-    var pixels = new Uint8Array(size.width * size.height * 4);
-    gl.readPixels(0, 0, size.width, size.height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-    for (var y = 0; y < size.height; y++) for (var x = 0; x < size.width; x++) if (pixels[(y * size.width + x) * 4 + 3] >= 31) return y / size.height;
-    return null;
+    var coverage = alphaCoverage(canvas); return coverage ? coverage.anchor : null;
   }
   function sourceSize(source) {
     var api = FrameFit || globalThis.PetFrameFit;
@@ -367,7 +370,7 @@
     options = options || {};
     var host = options.viewport, doc = host && host.ownerDocument, win = doc && doc.defaultView;
     var dead = false, failed = false, ready = false, dirty = false, rendering = false, renderer = null, observer = null, raf = null, lastPaint = -Infinity, lastSourceUpload = -Infinity;
-    var removers = [], texture = null, source = null, sourceFrame = null, cameraView = cameraState(options.camera), actualYaw = cameraView.yaw, drag = null, intervals = [];
+    var removers = [], texture = null, source = null, sourceCoverage = null, sourceFrame = null, cameraView = cameraState(options.camera), actualYaw = cameraView.yaw, drag = null, intervals = [];
     var world = options.world, position = Town.spawn(world, options.position), model = null, motion = { walking: false, dx: 0, dy: 0 }, heading = cameraView.yaw, travelled = 0;
     var media = win && win.matchMedia ? win.matchMedia('(prefers-reduced-motion: reduce)') : null, reduced = !!(media && media.matches);
     function active() { if (dead || failed || !host || host.isConnected === false || !doc || doc.hidden) return false; try { return !options.canRun || !!options.canRun(); } catch (_) { return false; } }
@@ -375,7 +378,7 @@
     function report(name, value) { if (typeof options[name] === 'function') try { options[name](value); } catch (_) {} }
     function cancel() { if (raf !== null) { win.cancelAnimationFrame(raf); raf = null; } }
     function destroy() {
-      if (dead) return; cancel(); dead = true; drag = null;
+      if (dead) return; cancel(); dead = true; drag = null; sourceCoverage = null;
       function release(fn) { try { fn(); } catch (_) {} }
       if (observer) release(function () { observer.disconnect(); }); removers.forEach(release); removers = [];
       if (model) release(function () { model.dispose(); }); if (texture) release(function () { texture.dispose(); });
@@ -429,15 +432,23 @@
     function setFrame(canvas, metadata) {
       if (!active() || !renderer) return false;
       try {
-        var fit = FrameFit.resolve(canvas, metadata, sourceFrame);
+        var changed = source !== canvas, coverage = null, frameMetadata = metadata;
+        if (changed && canvas && canvas.tagName === 'CANVAS' && !(metadata != null && Object.prototype.hasOwnProperty.call(metadata, 'anchor'))) {
+          // One initial alpha read serves both foot contact and opaque-pixel
+          // picking; the shared contract still validates its actual anchor.
+          coverage = alphaCoverage(canvas);
+          if (!coverage) return false;
+          frameMetadata = { anchor: coverage.anchor };
+        }
+        var fit = FrameFit.resolve(canvas, frameMetadata, sourceFrame);
         if (!fit) return false;
-        var stamp = win.performance ? win.performance.now() : Date.now(), changed = source !== canvas;
+        var stamp = win.performance ? win.performance.now() : Date.now();
         // Reduced-motion direction changes are explicit, not an ambient stream.
         // Consume their newly painted buffer even inside the current world draw.
         if (!fit.changed && !reduced && stamp - lastSourceUpload < 32) return true;
         if (changed) {
           if (texture) texture.dispose(); texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.generateMipmaps = false; texture.minFilter = THREE.LinearFilter; source = canvas;
-          sprite.material.map = texture; sprite.material.needsUpdate = true;
+          sourceCoverage = coverage; sprite.material.map = texture; sprite.material.needsUpdate = true;
         }
         sprite.center.set(.5, fit.anchor); sprite.scale.set(fit.worldWidth, fit.worldHeight, 1); sprite.visible = true; texture.needsUpdate = true;
         // r160 initTexture synchronously uploads the borrowed nonpreserved buffer.
@@ -463,9 +474,15 @@
         if (!active() || !ready || drag && drag.moved) return null;
         var box = host.getBoundingClientRect(); pointer.set((event.clientX - box.left) / box.width * 2 - 1, -((event.clientY - box.top) / box.height) * 2 + 1);
         ray.setFromCamera(pointer, camera); ray.near = camera.near; ray.far = camera.far;
-        var hits = ray.intersectObjects(model.pickables.concat(model.surfaces), false);
+        var hits = ray.intersectObjects((sprite && sprite.visible ? [sprite] : []).concat(model.pickables, model.surfaces), false).filter(function (hit) {
+          if (hit.object !== sprite || !sourceCoverage || !hit.uv) return true;
+          var x = Math.max(0, Math.min(sourceCoverage.width - 1, Math.floor(hit.uv.x * sourceCoverage.width)));
+          var y = Math.max(0, Math.min(sourceCoverage.height - 1, Math.floor(hit.uv.y * sourceCoverage.height)));
+          return sourceCoverage.pixels[(y * sourceCoverage.width + x) * 4 + 3] >= 31;
+        });
         if (!hits.length) return null;
-        var hit = hits[0], id = hit.object.userData.placeId;
+        var hit = hits[0]; if (hit.object === sprite) return { pet: true };
+        var id = hit.object.userData.placeId;
         if (id) return hit.object.userData.door ? { placeId: id, door: true } : { placeId: id };
         var p = townPoint(world, hit.point); return Town.isWalkable(world, p.x, p.y) ? p : null;
       }

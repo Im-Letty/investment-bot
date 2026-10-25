@@ -116,6 +116,18 @@
     {id:'decor_lantern',name:'とうろうのかざり',width:.55,depth:.55,flat:false,sourceId:'lantern'}
   ].map(function(row){return Object.freeze(row);}));
   var COZY_ROOM_TYPES = COZY_ROOM_FURNITURE.concat(COZY_ROOM_IMPORTS);
+  // New-home acquisition is additive. The original item prices and free legacy
+  // fixtures stay unchanged; a true first visit starts with a bed and a rug.
+  var HOME_FURNISHINGS = Object.freeze([
+    {id:'bed',price:0,minExp:0,purchases:0},{id:'rug',price:0,minExp:0,purchases:0},
+    {id:'table',price:24,minExp:15,purchases:1},{id:'chair',price:32,minExp:45,purchases:2},
+    {id:'plant',price:40,minExp:110,purchases:3},{id:'lamp',price:55,minExp:400,purchases:5},
+    {id:'cupboard',price:95,minExp:400,purchases:7},{id:'counter',price:140,minExp:800,purchases:10}
+  ].map(function(row){return Object.freeze(row);}));
+  var VILLAGE_HARVEST = Object.freeze([
+    Object.freeze({id:'orchard',name:'りんごの木',itemId:'apple'}),
+    Object.freeze({id:'berry',name:'いちご畑',itemId:'berry'})
+  ]);
   var COZY_ROOM_SOURCES = {room_window:'legacy_window',room_shelf:'cupboard',room_rug:'rug',room_bed:'bed',room_bowl:'legacy_bowl',room_toy:'legacy_toy',
     house:'decor_house',tree:'decor_tree',flower:'decor_flower',fountain:'decor_fountain',sunflower:'decor_sunflower',mushroom:'decor_mushroom',lantern:'decor_lantern'};
   // Village places are free entrances, distinct from owned room decorations.
@@ -150,6 +162,8 @@
     invalid_cozy_room_layout:'家具や壁紙・床の配置を確認してください。保存済みのお部屋は変更していません。',
     invalid_shop_interior:'お店を確認してください。保存済みの配置は変更していません。',
     invalid_shop_interior_layout:'家具の位置や通路を確認してください。保存済みのお店は変更していません。',
+    invalid_home_furniture:'おうちの家具を確認してください。',home_furniture_locked:'成長やお買い物で、新しい家具が見つかります。',
+    invalid_harvest:'収穫する場所を確認してください。',harvest_wait:'ここでの収穫は今日はおしまいです。また明日育ちます。',
     invalid_village_layout:'村の配置を確認してください。保存済みの村は変更していません。',
     village_invalid:'食品の数・値段・株数を確認してください。',village_listing_limit:'出品は8件までです。',
     village_not_found:'商品や出品の最新の状態を確認してください。',village_wait:'村の一日を進めるには60秒あけてください。',
@@ -173,6 +187,46 @@
   function integer(n) { return amount(n,false) && Number.isSafeInteger(n); }
   function text(v, n) { return typeof v === 'string' && v.length <= n; }
   function dayKey(ms) { var d = new Date(ms); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+  function harvestDay(ms) {return new Date(ms+32400000).toISOString().slice(0,10);}
+  function newVillageLife(mode) {return {version:1,homeMode:mode,purchaseCount:0,harvest:{day:'',claimed:[]},claimedFurniture:{bed:true,rug:true}};}
+  function validateVillageLife(life,code) {
+    code=code||'corrupt_data';
+    check(exactKeys(life,['version','homeMode','purchaseCount','harvest','claimedFurniture'])&&life.version===1&&
+      ['starter','legacy'].indexOf(life.homeMode)>=0&&integer(life.purchaseCount),code);
+    var h=life.harvest,owned=life.claimedFurniture;
+    check(exactKeys(h,['day','claimed'])&&validDay(h.day,true)&&Array.isArray(h.claimed)&&h.claimed.length<=VILLAGE_HARVEST.length&&
+      Reflect.ownKeys(h.claimed).length===h.claimed.length+1&&(h.day!==''||!h.claimed.length),code);
+    var seen=Object.create(null);
+    h.claimed.forEach(function(id){check(typeof id==='string'&&VILLAGE_HARVEST.some(function(p){return p.id===id;})&&!own(seen,id),code);seen[id]=true;});
+    check(plain(owned)&&Reflect.ownKeys(owned).length===Object.keys(owned).length&&Object.keys(owned).length<=HOME_FURNISHINGS.length,code);
+    Object.keys(owned).forEach(function(id){check(HOME_FURNISHINGS.some(function(f){return f.id===id;})&&owned[id]===true,code);});
+    check(owned.bed===true&&own(owned,'bed')&&owned.rug===true&&own(owned,'rug'),code);return life;
+  }
+  function villageLife(s) {return s&&own(s,'villageLife')?clone(validateVillageLife(s.villageLife)):newVillageLife('legacy');}
+  function ensureVillageLife(s) {if(!own(s,'villageLife'))s.villageLife=newVillageLife('legacy');return validateVillageLife(s.villageLife);}
+  function paidPurchase(s) {var life=ensureVillageLife(s);check(life.purchaseCount<MAX,'amount_overflow');life.purchaseCount++;}
+  function getHomeFurnishingsView(s) {
+    var life=villageLife(s),legacy=life.homeMode==='legacy',exp=s&&s.pet?s.pet.exp:0,chosen=!!s&&!needsEggChoice(s);
+    var rows=HOME_FURNISHINGS.map(function(f){
+      var owned=legacy||own(life.claimedFurniture,f.id),growth=exp>=f.minExp,available=owned||growth||life.purchaseCount>=f.purchases;
+      var spec=COZY_ROOM_FURNITURE.find(function(x){return x.id===f.id;});
+      return {id:f.id,name:spec.name,price:f.price,owned:owned,available:available,canClaim:chosen&&!owned&&growth,
+        canBuy:chosen&&!owned&&available&&!!s&&s.coins>=f.price,minExp:f.minExp,requiredPurchases:f.purchases,
+        reason:owned?'おうちで使えます':growth?'成長のお祝いに受け取れます':available?'お買い物の経験で見つけました':f.minExp+' EXP またはお買い物'+f.purchases+'回で見つかります'};
+    });return {version:1,homeMode:life.homeMode,purchaseCount:life.purchaseCount,items:rows,rows:rows};
+  }
+  function getCozyRoomFurniture(s) {
+    var view=getHomeFurnishingsView(s),legacy=view.homeMode==='legacy';
+    return COZY_ROOM_FURNITURE.filter(function(f){return view.rows.some(function(row){return row.id===f.id&&row.owned;});})
+      .map(function(f){var row=clone(f);row.limit=legacy?24:1;return row;});
+  }
+  function getVillageHarvestView(s,ms) {
+    check(integer(ms),'invalid_clock');var life=villageLife(s),day=harvestDay(ms),back=!!(s&&ms<s.updatedAt)||life.harvest.day!==''&&day<life.harvest.day;
+    return {day:day,nextAt:(Math.floor((ms+32400000)/86400000)+1)*86400000-32400000,plots:VILLAGE_HARVEST.map(function(p){
+      var done=life.harvest.day===day&&life.harvest.claimed.indexOf(p.id)>=0,available=!!s&&!needsEggChoice(s)&&!back&&!done;
+      return {id:p.id,name:p.name,itemId:p.itemId,itemName:item(p.itemId).name,quantity:1,owned:s&&s.inventory?s.inventory[p.itemId]||0:0,claimed:done,available:available,reason:back?'clock_moved_back':done?'harvest_wait':needsEggChoice(s)?'egg_required':null};
+    })};
+  }
   function validDay(v, empty) { if (empty && v === '') return true; if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return false; var d=new Date(v+'T12:00:00');return Number.isFinite(d.getTime()) && dayKey(d.getTime())===v; }
   function sameLegacyDay(a,b) { return typeof a==='string' && a.split('-').map(Number).join('-')===b.split('-').map(Number).join('-'); }
   function parse(raw) {
@@ -287,7 +341,7 @@
     STOCKS.forEach(function(x){m.prices[x.id]=x.base;m.previous[x.id]=x.base;m.holdings[x.id]={quantity:0,costBasis:0};});return m;
   }
   function fresh(ms) { return {version:3,revision:0,createdAt:ms,updatedAt:ms,
-    pet:{name:'',species:'lilac',exp:0,path:'cute',pixel:false,eggOrigin:null},coins:100,inventory:{},wardrobe:{owned:{},equipped:null},
+    pet:{name:'',species:'lilac',exp:0,path:'cute',pixel:false,eggOrigin:null},coins:100,inventory:{},wardrobe:{owned:{},equipped:null},villageLife:newVillageLife('starter'),
     decorations:{owned:{},equipped:null,background:'meadow',backgrounds:['meadow']},achievements:[],
     care:{day:dayKey(ms),counts:{feed:0,play:0,rest:0},lastCareAt:null,dailyRewardDay:'',total:{feed:0,play:0,rest:0}},
     // Historical minigame data remains readable/exportable; no game commands run it.
@@ -314,6 +368,7 @@
     check(d.equipped===null || text(d.equipped,100)&&own(d.owned,d.equipped),'corrupt_data');
     d.backgrounds.forEach(function(x){check(text(x,100),'corrupt_data');});check(d.backgrounds.indexOf(d.background)>=0,'corrupt_data');
     if(own(s,'roomLayout'))validateRoomLayout(s.roomLayout,s,'corrupt_data');
+    if(own(s,'villageLife'))validateVillageLife(s.villageLife,'corrupt_data');
     if(own(s,'cozyRoomLayout'))validateCozyRoomLayout(s.cozyRoomLayout,s,'corrupt_data');
     if(own(s,'villageLayout'))validateVillageLayout(s.villageLayout,'corrupt_data');
     if(own(s,'shopInteriorLayouts'))validateShopInteriorLayouts(s.shopInteriorLayouts,'corrupt_data');
@@ -353,7 +408,7 @@
     var s=fresh(ms),has=PG_RECORD_KEYS.some(function(k){return raw[k]!==null;});
     // A preexisting pet, including the earlier pet_game reserve, must not be
     // sent back through the new-pet choice or assigned an invented birth origin.
-    if(has||raw.pet_game!==null)delete s.pet.eggOrigin;
+    if(has||raw.pet_game!==null){delete s.pet.eggOrigin;delete s.villageLife;}
     s.migration.source=has?'pg_legacy':'new';s.migration.legacyRaw=clone(raw);
     if(has) {
       var total=legacyNumber(raw,'sk_total'),streak=legacyNumber(raw,'sk_streak');
@@ -394,10 +449,19 @@
     return plain(value)&&Reflect.ownKeys(value).length===keys.length&&keys.every(function(key){return own(value,key);});
   }
   function roomDecoration(id) {var entry=item(id);return !!entry&&entry.type==='decoration';}
+  function savedRoomSource(s,id) {
+    // Action validation receives the confirmed state before assigning its draft.
+    // Restored, already-saved legacy sources remain usable without new stock.
+    return !!(s&&own(s,'roomLayout')&&plain(s.roomLayout)&&Array.isArray(s.roomLayout.items)&&
+      s.roomLayout.items.some(function(row){return plain(row)&&row.id===id;}));
+  }
+  function starterRoomSourceOwned(s,acquisition,id) {
+    return savedRoomSource(s,id)||own(acquisition.claimedFurniture,COZY_ROOM_SOURCES[id]);
+  }
   function validateRoomLayout(layout,s,code) {
     code=code||'invalid_room_layout';
     check(exactKeys(layout,['version','items'])&&layout.version===1&&Array.isArray(layout.items)&&layout.items.length<=13,code);
-    var seen=Object.create(null);
+    var seen=Object.create(null),acquisition=s&&own(s,'villageLife')?validateVillageLife(s.villageLife,code):null;
     for(var i=0;i<layout.items.length;i++) {
       var placed=layout.items[i];
       check(own(layout.items,i)&&exactKeys(placed,['id','x','y','flip'])&&typeof placed.id==='string'&&
@@ -406,6 +470,8 @@
       var builtin=ROOM_FURNITURE.some(function(entry){return entry.id===placed.id;});
       check(builtin||roomDecoration(placed.id),code);
       check(builtin||plain(s.decorations)&&plain(s.decorations.owned)&&own(s.decorations.owned,placed.id),code==='corrupt_data'?code:'not_owned');
+      if(builtin&&acquisition&&acquisition.homeMode==='starter')
+        check(starterRoomSourceOwned(s,acquisition,placed.id),code==='corrupt_data'?code:'not_owned');
     }
     return layout;
   }
@@ -443,7 +509,8 @@
       ['brick','floral','mint'].indexOf(layout.wall)>=0&&['honey','oak','check'].indexOf(layout.floor)>=0&&
       Array.isArray(layout.objects)&&layout.objects.length<=24&&Reflect.ownKeys(layout.objects).length===layout.objects.length+1&&
       integer(layout.nextId)&&layout.nextId>0,code);
-    var ids=Object.create(null),sources=Object.create(null),largest=0;
+    var ids=Object.create(null),sources=Object.create(null),largest=0,placedCounts=Object.create(null),ownershipDenied=false;
+    var acquisition=s&&own(s,'villageLife')?validateVillageLife(s.villageLife,code):null;
     for(var i=0;i<layout.objects.length;i++) {
       var placed=layout.objects[i];
       check(own(layout.objects,i)&&plain(placed)&&exactKeys(placed,own(placed,'sourceId')?['id','type','x','z','r','sourceId']:['id','type','x','z','r'])&&
@@ -458,11 +525,18 @@
         check(typeof source==='string'&&own(COZY_ROOM_SOURCES,source)&&COZY_ROOM_SOURCES[source]===placed.type&&!own(sources,source),code);
         sources[source]=true;
         if(roomDecoration(source))check(plain(s)&&plain(s.decorations)&&plain(s.decorations.owned)&&own(s.decorations.owned,source),code==='corrupt_data'?code:'not_owned');
+        else if(acquisition&&acquisition.homeMode==='starter'&&!starterRoomSourceOwned(s,acquisition,source))ownershipDenied=true;
       } else check(!own(spec,'sourceId'),code);
+      if(acquisition&&acquisition.homeMode==='starter'&&HOME_FURNISHINGS.some(function(row){return row.id===placed.type;})) {
+        if(!own(placed,'sourceId')&&!own(acquisition.claimedFurniture,placed.type))ownershipDenied=true;
+        placedCounts[placed.type]=(placedCounts[placed.type]||0)+1;
+      }
       // Old rooms can contain overlapping fixtures. Display/edit collision rules
       // prevent new overlaps without making an existing saved room unreadable.
     }
     check(layout.nextId>largest,code);
+    check(!ownershipDenied,code==='corrupt_data'?code:'not_owned');
+    Object.keys(placedCounts).forEach(function(type){check(placedCounts[type]<=1,code==='corrupt_data'?code:'not_owned');});
     return layout;
   }
   function defaultCozyRoomLayout() {
@@ -485,6 +559,8 @@
   function getCozyRoomLayout(s) {
     if(s&&own(s,'cozyRoomLayout'))return clone(validateCozyRoomLayout(s.cozyRoomLayout,s,'corrupt_data'));
     var layout=defaultCozyRoomLayout();
+    if(s&&own(s,'villageLife')&&validateVillageLife(s.villageLife).homeMode==='starter')
+      layout.objects=layout.objects.filter(function(row){return row.type==='bed'||row.type==='rug';});
     if(s&&own(s,'roomLayout')) {
       var previous=validateRoomLayout(s.roomLayout,s,'corrupt_data');
       layout.objects=previous.items.map(function(row,i){return cozyRoomFromLegacy(row,i+1);});
@@ -574,9 +650,31 @@
         return reward;
       }
       check(!needsEggChoice(next),'egg_required');
+      if((a.type==='care'||a.type==='useItem')&&own(a,'expectedRevision'))
+        check(integer(a.expectedRevision)&&a.expectedRevision===next.revision,'stale_state');
+      if(a.type==='harvestVillageFood') {
+        check(integer(a.expectedRevision)&&a.expectedRevision===next.revision,'stale_state');
+        var plot=VILLAGE_HARVEST.find(function(p){return p.id===a.plotId;});check(!!plot,'invalid_harvest');
+        check(ms>=next.updatedAt,'clock_moved_back');var life=ensureVillageLife(next),harvest=life.harvest,today=harvestDay(ms);
+        check(!harvest.day||today>=harvest.day,'clock_moved_back');
+        if(harvest.day!==today){harvest.day=today;harvest.claimed=[];}
+        check(harvest.claimed.indexOf(plot.id)<0,'harvest_wait');check((next.inventory[plot.itemId]||0)<MAX,'amount_overflow');
+        next.inventory[plot.itemId]=(next.inventory[plot.itemId]||0)+1;harvest.claimed.push(plot.id);
+        return {itemId:plot.itemId,quantity:1};
+      }
+      if(a.type==='claimHomeFurniture'||a.type==='buyHomeFurniture') {
+        check(integer(a.expectedRevision)&&a.expectedRevision===next.revision,'stale_state');
+        check(ms>=next.updatedAt,'clock_moved_back');
+        var furnishing=getHomeFurnishingsView(next).rows.find(function(f){return f.id===a.furnitureId;});check(!!furnishing,'invalid_home_furniture');
+        check(!furnishing.owned,'already_owned');check(a.type==='claimHomeFurniture'?furnishing.canClaim:furnishing.available,'home_furniture_locked');
+        if(a.type==='buyHomeFurniture'){check(next.coins>=furnishing.price,'insufficient_coins');next.coins-=furnishing.price;paidPurchase(next);}
+        ensureVillageLife(next).claimedFurniture[furnishing.id]=true;return reward;
+      }
       if(VillageEconomy&&VillageEconomy.handles(a.type)) {
+        var walletBefore=next.coins;
         var village=VillageEconomy.transition(next,a,ms);next.villageEconomy=village.economy;
         next.coins=village.coins;next.inventory=village.inventory;
+        if(a.type==='buyVillageOffer'&&next.coins<walletBefore)paidPurchase(next);
         // NPC transactions never change care, EXP, evolution or achievements.
         return village.reward;
       }
@@ -628,12 +726,14 @@
           var wardrobe=next.wardrobe||{owned:{},equipped:null};
           check(!own(wardrobe.owned,it.id),'already_owned');check(next.coins>=it.price,'insufficient_coins');
           next.coins-=it.price;wardrobe.owned[it.id]=true;next.wardrobe=wardrobe;
+          if(it.price>0)paidPurchase(next);
           return reward;
         }
         check(next.coins>=it.price,'insufficient_coins');
         if(it.type==='food'){next.coins-=it.price;next.inventory[it.id]=(next.inventory[it.id]||0)+1;}
         else if(it.type==='decoration'){check(!own(next.decorations.owned,it.id),'already_owned');next.coins-=it.price;next.decorations.owned[it.id]={};}
         else {var bg=it.id.slice(3);check(next.decorations.backgrounds.indexOf(bg)<0,'already_owned');next.coins-=it.price;next.decorations.backgrounds.push(bg);}
+        if(it.price>0)paidPurchase(next);
       } else if(a.type==='useItem') {
         var food=item(a.itemId);check(food&&food.type==='food','invalid_item');check(next.inventory[a.itemId]>0,'not_owned');next.inventory[a.itemId]--;next.pet.exp+=food.exp;next.care.lastCareAt=ms;reward.exp=food.exp;
         evolutionKind=food.id==='apple'||food.id==='berry'?'fruit':food.id==='cake'?'sweet':'hearty';
@@ -708,7 +808,7 @@
         catch(e){return failure(e);}
       });
     }
-    api={ready:ready,getState:visible,dispatch:dispatch,getStage:getStage,getLilacGrowth:getLilacGrowth,getLilacAppearance:getLilacAppearance,getLilacEvolution:getLilacEvolution,getEggOrigin:getEggOrigin,needsEggChoice:needsEggChoice,getVillageLayout:function(){return getVillageLayout(state);},getCozyRoomLayout:function(){return getCozyRoomLayout(state);},getVillageEconomyView:function(ms){return VillageEconomy.view(state,ms===undefined?Number(clock()):ms);},
+    api={ready:ready,getState:visible,dispatch:dispatch,getStage:getStage,getLilacGrowth:getLilacGrowth,getLilacAppearance:getLilacAppearance,getLilacEvolution:getLilacEvolution,getEggOrigin:getEggOrigin,needsEggChoice:needsEggChoice,getVillageLayout:function(){return getVillageLayout(state);},getCozyRoomLayout:function(){return getCozyRoomLayout(state);},getHomeFurnishingsView:function(){return getHomeFurnishingsView(state);},getCozyRoomFurniture:function(){return getCozyRoomFurniture(state);},getVillageHarvestView:function(ms){return getVillageHarvestView(state,ms===undefined?Number(clock()):ms);},getVillageEconomyView:function(ms){return VillageEconomy.view(state,ms===undefined?Number(clock()):ms);},
       subscribe:function(fn){check(typeof fn==='function','invalid_listener');listeners.push(fn);return function(){listeners=listeners.filter(function(x){return x!==fn;});};},
       exportBackup:function(){check(!loading&&!blocked,'read_only');return JSON.stringify({format:'PetGameBackup',version:3,exportedAt:time(),state:clone(state)});},
       importBackup:importBackup};return api;
@@ -716,6 +816,7 @@
   return {create:create,getStage:getStage,getLilacGrowth:getLilacGrowth,lilacGrowthStages:lilacGrowthStages,getLilacAppearance:getLilacAppearance,lilacAppearanceStages:lilacAppearanceStages,getLilacEvolution:getLilacEvolution,lilacEvolutionPaths:lilacEvolutionPaths,getMarketSummary:summary,eggCatalogue:eggCatalogue,eggProfile:eggProfile,getEggOrigin:getEggOrigin,needsEggChoice:needsEggChoice,KEY:KEY,STORAGE_KEY:KEY,
     roomFurniture:clone(ROOM_FURNITURE),defaultRoomLayout:defaultRoomLayout,getRoomLayout:getRoomLayout,
     cozyRoomFurniture:clone(COZY_ROOM_FURNITURE),cozyRoomTypes:clone(COZY_ROOM_TYPES),defaultCozyRoomLayout:defaultCozyRoomLayout,getCozyRoomLayout:getCozyRoomLayout,
+    getHomeFurnishingsView:getHomeFurnishingsView,getCozyRoomFurniture:getCozyRoomFurniture,getVillageHarvestView:getVillageHarvestView,
     getShopInteriorLayout:getShopInteriorLayout,
     villagePlaces:VILLAGE_PLACES,defaultVillageLayout:defaultVillageLayout,getVillageLayout:getVillageLayout,
     getVillageEconomyView:function(s,ms){return VillageEconomy.view(s,ms===undefined?Date.now():ms);},

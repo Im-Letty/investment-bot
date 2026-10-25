@@ -149,6 +149,13 @@ test('screen tap ray resets camera collision range and finds visible distant gro
  }f.controller.destroy();
 });
 
+test('only a painted pet pixel opens care while transparent sprite padding remains a normal ground hit',async()=>{
+ const f=await fixture();f.controller.setFrame(f.source);const {scene,camera}=f.renderers[0].calls.at(-1),sprite=scene.getObjectByName('current-pet-2d-frame');
+ function screenUV(x,y){const p=sprite.position.clone().applyMatrix4(camera.matrixWorldInverse);p.x+=(x-sprite.center.x)*sprite.scale.x;p.y+=(y-sprite.center.y)*sprite.scale.y;p.applyMatrix4(camera.projectionMatrix);return {clientX:(p.x+1)*195,clientY:(1-p.y)*350};}
+ assert.equal(f.controller.resolveTap(screenUV(8.5/16,2.5/16)).pet,true,'actual opaque source pixel is selectable');
+ const empty=f.controller.resolveTap(screenUV(3.5/16,3.5/16));assert.notEqual(empty?.pet,true,'transparent pixels do not capture a floor tap');f.controller.destroy();
+});
+
 test('camera segments stop before actual roofs, walls and foliage for every bounded orbit sample',async()=>{
  const world=Town.createWorld(),home=world.places[0];let restricted=0;
  for(const yaw of [0,.7,1.4,2.1,2.8,3.5,4.2,4.9,5.6]){

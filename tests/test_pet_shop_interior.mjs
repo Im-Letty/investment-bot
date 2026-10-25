@@ -24,7 +24,7 @@ class Element extends Events {
  setPointerCapture(id){this.capture=id;}hasPointerCapture(id){return this.capture===id;}releasePointerCapture(id){if(this.capture===id)this.capture=null;}
 }
 async function fixture(opts={}){
- const doc=new Events(),win=new Events(),media=new Events(),host=new Element(doc),frames=new Map(),renderers=[],observers=[],packets=[],drafts=[],failures=[];let stamp=0,seq=0,allowed=true,ready=0,exits=0;
+ const doc=new Events(),win=new Events(),media=new Events(),host=new Element(doc),scope=new Element(doc,'SECTION'),frames=new Map(),renderers=[],observers=[],packets=[],drafts=[],failures=[],manual=[];let stamp=0,seq=0,allowed=true,walkAllowed=opts.walkAllowed!==false,ready=0,exits=0;scope.appendChild(host);
  Object.assign(doc,{defaultView:win,hidden:false,viewport:opts.viewport,createElement:tag=>new Element(doc,tag)});media.matches=!!opts.reduced;
  Object.assign(win,{devicePixelRatio:3,performance:{now:()=>stamp},matchMedia:()=>media,requestAnimationFrame:f=>{frames.set(++seq,f);return seq;},cancelAnimationFrame:id=>frames.delete(id)});
  win.ResizeObserver=class{constructor(f){this.fn=f;observers.push(this);}observe(){}disconnect(){this.disconnected=true;}};
@@ -36,10 +36,10 @@ async function fixture(opts={}){
   dispose(){this.disposed=true;}forceContextLoss(){this.lost=true;}
  }
  let controller;
- controller=await (opts.interiorAPI||Interior).mount({host,roomId:opts.roomId||'shop',layout:opts.layout,camera:opts.camera,position:opts.position,editing:opts.editing,canRun:()=>allowed,three:{...THREE,WebGLRenderer:Renderer},onReady(){ready++;},onFailure:c=>failures.push(c),onPosition:opts.onPosition,onExit(){exits++;},onDraft:d=>drafts.push(d),onFacing:p=>{packets.push(p);if(opts.coupled&&controller)controller.setFrame(source);}});
+ controller=await (opts.interiorAPI||Interior).mount({host,roomId:opts.roomId||'shop',layout:opts.layout,camera:opts.camera,position:opts.position,editing:opts.editing,canRun:()=>allowed,canWalk:()=>walkAllowed,keyboardScope:opts.keyboardScope?scope:undefined,onManualInput:intent=>{manual.push(intent);if(opts.resumeOnManual)walkAllowed=true;opts.onManualInput?.(intent);},three:{...THREE,WebGLRenderer:Renderer},onReady(){ready++;},onFailure:c=>failures.push(c),onPosition:opts.onPosition,onExit(){exits++;},onDraft:d=>drafts.push(d),onFacing:p=>{packets.push(p);if(opts.coupled&&controller)controller.setFrame(source);}});
  const source=new Element(doc,'CANVAS');source.getContext=()=>({RGBA:1,UNSIGNED_BYTE:2,readPixels(x,y,w,h,format,type,p){p[(2*w+8)*4+3]=255;}});
  const stage=host.children[0]?.children[0];
- return {doc,win,media,host,stage,source,controller,frames,renderers,observers,packets,drafts,failures,get ready(){return ready;},get exits(){return exits;},allow:v=>allowed=v,time:v=>stamp=v,
+ return {doc,win,media,host,scope,stage,source,controller,frames,renderers,observers,packets,drafts,failures,manual,get ready(){return ready;},get exits(){return exits;},allow:v=>allowed=v,walkAllow:v=>walkAllowed=v,time:v=>stamp=v,
   frame(ms=40){stamp+=ms;const f=[...frames.values()];frames.clear();f.forEach(fn=>fn(stamp));},
   project(x,z,y=.04){const c=renderers[0].calls.at(-1).camera,v=new THREE.Vector3(x,y,z).project(c);return {clientX:(v.x+1)*300,clientY:(1-v.y)*300};},
   key(k,down=true,target=stage){win.emit(down?'keydown':'keyup',{key:k,target});}
@@ -129,4 +129,48 @@ test('coupled reduced-motion frames consume every buffer synchronously without a
 test('context loss or upload failure cleans all resources and cannot revive a destroyed room',async()=>{
  const f=await fixture();f.controller.setFrame(f.source);f.renderers[0].domElement.emit('webglcontextlost');assert.deepEqual(f.failures,['shop_context_lost']);assert.equal(f.host.children.length,0);assert.equal(f.controller.setFrame(f.source),false);
  const g=await fixture();g.renderers[0].failUpload=true;assert.equal(g.controller.setFrame(g.source),false);assert.deepEqual(g.failures,['shop_frame_unavailable']);assert.equal(g.host.children.length,0);
+});
+
+test('the first manual key works from a neutral entry heading in the owning section without automatic wandering',async()=>{
+ const f=await fixture({keyboardScope:true,camera:{yaw:0}}),heading=new Element(f.doc,'H3');f.scope.appendChild(heading);f.controller.setFrame(f.source);const initial=f.controller.position();
+ for(let i=0;i<25;i++)f.frame();assert.deepEqual(f.controller.position(),initial);assert.deepEqual(f.manual,[]);
+ f.key('w',true,heading);for(let i=0;i<8;i++)f.frame();f.key('w',false,heading);f.frame();const moved=f.controller.position();assert.ok(moved.z<initial.z);assert.deepEqual(f.manual,[{kind:'keyboard',key:'w'}]);
+ for(let i=0;i<25;i++)f.frame();assert.deepEqual(f.controller.position(),moved);assert.equal(f.frames.size,0);f.controller.destroy();
+});
+
+test('neutral keyboard scope never steals movement keys from forms, interactive ancestors or outside content',async()=>{
+ const f=await fixture({keyboardScope:true,camera:{yaw:0}});f.controller.setFrame(f.source);const initial=f.controller.position();
+ const targets=[];for(const tag of ['INPUT','TEXTAREA','SELECT','BUTTON','FORM','A','SUMMARY']){const parent=new Element(f.doc,tag),child=new Element(f.doc,'SPAN');parent.appendChild(child);f.scope.appendChild(parent);targets.push(parent,child);}
+ const editable=new Element(f.doc);editable.isContentEditable=true;const child=new Element(f.doc,'SPAN');editable.appendChild(child);f.scope.appendChild(editable);targets.push(editable,child,new Element(f.doc,'H3'));
+ for(const target of targets){f.key('w',true,target);for(let i=0;i<3;i++)f.frame();f.key('w',false,target);assert.deepEqual(f.controller.position(),initial);}
+ assert.deepEqual(f.manual,[]);f.controller.destroy();
+ const noScope=await fixture({camera:{yaw:0}}),heading=new Element(noScope.doc,'H3');noScope.scope.appendChild(heading);noScope.controller.setFrame(noScope.source);noScope.key('w',true,heading);for(let i=0;i<5;i++)noScope.frame();assert.deepEqual(noScope.controller.position(),{x:0,z:2.6});assert.deepEqual(noScope.manual,[]);noScope.controller.destroy();
+});
+
+test('pre-ready keys and stale repeats cannot begin travel or invoke the manual interruption callback',async()=>{
+ const f=await fixture({keyboardScope:true,camera:{yaw:0}}),heading=new Element(f.doc,'H3');f.scope.appendChild(heading);const initial=f.controller.position();f.key('w',true,heading);assert.deepEqual(f.manual,[]);
+ f.controller.setFrame(f.source);f.win.emit('keydown',{key:'w',target:heading,repeat:true});for(let i=0;i<12;i++)f.frame();assert.deepEqual(f.controller.position(),initial);assert.deepEqual(f.manual,[]);
+ f.key('w',false,heading);f.key('w',true,heading);for(let i=0;i<6;i++)f.frame();assert.ok(f.controller.position().z<initial.z);assert.equal(f.manual.length,1);f.controller.destroy();
+});
+
+test('fresh manual intent can dismiss a transient walk gate before input is checked while source frames remain live',async()=>{
+ const f=await fixture({keyboardScope:true,camera:{yaw:0},walkAllowed:false,resumeOnManual:true}),heading=new Element(f.doc,'H3');f.scope.appendChild(heading);assert.equal(f.controller.setFrame(f.source),true);const initial=f.controller.position();
+ f.key('w',true,heading);for(let i=0;i<6;i++)f.frame();assert.ok(f.controller.position().z<initial.z);assert.deepEqual(f.manual,[{kind:'keyboard',key:'w'}]);f.key('w',false,heading);
+ f.walkAllow(false);const position=f.controller.position(),camera=f.controller.camera(),p=f.project(0,1);f.stage.emit('pointerdown',{pointerId:3,...p});f.win.emit('pointerup',{pointerId:3,...p});for(let i=0;i<30;i++)f.frame();assert.ok(f.controller.position().z<position.z);assert.deepEqual(f.manual.at(-1),{kind:'pointer',pointerId:3});assert.deepEqual(f.controller.camera(),camera);f.controller.destroy();
+});
+
+test('denied manual input clears held travel and routes without reviving them when the gate reopens',async()=>{
+ const f=await fixture({keyboardScope:true,camera:{yaw:0},walkAllowed:false});f.controller.setFrame(f.source);const start=f.controller.position();f.key('w');for(let i=0;i<5;i++)f.frame();assert.deepEqual(f.controller.position(),start);assert.equal(f.manual.length,1);
+ f.walkAllow(true);f.win.emit('keydown',{key:'w',target:f.stage,repeat:true});for(let i=0;i<6;i++)f.frame();assert.deepEqual(f.controller.position(),start);assert.equal(f.manual.length,1);
+ f.key('w');for(let i=0;i<6;i++)f.frame();f.walkAllow(false);f.frame();const paused=f.controller.position();assert.equal(f.controller.setFrame(f.source),true,'walk denial does not disable the canonical frame bridge');f.walkAllow(true);f.win.emit('keydown',{key:'w',target:f.stage,repeat:true});for(let i=0;i<15;i++)f.frame();assert.deepEqual(f.controller.position(),paused);assert.equal(f.packets.at(-1).walking,false);
+ const p=f.project(0,.4);f.stage.emit('pointerdown',{pointerId:4,...p});f.win.emit('pointerup',{pointerId:4,...p});for(let i=0;i<5;i++)f.frame();assert.ok(f.controller.position().z<paused.z);f.walkAllow(false);f.frame();const stopped=f.controller.position();f.walkAllow(true);f.win.emit('focus');for(let i=0;i<20;i++)f.frame();assert.deepEqual(f.controller.position(),stopped);assert.equal(f.frames.size,0);f.controller.destroy();
+});
+
+test('a pointer release after a walk gate closes cannot queue a later route or change the camera',async()=>{
+ const f=await fixture({camera:{yaw:0}});f.controller.setFrame(f.source);const initial=f.controller.position(),camera=f.controller.camera(),p=f.project(0,.5);f.stage.emit('pointerdown',{pointerId:8,...p});assert.equal(f.stage.capture,8);f.walkAllow(false);f.win.emit('pointerup',{pointerId:8,...p});assert.equal(f.stage.capture,null);f.walkAllow(true);f.win.emit('focus');for(let i=0;i<30;i++)f.frame();assert.deepEqual(f.controller.position(),initial);assert.deepEqual(f.controller.camera(),camera);assert.equal(f.manual.length,1);f.controller.destroy();
+});
+
+test('blur and hidden lifecycles discard manual travel and reset partial doorway exit intent',async()=>{
+ for(const reason of ['blur','pagehide','visibilitychange']){const f=await fixture({camera:{yaw:0}});f.controller.setFrame(f.source);f.key('w');for(let i=0;i<5;i++)f.frame();const paused=f.controller.position();if(reason==='visibilitychange'){f.doc.hidden=true;f.doc.emit(reason);f.doc.hidden=false;f.doc.emit(reason);}else f.win.emit(reason);f.win.emit('focus');f.win.emit('keydown',{key:'w',target:f.stage,repeat:true});for(let i=0;i<20;i++)f.frame();assert.deepEqual(f.controller.position(),paused);assert.equal(f.frames.size,0);f.controller.destroy();}
+ const f=await fixture({camera:{yaw:0},position:{x:0,z:3.5}});f.controller.setFrame(f.source);f.key('s');for(let i=0;i<5;i++)f.frame();assert.equal(f.exits,0);f.walkAllow(false);f.frame();f.walkAllow(true);f.win.emit('keydown',{key:'s',target:f.stage,repeat:true});for(let i=0;i<10;i++)f.frame();assert.equal(f.exits,0);f.key('s');for(let i=0;i<5;i++)f.frame();assert.equal(f.exits,0,'the old partial push must not shorten a fresh exit');for(let i=0;i<10;i++)f.frame();assert.equal(f.exits,1);for(let i=0;i<10;i++)f.frame();assert.equal(f.exits,1);f.controller.destroy();
 });

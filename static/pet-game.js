@@ -2,7 +2,7 @@
 (function (w, d) {
   'use strict';
   var host = null, store = null, options = null, mounting = null, unsubscribe = null;
-  var tab = 'care', busy = false;
+  var tab = 'village', busy = false, runAttempt = null;
   var notice = '', failure = '', nameDraft = null, quantities = {};
   var lifecycleEpoch = 0, suspended = false, renderedDay = '', roomCarryX = 0;
   var motionControllers = [], motionRequests = [], reaction = null, greeted = false;
@@ -19,6 +19,8 @@
   var villageEdit = null, villageSaveAttempt = null;
   var shopRoomId = 'shop', shopEdit = null, shopSaveAttempt = null;
   var shopController = null, shopPending = null, shopLoading = null, shopGeneration = 0, shopMemory = {}, shopCleanup = null;
+  var homeController = null, homePending = null, homeLoading = null, homeGeneration = 0, homeMemory = {}, homeCleanup = null;
+  var lifePanelOpen = false;
   // Walking is a view of the existing pet, not a second pet or a save action.
   // Retain the spot when visiting a facility; never write a frame into the store.
   var townController = null, townEconomyScene = null, townPending = null, townPosition = null;
@@ -44,6 +46,9 @@
   // Only an explicit developer harness may mount the motion inspection UI.
   // No URL, saved preference or production loader enables it.
   function developerPreview() { return !!options && options.developerPreview === true; }
+  // Historical room regression fixtures can inspect the retired screen explicitly.
+  // Production mounting, saved preferences and URLs never enable this preview.
+  function legacyCarePreview() { return !!options && options.developerLegacyCarePreview === true; }
   function displaySpecies(s) { return s.pet.species === 'dragon' ? 'lilac' : s.pet.species; }
   function core() { return w.PetGameCore; }
   function needsEggChoice(s) { return typeof core().needsEggChoice === 'function' && core().needsEggChoice(s); }
@@ -72,8 +77,8 @@
       back.dataset.focusKey = 'egg-back';
       var confirm = button('このたまごと暮らす', async function () {
         if (busy) return;
-        tab = 'care';
-        var result = await run({ type: 'chooseEgg', eggOrigin: selected.key }, 'たまごをおへやへ迎えました。');
+        tab = developerPreview() || legacyCarePreview() ? 'care' : 'village';
+        var result = await run({ type: 'chooseEgg', eggOrigin: selected.key }, 'たまごを村へ迎えました。');
         if (result && result.ok) { var heading = host.querySelector('.ipg-pet-name'); if (heading) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); } }
       }, false, s.readOnly);
       confirm.dataset.focusKey = 'egg-confirm'; append(actions, back, confirm); box.appendChild(actions);
@@ -190,10 +195,14 @@
       elapsed >= 86400000 ? 'また会えてうれしい！お世話の時間かな。' : 'いいきもち。いっしょに過ごせてうれしいな。';
   }
   function button(label, fn, secondary, disabled) {
+    var owner = store, target = host, epoch = lifecycleEpoch;
     var b = node('button', 'ipg-button' + (secondary ? ' ipg-secondary' : ''), label);
     b.type = 'button';
     if (disabled) { b.disabled = true; b.dataset.ipgDisabled = '1'; }
-    b.addEventListener('click', fn);
+    b.addEventListener('click', function (event) {
+      if (b.disabled || !b.isConnected || store !== owner || host !== target || lifecycleEpoch !== epoch || suspended) return;
+      return fn(event);
+    });
     return b;
   }
   function card(title, extra) {
@@ -242,6 +251,9 @@
     motionRequests.forEach(refreshRoomTouch);
   }
   function stopMotions() {
+    homeGeneration++; homePending = null;
+    if (homeCleanup) { homeCleanup(); homeCleanup = null; }
+    if (homeController) { homeController.destroy(); homeController = null; }
     if (townLoadCleanup) { townLoadCleanup(); townLoadCleanup = null; }
     shopGeneration++; shopPending = null;
     if (shopCleanup) { shopCleanup(); shopCleanup = null; }
@@ -285,12 +297,29 @@
     if (grew(before, after) && (!cue || cue.situation !== 'feeding')) cue = { situation: 'joy', durationMs: 3500 };
     if (cue) {
       reaction = { situation: cue.situation, durationMs: cue.durationMs, startedAt: Date.now() };
+      reaction.worldCare = action.type === 'care' || action.type === 'useItem';
       if (cue.situation === 'feeding') reaction.foodId = action.type === 'useItem' ? foodArtworkId(action.itemId) || 'apple' : 'apple';
     }
   }
   function currentReaction() {
     if (reaction && Date.now() - reaction.startedAt >= reaction.durationMs) reaction = null;
     return reaction;
+  }
+  function currentWorldReaction() { var cue = currentReaction(); return cue && cue.worldCare ? cue : null; }
+  function resumeManualWorldControl(request, life) {
+    // Movement is an explicit choice by the player. Interrupt only the
+    // presentation of a completed care action; its saved result stays intact.
+    if (life && typeof life.closeForManualInput === 'function') life.closeForManualInput();
+    if (!currentWorldReaction()) return;
+    reaction = null;
+    if (!request) return;
+    request.townCue = { situation: 'idle', durationMs: 0, startedAt: Date.now() };
+    if (request.roomBehavior) request.roomBehavior.destroy();
+    request.roomBehavior = null; request.roomCue = null;
+    try {
+      if (request.controller) request.controller.setSituation('idle', { durationMs: 0 });
+      updateMotionPresentation(request, null);
+    } catch (_) { /* The next canonical locomotion frame remains available. */ }
   }
   function eggStillRect(cell) {
     // Measured padded rectangles in the fixed 1254px egg sheet. Hatching's lid
@@ -384,6 +413,7 @@
     return wrap;
   }
   function requestCue(request) {
+    if (request.worldLife && currentWorldReaction()) return currentWorldReaction();
     if (request.townCue) return request.townCue;
     if (request.growthPreview) {
       if (request.localCue && Date.now() - request.localCue.startedAt >= request.localCue.durationMs) request.localCue = null;
@@ -510,7 +540,7 @@
     request.roomStatus.setAttribute('role', 'status'); request.roomStatus.setAttribute('aria-live', 'polite');
   }
   function startRoomBehavior(request) {
-    if (!request.room || request.roomBehavior || !request.ready || !request.controller || !motionsVisible() ||
+    if (request.worldLife || !request.room || request.roomBehavior || !request.ready || !request.controller || !motionsVisible() ||
       !w.PetRoomBehavior || typeof w.PetRoomBehavior.create !== 'function') return;
     try {
       request.roomBehavior = w.PetRoomBehavior.create({
@@ -947,12 +977,15 @@
     }
   }
   async function run(action, message) {
-    if (!store || busy || roomEdit || villageEdit) return { ok: false, error: { code: 'ui_busy' } };
-    var before = state();
+    if (!store || busy || roomEdit || villageEdit || shopEdit || suspended) return { ok: false, error: { code: 'ui_busy' } };
+    var owner = store, target = host, epoch = lifecycleEpoch, attempt = {}, before = state();
+    function current() { return store === owner && host === target && epoch === lifecycleEpoch && !suspended && runAttempt === attempt; }
+    runAttempt = attempt;
     setBusy(true);
     var result;
     try {
-      result = await store.dispatch(action);
+      result = await owner.dispatch(action);
+      if (!current()) return { ok: false, error: { code: 'view_changed' } };
       if (result && result.ok) {
         failure = ''; notice = (message || '保存しました。') + rewardText(result.reward);
         var afterStage = stage(result.state || state());
@@ -962,11 +995,15 @@
       else { failure = safeError(result); notice = ''; }
     } catch (_) {
       result = { ok: false, error: { code: 'save_failed' } };
-      failure = '保存を確認できませんでした。記録を保持したまま、もう一度お試しください。';
-      notice = '';
+      if (current()) {
+        failure = '保存を確認できませんでした。記録を保持したまま、もう一度お試しください。';
+        notice = '';
+      }
     } finally {
-      setBusy(false);
-      render(); showSavedCareReaction(action, result);
+      if (current()) {
+        runAttempt = null; setBusy(false);
+        render(); showSavedCareReaction(action, result);
+      }
     }
     return result;
   }
@@ -1143,11 +1180,12 @@
     if (!store || busy || roomEdit || developerPreview() || !motionsVisible()) return;
     var s = state();
     if (s.readOnly || needsEggChoice(s) || typeof core().getRoomLayout !== 'function' || typeof core().defaultRoomLayout !== 'function') return;
-    var cozy = !!w.PetCozyRoom && typeof core().getCozyRoomLayout === 'function';
-    roomEdit = { cozy: cozy, draft: cozy ? copyCozyLayout(core().getCozyRoomLayout(s)) : cloneRoomLayout(core().getRoomLayout(s)), defaults: cloneRoomLayout(core().defaultRoomLayout(s)),
+    var home = !legacyCarePreview() && typeof core().getCozyRoomLayout === 'function';
+    var cozy = home || !!w.PetCozyRoom && typeof core().getCozyRoomLayout === 'function';
+    roomEdit = { cozy: cozy, home: home, draft: cozy ? copyCozyLayout(core().getCozyRoomLayout(s)) : cloneRoomLayout(core().getRoomLayout(s)), defaults: cloneRoomLayout(core().defaultRoomLayout(s)),
       revision: s.revision, selected: null, error: '', saving: false };
     if (cozy) roomEdit.saved = copyCozyLayout(roomEdit.draft);
-    tab = 'care'; failure = ''; notice = ''; reaction = null; render();
+    tab = home ? 'home' : 'care'; failure = ''; notice = ''; reaction = null; render();
     var surface = host.querySelector('.ipg-room-layout-surface'); if (surface) surface.focus({ preventScroll: true });
   }
   async function saveRoomEdit(session) {
@@ -1197,7 +1235,7 @@
       if (!alive()) return;
       roomSurfaceCleanup = function () { if (controller) controller.destroy(); };
       Promise.resolve(w.PetCozyRoom.mount({ host: container, layout: session ? session.draft : core().getCozyRoomLayout(s), savedLayout: session && session.saved,
-        types: core().cozyRoomTypes, furniture: core().cozyRoomFurniture, editable: !!session, canRun: alive,
+        types: core().cozyRoomTypes, furniture: typeof core().getCozyRoomFurniture === 'function' ? core().getCozyRoomFurniture(s) : core().cozyRoomFurniture, editable: !!session, canRun: alive,
         onProjectPet: project, onCancel: cancel,
         onDraftChange: function (layout) { if (session && alive() && !session.saving) { session.draft = copyCozyLayout(layout); session.error = ''; } },
         onSave: function (layout) { if (!session || !alive() || busy) return Promise.resolve({ ok: false }); session.draft = copyCozyLayout(layout); return saveRoomEdit(session); },
@@ -1442,16 +1480,23 @@
       renderGrowthAlbum(s, pet);
     }
     body.appendChild(pet);
+    renderPetSettings(s, body);
+  }
+  function renderPetSettings(s, body) {
+    var owner = store, target = host, epoch = lifecycleEpoch;
     var settings = node('details', 'ipg-card ipg-pet-settings');
+    function active() { return store === owner && host === target && lifecycleEpoch === epoch && settings.isConnected && !suspended && !busy; }
     settings.appendChild(node('summary', '', chosenEgg(s) ? 'なまえ・この子のたまご' : 'なまえ・ペットの種類'));
     var form = node('form', 'ipg-form');
     var input = node('input'); input.type = 'text'; input.maxLength = 20; input.autocomplete = 'off';
     input.value = nameDraft == null ? s.pet.name : nameDraft;
-    input.addEventListener('input', function () { nameDraft = input.value; });
+    input.addEventListener('input', function () { if (active()) nameDraft = input.value; });
     var save = node('button', 'ipg-button', 'なまえを保存'); save.type = 'submit';
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
+      if (!active()) return;
       var result = await run({ type: 'rename', name: input.value }, 'なまえを保存しました。');
+      if (store !== owner || host !== target || lifecycleEpoch !== epoch || suspended) return;
       if (result.ok) { nameDraft = null; render(); }
     });
     append(form, label('なまえ（20文字まで）', input), save);
@@ -1566,7 +1611,7 @@
     }
     shopLoading = Promise.all([
       resource('link', '/static/pet-shop-interior.css?v=20261025-shop1'),
-      resource('script', '/static/pet-shop-interior.js?v=20261025-fit1', function () { return !!w.PetShopInterior && typeof w.PetShopInterior.mount === 'function'; })
+      resource('script', '/static/pet-shop-interior.js?v=20261025-life-fit1', function () { return !!w.PetShopInterior && typeof w.PetShopInterior.mount === 'function'; })
     ]).then(function () { return w.PetShopInterior; }).catch(function () { shopLoading = null; return null; });
     return shopLoading;
   }
@@ -1599,7 +1644,7 @@
     var sourceHost = node('div', 'ipg-shop-source-host'); sourceHost.setAttribute('aria-hidden', 'true');
     var visual = session ? null : petVisual(s, 'ipg-shop-character');
     var request = visual && motionRequests.filter(function (r) { return r.wrap === visual; })[0];
-    if (request) request.townCue = { situation: 'idle', durationMs: 0, startedAt: Date.now() };
+    if (request) { request.worldLife = true; request.townCue = { situation: 'idle', durationMs: 0, startedAt: Date.now() }; }
     if (visual) sourceHost.appendChild(visual);
     var status = text('店内を準備しています…', 'ipg-shop-selection'); status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
     var error = text('', 'ipg-error'); error.setAttribute('role', 'alert'); error.hidden = true;
@@ -1667,10 +1712,12 @@
         var memory = shopMemory[roomId] || {};
         return api.mount({ host: viewport, roomId: roomId, layout: session ? session.draft : core().getShopInteriorLayout(s, roomId),
           position: memory.position, camera: memory.camera, editing: !!session, canRun: active,
+          keyboardScope: section, canWalk: function () { return active() && !failed && !currentWorldReaction(); },
+          onManualInput: function () { if (active() && ready && !failed && !session) resumeManualWorldControl(request); },
           onExit: function () { if (active() && !session) { shopMemory[roomId] = { camera: (shopMemory[roomId] || {}).camera }; tab = 'village'; render(); } },
           onPosition: function (position) { if (alive()) { shopMemory[roomId] = shopMemory[roomId] || {}; shopMemory[roomId].position = { x: position.x, z: position.z }; } },
           onCamera: function (camera) { if (alive()) { shopMemory[roomId] = shopMemory[roomId] || {}; shopMemory[roomId].camera = Object.assign({}, camera); } },
-          onFacing: function (frame) { if (active() && request && request.controller && typeof request.controller.setLocomotion === 'function') request.controller.setLocomotion(frame); },
+          onFacing: function (frame) { if (active() && request && request.controller && typeof request.controller.setLocomotion === 'function') request.controller.setLocomotion(currentWorldReaction() ? null : frame); },
           onDraft: function (draft) { if (active() && session) { session.draft = copyShopLayout(draft); session.error = ''; refreshEditor(); } },
           onSelection: function (id) { if (alive()) { selected = id; refreshEditor(); } },
           onReady: function () { if (!alive() || failed) return; ready = true; if (frameTimer != null) w.clearTimeout(frameTimer); frameTimer = null; status.textContent = '床をタップして歩く・ドラッグで見渡す・入口へ進むと村へ戻る'; refreshEditor(); },
@@ -1694,9 +1741,213 @@
       }).catch(failedView);
     };
   }
+  function loadHomeInterior() {
+    if (options && options.homeInteriorAPI) return Promise.resolve(options.homeInteriorAPI);
+    if (w.PetHomeInterior && typeof w.PetHomeInterior.mount === 'function') return Promise.resolve(w.PetHomeInterior);
+    if (homeLoading) return homeLoading;
+    if (!d.head) return Promise.resolve(null);
+    homeLoading = new Promise(function (resolve) {
+      var script = node('script'); script.src = '/static/pet-home-interior.js?v=20261025-life-fit1'; script.async = true;
+      script.onload = function () { resolve(w.PetHomeInterior || null); };
+      script.onerror = function () { homeLoading = null; script.remove(); resolve(null); };
+      d.head.appendChild(script);
+    }); return homeLoading;
+  }
+  function renderHome(s, body) {
+    var session = roomEdit, owner = store, epoch = lifecycleEpoch, generation = homeGeneration;
+    var layout = session ? session.draft : core().getCozyRoomLayout(s), section = card('', 'ipg-home-interior');
+    append(section, node('h3', '', '自分のおうち'), text(session ? '家具を選んで模様替え' : 'ここが、村にあるあなたのおうち。', 'ipg-small'));
+    var viewport = node('div', 'ipg-home-viewport ipg-home-interior-viewport'); viewport.tabIndex = 0; viewport.dataset.focusKey = 'home-walk';
+    viewport.setAttribute('role', 'region'); viewport.setAttribute('aria-label', session ? '自宅の模様替え。家具を選んで動かし、ドラッグで見渡せます。' : '自宅の中。床をタップして歩き、ドラッグで360度見渡せます。');
+    var source = node('div', 'ipg-home-character-source'); source.setAttribute('aria-hidden', 'true');
+    var visual = session ? null : petVisual(s, 'ipg-home-character'), request = visual && motionRequests.filter(function (r) { return r.wrap === visual; })[0];
+    if (request) { request.worldLife = true; request.townCue = { situation: 'idle', durationMs: 0, startedAt: Date.now() }; }
+    if (visual) source.appendChild(visual);
+    var status = text('おうちを準備しています…', 'ipg-home-status'); status.setAttribute('role', 'status');
+    var error = text('', 'ipg-error'); error.setAttribute('role', 'alert'); error.hidden = true;
+    var mounted = null, ready = false, failed = false, timer = null, selected = null, controls = [], save, cancel, rotate, remove, undo, reset, furniture, add;
+    function alive() { return store === owner && epoch === lifecycleEpoch && generation === homeGeneration && tab === 'home' && section.isConnected && motionsVisible() && (!session || roomEdit === session); }
+    function active() { return alive() && !busy && (!session || !session.saving); }
+    function disable(control, value) { if (!control) return; control.dataset.ipgDisabled = value ? '1' : ''; control.disabled = busy || !!value; }
+    var furnitureRows = typeof core().getCozyRoomFurniture === 'function' ? core().getCozyRoomFurniture(s) : core().cozyRoomFurniture;
+    var types = core().cozyRoomTypes.map(function (spec) {
+      var ownedFixture = furnitureRows.filter(function (row) { return row.id === spec.id; })[0];
+      var existing = layout.objects.filter(function (o) { return o.type === spec.id; }).length;
+      var decorOwned = spec.sourceId && s.decorations.owned[spec.sourceId];
+      return Object.assign({}, spec, { allowed: !!ownedFixture || !!existing || !!decorOwned, limit: ownedFixture ? ownedFixture.limit || 24 : Math.max(1, existing) });
+    });
+    function refreshEditor() {
+      if (!session || !alive()) return;
+      error.hidden = !session.error; error.textContent = session.error;
+      status.textContent = failed ? 'おうちを表示できませんでした。' : session.saving ? '配置を保存しています…' : selected ? '家具を選択中。指で動かせます。' : '家具を選び、好きな場所へ。ドラッグで見渡せます。';
+      [save, undo, reset].forEach(function (b) { disable(b, !ready || session.saving); }); disable(cancel, session.saving);
+      [rotate, remove].forEach(function (b) { disable(b, !ready || !selected || session.saving); });
+      controls.forEach(function (b) { disable(b, !ready || session.saving); });
+      if (furniture) {
+        var value = furniture.value, choices = types.filter(function (row) { return row.allowed && session.draft.objects.filter(function (o) { return o.type === row.id; }).length < row.limit; });
+        furniture.replaceChildren(); choices.forEach(function (row) { var opt = node('option', '', row.name); opt.value = row.id; furniture.appendChild(opt); });
+        if (choices.some(function (row) { return row.id === value; })) furniture.value = value;
+        disable(furniture, !ready || !choices.length || session.saving); disable(add, !ready || !choices.length || session.saving);
+      }
+    }
+    function fail() {
+      if (!alive() || failed) return; failed = true; ready = false;
+      if (timer != null) w.clearTimeout(timer); timer = null;
+      if (request) { request.frameConsumer = null; request.frameFailure = null; }
+      if (mounted) { mounted.destroy(); if (homeController === mounted) homeController = null; mounted = null; }
+      status.textContent = 'おうちを表示できませんでした。もう一度お試しください。'; retry.hidden = false;
+      refreshEditor();
+    }
+    var retry = button('おうちをもう一度表示する', function () { if (active()) render(); }, true); retry.hidden = true; retry.dataset.focusKey = 'home-retry';
+    append(section, viewport, source, status, error, retry);
+    var life = !session && renderVillageLife(s, viewport, function () { return active() && ready && !failed; });
+    if (session) {
+      var editor = node('div', 'ipg-home-editor-actions');
+      rotate = button('向きを変える', function () { if (active() && mounted && !mounted.rotateSelected()) { session.error = '通路や家具に重ならない場所で回してください。'; refreshEditor(); } }, true, true);
+      remove = button('しまう', function () { if (active() && mounted) mounted.removeSelected(); }, true, true);
+      undo = button('ひとつ戻す', function () { if (active() && mounted) mounted.undo(); }, true, true);
+      reset = button('編集前に戻す', function () { if (active() && mounted) mounted.reset(); }, true, true);
+      furniture = node('select'); furniture.setAttribute('aria-label', '持っている家具'); furniture.dataset.focusKey = 'home-furniture';
+      add = button('家具を置く', function () {
+        var spec = types.filter(function (row) { return row.id === furniture.value; })[0];
+        if (active() && mounted && spec && !mounted.add(spec.id, spec.sourceId)) { session.error = '置ける場所を空けて、もう一度お試しください。'; refreshEditor(); }
+      }, true, true);
+      ['wall', 'floor'].forEach(function (kind) {
+        var select = node('select'), choices = kind === 'wall' ? [['brick', 'クリームのレンガ'], ['floral', 'やさしい花柄'], ['mint', 'ミントの壁']] : [['honey', 'はちみつ色の床'], ['oak', '明るい木の床'], ['check', 'チェックの床']];
+        select.setAttribute('aria-label', kind === 'wall' ? '自宅の壁紙' : '自宅の床');
+        choices.forEach(function (row) { var option = node('option', '', row[1]); option.value = row[0]; select.appendChild(option); }); select.value = session.draft[kind];
+        select.addEventListener('change', function () { if (active() && mounted && typeof mounted.setSurface === 'function') mounted.setSurface(kind, select.value); });
+        controls.push(select); editor.appendChild(select);
+      });
+      save = button('配置を保存', function () { var pending = saveRoomEdit(session); refreshEditor(); pending.then(refreshEditor); }, false, true); save.dataset.focusKey = 'room-save';
+      cancel = button('やめる', function () { if (active()) { discardRoomEdit(); notice = '模様替えをやめました。'; render(); } }, true); cancel.dataset.focusKey = 'room-cancel';
+      append(editor, rotate, remove, undo, reset, furniture, add, save, cancel); section.appendChild(editor);
+    } else {
+      var actions = node('div', 'ipg-home-actions');
+      var edit = button('おうちを模様替え', function () { if (active() && ready) beginRoomEdit(); }, true, s.readOnly); edit.dataset.focusKey = 'room-edit';
+      append(actions, edit, button('村へ戻る', function () { if (active()) { lifePanelOpen = false; tab = 'village'; render(); } }, true)); section.appendChild(actions);
+      renderHomeFurnishings(s, section);
+    }
+    body.appendChild(section);
+    homePending = function () {
+      if (!alive()) return;
+      homeCleanup = function () { if (timer != null) w.clearTimeout(timer); timer = null; };
+      timer = w.setTimeout(fail, 20000);
+      loadHomeInterior().then(function (api) {
+        if (!alive() || failed) return null; if (!api || typeof api.mount !== 'function') { fail(); return null; }
+        return api.mount({ host: viewport, layout: layout, types: types, furniture: furnitureRows, editing: !!session, position: homeMemory.position, camera: homeMemory.camera,
+          canRun: function () { return active() && !failed; },
+          canWalk: function () { return active() && !failed && !lifePanelOpen && !currentWorldReaction(); },
+          keyboardScope: section,
+          onManualInput: function () { if (active() && ready && !failed && !session) resumeManualWorldControl(request, life); },
+          onExit: function () { if (active() && !session) { homeMemory.position = null; lifePanelOpen = false; tab = 'village'; render(); } },
+          onPosition: function (point) { if (alive()) homeMemory.position = { x: point.x, z: point.z }; },
+          onCamera: function (camera) { if (alive()) homeMemory.camera = Object.assign({}, camera); },
+          onFacing: function (frame) { if (active() && request && request.controller && typeof request.controller.setLocomotion === 'function') request.controller.setLocomotion(currentWorldReaction() ? null : frame); },
+          onDraft: function (draft) { if (active() && session) { session.draft = copyCozyLayout(draft); session.error = ''; refreshEditor(); } },
+          onSelection: function (id) { if (alive()) { selected = id; refreshEditor(); } },
+          onReady: function () { if (!alive() || failed) return; ready = true; if (timer != null) w.clearTimeout(timer); timer = null; status.textContent = '床をタップして歩く・ドラッグで見渡す・入口へ進むと村へ戻る'; if (life) life.setReady(); refreshEditor(); },
+          onFailure: fail
+        });
+      }).then(function (controller) {
+        if (!controller) return; if (!alive() || failed) { controller.destroy(); return; }
+        mounted = controller; homeController = controller;
+        if (session) { ready = true; if (timer != null) w.clearTimeout(timer); timer = null; refreshEditor(); return; }
+        if (request) {
+          request.frameConsumer = function (canvas) { if (alive() && !failed && mounted === controller) controller.setFrame(canvas); };
+          request.frameFailure = fail;
+          if (request.failed) { fail(); return; }
+          if (request.controller && typeof request.controller.refreshFrame === 'function') request.controller.refreshFrame();
+        } else if (visual) {
+          var still = function () { if (alive() && !failed && mounted === controller && !controller.setFrame(visual, { anchor: .08 })) fail(); };
+          if (visual.complete) still(); else { visual.addEventListener('load', still, { once: true }); visual.addEventListener('error', fail, { once: true }); }
+        }
+      }).catch(fail);
+    };
+  }
+  function renderHomeFurnishings(s, parent) {
+    if (typeof core().getHomeFurnishingsView !== 'function') return;
+    var owner = store, target = host, epoch = lifecycleEpoch;
+    var view = core().getHomeFurnishingsView(s), catalog = node('details', 'ipg-home-catalog'); catalog.appendChild(node('summary', '', '家具をふやす'));
+    function active() { return store === owner && host === target && lifecycleEpoch === epoch && tab === 'home' && catalog.isConnected && !suspended && !busy; }
+    catalog.appendChild(text('成長や村での買い物で、選べる家具が増えていきます。仮想マーケットで得たコインでも買えます。', 'ipg-small'));
+    view.items.forEach(function (row) {
+      var entry = node('article', 'ipg-home-furniture'); entry.dataset.furnitureId = row.id;
+      append(entry, node('h4', '', row.name), text(row.owned ? '持っています' : row.reason, 'ipg-small'));
+      if (!row.owned) {
+        var claim = button('成長のおくりものを受け取る', function () { if (active()) run({ type: 'claimHomeFurniture', furnitureId: row.id, expectedRevision: s.revision }, row.name + 'を受け取りました。模様替えで置けます。'); }, true, s.readOnly || !row.canClaim);
+        claim.dataset.focusKey = 'home-furniture-claim-' + row.id;
+        var buy = button(number(row.price) + 'コインで買う', function () { if (active()) run({ type: 'buyHomeFurniture', furnitureId: row.id, expectedRevision: s.revision }, row.name + 'を購入しました。模様替えで置けます。'); }, false, s.readOnly || !row.canBuy);
+        buy.dataset.focusKey = 'home-furniture-buy-' + row.id; append(entry, claim, buy);
+      } catalog.appendChild(entry);
+    }); parent.appendChild(catalog);
+  }
+  function renderVillageLife(s, viewport, canUse) {
+    var owner = store, target = host, epoch = lifecycleEpoch, viewTab = tab;
+    var info = stage(s), hud = node('div', 'ipg-life-hud');
+    var title = node('div', 'ipg-life-title');
+    append(title, node('strong', 'ipg-pet-name', s.pet.name || 'このこ'), node('span', 'ipg-small', info.label + ' · ' + number(s.pet.exp) + ' EXP'));
+    var progress = node('progress', 'ipg-progress'); progress.max = 100; progress.value = info.progress;
+    progress.setAttribute('aria-label', '次の成長までの進み具合'); title.appendChild(progress);
+    var panel = node('section', 'ipg-life-panel'); panel.setAttribute('aria-label', '村のお世話ともちもの'); panel.hidden = !lifePanelOpen;
+    var toggle = button('この子と過ごす', function () { if (canUse()) setOpen(!lifePanelOpen); }, true, true);
+    toggle.dataset.focusKey = 'village-life-open'; toggle.setAttribute('aria-expanded', String(lifePanelOpen));
+    function setOpen(value) {
+      if (store !== owner || host !== target || lifecycleEpoch !== epoch || suspended || busy || tab !== viewTab || !viewport.isConnected) return;
+      lifePanelOpen = value; panel.hidden = !value; toggle.setAttribute('aria-expanded', String(value));
+      if (townController) townController.stop(); if (homeController) homeController.stop();
+      if (value) close.focus({ preventScroll: true }); else viewport.focus({ preventScroll: true });
+    }
+    function quiet(event) { if (event.stopPropagation) event.stopPropagation(); }
+    ['pointerdown', 'pointermove', 'pointerup', 'keydown'].forEach(function (event) { panel.addEventListener(event, quiet); });
+    var close = button('閉じる', function () { setOpen(false); }, true); close.dataset.focusKey = 'village-life-close';
+    append(hud, title, toggle); viewport.appendChild(hud);
+    append(panel, append(node('div', 'ipg-life-panel-head'), node('h3', '', 'いっしょの時間'), close));
+    panel.appendChild(text(info.next == null ? 'いっしょの時間が、これからも成長につながります。' : '次の成長まで あと' + number(Math.max(0, info.next - s.pet.exp)) + ' EXP', 'ipg-small'));
+    var care = node('div', 'ipg-life-care'), egg = displaySpecies(s) === 'lilac' && appearanceProfile(info.key).family === 'egg'; care.setAttribute('role', 'group'); care.setAttribute('aria-label', '村でのお世話');
+    [['feed', egg ? 'あたためる' : 'いつものごはん', 8], ['play', 'なでる', 5], ['rest', 'ひとやすみ', 4]].forEach(function (x) {
+      var used = s.care.day === currentDay() ? s.care.counts[x[0]] || 0 : 0, cap = (limits().care || {})[x[0]] || 3;
+      var b = button(x[1], function () { if (canUse()) run({ type: 'care', kind: x[0], expectedRevision: s.revision }, '村でいっしょに過ごしました。'); }, true, s.readOnly || used >= cap);
+      b.dataset.focusKey = 'care-' + x[0]; b.setAttribute('aria-label', x[1] + ' · 今日' + used + '/' + cap + '回 · +' + x[2] + 'EXP');
+      append(b, node('small', '', used >= cap ? '今日はお世話済み' : '+' + x[2] + ' EXP')); care.appendChild(b);
+    }); panel.appendChild(care);
+    var bag = node('div', 'ipg-life-foods'); bag.appendChild(node('h4', '', 'もちものから、どうぞ'));
+    items().filter(function (row) { return row.type === 'food'; }).forEach(function (row) {
+      var count = owned(s, row), gift = button('あげる', function () {
+        if (canUse()) run({ type: 'useItem', itemId: row.id, expectedRevision: s.revision }, row.name + 'を渡しました。');
+      }, false, s.readOnly || count < 1);
+      gift.dataset.focusKey = 'village-gift-' + row.id; gift.setAttribute('aria-label', row.name + 'をこの子にあげる');
+      append(bag, append(node('div', 'ipg-life-food'), itemArtwork(row.id), append(node('div'), node('strong', '', row.name), node('small', '', number(count) + '個 · +' + row.exp + ' EXP')), gift));
+    }); panel.appendChild(bag);
+    if (typeof core().getVillageHarvestView === 'function') {
+      var harvest = core().getVillageHarvestView(s, (options && options.now || Date.now)()), plots = node('div', 'ipg-life-harvest');
+      plots.appendChild(node('h4', '', '村の実り'));
+      harvest.plots.forEach(function (plot) {
+        var pick = button(plot.available ? '収穫する' : plot.claimed ? '今日の収穫済み' : '今は収穫できません', function () {
+          if (canUse()) run({ type: 'harvestVillageFood', plotId: plot.id, expectedRevision: s.revision }, plot.itemName + 'を' + plot.quantity + '個、もちものに入れました。');
+        }, true, s.readOnly || !plot.available);
+        pick.dataset.focusKey = 'village-harvest-' + plot.id;
+        append(plots, append(node('div', 'ipg-life-harvest-row'), node('span', '', plot.name + ' · ' + plot.itemName + ' ' + plot.quantity + '個'), pick));
+      });
+      plots.appendChild(text('実りは1日ごと。収穫したものを渡すと、この子の成長につながります。', 'ipg-small')); panel.appendChild(plots);
+    }
+    panel.appendChild(button('マルシェのもちものを見る', function () { if (!canUse()) return; lifePanelOpen = false; tab = 'shop'; render(); }, true));
+    var growth = node('details', 'ipg-life-growth'); growth.appendChild(node('summary', '', 'この子の成長と名前'));
+    renderEvolutionStatus(s, growth); renderGrowthAlbum(s, growth); renderPetSettings(s, growth); panel.appendChild(growth);
+    viewport.appendChild(panel);
+    return {
+      open: function () { if (canUse()) setOpen(true); },
+      closeForManualInput: function () {
+        if (!canUse()) return;
+        lifePanelOpen = false; panel.hidden = true; toggle.setAttribute('aria-expanded', 'false');
+      },
+      setReady: function () { toggle.disabled = false; delete toggle.dataset.ipgDisabled; }
+    };
+  }
   function villageDestination(id) {
     if (busy || suspended || villageEdit || roomEdit || shopEdit) return;
-    if (id === 'home') tab = 'care';
+    if (id === 'home' || id === 'shop' || id === 'cafe') lifePanelOpen = false;
+    if (id === 'home') tab = legacyCarePreview() ? 'care' : 'home';
     else if (id === 'shop' || id === 'cafe') { shopRoomId = id; tab = 'interior'; notice = ''; }
     else if (id === 'market') tab = 'market';
     else if (id === 'playground') { notice = '広場を、のんびりおさんぽ。'; }
@@ -1729,7 +1980,7 @@
     if (townSceneLoading) return townSceneLoading;
     if (!d.head) return Promise.resolve(null);
     townSceneLoading = new Promise(function (resolve) {
-      var script = d.createElement('script'); script.src = '/static/pet-town-scene.js?v=20261025-fit1'; script.async = true;
+      var script = d.createElement('script'); script.src = '/static/pet-town-scene.js?v=20261025-life-fit1'; script.async = true;
       script.onload = function () { resolve(w.PetTownScene && typeof w.PetTownScene.mount === 'function' ? w.PetTownScene : null); };
       script.onerror = function () { townSceneLoading = null; script.remove(); resolve(null); };
       d.head.appendChild(script);
@@ -1767,7 +2018,7 @@
     function active() { return village.isConnected && store === mountedStore && epoch === lifecycleEpoch && tab === 'village' && motionsVisible() && !busy && !villageEdit && !roomEdit; }
     var sceneState = 'loading', walkingMounted = false, loadTimer = null;
     // Initial layout draw is needed by the walking engine; later input waits.
-    function canWalk() { return active() && (!walkingMounted || sceneState !== 'loading'); }
+    function canWalk() { return active() && (!walkingMounted || sceneState !== 'loading' && !lifePanelOpen && !currentWorldReaction()); }
     world.places.forEach(function (p) {
       var place = button('', function () { if (canWalk() && townController) townController.approach(p.id); }, true);
       place.className = 'ipg-town-place'; place.dataset.place = p.id; place.dataset.focusKey = 'village-place-' + p.id;
@@ -1801,11 +2052,12 @@
     avatar.dataset.walking = 'false'; avatar.dataset.facing = 'front'; avatar.dataset.family = appearanceProfile(stage(s).key).family;
     var shadow = node('span', 'ipg-town-shadow'); shadow.setAttribute('aria-hidden', 'true');
     var visual = petVisual(s, 'ipg-town-character'), request = motionRequests.filter(function (r) { return r.wrap === visual; })[0];
-    if (request) request.townCue = { situation: 'idle', durationMs: 0, startedAt: Date.now() };
+    if (request) { request.worldLife = true; request.townCue = { situation: 'idle', durationMs: 0, startedAt: Date.now() }; }
     pet.appendChild(visual); append(avatar, shadow, pet); scene.appendChild(avatar); viewport.appendChild(scene);
     var loadingView = node('div', 'ipg-town-loading'); loadingView.setAttribute('role', 'status'); loadingView.setAttribute('aria-live', 'polite');
     append(loadingView, node('span', 'ipg-town-loading-mark'), text('村を準備しています…'));
     viewport.appendChild(loadingView);
+    var life = renderVillageLife(s, viewport, function () { return active() && sceneState !== 'loading'; });
     village.appendChild(viewport);
     var guide = text('ドアへ進むと中に入れるよ', 'ipg-town-guide'); village.appendChild(guide);
     guide.hidden = true;
@@ -1835,6 +2087,7 @@
       scene.style.opacity = mode === 'fallback' ? '1' : '0'; scene.style.pointerEvents = '';
       scene.removeAttribute('aria-hidden'); scene.removeAttribute('inert');
       if (!s.readOnly) { delete edit.dataset.ipgDisabled; edit.disabled = false; }
+      life.setReady();
       if (townController && typeof townController.refresh === 'function') townController.refresh();
     }
     function fallback() {
@@ -1856,7 +2109,7 @@
         visualAttempted = true;
         return api.mount({ viewport: viewport, world: world, position: townController.position(), camera: townCamera,
           view: townPresentation(s), canRun: function () { return active() && sceneState !== 'fallback'; },
-          onFacing: function (frame) { if (active() && request && request.controller && typeof request.controller.setLocomotion === 'function') request.controller.setLocomotion(frame); },
+          onFacing: function (frame) { if (active() && request && request.controller && typeof request.controller.setLocomotion === 'function') request.controller.setLocomotion(currentWorldReaction() ? null : frame); },
           onCamera: function (camera) { if (active()) townCamera = { yaw: camera.yaw, pitch: camera.pitch, distance: camera.distance }; },
           onReady: function () { if (active() && sceneState === 'loading' && townController === controllerAtStart) { reveal('ready'); guide.textContent = 'ドアへ進むと中に入る・ドラッグで見渡す'; viewport.setAttribute('aria-label', '街をおさんぽ。地面やドアをタップして歩き、ドア正面へ押し進むと入れます。ドラッグで見渡せます。矢印キーやWASDでも歩けます。'); } },
           onFailure: function () {
@@ -1896,7 +2149,11 @@
       townController = engine.mount({ viewport: viewport, worldElement: scene, avatar: avatar, enterButton: enter,
         world: world, position: townPosition, canRun: canWalk, doorEntry: true, enterableIds: ['home', 'shop', 'cafe'],
         resolveTap: function (event, view) {
-          if (townVisual && viewport.dataset.visualMode === 'three') return townVisual.resolveTap(event);
+          if (townVisual && viewport.dataset.visualMode === 'three') {
+            var hit = townVisual.resolveTap(event);
+            if (hit && hit.pet) { life.open(); return null; }
+            return hit;
+          }
           var box = viewport.getBoundingClientRect(); return { x: (event.clientX - box.left) / view.scale + view.x, y: (event.clientY - box.top) / view.scale + view.y };
         },
         projectDirection: function (x, y) { return townVisual && viewport.dataset.visualMode === 'three' ? townVisual.direction(x, y) : { x: x, y: y }; },
@@ -1909,6 +2166,7 @@
           if (townVisual) townVisual.setMotion(motion);
           if (!request) return;
           var name = motion.walking && request.appearanceFamily !== 'egg' ? 'moving' : 'idle';
+          if (currentWorldReaction()) return;
           var now = Date.now(), changed = request.townCue.situation !== name;
           if (!changed && (name === 'idle' || now - (request.townRefreshAt || 0) < 250)) return;
           if (changed) request.townCue = { situation: name, durationMs: name === 'moving' ? 1600 : 0, startedAt: now };
@@ -2099,7 +2357,8 @@
       }, false, s.coins < x.price));
       var roomDecoration = customRoom(s) && x.type === 'decoration';
       var placed = roomDecoration && s.roomLayout.items.some(function (entry) { return entry.id === x.id; });
-      if (count) row.appendChild(button(x.type === 'food' ? '使う' : roomDecoration ? placed ? '配置済み' : 'お部屋に置く' : 'かざる', function () {
+      if (count) row.appendChild(button(x.type === 'food' ? developerPreview() || legacyCarePreview() ? '使う' : '村で渡す' : roomDecoration ? placed ? '配置済み' : 'お部屋に置く' : 'かざる', function () {
+        if (x.type === 'food' && !developerPreview() && !legacyCarePreview()) { tab = 'village'; lifePanelOpen = true; notice = x.name + 'を、もちものから渡そう。'; render(); return; }
         run({ type: x.type === 'food' ? 'useItem' : 'equip', itemId: x.id }, x.type === 'food' ? 'アイテムを使いました。' : 'かざりを保存しました。');
       }, true, placed));
       grid.appendChild(row);
@@ -2508,14 +2767,15 @@
     stopMotions();
     var focused = d.activeElement && d.activeElement.dataset && d.activeElement.dataset.focusKey;
     var s = state(), choosing = !developerPreview() && needsEggChoice(s), root = node('div', 'ipg ipg-view-' + tab);
+    if (!developerPreview() && !legacyCarePreview()) root.dataset.villageLife = 'true';
     if (!needsEggChoice(s)) { eggDraft = null; eggConfirm = false; }
     renderedDay = currentDay();
     var head = node('header', 'ipg-header');
-    if (!choosing && tab !== 'care' && tab !== 'village' && tab !== 'interior' && displaySpecies(s) === 'lilac') head.appendChild(petVisual(s, 'ipg-lilac-compact'));
-    append(head, append(node('div'), node('p', 'ipg-eyebrow', '小さな毎日を、いっしょに。'), node('h2', '', tab === 'village' || tab === 'interior' ? 'カフェとお店の村' : 'そだてる')),
+    if (!choosing && tab !== 'care' && tab !== 'village' && tab !== 'interior' && tab !== 'home' && displaySpecies(s) === 'lilac') head.appendChild(petVisual(s, 'ipg-lilac-compact'));
+    append(head, append(node('div'), node('p', 'ipg-eyebrow', '小さな毎日を、いっしょに。'), node('h2', '', developerPreview() || legacyCarePreview() ? tab === 'village' || tab === 'interior' ? 'カフェとお店の村' : 'そだてる' : '村のくらし')),
       node('div', 'ipg-wallet', number(s.coins) + ' コイン'));
     root.appendChild(head);
-    var status = node('p', 'ipg-notice' + (failure ? ' ipg-error' : ''), failure || notice || (tab === 'care' || tab === 'village' || tab === 'interior' ? '' : 'おかえりなさい。今日は何をして過ごそう？'));
+    var status = node('p', 'ipg-notice' + (failure ? ' ipg-error' : ''), failure || notice || (tab === 'care' || tab === 'village' || tab === 'interior' || tab === 'home' ? '' : 'おかえりなさい。今日は何をして過ごそう？'));
     status.setAttribute('role', failure ? 'alert' : 'status'); status.setAttribute('aria-live', failure ? 'assertive' : 'polite');
     root.appendChild(status);
     var stateError = s.error && !failure ? text(s.error.message || '記録の読み込みに確認が必要です。', 'ipg-error') : null;
@@ -2528,11 +2788,12 @@
     }
     var nav = node('nav', 'ipg-tabs'); nav.setAttribute('aria-label', '育成ゲーム');
     Object.keys(tabLabels).forEach(function (key) {
-      var b = button(tabLabels[key], function () {
+      if (key === 'care' && !developerPreview() && !legacyCarePreview()) return;
+      var b = button(!developerPreview() && !legacyCarePreview() && key === 'shop' ? 'もちもの' : tabLabels[key], function () {
         if (busy || roomEdit || villageEdit || shopEdit) return;
         tab = key; if (key !== 'shop') { fittingOpen = false; fittingOutfit = null; } render();
       }, true, !!roomEdit || !!villageEdit || !!shopEdit);
-      var current = tab === key || tab === 'interior' && key === 'village';
+      var current = tab === key || (tab === 'interior' || tab === 'home') && key === 'village';
       b.className += current ? ' is-active' : '';
       b.setAttribute('aria-current', current ? 'page' : 'false');
       b.dataset.focusKey = 'tab-' + key;
@@ -2542,6 +2803,7 @@
     var body = node('div', 'ipg-body');
     if (tab === 'village') renderVillage(s, body, stateError ? [status, stateError] : [status]);
     else if (tab === 'interior') renderShopInterior(s, body);
+    else if (tab === 'home') renderHome(s, body);
     else if (tab === 'care') renderCare(s, body);
     else if (tab === 'shop') renderShop(s, body);
     else renderMarket(s, body);
@@ -2551,6 +2813,7 @@
     if (townPending) { var startTown = townPending; townPending = null; startTown(); }
     if (cozyPending) { var startCozy = cozyPending; cozyPending = null; startCozy(); }
     if (shopPending) { var startShop = shopPending; shopPending = null; startShop(); }
+    if (homePending) { var startHome = homePending; homePending = null; startHome(); }
     setBusy(busy);
     if (focused) {
       var n = host.querySelector('[data-focus-key="' + focused + '"]');
@@ -2560,7 +2823,7 @@
   function loading(message, retry) {
     if (!host) return;
     stopMotions();
-    var c = card('そだてる');
+    var c = card('村のくらし');
     append(c, text(message));
     if (retry) c.appendChild(button('もう一度読み込む', function () { mount(host, options); }));
     host.replaceChildren(append(node('div', 'ipg'), c));
@@ -2572,7 +2835,7 @@
     if (host === target && store) { render(); return true; }
     if (mounting) return mounting;
     discardRoomEdit(); discardVillageEdit(); discardShopEdit(); lifecycleEpoch++;
-    host = target; townPosition = null; townCamera = null; shopMemory = {}; shopRoomId = 'shop'; villageListingDraft = null; villageTradeDrafts = {}; options = opts || options || {};
+    host = target; townPosition = null; townCamera = null; shopMemory = {}; homeMemory = {}; lifePanelOpen = false; runAttempt = null; busy = false; nameDraft = null; shopRoomId = 'shop'; villageListingDraft = null; villageTradeDrafts = {}; options = opts || options || {};
     tab = developerPreview() ? 'care' : 'village';
     loading('ゲームの記録を読み込んでいます…');
     mounting = (async function () {
@@ -2591,7 +2854,7 @@
         store = candidate;
         if (unsubscribe) unsubscribe();
         var subscribedStore = store, subscribedTarget = host;
-        unsubscribe = store.subscribe(function () { if (store === subscribedStore && host === subscribedTarget && !busy && !shopEdit) render(); });
+        unsubscribe = store.subscribe(function () { if (store === subscribedStore && host === subscribedTarget && !busy && !shopEdit && !(roomEdit && roomEdit.home)) render(); });
         failure = ''; render(); return true;
       } catch (_) {
         store = null; loading('ゲームの記録を読み込めませんでした。保存先を確認して、もう一度お試しください。', true);
@@ -2602,6 +2865,7 @@
   }
   function suspend() {
     suspended = true; lifecycleEpoch++; discardRoomEdit(); discardVillageEdit(); discardShopEdit();
+    runAttempt = null; setBusy(false);
     stopMotions(); reaction = null; greeted = false; appearancePreview = false; bodyDrawerOpen.pet = bodyDrawerOpen.preview = bodyDrawerOpen.growth = false; directionDrawerOpen.pet = directionDrawerOpen.preview = directionDrawerOpen.growth = false; growthAlbumOpen = false; growthPreviewStage = null; growthPreviewPath = null; growthEmotionOpen = false; fittingOpen = false; fittingOutfit = null;
   }
   d.addEventListener('visibilitychange', function () {
@@ -2610,8 +2874,8 @@
   });
   w.addEventListener('pagehide', suspend);
   w.addEventListener('pageshow', function () { suspended = false; if (store && !busy) render(); });
-  w.addEventListener('focus', function () { if (store && !busy && !(roomEdit && roomEdit.cozy) && !shopEdit && tab !== 'interior' && tab !== 'village') render(); });
-  w.setInterval(function () { if (store && !busy && !shopEdit && renderedDay !== currentDay()) render(); }, 60000);
+  w.addEventListener('focus', function () { if (store && !busy && !(roomEdit && roomEdit.cozy) && !shopEdit && tab !== 'interior' && tab !== 'village' && tab !== 'home') render(); });
+  w.setInterval(function () { if (store && !busy && !shopEdit && !(roomEdit && roomEdit.home) && renderedDay !== currentDay()) render(); }, 60000);
   w.IndependentPetGame = {
     mount: mount,
     open: function () { return mount(host || d.getElementById('pet-game-root'), options); },

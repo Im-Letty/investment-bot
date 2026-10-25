@@ -8,7 +8,9 @@ function memory(seed = {}) {
   return { data, writes: [], getItem(key) { return data.has(key) ? data.get(key) : null; }, setItem(key, value) { this.writes.push([key, value]); data.set(key, value); } };
 }
 async function game(seed = {}, choose = true) {
-  const storage = memory(seed); let now = new Date(2026, 9, 24, 12).getTime();
+  // This suite preserves the already available eight-fixture rooms. Starter
+  // acquisition is exercised separately with genuine new records.
+  const storage = memory(choose ? { pg_exp: '0', ...seed } : seed); let now = new Date(2026, 9, 24, 12).getTime();
   const options = { storage, now: () => now, random: () => .5 }, app = Core.create(options);
   assert.equal((await app.ready).ok, true);
   if (choose && Core.needsEggChoice(app.getState())) assert.equal((await app.dispatch({ type: 'chooseEgg', eggOrigin: 'mint' })).ok, true);
@@ -45,7 +47,7 @@ test('older layout-free records derive a detached room without initialization wr
 
 test('an unchosen egg may view a detached default but cannot persist a room or earn a reward', async () => {
   const g = await game({}, false), before = persisted(g), raw = g.storage.data.get(Core.KEY);
-  assert.deepEqual(g.app.getCozyRoomLayout(), Core.defaultCozyRoomLayout());
+  assert.deepEqual(g.app.getCozyRoomLayout().objects.map(row => row.type), ['bed', 'rug']);
   const result = await save(g, Core.defaultCozyRoomLayout()); assert.equal(result.error.code, 'egg_required');
   assert.equal(g.storage.data.get(Core.KEY), raw); assert.deepEqual(persisted(g), before);
 });

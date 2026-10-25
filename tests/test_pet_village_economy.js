@@ -267,6 +267,7 @@ test('corrupt optional economy fails closed without replacing old records or all
 
 test('all unrelated selected pet, historical games, rooms, inventory ownership, care and legacy market survive NPC transactions and backups', async () => {
   const f = await fixture(s => { s.pet.exp = 686; s.pet.name = '保存テスト'; s.coins = 500; s.inventory.apple = 9;
+    delete s.villageLife; // Explicit historical full-room fixture, before starter acquisition existed.
     s.roomLayout = { version: 1, items: [] }; s.cozyRoomLayout = Core.defaultCozyRoomLayout(); s.villageLayout = Core.defaultVillageLayout();
     s.minigames.completed = ['old-result']; s.minigames.active = { id: 'old-active', kind: 'snack', startedAt: BASE - 10 };
     s.market.holdings.apl = { quantity: 2, costBasis: 83 }; s.market.history = [{ type: 'existing-history', note: 'retain' }];
