@@ -651,10 +651,10 @@ test('main game does not load a removed minigame runtime and updates only change
   }
   for(const asset of ['pet-game.css','pet-village-economy.js','pet-village-economy-scene.js','pet-village-economy-scene.css'])assert.ok(html.includes('/static/'+asset+'?v=20261024-village-economy1'),asset);
   for(const asset of ['pet-shop-layout.js','pet-shop-entry.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-shop1'),asset);
-  for(const asset of ['pet-town-walk.js','pet-town-walk.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-reveal1'),asset+' first-frame reveal pin');
+  for(const asset of ['pet-town-walk.js','pet-town-walk.css'])assert.ok(html.includes('/static/'+asset+'?v=20261026-viewportclip1'),asset+' viewport clipping and first-frame reveal pin');
   for(const asset of ['pet-cozy-room.js','pet-home-interior.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-life1'),asset+' village-life pin');
   for(const asset of ['pet-game-core.js','pet-village-life.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-fishing1'),asset+' fishing pin');
-  assert.ok(html.includes('/static/pet-game.js?v=20261026-brightness1'),'integrated manual-control UI retains fit1 renderer contract');
+  assert.ok(html.includes('/static/pet-game.js?v=20261026-viewportclip1'),'integrated manual-control UI retains fit1 renderer contract');
   assert.equal(loader.includes('/static/pet-frame-fit.js?'),false,'visual-only frame contract stays out of game boot');
   assert.ok(html.includes('/static/pet-lilac-motion.js?v=20261025-harmony1'),'unchanged character renderer pin is preserved');
   assert.ok(html.includes('/static/pet-cozy-room.css?v=20261024-cozy-room1'),'unchanged room asset pin is preserved');
@@ -678,7 +678,7 @@ test('resize repair refreshes only the three borrowed-frame consumer cache revis
 
 test('Japanese season resolver loads with Town only and refreshes the game entry without changing saved-core or interior pins',()=>{
  const game=fs.readFileSync(path.join(root,'static/pet-game.js'),'utf8'),town=fs.readFileSync(path.join(root,'static/pet-town-scene.js'),'utf8');
- assert.ok(loader.includes('/static/pet-game.js?v=20261026-brightness1'));
+ assert.ok(loader.includes('/static/pet-game.js?v=20261026-viewportclip1'));
  assert.equal(loader.includes('pet-japan-seasons.js'),false,'the calendar does not add an eager startup resource');
  assert.ok(town.includes("import('/static/pet-japan-seasons.js?v=20261026-brightness1')"));
  assert.ok(town.includes("loadFrameFit(), loadSeasons()"));
@@ -689,7 +689,7 @@ test('Japanese season resolver loads with Town only and refreshes the game entry
 
 test('bounded village detailing is lazy with Town while the deployed calendar, frame contract and indoors retain their revisions',()=>{
  const game=fs.readFileSync(path.join(root,'static/pet-game.js'),'utf8'),town=fs.readFileSync(path.join(root,'static/pet-town-scene.js'),'utf8');
- assert.ok(loader.includes('/static/pet-game.js?v=20261026-brightness1'));assert.equal(loader.includes('pet-town-style.js'),false);
+ assert.ok(loader.includes('/static/pet-game.js?v=20261026-viewportclip1'));assert.equal(loader.includes('pet-town-style.js'),false);
  assert.ok(game.includes('/static/pet-town-scene.js?v=20261026-brightness1'));assert.ok(town.includes("import('/static/pet-town-style.js?v=20261025-market-style1')"));
  assert.ok(town.includes("loadSeasons(), loadStyle()"));assert.ok(town.includes("/static/pet-japan-seasons.js?v=20261026-brightness1"));
  assert.ok(town.includes("/static/pet-frame-fit.js?v=20261025-fit1"));
