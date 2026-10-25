@@ -65,3 +65,16 @@ body.kn-home-a[data-kn-a-custom-color] #sideDrawer.kn-menu-a .kn-profile-actions
 #sideDrawer.kn-menu-a .kn-profile-actions button:disabled{opacity:.6;cursor:wait}
 
 #ksFeed .ks-post-author{font:600 14px/1.5 var(--kn-a-sans,sans-serif);color:#fff;overflow-wrap:anywhere;text-shadow:0 1px 4px #000;margin:0 0 6px}.ks-post-author-summary{font-size:13px;overflow-wrap:anywhere;color:inherit}
+
+/* Auto-save stays quiet; only a failed save exposes a retry action. */
+#sideDrawer .kn-profile-status:empty { display:none; }
+#sideDrawer.kn-menu-a .kn-profile-retry {
+  justify-self:start; min-height:44px; padding:8px 12px;
+  border:1px solid var(--kn-a-line,#dddcc9); border-radius:12px;
+  background:var(--kn-a-chip,#f1f0e2);
+  color:var(--kn-profile-action-ink,var(--kn-a-ink,#555b43));
+  font:400 calc(13px * var(--kn-a-scale,1))/1.5 var(--kn-a-sans,sans-serif);
+}
+#sideDrawer.kn-menu-a .kn-profile-retry[hidden] { display:none; }
+#sideDrawer.kn-menu-a .kn-profile-retry:focus-visible { outline:2px solid currentColor; outline-offset:3px; }
+body.kn-home-a[data-kn-a-custom-color] #sideDrawer.kn-menu-a .kn-profile-retry { --kn-profile-action-ink:color-mix(in srgb,var(--brand-color) 15%,#303c30); }
