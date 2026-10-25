@@ -1,11 +1,11 @@
 /* Original elegant village shop. Caller owns durable layout, economy and canonical pet. */
 (function(root,factory){
  'use strict';
- var api=factory(typeof module==='object'&&module.exports?require('./pet-shop-layout.js'):root.PetShopLayout);
+ var api=factory(typeof module==='object'&&module.exports?require('./pet-shop-layout.js'):root.PetShopLayout,typeof module==='object'&&module.exports?require('./pet-frame-fit.js'):root.PetFrameFit);
  if(typeof module==='object'&&module.exports)module.exports=api;else root.PetShopInterior=api;
-})(typeof globalThis!=='undefined'?globalThis:this,function(Layout){
+})(typeof globalThis!=='undefined'?globalThis:this,function(Layout,FrameFit){
  'use strict';
- var loading=null,TAU=Math.PI*2;
+ var loading=null,frameFitLoading=null,TAU=Math.PI*2;
  function finite(n){return typeof n==='number'&&Number.isFinite(n);}
  function clamp(n,a,b){return Math.max(a,Math.min(b,n));}
  function clone(x){return JSON.parse(JSON.stringify(x));}
@@ -46,6 +46,7 @@
   var out=[],cursor=end;while(cursor!==begin){out.push(point(cursor));cursor=parent.get(cursor);if(cursor===undefined)return [];}out.reverse();out.push({x:goal.x,z:goal.z});return out;
  }
  function loadThree(){if(!loading)loading=import('/static/vendor/three-0.160.1.module.js').catch(function(e){loading=null;throw e;});return loading;}
+ function loadFrameFit(){var current=FrameFit||globalThis.PetFrameFit;if(current&&typeof current.resolve==='function'){FrameFit=current;return Promise.resolve(current);}if(!frameFitLoading)frameFitLoading=import('/static/pet-frame-fit.js?v=20261025-fit1').then(function(){var api=globalThis.PetFrameFit;if(!api||typeof api.resolve!=='function')throw Error('frame_fit_unavailable');FrameFit=api;return api;}).catch(function(e){frameFitLoading=null;throw e;});return frameFitLoading;}
  function buildWorld(THREE,layout,api,doc){
   var scene=new THREE.Scene(),architecture=new THREE.Group(),objects=new THREE.Group(),geometries=new Set(),materials=new Set(),textures=new Set(),fixtures=new Map(),pickables=[],disposed=false;
   scene.add(architecture,objects);scene.background=new THREE.Color('#e9e9dc');
@@ -105,7 +106,7 @@
   if(!host||!doc||!win||!api)return null;
   var roomId=opts.roomId==='cafe'?'cafe':'shop',layout=clone(opts.layout||api.defaultLayout(roomId));
   if(!validLayout(api,layout,roomId))return null;
-  var dead=false,failed=false,ready=false,rendering=false,dirty=false,raf=null,renderer=null,model=null,observer=null,source=null,sourceTexture=null,lastUpload=-Infinity,lastPaint=-Infinity,lastTick=null,sourceAnchor=.08;
+  var dead=false,failed=false,ready=false,rendering=false,dirty=false,raf=null,renderer=null,model=null,observer=null,source=null,sourceTexture=null,lastUpload=-Infinity,lastPaint=-Infinity,lastTick=null,sourceFrame=null;
   var root=doc.createElement('section');root.className='ipg-shop-interior';root.setAttribute('aria-label',roomId==='cafe'?'カフェの店内':'マルシェの店内');
   var stage=doc.createElement('div');stage.className='ipg-shop-room-stage';stage.tabIndex=0;stage.setAttribute('role','region');stage.setAttribute('aria-label','店内。地面をタップ、または矢印キーやWASDで歩けます。入口へ進むと外へ戻れます。');root.appendChild(stage);host.appendChild(root);
   var removers=[],editing=!!opts.editing,cameraView=cameraState(opts.camera),position={x:0,z:2.6},heading=cameraView.yaw,travelled=0,walkingNow=false,held=new Set(),path=[],exitIntent=false,exitDwell=0,exited=false,drag=null,selected=null,undoStack=[],initial=clone(layout),sprite,shadow,camera,topCamera,ray,pointer,selection,selectionGeo;
@@ -121,8 +122,6 @@
   function moving(){return !editing&&!exited&&inputAllowed()&&(held.size>0||path.length>0||exitIntent);}
   function cancelFrame(){if(raf!==null){win.cancelAnimationFrame(raf);raf=null;}lastTick=null;}
   function stop(){held.clear();path=[];exitIntent=false;exitDwell=0;walkingNow=false;}
-  function sourceSize(c){return c&&c.tagName==='IMG'?c.complete&&c.naturalWidth>0&&c.naturalHeight>0?{w:c.naturalWidth,h:c.naturalHeight}:null:c&&c.tagName==='CANVAS'&&c.width>0&&c.height>0?{w:c.width,h:c.height}:null;}
-  function anchor(c){var gl=c.getContext&&c.getContext('webgl');if(!gl)return null;var w=c.width,h=c.height,data=new Uint8Array(w*h*4);gl.readPixels(0,0,w,h,gl.RGBA,gl.UNSIGNED_BYTE,data);for(var y=0;y<h;y++)for(var x=0;x<w;x++)if(data[(y*w+x)*4+3]>=31)return y/h;return null;}
   function syncSelection(){var o=layout.items.find(function(x){return x.id===selected;});selection.visible=!!(editing&&o);if(o){var spec=fixtureSpec(api,o.id),w=o.turn%2?spec.d:spec.w,d=o.turn%2?spec.w:spec.d;selection.position.set(o.x,.095,o.z);selection.scale.set(w+.13,d+.13,1);}stage.dataset.selectedId=selected||'';report('onSelection',selected);}
   function currentCamera(){return editing?topCamera:camera;}
   function syncCamera(){if(editing){var box=stage.getBoundingClientRect(),aspect=box.width/Math.max(1,box.height),v=Math.max(8.8,10.6/aspect);topCamera.left=-v*aspect/2;topCamera.right=v*aspect/2;topCamera.top=v/2;topCamera.bottom=-v/2;topCamera.up.set(0,0,-1);topCamera.position.set(0,15,0);topCamera.lookAt(0,0,0);topCamera.updateProjectionMatrix();topCamera.updateMatrixWorld(true);return;}
@@ -158,7 +157,7 @@
   function releasePointer(id){try{if(stage.hasPointerCapture&&stage.hasPointerCapture(id))stage.releasePointerCapture(id);}catch(_){}}
   function cancelDrag(){if(!drag)return;var d=drag;drag=null;releasePointer(d.id);if(d.kind==='edit'&&d.before){layout=d.before;redrawLayout();syncSelection();requestRender();}}
   function groundEvent(e){var b=stage.getBoundingClientRect();if(!b.width||!b.height)return null;pointer.set((e.clientX-b.left)/b.width*2-1,-((e.clientY-b.top)/b.height)*2+1);ray.setFromCamera(pointer,currentCamera());var plane=new THREE.Plane(new THREE.Vector3(0,1,0),-.04),p=new THREE.Vector3();return ray.ray.intersectPlane(plane,p)?p:null;}
-  var controller={destroy:destroy,setFrame:function(c,metadata){var size=sourceSize(c);if(!active()||!renderer||!size)return false;try{var stamp=win.performance?win.performance.now():Date.now(),changed=source!==c;if(!changed&&!reduced&&stamp-lastUpload<32)return true;if(changed){var foot=metadata&&finite(metadata.anchor)?metadata.anchor:c.tagName==='CANVAS'?anchor(c):.08;if(foot===null)return false;if(sourceTexture)sourceTexture.dispose();sourceTexture=new THREE.CanvasTexture(c);sourceTexture.colorSpace=THREE.SRGBColorSpace;sourceTexture.generateMipmaps=false;sourceTexture.minFilter=THREE.LinearFilter;source=c;sourceAnchor=foot;sprite.material.map=sourceTexture;sprite.material.needsUpdate=true;}sprite.center.set(.5,sourceAnchor);sprite.scale.set(1.65*size.w/size.h,1.65,1);sourceTexture.needsUpdate=true;renderer.initTexture(sourceTexture);lastUpload=stamp;if(!ready){ready=true;render(stamp);root.dataset.ready='true';report('onReady',controller);schedule();}else if(!rendering)requestRender();return true;}catch(_){fail('shop_frame_unavailable');return false;}},
+  var controller={destroy:destroy,setFrame:function(c,metadata){if(!active()||!renderer)return false;try{var fit=FrameFit.resolve(c,metadata,sourceFrame);if(!fit)return false;var stamp=win.performance?win.performance.now():Date.now(),changed=source!==c;if(!fit.changed&&!reduced&&stamp-lastUpload<32)return true;if(changed){if(sourceTexture)sourceTexture.dispose();sourceTexture=new THREE.CanvasTexture(c);sourceTexture.colorSpace=THREE.SRGBColorSpace;sourceTexture.generateMipmaps=false;sourceTexture.minFilter=THREE.LinearFilter;source=c;sprite.material.map=sourceTexture;sprite.material.needsUpdate=true;}sprite.center.set(.5,fit.anchor);sprite.scale.set(fit.worldWidth,fit.worldHeight,1);sourceTexture.needsUpdate=true;renderer.initTexture(sourceTexture);lastUpload=stamp;sourceFrame=fit;if(!ready){ready=true;render(stamp);root.dataset.ready='true';report('onReady',controller);schedule();}else if(!rendering)requestRender();return true;}catch(_){fail('shop_frame_unavailable');return false;}},
    setEditing:function(value){if(!active())return false;cancelDrag();stop();editing=!!value;if(!editing&&!walkable(api,layout,position.x,position.z,roomId)){position={x:0,z:2.6};report('onPosition',clone(position));}syncSelection();stage.setAttribute('aria-label',editing?'お店の配置。家具を押したまま動かせます。':'店内。地面をタップ、または矢印キーやWASDで歩けます。入口へ進むと外へ戻れます。');requestRender();return true;},
    getLayout:function(){return clone(layout);},getSelection:function(){return selected;},
    rotateSelected:function(){if(!active()||!editing||!selected)return false;cancelDrag();var next=clone(layout),item=next.items.find(function(o){return o.id===selected;});item.turn=(item.turn+1)%4;return replaceLayout(next,true);},
@@ -170,7 +169,7 @@
    camera:function(){return clone(cameraView);},position:function(){return clone(position);},stop:function(){stop();requestRender();}
   };
   var THREE;
-  try{THREE=opts.three||await loadThree();}catch(_){fail('shop_module_unavailable');return null;}
+  try{var dependencies=await Promise.all([opts.three||loadThree(),loadFrameFit()]);THREE=dependencies[0];}catch(_){fail('shop_module_unavailable');return null;}
   if(!active()){destroy();return null;}
   try{
    model=buildWorld(THREE,layout,api,doc);renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:false});renderer.setPixelRatio(Math.min(win.devicePixelRatio||1,1.5));renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.0;

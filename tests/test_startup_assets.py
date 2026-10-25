@@ -316,9 +316,14 @@ class StartupAssetsTests(unittest.TestCase):
         bundled_references.feed(transformed.split('</head>', 1)[0])
         # Test the real entry point too: an early inline style or an orphan
         # script attribute can silently disable the otherwise-safe optimizer.
-        self.assertEqual(len(references.local_resources), 71)
         self.assertEqual(len(bundled_references.local_resources), 6)
-        self.assertEqual(len(references.styles), 28)
+        self.assertEqual(len(bundled_references.styles), 1)
+        self.assertEqual(len(bundled_references.scripts), 1)
+        # Each eligible head group becomes one resource; newly added safe
+        # inputs must not require a stale snapshot of the original file count.
+        self.assertEqual(len(bundled_references.local_resources),
+                         len(references.local_resources) - len(references.styles)
+                         - len(references.scripts) + 2)
         self.assertEqual(bundles['css'], b'\n'.join(
             (ROOT / 'static' / name).read_bytes() for name in references.styles))
         self.assertLess(transformed.index('startup-css-'), transformed.index('<style id="knBrowserSurface">'))

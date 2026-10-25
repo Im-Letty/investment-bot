@@ -397,4 +397,109 @@ body.kn-home-a #myPageOv[data-mp-view="assets"] .mo-body {gap:0}
 body.kn-home-a #myPageOv[data-mp-view="memo"] > :is(.mp-toptabs,.mo-tabs) {display:none!important}
 body.kn-home-a #myPageOv[data-mp-view="memo"] .mo-body {padding-top:max(76px,calc(var(--kn-a-menu-top,18px) + 48px))}
 body.kn-home-a #myPageOv[data-mp-view="memo"] .kb-pane.mp-memo-warming {display:block!important;position:fixed;left:-10000px;top:0;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none}
+
+/* The free memo shares the guide's centered cream-and-olive surface. Keep the
+   existing editor, private ledger iframe and every other MyPage view in place. */
+body.kn-home-a .mp-memo-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100049;
+  margin: 0;
+  padding: 0;
+  background: rgba(20, 25, 28, .35);
+}
+body.kn-home-a .mp-memo-backdrop[hidden] { display: none !important; }
+body.kn-home-a #myPageOv[data-mp-view="memo"] {
+  --mypage-gutter: 22px;
+  --kn-sh-bg: #faf8ee;
+  --kn-sh-paper: #fffef8;
+  --kn-sh-ink: #555638;
+  --kn-sh-muted: #717253;
+  --kn-sh-line: #dcd8c2;
+  --kn-sh-chip: #eeeddc;
+  --kn-sh-button: #73764d;
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  width: min(480px, calc(100% - 32px));
+  height: min(820px, calc(100dvh - 32px)) !important;
+  max-height: calc(100dvh - 32px);
+  transform: translate(-50%, -50%);
+  border: 1px solid var(--kn-sh-line);
+  border-radius: 24px;
+  box-shadow: 0 8px 30px #57533715;
+  z-index: 100050 !important;
+}
+body.kn-home-a #myPageOv.open[data-mp-view="memo"] {
+  animation: mp-memo-appear .14s ease-out;
+}
+body.kn-home-a #myPageOv[data-mp-view="memo"] .mo-head {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 76px;
+  gap: 10px;
+  padding: 16px 22px;
+  border: 0;
+  font: 600 calc(16px * var(--kn-type-scale, 1))/1.4 var(--kn-a-sans, system-ui, sans-serif) !important;
+}
+body.kn-home-a #myPageOv[data-mp-view="memo"] .mo-x {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  border-radius: 50%;
+  color: var(--kn-sh-muted) !important;
+}
+body.kn-home-a #myPageOv[data-mp-view="memo"] .mo-x:hover {
+  background: var(--kn-sh-chip) !important;
+}
+body.kn-home-a #myPageOv[data-mp-view="memo"] .mo-body {
+  flex: 1;
+  min-height: 0;
+  padding: 6px 22px 24px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+body.kn-home-a #myPageOv[data-mp-view="memo"] .mp-note-head .mp-heading {
+  font-size: calc(23px * var(--kn-type-scale, 1)) !important;
+  line-height: 1.5;
+}
+body.kn-home-a #myPageOv[data-mp-view="memo"] .mp-note-compose {
+  /* The transformed dialog is the fixed containing block, not the viewport. */
+  right: 22px;
+  bottom: 20px;
+  width: 52px;
+  height: 52px;
+  min-height: 52px;
+  border-radius: 16px;
+  background: var(--kn-sh-paper);
+  border-color: var(--kn-sh-line);
+  color: var(--kn-sh-button);
+}
+body.kn-home-a #myPageOv[data-mp-view="memo"] :is(button, input, textarea, select, [contenteditable="true"]):focus-visible {
+  outline: 2px solid var(--kn-sh-button);
+  outline-offset: 3px;
+}
+@keyframes mp-memo-appear {
+  from { opacity: 0; transform: translate(-50%, -48%) scale(.98); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+@media (max-width: 640px) {
+  body.kn-home-a #myPageOv[data-mp-view="memo"] {
+    width: min(480px, calc(100% - 20px));
+    height: calc(100dvh - 20px) !important;
+    max-height: calc(100dvh - 20px);
+    border-radius: 20px;
+  }
+}
+@media (max-width: 360px) {
+  body.kn-home-a #myPageOv[data-mp-view="memo"] .mo-head { padding-inline: 16px; }
+  body.kn-home-a #myPageOv[data-mp-view="memo"] .mo-body { padding-inline: 16px; }
+  body.kn-home-a #myPageOv[data-mp-view="memo"] .mp-note-compose { right: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body.kn-home-a #myPageOv.open[data-mp-view="memo"] { animation: none; }
+}
 #myPageOv .mp-portfolio-note {display:none!important}
