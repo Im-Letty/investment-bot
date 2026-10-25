@@ -56,9 +56,12 @@
 #sideDrawer.kn-menu-a :is(.kn-profile-scope,.kn-profile-note,.kn-profile-status){margin:0;color:var(--kn-a-muted);font-size:calc(12px * var(--kn-a-scale,1));line-height:1.7;overflow-wrap:anywhere}
 #sideDrawer.kn-menu-a .kn-profile-status:empty{display:none}
 #sideDrawer.kn-menu-a .kn-profile-status.kn-profile-error{color:#9c3f35}
-#sideDrawer.kn-menu-a .kn-profile-actions{display:flex;flex-wrap:wrap;gap:10px}
-#sideDrawer.kn-menu-a .kn-profile-actions button{min-height:44px;padding:10px 14px;border:1px solid var(--kn-a-button);border-radius:8px;background:var(--kn-a-button);color:var(--kn-a-paper);font:400 calc(14px * var(--kn-a-scale,1))/1.5 var(--kn-a-sans);cursor:pointer}
-#sideDrawer.kn-menu-a .kn-profile-actions .kn-profile-cancel{background:transparent;color:var(--kn-a-ink);border-color:var(--kn-a-line)}
+#sideDrawer.kn-menu-a .kn-profile-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+#sideDrawer.kn-menu-a .kn-profile-actions button{min-height:44px;padding:8px 12px;border:1px solid var(--kn-a-line);border-radius:8px;background:var(--kn-a-chip);color:var(--kn-profile-action-ink,var(--kn-a-ink));font:400 calc(13px * var(--kn-a-scale,1))/1.5 var(--kn-a-sans);cursor:pointer}
+#sideDrawer.kn-menu-a .kn-profile-actions .kn-profile-cancel{background:transparent;color:var(--kn-profile-action-muted,var(--kn-a-muted));border-color:transparent}
+#sideDrawer.kn-menu-a .kn-profile-actions button:not(:disabled):hover{background:color-mix(in srgb,var(--kn-a-button) 12%,var(--kn-a-paper))}
+#sideDrawer.kn-menu-a .kn-profile-actions .kn-profile-cancel:not(:disabled):hover{background:var(--kn-a-chip)}
+body.kn-home-a[data-kn-a-custom-color] #sideDrawer.kn-menu-a .kn-profile-actions{--kn-profile-action-ink:color-mix(in srgb,var(--brand-color) 15%,#303c30);--kn-profile-action-muted:color-mix(in srgb,var(--brand-color) 10%,#4b5644)}
 #sideDrawer.kn-menu-a .kn-profile-actions button:disabled{opacity:.6;cursor:wait}
 
 #ksFeed .ks-post-author{font:600 14px/1.5 var(--kn-a-sans,sans-serif);color:#fff;overflow-wrap:anywhere;text-shadow:0 1px 4px #000;margin:0 0 6px}.ks-post-author-summary{font-size:13px;overflow-wrap:anywhere;color:inherit}
