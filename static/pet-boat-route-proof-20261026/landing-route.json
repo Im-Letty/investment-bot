@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "unit": "village:river-boat:landing-and-route-spec:v1",
+  "source_merge": "7a6284561fbd5cf9702109dec364044eee4e0a1b",
+  "input": {
+    "version": 1,
+    "width": 2880,
+    "height": 1920,
+    "scale": 100,
+    "origin": {
+      "x": 1440,
+      "y": 960
+    },
+    "floorHeight": 0.02499999999999787,
+    "waterHeight": -0.05,
+    "land": [
+      {
+        "x": 0.00003814697265625,
+        "y": -0.00003814697265625
+      },
+      {
+        "x": 2879.9999618530273,
+        "y": -0.00003814697265625
+      },
+      {
+        "x": 2840,
+        "y": 550.0000095367432
+      },
+      {
+        "x": 2720.0000190734863,
+        "y": 1049.9999976158142
+      },
+      {
+        "x": 2509.9999809265137,
+        "y": 1450.0000095367432
+      },
+      {
+        "x": 1990,
+        "y": 1920.0000381469727
+      },
+      {
+        "x": 0.00003814697265625,
+        "y": 1920.0000381469727
+      }
+    ],
+    "bridge": {
+      "x0": 2480.000002384186,
+      "y0": 1070.0000023841858,
+      "x1": 2809.999997615814,
+      "y1": 1249.9999976158142,
+      "top": 0.19000000029802322
+    },
+    "places": [
+      {
+        "id": "home",
+        "x": 633.6,
+        "y": 389.6,
+        "rx": 94,
+        "ry": 68,
+        "entrance": {
+          "x": 633.6,
+          "y": 511.6
+        }
+      },
+      {
+        "id": "cafe",
+        "x": 2073.6,
+        "y": 389.6,
+        "rx": 94,
+        "ry": 68,
+        "entrance": {
+          "x": 2073.6,
+          "y": 511.6
+        }
+      },
+      {
+        "id": "shop",
+        "x": 633.6,
+        "y": 1196,
+        "rx": 94,
+        "ry": 68,
+        "entrance": {
+          "x": 633.6,
+          "y": 1318
+        }
+      },
+      {
+        "id": "playground",
+        "x": 2073.6,
+        "y": 1196,
+        "rx": 94,
+        "ry": 68,
+        "entrance": {
+          "x": 2073.6,
+          "y": 1318
+        }
+      },
+      {
+        "id": "tree",
+        "x": 1382.3999999999999,
+        "y": 814.8,
+        "rx": 48,
+        "ry": 32,
+        "entrance": {
+          "x": 1382.3999999999999,
+          "y": 914.8
+        }
+      },
+      {
+        "id": "flowers",
+        "x": 1382.3999999999999,
+        "y": 1563.6,
+        "rx": 48,
+        "ry": 32,
+        "entrance": {
+          "x": 1382.3999999999999,
+          "y": 1663.6
+        }
+      }
+    ],
+    "fishing": {
+      "position": {
+        "x": 2376.68085106383,
+        "y": 1500
+      },
+      "target": {
+        "x": 2529.68085106383,
+        "y": 1500
+      },
+      "radius": 70
+    }
+  },
+  "proposal": {
+    "ok": true,
+    "candidate": {
+      "id": "south-landing-route-v1",
+      "version": 1,
+      "approach": {
+        "x": 2181.7725636212645,
+        "y": 1598.3938991554123
+      },
+      "shore": {
+        "x": 2255.5319311954445,
+        "y": 1680
+      },
+      "head": {
+        "x": 2285.706217930336,
+        "y": 1713.3843139818769
+      },
+      "socket": {
+        "x": 2366.1709825567145,
+        "y": 1802.4091512668815
+      },
+      "route": [
+        {
+          "x": 2366.1709825567145,
+          "y": 1802.4091512668815
+        },
+        {
+          "x": 2424.155569791184,
+          "y": 1750
+        },
+        {
+          "x": 2490.538542038756,
+          "y": 1690
+        }
+      ],
+      "vesselRadius": 90,
+      "margin": 24,
+      "width": 84,
+      "deckTop": 0.04299999999999787,
+      "boardingEnabled": false,
+      "sailingEnabled": false,
+      "boatHullCreated": false,
+      "gameCollisionChanged": false,
+      "saveConnected": false
+    },
+    "report": {
+      "valid": true,
+      "reasons": [],
+      "metrics": {
+        "minimumWaterClearance": 165,
+        "minimumBridgeClearance": 440.0000023841858,
+        "minimumFishingClearance": 120,
+        "minimumPierClearance": 119.99999999999994
+      },
+      "requiredClearance": 114
+    }
+  },
+  "current_approach_verified_by_original_Town_isWalkable": true,
+  "world_unchanged": true,
+  "geometry_scope": "Technical landing planks/supports and finite route only; no hull/boarding/sailing/save",
+  "provisional_envelope": {
+    "radius_pixels": 90,
+    "margin_pixels": 24,
+    "actual_hull_dimensions_known": false
+  },
+  "riverbed_geometry_modeled": false,
+  "pile_riverbed_contact_verified": false,
+  "boat_playable": false,
+  "new_originals_or_catalogue_assets": 0
+}

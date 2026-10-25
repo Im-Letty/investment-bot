@@ -1,0 +1,748 @@
+{
+  "schemaVersion": 1,
+  "landmarkRevision": "komorebi-milne-2d-prerequisite-v1",
+  "representation": "2d_front_reference",
+  "completedFit": false,
+  "newOriginals": 0,
+  "newDesigns": 0,
+  "asset": {
+    "id": "prepared_clothing_01_v1",
+    "sha256": "9f47ad550c0925db40f04f1be0071dff87c54431e393d44f6a5c98fd80d08bba",
+    "src": "./assets/komorebi-vest.png",
+    "dimensions": [
+      1254,
+      1254
+    ],
+    "visibleBoundsAlpha32": [
+      62,
+      167,
+      1192,
+      1042
+    ],
+    "shoulderPair": [
+      [
+        254,
+        275
+      ],
+      [
+        1002,
+        271
+      ]
+    ],
+    "landmarkLabel": "cream/mint upper-armhole seam pair; manual source-image annotation candidate",
+    "apertures": [
+      {
+        "id": "neck_product_backcloth",
+        "points": [
+          [
+            443,
+            219
+          ],
+          [
+            487,
+            239
+          ],
+          [
+            560,
+            258
+          ],
+          [
+            640,
+            262
+          ],
+          [
+            715,
+            246
+          ],
+          [
+            812,
+            215
+          ],
+          [
+            798,
+            323
+          ],
+          [
+            733,
+            430
+          ],
+          [
+            632,
+            560
+          ],
+          [
+            542,
+            436
+          ],
+          [
+            466,
+            316
+          ]
+        ]
+      },
+      {
+        "id": "left_armhole_inner",
+        "points": [
+          [
+            246,
+            321
+          ],
+          [
+            257,
+            359
+          ],
+          [
+            253,
+            431
+          ],
+          [
+            238,
+            487
+          ],
+          [
+            213,
+            544
+          ],
+          [
+            181,
+            591
+          ],
+          [
+            169,
+            578
+          ],
+          [
+            188,
+            509
+          ],
+          [
+            208,
+            451
+          ],
+          [
+            218,
+            386
+          ],
+          [
+            216,
+            343
+          ]
+        ]
+      },
+      {
+        "id": "right_armhole_inner",
+        "points": [
+          [
+            1004,
+            317
+          ],
+          [
+            990,
+            360
+          ],
+          [
+            991,
+            429
+          ],
+          [
+            1007,
+            489
+          ],
+          [
+            1031,
+            546
+          ],
+          [
+            1064,
+            594
+          ],
+          [
+            1080,
+            578
+          ],
+          [
+            1055,
+            500
+          ],
+          [
+            1038,
+            431
+          ],
+          [
+            1036,
+            361
+          ],
+          [
+            1025,
+            333
+          ]
+        ]
+      }
+    ]
+  },
+  "bodies": {
+    "baby": {
+      "id": "milne:baby",
+      "family": "milne",
+      "stage": "baby",
+      "sha256": "e7024c2baabfb2fc9fa75620df6015cf0de1c6c645e4ce099e02f9d657033e21",
+      "src": "./assets/milne-baby.png",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "visibleBoundsAlpha32": [
+        102,
+        221,
+        1224,
+        1191
+      ],
+      "shoulderPair": [
+        [
+          618,
+          910
+        ],
+        [
+          878,
+          904
+        ]
+      ],
+      "torsoRegion": [
+        [
+          570,
+          905
+        ],
+        [
+          880,
+          890
+        ],
+        [
+          977,
+          1005
+        ],
+        [
+          975,
+          1139
+        ],
+        [
+          852,
+          1162
+        ],
+        [
+          590,
+          1158
+        ],
+        [
+          494,
+          1093
+        ],
+        [
+          500,
+          1005
+        ]
+      ],
+      "foreground": [
+        {
+          "id": "head_in_front",
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              1254,
+              0
+            ],
+            [
+              1254,
+              850
+            ],
+            [
+              1068,
+              833
+            ],
+            [
+              1001,
+              871
+            ],
+            [
+              920,
+              899
+            ],
+            [
+              817,
+              916
+            ],
+            [
+              720,
+              917
+            ],
+            [
+              614,
+              913
+            ],
+            [
+              515,
+              889
+            ],
+            [
+              426,
+              858
+            ],
+            [
+              349,
+              816
+            ],
+            [
+              0,
+              816
+            ]
+          ]
+        },
+        {
+          "id": "left_forepaw",
+          "points": [
+            [
+              521,
+              923
+            ],
+            [
+              570,
+              882
+            ],
+            [
+              623,
+              889
+            ],
+            [
+              672,
+              915
+            ],
+            [
+              693,
+              947
+            ],
+            [
+              678,
+              976
+            ],
+            [
+              633,
+              988
+            ],
+            [
+              591,
+              977
+            ],
+            [
+              545,
+              963
+            ]
+          ]
+        },
+        {
+          "id": "right_forepaw",
+          "points": [
+            [
+              891,
+              892
+            ],
+            [
+              935,
+              879
+            ],
+            [
+              983,
+              895
+            ],
+            [
+              1017,
+              920
+            ],
+            [
+              1010,
+              952
+            ],
+            [
+              981,
+              968
+            ],
+            [
+              939,
+              958
+            ],
+            [
+              904,
+              936
+            ]
+          ]
+        },
+        {
+          "id": "left_foot_front",
+          "points": [
+            [
+              480,
+              1026
+            ],
+            [
+              558,
+              1009
+            ],
+            [
+              641,
+              1046
+            ],
+            [
+              684,
+              1127
+            ],
+            [
+              670,
+              1164
+            ],
+            [
+              620,
+              1183
+            ],
+            [
+              551,
+              1165
+            ],
+            [
+              504,
+              1124
+            ],
+            [
+              474,
+              1077
+            ]
+          ]
+        },
+        {
+          "id": "right_foot_front",
+          "points": [
+            [
+              890,
+              1010
+            ],
+            [
+              959,
+              1016
+            ],
+            [
+              1033,
+              1075
+            ],
+            [
+              1049,
+              1127
+            ],
+            [
+              1006,
+              1175
+            ],
+            [
+              943,
+              1182
+            ],
+            [
+              884,
+              1159
+            ],
+            [
+              848,
+              1115
+            ],
+            [
+              849,
+              1063
+            ]
+          ]
+        }
+      ],
+      "landmarkMethod": "Manual annotation on the actually viewed unchanged body source, upper-torso contacts are proposed rather than anatomical ground truth",
+      "pose": "sitting_with_foreground_feet",
+      "calibrationApproved": false
+    },
+    "adult": {
+      "id": "milne:adult",
+      "family": "milne",
+      "stage": "adult",
+      "sha256": "35b04839b39e50839a6a1734e8919c6d499ececf6b0aba9b766788e399deb404",
+      "src": "./assets/milne-adult.png",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "visibleBoundsAlpha32": [
+        62,
+        81,
+        1183,
+        1200
+      ],
+      "shoulderPair": [
+        [
+          598,
+          900
+        ],
+        [
+          855,
+          894
+        ]
+      ],
+      "torsoRegion": [
+        [
+          554,
+          880
+        ],
+        [
+          874,
+          868
+        ],
+        [
+          936,
+          998
+        ],
+        [
+          937,
+          1127
+        ],
+        [
+          855,
+          1165
+        ],
+        [
+          583,
+          1160
+        ],
+        [
+          498,
+          1095
+        ],
+        [
+          505,
+          982
+        ]
+      ],
+      "foreground": [
+        {
+          "id": "head_in_front",
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              1254,
+              0
+            ],
+            [
+              1254,
+              808
+            ],
+            [
+              1074,
+              784
+            ],
+            [
+              1014,
+              834
+            ],
+            [
+              925,
+              862
+            ],
+            [
+              824,
+              881
+            ],
+            [
+              712,
+              886
+            ],
+            [
+              598,
+              877
+            ],
+            [
+              499,
+              858
+            ],
+            [
+              398,
+              831
+            ],
+            [
+              333,
+              799
+            ],
+            [
+              0,
+              790
+            ]
+          ]
+        },
+        {
+          "id": "left_forepaw",
+          "points": [
+            [
+              523,
+              925
+            ],
+            [
+              569,
+              885
+            ],
+            [
+              632,
+              886
+            ],
+            [
+              688,
+              914
+            ],
+            [
+              696,
+              959
+            ],
+            [
+              676,
+              1000
+            ],
+            [
+              626,
+              1013
+            ],
+            [
+              561,
+              992
+            ],
+            [
+              524,
+              959
+            ]
+          ]
+        },
+        {
+          "id": "right_forepaw",
+          "points": [
+            [
+              853,
+              884
+            ],
+            [
+              884,
+              874
+            ],
+            [
+              923,
+              890
+            ],
+            [
+              946,
+              924
+            ],
+            [
+              948,
+              963
+            ],
+            [
+              925,
+              988
+            ],
+            [
+              886,
+              988
+            ],
+            [
+              852,
+              954
+            ]
+          ]
+        },
+        {
+          "id": "left_foot_front",
+          "points": [
+            [
+              519,
+              1144
+            ],
+            [
+              569,
+              1138
+            ],
+            [
+              641,
+              1147
+            ],
+            [
+              666,
+              1175
+            ],
+            [
+              652,
+              1190
+            ],
+            [
+              585,
+              1194
+            ],
+            [
+              531,
+              1183
+            ],
+            [
+              510,
+              1164
+            ]
+          ]
+        },
+        {
+          "id": "right_foot_front",
+          "points": [
+            [
+              796,
+              1142
+            ],
+            [
+              845,
+              1136
+            ],
+            [
+              891,
+              1148
+            ],
+            [
+              909,
+              1173
+            ],
+            [
+              887,
+              1191
+            ],
+            [
+              828,
+              1192
+            ],
+            [
+              793,
+              1178
+            ],
+            [
+              785,
+              1162
+            ]
+          ]
+        }
+      ],
+      "landmarkMethod": "Manual annotation on the actually viewed unchanged body source, upper-torso contacts are proposed rather than anatomical ground truth",
+      "pose": "standing_with_front_paws",
+      "calibrationApproved": false
+    }
+  },
+  "limits": [
+    "Manual candidate landmarks/occlusion, pending actual rendered contact review",
+    "Original2D pose only; real camera yaw/pitch/bodyvolume unknown",
+    "No geometry3D/rig/motion/full360/economy/unlock/save proof"
+  ]
+}
