@@ -1,0 +1,390 @@
+{
+  "schemaVersion": 2,
+  "revision": "komorebi-milne-front-mask-v2",
+  "baselineRevision": "komorebi-milne-2d-prerequisite-v1",
+  "representation": "2d_front_reference",
+  "completedFit": false,
+  "approvedCalibration": false,
+  "assetSHA": "9f47ad550c0925db40f04f1be0071dff87c54431e393d44f6a5c98fd80d08bba",
+  "bodySHAs": {
+    "baby": "e7024c2baabfb2fc9fa75620df6015cf0de1c6c645e4ce099e02f9d657033e21",
+    "adult": "35b04839b39e50839a6a1734e8919c6d499ececf6b0aba9b766788e399deb404"
+  },
+  "transformChanges": false,
+  "sourcePNGsEdited": false,
+  "newDesigns": 0,
+  "neck": {
+    "id": "neck_product_backcloth",
+    "roi": [
+      425,
+      140,
+      830,
+      575
+    ],
+    "path": [
+      [
+        "M",
+        443,
+        151
+      ],
+      [
+        "C",
+        515,
+        178,
+        720,
+        187,
+        812,
+        148
+      ],
+      [
+        "L",
+        812,
+        215
+      ],
+      [
+        "C",
+        804,
+        300,
+        775,
+        371,
+        733,
+        430
+      ],
+      [
+        "Q",
+        674,
+        511,
+        632,
+        560
+      ],
+      [
+        "Q",
+        584,
+        505,
+        542,
+        436
+      ],
+      [
+        "C",
+        499,
+        376,
+        474,
+        307,
+        466,
+        266
+      ],
+      [
+        "Q",
+        452,
+        226,
+        443,
+        219
+      ],
+      [
+        "Z"
+      ]
+    ]
+  },
+  "foreground": {
+    "baby": [
+      {
+        "id": "left_forepaw",
+        "roi": [
+          515,
+          875,
+          706,
+          1000
+        ],
+        "path": [
+          [
+            "M",
+            521,
+            926
+          ],
+          [
+            "C",
+            526,
+            907,
+            546,
+            887,
+            570,
+            882
+          ],
+          [
+            "C",
+            594,
+            881,
+            624,
+            889,
+            649,
+            902
+          ],
+          [
+            "C",
+            673,
+            914,
+            693,
+            934,
+            696,
+            951
+          ],
+          [
+            "C",
+            695,
+            968,
+            678,
+            982,
+            654,
+            988
+          ],
+          [
+            "C",
+            633,
+            993,
+            611,
+            985,
+            591,
+            978
+          ],
+          [
+            "C",
+            567,
+            973,
+            543,
+            962,
+            530,
+            947
+          ],
+          [
+            "Z"
+          ]
+        ]
+      },
+      {
+        "id": "right_forepaw",
+        "roi": [
+          882,
+          872,
+          1030,
+          980
+        ],
+        "path": [
+          [
+            "M",
+            889,
+            896
+          ],
+          [
+            "C",
+            900,
+            884,
+            918,
+            879,
+            935,
+            881
+          ],
+          [
+            "C",
+            959,
+            883,
+            983,
+            896,
+            1000,
+            910
+          ],
+          [
+            "C",
+            1016,
+            922,
+            1020,
+            939,
+            1011,
+            953
+          ],
+          [
+            "C",
+            1003,
+            967,
+            986,
+            973,
+            969,
+            968
+          ],
+          [
+            "C",
+            947,
+            964,
+            926,
+            950,
+            911,
+            936
+          ],
+          [
+            "Q",
+            895,
+            920,
+            889,
+            896
+          ],
+          [
+            "Z"
+          ]
+        ]
+      }
+    ],
+    "adult": [
+      {
+        "id": "left_forepaw",
+        "roi": [
+          510,
+          873,
+          710,
+          1026
+        ],
+        "path": [
+          [
+            "M",
+            520,
+            929
+          ],
+          [
+            "C",
+            521,
+            906,
+            543,
+            886,
+            568,
+            880
+          ],
+          [
+            "C",
+            590,
+            875,
+            617,
+            879,
+            639,
+            891
+          ],
+          [
+            "C",
+            670,
+            905,
+            693,
+            927,
+            699,
+            951
+          ],
+          [
+            "C",
+            703,
+            974,
+            686,
+            999,
+            655,
+            1010
+          ],
+          [
+            "C",
+            628,
+            1020,
+            599,
+            1014,
+            574,
+            1002
+          ],
+          [
+            "C",
+            546,
+            990,
+            526,
+            969,
+            521,
+            949
+          ],
+          [
+            "Z"
+          ]
+        ]
+      },
+      {
+        "id": "right_forepaw",
+        "roi": [
+          843,
+          864,
+          961,
+          1002
+        ],
+        "path": [
+          [
+            "M",
+            851,
+            889
+          ],
+          [
+            "C",
+            860,
+            879,
+            874,
+            873,
+            887,
+            875
+          ],
+          [
+            "C",
+            905,
+            879,
+            924,
+            893,
+            936,
+            910
+          ],
+          [
+            "C",
+            950,
+            929,
+            954,
+            951,
+            947,
+            967
+          ],
+          [
+            "C",
+            941,
+            984,
+            928,
+            994,
+            911,
+            992
+          ],
+          [
+            "C",
+            891,
+            992,
+            874,
+            978,
+            860,
+            960
+          ],
+          [
+            "C",
+            850,
+            946,
+            847,
+            925,
+            851,
+            907
+          ],
+          [
+            "Z"
+          ]
+        ]
+      }
+    ]
+  },
+  "annotationMethod": "Manually traced source-pixel curve candidates on the same three unchanged PNGs; Canvas antialiasing only, no blur or RGB repaint. Neck backcloth is an occlusion hypothesis, not calibrated anatomy.",
+  "limits": [
+    "Only the saved baby/adult front stills.",
+    "The v1 semantic shoulder pairs and similarity transforms are fixed byte-for-byte by the baseline data.",
+    "Local segmentation is pending visual acceptance; no geometry/rig/contact calibration/full360/unlock/save pass."
+  ]
+}
