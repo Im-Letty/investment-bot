@@ -179,7 +179,9 @@
     function mat(color, transparent, role) {
       role = role || colorRoles[color] || 'stone';
       var key = color + ':' + !!transparent + ':' + role, finish = finishes[role] || finishes.stone;
-      if (!cache[key]) { cache[key] = new THREE.MeshStandardMaterial({ color: color, roughness: finish.roughness, metalness: finish.metalness, transparent: !!transparent, opacity: transparent ? .72 : 1 }); var bump = surfaceMap(role); if (bump) { cache[key].bumpMap = bump; cache[key].bumpScale = role === 'bark' ? .035 : role === 'wood' ? .018 : role === 'foliage' ? .012 : role === 'ceramic' ? .004 : .009; }
+      if (!cache[key]) { cache[key] = new THREE.MeshStandardMaterial({ color: color, roughness: finish.roughness, metalness: finish.metalness, transparent: !!transparent, opacity: transparent ? .72 : 1 }); var bump = surfaceMap(role); if (bump) { cache[key].bumpMap = bump;
+          if (role !== 'foliage') cache[key].map = bump;
+          cache[key].bumpScale = role === 'bark' ? .065 : role === 'wood' ? .03 : role === 'foliage' ? .028 : role === 'ceramic' ? .006 : .018; }
         cache[key].userData.surfaceRole = role; cache[key].userData.baseColor = color; if (role === 'foliage' || role === 'flower') cache[key].userData.seasonRole = role; materials.add(cache[key]); }
       return cache[key];
     }
@@ -248,7 +250,7 @@
         var a=cluster*2.399963+seed, tier=cluster%3, radius=.36+(cluster%2)*.17;
         var center=new THREE.Vector3(Math.sin(a)*radius,.05+tier*.29,Math.cos(a)*radius*.85);
         var twig=branchBetween(crown,new THREE.Vector3(0,-.16,0),center,.025,'#aa895f');twig.name='canopy-twig';
-        for(var l=0;l<16&&leaves<style.limits.treeLeaves;l++,leaves++){
+        for(var l=0;l<style.limits.leavesPerTwig&&leaves<style.limits.treeLeaves;l++,leaves++){
           var turn=l*2.399963+cluster*.43, spread=.11+(l%4)*.032;
           var x=center.x+Math.sin(turn)*spread,y=center.y+(l%4-1.5)*.057,z=center.z+Math.cos(turn)*spread*.85;
           var size=.155+(l%3)*.015;

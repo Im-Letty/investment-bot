@@ -432,9 +432,9 @@ test('public geometry builder still works before the newly lazy calendar module 
 test('botanical revision has closed pointed leaves, visible curved branches and bounded per-tree detail without any sphere core',()=>{
  const m=Scene.buildWorld(THREE,Town.createWorld(),{}),trees=[];m.scene.traverse(o=>{if(o.name==='market-style-branching-tree')trees.push(o);});
  try{
-  assert.equal(trees.length,27);for(const t of trees){assert.equal(t.userData.leafCount,144);assert.equal(t.userData.twigCount,9);
+  assert.equal(trees.length,27);for(const t of trees){assert.equal(t.userData.leafCount,126);assert.equal(t.userData.twigCount,9);
    let pointed=0,twigs=0,cores=0;t.traverse(o=>{if(o.name==='small-pointed-tree-leaf'){pointed++;assert.equal(o.geometry.userData.styleRole,'closed-pointed-leaf');}if(o.name==='canopy-twig')twigs++;if(o.parent?.name==='overlapping-leaf-crown'&&o.geometry?.type==='SphereGeometry'&&o.geometry.userData.styleRole!=='closed-pointed-leaf')cores++;});
-   assert.equal(pointed,144);assert.equal(twigs,9);assert.equal(cores,0);
+   assert.equal(pointed,126);assert.equal(twigs,9);assert.equal(cores,0);
   }
   assert.equal(m.styleLimits.surfaceTextures,6);assert.equal(m.styleLimits.surfaceTextureSize,128);
  }finally{m.dispose();}

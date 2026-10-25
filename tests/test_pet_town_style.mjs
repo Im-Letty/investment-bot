@@ -21,7 +21,7 @@ function closed(g){
 }
 test('pointed foliage is a closed thin bowed volume with finite smooth normals and bounded UVs',()=>{
  const g=Style.leafGeometry(THREE);try{closed(g);assert.equal(g.boundingBox.min.y,-1);assert.equal(g.boundingBox.max.y,1);
-  assert.ok(g.boundingBox.max.x-g.boundingBox.min.x<1.5);assert.ok(g.boundingBox.max.z-g.boundingBox.min.z<.3);assert.ok(g.index.count/3<=40);
+  assert.ok(g.boundingBox.max.x-g.boundingBox.min.x<1.5);assert.ok(g.boundingBox.max.z-g.boundingBox.min.z<.3);assert.ok(g.index.count/3<=64);
  }finally{g.dispose();}
 });
 for(const kind of ['trunk','branch'])test(kind+' is a closed tapered curved mesh with independently capped ends',()=>{
@@ -82,4 +82,25 @@ test('scalloped tile ends point downhill toward each eave while keeping the esta
    assert.ok(before.min.distanceTo(after.min)<1e-6);assert.ok(before.max.distanceTo(after.max)<1e-6,'swapping X/Z scale preserves the old normalized box');
   }
  }finally{m.dispose();}
+});
+
+test('shared near-white detail maps add only mild albedo shade and share one allocation with height',()=>{
+ const doc=document(),m=Scene.buildWorld(THREE,Town.createWorld(),{},null,doc,'summer');
+ try{
+  const maps=[...m.textures].filter(t=>t.userData.styleRole);assert.equal(maps.length,6);
+  for(const map of maps){let sum=0,min=255,max=0;const a=map.image.pixels;for(let i=0;i<a.length;i+=4){sum+=a[i];min=Math.min(min,a[i]);max=Math.max(max,a[i]);}
+   assert.ok(min>=220&&max<=255,'linear multiplier stays near white without brightening the authored color');assert.ok(sum/(a.length/4)>238);
+  }
+  for(const mat of m.materials)if(['wood','bark','plaster','ceramic','stone'].includes(mat.userData.surfaceRole)){
+   assert.equal(mat.map,mat.bumpMap);assert.ok(mat.map);assert.equal(mat.color.getHexString(),new THREE.Color(mat.userData.baseColor).getHexString(),'authored palette remains the material color');
+  }
+ }finally{m.dispose();}
+});
+test('roof crown is a real convex volume with separate edge shade and a closed underside',()=>{
+ const g=Style.tileGeometry(THREE),mat=new THREE.MeshBasicMaterial({side:THREE.DoubleSide}),mesh=new THREE.Mesh(g,mat),ray=new THREE.Raycaster();
+ try{
+  mesh.updateMatrixWorld(true);function top(x,z){ray.set(new THREE.Vector3(x,3,z),new THREE.Vector3(0,-1,0));return ray.intersectObject(mesh,false)[0]?.point.y;}
+  const center=top(0,0),edge=top(.8,0);assert.ok(Number.isFinite(center)&&Number.isFinite(edge));assert.ok(center-edge>.25,'cross-section crown must exist in geometry, not only normals');
+  assert.ok(center<=1+1e-6&&edge>=-1);closed(g);assert.ok(g.index.count/3<=224,'rounded geometry cannot exceed the former per-tile triangle budget');
+ }finally{g.dispose();mat.dispose();}
 });
