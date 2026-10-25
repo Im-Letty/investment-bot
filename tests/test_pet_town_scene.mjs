@@ -454,3 +454,17 @@ test('daylight fill lifts shadow-facing surfaces with the same two lights and re
   }
  }finally{m.dispose();}
 });
+
+
+test('a cached old detailing API cannot satisfy new bowl/arch readiness; concurrent imports and bounded retry adopt only the complete revision',async()=>{
+ const source=readFileSync(new URL('../static/pet-town-scene.js',import.meta.url),'utf8'),start=source.indexOf('  function styleReady('),end=source.indexOf('  function groundTexture(',start);
+ assert.ok(start>=0&&end>start);
+ let imports=0,release;
+ const context=vm.createContext({Style:{leafGeometry(){},surfaceTexture(){}},styleLoading:null,importer:specifier=>{imports++;assert.equal(specifier,'/static/pet-town-style.js?v=20261026-market-photo1');return new Promise(r=>{release=r;});}});
+ vm.runInContext(source.slice(start,end).replace(/import\(/g,'importer(')+';globalThis.loadUnderTest=loadStyle;',context);
+ const first=context.loadUnderTest(),same=context.loadUnderTest();assert.equal(first,same);assert.equal(imports,1,'old cached helper must download the revision rather than silently constructing a fallback bowl');
+ context.PetTownStyle=Object.assign({},TownStyle,{archGeometry:undefined});release();
+ await assert.rejects(first,/town_style_unavailable/);await assert.rejects(same,/town_style_unavailable/);assert.equal(context.styleLoading,null);
+ const retry=context.loadUnderTest();assert.equal(imports,2);context.PetTownStyle=TownStyle;release();assert.equal(await retry,TownStyle);
+ assert.equal(await context.loadUnderTest(),TownStyle);assert.equal(imports,2,'validated current API is reused');
+});

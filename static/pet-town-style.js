@@ -10,7 +10,7 @@
   var g=new THREE.SphereGeometry(1,limits.leafWidthSegments,limits.leafHeightSegments),p=g.attributes.position;
   for(var i=0;i<p.count;i++){
    var y=p.getY(i),body=Math.max(0,1-y*y);
-   p.setXYZ(i,p.getX(i)*.68*Math.pow(body,.25)*(1+.08*y),y,p.getZ(i)*.065+.105*body);
+   p.setXYZ(i,p.getX(i)*.50*Math.pow(body,.12)*(1+.18*y),y,p.getZ(i)*.045+.055*body);
   }
   var uv=g.attributes.uv;for(var u=0;u<uv.count;u++)uv.setX(u,Math.max(0,Math.min(1,uv.getX(u))));
   g.computeVertexNormals();
@@ -23,7 +23,7 @@
  }
  function branchGeometry(THREE,kind){
   var rings=kind==='trunk'?9:5,sides=kind==='trunk'?8:6,positions=[],uv=[],indices=[];
-  function center(t){return [Math.sin(t*Math.PI)*.85-.2*t,t,Math.sin(t*Math.PI*2)*.24];}
+  function center(t){return kind==='trunk'?[Math.sin(t*Math.PI*2)*1.25+.32*t,t,Math.sin(t*Math.PI)*.48]:[Math.sin(t*Math.PI)*.6,t,Math.sin(t*Math.PI*2)*.18];}
   for(var y=0;y<=rings;y++){
    var t=y/rings,c=center(t),radius=1-.76*t;
    for(var j=0;j<=sides;j++){var a=j/sides*Math.PI*2;positions.push(c[0]+Math.cos(a)*radius,c[1],c[2]+Math.sin(a)*radius);uv.push(j/sides,t);}
@@ -35,7 +35,11 @@
    for(var n=0;n<=sides;n++){var a=n/sides*Math.PI*2;positions.push(c[0]+Math.cos(a)*radius,c[1],c[2]+Math.sin(a)*radius);uv.push((Math.cos(a)+1)/2,(Math.sin(a)+1)/2);}
    for(var n=0;n<sides;n++)if(end)indices.push(base,base+n+2,base+n+1);else indices.push(base,base+n+1,base+n+2);
   }
-  var g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(indices);g.computeVertexNormals();g.computeBoundingBox();g.computeBoundingSphere();g.userData.styleRole=kind==='trunk'?'curved-tapered-trunk':'curved-tapered-branch';return g;
+  var g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(indices);g.computeVertexNormals();
+  // Average the side seam only. Independent cap normals stay hard.
+  var n=g.attributes.normal;
+  for(var r=0;r<=rings;r++){var a=r*(sides+1),b=a+sides,v=new THREE.Vector3(n.getX(a)+n.getX(b),n.getY(a)+n.getY(b),n.getZ(a)+n.getZ(b)).normalize();n.setXYZ(a,v.x,v.y,v.z);n.setXYZ(b,v.x,v.y,v.z);}
+  g.computeBoundingBox();g.computeBoundingSphere();g.userData.styleRole=kind==='trunk'?'curved-tapered-trunk':'curved-tapered-branch';return g;
  }
  function tileGeometry(THREE){
   // Two closed tessellated caps give each tile a real cross-section crown.
@@ -58,6 +62,16 @@
   for(var i=0;i<edge.length;i++){var a=edge[i],b=edge[(i+1)%edge.length];indices.push(a,a+layer,b,b,a+layer,b+layer);}
   var g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(indices);g.computeVertexNormals();g.computeBoundingBox();g.computeBoundingSphere();g.userData.styleRole='closed-scalloped-roof-tile';return g;
  }
+ function bowlGeometry(THREE){
+  // One closed lathed cross-section: rounded exterior, thick rim and actual
+  // interior depression. The rim joins both sides, not an open cylinder cap.
+  var points=[[0,0],[.42,0],[.62,.07],[.81,.21],[.94,.43],[1,.76],[1,.91],[.97,.98],[.92,1],[.87,.97],[.85,.87],[.76,.62],[.57,.43],[.32,.37],[0,.37]].map(function(p){return new THREE.Vector2(p[0],p[1]);});
+  var g=new THREE.LatheGeometry(points,24);g.normalizeNormals();g.computeBoundingBox();g.computeBoundingSphere();g.userData.styleRole='closed-rounded-fountain-bowl';return g;
+ }
+ function archGeometry(THREE){
+  var s=new THREE.Shape();s.moveTo(-.5,0);s.lineTo(.5,0);s.lineTo(.5,.54);s.absellipse(0,.54,.5,.46,0,Math.PI,false);s.lineTo(-.5,0);
+  var g=new THREE.ExtrudeGeometry(s,{depth:1,bevelEnabled:false,steps:1,curveSegments:12});g.translate(0,0,-.5);g.computeBoundingBox();g.computeBoundingSphere();g.userData.styleRole='closed-arched-joinery';return g;
+ }
  function surfaceTexture(THREE,doc,kind){
   if(['wood','bark','plaster','ceramic','foliage','stone'].indexOf(kind)<0||!doc||!doc.createElement)return null;
   var c=doc.createElement('canvas');c.width=c.height=limits.surfaceTextureSize;var ctx=c.getContext&&c.getContext('2d');
@@ -79,5 +93,5 @@
   }
   ctx.putImageData(image,0,0);var texture=new THREE.CanvasTexture(c);texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.colorSpace=THREE.NoColorSpace;texture.anisotropy=2;texture.userData.styleRole=kind;texture.userData.usage='shared-linear-shade-and-height';return texture;
  }
- return Object.freeze({limits:limits,leafGeometry:leafGeometry,branchGeometry:branchGeometry,tileGeometry:tileGeometry,surfaceTexture:surfaceTexture});
+ return Object.freeze({revision:'market-photo1',limits:limits,leafGeometry:leafGeometry,branchGeometry:branchGeometry,tileGeometry:tileGeometry,bowlGeometry:bowlGeometry,archGeometry:archGeometry,surfaceTexture:surfaceTexture});
 }));
