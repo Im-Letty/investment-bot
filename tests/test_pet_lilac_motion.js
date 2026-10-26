@@ -2448,7 +2448,7 @@ test('optional direction origins do not modify reduced previews, eggs, view pixe
 
 test('village locomotion keeps a persistent normalized heading and uses distance rather than RAF time for gait',()=>{
  for(const [yaw,expected] of [[0,0],[180,180],[270,270],[-90,270],[450,90]]){
-  const value={yawDeg:yaw,walking:true,distance:.105},before=JSON.stringify(value);
+  const value={yawDeg:yaw,walking:true,distance:.14},before=JSON.stringify(value);
   const a=Motion.locomotionFrame(value,0,false),b=Motion.locomotionFrame(value,999,false);
   assert.equal(a.yawDeg,expected);assert.deepEqual(a,b,'holding distance cannot skate at later RAF time');
   assert.ok(Math.abs(a.roomWalk.footPhase-Math.PI/2)<1e-10);assert.equal(a.roomWalk.walking,true);assert.equal(JSON.stringify(value),before);
@@ -2511,4 +2511,52 @@ test('village locomotion cannot draw late after hidden, detached, pagehide, dest
  f.api.setLocomotion({yawDeg:180,walking:true,distance:100});assert.deepEqual(Array.from(f.liveVertices),neutral);
  assert.equal(f.raf.size,0);f.api.setLocomotion({yawDeg:Infinity,walking:true,distance:NaN});
  assert.ok(Array.from(f.liveVertices).every(Number.isFinite));assert.equal(f.raf.size,0);f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+});
+
+
+test('manual walking covers a wider ground cycle and keeps scripted room timing separate',()=>{
+ const start=Motion.locomotionFrame({yawDeg:90,walking:true,distance:0},0,false);
+ const full=Motion.locomotionFrame({yawDeg:90,walking:true,distance:.56},10,false);
+ assert.ok(Math.abs(full.roomWalk.footPhase-start.roomWalk.footPhase-Math.PI*2)<1e-10);
+ assert.equal(full.roomWalk.strideScale,1.2);
+ assert.equal(Motion.locomotionFrame({yawDeg:90,walking:false,distance:.56},20,false).roomWalk.strideScale,1);
+ assert.equal(Motion.locomotionFrame({yawDeg:90,walking:true,distance:.56},20,true).roomWalk.strideScale,1);
+ assert.equal(Motion.roomWalkFrame('room_walk_right',1500).strideScale,undefined);
+});
+test('manual strides widen only horizontal foot travel and keep sole lift and upper landmarks',()=>{
+ for(const key of ['baby','adult'])for(const index of [0,4,8,12]){
+  const baby=Motion.appearanceProfile(key).family==='baby',view=(baby?Motion.nurseryDirectionViews:Motion.directionViews)[index];
+  const points=baby?['left','right'].map(side=>{const f=Motion.nurseryFootLandmarks[index][side];return[f.x,f.soleY];}):[[view.torso[0]-.1,view.groundY],[view.torso[0]+.1,view.groundY]];
+  for(const point of points){
+   const rest=Motion.directionPoint(index,...point,'child','balanced',key);
+   for(const phase of [0,Math.PI]){
+    const legacy={walking:true,speed:1,footPhase:phase,travel:1};
+    const a=Motion.roomWalkPoint(index,...point,legacy,'child','balanced',key);
+    const b=Motion.roomWalkPoint(index,...point,{...legacy,strideScale:1.2},'child','balanced',key);
+    assert.ok(Math.abs((b.x-rest.x)-1.2*(a.x-rest.x))<1e-10);
+    assert.ok(Math.abs(b.y-a.y)<1e-10,'stride width must not raise or drop a sole');
+   }
+  }
+  const legacy={walking:true,speed:1,footPhase:Math.PI/3,travel:1};
+  assert.deepEqual(Motion.roomWalkPoint(index,view.torso[0],.4,legacy,'child','balanced',key),Motion.roomWalkPoint(index,view.torso[0],.4,{...legacy,strideScale:1.2},'child','balanced',key));
+ }
+});
+
+test('wider manual foot meshes remain unfolded and inside their existing directional projection',()=>{
+ for(const key of ['baby','adult'])for(const yaw of [0,90,180,270])for(const distance of [0,.07,.14,.28,.42]){
+  const frame=Motion.locomotionFrame({yawDeg:yaw,walking:true,distance},0,false).roomWalk;
+  const index=yaw/22.5,view=(key==='baby'?Motion.nurseryDirectionViews:Motion.directionViews)[index];
+  const stage=key==='adult'?'adult':'child',rig=Motion.rigPose(0,'moving',0,stage,'balanced',1,key);
+  const m=Motion.directionProjection(index,stage,'balanced',rig.matrices.torso,key,frame).matrix;
+  for(let y=0;y<24;y++)for(let x=0;x<24;x++){
+   const point=(u,v)=>Motion.roomWalkPoint(index,u/24,v/24,frame,stage,'balanced',key);
+   const a=point(x,y),b=point(x,y+1),c=point(x+1,y),d=point(x+1,y+1);
+   for(const [u,v,w] of [[a,b,c],[c,b,d]])assert.ok((v.x-u.x)*(w.y-u.y)-(v.y-u.y)*(w.x-u.x)<0,'manual lower leg cells must remain unfolded');
+  }
+  for(let y=0;y<=8;y++)for(let x=0;x<=8;x++){
+   const p=Motion.roomWalkPoint(index,view.bounds[0]+(view.bounds[2]-view.bounds[0])*x/8,view.bounds[1]+(view.bounds[3]-view.bounds[1])*y/8,frame,stage,'balanced',key);
+   const u=m[0]*p.x+m[2]*p.y+m[4],v=m[1]*p.x+m[3]*p.y+m[5];
+   assert.ok(Number.isFinite(u)&&Number.isFinite(v)&&u>=.0119&&u<=.9881&&v>=.0179&&v<=.9601,'manual silhouette stays in the existing canvas envelope');
+  }
+ }
 });
