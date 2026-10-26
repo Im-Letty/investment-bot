@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "source_merge": "da54e2a4ac9aea125632bb6769969e7b771db235",
+  "unit": "village:river-boat:manual-boarding-contact:v1",
+  "files": [
+    {
+      "path": "index.html",
+      "sha256": "022f94ad4fb4d4b7d8164753b4fb00eb040e9068e4acadad74f1070cbc0c6108",
+      "bytes": 4886
+    },
+    {
+      "path": "preview.mjs",
+      "sha256": "fb82976945f6feec8b567f19582d6819e4bf5d670151968d0960bfa436b0c911",
+      "bytes": 14850
+    },
+    {
+      "path": "manual-boarding.js",
+      "sha256": "cee7a1e1447876a97b0f87fb8204a75628bc198175c005d0952779c39f8f6e70",
+      "bytes": 5416
+    },
+    {
+      "path": "boarding-plan.json",
+      "sha256": "e41a66ead573b5e997d5397a722f47720f49ddd91bf229bf1ff27d2e08021143",
+      "bytes": 18716
+    },
+    {
+      "path": "runtime/pet-town-walk.js",
+      "sha256": "e5394a48f76449dddec52e497d1b231ad1ed213d1fa69aec3657bbb3045b1aac",
+      "bytes": 24418
+    },
+    {
+      "path": "runtime/pet-frame-fit.js",
+      "sha256": "7b3b730dc7834e1c56f455161d59005f8352a3cd918e52be1893bc4b7706dc13",
+      "bytes": 2434
+    },
+    {
+      "path": "runtime/pet-river-fishing.js",
+      "sha256": "8b4e1d2d9f2b9fda72f66e79b2105dccdadd2e6de5230c24e920cbdcf561aedb",
+      "bytes": 8325
+    },
+    {
+      "path": "runtime/pet-japan-seasons.js",
+      "sha256": "8007af08bc4b5b059724ec96a4c473b16619177b7a9ab16aac4f81047eb14b94",
+      "bytes": 4137
+    },
+    {
+      "path": "runtime/pet-town-style.js",
+      "sha256": "f4be723076791221fcfa215bd81eb49e3d8d38edf2e036963a1e2ef85ed3806e",
+      "bytes": 12185
+    },
+    {
+      "path": "runtime/pet-town-scene.js",
+      "sha256": "8f5e950cbf2f6bf511a0dad8e2adb3ef74712d70b74a006c4880c92a5ebf037f",
+      "bytes": 75452
+    },
+    {
+      "path": "runtime/pet-lilac-motion.js",
+      "sha256": "948e0f2336be4b9d34965c96dc8e038a763832d82c8841585e55c955de0f6321",
+      "bytes": 222029
+    },
+    {
+      "path": "runtime/vendor/three-0.160.1.module.js",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    {
+      "path": "runtime/vendor/three-0.160.1.LICENSE.txt",
+      "sha256": "852e0e8699169bf9f6fdc6bda3e682d078dcbc738b5d33e74df594721bff271d",
+      "bytes": 1081
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/static/pet-boat-route-proof-20261026/dock-route.js",
+      "sha256": "b383a68ee054ad5c993d716830577e159998f41b80f2d542117e3a26458f249f",
+      "bytes": 14847
+    },
+    {
+      "path": "/static/pet-boat-route-proof-20261026/landing-route.json",
+      "sha256": "0a043328b5c1f596f311434302c0b8a1b7c84e7feb97487f2d6aba0343e81102",
+      "bytes": 4317
+    },
+    {
+      "path": "/static/pet-boat-hull-proof-20261026/hull.js",
+      "sha256": "752f517f152de9bb1dc81184099d2eb431e347300baba7983851d8f7d0d5df9e",
+      "bytes": 10875
+    },
+    {
+      "path": "/static/pet_lilac_reference_v2.png",
+      "sha256": "2d2cc24745bc74dadeb6dd861c8f85c16e8f36c3cdfbec956e118b0d469e3de6",
+      "bytes": 1300225
+    },
+    {
+      "path": "/static/pet_lilac_baby_expressions_v1.png",
+      "sha256": "2c8ed9dd59803ed5e37d41e7dfd88f1b106f1e5a576fe947e968af8538306c8f",
+      "bytes": 1918220
+    },
+    {
+      "path": "/static/pet_lilac_baby_turnaround_v1.png",
+      "sha256": "15a3bac17c80e94af54ce623ca0d0e11f083ee4b60fcd09aeb8936aec9134ea9",
+      "bytes": 1751068
+    },
+    {
+      "path": "/static/pet_lilac_tooth_baby_expressions_v1.png",
+      "sha256": "f8aeb21016062eb2885384d89a3ed1356b18c1b83e8355daaa6ad633554f56b8",
+      "bytes": 1807122
+    },
+    {
+      "path": "/static/pet_lilac_tooth_baby_turnaround_v1.png",
+      "sha256": "c727ab69ca309070b51e347500929fa63ac6e791e458aeeb1892f32f0bef1fe4",
+      "bytes": 1687564
+    },
+    {
+      "path": "/static/pet_lilac_reference_half_v1.png",
+      "sha256": "5cdf3fde47059263ea5b5a13050b411e595877106ede13d7d4e4bdc656b735f2",
+      "bytes": 1155633
+    },
+    {
+      "path": "/static/pet_lilac_reference_closed_v1.png",
+      "sha256": "375a82858a2a3db2044441a34adf5d0f7d4ff66c4551c3a966f98376e063ea38",
+      "bytes": 1148573
+    }
+  ],
+  "reference_case": {
+    "id": "existing-lilac-baby-manual-boarding",
+    "appearanceKey": "baby",
+    "growthStage": "baby",
+    "worldFrameHeight": 1.65,
+    "source": "unchanged current PetLilacMotion and alpha>=31 FrameFit",
+    "locomotion": "existing directional2D idle/walk only while manual input",
+    "ownerSelectedCharacterLinked": false,
+    "fullBody360": false
+  },
+  "units": "existing world units; not calibrated physical metres;100Town pixels per world unit",
+  "scope": {
+    "fixedSternPathOnly": true,
+    "sampleSupportMaxSubstep": 0.008,
+    "automaticWandering": false,
+    "boatSailing": false,
+    "save": false,
+    "normalGameIntegration": false,
+    "riverbedGrounding": false,
+    "anatomicalBothFeetFit": false,
+    "newOriginals": 0
+  },
+  "stage1_stage2_originals_unchanged": true
+}

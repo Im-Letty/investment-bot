@@ -1,0 +1,725 @@
+{
+  "schema_version": 1,
+  "sourceBase": "da54e2a4ac9aea125632bb6769969e7b771db235",
+  "scope": "fixed stern boarding only; no sailing/save/normalgame",
+  "world_units_not_physical_metres": true,
+  "placement": {
+    "ok": true,
+    "candidate": {
+      "id": "south-landing-measured-hull-v2",
+      "version": 2,
+      "approach": {
+        "x": 2181.7725636212645,
+        "y": 1598.3938991554123
+      },
+      "shore": {
+        "x": 2255.5319311954445,
+        "y": 1680
+      },
+      "head": {
+        "x": 2285.706217930336,
+        "y": 1713.3843139818769
+      },
+      "socket": {
+        "x": 2366.1709825567145,
+        "y": 1802.4091512668815
+      },
+      "route": [
+        {
+          "x": 2366.1709825567145,
+          "y": 1802.4091512668815
+        },
+        {
+          "x": 2424.155569791184,
+          "y": 1750
+        },
+        {
+          "x": 2490.538542038756,
+          "y": 1690
+        }
+      ],
+      "vesselRadius": 89.99999761581421,
+      "margin": 24,
+      "width": 84,
+      "deckTop": 0.04299999999999787,
+      "boardingEnabled": false,
+      "sailingEnabled": false,
+      "boatHullCreated": true,
+      "gameCollisionChanged": false,
+      "saveConnected": false
+    },
+    "routeReport": {
+      "valid": true,
+      "reasons": [],
+      "metrics": {
+        "minimumWaterClearance": 165,
+        "minimumBridgeClearance": 440.0000023841858,
+        "minimumFishingClearance": 120,
+        "minimumPierClearance": 119.99999999999994
+      },
+      "requiredClearance": 113.99999761581421
+    },
+    "measured": {
+      "bounds": {
+        "min": [
+          -0.5534261465072632,
+          -0.1599999964237213,
+          -0.8999999761581421
+        ],
+        "max": [
+          0.5534261465072632,
+          0.3499999940395355,
+          0.8999999761581421
+        ],
+        "size": [
+          1.1068522930145264,
+          0.5099999904632568,
+          1.7999999523162842
+        ]
+      },
+      "horizontalRadiusUnits": 0.8999999761581421,
+      "vertices": 499
+    },
+    "pierFishingClearancePixels": 74.57433759404293,
+    "worldPosition": {
+      "x": 9.261709825567145,
+      "y": -0.05,
+      "z": 8.424091512668815
+    },
+    "yaw": 0.7349360379086964,
+    "boarding": {
+      "start": {
+        "x": 8.43024059109457,
+        "y": 0.04299999999999787,
+        "z": 7.504168194057099
+      },
+      "end": {
+        "x": 8.926439972957235,
+        "y": -0.010000000894069674,
+        "z": 8.053154690647963
+      },
+      "width": 0.4,
+      "thickness": 0.035,
+      "stepHeight": -0.05300000089406755,
+      "inclineDeg": 4.096621512018987,
+      "floorY": -0.010000000894069674,
+      "fishingClearancePixels": 116.31898004289576,
+      "locomotionVerified": false,
+      "geometryEligible": true
+    },
+    "normalGameIntegration": false,
+    "sailing": false,
+    "save": false
+  },
+  "initial": {
+    "start": {
+      "x": 8.43024059109457,
+      "y": 0.04299999999999787,
+      "z": 7.504168194057099
+    },
+    "end": {
+      "x": 8.926439972957235,
+      "y": -0.010000000894069674,
+      "z": 8.053154690647963
+    },
+    "width": 0.4,
+    "length": 0.7400000000000008,
+    "dx": 0.6705397052198168,
+    "dz": 0.741873644041707,
+    "incline": 4.096621512018987
+  },
+  "source_surface_signatures": [
+    {
+      "name": "closed-pier-plank",
+      "positionSha": "684624d0687cbb7ce0a1119f1588586e3d1d758cf5bee26b78af640572a1e1bd",
+      "indexSha": "7d2c65fffb490f18b89d5d949a36ac6fe37f052789bdc3ad49759abb3ecd0898",
+      "matrix": [
+        0.6231738609950331,
+        0,
+        -0.5632533523846466,
+        0,
+        0,
+        0.075,
+        0,
+        0,
+        0.08258814035957422,
+        0,
+        0.0913741038244702,
+        0,
+        7.461031325508091,
+        0.005499999999997875,
+        6.431851664398484,
+        1
+      ]
+    },
+    {
+      "name": "closed-pier-plank",
+      "positionSha": "684624d0687cbb7ce0a1119f1588586e3d1d758cf5bee26b78af640572a1e1bd",
+      "indexSha": "7d2c65fffb490f18b89d5d949a36ac6fe37f052789bdc3ad49759abb3ecd0898",
+      "matrix": [
+        0.6231738609950331,
+        0,
+        -0.5632533523846466,
+        0,
+        0,
+        0.075,
+        0,
+        0,
+        0.08258814035957422,
+        0,
+        0.0913741038244702,
+        0,
+        7.547642704098984,
+        0.005499999999997875,
+        6.527677010087204,
+        1
+      ]
+    },
+    {
+      "name": "closed-pier-plank",
+      "positionSha": "684624d0687cbb7ce0a1119f1588586e3d1d758cf5bee26b78af640572a1e1bd",
+      "indexSha": "7d2c65fffb490f18b89d5d949a36ac6fe37f052789bdc3ad49759abb3ecd0898",
+      "matrix": [
+        0.6231738609950331,
+        0,
+        -0.5632533523846466,
+        0,
+        0,
+        0.075,
+        0,
+        0,
+        0.08258814035957422,
+        0,
+        0.0913741038244702,
+        0,
+        7.6342540826898775,
+        0.005499999999997875,
+        6.6235023557759245,
+        1
+      ]
+    },
+    {
+      "name": "closed-pier-plank",
+      "positionSha": "684624d0687cbb7ce0a1119f1588586e3d1d758cf5bee26b78af640572a1e1bd",
+      "indexSha": "7d2c65fffb490f18b89d5d949a36ac6fe37f052789bdc3ad49759abb3ecd0898",
+      "matrix": [
+        0.6231738609950331,
+        0,
+        -0.5632533523846466,
+        0,
+        0,
+        0.075,
+        0,
+        0,
+        0.08258814035957422,
+        0,
+        0.0913741038244702,
+        0,
+        7.72086546128077,
+        0.005499999999997875,
+        6.719327701464645,
+        1
+      ]
+    },
+    {
+      "name": "closed-pier-plank",
+      "positionSha": "684624d0687cbb7ce0a1119f1588586e3d1d758cf5bee26b78af640572a1e1bd",
+      "indexSha": "7d2c65fffb490f18b89d5d949a36ac6fe37f052789bdc3ad49759abb3ecd0898",
+      "matrix": [
+        0.6231738609950331,
+        0,
+        -0.5632533523846466,
+        0,
+        0,
+        0.075,
+        0,
+        0,
+        0.08258814035957422,
+        0,
+        0.0913741038244702,
+        0,
+        7.807476839871663,
+        0.005499999999997875,
+        6.815153047153365,
+        1
+      ]
+    },
+    {
+      "name": "closed-pier-plank",
+      "positionSha": "684624d0687cbb7ce0a1119f1588586e3d1d758cf5bee26b78af640572a1e1bd",
+      "indexSha": "7d2c65fffb490f18b89d5d949a36ac6fe37f052789bdc3ad49759abb3ecd0898",
+      "matrix": [
+        0.6231738609950331,
+        0,
+        -0.5632533523846466,
+        0,
+        0,
+        0.075,
+        0,
+        0,
+        0.08258814035957422,
+        0,
+        0.0913741038244702,
+        0,
+        7.8940882184625565,
+        0.005499999999997875,
+        6.910978392842086,
+        1
+      ]
+    },
+    {
+      "name": "closed-pier-plank",
+      "positionSha": "684624d0687cbb7ce0a1119f1588586e3d1d758cf5bee26b78af640572a1e1bd",
+      "indexSha": "7d2c65fffb490f18b89d5d949a36ac6fe37f052789bdc3ad49759abb3ecd0898",
+      "matrix": [
+        0.6231738609950331,
+        0,
+        -0.5632533523846466,
+        0,
+        0,
+        0.075,
+        0,
+        0,
+        0.08258814035957422,
+        0,
+        0.0913741038244702,
+        0,
+        7.98069959705345,
+        0.005499999999997875,
+        7.006803738530806,
+        1
+      ]
+    },
+    {
+      "name": "closed-pier-plank",
+      "positionSha": "684624d0687cbb7ce0a1119f1588586e3d1d758cf5bee26b78af640572a1e1bd",
+      "indexSha": "7d2c65fffb490f18b89d5d949a36ac6fe37f052789bdc3ad49759abb3ecd0898",
+      "matrix": [
+        0.6231738609950331,
+        0,
+        -0.5632533523846466,
+        0,
+        0,
+        0.075,
+        0,
+        0,
+        0.08258814035957422,
+        0,
+        0.0913741038244702,
+        0,
+        8.067310975644343,
+        0.005499999999997875,
+        7.102629084219527,
+        1
+      ]
+    },
+    {
+      "name": "closed-pier-plank",
+      "positionSha": "684624d0687cbb7ce0a1119f1588586e3d1d758cf5bee26b78af640572a1e1bd",
+      "indexSha": "7d2c65fffb490f18b89d5d949a36ac6fe37f052789bdc3ad49759abb3ecd0898",
+      "matrix": [
+        0.6231738609950331,
+        0,
+        -0.5632533523846466,
+        0,
+        0,
+        0.075,
+        0,
+        0,
+        0.08258814035957422,
+        0,
+        0.0913741038244702,
+        0,
+        8.153922354235236,
+        0.005499999999997875,
+        7.198454429908248,
+        1
+      ]
+    },
+    {
+      "name": "closed-pier-plank",
+      "positionSha": "684624d0687cbb7ce0a1119f1588586e3d1d758cf5bee26b78af640572a1e1bd",
+      "indexSha": "7d2c65fffb490f18b89d5d949a36ac6fe37f052789bdc3ad49759abb3ecd0898",
+      "matrix": [
+        0.6231738609950331,
+        0,
+        -0.5632533523846466,
+        0,
+        0,
+        0.075,
+        0,
+        0,
+        0.08258814035957422,
+        0,
+        0.0913741038244702,
+        0,
+        8.24053373282613,
+        0.005499999999997875,
+        7.2942797755969675,
+        1
+      ]
+    },
+    {
+      "name": "closed-pier-plank",
+      "positionSha": "684624d0687cbb7ce0a1119f1588586e3d1d758cf5bee26b78af640572a1e1bd",
+      "indexSha": "7d2c65fffb490f18b89d5d949a36ac6fe37f052789bdc3ad49759abb3ecd0898",
+      "matrix": [
+        0.6231738609950331,
+        0,
+        -0.5632533523846466,
+        0,
+        0,
+        0.075,
+        0,
+        0,
+        0.08258814035957422,
+        0,
+        0.0913741038244702,
+        0,
+        8.327145111417023,
+        0.005499999999997875,
+        7.390105121285688,
+        1
+      ]
+    },
+    {
+      "name": "closed-pier-plank",
+      "positionSha": "684624d0687cbb7ce0a1119f1588586e3d1d758cf5bee26b78af640572a1e1bd",
+      "indexSha": "7d2c65fffb490f18b89d5d949a36ac6fe37f052789bdc3ad49759abb3ecd0898",
+      "matrix": [
+        0.6231738609950331,
+        0,
+        -0.5632533523846466,
+        0,
+        0,
+        0.075,
+        0,
+        0,
+        0.08258814035957422,
+        0,
+        0.0913741038244702,
+        0,
+        8.413756490007916,
+        0.005499999999997875,
+        7.485930466974408,
+        1
+      ]
+    },
+    {
+      "name": "closed-contact-boarding-plank",
+      "positionSha": "fb8f23932f8d1a686cdf4d115a561f10f5cb614a0df7a2184fdde0e55395da64",
+      "indexSha": "7d2c65fffb490f18b89d5d949a36ac6fe37f052789bdc3ad49759abb3ecd0898",
+      "matrix": [
+        0.7418736440417069,
+        3.469446951953614e-18,
+        -0.6705397052198169,
+        0,
+        0.04790243748278315,
+        0.9974449970965538,
+        0.05299843630017769,
+        0,
+        0.6688264743261042,
+        -0.07143862937554121,
+        0.73997815472719,
+        0,
+        8.677501989369954,
+        -0.0009552878962255928,
+        7.777733969717278,
+        1
+      ]
+    },
+    {
+      "name": "technical-hull-shell",
+      "positionSha": "326098fe3ac9756189ee05ca405e4324713527fb0480429577cbe08e8c72a286",
+      "indexSha": "fb94fb17f4a6859e8d2bffd124e77ae0832630a20de66ebf78eaefee4ebf1ccf",
+      "matrix": [
+        0.7418736440417047,
+        0,
+        -0.6705397052198191,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0.6705397052198191,
+        0,
+        0.7418736440417047,
+        0,
+        9.261709825567145,
+        -0.05,
+        8.424091512668815,
+        1
+      ]
+    }
+  ],
+  "derive_probe": {
+    "actual_Three_mesh_support_roundtrip": true,
+    "aboard": {
+      "progress": 0.7400000000000008,
+      "length": 0.7400000000000008,
+      "fraction": 1,
+      "position": {
+        "x": 8.926439972957235,
+        "y": -0.010000000819372974,
+        "z": 8.053154690647963
+      },
+      "heading": 0.7349360379086931,
+      "distance": 0.7400000000000008,
+      "phase": "aboard",
+      "walking": false,
+      "destination": null,
+      "surface": "closed-contact-boarding-plank",
+      "reason": "key_released",
+      "dead": false,
+      "sailing": false,
+      "save": false,
+      "anatomicalFootFit": false
+    },
+    "returned": {
+      "progress": 0,
+      "length": 0.7400000000000008,
+      "fraction": 0,
+      "position": {
+        "x": 8.43024059109457,
+        "y": 0.043000000074694573,
+        "z": 7.504168194057098
+      },
+      "heading": -2.4066566156811002,
+      "distance": 1.4800000000000006,
+      "phase": "dock",
+      "walking": false,
+      "destination": null,
+      "surface": "closed-contact-boarding-plank",
+      "reason": "key_released",
+      "dead": false,
+      "sailing": false,
+      "save": false,
+      "anatomicalFootFit": false
+    },
+    "samples": [
+      {
+        "progress": 0.0225,
+        "length": 0.7400000000000008,
+        "fraction": 0.030405405405405372,
+        "position": {
+          "x": 8.445327734462015,
+          "y": 0.04299999999999787,
+          "z": 7.520860351048037
+        },
+        "heading": 0.7349360379086931,
+        "distance": 0.0225,
+        "phase": "plank",
+        "walking": true,
+        "destination": null,
+        "surface": "closed-pier-plank",
+        "reason": "manual_move",
+        "dead": false,
+        "sailing": false,
+        "save": false,
+        "anatomicalFootFit": false
+      },
+      {
+        "progress": 0.24749999999999994,
+        "length": 0.7400000000000008,
+        "fraction": 0.33445945945945904,
+        "position": {
+          "x": 8.596199168136474,
+          "y": 0.025273648424313885,
+          "z": 7.687781920957422
+        },
+        "heading": 0.7349360379086931,
+        "distance": 0.24749999999999994,
+        "phase": "plank",
+        "walking": true,
+        "destination": null,
+        "surface": "closed-contact-boarding-plank",
+        "reason": "manual_move",
+        "dead": false,
+        "sailing": false,
+        "save": false,
+        "anatomicalFootFit": false
+      },
+      {
+        "progress": 0.47250000000000014,
+        "length": 0.7400000000000008,
+        "fraction": 0.638513513513513,
+        "position": {
+          "x": 8.747070601810934,
+          "y": 0.009158783287604121,
+          "z": 7.854703490866806
+        },
+        "heading": 0.7349360379086931,
+        "distance": 0.47250000000000014,
+        "phase": "plank",
+        "walking": true,
+        "destination": null,
+        "surface": "closed-contact-boarding-plank",
+        "reason": "manual_move",
+        "dead": false,
+        "sailing": false,
+        "save": false,
+        "anatomicalFootFit": false
+      },
+      {
+        "progress": 0.6974999999999999,
+        "length": 0.7400000000000008,
+        "fraction": 0.9425675675675664,
+        "position": {
+          "x": 8.897942035485393,
+          "y": -0.0069560818491055144,
+          "z": 8.021625060776188
+        },
+        "heading": 0.7349360379086931,
+        "distance": 0.6974999999999999,
+        "phase": "plank",
+        "walking": true,
+        "destination": null,
+        "surface": "closed-contact-boarding-plank",
+        "reason": "manual_move",
+        "dead": false,
+        "sailing": false,
+        "save": false,
+        "anatomicalFootFit": false
+      },
+      {
+        "progress": 0.7400000000000008,
+        "length": 0.7400000000000008,
+        "fraction": 1,
+        "position": {
+          "x": 8.926439972957235,
+          "y": -0.010000000819372974,
+          "z": 8.053154690647963
+        },
+        "heading": 0.7349360379086931,
+        "distance": 0.7400000000000008,
+        "phase": "aboard",
+        "walking": false,
+        "destination": null,
+        "surface": "closed-contact-boarding-plank",
+        "reason": "manual_move",
+        "dead": false,
+        "sailing": false,
+        "save": false,
+        "anatomicalFootFit": false
+      },
+      {
+        "progress": 0.7400000000000008,
+        "length": 0.7400000000000008,
+        "fraction": 1,
+        "position": {
+          "x": 8.926439972957235,
+          "y": -0.010000000819372974,
+          "z": 8.053154690647963
+        },
+        "heading": 0.7349360379086931,
+        "distance": 0.7400000000000008,
+        "phase": "aboard",
+        "walking": false,
+        "destination": null,
+        "surface": "closed-contact-boarding-plank",
+        "reason": "manual_move",
+        "dead": false,
+        "sailing": false,
+        "save": false,
+        "anatomicalFootFit": false
+      },
+      {
+        "progress": 0.7400000000000008,
+        "length": 0.7400000000000008,
+        "fraction": 1,
+        "position": {
+          "x": 8.926439972957235,
+          "y": -0.010000000819372974,
+          "z": 8.053154690647963
+        },
+        "heading": 0.7349360379086931,
+        "distance": 0.7400000000000008,
+        "phase": "aboard",
+        "walking": false,
+        "destination": null,
+        "surface": "closed-contact-boarding-plank",
+        "reason": "manual_move",
+        "dead": false,
+        "sailing": false,
+        "save": false,
+        "anatomicalFootFit": false
+      },
+      {
+        "progress": 0.7400000000000008,
+        "length": 0.7400000000000008,
+        "fraction": 1,
+        "position": {
+          "x": 8.926439972957235,
+          "y": -0.010000000819372974,
+          "z": 8.053154690647963
+        },
+        "heading": 0.7349360379086931,
+        "distance": 0.7400000000000008,
+        "phase": "aboard",
+        "walking": false,
+        "destination": null,
+        "surface": "closed-contact-boarding-plank",
+        "reason": "manual_move",
+        "dead": false,
+        "sailing": false,
+        "save": false,
+        "anatomicalFootFit": false
+      },
+      {
+        "progress": 0.7400000000000008,
+        "length": 0.7400000000000008,
+        "fraction": 1,
+        "position": {
+          "x": 8.926439972957235,
+          "y": -0.010000000819372974,
+          "z": 8.053154690647963
+        },
+        "heading": 0.7349360379086931,
+        "distance": 0.7400000000000008,
+        "phase": "aboard",
+        "walking": false,
+        "destination": null,
+        "surface": "closed-contact-boarding-plank",
+        "reason": "manual_move",
+        "dead": false,
+        "sailing": false,
+        "save": false,
+        "anatomicalFootFit": false
+      },
+      {
+        "progress": 0.7400000000000008,
+        "length": 0.7400000000000008,
+        "fraction": 1,
+        "position": {
+          "x": 8.926439972957235,
+          "y": -0.010000000819372974,
+          "z": 8.053154690647963
+        },
+        "heading": 0.7349360379086931,
+        "distance": 0.7400000000000008,
+        "phase": "aboard",
+        "walking": false,
+        "destination": null,
+        "surface": "closed-contact-boarding-plank",
+        "reason": "manual_move",
+        "dead": false,
+        "sailing": false,
+        "save": false,
+        "anatomicalFootFit": false
+      }
+    ],
+    "worldUnchanged": true,
+    "native": false
+  },
+  "limits": {
+    "hullFixed": true,
+    "endpointLocalZ": -0.5,
+    "thwartLocalZ": -0.34,
+    "benchCrossingImplemented": false,
+    "sourceCharacterLinked": false,
+    "anatomicalFeetFit": false,
+    "rigFull360": false,
+    "boatSailing": false,
+    "save": false
+  }
+}
