@@ -6,12 +6,13 @@
     typeof module === 'object' && module.exports ? require('./pet-river-fishing.js') : root.PetRiverFishing,
     typeof module === 'object' && module.exports ? require('./pet-japan-seasons.js') : root.PetJapanSeasons,
     typeof module === 'object' && module.exports ? require('./pet-town-style.js') : root.PetTownStyle,
-    typeof module === 'object' && module.exports ? require('./pet-town-layout-art.js') : root.PetTownLayoutArt);
+    typeof module === 'object' && module.exports ? require('./pet-town-layout-art.js') : root.PetTownLayoutArt,
+    typeof module === 'object' && module.exports ? require('./pet-town-placement-originals.js') : root.PetTownPlacementOriginals);
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.PetTownScene = api;
-}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit, Fishing, Seasons, Style, LayoutArt) {
+}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit, Fishing, Seasons, Style, LayoutArt, Originals) {
   'use strict';
-  var threeLoading = null, frameFitLoading = null, seasonsLoading = null, styleLoading = null, layoutLoading = null, UNIT = 100, TAU = Math.PI * 2;
+  var threeLoading = null, frameFitLoading = null, seasonsLoading = null, styleLoading = null, layoutLoading = null, originalsLoading = null, UNIT = 100, TAU = Math.PI * 2;
   var shoreline = [[0, 2880], [550, 2840], [1050, 2720], [1450, 2510], [1920, 1990]];
   function finite(n) { return typeof n === 'number' && Number.isFinite(n); }
   function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
@@ -124,6 +125,16 @@
     }).catch(function (error) { layoutLoading = null; throw error; });
     return layoutLoading;
   }
+  function loadOriginals() {
+    var current = Originals || globalThis.PetTownPlacementOriginals;
+    if (current && current.revision === 'placement-originals1') { Originals=current; return Promise.resolve(current); }
+    if (!originalsLoading) originalsLoading=import('/static/pet-town-placement-originals.js?v=20261027-originals1').then(function () {
+      Originals=globalThis.PetTownPlacementOriginals;
+      if (!Originals || Originals.revision !== 'placement-originals1') throw new Error('town_originals_unavailable');
+      return Originals;
+    }).catch(function(error){ originalsLoading=null; throw error; });
+    return originalsLoading;
+  }
   function groundTexture(THREE, doc, season) {
     if (!doc || !doc.createElement) return null;
     var canvas = doc.createElement('canvas'); canvas.width = canvas.height = 512;
@@ -191,6 +202,48 @@
     var scene = new THREE.Scene(), group = new THREE.Group(), geometries = new Set(), materials = new Set(), textures = new Set();
     var surfaces = [], occluders = [], pickables = [], trees = [], ripples = [], droplets = [], placeGroups = [], seasonalSites = [], seasonGroups = {}, seasonBatches = [], activeSeason = null, disposed = false;
     scene.add(group); group.name = 'saved-town-geometry';
+    var originalAPI=Originals||globalThis.PetTownPlacementOriginals;
+    var originalArt=originalAPI?originalAPI.create(THREE,{textures:textures,materials:materials}):null, originalCoverage=new Map(), buildingGeometry=false;
+    function originalSprite(kind,parent,width,x,y,z) {
+      var sprite=originalArt.createSprite(kind,{width:width});
+      sprite.position.set(x||0,y||0,z||0); parent.add(sprite); return sprite;
+    }
+    async function loadOriginalArt(loader) {
+      if (!originalArt) throw new Error('town_originals_unavailable');
+      await originalArt.preload(loader||new THREE.TextureLoader());
+      if(disposed)return false;
+      group.traverse(function(o){
+        if(!o.isSprite||!o.userData.originalArt)return;
+        var image=o.material.map&&o.material.map.image;
+        if(originalCoverage.has(image))return;
+        if(!doc||!doc.createElement)throw new Error('town_original_alpha_unavailable');
+        var pad=doc.createElement('canvas');pad.width=image.width;pad.height=image.height;
+        var context=pad.getContext('2d',{willReadFrequently:true});
+        if(!context)throw new Error('town_original_alpha_unavailable');
+        context.drawImage(image,0,0);
+        originalCoverage.set(image,{width:pad.width,height:pad.height,pixels:context.getImageData(0,0,pad.width,pad.height).data});
+      });
+      scene.userData.originalArtState='ready';return true;
+    }
+    function originalHit(hit) {
+      if(!hit.object.userData.originalArt||!hit.uv)return true;
+      var coverage=originalCoverage.get(hit.object.material.map&&hit.object.material.map.image);
+      if(!coverage)return false;
+      var x=clamp(Math.floor(hit.uv.x*coverage.width),0,coverage.width-1),y=clamp(Math.floor((1-hit.uv.y)*coverage.height),0,coverage.height-1);
+      return coverage.pixels[(y*coverage.width+x)*4+3]>=8;
+    }
+    function originalDoorHit(hit) {
+      if(!hit.object.userData.originalArt)return !!hit.object.userData.door;
+      if(!hit.uv)return false;
+      // Inset regions were visually read from the actual 384px door panels.
+      // Roofs/windows and transparent corners keep ordinary approach semantics.
+      var bounds={home:[234,240,278,306],cafe:[226,241,260,305],shop:[239,240,271,312]}[hit.object.userData.originalArtKind];
+      if(!bounds)return false;
+      var x=Math.floor(hit.uv.x*384),y=Math.floor((1-hit.uv.y)*384);
+      return x>=bounds[0]&&x<bounds[2]&&y>=bounds[1]&&y<bounds[3];
+    }
+    scene.userData.originalArtRevision=originalArt?'placement-originals1':'unavailable';
+    scene.userData.originalArtRepresentation='original-2d-art-in-3d-world';scene.userData.originalArtState='pending';
     var style = Style || globalThis.PetTownStyle, surfaceMaps = {}, cache = {}, boxGeometry = new THREE.BoxGeometry(1, 1, 1, 4, 4, 4), sphereGeometry = new THREE.SphereGeometry(1, 16, 10), leafGeometry = style ? style.leafGeometry(THREE) : new THREE.SphereGeometry(1, 10, 6), cylinderGeometry = new THREE.CylinderGeometry(1, 1, 1, 16);
     var trunkGeometry = style ? style.branchGeometry(THREE, 'trunk') : null, branchGeometry = style ? style.branchGeometry(THREE, 'branch') : null, roofTileGeometry = style ? style.tileGeometry(THREE) : null;
     var roundedLeafGeometry = style && typeof style.roundedLeafGeometry === 'function' ? style.roundedLeafGeometry(THREE) : leafGeometry;
@@ -295,6 +348,7 @@
       m.name = 'plump-ground-leaf'; return m;
     }
     function leafBush(parent, x, y, z, size, seed, keepCottageRecipe) {
+      if(originalArt&&!buildingGeometry&&!keepCottageRecipe){var root=new THREE.Group();root.name='placement-original-garden';root.position.set(x,y,z);parent.add(root);originalSprite('flowers',root,Math.max(.42,size*2.2),0,0,0);return root;}
       var bush = new THREE.Group(); bush.name = 'layered-leaf-bush'; bush.position.set(x, y, z); parent.add(bush);
       // Rounded overlapping blades match the planted clumps in the layout art.
       ball(bush, '#80ab6b', 0, size * .08, 0, size * .23, size * .08, size * .21);
@@ -309,6 +363,7 @@
       return bush;
     }
     function daisy(parent, x, y, z, size, blush, keepCottageRecipe) {
+      if(originalArt&&!buildingGeometry&&!keepCottageRecipe){var root=new THREE.Group();root.name='placement-original-meadow-flowers';root.position.set(x,y,z);parent.add(root);originalSprite('flowers',root,.36*size,0,0,0);return root;}
       var g = new THREE.Group(); g.name = 'botanical-soft-meadow-flower'; g.position.set(x, y, z); parent.add(g);
       var variant = Math.floor(Math.abs(Math.sin(x * 17 + z * 29 + size * 11)) * 3);
       var count = variant === 1 ? 6 : 7, stemHeight = (.17 + variant * .006) * size;
@@ -342,6 +397,7 @@
       return g;
     }
     function flowerBed(parent, seed) {
+      if(originalArt&&!buildingGeometry){var root=new THREE.Group();root.name='placement-original-flowerbed';parent.add(root);originalSprite('flowers',root,1.25,0,0,0);return root;}
       var g = new THREE.Group(); g.name = 'mixed-planted-flowerbed'; parent.add(g);
       ball(g, mat('#9bc67e', false, 'foliage'), 0, .012, 0, .30, .012, .19).name = 'low-flowerbed-moss';
       [[-.20,-.05],[.18,-.06],[0,.13],[0,-.14]].forEach(function(p, i) { leafBush(g, p[0], .02, p[1], .20, seed + i * 1.7); });
@@ -420,6 +476,7 @@
       tree.userData.leafCount=leaves;tree.userData.twigCount=style.limits.treeTwigs;trees.push(crown);return crown;
     }
     function softTree(parent, seed, scale) {
+      if(originalArt){var root=new THREE.Group();root.name='placement-original-tree';parent.add(root);originalSprite('tree',root,3.25*(scale||1),0,0,0);return root;}
       if (!style || typeof style.roundedLeafGeometry !== 'function') return pointedTree(parent, seed, scale);
       var tree = new THREE.Group(); tree.name = 'market-style-branching-tree'; tree.userData.styleRole = 'botanical';
       tree.userData.artDirection = 'rounded-layout-reference'; tree.scale.setScalar(scale); parent.add(tree);
@@ -600,6 +657,7 @@
     }
     var junction = layoutModel ? layoutModel.junction : { x: world.width * .48, y: world.height * .64 };
     world.places.forEach(function (p, index) {
+      buildingGeometry=['home','cafe','shop'].indexOf(p.id)>=0;
       var ground = groundPoint(world, p.footprint), g = new THREE.Group(); g.name = 'place-' + p.id; g.userData.placeId = p.id;
       g.position.set(ground.x, .025, ground.z); group.add(g); placeGroups.push(g);
       var rx = p.footprint.rx / UNIT, rz = p.footprint.ry / UNIT;
@@ -759,12 +817,23 @@
         g.scale.y = .9;
         if (!layoutModel) road(p.entrance, junction);
       }
-      solid(g, p);
+      solid(g, p); buildingGeometry=false;
+      // Retain collision/camera proxies; show the exact placement artwork.
+      // Original transparent corners do not become new clickable rectangles.
+      if(originalArt && ['home','cafe','shop','playground'].indexOf(p.id)>=0 && p.status!=='funding' && p.status!=='building'){
+        g.traverse(function(m){if(m.isMesh){m.visible=false;m.castShadow=false;m.userData.originalArtProxy=true;}});
+        pickables=pickables.filter(function(m){return m.userData.placeId!==p.id;});
+        var art=originalSprite(p.id==='playground'?'fountain':p.id,g,p.id==='playground'?2.25:3.25,0,0,.34);
+        art.scale.y/=g.scale.y;art.userData.placeId=p.id;pickables.push(art);
+      } else if(originalArt && (p.id==='tree'||p.id==='flowers')){
+        g.traverse(function(o){if(o.isSprite){o.userData.placeId=p.id;pickables.push(o);}});
+      }
     });
     // Existing lantern/flower accents become separate objects, not a tilted background image.
     [[31, 32], [64, 32], [31, 72], [64, 72]].forEach(function (v) {
       var p = groundPoint(world, { x: v[0] / 100 * world.width, y: v[1] / 100 * world.height });
       var lamp = new THREE.Group();lamp.name='collection-garden-lantern'; lamp.position.set(p.x, .025, p.z); group.add(lamp);
+      if(originalArt){originalSprite('lantern',lamp,.95,0,0,0);return;}
       cylinder(lamp,.08,.07,mat('#ded3bf',false,'stone'),0,.035,0);ball(lamp,mat('#ded3bf',false,'stone'),0,.085,0,.075,.035,.075);
       cylinder(lamp,.026,1.12,mat('#a8754d',false,'wood'),0,.63,0);
       var bracket=new THREE.TorusGeometry(.12,.014,6,14,Math.PI),arm=mesh(bracket,mat('#a8754d',false,'wood'),lamp,.1,1.23,0);arm.rotation.z=-Math.PI/2;
@@ -783,7 +852,7 @@
         var plazaDy = (fp.y - layoutModel.plazaPoint.y) / (layoutModel.plazaRadii.z * UNIT + 30);
         if (plazaDx * plazaDx + plazaDy * plazaDy <= 1) continue;
       }
-      if (!Town.isWalkable(world, fp.x, fp.y) || world.places.some(function (p) { return Math.hypot(p.x - fp.x, p.y - fp.y) < 155; })) continue;
+      if (!Town.isWalkable(world, fp.x, fp.y) || world.places.some(function (p) { return Math.hypot(p.x - fp.x, p.y - fp.y) < (originalArt?225:155); })) continue;
       var fpos = groundPoint(world, fp); if (flower % 4 === 0) seasonalSites.push(fpos);
       if (flower % 5 === 0) {
         var bed = flowerBed(group, flower * .71); bed.position.set(fpos.x, .026, fpos.z); bed.rotation.y = flower * 1.7;
@@ -911,9 +980,9 @@
       batches.forEach(function (b) { if (b.dynamic) { b.rows.forEach(function (m, i) { b.mesh.setMatrixAt(i, m.matrixWorld); }); b.mesh.instanceMatrix.needsUpdate = true; } });
       return frame;
     }
-    function dispose() { if (disposed) return; disposed = true; batches.forEach(function (b) { b.mesh.dispose(); }); geometries.forEach(function (g) { g.dispose(); }); materials.forEach(function (m) { m.dispose(); }); textures.forEach(function (t) { t.dispose(); }); sun.shadow.dispose(); scene.clear(); }
+    function dispose() { if (disposed) return; disposed = true; if(originalArt)originalArt.dispose(); batches.forEach(function (b) { b.mesh.dispose(); }); geometries.forEach(function (g) { g.dispose(); }); materials.forEach(function (m) { m.dispose(); }); textures.forEach(function (t) { t.dispose(); }); sun.shadow.dispose(); scene.clear(); }
     return { scene: scene, surfaces: surfaces, occluders: occluders, pickables: pickables, placeGroups: placeGroups, animate: animate, dispose: dispose,
-      setSeason: setSeason, seasonGroups: seasonGroups, styleLimits: style ? style.limits : null, layoutArtRevision: scene.userData.layoutArtRevision,
+      loadOriginalArt:loadOriginalArt, originalHit:originalHit, originalDoorHit:originalDoorHit, originalArt:originalArt, setSeason: setSeason, seasonGroups: seasonGroups, styleLimits: style ? style.limits : null, layoutArtRevision: scene.userData.layoutArtRevision,
       geometries: geometries, materials: materials, textures: textures, batches: batches, people: people(world, view, avoid) };
   }
   async function mount(options) {
@@ -935,11 +1004,11 @@
       if (fishingVisual) release(function () { fishingVisual.dispose(); });
       if (model) release(function () { model.dispose(); }); if (texture) release(function () { texture.dispose(); });
       if (renderer) { release(function () { renderer.renderLists.dispose(); }); release(function () { renderer.dispose(); }); release(function () { renderer.forceContextLoss(); }); release(function () { renderer.domElement.remove(); }); }
-      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; }
+      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; delete host.dataset.townOriginalArt; }
     }
     function fail(code) { if (dead || failed) return; failed = true; destroy(); report('onFailure', code); }
     var THREE;
-    try { var dependencies = await Promise.all([options.three || loadThree(), loadFrameFit(), loadSeasons(), loadStyle(), loadLayoutArt()]); THREE = dependencies[0]; } catch (_) { fail('town_module_unavailable'); return null; }
+    try { var dependencies = await Promise.all([options.three || loadThree(), loadFrameFit(), loadSeasons(), loadStyle(), loadLayoutArt(), loadOriginals()]); THREE = dependencies[0]; } catch (_) { fail('town_module_unavailable'); return null; }
     if (!active()) { destroy(); return null; }
     var sprite, playerShadow, camera, ray, pointer, direction, target, desired, contactMap = null, fishingVisual = null, fishingState = null;
     function contactShadow(radius) {
@@ -1043,7 +1112,8 @@
         var box = host.getBoundingClientRect(); pointer.set((event.clientX - box.left) / box.width * 2 - 1, -((event.clientY - box.top) / box.height) * 2 + 1);
         ray.setFromCamera(pointer, camera); ray.near = camera.near; ray.far = camera.far;
         var hits = ray.intersectObjects((sprite && sprite.visible ? [sprite] : []).concat(model.pickables, model.surfaces), false).filter(function (hit) {
-          if (hit.object !== sprite || !sourceCoverage || !hit.uv) return true;
+          if (hit.object !== sprite) return model.originalHit(hit);
+          if (!sourceCoverage || !hit.uv) return true;
           var x = Math.max(0, Math.min(sourceCoverage.width - 1, Math.floor(hit.uv.x * sourceCoverage.width)));
           var y = Math.max(0, Math.min(sourceCoverage.height - 1, Math.floor(hit.uv.y * sourceCoverage.height)));
           return sourceCoverage.pixels[(y * sourceCoverage.width + x) * 4 + 3] >= 31;
@@ -1051,7 +1121,7 @@
         if (!hits.length) return null;
         var hit = hits[0]; if (hit.object === sprite) return { pet: true };
         var id = hit.object.userData.placeId;
-        if (id) return hit.object.userData.door ? { placeId: id, door: true } : { placeId: id };
+        if (id) return model.originalDoorHit(hit) ? { placeId: id, door: true } : { placeId: id };
         var p = townPoint(world, hit.point); return Town.isWalkable(world, p.x, p.y) ? p : null;
       }
     };
@@ -1059,6 +1129,9 @@
       var seasonNow = typeof options.seasonNow === 'function' ? options.seasonNow : Date.now, firstSeason = null;
       try { firstSeason = Seasons.resolve(seasonNow()); } catch (_) {}
       model = buildWorld(THREE, world, options.view, position, doc, firstSeason ? firstSeason.key : 'summer');
+      await model.loadOriginalArt();
+      if(!active()){destroy();return null;}
+      host.dataset.townOriginalArt=model.scene.userData.originalArtRevision;
       host.dataset.townStyle = model.styleLimits ? 'shop-cottage-match2' : 'legacy';
       host.dataset.townLayoutArt = model.layoutArtRevision;
       if (Fishing && typeof Fishing.createVisual === 'function') { fishingVisual = Fishing.createVisual(THREE, world); model.scene.add(fishingVisual.group); }
