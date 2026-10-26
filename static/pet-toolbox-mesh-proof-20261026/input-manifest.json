@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "id": "storybook-sewing-toolbox-closed-mesh-prerequisite-v1",
+  "source_merge": "6a1220eca1c43575148a5e413a93f3c90c0d2178",
+  "source_image_sha256": "6afc65a45e78a938b018987a85037a9bbbd4b63905aca1438927ea13d76db070",
+  "reference_image_unmodified": true,
+  "size_unit": "game world units",
+  "stage": "fixed_open_geometry_prerequisite_candidate",
+  "closed_mesh_review_pending": true,
+  "actual_native_all_angle_review_pending": true,
+  "normal_game_integration": false,
+  "mechanism": false,
+  "grip": false,
+  "all_growth_fit": false,
+  "full_body360": false,
+  "normal_placement": false,
+  "unlock": false,
+  "save": false,
+  "files": [
+    {
+      "path": "toolbox.js",
+      "sha256": "8e4d65f59698f2f336f46d4ecb0a5daff13830941e8d96239dece6dc6c0ea05d",
+      "bytes": 10411
+    },
+    {
+      "path": "preview.mjs",
+      "sha256": "2418f01265aff7b90d352f10d8b56fd48b286886f85db056ae81e2ecf48b9442",
+      "bytes": 10352
+    },
+    {
+      "path": "placement.mjs",
+      "sha256": "6342b3f92a312c84d84747f449a287bf3cecd5e8f45157bc53cb1a15993f51ed",
+      "bytes": 2730
+    },
+    {
+      "path": "framing.mjs",
+      "sha256": "d1a2e51112f7548c2e516e2f29359e1315574c501874a30afa0a1977b93e3e92",
+      "bytes": 1819
+    },
+    {
+      "path": "index.html",
+      "sha256": "9415237d1c0b2fa8d837086d5797ec4071627536d6c41032d59eb01028760dc8",
+      "bytes": 4396
+    },
+    {
+      "path": "assets/storybook-sewing-toolbox-v1.png",
+      "sha256": "6afc65a45e78a938b018987a85037a9bbbd4b63905aca1438927ea13d76db070",
+      "bytes": 2141999
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/static/pet-town-walk.js",
+      "sha256": "e5394a48f76449dddec52e497d1b231ad1ed213d1fa69aec3657bbb3045b1aac",
+      "bytes": 24418
+    },
+    {
+      "path": "/static/pet-frame-fit.js",
+      "sha256": "7b3b730dc7834e1c56f455161d59005f8352a3cd918e52be1893bc4b7706dc13",
+      "bytes": 2434
+    },
+    {
+      "path": "/static/pet-river-fishing.js",
+      "sha256": "8b4e1d2d9f2b9fda72f66e79b2105dccdadd2e6de5230c24e920cbdcf561aedb",
+      "bytes": 8325
+    },
+    {
+      "path": "/static/pet-japan-seasons.js",
+      "sha256": "8007af08bc4b5b059724ec96a4c473b16619177b7a9ab16aac4f81047eb14b94",
+      "bytes": 4137
+    },
+    {
+      "path": "/static/pet-town-style.js",
+      "sha256": "f4be723076791221fcfa215bd81eb49e3d8d38edf2e036963a1e2ef85ed3806e",
+      "bytes": 12185
+    },
+    {
+      "path": "/static/pet-town-scene.js",
+      "sha256": "8f5e950cbf2f6bf511a0dad8e2adb3ef74712d70b74a006c4880c92a5ebf037f",
+      "bytes": 75452
+    },
+    {
+      "path": "/static/pet-lilac-motion.js",
+      "sha256": "948e0f2336be4b9d34965c96dc8e038a763832d82c8841585e55c955de0f6321",
+      "bytes": 222029
+    },
+    {
+      "path": "/static/pet-boat-route-proof-20261026/runtime/vendor/three-0.160.1.module.js",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    }
+  ],
+  "preview_revision": 3,
+  "source_CANVAS_mount_contract_corrected": true,
+  "finite_placement_probe_not_normal_placement_safety": true,
+  "responsive_actual_aspect_camera_floor": true
+}
