@@ -11,6 +11,7 @@ const vendor=process.env.BOTANICAL_VENDOR_ROOT||base;
 const THREE=await import(pathToFileURL(path.join(vendor,'vendor/three-0.160.1.module.js')));
 const requireBase=createRequire(path.join(base,'pet-town-scene.js'));
 const Town=requireBase('./pet-town-walk.js');
+const Fit=requireBase('./pet-frame-fit.js');
 function load(file,require){
  const module={exports:{}};vm.runInNewContext(fs.readFileSync(file,'utf8'),{module,require});
  return module.exports;
@@ -60,35 +61,86 @@ test('broad pointed leaves and rounded bark remain closed finite volumes with co
  assert.ok(size.x>=oldLeafProfile.size[0]*.9&&size.x<=oldLeafProfile.size[0], 'shop-like broad blade stays within actual old leaf width');
  assert.ok(size.z<oldLeafProfile.size[2], 'soft bowed blade stays thinner than actual old leaf profile');}finally{leaf.dispose();}
 });
-test('all27 saved tree poses retain their exact origins and fit old whole, trunk and leaf envelopes',()=>{
- const m=Scene.buildWorld(THREE,Town.createWorld(),{});try{
+test('all27 saved tree poses retain exact roots and safe approaches with closed broad rounded dome crowns',()=>{
+ const world=Town.createWorld(),saved=JSON.stringify(world),m=Scene.buildWorld(THREE,world,{}),pointedStyle={...Style};delete pointedStyle.roundedLeafGeometry;
+ const historical=load(path.join(candidate,'pet-town-scene.js'),n=>n==='./pet-town-style.js'?pointedStyle:requireBase(n)).buildWorld(THREE,world,{});
+ try{
  const actual=trees(m);assert.equal(actual.length,27);assert.equal(fixture.trees.length,27);
+ const sharedRounded=new Set(),crowns=[],rootMatrices=[];
  for(let i=0;i<actual.length;i++){
   const t=actual[i],before=fixture.trees[i];assert.deepEqual(t.matrixWorld.elements,before.matrix);
-  assert.equal(t.userData.leafCount,126);assert.equal(t.userData.twigCount,9);
-  for(const [key,filter] of [['whole',null],['trunk',x=>x.name==='rounded-tree-trunk'],['leaf',x=>x.name==='small-pointed-tree-leaf']]){
-   const old=new THREE.Box3(new THREE.Vector3(...before[key][0]),new THREE.Vector3(...before[key][1])).expandByScalar(1e-4);
-   assert.ok(old.containsBox(box(t,filter)),'saved tree'+i+' '+key+' stays inside former precise Mesh bounds');
+  assert.equal(t.userData.artDirection,'rounded-layout-reference');assert.equal(t.userData.leafCount,54);assert.equal(t.userData.twigCount,3);
+  const trunk=t.getObjectByName('rounded-tree-trunk'),seed=i===0?.4:(i-1)*2.4,origin=t.getWorldPosition(new THREE.Vector3()),inverse=t.matrixWorld.clone().invert();
+  assert.deepEqual(trunk.position.toArray(),[0,0,0]);assert.deepEqual(trunk.scale.toArray(),[.18,1.38,.18]);
+  assert.equal(trunk.rotation.x,0);assert.equal(trunk.rotation.y,seed);assert.equal(trunk.rotation.z,0);
+  const trunkBounds=new THREE.Box3();
+  for(let j=0;j<trunk.geometry.attributes.position.count;j++){
+   const worldPoint=new THREE.Vector3().fromBufferAttribute(trunk.geometry.attributes.position,j).applyMatrix4(trunk.matrixWorld),local=worldPoint.clone().applyMatrix4(inverse);
+   trunkBounds.expandByPoint(local);assert.ok(Math.abs(local.x)<=.4&&Math.abs(local.z)<=.4,'stout trunk stays inside its fixed normalized radial cap');
+   assert.ok(Math.hypot((worldPoint.x-origin.x)/.66,(worldPoint.z-origin.z)/.50)<=1+1e-6,'every actual trunk vertex stays inside the unchanged tree collision ellipse plus player radius');
   }
+  assert.ok(Math.abs(trunkBounds.min.y)<1e-6);assert.ok(Math.abs(trunkBounds.max.y-1.38)<1e-6);
   const crown=t.children.find(x=>x.name==='overlapping-leaf-crown');
-  const foliage=crown.children.filter(x=>x.name==='small-pointed-tree-leaf');
+  const foliage=crown.children.filter(x=>x.name==='rounded-overlapping-tree-leaf');assert.equal(foliage.length,54);
+  for(const leaf of foliage){assert.equal(leaf.geometry.userData.styleRole,'closed-plump-rounded-leaf');sharedRounded.add(leaf.geometry);crowns.push(leaf);}
+  const roots=t.children.filter(x=>x.name==='plump-flared-tree-root');assert.equal(roots.length,5);rootMatrices.push(roots.map(x=>Array.from(x.matrixWorld.elements)));
+  for(const root of roots)assert.ok(box(root).min.y>=t.getWorldPosition(new THREE.Vector3()).y-1e-6,'root volume stays above its fixed ground footpoint');
   const forks=t.children.filter(x=>x.name==='visible-tree-fork');
   assert.equal(forks.length,3);
+  const leafBounds=box(crown,x=>x.name==='rounded-overlapping-tree-leaf');
   for(let j=0;j<forks.length;j++){
-   const tip=new THREE.Vector3(0,1,0).applyMatrix4(forks[j].matrixWorld),spray=new THREE.Box3();
-   for(const leaf of foliage.slice((3+j)*14,(4+j)*14))spray.union(new THREE.Box3().setFromObject(leaf,true));
-   assert.ok(spray.containsPoint(tip),'structural fork endpoint stays inside actual middle spray envelope; not a leaf surface-contact proof');
+   const tip=new THREE.Vector3(0,1,0).applyMatrix4(forks[j].matrixWorld);
+   assert.ok(leafBounds.containsPoint(tip),'structural fork endpoint stays inside the actual dome leaf envelope; not a leaf surface-contact proof');
   }
-  let cores=0;t.traverse(x=>{if(x.parent?.name==='overlapping-leaf-crown'&&x.geometry?.type==='SphereGeometry'&&x.geometry.userData.styleRole!=='closed-pointed-leaf')cores++;});
-  assert.equal(cores,0,'no opaque round canopy core replaces the individual leaves');
+  const cores=crown.children.filter(x=>x.name==='hidden-rounded-canopy-heart');assert.equal(cores.length,1);crowns.push(...cores);
+  assert.ok(leafBounds.containsBox(box(cores[0])),'the single supporting heart stays inside the individual rounded leaves');
  }
- }finally{m.dispose();}
+ assert.equal(sharedRounded.size,1);for(const g of sharedRounded)geometry(g,80);
+ const doors=model=>{const rows=[];model.scene.traverse(o=>{if(o.userData.door)rows.push([o.userData.placeId,o.name,Array.from(o.matrixWorld.elements)]);});return rows;};
+ const oldDoors=doors(historical);assert.ok(oldDoors.length>0);
+ for(const ms of [0,1000,3200]){
+  m.animate(ms,false);
+  for(let i=0;i<actual.length;i++){
+   const t=actual[i];assert.deepEqual(t.matrixWorld.elements,fixture.trees[i].matrix,'saved tree root and scale stay exact at every wind pose');
+   assert.deepEqual(t.children.filter(x=>x.name==='plump-flared-tree-root').map(x=>Array.from(x.matrixWorld.elements)),rootMatrices[i]);
+   const local=box(t.getObjectByName('overlapping-leaf-crown')).applyMatrix4(t.matrixWorld.clone().invert()),size=local.getSize(new THREE.Vector3());
+   assert.ok(size.x/size.y>=1.45&&size.z/size.y>=1.30,'real crown vertices retain a broad oval dome at finite wind poses');
+   assert.ok(size.x>=1.45&&size.x<=1.9&&size.z>=1.35&&size.z<=1.8&&size.y>=1.0&&size.y<=1.2,'real crown vertex dimensions stay physically bounded');
+   assert.ok(local.min.y>=1.04&&local.max.y<=2.2,'canopy stays above its unchanged ground region');
+  }
+  assert.deepEqual(doors(m),oldDoors,'all facility door-part transforms stay exact');
+  for(const p of [...world.places.map(p=>p.entrance),{x:world.width*.48,y:world.height*.54}]){
+   assert.ok(Town.isWalkable(world,p.x,p.y));const g=Scene.groundPoint(world,p),ray=new THREE.Raycaster(new THREE.Vector3(g.x,Scene.heightAt(p)+.001,g.z),new THREE.Vector3(0,1,0),0,Fit.worldHeight);
+   assert.equal(ray.intersectObjects(crowns,false).length,0,'existing frame head column clears real foliage at saved entrances and junction');
+  }
+ }
+ let restricted=0,samples=0;
+ for(const id of ['home','shop','cafe'])for(const yaw of [0,.7,1.4,2.1,2.8,3.5,4.2,4.9,5.6]){
+  const p=world.places.find(p=>p.id===id).entrance,g=Scene.groundPoint(world,p),center=new THREE.Vector3(g.x,Scene.heightAt(p)+.8,g.z),v=Scene.safeCamera(THREE,m.occluders,center,{yaw,pitch:Math.PI/6,distance:8});
+  assert.ok(v);assert.ok([v.yaw,v.pitch,v.distance].every(Number.isFinite));assert.ok(v.distance>=5.5&&v.distance<=8);
+  const direction=new THREE.Vector3(Math.sin(v.yaw)*Math.cos(v.pitch),Math.sin(v.pitch),Math.cos(v.yaw)*Math.cos(v.pitch));
+  assert.equal(new THREE.Raycaster(center,direction,.01,v.distance).intersectObjects(m.occluders,false).length,0,'real camera segment clears all solid foliage and buildings');
+  if(Math.abs(v.yaw-yaw)>.01||Math.abs(v.pitch-Math.PI/6)>.01||v.distance<7.99)restricted++;samples++;
+ }
+ assert.equal(samples,27);assert.ok(restricted>=2,'camera samples exercise genuinely blocked requests');assert.equal(JSON.stringify(world),saved);
+ }finally{historical.dispose();m.dispose();}
 });
 test('botanical construction leaves saved world state and established ground/bridge surfaces intact',()=>{
  const w=Town.createWorld(),saved=JSON.stringify(w),m=Scene.buildWorld(THREE,w,{});
  try{assert.equal(JSON.stringify(w),saved);assert.deepEqual(Array.from(m.surfaces,s=>s.name),['dry-land','bridge-deck']);
  const land=m.surfaces[0],bridge=m.surfaces[1];assert.equal(land.position.y,.025);assert.equal(bridge.position.y,.12);
- assert.equal(bridge.geometry.parameters.width,3.3);assert.equal(bridge.geometry.parameters.height,.14);assert.equal(bridge.geometry.parameters.depth,1.8);
+ const bounds=new THREE.Box3().setFromObject(bridge,true),size=bounds.getSize(new THREE.Vector3()),at=Scene.groundPoint(w,{x:2645,y:1160});
+ const close=(a,b)=>assert.ok(Math.abs(a-b)<1e-6,`${a} != ${b}`);
+ close(size.x,3.3);close(size.y,.14);close(size.z,1.8);close(bounds.min.y,.05);close(bounds.max.y,.19);
+ close(bounds.min.x,at.x-1.65);close(bounds.max.x,at.x+1.65);close(bounds.min.z,at.z-.9);close(bounds.max.z,at.z+.9);
+ assert.equal(bridge.userData.layoutBoardCount,11);
+ for(let ix=0;ix<=44;ix++)for(let iz=0;iz<=10;iz++){
+  const x=at.x-1.649+ix*3.298/44,z=at.z-.899+iz*1.798/10;
+  for(const [y,direction,height] of [[5,-1,.19],[-1,1,.05]]){
+   const hits=new THREE.Raycaster(new THREE.Vector3(x,y,z),new THREE.Vector3(0,direction,0)).intersectObject(bridge,false);
+   assert.ok(hits.length,`real bridge contact ${ix},${iz},${direction}`);close(hits[0].point.y,height);
+  }
+ }
  }finally{m.dispose();}
 });
 test('flowers have distinct cupped/open forms, thin shared petals and centres connected to their stems',()=>{

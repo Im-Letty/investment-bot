@@ -5,12 +5,13 @@
     typeof module === 'object' && module.exports ? require('./pet-frame-fit.js') : root.PetFrameFit,
     typeof module === 'object' && module.exports ? require('./pet-river-fishing.js') : root.PetRiverFishing,
     typeof module === 'object' && module.exports ? require('./pet-japan-seasons.js') : root.PetJapanSeasons,
-    typeof module === 'object' && module.exports ? require('./pet-town-style.js') : root.PetTownStyle);
+    typeof module === 'object' && module.exports ? require('./pet-town-style.js') : root.PetTownStyle,
+    typeof module === 'object' && module.exports ? require('./pet-town-layout-art.js') : root.PetTownLayoutArt);
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.PetTownScene = api;
-}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit, Fishing, Seasons, Style) {
+}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit, Fishing, Seasons, Style, LayoutArt) {
   'use strict';
-  var threeLoading = null, frameFitLoading = null, seasonsLoading = null, styleLoading = null, UNIT = 100, TAU = Math.PI * 2;
+  var threeLoading = null, frameFitLoading = null, seasonsLoading = null, styleLoading = null, layoutLoading = null, UNIT = 100, TAU = Math.PI * 2;
   var shoreline = [[0, 2880], [550, 2840], [1050, 2720], [1450, 2510], [1920, 1990]];
   function finite(n) { return typeof n === 'number' && Number.isFinite(n); }
   function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
@@ -102,16 +103,26 @@
     }).catch(function (error) { seasonsLoading = null; throw error; });
     return seasonsLoading;
   }
-  function styleReady(api) { return !!api && api.revision === 'shop-cottage-match2' && ['leafGeometry','branchGeometry','tileGeometry','bowlGeometry','archGeometry','surfaceTexture','paletteColor','materialFinish'].every(function (key) { return typeof api[key] === 'function'; }) && !!api.collection && !!api.collection.light; }
+  function styleReady(api) { return !!api && api.revision === 'shop-cottage-match2' && ['leafGeometry','roundedLeafGeometry','branchGeometry','tileGeometry','bowlGeometry','archGeometry','surfaceTexture','paletteColor','materialFinish'].every(function (key) { return typeof api[key] === 'function'; }) && !!api.collection && !!api.collection.light; }
   function loadStyle() {
     var current = Style || globalThis.PetTownStyle;
     if (styleReady(current)) { Style = current; return Promise.resolve(current); }
-    if (!styleLoading) styleLoading = import('/static/pet-town-style.js?v=20261026-shop-cottage-match2').then(function () {
+    if (!styleLoading) styleLoading = import('/static/pet-town-style.js?v=20261027-layout-art3d1').then(function () {
       var api = globalThis.PetTownStyle;
       if (!styleReady(api)) throw new Error('town_style_unavailable');
       Style = api; return api;
     }).catch(function (error) { styleLoading = null; throw error; });
     return styleLoading;
+  }
+  function loadLayoutArt() {
+    var current = LayoutArt || globalThis.PetTownLayoutArt;
+    if (current && current.revision === 'layout-art-3d1' && typeof current.build === 'function') { LayoutArt = current; return Promise.resolve(current); }
+    if (!layoutLoading) layoutLoading = import('/static/pet-town-layout-art.js?v=20261027-layout-art3d1').then(function () {
+      var api = globalThis.PetTownLayoutArt;
+      if (!api || api.revision !== 'layout-art-3d1' || typeof api.build !== 'function') throw new Error('layout_art_unavailable');
+      LayoutArt = api; return api;
+    }).catch(function (error) { layoutLoading = null; throw error; });
+    return layoutLoading;
   }
   function groundTexture(THREE, doc, season) {
     if (!doc || !doc.createElement) return null;
@@ -182,6 +193,7 @@
     scene.add(group); group.name = 'saved-town-geometry';
     var style = Style || globalThis.PetTownStyle, surfaceMaps = {}, cache = {}, boxGeometry = new THREE.BoxGeometry(1, 1, 1, 4, 4, 4), sphereGeometry = new THREE.SphereGeometry(1, 16, 10), leafGeometry = style ? style.leafGeometry(THREE) : new THREE.SphereGeometry(1, 10, 6), cylinderGeometry = new THREE.CylinderGeometry(1, 1, 1, 16);
     var trunkGeometry = style ? style.branchGeometry(THREE, 'trunk') : null, branchGeometry = style ? style.branchGeometry(THREE, 'branch') : null, roofTileGeometry = style ? style.tileGeometry(THREE) : null;
+    var roundedLeafGeometry = style && typeof style.roundedLeafGeometry === 'function' ? style.roundedLeafGeometry(THREE) : leafGeometry;
     var bowlGeometry = style && style.bowlGeometry ? style.bowlGeometry(THREE) : null, archGeometry = style && style.archGeometry ? style.archGeometry(THREE) : null;
     [trunkGeometry, branchGeometry, roofTileGeometry, bowlGeometry, archGeometry].forEach(function (g) { if (g) geometries.add(g); });
     // Shared closed botanical/ceramic shapes: one allocation per shape, never one per petal.
@@ -212,7 +224,7 @@
     var vertices = boxGeometry.attributes.position, vector = new THREE.Vector3(), inside = new THREE.Vector3();
     for (var vi = 0; vi < vertices.count; vi++) { vector.fromBufferAttribute(vertices, vi); inside.set(clamp(vector.x, -.43, .43), clamp(vector.y, -.43, .43), clamp(vector.z, -.43, .43)); vector.sub(inside).normalize().multiplyScalar(.07).add(inside); vertices.setXYZ(vi, vector.x, vector.y, vector.z); }
     boxGeometry.computeVertexNormals();
-    geometries.add(boxGeometry); geometries.add(sphereGeometry); geometries.add(leafGeometry); geometries.add(cylinderGeometry);
+    geometries.add(boxGeometry); geometries.add(sphereGeometry); geometries.add(leafGeometry); geometries.add(roundedLeafGeometry); geometries.add(cylinderGeometry);
     // Match the saved cream/peach/mint artwork with distinct, softly lit surfaces.
     // Grass and plaster stay matte; glazed roof tiles keep a small clear highlight.
     var finishes = {
@@ -264,22 +276,39 @@
       m.scale.set(size * (style ? 1 : .52), size, size * (style ? 1 : .22));
       m.rotation.set(tilt || 0, turn || 0, .08 * Math.sin(x * 8 + z)); return m;
     }
-    function leafBush(parent, x, y, z, size, seed) {
+    var roundedMaterials = {};
+    function roundedLeaf(parent, color, x, y, z, size, tilt, turn) {
+      var material = color;
+      if (typeof color === 'string') {
+        if (!roundedMaterials[color]) {
+          material = mat(color, false, 'foliage').clone(); material.bumpMap = null; material.bumpScale = 0;
+          material.userData.normalPolicy = 'smooth-analytic-rounded-volume'; materials.add(material); roundedMaterials[color] = material;
+        }
+        material = roundedMaterials[color];
+      }
+      var m = mesh(roundedLeafGeometry, material, parent, x, y, z);
+      m.scale.set(size * 1.15, size, size); m.rotation.set(tilt || 0, turn || 0, 0);
+      // Coarse village shadow texels broke these small padded faces into hard
+      // dark islands. Keep their authored light/normals and casting policy;
+      // only rounded leaves stop receiving that shadow map.
+      m.receiveShadow = false;
+      m.name = 'plump-ground-leaf'; return m;
+    }
+    function leafBush(parent, x, y, z, size, seed, keepCottageRecipe) {
       var bush = new THREE.Group(); bush.name = 'layered-leaf-bush'; bush.position.set(x, y, z); parent.add(bush);
-      // A low shared root cushion is hidden by individual curved blades, not a
-      // large green sphere filling the space between every leaf.
+      // Rounded overlapping blades match the planted clumps in the layout art.
       ball(bush, '#80ab6b', 0, size * .08, 0, size * .23, size * .08, size * .21);
       for (var l = 0; l < 13; l++) {
         var a = l * 2.399963 + seed, outer = l < 8, ring = outer ? .36 : .14;
         var ly = outer ? .30 + .025 * Math.sin(a * 1.7) : .48 + .03 * Math.sin(a);
-        var petal = leaf(bush, ['#9bc67e', '#bbd998', '#78aa65'][l % 3],
+        var petal = (keepCottageRecipe ? leaf : roundedLeaf)(bush, ['#9bc67e', '#bbd998', '#78aa65'][l % 3],
           Math.sin(a) * size * ring, size * ly, Math.cos(a) * size * ring,
-          size * (.23 + (l % 4) * .018), .80 + (l % 3) * .14, a);
+          size * ((keepCottageRecipe ? .23 : .26) + (l % 4) * .018), keepCottageRecipe ? .80 + (l % 3) * .14 : -1.13 - (l % 3) * .09, a);
         petal.rotation.z += .16 * Math.sin(a);
       }
       return bush;
     }
-    function daisy(parent, x, y, z, size, blush) {
+    function daisy(parent, x, y, z, size, blush, keepCottageRecipe) {
       var g = new THREE.Group(); g.name = 'botanical-soft-meadow-flower'; g.position.set(x, y, z); parent.add(g);
       var variant = Math.floor(Math.abs(Math.sin(x * 17 + z * 29 + size * 11)) * 3);
       var count = variant === 1 ? 6 : 7, stemHeight = (.17 + variant * .006) * size;
@@ -290,14 +319,40 @@
         var petal = mesh(flowerPetalGeometry, mat(blush || variant === 2 ? '#edc0c1' : '#fff1d9', false, 'flower'),
           g, Math.sin(angle) * .048 * size, stemHeight + .008 * size,
           Math.cos(angle) * .048 * size);
-        petal.scale.set((variant === 1 ? .032 : .036) * size, .027 * size, .060 * size);
+        petal.scale.set((keepCottageRecipe ? variant === 1 ? .032 : .036 : variant === 1 ? .038 : .042) * size, (keepCottageRecipe ? .027 : .032) * size, (keepCottageRecipe ? .060 : .068) * size);
         petal.rotation.set(cup + .035 * Math.sin(angle * 2), angle, .035 * Math.cos(angle * 3));
         petal.name = 'thin-botanical-flower-petal';
       }
       // The smaller soft ochre centre meets the actual stem. Cream/blush
       // petals keep the head from reading as a repeated solid yellow button.
-      ball(g, '#dfb666', 0, stemHeight + .012 * size, 0, .028 * size, .017 * size, .028 * size);
-      leaf(g, '#a0c583', -.035 * size, .06 * size, .02 * size, .07 * size, 1.1, -.8); return g;
+      ball(g, '#dfb666', 0, stemHeight + .012 * size, 0, (keepCottageRecipe ? .028 : .031) * size, (keepCottageRecipe ? .017 : .019) * size, (keepCottageRecipe ? .028 : .031) * size);
+      (keepCottageRecipe ? leaf : roundedLeaf)(g, '#a0c583', -.035 * size, .06 * size, .02 * size, .07 * size, 1.1, -.8); return g;
+    }
+    function plantedTulip(parent, x, z, height, color, turn) {
+      var g = new THREE.Group(); g.name = 'planted-pink-tulip'; g.position.set(x, .025, z); parent.add(g);
+      cylinder(g, .008, height, mat('#82ad6b', false, 'foliage'), 0, height / 2, 0);
+      for (var side = -1; side <= 1; side += 2) {
+        var blade = leaf(g, mat('#80ab6b', false, 'foliage'), side * .035, height * .43, 0, height * .32, .15, turn);
+        blade.rotation.z = -side * .6;
+      }
+      for (var p = 0; p < 6; p++) {
+        var a = turn + p * TAU / 6, petal = mesh(tulipGeometry, mat(p % 2 ? color : '#edc0c1', false, 'display-flower'), g, Math.sin(a) * .009, height, Math.cos(a) * .009);
+        petal.scale.set(.12, .14, .12); petal.rotation.y = a; petal.name = 'planted-cupped-tulip-petal';
+      }
+      return g;
+    }
+    function flowerBed(parent, seed) {
+      var g = new THREE.Group(); g.name = 'mixed-planted-flowerbed'; parent.add(g);
+      ball(g, mat('#9bc67e', false, 'foliage'), 0, .012, 0, .30, .012, .19).name = 'low-flowerbed-moss';
+      [[-.20,-.05],[.18,-.06],[0,.13],[0,-.14]].forEach(function(p, i) { leafBush(g, p[0], .02, p[1], .20, seed + i * 1.7); });
+      [[-.17,0,.29],[.08,-.08,.38],[.22,.04,.31]].forEach(function(p, i) { plantedTulip(g, p[0], p[1], p[2], i % 2 ? '#e3a9bd' : '#edc0c1', seed + i); });
+      [[-.28,.10,.65],[-.02,.20,.72],[.26,-.12,.65],[-.05,-.17,.65],[.07,.03,.68]].forEach(function(p) { daisy(g, p[0], .02, p[1], p[2], false); });
+      [[-.32,-.08],[.30,.10],[.05,.21]].forEach(function(p) {
+        var f = daisy(g, p[0], .02, p[1], .34, true); f.name = 'small-lilac-ground-flower';
+        f.traverse(function(o) { if (o.name === 'thin-botanical-flower-petal') o.material = mat('#c4afd9', false, 'display-flower'); });
+      });
+      [[-.29,.03,.075],[.28,.08,.075],[-.15,-.20,.05]].forEach(function(p, i) { var rock = ball(g, '#d0cbb9', p[0], .035, p[1], p[2], .045, p[2] * .8); rock.rotation.y = seed + i; rock.name = 'flowerbed-rounded-stone'; });
+      return g;
     }
     function legacySoftTree(parent, seed, scale) {
       var trunk = cylinder(parent, .17 * scale, 1.36 * scale, '#9c704d', 0, .68 * scale, 0); trunk.name = 'rounded-tree-trunk';
@@ -320,7 +375,7 @@
       var m = mesh(branchGeometry, mat(color, false, 'bark'), parent, start.x, start.y, start.z);
       m.scale.set(radius, length, radius); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), delta.normalize()); return m;
     }
-    function softTree(parent, seed, scale) {
+    function pointedTree(parent, seed, scale) {
       if (!style) return legacySoftTree(parent, seed, scale);
       var tree = new THREE.Group(); tree.name = 'market-style-branching-tree'; tree.userData.styleRole = 'botanical'; tree.scale.setScalar(scale); parent.add(tree);
       var trunk = mesh(trunkGeometry, mat('#8c6043', false, 'bark'), tree, 0, 0, 0); trunk.name = 'rounded-tree-trunk'; trunk.scale.set(.155, 1.43, .155); trunk.rotation.y = seed;
@@ -363,6 +418,41 @@
         }
       }
       tree.userData.leafCount=leaves;tree.userData.twigCount=style.limits.treeTwigs;trees.push(crown);return crown;
+    }
+    function softTree(parent, seed, scale) {
+      if (!style || typeof style.roundedLeafGeometry !== 'function') return pointedTree(parent, seed, scale);
+      var tree = new THREE.Group(); tree.name = 'market-style-branching-tree'; tree.userData.styleRole = 'botanical';
+      tree.userData.artDirection = 'rounded-layout-reference'; tree.scale.setScalar(scale); parent.add(tree);
+      var bark = mat('#b98a5e', false, 'bark'), trunk = mesh(trunkGeometry, bark, tree, 0, 0, 0);
+      trunk.name = 'rounded-tree-trunk'; trunk.scale.set(.18, 1.38, .18); trunk.rotation.y = seed;
+      for (var root = 0; root < 5; root++) {
+        var a = seed + root * TAU / 5, foot = ball(tree, bark, Math.sin(a) * .18, .085, Math.cos(a) * .17, .085, .085, .22);
+        foot.rotation.y = a; foot.name = 'plump-flared-tree-root';
+      }
+      for (var fork = 0; fork < 3; fork++) {
+        var a = seed + fork * TAU / 3 + .86;
+        branchBetween(tree, new THREE.Vector3(.025, .60, 0), new THREE.Vector3(Math.sin(a) * .27, 1.37 + fork * .01, Math.cos(a) * .24), .08 - fork * .007, '#b98a5e').name = 'visible-tree-fork';
+      }
+      var crown = new THREE.Group(); crown.name = 'overlapping-leaf-crown'; crown.position.y = 1.40; tree.add(crown);
+      ball(crown, mat('#82ad6b', false, 'foliage'), 0, .25, 0, .53, .31, .46).name = 'hidden-rounded-canopy-heart';
+      // A broad oblate dome with downturned lower lobes, rather than a stack
+      // of upright thin plates. Saved root/footpoint transforms stay separate.
+      var counts = [14,13,11,8,5], heights = [-.04,.12,.30,.48,.62], radii = [.65,.70,.61,.44,.18], sizes = [.31,.34,.30,.27,.22];
+      var normalHeights = [-.18,.28,.62,.90,1], normalRadii = [.99,.96,.78,.44,.10], leaves = 0;
+      for (var tier = 0; tier < counts.length; tier++) for (var l = 0; l < counts[tier]; l++) {
+        var a = seed + l * TAU / counts[tier] + tier * .37;
+        var normal = new THREE.Vector3(Math.sin(a) * normalRadii[tier], normalHeights[tier], Math.cos(a) * normalRadii[tier]).normalize(), side = new THREE.Vector3(Math.cos(a), 0, -Math.sin(a));
+        var up = new THREE.Vector3().crossVectors(normal, side).normalize();
+        var m = roundedLeaf(crown, ['#82ad6b','#9bc67e','#bbd998','#78aa65'][(l + tier) % 4], Math.sin(a) * radii[tier], heights[tier] + .012 * Math.sin(a * 2), Math.cos(a) * radii[tier] * .88, sizes[tier]);
+        m.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(side, up, normal)); m.rotateZ(.10 * Math.sin(a * 3));
+        m.name = 'rounded-overlapping-tree-leaf'; m.userData.tier = tier; leaves++;
+      }
+      for (var top = 0; top < 3; top++) {
+        var a = seed + top * TAU / 3, m = roundedLeaf(crown, '#bbd998', Math.sin(a) * .10, .70, Math.cos(a) * .10, .19);
+        m.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1), new THREE.Vector3(0,1,0)); m.rotateZ(a);
+        m.name = 'rounded-overlapping-tree-leaf'; m.userData.tier = 5; leaves++;
+      }
+      tree.userData.leafCount = leaves; tree.userData.twigCount = 3; trees.push(crown); return crown;
     }
     function solid(g, place) { g.traverse(function (m) { if (m.isMesh) { m.castShadow = true; occluders.push(m); if (place) { m.userData.placeId = place.id; pickables.push(m); } } }); }
     // BEGIN shop-cottage-match2: local home shell/roof/joinery only.
@@ -445,7 +535,9 @@
       box(g,.22,.50,.22,mat('#d1aa76',false,'wood'),w*.28,2.23,-.12).name='cottage-short-roof-chimney';
       box(g,.29,.075,.29,mat('#ba8652',false,'wood'),w*.28,2.495,-.12).name='cottage-rounded-chimney-cap';
       // Keep the two saved small yard accents at the same local sites.
-      for(var yard=-1;yard<=1;yard+=2){var px=yard*Math.min(rx*.58,.54),pz=depth/2+.13,pot=mesh(flowerPotGeometry,mat('#f7efdf',false,'ceramic'),g,px,0,pz);pot.scale.set(.09,.17,.0765);pot.name='rounded-ivory-yard-pot';leafBush(g,px,.17,pz,.2,yard);daisy(g,px,.2,pz,.85,false);box(g,.26,.07,.045,mat('#d1aa76',false,'wood'),yard*rx*.66,.21,.38);for(var fence=-1;fence<=1;fence+=2)box(g,.035,.28,.045,mat('#ba8652',false,'wood'),yard*rx*.66+fence*.1,.14,.38);}
+      // Retain the already-verified cottage pot recipe and its strict mesh
+      // budget; broad rounded planting belongs to the meadow and flowerbeds.
+      for(var yard=-1;yard<=1;yard+=2){var px=yard*Math.min(rx*.58,.54),pz=depth/2+.13,pot=mesh(flowerPotGeometry,mat('#f7efdf',false,'ceramic'),g,px,0,pz);pot.scale.set(.09,.17,.0765);pot.name='rounded-ivory-yard-pot';leafBush(g,px,.17,pz,.2,yard,true);daisy(g,px,.2,pz,.85,false,true);box(g,.26,.07,.045,mat('#d1aa76',false,'wood'),yard*rx*.66,.21,.38);for(var fence=-1;fence<=1;fence+=2)box(g,.035,.28,.045,mat('#ba8652',false,'wood'),yard*rx*.66+fence*.1,.14,.38);}
       var entryLamp=new THREE.Group();entryLamp.name='warm-paper-entry-lantern';entryLamp.position.set(-w*.36,1.16,depth/2+.10);g.add(entryLamp);
       box(entryLamp,.085,.13,.075,mat('#fff1d8',false,'paper'),0,0,0);for(var ex=-1;ex<=1;ex+=2)for(var ez=-1;ez<=1;ez+=2)box(entryLamp,.012,.15,.012,mat('#ba8652',false,'wood'),ex*.047,0,ez*.042);
       box(entryLamp,.115,.02,.105,mat('#ba8652',false,'wood'),0,-.075,0);var entryCap=mesh(lanternCapGeometry,mat('#ba8652',false,'wood'),entryLamp,0,.075,0);entryCap.scale.setScalar(.38);entryCap.rotation.y=Math.PI/4;
@@ -474,9 +566,18 @@
       var rp = groundPoint(world, { x: Math.min(world.width - 25, edge + 40 + r % 3 * 55), y: py });
       var ripple = box(group, .4, .009, .025, '#c6e8dd', rp.x, -.035, rp.z); ripple.userData.baseX = rp.x; ripples.push(ripple);
     }
-    var bridgeCenter = groundPoint(world, { x: 2645, y: 1160 });
-    var bridge = mesh(new THREE.BoxGeometry(3.3, .14, 1.8), '#c4a171', group, bridgeCenter.x, .12, bridgeCenter.z); bridge.name = 'bridge-deck'; surfaces.push(bridge);
-    for (var rail = -1; rail <= 1; rail += 2) { box(group, 3.3, .09, .07, '#a67547', bridgeCenter.x, .8, bridgeCenter.z + rail * .85); }
+    var landscape = LayoutArt || globalThis.PetTownLayoutArt;
+    var layoutModel = landscape && landscape.revision === 'layout-art-3d1' && typeof landscape.build === 'function' ?
+      landscape.build(THREE, world, { group: group, groundPoint: groundPoint, townPoint: townPoint,
+        mesh: mesh, box: box, ball: ball, mat: mat, groundMaterial: land.material, surfaces: surfaces, occluders: occluders }) : null;
+    scene.userData.layoutArtRevision = layoutModel ? layoutModel.layoutArtRevision : 'legacy';
+    // Synchronous historical previews may call the builder before lazy dependencies.
+    // Normal mounts await the complete native layout module.
+    if (!layoutModel) {
+      var bridgeCenter = groundPoint(world, { x: 2645, y: 1160 });
+      var bridge = mesh(new THREE.BoxGeometry(3.3, .14, 1.8), '#c4a171', group, bridgeCenter.x, .12, bridgeCenter.z); bridge.name = 'bridge-deck'; surfaces.push(bridge);
+      for (var rail = -1; rail <= 1; rail += 2) { box(group, 3.3, .09, .07, '#a67547', bridgeCenter.x, .8, bridgeCenter.z + rail * .85); }
+    }
     function road(a, b) {
       var aa = groundPoint(world, a), bb = groundPoint(world, b), dx = bb.x - aa.x, dz = bb.z - aa.z;
       var curve = new THREE.CatmullRomCurve3([new THREE.Vector3(aa.x, .027, aa.z), new THREE.Vector3(aa.x + dx * .42, .027, aa.z + dz * .22), new THREE.Vector3(aa.x + dx * .78, .027, aa.z + dz * .68), new THREE.Vector3(bb.x, .027, bb.z)]);
@@ -497,7 +598,7 @@
         }
       }
     }
-    var junction = { x: world.width * .48, y: world.height * .64 };
+    var junction = layoutModel ? layoutModel.junction : { x: world.width * .48, y: world.height * .64 };
     world.places.forEach(function (p, index) {
       var ground = groundPoint(world, p.footprint), g = new THREE.Group(); g.name = 'place-' + p.id; g.userData.placeId = p.id;
       g.position.set(ground.x, .025, ground.z); group.add(g); placeGroups.push(g);
@@ -505,12 +606,7 @@
       if (p.id === 'tree') {
         softTree(g, .4, 1.08);
       } else if (p.id === 'flowers') {
-        var flowerBase=mesh(flowerPotGeometry,mat('#f7efdf',false,'ceramic'),g,0,0,0);flowerBase.scale.set(.25,.29,.22);flowerBase.name='rounded-ivory-tulip-pot';
-        var soil=cylinder(g,.174,.012,mat('#6d513b',false,'soil'),0,.268,0);soil.scale.z*=.88;soil.name='tulip-pot-soil';
-        cylinder(g,.012,.46,mat('#82ad6b',false,'foliage'),0,.50,0).name='tulip-main-stem';
-        for(var tulipSide=-1;tulipSide<=1;tulipSide+=2){var blade=leaf(g,mat('#80ab6b',false,'foliage'),tulipSide*.09,.45,0,.19,.12,0);blade.rotation.z=-tulipSide*.60;blade.name='tulip-long-leaf';}
-        for(var petalIndex=0;petalIndex<6;petalIndex++){var turn=petalIndex*TAU/6,petal=mesh(tulipGeometry,mat(petalIndex%2?'#edc0c1':'#e3a9bd',false,'display-flower'),g,Math.sin(turn)*.015,.71,Math.cos(turn)*.015);petal.scale.set(.23,.23,.23);petal.rotation.y=turn;petal.name='cupped-pink-tulip-petal';}
-
+        flowerBed(g, .4);
       } else if (p.id === 'playground') {
         var fountain=new THREE.Group();fountain.name='market-photo-fountain';g.add(fountain);
         // Authored fountain pigments bypass the coarse shared palette bands:
@@ -661,7 +757,7 @@
             var signTexture = new THREE.CanvasTexture(signCanvas); signTexture.colorSpace = THREE.SRGBColorSpace; textures.add(signTexture); var signMaterial = new THREE.MeshBasicMaterial({ map: signTexture }); materials.add(signMaterial); mesh(new THREE.PlaneGeometry(funding ? 1.05 : .78, funding ? .26 : .2), signMaterial, g, 0, funding ? .7 : 1.67, depth / 2 + .13); }
         }
         g.scale.y = .9;
-        road(p.entrance, junction);
+        if (!layoutModel) road(p.entrance, junction);
       }
       solid(g, p);
     });
@@ -680,12 +776,23 @@
     });
     for (var flower = 0; flower < 65; flower++) {
       var fp = { x: 80 + flower % 13 * 193 + Math.sin(flower * 7.3) * 48, y: 110 + Math.floor(flower / 13) * 353 + Math.cos(flower * 3.1) * 64 };
+      // The new paved oval is a clear walking surface; keep old meadow scatter
+      // on grass rather than growing through its solid cream paving.
+      if (layoutModel) {
+        var plazaDx = (fp.x - layoutModel.plazaPoint.x) / (layoutModel.plazaRadii.x * UNIT + 30);
+        var plazaDy = (fp.y - layoutModel.plazaPoint.y) / (layoutModel.plazaRadii.z * UNIT + 30);
+        if (plazaDx * plazaDx + plazaDy * plazaDy <= 1) continue;
+      }
       if (!Town.isWalkable(world, fp.x, fp.y) || world.places.some(function (p) { return Math.hypot(p.x - fp.x, p.y - fp.y) < 155; })) continue;
       var fpos = groundPoint(world, fp); if (flower % 4 === 0) seasonalSites.push(fpos);
-      var clump = new THREE.Group(); clump.position.set(fpos.x, .026, fpos.z); group.add(clump);
-      leafBush(clump, -.08, 0, -.04, .18 + flower % 3 * .025, flower);
-      daisy(clump, .04, 0, .03, .75 + flower % 4 * .08, flower % 7 === 0);
-      if (flower % 3 === 0) { daisy(clump, -.15, 0, .12, .6, false); var rock = ball(clump, '#d0cbb9', .16, .035, -.05, .12, .065, .1); rock.rotation.y = flower; }
+      if (flower % 5 === 0) {
+        var bed = flowerBed(group, flower * .71); bed.position.set(fpos.x, .026, fpos.z); bed.rotation.y = flower * 1.7;
+        bed.scale.setScalar(.85 + flower % 3 * .12); bed.name = 'clustered-meadow-flowerbed';
+      } else {
+        var clump = new THREE.Group(); clump.name = 'low-rounded-ground-planting'; clump.position.set(fpos.x, .026, fpos.z); group.add(clump);
+        leafBush(clump, 0, 0, 0, .13 + flower % 3 * .025, flower);
+        if (flower % 7 === 0) daisy(clump, .05, 0, .02, .48, false);
+      }
     }
     // Unreachable border planting and low distant hills avoid a bare horizon.
     for (var edgeTree = 0; edgeTree < 26; edgeTree++) {
@@ -792,7 +899,7 @@
     Object.keys(buckets).forEach(function (key) {
       var rows = buckets[key]; if (rows.length < 2) return;
       var batch = new THREE.InstancedMesh(rows[0].geometry, rows[0].material, rows.length), dynamic = rows.some(function (m) { for (var p = m; p && p !== group; p = p.parent) if (trees.indexOf(p) >= 0 || ripples.indexOf(p) >= 0 || droplets.indexOf(p) >= 0) return true; return false; });
-      batch.name = 'town-detail-batch'; batch.castShadow = rows.some(function (m) { return m.castShadow; }); batch.receiveShadow = true;
+      batch.name = 'town-detail-batch'; batch.castShadow = rows.some(function (m) { return m.castShadow; }); batch.receiveShadow = rows.some(function (m) { return m.receiveShadow; });
       rows.forEach(function (m, i) { batch.setMatrixAt(i, m.matrixWorld); m.visible = false; originals.push(m); }); batch.computeBoundingSphere(); if (dynamic) batch.boundingSphere.radius += .75; scene.add(batch); batches.push({ mesh: batch, rows: rows, dynamic: dynamic });
     });
     scene.updateMatrixWorld(true); scene.matrixWorldAutoUpdate = false;
@@ -806,7 +913,7 @@
     }
     function dispose() { if (disposed) return; disposed = true; batches.forEach(function (b) { b.mesh.dispose(); }); geometries.forEach(function (g) { g.dispose(); }); materials.forEach(function (m) { m.dispose(); }); textures.forEach(function (t) { t.dispose(); }); sun.shadow.dispose(); scene.clear(); }
     return { scene: scene, surfaces: surfaces, occluders: occluders, pickables: pickables, placeGroups: placeGroups, animate: animate, dispose: dispose,
-      setSeason: setSeason, seasonGroups: seasonGroups, styleLimits: style ? style.limits : null,
+      setSeason: setSeason, seasonGroups: seasonGroups, styleLimits: style ? style.limits : null, layoutArtRevision: scene.userData.layoutArtRevision,
       geometries: geometries, materials: materials, textures: textures, batches: batches, people: people(world, view, avoid) };
   }
   async function mount(options) {
@@ -828,11 +935,11 @@
       if (fishingVisual) release(function () { fishingVisual.dispose(); });
       if (model) release(function () { model.dispose(); }); if (texture) release(function () { texture.dispose(); });
       if (renderer) { release(function () { renderer.renderLists.dispose(); }); release(function () { renderer.dispose(); }); release(function () { renderer.forceContextLoss(); }); release(function () { renderer.domElement.remove(); }); }
-      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; }
+      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; }
     }
     function fail(code) { if (dead || failed) return; failed = true; destroy(); report('onFailure', code); }
     var THREE;
-    try { var dependencies = await Promise.all([options.three || loadThree(), loadFrameFit(), loadSeasons(), loadStyle()]); THREE = dependencies[0]; } catch (_) { fail('town_module_unavailable'); return null; }
+    try { var dependencies = await Promise.all([options.three || loadThree(), loadFrameFit(), loadSeasons(), loadStyle(), loadLayoutArt()]); THREE = dependencies[0]; } catch (_) { fail('town_module_unavailable'); return null; }
     if (!active()) { destroy(); return null; }
     var sprite, playerShadow, camera, ray, pointer, direction, target, desired, contactMap = null, fishingVisual = null, fishingState = null;
     function contactShadow(radius) {
@@ -953,6 +1060,7 @@
       try { firstSeason = Seasons.resolve(seasonNow()); } catch (_) {}
       model = buildWorld(THREE, world, options.view, position, doc, firstSeason ? firstSeason.key : 'summer');
       host.dataset.townStyle = model.styleLimits ? 'shop-cottage-match2' : 'legacy';
+      host.dataset.townLayoutArt = model.layoutArtRevision;
       if (Fishing && typeof Fishing.createVisual === 'function') { fishingVisual = Fishing.createVisual(THREE, world); model.scene.add(fishingVisual.group); }
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: false }); renderer.setPixelRatio(Math.min(win.devicePixelRatio || 1, 1.5));
       renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true; renderer.outputColorSpace = THREE.SRGBColorSpace;

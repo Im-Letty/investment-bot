@@ -7,6 +7,7 @@ import Fishing from '../static/pet-river-fishing.js';
 import FrameFit from '../static/pet-frame-fit.js';
 import Seasons from '../static/pet-japan-seasons.js';
 import TownStyle from '../static/pet-town-style.js';
+import LayoutArt from '../static/pet-town-layout-art.js';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
@@ -55,14 +56,14 @@ test('world coordinates round-trip and camera settings are bounded without touch
 
 test('browser registration can precede the visual-only helper and mount adopts the later shared contract',async()=>{
  const context=vm.createContext({PetTownWalk:Town});vm.runInContext(readFileSync(new URL('../static/pet-town-scene.js',import.meta.url),'utf8'),context);
- assert.equal(context.PetFrameFit,undefined);assert.equal(typeof context.PetTownScene.mount,'function');
+ assert.equal(context.PetFrameFit,undefined);assert.equal(context.PetTownLayoutArt,undefined);assert.equal(typeof context.PetTownScene.mount,'function');
  const size=context.PetTownScene.sourceSize({tagName:'IMG',complete:true,naturalWidth:64,naturalHeight:32});assert.equal(size.width,64);assert.equal(size.height,32);
  assert.equal(context.PetTownScene.sourceSize({tagName:'CANVAS',width:Infinity,height:16}),null);
  assert.equal(context.PetTownScene.alphaAnchor({tagName:'CANVAS',width:16,height:16,getContext:()=>null}),null);
  const painted={tagName:'CANVAS',width:16,height:16,getContext:()=>({RGBA:1,UNSIGNED_BYTE:2,readPixels(x,y,w,h,a,b,p){p[(2*w+8)*4+3]=255;}})};
  assert.equal(context.PetTownScene.alphaAnchor(painted),.125,'the existing public diagnostics work synchronously before any mount or helper import');
- context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;context.PetTownStyle=TownStyle;
- const f=await fixture({sceneAPI:context.PetTownScene});try{assert.equal(f.controller.setFrame(f.source,{anchor:.3}),true);assert.equal(f.renderers[0].calls.at(-1).scene.getObjectByName('current-pet-2d-frame').center.y,.3);assert.deepEqual(f.failures,[]);}finally{f.controller.destroy();}
+ context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;context.PetTownStyle=TownStyle;context.PetTownLayoutArt=LayoutArt;
+ const f=await fixture({sceneAPI:context.PetTownScene});try{assert.ok(f.controller);assert.equal(f.controller.setFrame(f.source,{anchor:.3}),true);const scene=f.renderers[0].calls.at(-1).scene;assert.equal(scene.getObjectByName('current-pet-2d-frame').center.y,.3);assert.equal(f.host.dataset.townLayoutArt,LayoutArt.revision);assert.equal(scene.userData.layoutArtRevision,LayoutArt.revision);assert.ok(scene.getObjectByName('layout-art-native-landscape'));assert.equal(scene.getObjectByName('bridge-deck').userData.layoutBoardCount,11);assert.deepEqual(f.failures,[]);}finally{f.controller?.destroy();}
 });
 
 test('actual geometry uses the six saved facilities and funding/open economy sites, without a terrain painting',()=>{
@@ -430,12 +431,12 @@ test('public geometry builder still works before the newly lazy calendar module 
  }finally{model.dispose();}
 });
 
-test('botanical revision has closed pointed leaves, visible curved branches and bounded per-tree detail without any sphere core',()=>{
+test('owner layout reference uses closed overlapping rounded leaves within the shared texture budget',()=>{
  const m=Scene.buildWorld(THREE,Town.createWorld(),{}),trees=[];m.scene.traverse(o=>{if(o.name==='market-style-branching-tree')trees.push(o);});
  try{
-  assert.equal(trees.length,27);for(const t of trees){assert.equal(t.userData.leafCount,126);assert.equal(t.userData.twigCount,9);
-   let pointed=0,twigs=0,cores=0;t.traverse(o=>{if(o.name==='small-pointed-tree-leaf'){pointed++;assert.equal(o.geometry.userData.styleRole,'closed-pointed-leaf');}if(o.name==='canopy-twig')twigs++;if(o.parent?.name==='overlapping-leaf-crown'&&o.geometry?.type==='SphereGeometry'&&o.geometry.userData.styleRole!=='closed-pointed-leaf')cores++;});
-   assert.equal(pointed,126);assert.equal(twigs,9);assert.equal(cores,0);
+  assert.equal(trees.length,27);for(const t of trees){assert.equal(t.userData.artDirection,'rounded-layout-reference');assert.equal(t.userData.leafCount,54);assert.equal(t.userData.twigCount,3);
+   let rounded=0,forks=0,hearts=0;t.traverse(o=>{if(o.name==='rounded-overlapping-tree-leaf'){rounded++;assert.equal(o.geometry.userData.styleRole,'closed-plump-rounded-leaf');}if(o.name==='visible-tree-fork')forks++;if(o.name==='hidden-rounded-canopy-heart')hearts++;});
+   assert.equal(rounded,54);assert.equal(forks,3);assert.equal(hearts,1);
   }
   assert.equal(m.styleLimits.surfaceTextures,6);assert.equal(m.styleLimits.surfaceTextureSize,128);
  }finally{m.dispose();}
@@ -461,7 +462,7 @@ test('a cached old detailing API cannot satisfy new bowl/arch readiness; concurr
  const source=readFileSync(new URL('../static/pet-town-scene.js',import.meta.url),'utf8'),start=source.indexOf('  function styleReady('),end=source.indexOf('  function groundTexture(',start);
  assert.ok(start>=0&&end>start);
  let imports=0,release;
- const context=vm.createContext({Style:{leafGeometry(){},surfaceTexture(){}},styleLoading:null,importer:specifier=>{imports++;assert.equal(specifier,'/static/pet-town-style.js?v=20261026-shop-cottage-match2');return new Promise(r=>{release=r;});}});
+ const context=vm.createContext({Style:{leafGeometry(){},surfaceTexture(){}},styleLoading:null,importer:specifier=>{imports++;assert.equal(specifier,'/static/pet-town-style.js?v=20261027-layout-art3d1');return new Promise(r=>{release=r;});}});
  vm.runInContext(source.slice(start,end).replace(/import\(/g,'importer(')+';globalThis.loadUnderTest=loadStyle;',context);
  const first=context.loadUnderTest(),same=context.loadUnderTest();assert.equal(first,same);assert.equal(imports,1,'old cached helper must download the revision rather than silently constructing a fallback bowl');
  context.PetTownStyle=Object.assign({},TownStyle,{paletteColor:undefined});release();

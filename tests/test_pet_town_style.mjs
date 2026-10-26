@@ -68,18 +68,75 @@ test('a real Town shares at most six surface maps and releases them once while s
  m.dispose();m.dispose();assert.ok([...disposed.values()].every(n=>n===1));assert.equal(JSON.stringify(world),saved);
 });
 
-test('all new tree volumes fit the historical tree envelopes and preserve exact terrain/bridge transforms',()=>{
+test('reference dome crowns preserve saved roots, doors, camera clearance and exact terrain/bridge transforms',()=>{
  const context=vm.createContext({PetTownWalk:Town,PetJapanSeasons:Seasons});vm.runInContext(readFileSync(new URL('../static/pet-town-scene.js',import.meta.url),'utf8'),context);
  const world=Town.createWorld(),saved=JSON.stringify(world),old=context.PetTownScene.buildWorld(THREE,world,{}),now=Scene.buildWorld(THREE,world,{});
  function trees(m){const rows=[];m.scene.traverse(o=>{if(o.name==='rounded-tree-trunk')rows.push(o.parent);});return rows;}
  try{
   const a=trees(old),b=trees(now);assert.equal(a.length,27);assert.equal(b.length,a.length);
-  for(let i=0;i<b.length;i++){const before=new THREE.Box3().setFromObject(a[i]).expandByScalar(1e-4),after=new THREE.Box3().setFromObject(b[i]);assert.ok(before.containsBox(after),'tree '+i+' cannot grow into the old route/roof envelope');}
+  for(let i=0;i<b.length;i++){
+   const tree=b[i],root=tree.parent,scale=i===0?1.08:.75+((i-1)*7%9)*.055;
+   // The historical fallback bakes scale into its meshes. The native tree uses
+   // one scaled child, so compare the same saved placement and canonical scale.
+   assert.deepEqual(root.matrixWorld.elements,a[i].matrixWorld.elements,'tree '+i+' saved root matrix');
+   assert.deepEqual(tree.matrixWorld.elements,a[i].matrixWorld.clone().scale(new THREE.Vector3(scale,scale,scale)).elements,'tree '+i+' canonical world matrix');
+   assert.ok(tree.getWorldPosition(new THREE.Vector3()).distanceTo(a[i].getWorldPosition(new THREE.Vector3()))<1e-12,'tree '+i+' footpoint');
+   const crown=tree.getObjectByName('overlapping-leaf-crown'),bounds=new THREE.Box3().setFromObject(crown,true),size=bounds.getSize(new THREE.Vector3()),base=root.getWorldPosition(new THREE.Vector3()).y;
+   assert.ok(size.x/size.y>=1.45,'tree '+i+' reference canopy is a broad dome: '+size.x/size.y);
+   assert.ok(size.x<=1.9*scale,'tree '+i+' bounded reference canopy width: '+size.x/scale);
+   assert.ok(size.z<=1.8*scale&&size.y<=1.2*scale,'tree '+i+' bounded reference canopy depth/height: '+[size.z/scale,size.y/scale]);
+   assert.ok(bounds.min.y>=base+1.04*scale,'tree '+i+' keeps its canopy above the trunk approach: '+(bounds.min.y-base)/scale);
+  }
+  assert.deepEqual(Array.from(now.placeGroups,g=>[g.userData.placeId,g.matrixWorld.elements]),Array.from(old.placeGroups,g=>[g.userData.placeId,g.matrixWorld.elements]));
+  function doors(model){
+   const rows=new Map(),counts=new Map();model.scene.traverse(o=>{if(!o.userData.door)return;const label=o.userData.placeId+':'+o.name,n=counts.get(label)||0;counts.set(label,n+1);rows.set(label+':'+n,Array.from(o.matrixWorld.elements));});return rows;
+  }
+  const oldDoors=doors(old),newDoors=doors(now);assert.ok(oldDoors.size>0);assert.deepEqual(newDoors,oldDoors,'all facility door-part world transforms stay exact');
+  const facilities=['home','shop','cafe'].map(id=>world.places.find(p=>p.id===id)),treePlace=world.places.find(p=>p.id==='tree');
+  const poses=facilities.flatMap(p=>[p.entrance,{x:p.entrance.x,y:p.entrance.y+70}]).concat([-100,0,100].map(dx=>({x:treePlace.entrance.x+dx,y:treePlace.entrance.y+35})));
+  let blocked=0,adjusted=0,samples=0;
+  for(const point of poses){
+   assert.ok(Town.isWalkable(world,point.x,point.y),'camera sample remains on a real walking approach');
+   const at=Scene.groundPoint(world,point),center=new THREE.Vector3(at.x,Scene.heightAt(point)+.8,at.z);
+   for(const yaw of [0,2*Math.PI/3,4*Math.PI/3]){
+    const requested={yaw,pitch:Math.PI/6,distance:8},direction=view=>new THREE.Vector3(Math.sin(view.yaw)*Math.cos(view.pitch),Math.sin(view.pitch),Math.cos(view.yaw)*Math.cos(view.pitch));
+    if(new THREE.Raycaster(center,direction(requested),.01,8).intersectObjects(now.occluders,false).length)blocked++;
+    const safe=Scene.safeCamera(THREE,now.occluders,center,requested);assert.ok(safe,'bounded camera pose '+samples);
+    assert.ok([safe.yaw,safe.pitch,safe.distance].every(Number.isFinite));assert.ok(safe.distance>=5.5&&safe.distance<=8);assert.ok(safe.pitch>=requested.pitch&&safe.pitch<=56*Math.PI/180);
+    assert.equal(new THREE.Raycaster(center,direction(safe),.01,safe.distance).intersectObjects(now.occluders,false).length,0,'actual camera segment clears all solid foliage and buildings');
+    if(Math.abs(safe.yaw-yaw)>.01||Math.abs(safe.pitch-requested.pitch)>.01||safe.distance<7.99)adjusted++;samples++;
+   }
+  }
+  assert.equal(samples,27);assert.ok(blocked>0&&adjusted>0,'camera witnesses exercise obstructed views');
   assert.equal(now.surfaces.length,old.surfaces.length);
-  for(let i=0;i<now.surfaces.length;i++){assert.deepEqual(Array.from(now.surfaces[i].geometry.attributes.position.array),Array.from(old.surfaces[i].geometry.attributes.position.array));assert.deepEqual(now.surfaces[i].matrixWorld.elements,old.surfaces[i].matrixWorld.elements);}
+  for(let i=0;i<now.surfaces.length;i++){
+   const current=now.surfaces[i],historical=old.surfaces[i];
+   assert.deepEqual(current.matrixWorld.elements,historical.matrixWorld.elements);
+   if(historical.name!=='bridge-deck'){
+    assert.deepEqual(Array.from(current.geometry.attributes.position.array),Array.from(historical.geometry.attributes.position.array));
+    continue;
+   }
+   assert.equal(current.name,'bridge-deck');assert.equal(current.userData.layoutBoardCount,11);
+   const before=new THREE.Box3().setFromObject(historical),after=new THREE.Box3().setFromObject(current);
+   const close=(a,b)=>assert.ok(Math.abs(a-b)<1e-6,`${a} != ${b}`);
+   for(const end of ['min','max'])for(const axis of ['x','y','z'])close(after[end][axis],before[end][axis]);
+   close(after.max.x-after.min.x,3.3);close(after.max.z-after.min.z,1.8);close(after.max.y,.19);close(after.min.y,.05);
+   // Geometry now contains eleven real boards. Compare their actual walk/contact
+   // surfaces with the old box throughout the same full-width bridge corridor.
+   for(let ix=0;ix<=44;ix++)for(let iz=0;iz<=10;iz++){
+    const x=before.min.x+.001+ix*(3.3-.002)/44,z=before.min.z+.001+iz*(1.8-.002)/10;
+    for(const [y,direction,height] of [[5,-1,.19],[-1,1,.05]]){
+     const ray=new THREE.Raycaster(new THREE.Vector3(x,y,z),new THREE.Vector3(0,direction,0));
+     const oldHits=ray.intersectObject(historical,false),newHits=ray.intersectObject(current,false);
+     assert.ok(oldHits.length&&newHits.length,`bridge contact witness ${ix},${iz},${direction}`);
+     close(newHits[0].point.y,oldHits[0].point.y);close(newHits[0].point.y,height);
+    }
+   }
+  }
   const cost=m=>{let draws=0,triangles=0; m.scene.traverse(o=>{if(!o.isMesh)return;for(let p=o;p;p=p.parent)if(!p.visible)return;draws++;triangles+=(o.geometry.index?.count||o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);});return{draws,triangles};};
-  const before=cost(old),after=cost(now);assert.ok(after.draws<=before.draws*1.1);assert.ok(after.triangles<=before.triangles*1.1);
-  assert.ok(now.batches.filter(b=>b.dynamic).reduce((n,b)=>n+b.rows.length,0)<=4500,'default wind upload count stays explicitly bounded; lower triangles do not prove lower CPU cost');
+  const before=cost(old),after=cost(now);assert.ok(after.draws<=before.draws*1.1,`draw budget: ${after.draws} <= ${before.draws} * 1.1`);assert.ok(after.triangles<=before.triangles*1.1,`triangle budget: ${after.triangles} <= ${before.triangles} * 1.1`);
+  const windUploads=now.batches.filter(b=>b.dynamic).reduce((n,b)=>n+b.rows.length,0);
+  assert.ok(windUploads<=4500,`default wind upload count ${windUploads} stays <= 4500; lower triangles do not prove lower CPU cost`);
   assert.equal(JSON.stringify(world),saved);
  }finally{old.dispose();now.dispose();}
 });
