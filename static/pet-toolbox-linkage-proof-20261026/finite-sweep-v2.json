@@ -1,0 +1,214 @@
+{
+  "schema_version": 1,
+  "unit": "wardrobe:other:storybook-sewing-toolbox:hinged-compaction:v2",
+  "generated_at_jst": "2026-10-26T13:48:46.073+09:00",
+  "scope": "Finite conservative geometry certificate for external-test-jig-assisted slide-fold-fourbar only. Not physical fabrication, load/friction stability, a standalone item or fully enclosed storage.",
+  "immutable_source_image_sha256": "6afc65a45e78a938b018987a85037a9bbbd4b63905aca1438927ea13d76db070",
+  "immutable_base_recipe_sha256": "8e4d65f59698f2f336f46d4ecb0a5daff13830941e8d96239dece6dc6c0ea05d",
+  "source_art_retained": true,
+  "external_test_jig": true,
+  "contact_feet_count": 8,
+  "finite_sweep": {
+    "samples": 81,
+    "progress_step": 0.0125,
+    "all_finite_samples_clear": true,
+    "unexempted_potential_contacts": 0,
+    "maximum_pivot_closure": 2.482534153247273e-16,
+    "maximum_arm_length_error": 1.1102230246251565e-16,
+    "minimum_named_pair_count": 13271,
+    "minimum_handle_radial_clearance": 0.0028153251089270675,
+    "method": "actual mesh triangles against oriented component boxes plus containment; conservative potential overlaps are not accepted as collision-free",
+    "exceptions": "explicit named same rigid assembly / drilled pivot / carriage guide / hinge shaft pairs only",
+    "continuous_collision_free_claim": false
+  },
+  "continuous_motion_envelope": {
+    "min": [
+      -1.07,
+      0,
+      -1.3639736450561937
+    ],
+    "max": [
+      1.07,
+      1.2989736450561937,
+      0.405
+    ],
+    "size": [
+      2.14,
+      1.2989736450561937,
+      1.7689736450561937
+    ],
+    "method": "conservative analytic rigid-part intervals and rotated box corners over full0..1, not finite screenshots"
+  },
+  "budget": {
+    "parts": 178,
+    "visibleBatches": 28,
+    "triangles": 28400,
+    "ownedNewGeometries": 4,
+    "reusedBaseGeometries": 8,
+    "materials": 9,
+    "textures": 0,
+    "textureSide": 128,
+    "oldVisibleBatchesRemoved": 23,
+    "geometryAllocationsAfterBuild": 0,
+    "node_without_document_texture_count": 0,
+    "browser_shared_texture_count_expected": 2
+  },
+  "placement": {
+    "worldPosition": {
+      "x": -6.6,
+      "y": 0.02500000000000053,
+      "z": -2.6
+    },
+    "footSupport": [
+      {
+        "id": "foot--0.35--0.22",
+        "worldXZ": [
+          -6.949999999999999,
+          -2.8200000000000003
+        ],
+        "localSoleY": 0,
+        "supportY": 0.025000000000000404,
+        "supportNormalY": 1,
+        "surface": "dry-land",
+        "soleMinusSupportY": 1.249000902703301e-16
+      },
+      {
+        "id": "foot--0.35-0.22",
+        "worldXZ": [
+          -6.949999999999999,
+          -2.38
+        ],
+        "localSoleY": 0,
+        "supportY": 0.02500000000000053,
+        "supportNormalY": 1,
+        "surface": "dry-land",
+        "soleMinusSupportY": 0
+      },
+      {
+        "id": "foot-0.35--0.22",
+        "worldXZ": [
+          -6.25,
+          -2.8200000000000003
+        ],
+        "localSoleY": 0,
+        "supportY": 0.025000000000000404,
+        "supportNormalY": 1,
+        "surface": "dry-land",
+        "soleMinusSupportY": 1.249000902703301e-16
+      },
+      {
+        "id": "foot-0.35-0.22",
+        "worldXZ": [
+          -6.25,
+          -2.38
+        ],
+        "localSoleY": 0,
+        "supportY": 0.02500000000000053,
+        "supportNormalY": 1,
+        "surface": "dry-land",
+        "soleMinusSupportY": 0
+      },
+      {
+        "id": "fixture-foot--1--0.65",
+        "worldXZ": [
+          -7.619999999999999,
+          -3.25
+        ],
+        "localSoleY": 0,
+        "supportY": 0.0250000000000005,
+        "supportNormalY": 1,
+        "surface": "dry-land",
+        "soleMinusSupportY": 2.7755575615628914e-17
+      },
+      {
+        "id": "fixture-foot--1-0.04",
+        "worldXZ": [
+          -7.619999999999999,
+          -2.56
+        ],
+        "localSoleY": 0,
+        "supportY": 0.02500000000000035,
+        "supportNormalY": 1,
+        "surface": "dry-land",
+        "soleMinusSupportY": 1.8041124150158794e-16
+      },
+      {
+        "id": "fixture-foot-1--0.65",
+        "worldXZ": [
+          -5.58,
+          -3.25
+        ],
+        "localSoleY": 0,
+        "supportY": 0.0250000000000005,
+        "supportNormalY": 1,
+        "surface": "dry-land",
+        "soleMinusSupportY": 2.7755575615628914e-17
+      },
+      {
+        "id": "fixture-foot-1-0.04",
+        "worldXZ": [
+          -5.58,
+          -2.56
+        ],
+        "localSoleY": 0,
+        "supportY": 0.02500000000000035,
+        "supportNormalY": 1,
+        "surface": "dry-land",
+        "soleMinusSupportY": 1.8041124150158794e-16
+      }
+    ],
+    "walkableFiniteGrid": {
+      "sampleCount": 672,
+      "stepMaxGameUnits": 0.08,
+      "blocked": 0
+    },
+    "savedPlaceAABBclearances": [
+      {
+        "id": "home",
+        "AABBclearanceTownUnits": 106.00263549438057,
+        "boundsOverlap": false
+      },
+      {
+        "id": "cafe",
+        "AABBclearanceTownUnits": 1097.730075533942,
+        "boundsOverlap": false
+      },
+      {
+        "id": "shop",
+        "AABBclearanceTownUnits": 387.5,
+        "boundsOverlap": false
+      },
+      {
+        "id": "playground",
+        "AABBclearanceTownUnits": 1159.2803845489666,
+        "boundsOverlap": false
+      },
+      {
+        "id": "tree",
+        "AABBclearanceTownUnits": 449.3952046918168,
+        "boundsOverlap": false
+      },
+      {
+        "id": "flowers",
+        "AABBclearanceTownUnits": 908.8487057811105,
+        "boundsOverlap": false
+      }
+    ],
+    "worldScale": "100 Town units per game world unit; not calibrated metres",
+    "normalPlacementAdoption": false,
+    "allOtherDecorCollisionVerified": false,
+    "continuousShoreClearanceVerified": false,
+    "fullFootprintSafetyClaim": false,
+    "scope": "Eight actual dry-land support rays (four source feet plus four external-jig feet) and finite footprint samples plus disjoint saved-place AABBs at this one synthetic preview position only."
+  },
+  "world_unchanged": true,
+  "standalone_mechanism": false,
+  "fully_enclosed_storage": false,
+  "adopted_art": false,
+  "grip": false,
+  "all_growth_fit": false,
+  "full_body360": false,
+  "normal_placement": false,
+  "unlock": false,
+  "save": false
+}

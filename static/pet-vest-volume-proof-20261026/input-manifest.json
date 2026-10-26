@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "unit": "wardrobe:fit-prerequisite:komorebi-vest:volume-socket-interface:v1",
+  "source_merge": "d1e723779593447312c5804e0a3352606e1ed58e",
+  "files": [
+    {
+      "path": "vest.mjs",
+      "sha256": "07d2ab9a87c29ffc8bc2cfb56c55760c482d5041e6b8f17b3d02db888e97566f",
+      "bytes": 12226
+    },
+    {
+      "path": "preview.mjs",
+      "sha256": "fd515ff36c5e14aeee9bf743066cfc3b276a60f1f538c589061009361d0e28f8",
+      "bytes": 8183
+    },
+    {
+      "path": "index.html",
+      "sha256": "127a19fc54ee15ab7dd4d97a7bad8ef23708818a9830713342386de1514b2dcb",
+      "bytes": 4175
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/static/pet-boat-route-proof-20261026/runtime/vendor/three-0.160.1.module.js",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    {
+      "path": "/static/pet-fit-mask-refinement-20261026/assets/komorebi-vest.png",
+      "sha256": "9f47ad550c0925db40f04f1be0071dff87c54431e393d44f6a5c98fd80d08bba",
+      "bytes": 1333492
+    }
+  ],
+  "source_original_SHA": "9f47ad550c0925db40f04f1be0071dff87c54431e393d44f6a5c98fd80d08bba",
+  "source2D_body_references_not_geometry": {
+    "milneBaby": "e7024c2baabfb2fc9fa75620df6015cf0de1c6c645e4ce099e02f9d657033e21",
+    "milneAdult": "35b04839b39e50839a6a1734e8919c6d499ececf6b0aba9b766788e399deb404"
+  },
+  "bodyBinding": null,
+  "bodyModelCreated": false,
+  "anatomicalSockets": false,
+  "calibrationApproved": false,
+  "rig": false,
+  "wearingFit": false,
+  "allGrowthFit": false,
+  "characterBody360": false,
+  "normalGame": false,
+  "unlock": false,
+  "save": false,
+  "newDesigns": 0,
+  "newRawVersions": 0,
+  "imagegenCalls": 0,
+  "MeshLibraryIncrement": 0,
+  "native_geometry_visual_review_pending": true,
+  "scope": "Closed cloth volume and garment-local surface socket interface only; unseenback/depth are technical authored inference, not actual body fit.",
+  "geometry_revision": 2,
+  "functionalFastenerVerified": false,
+  "contact_revision": "Closed mint mounts use actual cloth triangle rays; leaf vein uses actual leaf surface rays. Functional fastening remains unverified."
+}

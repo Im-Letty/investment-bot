@@ -1,0 +1,155 @@
+{
+  "schema_version": 2,
+  "id": "storybook-sewing-toolbox-fixture-assisted-hinged-compaction-v2",
+  "unit": "wardrobe:other:storybook-sewing-toolbox:hinged-compaction:v2",
+  "source_merge": "d1e723779593447312c5804e0a3352606e1ed58e",
+  "frozen_at_jst": "2026-10-26T13:49:16.112491+09:00",
+  "source_image_sha256": "6afc65a45e78a938b018987a85037a9bbbd4b63905aca1438927ea13d76db070",
+  "immutable_base_recipe_sha256": "8e4d65f59698f2f336f46d4ecb0a5daff13830941e8d96239dece6dc6c0ea05d",
+  "external_test_jig": true,
+  "fixture_label": "検証用の台＋外部ガイド",
+  "scope": "Manual slide, handle fold and eight fixed-length four-bar arms on an external warm-wood inspection jig. New analytic envelope and eight feet; not a standalone toolbox or enclosed case.",
+  "standalone_mechanism": false,
+  "fully_enclosed_storage": false,
+  "adopted_art": false,
+  "new_design_count": 0,
+  "new_raw_image_count": 0,
+  "new_mesh_library_count": 0,
+  "grip": false,
+  "all_growth_fit": false,
+  "full_body360": false,
+  "normal_placement": false,
+  "unlock": false,
+  "save": false,
+  "files": [
+    {
+      "path": "linkage.js",
+      "sha256": "4b28f49ce6a318ad7968f32ee5016f29d30e56823e78fe23e8df84cb688cc36f",
+      "bytes": 14411
+    },
+    {
+      "path": "inspection.mjs",
+      "sha256": "99ff51032e1c11d97b5bb3419db0105b595917f825700be45258c7d962b726bf",
+      "bytes": 8267
+    },
+    {
+      "path": "placement.mjs",
+      "sha256": "65ae1215a7f8ea633765756309689d2c04415299a833e7ed9ef61af449739ce6",
+      "bytes": 2820
+    },
+    {
+      "path": "preview.mjs",
+      "sha256": "6ac74684c3595f695009da10fa22255d3db2a859c605bc70e3d9ce83477738b3",
+      "bytes": 11814
+    },
+    {
+      "path": "index.html",
+      "sha256": "bc9a351b0b15e7d09e9257d1d780f2df1c302309fbb71cbc08bc7b8ac96a278e",
+      "bytes": 4919
+    },
+    {
+      "path": "finite-sweep-v2.json",
+      "sha256": "2c7bfcf4095abf59ab6a235bd1389d7875edd9bba31abb34cf7e5064de0b5dcb",
+      "bytes": 6228
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/static/pet-town-walk.js",
+      "sha256": "e5394a48f76449dddec52e497d1b231ad1ed213d1fa69aec3657bbb3045b1aac",
+      "bytes": 24418
+    },
+    {
+      "path": "/static/pet-frame-fit.js",
+      "sha256": "7b3b730dc7834e1c56f455161d59005f8352a3cd918e52be1893bc4b7706dc13",
+      "bytes": 2434
+    },
+    {
+      "path": "/static/pet-river-fishing.js",
+      "sha256": "8b4e1d2d9f2b9fda72f66e79b2105dccdadd2e6de5230c24e920cbdcf561aedb",
+      "bytes": 8325
+    },
+    {
+      "path": "/static/pet-japan-seasons.js",
+      "sha256": "8007af08bc4b5b059724ec96a4c473b16619177b7a9ab16aac4f81047eb14b94",
+      "bytes": 4137
+    },
+    {
+      "path": "/static/pet-town-style.js",
+      "sha256": "f4be723076791221fcfa215bd81eb49e3d8d38edf2e036963a1e2ef85ed3806e",
+      "bytes": 12185
+    },
+    {
+      "path": "/static/pet-town-scene.js",
+      "sha256": "8f5e950cbf2f6bf511a0dad8e2adb3ef74712d70b74a006c4880c92a5ebf037f",
+      "bytes": 75452
+    },
+    {
+      "path": "/static/pet-lilac-motion.js",
+      "sha256": "948e0f2336be4b9d34965c96dc8e038a763832d82c8841585e55c955de0f6321",
+      "bytes": 222029
+    },
+    {
+      "path": "/static/pet-boat-route-proof-20261026/runtime/vendor/three-0.160.1.module.js",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    {
+      "path": "/static/pet-toolbox-mesh-proof-20261026/toolbox.js",
+      "sha256": "8e4d65f59698f2f336f46d4ecb0a5daff13830941e8d96239dece6dc6c0ea05d",
+      "bytes": 10411
+    },
+    {
+      "path": "/static/pet-toolbox-mesh-proof-20261026/framing.mjs",
+      "sha256": "d1a2e51112f7548c2e516e2f29359e1315574c501874a30afa0a1977b93e3e92",
+      "bytes": 1819
+    },
+    {
+      "path": "/static/pet-toolbox-mesh-proof-20261026/assets/storybook-sewing-toolbox-v1.png",
+      "sha256": "6afc65a45e78a938b018987a85037a9bbbd4b63905aca1438927ea13d76db070",
+      "bytes": 2141999
+    },
+    {
+      "path": "/static/pet_lilac_reference_v2.png",
+      "sha256": "2d2cc24745bc74dadeb6dd861c8f85c16e8f36c3cdfbec956e118b0d469e3de6",
+      "bytes": 1300225
+    },
+    {
+      "path": "/static/pet_lilac_baby_expressions_v1.png",
+      "sha256": "2c8ed9dd59803ed5e37d41e7dfd88f1b106f1e5a576fe947e968af8538306c8f",
+      "bytes": 1918220
+    },
+    {
+      "path": "/static/pet_lilac_baby_turnaround_v1.png",
+      "sha256": "15a3bac17c80e94af54ce623ca0d0e11f083ee4b60fcd09aeb8936aec9134ea9",
+      "bytes": 1751068
+    },
+    {
+      "path": "/static/pet_lilac_tooth_baby_expressions_v1.png",
+      "sha256": "f8aeb21016062eb2885384d89a3ed1356b18c1b83e8355daaa6ad633554f56b8",
+      "bytes": 1807122
+    },
+    {
+      "path": "/static/pet_lilac_tooth_baby_turnaround_v1.png",
+      "sha256": "c727ab69ca309070b51e347500929fa63ac6e791e458aeeb1892f32f0bef1fe4",
+      "bytes": 1687564
+    },
+    {
+      "path": "/static/pet_lilac_reference_half_v1.png",
+      "sha256": "5cdf3fde47059263ea5b5a13050b411e595877106ede13d7d4e4bdc656b735f2",
+      "bytes": 1155633
+    },
+    {
+      "path": "/static/pet_lilac_reference_closed_v1.png",
+      "sha256": "375a82858a2a3db2044441a34adf5d0f7d4ff66c4551c3a966f98376e063ea38",
+      "bytes": 1148573
+    }
+  ],
+  "unique_test_cases": 6,
+  "test_execution_count": 1,
+  "native_review_pending": true,
+  "normal_game_integration": false,
+  "storage_reads": 0,
+  "storage_writes": 0,
+  "preserve_drawing_buffer": false
+}
