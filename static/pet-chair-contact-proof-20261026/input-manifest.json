@@ -1,0 +1,176 @@
+{
+  "schema_version": 1,
+  "id": "cloud-reading-chair-contact-v1",
+  "unit_id": "wardrobe:fit-prerequisite:cloud-reading-chair:seat-contact-geometry:v1",
+  "base_main": "33f6cd1ce7da4772fcf9508f7a4384e34aa9c0a4",
+  "frozen_for_native_review_at_jst": "2026-10-26T19:38:39.257130+09:00",
+  "native_acceptance_in_manifest": false,
+  "reference": {
+    "id": "prepared_decoration_01b_reading_chair_v1",
+    "path": "assets/cloud-reading-chair-v1.png",
+    "sha256": "81cfce2470abb2e6f55ce5d9d251ec9404e9796ce4cc9db8644b3036002956e0",
+    "reused_original_unedited": true,
+    "new_bitmap_designs": 0,
+    "new_raw_versions": 0,
+    "imagegen_calls": 0
+  },
+  "body_reference": {
+    "id": "original8-milne-baby-front-single-2d",
+    "path": "/static/pet-fit-prerequisite-20261026/assets/milne-baby.png",
+    "sha256": "e7024c2baabfb2fc9fa75620df6015cf0de1c6c645e4ce099e02f9d657033e21",
+    "world_frame_height": 1.65,
+    "floor_alpha_threshold": 31,
+    "alpha_row_is_not_anatomical_feet": true,
+    "world_frame_is_not_seated_body_size": true,
+    "bodyBinding": null,
+    "new_asset": false
+  },
+  "scope": {
+    "one_authored_chair_geometry": true,
+    "chair_side_mesh_surface_bases": 6,
+    "fourth_foot_rear_underside_authored_hypotheses": true,
+    "bodyBinding": null,
+    "seated_fit": false,
+    "physical_load_friction_joint_strength": false,
+    "all_growth_fit": false,
+    "character_full_body_360": false,
+    "normal_game_placement": false,
+    "ownership_unlock_save": false,
+    "new_mesh_library_candidate": 1,
+    "normal_game_files_changed": 0
+  },
+  "files": [
+    {
+      "path": "assets/cloud-reading-chair-v1.png",
+      "sha256": "81cfce2470abb2e6f55ce5d9d251ec9404e9796ce4cc9db8644b3036002956e0",
+      "bytes": 1402860
+    },
+    {
+      "path": "chair.mjs",
+      "sha256": "433b57e6c5d03afe9e0e857e507c95939a4dc4dbf0a64557c2985304ce6b1eed",
+      "bytes": 14368
+    },
+    {
+      "path": "framing.mjs",
+      "sha256": "57b92dbb4bcb3f91804b2eef676deb4c1e2e2575bcb96c26803d423bf44282d1",
+      "bytes": 1669
+    },
+    {
+      "path": "geometry-evidence.json",
+      "sha256": "cdb21cec9b5684d0acfa95d09e18cc69e3a1034014d47433240c810680926a12",
+      "bytes": 24256
+    },
+    {
+      "path": "index.html",
+      "sha256": "1bf75db5e41417840253cffccac90e1738e7fe63415d270e13fc8dd163e59a20",
+      "bytes": 4996
+    },
+    {
+      "path": "placement.mjs",
+      "sha256": "a165889f7d94b4217fbddd5e2f5aea0c2f0035f03babe0af8f0af84e98935cd6",
+      "bytes": 8129
+    },
+    {
+      "path": "preview.mjs",
+      "sha256": "23191bfdaeeb3a4a9035c696997ecd8c99f9cec3337712538d99e2c8e29cdbed",
+      "bytes": 12636
+    }
+  ],
+  "reused_dependencies": [
+    {
+      "path": "/static/vendor/three-0.160.1.module.js",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972,
+      "same_main_blob": true,
+      "new_production_file": false
+    },
+    {
+      "path": "/static/vendor/three-0.160.1.LICENSE.txt",
+      "sha256": "852e0e8699169bf9f6fdc6bda3e682d078dcbc738b5d33e74df594721bff271d",
+      "bytes": 1081,
+      "same_main_blob": true,
+      "new_production_file": false
+    },
+    {
+      "path": "/static/pet-town-walk.js",
+      "sha256": "e5394a48f76449dddec52e497d1b231ad1ed213d1fa69aec3657bbb3045b1aac",
+      "bytes": 24418,
+      "same_main_blob": true,
+      "new_production_file": false
+    },
+    {
+      "path": "/static/pet-frame-fit.js",
+      "sha256": "7b3b730dc7834e1c56f455161d59005f8352a3cd918e52be1893bc4b7706dc13",
+      "bytes": 2434,
+      "same_main_blob": true,
+      "new_production_file": false
+    },
+    {
+      "path": "/static/pet-river-fishing.js",
+      "sha256": "8b4e1d2d9f2b9fda72f66e79b2105dccdadd2e6de5230c24e920cbdcf561aedb",
+      "bytes": 8325,
+      "same_main_blob": true,
+      "new_production_file": false
+    },
+    {
+      "path": "/static/pet-japan-seasons.js",
+      "sha256": "8007af08bc4b5b059724ec96a4c473b16619177b7a9ab16aac4f81047eb14b94",
+      "bytes": 4137,
+      "same_main_blob": true,
+      "new_production_file": false
+    },
+    {
+      "path": "/static/pet-town-style.js",
+      "sha256": "f4be723076791221fcfa215bd81eb49e3d8d38edf2e036963a1e2ef85ed3806e",
+      "bytes": 12185,
+      "same_main_blob": true,
+      "new_production_file": false
+    },
+    {
+      "path": "/static/pet-town-scene.js",
+      "sha256": "8f5e950cbf2f6bf511a0dad8e2adb3ef74712d70b74a006c4880c92a5ebf037f",
+      "bytes": 75452,
+      "same_main_blob": true,
+      "new_production_file": false
+    },
+    {
+      "path": "/static/pet-fit-prerequisite-20261026/assets/milne-baby.png",
+      "sha256": "e7024c2baabfb2fc9fa75620df6015cf0de1c6c645e4ce099e02f9d657033e21",
+      "bytes": 1237016,
+      "same_main_blob": null,
+      "new_production_file": false
+    }
+  ],
+  "node_validation": {
+    "tests": 14,
+    "pass": 14,
+    "fail": 0,
+    "test_source": {
+      "path": "tests/test_cloud_reading_chair_contact.mjs",
+      "sha256": "4c0c541d56c91800a95b48124aa5cd3de8b5573a28f1fe209350306a90f35a10",
+      "bytes": 13963
+    },
+    "geometry_evidence": "geometry-evidence.json",
+    "framing_pose_samples_are_one_test_not_unique_cases": 600
+  },
+  "development_failure_history": {
+    "initial_native_floating_foot_support": true,
+    "fixed_in_same_unit": true,
+    "raw_or_additional_unit_created": false,
+    "before_source_history_is_explicit_reverse_patch_reconstruction": true,
+    "separate_work_evidence_not_public_original": true,
+    "gold_piping_local_smoothed_face_normal_disagreement": {
+      "old_source_sha256": "57375eb532680c0d57361441e8099819be7458994333c8c50d0aa906fdc17ee0",
+      "old_negative_faces": 61,
+      "fixed_only_back_gold_curve": true,
+      "shell_support_contact_geometry_unchanged": true,
+      "same_unit_no_raw_or_design": true,
+      "history_actual_byte_copies": true
+    }
+  },
+  "source_review": {
+    "prior_support_geometry_review_sha256": "1878ade4d07e077af04de5cd9dd5374e74808a5ac7e341525a461464f3b7c627",
+    "prior_source_sha256": "57375eb532680c0d57361441e8099819be7458994333c8c50d0aa906fdc17ee0",
+    "new_source_independent_and_native_review_separate": true
+  }
+}
