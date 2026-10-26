@@ -8,6 +8,7 @@ import FrameFit from '../static/pet-frame-fit.js';
 import Seasons from '../static/pet-japan-seasons.js';
 import TownStyle from '../static/pet-town-style.js';
 import LayoutArt from '../static/pet-town-layout-art.js';
+import Originals from '../static/pet-town-placement-originals.js';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
@@ -25,10 +26,51 @@ class Element extends Events {
  setAttribute(){}
  getBoundingClientRect(){return {left:0,top:0,width:390,height:700};}
 }
+// Independent dimensions of the seven existing files. The fixture has synthetic
+// alpha pixels and never delegates image acquisition to a browser or network.
+const originalDimensions=new Map([
+ ['/static/pet-items-v1/house.webp',[384,384]],
+ ['/static/pet-village-art/cafe.webp',[384,384]],
+ ['/static/pet-village-art/shop.webp',[384,384]],
+ ['/static/pet-village-art/tree-v2.webp',[512,480]],
+ ['/static/pet-village-art/flowerbed-v2.webp',[512,341]],
+ ['/static/pet-items-v1/fountain.webp',[384,384]],
+ ['/static/pet-items-v1/lantern.webp',[384,384]]
+]);
+function textureLoaderFixture(loads=[],settings={}){
+ return class TextureLoader {
+  loadAsync(url){
+   assert.ok(originalDimensions.has(url),'only an exact canonical original URL can be loaded');loads.push(url);
+   if(settings.rejectOriginal===url)return Promise.reject(Error('synthetic missing original'));
+   const [width,height]=originalDimensions.get(url),pixels=new Uint8ClampedArray(width*height*4);
+   for(let y=Math.ceil(height*.2);y<height*.8;y++)for(let x=Math.ceil(width*.2);x<width*.8;x++)pixels[(y*width+x)*4+3]=255;
+   const image={tagName:'IMG',src:url,width,height,naturalWidth:width,naturalHeight:height,complete:true,fixturePixels:pixels},texture=new THREE.Texture(image);
+   if(settings.loadedTextures)settings.loadedTextures.push(texture);
+   if(settings.onOriginalTexture)settings.onOriginalTexture(texture);
+   return Promise.resolve(texture);
+  }
+ };
+}
+function pixelCanvas(doc){
+ const canvas=new Element(doc,'CANVAS'),colors=[];let image=null,pixels=null;
+ const gradient=()=>({stops:[],addColorStop(offset,color){this.stops.push([offset,color]);}});
+ const ctx={fillStyle:'',lineWidth:1,fillRect(){colors.push(this.fillStyle);},clearRect(){},
+  createRadialGradient:gradient,createLinearGradient:gradient,
+  createImageData:(w,h)=>({width:w,height:h,data:new Uint8ClampedArray(w*h*4)}),putImageData(v){pixels=v.data;},
+  drawImage(v){image=v;},getImageData(x,y,w,h){const src=image?.fixturePixels||pixels;return{data:src?new Uint8ClampedArray(src):new Uint8ClampedArray(w*h*4)};},
+  beginPath(){},ellipse(){},moveTo(){},lineTo(){},fill(){},stroke(){},fillText(){}};
+ canvas.getContext=type=>type==='2d'?ctx:null;canvas.colors=colors;return canvas;
+}
+function spriteUV(sprite,camera,u,v){
+ const right=new THREE.Vector3(1,0,0).applyQuaternion(camera.quaternion),up=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion),scale=sprite.getWorldScale(new THREE.Vector3());
+ const p=sprite.getWorldPosition(new THREE.Vector3()).addScaledVector(right,(u-sprite.center.x)*scale.x).addScaledVector(up,(v-sprite.center.y)*scale.y).project(camera);
+ return {clientX:(p.x+1)*195,clientY:(1-p.y)*350};
+}
 async function fixture(options={}){
- const doc=new Events(),win=new Events(),host=new Element(doc),media=new Events(),frames=new Map(),renderers=[],images=[],observers=[],timers=new Map();
+ const doc=new Events(),win=new Events(),host=new Element(doc),media=new Events(),frames=new Map(),renderers=[],images=[],observers=[],timers=new Map(),originalLoads=[],originalTextures=[];
  let stamp=0,seq=0,allowed=true,ready=0;const failures=[];
  doc.defaultView=win;doc.hidden=false;media.matches=!!options.reduced;
+ doc.createElement=tag=>tag.toLowerCase()==='canvas'?pixelCanvas(doc):new Element(doc,tag.toUpperCase());
  Object.assign(win,{setTimeout:(fn,delay)=>{timers.set(++seq,{fn,delay});return seq;},clearTimeout:id=>timers.delete(id),devicePixelRatio:3,performance:{now:()=>stamp},matchMedia:()=>media,requestAnimationFrame:fn=>{frames.set(++seq,fn);return seq;},cancelAnimationFrame:id=>frames.delete(id),Image:class{constructor(){images.push(this);this.width=this.height=this.naturalWidth=this.naturalHeight=1254;this.tagName='IMG';this.complete=true;}removeAttribute(){this.src='';}}});
  win.ResizeObserver=class{constructor(fn){this.fn=fn;observers.push(this);}observe(){}disconnect(){this.disconnected=true;}};
  class Renderer{
@@ -41,9 +83,9 @@ async function fixture(options={}){
   forceContextLoss(){this.lost=true;}
  }
  if(options.configureHost)options.configureHost(host);
- const world=options.world||Town.createWorld(),controller=await (options.sceneAPI||Scene).mount({viewport:host,world,position:options.position||{x:1100,y:1100},camera:options.camera,view:options.view,canRun:()=>allowed,three:{...THREE,WebGLRenderer:Renderer},onReady:()=>ready++,onFailure:c=>failures.push(c),onFacing:options.onFacing,seasonNow:options.seasonNow,seasonSubscribe:options.seasonSubscribe});
+ const world=options.world||Town.createWorld(),controller=await (options.sceneAPI||Scene).mount({viewport:host,world,position:options.position||{x:1100,y:1100},camera:options.camera,view:options.view,canRun:()=>allowed,three:{...THREE,TextureLoader:textureLoaderFixture(originalLoads,{...options,loadedTextures:originalTextures}),WebGLRenderer:Renderer},onReady:()=>ready++,onFailure:c=>failures.push(c),onFacing:options.onFacing,seasonNow:options.seasonNow,seasonSubscribe:options.seasonSubscribe});
  const source=new Element(doc,'CANVAS');source.getContext=()=>({RGBA:1,UNSIGNED_BYTE:2,readPixels(x,y,w,h,format,type,pixels){pixels[(2*w+8)*4+3]=255;}});
- return {doc,win,host,media,frames,renderers,images,observers,timers,world,source,controller,failures,get ready(){return ready;},get now(){return stamp;},allow:v=>{allowed=v;},time:v=>{stamp=v;},frame(ms=16){stamp+=ms;const callbacks=[...frames.values()];frames.clear();callbacks.forEach(fn=>fn(stamp));},project(p){const camera=renderers[0].calls.at(-1).camera,g=Scene.groundPoint(world,p),v=new THREE.Vector3(g.x,Scene.heightAt(p),g.z).project(camera);return {clientX:(v.x+1)*195,clientY:(1-v.y)*350};}};
+ return {doc,win,host,media,frames,renderers,images,observers,timers,originalLoads,originalTextures,world,source,controller,failures,get ready(){return ready;},get now(){return stamp;},allow:v=>{allowed=v;},time:v=>{stamp=v;},frame(ms=16){stamp+=ms;const callbacks=[...frames.values()];frames.clear();callbacks.forEach(fn=>fn(stamp));},project(p){const camera=renderers[0].calls.at(-1).camera,g=Scene.groundPoint(world,p),v=new THREE.Vector3(g.x,Scene.heightAt(p),g.z).project(camera);return {clientX:(v.x+1)*195,clientY:(1-v.y)*350};}};
 }
 
 test('world coordinates round-trip and camera settings are bounded without touching the input',()=>{
@@ -62,7 +104,7 @@ test('browser registration can precede the visual-only helper and mount adopts t
  assert.equal(context.PetTownScene.alphaAnchor({tagName:'CANVAS',width:16,height:16,getContext:()=>null}),null);
  const painted={tagName:'CANVAS',width:16,height:16,getContext:()=>({RGBA:1,UNSIGNED_BYTE:2,readPixels(x,y,w,h,a,b,p){p[(2*w+8)*4+3]=255;}})};
  assert.equal(context.PetTownScene.alphaAnchor(painted),.125,'the existing public diagnostics work synchronously before any mount or helper import');
- context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;context.PetTownStyle=TownStyle;context.PetTownLayoutArt=LayoutArt;
+ context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;context.PetTownStyle=TownStyle;context.PetTownLayoutArt=LayoutArt;context.PetTownPlacementOriginals=Originals;
  const f=await fixture({sceneAPI:context.PetTownScene});try{assert.ok(f.controller);assert.equal(f.controller.setFrame(f.source,{anchor:.3}),true);const scene=f.renderers[0].calls.at(-1).scene;assert.equal(scene.getObjectByName('current-pet-2d-frame').center.y,.3);assert.equal(f.host.dataset.townLayoutArt,LayoutArt.revision);assert.equal(scene.userData.layoutArtRevision,LayoutArt.revision);assert.ok(scene.getObjectByName('layout-art-native-landscape'));assert.equal(scene.getObjectByName('bridge-deck').userData.layoutBoardCount,11);assert.deepEqual(f.failures,[]);}finally{f.controller?.destroy();}
 });
 
@@ -84,10 +126,12 @@ test('the initial population gate returns no appearances and never mutates popul
  assert.notEqual(Scene.natureFrame(0,false).wind,Scene.natureFrame(1200,false).wind);assert.deepEqual(Scene.natureFrame(0,true),Scene.natureFrame(10000,true));
 });
 
-test('instanced foliage receives real transform updates, freezes in reduced motion and releases its resources',()=>{
- const world=Town.createWorld(),m=Scene.buildWorld(THREE,world,{}),batch=m.batches.find(b=>b.dynamic&&b.rows.some(row=>row.parent.name==='overlapping-leaf-crown'));
+test('original tree artwork stays unchanged while instanced water keeps ambient/reduced-motion updates and resource release',()=>{
+ const world=Town.createWorld(),m=Scene.buildWorld(THREE,world,{}),batch=m.batches.find(b=>b.dynamic),art=[];m.scene.traverse(o=>{if(o.isSprite&&o.userData.originalArtKind==='tree')art.push(o);});
+ assert.equal(art.length,27);const artBefore=art.map(s=>[...s.position.toArray(),...s.scale.toArray(),s.material.rotation]);
  assert.ok(batch);assert.ok(batch.rows.every(row=>!row.visible));assert.equal(m.scene.matrixWorldAutoUpdate,false);
  const snapshot=()=>Array.from(batch.mesh.instanceMatrix.array);m.animate(0,true);const initial=snapshot();m.animate(1100,false);assert.notDeepEqual(snapshot(),initial);m.animate(2000,true);assert.deepEqual(snapshot(),initial);m.animate(8000,true);assert.deepEqual(snapshot(),initial);
+ assert.deepEqual(art.map(s=>[...s.position.toArray(),...s.scale.toArray(),s.material.rotation]),artBefore,'source artwork is not procedurally deformed');
  let disposed=0;batch.mesh.addEventListener('dispose',()=>disposed++);m.dispose();m.dispose();assert.equal(disposed,1);
 });
 
@@ -142,7 +186,7 @@ test('even a populated economy view cannot load or duplicate NPCs while the sele
  const view={residents:[{id:'n1',name:'住人'},{id:'n2',name:'住人2'}],visitors:[{id:'v1',name:'旅人'}],coins:500,holdings:{tea:2}},before=JSON.stringify(view);
  const f=await fixture({view});f.controller.setFrame(f.source);const scene=f.renderers[0].calls.at(-1).scene;
  for(let i=0;i<80;i++){f.frame(16);f.controller.setPosition({x:1100,y:1100});f.controller.setFrame(f.source);}
- const sprites=[];scene.traverse(o=>{if(o.isSprite)sprites.push(o);});assert.equal(sprites.length,1);assert.equal(sprites[0].name,'current-pet-2d-frame');assert.equal(f.images.length,0,'no NPC image is even requested');
+ const sprites=[];scene.traverse(o=>{if(o.isSprite)sprites.push(o);});assert.equal(sprites.filter(s=>s.name==='current-pet-2d-frame').length,1);assert.ok(sprites.filter(s=>s.name!=='current-pet-2d-frame').every(s=>s.userData.originalArt===true),'additional sprites are canonical scenery, not residents');assert.equal(f.images.length,0,'no NPC image is even requested');assert.deepEqual(new Set(f.originalLoads),new Set(originalDimensions.keys()));
  assert.equal(JSON.stringify(view),before);assert.ok(scene.getObjectByName('pet-contact-shadow').visible);assert.ok(f.renderers[0].calls.length>10);f.controller.destroy();
 });
 
@@ -159,6 +203,23 @@ test('only a painted pet pixel opens care while transparent sprite padding remai
  function screenUV(x,y){const p=sprite.position.clone().applyMatrix4(camera.matrixWorldInverse);p.x+=(x-sprite.center.x)*sprite.scale.x;p.y+=(y-sprite.center.y)*sprite.scale.y;p.applyMatrix4(camera.projectionMatrix);return {clientX:(p.x+1)*195,clientY:(1-p.y)*350};}
  assert.equal(f.controller.resolveTap(screenUV(8.5/16,2.5/16)).pet,true,'actual opaque source pixel is selectable');
  const empty=f.controller.resolveTap(screenUV(3.5/16,3.5/16));assert.notEqual(empty?.pet,true,'transparent pixels do not capture a floor tap');f.controller.destroy();
+});
+
+test('original building door pixels keep entry semantics while roofs, windows and transparent corners do not become doors',async()=>{
+ const world=Town.createWorld(),doorPixels={home:[256,272],cafe:[243,273],shop:[255,276]};
+ for(const id of ['home','cafe','shop']){
+  const place=world.places.find(p=>p.id===id),f=await fixture({world,position:place.entrance});
+  try{
+   assert.equal(f.controller.setFrame(f.source),true);const {scene,camera}=f.renderers[0].calls.at(-1),art=[];scene.traverse(o=>{if(o.isSprite&&o.userData.originalArt&&o.userData.placeId===id)art.push(o);});assert.equal(art.length,1);
+   const sprite=art[0],[x,y]=doorPixels[id],door=f.controller.resolveTap(spriteUV(sprite,camera,(x+.5)/384,1-(y+.5)/384));
+   assert.deepEqual(door,{placeId:id,door:true},id+' inset door pixels open the existing entry route');
+   for(const [u,v,label] of [[.5,.74,'roof'],[.4,.48,'window']])assert.deepEqual(f.controller.resolveTap(spriteUV(sprite,camera,u,v)),{placeId:id},id+' '+label+' retains the normal approach behavior');
+   if(id==='home'){
+    const empty=f.controller.resolveTap(spriteUV(sprite,camera,.03,.5));
+    assert.ok(empty&&Number.isFinite(empty.x)&&Number.isFinite(empty.y),'a transparent art corner exposes the actual ground ray');assert.equal(empty.placeId,undefined);assert.notEqual(empty.pet,true);assert.ok(Town.isWalkable(world,empty.x,empty.y));
+   }
+  }finally{f.controller.destroy();}
+ }
 });
 
 test('camera segments stop before actual roofs, walls and foliage for every bounded orbit sample',async()=>{
@@ -371,12 +432,8 @@ test('resized Town coverage uses the new buffer for pet-only picking and normal 
 });
 
 function textureDocument(){
- const canvases=[];
- return {canvases,createElement(){
-  const colors=[],canvas={width:0,height:0};
-  const ctx={fillStyle:'',fillRect(){colors.push(this.fillStyle);},createRadialGradient(){return{addColorStop(){}};},beginPath(){},ellipse(){},fill(){},fillText(){}};
-  canvas.getContext=()=>ctx;canvas.colors=colors;canvases.push(canvas);return canvas;
- }};
+ const canvases=[],doc={canvases,createElement(){const canvas=pixelCanvas(doc);canvases.push(canvas);return canvas;}};
+ return doc;
 }
 test('four seasons share exact facility, surface and collision geometry while changing only tagged outdoor finishes',()=>{
  const world=Town.createWorld(),before=JSON.stringify(world),doc=textureDocument(),m=Scene.buildWorld(THREE,world,{},null,doc,'spring');
@@ -426,20 +483,59 @@ test('public geometry builder still works before the newly lazy calendar module 
  const doc=textureDocument(),model=context.PetTownScene.buildWorld(THREE,Town.createWorld(),{},null,doc);
  try{
   const land=model.scene.getObjectByName('dry-land');assert.equal(land.material.map.image.colors[0],'#b1cf83');
-  assert.equal(model.scene.background.getHexString(),'cbe7e8');assert.equal(model.setSeason('winter'),false);
+  assert.equal(model.scene.background.userData.presentationRole,'bounded-seasonal-sky-background');assert.equal(model.scene.background.image.colors[0].stops[0][1],'#cbe7e8');assert.equal(model.setSeason('winter'),false);
   context.PetJapanSeasons=Seasons;assert.equal(model.setSeason('winter'),true);assert.equal(land.material.map.image.colors[0],Seasons.profile('winter').ground);
  }finally{model.dispose();}
 });
 
-test('owner layout reference uses closed overlapping rounded leaves within the shared texture budget',()=>{
- const m=Scene.buildWorld(THREE,Town.createWorld(),{}),trees=[];m.scene.traverse(o=>{if(o.name==='market-style-branching-tree')trees.push(o);});
+test('canonical originals keep their source pixels, shared materials and saved physical anchors in the 3D world',async()=>{
+ const world=Town.createWorld(),before=JSON.stringify(world),loads=[],m=Scene.buildWorld(THREE,world,{},null,textureDocument()),art=[];
  try{
-  assert.equal(trees.length,27);for(const t of trees){assert.equal(t.userData.artDirection,'rounded-layout-reference');assert.equal(t.userData.leafCount,54);assert.equal(t.userData.twigCount,3);
-   let rounded=0,forks=0,hearts=0;t.traverse(o=>{if(o.name==='rounded-overlapping-tree-leaf'){rounded++;assert.equal(o.geometry.userData.styleRole,'closed-plump-rounded-leaf');}if(o.name==='visible-tree-fork')forks++;if(o.name==='hidden-rounded-canopy-heart')hearts++;});
-   assert.equal(rounded,54);assert.equal(forks,3);assert.equal(hearts,1);
+  m.scene.traverse(o=>{if(o.isSprite&&o.userData.originalArt)art.push(o);});
+  assert.ok(art.length>27);assert.ok(art.every(o=>!o.visible),'an incomplete asset set cannot appear as a successful village');
+  await m.loadOriginalArt(new (textureLoaderFixture(loads))());m.scene.updateMatrixWorld(true);
+  assert.equal(m.scene.userData.originalArtRepresentation,'original-2d-art-in-3d-world');assert.equal(m.scene.userData.originalArtState,'ready');
+  assert.deepEqual(loads,[...originalDimensions.keys()]);assert.equal(new Set(loads).size,7);
+  assert.equal(art.filter(o=>o.userData.originalArtKind==='tree').length,27);
+  const expectedBounds={home:[38,51,349,340],cafe:[29,47,362,347],shop:[26,27,366,360],tree:[39,42,475,448],flowers:[37,55,476,293],fountain:[40,40,344,342],lantern:[57,38,325,351]},byKind=new Map();
+  for(const sprite of art){
+   const kind=sprite.userData.originalArtKind,material=sprite.material,texture=material.map,[width,height]=originalDimensions.get(sprite.userData.sourceUrl),bounds=expectedBounds[kind];
+   assert.ok(sprite.visible);assert.ok(material.isSpriteMaterial);assert.equal(material.color.getHexString(),'ffffff');assert.equal(material.opacity,1);assert.equal(material.toneMapped,false);assert.equal(material.fog,false);
+   assert.equal(material.alphaTest,8/255);assert.equal(material.depthTest,true);assert.equal(material.depthWrite,true);
+   assert.equal(texture.colorSpace,THREE.SRGBColorSpace);assert.deepEqual(texture.repeat.toArray(),[1,1]);assert.deepEqual(texture.offset.toArray(),[0,0]);assert.equal(texture.rotation,0);assert.equal(texture.premultiplyAlpha,false);
+   assert.equal(texture.image.width,width);assert.equal(texture.image.height,height);assert.equal(sprite.center.x,(bounds[0]+bounds[2])/(2*width));assert.equal(sprite.center.y,1-bounds[3]/height);
+   assert.equal(m.geometries.has(sprite.geometry),false,'the global Three Sprite quad is borrowed and cannot be scene-disposed');
+   if(byKind.has(kind))assert.equal(material,byKind.get(kind),'repeated originals share one material and texture');else byKind.set(kind,material);
   }
+  assert.equal(byKind.size,7);
+  for(const id of ['home','cafe','shop','playground']){
+   const place=world.places.find(p=>p.id===id),group=m.placeGroups.find(g=>g.userData.placeId===id),sprites=[];group.traverse(o=>{if(o.isSprite&&o.userData.originalArt)sprites.push(o);});
+   assert.equal(sprites.length,1,'a building illustration has no floating duplicate yard-flower pictures');
+   const sprite=sprites[0],point=Scene.groundPoint(world,place.footprint),pos=sprite.getWorldPosition(new THREE.Vector3()),scale=sprite.getWorldScale(new THREE.Vector3()),width=id==='playground'?2.25:3.25;
+   assert.ok(Math.abs(pos.x-point.x)<1e-9);assert.ok(Math.abs(pos.z-point.z-.34)<1e-9);assert.ok(Math.abs(pos.y-.025)<1e-9);assert.ok(Math.abs(scale.x-width)<1e-9);assert.ok(Math.abs(scale.y-width)<1e-9,'old cottage height scaling cannot squash the original image');
+   assert.ok(m.pickables.includes(sprite));const hidden=[];group.traverse(o=>{if(o.isMesh&&o.userData.originalArtProxy)hidden.push(o);});assert.ok(hidden.length>0);assert.ok(hidden.every(o=>!o.visible&&!m.pickables.includes(o)),'camera proxies cannot intercept transparent artwork');
+   assert.ok(hidden.some(o=>m.occluders.includes(o)),'physical camera clearance still uses the saved building geometry');
+  }
+  const positions=art.map(o=>o.getWorldPosition(new THREE.Vector3()).toArray()),maps=[...byKind.values()].map(o=>o.map);
+  for(const season of ['winter','spring','summer','autumn']){m.setSeason(season);for(const material of byKind.values())assert.equal(material.color.getHexString(),'ffffff','seasonal ground/accents never tint the original art');assert.deepEqual([...byKind.values()].map(o=>o.map),maps);assert.deepEqual(art.map(o=>o.getWorldPosition(new THREE.Vector3()).toArray()),positions);}
+  assert.equal(JSON.stringify(world),before,'original artwork cannot rewrite placement, ownership, entrances or collisions');
   assert.equal(m.styleLimits.surfaceTextures,6);assert.equal(m.styleLimits.surfaceTextureSize,128);
  }finally{m.dispose();}
+});
+
+test('mounted original art textures and shared materials are released once without disposing the global Sprite quad',async()=>{
+ const f=await fixture();f.controller.setFrame(f.source);const scene=f.renderers[0].calls.at(-1).scene,materials=new Set(),quads=new Set(),counts=new Map();
+ scene.traverse(o=>{if(o.isSprite&&o.userData.originalArt){materials.add(o.material);quads.add(o.geometry);}});
+ assert.equal(f.originalTextures.length,7);assert.equal(materials.size,7);const resources=[...f.originalTextures,...materials];for(const resource of resources){counts.set(resource,0);resource.addEventListener('dispose',()=>counts.set(resource,counts.get(resource)+1));}
+ let quadDisposals=0;const onQuad=()=>quadDisposals++;for(const quad of quads)quad.addEventListener('dispose',onQuad);
+ try{f.controller.destroy();f.controller.destroy();for(const resource of resources)assert.equal(counts.get(resource),1);assert.equal(quadDisposals,0);assert.equal(f.host.children.length,0);assert.equal(f.frames.size,0);assert.equal(f.timers.size,0);}
+ finally{for(const quad of quads)quad.removeEventListener('dispose',onQuad);f.controller.destroy();}
+});
+
+test('an unavailable original stops mount before allocating a renderer and releases the other completed images',async()=>{
+ const counts=new Map(),f=await fixture({rejectOriginal:'/static/pet-items-v1/lantern.webp',onOriginalTexture:texture=>{counts.set(texture,0);texture.addEventListener('dispose',()=>counts.set(texture,counts.get(texture)+1));}});
+ assert.equal(f.controller,null);assert.deepEqual(f.failures,['town_renderer_unavailable']);assert.equal(f.renderers.length,0);assert.equal(f.host.children.length,0);assert.equal(f.frames.size,0);assert.equal(f.timers.size,0);assert.equal(f.win.count(),0);assert.equal(f.doc.count(),0);
+ assert.equal(counts.size,6);for(const count of counts.values())assert.equal(count,1,'an asset failure cannot leak successful partial loads');
 });
 
 test('daylight fill lifts shadow-facing surfaces with the same two lights and retains authored material colors',()=>{

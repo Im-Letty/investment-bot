@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from '../static/vendor/three-0.160.1.module.js';
 import Style from '../static/pet-town-style.js';
+import Originals from '../static/pet-town-placement-originals.js';
 import Scene from '../static/pet-town-scene.js';
 import Town from '../static/pet-town-walk.js';
 import Seasons from '../static/pet-japan-seasons.js';
@@ -62,34 +63,41 @@ test('six neutral microtextures are bounded, deterministic, grayscale and opaque
 test('a real Town shares at most six surface maps and releases them once while season changes only replace grass',()=>{
  const doc=document(),world=Town.createWorld(),saved=JSON.stringify(world),m=Scene.buildWorld(THREE,world,{},null,doc,'spring'),maps=[...m.textures].filter(t=>t.userData.styleRole),disposed=new Map();
  for(const t of maps){disposed.set(t,0);t.addEventListener('dispose',()=>disposed.set(t,disposed.get(t)+1));}
- assert.equal(maps.length,6);assert.equal(new Set(maps.map(t=>t.userData.styleRole)).size,6);
+ assert.equal(maps.length,5);assert.deepEqual(maps.map(t=>t.userData.styleRole).sort(),['ceramic','foliage','plaster','stone','wood']);
  const materialMaps=[...m.materials].filter(m=>m.bumpMap).map(m=>m.bumpMap),geo=[...m.geometries];assert.ok(materialMaps.length>6);
  for(const key of ['summer','autumn','winter','spring']){m.setSeason(key);assert.deepEqual([...m.materials].filter(m=>m.bumpMap).map(m=>m.bumpMap),materialMaps);assert.deepEqual([...m.geometries],geo);}
  m.dispose();m.dispose();assert.ok([...disposed.values()].every(n=>n===1));assert.equal(JSON.stringify(world),saved);
 });
 
-test('reference dome crowns preserve saved roots, doors, camera clearance and exact terrain/bridge transforms',()=>{
+test('original 2D tree artwork preserves saved roots, doors, camera clearance and exact terrain/bridge transforms',()=>{
  const context=vm.createContext({PetTownWalk:Town,PetJapanSeasons:Seasons});vm.runInContext(readFileSync(new URL('../static/pet-town-scene.js',import.meta.url),'utf8'),context);
  const world=Town.createWorld(),saved=JSON.stringify(world),old=context.PetTownScene.buildWorld(THREE,world,{}),now=Scene.buildWorld(THREE,world,{});
- function trees(m){const rows=[];m.scene.traverse(o=>{if(o.name==='rounded-tree-trunk')rows.push(o.parent);});return rows;}
+ function oldTrees(m){const rows=[];m.scene.traverse(o=>{if(o.name==='rounded-tree-trunk')rows.push(o.parent);});return rows;}
+ function originalTrees(m){const rows=[];m.scene.traverse(o=>{if(o.isGroup&&o.name==='placement-original-tree')rows.push(o);});return rows;}
  try{
-  const a=trees(old),b=trees(now);assert.equal(a.length,27);assert.equal(b.length,a.length);
+  const a=oldTrees(old),b=originalTrees(now),spec=Originals.catalog.tree;assert.equal(a.length,27);assert.equal(b.length,a.length);
   for(let i=0;i<b.length;i++){
-   const tree=b[i],root=tree.parent,scale=i===0?1.08:.75+((i-1)*7%9)*.055;
-   // The historical fallback bakes scale into its meshes. The native tree uses
-   // one scaled child, so compare the same saved placement and canonical scale.
+   const root=b[i],scale=i===0?1.08:.75+((i-1)*7%9)*.055;
+   // Artwork width is independent of the unchanged world/collision placement.
+   // These camera-facing sprites are explicitly not closed volume tree models.
    assert.deepEqual(root.matrixWorld.elements,a[i].matrixWorld.elements,'tree '+i+' saved root matrix');
-   assert.deepEqual(tree.matrixWorld.elements,a[i].matrixWorld.clone().scale(new THREE.Vector3(scale,scale,scale)).elements,'tree '+i+' canonical world matrix');
-   assert.ok(tree.getWorldPosition(new THREE.Vector3()).distanceTo(a[i].getWorldPosition(new THREE.Vector3()))<1e-12,'tree '+i+' footpoint');
-   const crown=tree.getObjectByName('overlapping-leaf-crown'),bounds=new THREE.Box3().setFromObject(crown,true),size=bounds.getSize(new THREE.Vector3()),base=root.getWorldPosition(new THREE.Vector3()).y;
-   assert.ok(size.x/size.y>=1.45,'tree '+i+' reference canopy is a broad dome: '+size.x/size.y);
-   assert.ok(size.x<=1.9*scale,'tree '+i+' bounded reference canopy width: '+size.x/scale);
-   assert.ok(size.z<=1.8*scale&&size.y<=1.2*scale,'tree '+i+' bounded reference canopy depth/height: '+[size.z/scale,size.y/scale]);
-   assert.ok(bounds.min.y>=base+1.04*scale,'tree '+i+' keeps its canopy above the trunk approach: '+(bounds.min.y-base)/scale);
+   assert.deepEqual(root.parent.matrixWorld.elements,a[i].matrixWorld.elements,'tree '+i+' outer placement matrix');
+   assert.ok(root.getWorldPosition(new THREE.Vector3()).distanceTo(a[i].getWorldPosition(new THREE.Vector3()))<1e-12,'tree '+i+' footpoint');
+   assert.equal(root.children.length,1);const sprite=root.children[0];assert.ok(sprite.isSprite);assert.equal(sprite.isMesh,undefined);
+   assert.equal(sprite.userData.originalArt,true);assert.equal(sprite.userData.collisionIndependent,true);
+   assert.equal(sprite.userData.artRepresentation,'original-2d-in-world-space');
+   assert.equal(sprite.userData.sourceUrl,spec.url);assert.equal(sprite.userData.sourceSHA256,spec.sha256);
+   assert.deepEqual(sprite.position.toArray(),[0,0,0]);
+   assert.ok(Math.abs(sprite.scale.x-3.25*scale)<1e-12);
+   assert.ok(Math.abs(sprite.scale.y-sprite.scale.x*spec.height/spec.width)<1e-12);
+   assert.equal(sprite.center.x,(spec.alphaBounds[0]+spec.alphaBounds[2])/(2*spec.width));
+   assert.equal(sprite.center.y,1-spec.alphaBounds[3]/spec.height);
+   assert.equal(root.getObjectByName('overlapping-leaf-crown'),undefined);
+   assert.equal(root.getObjectByName('rounded-tree-trunk'),undefined);
   }
   assert.deepEqual(Array.from(now.placeGroups,g=>[g.userData.placeId,g.matrixWorld.elements]),Array.from(old.placeGroups,g=>[g.userData.placeId,g.matrixWorld.elements]));
   function doors(model){
-   const rows=new Map(),counts=new Map();model.scene.traverse(o=>{if(!o.userData.door)return;const label=o.userData.placeId+':'+o.name,n=counts.get(label)||0;counts.set(label,n+1);rows.set(label+':'+n,Array.from(o.matrixWorld.elements));});return rows;
+   const rows=new Map(),counts=new Map();model.scene.traverse(o=>{if(!o.userData.door||o.userData.originalArt)return;const label=o.userData.placeId+':'+o.name,n=counts.get(label)||0;counts.set(label,n+1);rows.set(label+':'+n,Array.from(o.matrixWorld.elements));});return rows;
   }
   const oldDoors=doors(old),newDoors=doors(now);assert.ok(oldDoors.size>0);assert.deepEqual(newDoors,oldDoors,'all facility door-part world transforms stay exact');
   const facilities=['home','shop','cafe'].map(id=>world.places.find(p=>p.id===id)),treePlace=world.places.find(p=>p.id==='tree');
@@ -98,7 +106,7 @@ test('reference dome crowns preserve saved roots, doors, camera clearance and ex
   for(const point of poses){
    assert.ok(Town.isWalkable(world,point.x,point.y),'camera sample remains on a real walking approach');
    const at=Scene.groundPoint(world,point),center=new THREE.Vector3(at.x,Scene.heightAt(point)+.8,at.z);
-   for(const yaw of [0,2*Math.PI/3,4*Math.PI/3]){
+   for(const yaw of [0,2*Math.PI/3,4*Math.PI/3,Math.PI]){
     const requested={yaw,pitch:Math.PI/6,distance:8},direction=view=>new THREE.Vector3(Math.sin(view.yaw)*Math.cos(view.pitch),Math.sin(view.pitch),Math.cos(view.yaw)*Math.cos(view.pitch));
     if(new THREE.Raycaster(center,direction(requested),.01,8).intersectObjects(now.occluders,false).length)blocked++;
     const safe=Scene.safeCamera(THREE,now.occluders,center,requested);assert.ok(safe,'bounded camera pose '+samples);
@@ -107,7 +115,7 @@ test('reference dome crowns preserve saved roots, doors, camera clearance and ex
     if(Math.abs(safe.yaw-yaw)>.01||Math.abs(safe.pitch-requested.pitch)>.01||safe.distance<7.99)adjusted++;samples++;
    }
   }
-  assert.equal(samples,27);assert.ok(blocked>0&&adjusted>0,'camera witnesses exercise obstructed views');
+  assert.equal(samples,36);assert.ok(blocked>0&&adjusted>0,'camera witnesses exercise retained solid building proxies');
   assert.equal(now.surfaces.length,old.surfaces.length);
   for(let i=0;i<now.surfaces.length;i++){
    const current=now.surfaces[i],historical=old.surfaces[i];
@@ -133,7 +141,13 @@ test('reference dome crowns preserve saved roots, doors, camera clearance and ex
     }
    }
   }
-  const cost=m=>{let draws=0,triangles=0; m.scene.traverse(o=>{if(!o.isMesh)return;for(let p=o;p;p=p.parent)if(!p.visible)return;draws++;triangles+=(o.geometry.index?.count||o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);});return{draws,triangles};};
+  const cost=m=>{let draws=0,triangles=0; m.scene.traverse(o=>{
+   const pendingOriginal=o.isSprite&&o.userData.originalArt;if(!o.isMesh&&!pendingOriginal)return;
+   // Count original-art quads even before preload makes them visible, so a
+   // hidden pending bitmap cannot artificially lower the final draw budget.
+   for(let p=pendingOriginal?o.parent:o;p;p=p.parent)if(!p.visible)return;
+   draws++;triangles+=pendingOriginal?2:(o.geometry.index?.count||o.geometry.attributes.position.count)/3*(o.isInstancedMesh?o.count:1);
+  });return{draws,triangles};};
   const before=cost(old),after=cost(now);assert.ok(after.draws<=before.draws*1.1,`draw budget: ${after.draws} <= ${before.draws} * 1.1`);assert.ok(after.triangles<=before.triangles*1.1,`triangle budget: ${after.triangles} <= ${before.triangles} * 1.1`);
   const windUploads=now.batches.filter(b=>b.dynamic).reduce((n,b)=>n+b.rows.length,0);
   assert.ok(windUploads<=4500,`default wind upload count ${windUploads} stays <= 4500; lower triangles do not prove lower CPU cost`);
@@ -159,7 +173,7 @@ test('scalloped tile ends point downhill toward each eave while keeping the esta
 test('shared near-white detail maps add only mild albedo shade and share one allocation with height',()=>{
  const doc=document(),m=Scene.buildWorld(THREE,Town.createWorld(),{},null,doc,'summer');
  try{
-  const maps=[...m.textures].filter(t=>t.userData.styleRole);assert.equal(maps.length,6);
+  const maps=[...m.textures].filter(t=>t.userData.styleRole);assert.equal(maps.length,5);assert.deepEqual(maps.map(t=>t.userData.styleRole).sort(),['ceramic','foliage','plaster','stone','wood']);
   for(const map of maps){let sum=0,min=255,max=0;const a=map.image.pixels;for(let i=0;i<a.length;i+=4){sum+=a[i];min=Math.min(min,a[i]);max=Math.max(max,a[i]);}
    assert.ok(min>=220&&max<=255,'linear multiplier stays near white without brightening the authored color');assert.ok(sum/(a.length/4)>238);
   }
