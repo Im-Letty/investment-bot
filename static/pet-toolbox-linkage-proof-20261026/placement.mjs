@@ -1,0 +1,14 @@
+/* Eight-support derivative fixture probe over its new continuous envelope; not owner placement rules. */
+export function probePlacement(T,Scene,Town,world,model,item,anchor){
+ if(!anchor||![anchor.x,anchor.y].every(Number.isFinite))throw Error('invalid_anchor');
+ const b=item.bounds,p=Scene.groundPoint(world,anchor),nx=Math.ceil((b.max[0]-b.min[0])/.08),nz=Math.ceil((b.max[2]-b.min[2])/.08);
+ let sampleCount=0,blocked=0;for(let i=0;i<=nx;i++)for(let j=0;j<=nz;j++){sampleCount++;const x=b.min[0]+(b.max[0]-b.min[0])*i/nx,z=b.min[2]+(b.max[2]-b.min[2])*j/nz;if(!Town.isWalkable(world,anchor.x+x*100,anchor.y+z*100))blocked++;}
+ const rect={minX:anchor.x+b.min[0]*100,maxX:anchor.x+b.max[0]*100,minY:anchor.y+b.min[2]*100,maxY:anchor.y+b.max[2]*100};
+ const clearances=world.places.map(row=>{const q=row.footprint,dx=Math.max(q.x-q.rx-rect.maxX,rect.minX-(q.x+q.rx),0),dy=Math.max(q.y-q.ry-rect.maxY,rect.minY-(q.y+q.ry),0);return{id:row.id,AABBclearanceTownUnits:Math.hypot(dx,dy),boundsOverlap:dx===0&&dy===0};});
+ model.scene.updateMatrixWorld(true);item.group.updateMatrixWorld(true);const dry=model.surfaces.filter(x=>x.name==='dry-land'),ray=new T.Raycaster(),normalMatrix=new T.Matrix3(),feet=[];
+ for(const row of item.parts.filter(x=>item.footprint.contactPartIds.includes(x.id))){const sole=new T.Box3().setFromObject(row.mesh).min.y,x=p.x+row.mesh.position.x,z=p.z+row.mesh.position.z;ray.set(new T.Vector3(x,2,z),new T.Vector3(0,-1,0));ray.far=4;const hit=ray.intersectObjects(dry,false)[0];if(!hit)throw Error('foot_has_no_actual_dry_land_support');const normal=hit.face.normal.clone().applyMatrix3(normalMatrix.getNormalMatrix(hit.object.matrixWorld)).normalize();if(normal.y<.98)throw Error('nonflat_technical_support');feet.push({id:row.id,worldXZ:[x,z],localSoleY:sole,supportY:hit.point.y,supportNormalY:normal.y,surface:hit.object.name});}
+ if(feet.length!==8||blocked||clearances.some(x=>x.boundsOverlap))throw Error('technical_preview_location_not_clear');
+ const floor=Math.max(...feet.map(x=>x.supportY));if(Math.max(...feet.map(x=>x.supportY))-Math.min(...feet.map(x=>x.supportY))>.002)throw Error('uneven_technical_support');
+ const worldY=floor-b.min[1];feet.forEach(f=>f.soleMinusSupportY=worldY+f.localSoleY-f.supportY);
+ return{worldPosition:{x:p.x,y:worldY,z:p.z},footSupport:feet,walkableFiniteGrid:{sampleCount,stepMaxGameUnits:.08,blocked},savedPlaceAABBclearances:clearances,worldScale:'100 Town units per game world unit; not calibrated metres',normalPlacementAdoption:false,allOtherDecorCollisionVerified:false,continuousShoreClearanceVerified:false,fullFootprintSafetyClaim:false,scope:'Eight actual dry-land support rays (four source feet plus four external-jig feet) and finite footprint samples plus disjoint saved-place AABBs at this one synthetic preview position only.'};
+}
