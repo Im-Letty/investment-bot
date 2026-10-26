@@ -92,7 +92,7 @@ test('shared near-white detail maps add only mild albedo shade and share one all
    assert.ok(min>=220&&max<=255,'linear multiplier stays near white without brightening the authored color');assert.ok(sum/(a.length/4)>238);
   }
   for(const mat of m.materials)if(['wood','bark','plaster','ceramic','stone'].includes(mat.userData.surfaceRole)){
-   assert.equal(mat.map,mat.bumpMap);assert.ok(mat.map);assert.equal(mat.color.getHexString(),new THREE.Color(mat.userData.baseColor).getHexString(),'authored palette remains the material color');
+   assert.equal(mat.map,mat.bumpMap);assert.ok(mat.map);assert.equal(mat.color.getHexString(),new THREE.Color(mat.userData.paletteColor||mat.userData.baseColor).getHexString(),'resolved palette remains the material color');assert.equal(mat.userData.paletteColor,Style.paletteColor(mat.userData.baseColor,mat.userData.paletteRole||mat.userData.surfaceRole),'role is mapped once, while the original pigment metadata is retained');
   }
  }finally{m.dispose();}
 });
