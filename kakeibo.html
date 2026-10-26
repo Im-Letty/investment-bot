@@ -26,7 +26,6 @@
   <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261023-flat-selection1">
   <script defer src="/static/kakeibo-layout.js?v=20261017-assets1"></script>
   <link rel="stylesheet" href="/static/kakeibo-calendar-designs.css?v=20261027-calendar-designs1">
-  <script defer src="/static/kakeibo-calendar-designs.js?v=20261027-calendar-designs1"></script>
   <script defer src="/static/kakeibo-investment-categories.js?v=20261016-investmentcats1"></script>
   <script defer src="/static/kakeibo-income-categories.js?v=20261016-incomecats1"></script>
   <script defer src="/static/kakeibo-category-picker.js?v=20261016-incomecats1"></script>
@@ -389,12 +388,6 @@ body{padding-bottom:24px;}
 
 <div class="tab-content" id="tab-calendar" data-calendar-design="planner">
   <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_calendar">カレンダー</h2>
-  <div class="kk-calendar-designs" role="group" aria-label="カレンダーのデザイン" aria-labelledby="kkCalendarDesignLabel">
-    <span id="kkCalendarDesignLabel" class="kk-calendar-design-label" data-i18n="kk_calendar_design_label">カレンダーのデザイン</span>
-    <button type="button" class="kk-calendar-design" data-kk-calendar-design="planner" data-i18n="kk_calendar_design_planner" aria-pressed="true">手帳風</button>
-    <button type="button" class="kk-calendar-design" data-kk-calendar-design="modern" data-i18n="kk_calendar_design_modern" aria-pressed="false">モダン</button>
-    <button type="button" class="kk-calendar-design" data-kk-calendar-design="pop" data-i18n="kk_calendar_design_pop" aria-pressed="false">レトロポップ</button>
-  </div>
   <div class="month-nav"><button class="mnav-btn" onclick="calChangeMonth(-1)">◀</button><div class="mnav-lbl" id="calMonthLabel"></div><button class="mnav-btn" onclick="calChangeMonth(1)">▶</button></div>
   <div class="card kk-calendar-sheet" style="padding:12px"><div class="cal-grid" id="calGrid"></div></div>
   <section class="card kk-cal-log" aria-labelledby="kkCalendarRecordsTitle">
