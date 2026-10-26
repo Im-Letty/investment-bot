@@ -59,6 +59,8 @@
  var light=Object.freeze({hemisphereSky:'#eaf1fb',hemisphereGround:'#ddd8d1',hemisphereIntensity:1.6,sunColor:'#fff4e7',sunIntensity:2.1});
  var collection=Object.freeze({revision:'shop-cottage-match2',palette:palette,finishes:finishDefinitions,light:light,
   references:Object.freeze({tree:'60cb702d2cac8ad22b09ad01621f55d24ddb4d3876f1f550f21cbfcdbaf8c7b9',house:'69ce8c93823a50c5f2225414d4df8adcfe92fcd271ae113982e64f7ccd01cd60',fountain:'b7394422852121b2d5b971fb42f82de6b9eb6460cb1b8bff5979b7e39d205006',sunflower:'3fe2389b077f5d01be2685ac8c6e4401b80703887d20227224e66d79aa422120',lantern:'fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da',flower:'f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6',mushroom:'67e1d44960fd7fba76768b240e098bf1981304951d6474cef19ff72275eb03db'})});
+ // Current owner layout references are separate from the historical market set.
+ var layoutReferences=Object.freeze({tree:'f2f13fd18a0b27cec312c10b2f9dc55694d98072f06b8c52c5a56b25210e03a1',flowerbed:'ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf',terrain:'5ec078ee9342e7e63497cf45bb7702b7def43256990a996857a7fdfbf66d87e5'});
  function leafGeometry(THREE){
   // Broad small pointed leaf with a thin bowed blade and soft midrib.
   // Keep the shop reference fullness; never an alpha card or a needle.
@@ -76,6 +78,18 @@
   for(var i=0;i<p.count;i++){var key=[p.getX(i),p.getY(i),p.getZ(i)].map(function(n){return Math.round(n*1e6);}).join(':');var v=pool[key]||(pool[key]=new THREE.Vector3());v.x+=normals.getX(i);v.y+=normals.getY(i);v.z+=normals.getZ(i);}
   for(var i=0;i<p.count;i++){var key=[p.getX(i),p.getY(i),p.getZ(i)].map(function(n){return Math.round(n*1e6);}).join(':');var v=pool[key].normalize();normals.setXYZ(i,v.x,v.y,v.z);}
   g.computeBoundingBox();g.computeBoundingSphere();g.userData.styleRole='closed-pointed-leaf';return g;
+ }
+ // The saved village-layout tree uses broad, padded leaves. Keep the older
+ // pointed recipe above for its existing consumers and seasonal blades.
+ function roundedLeafGeometry(THREE){
+  var g=new THREE.SphereGeometry(1,8,6),p=g.attributes.position,n=g.attributes.normal;
+  // Analytic ellipsoid normals keep a broad padded surface smooth. Averaging
+  // the few thin side triangles made the prior leaf read as a grooved plate.
+  for(var i=0;i<p.count;i++){
+   var x=p.getX(i),y=p.getY(i),z=p.getZ(i),v=new THREE.Vector3(x/.78,y/.82+.05*y/.82*(z/.18),z/.18).normalize();
+   p.setXYZ(i,x*.78,y*.82,z*.18+.025*Math.max(0,1-y*y));n.setXYZ(i,v.x,v.y,v.z);
+  }
+  g.computeBoundingBox();g.computeBoundingSphere();g.userData.styleRole='closed-plump-rounded-leaf';return g;
  }
  function branchGeometry(THREE,kind){
   // More radial sides soften the bark silhouette; fewer longitudinal rings
@@ -151,5 +165,5 @@
   }
   ctx.putImageData(image,0,0);var texture=new THREE.CanvasTexture(c);texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.colorSpace=THREE.NoColorSpace;texture.anisotropy=2;texture.userData.styleRole=kind;texture.userData.usage='shared-linear-shade-and-height';return texture;
  }
- return Object.freeze({revision:'shop-cottage-match2',collection:collection,paletteColor:paletteColor,materialFinish:materialFinish,limits:limits,leafGeometry:leafGeometry,branchGeometry:branchGeometry,tileGeometry:tileGeometry,bowlGeometry:bowlGeometry,archGeometry:archGeometry,surfaceTexture:surfaceTexture});
+ return Object.freeze({revision:'shop-cottage-match2',collection:collection,layoutReferences:layoutReferences,paletteColor:paletteColor,materialFinish:materialFinish,limits:limits,leafGeometry:leafGeometry,roundedLeafGeometry:roundedLeafGeometry,branchGeometry:branchGeometry,tileGeometry:tileGeometry,bowlGeometry:bowlGeometry,archGeometry:archGeometry,surfaceTexture:surfaceTexture});
 }));
