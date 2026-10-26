@@ -1,0 +1,439 @@
+/* Three calendar presentations. Dates, records, amounts and storage stay in the
+   existing ledger renderer. All palette aliases stop at this calendar pane. */
+#tab-calendar[data-calendar-design] {
+  --kk-cal-paper:#fffdf5;
+  --kk-cal-cell:#fffdf5;
+  --kk-cal-ink:#4b5145;
+  --kk-cal-muted:#6c705e;
+  --kk-cal-line:#d9d5bf;
+  --kk-cal-accent:#667650;
+  --kk-cal-chip:#edf0e2;
+  --kk-cal-income:#376b4d;
+  --kk-cal-expense:#9d4941;
+  --kk-cal-investment:#356d7a;
+  --kn-ledger-paper:var(--kk-cal-paper);
+  --kn-ledger-ink:var(--kk-cal-ink);
+  --kn-ledger-muted:var(--kk-cal-muted);
+  --kn-ledger-line:var(--kk-cal-line);
+  --kn-ledger-button:var(--kk-cal-accent);
+  --kn-ledger-chip:var(--kk-cal-chip);
+  --kn-ledger-income:var(--kk-cal-income);
+  --kn-ledger-expense:var(--kk-cal-expense);
+  --kn-ledger-investment:var(--kk-cal-investment);
+  min-width:0;
+  max-width:960px;
+  margin-inline:auto;
+  color:var(--kk-cal-ink);
+}
+#tab-calendar[data-calendar-design],
+#tab-calendar[data-calendar-design] * {box-sizing:border-box}
+#tab-calendar[data-calendar-design] .kk-calendar-designs {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+  margin:0 0 24px;
+  padding:0;
+  min-width:0;
+}
+#tab-calendar[data-calendar-design] .kk-calendar-design-label {
+  grid-column:1/-1;
+  color:var(--kk-cal-muted);
+  font:400 calc(12px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans,inherit);
+  overflow-wrap:anywhere;
+}
+#tab-calendar[data-calendar-design] .kk-calendar-design {
+  appearance:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-width:0;
+  min-height:44px;
+  margin:0;
+  padding:10px 8px;
+  border:1px solid var(--kk-cal-line);
+  border-radius:7px;
+  background:var(--kk-cal-paper);
+  color:var(--kk-cal-muted);
+  font:400 calc(13px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans,inherit);
+  text-align:center;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  box-shadow:none;
+  cursor:pointer;
+  touch-action:manipulation;
+}
+#tab-calendar[data-calendar-design] .kk-calendar-design[aria-pressed="true"] {
+  border:1px solid var(--kk-cal-accent);
+  background:var(--kk-cal-chip);
+  color:var(--kk-cal-ink);
+  font-weight:600;
+  box-shadow:none;
+}
+#tab-calendar[data-calendar-design] :is(.kk-calendar-design,.mnav-btn):focus-visible {
+  outline:2px solid var(--kk-cal-accent)!important;
+  outline-offset:3px;
+  box-shadow:none;
+}
+#tab-calendar[data-calendar-design] :is(.kk-calendar-design,.mnav-btn):disabled {
+  opacity:.55;
+  cursor:default;
+}
+#tab-calendar[data-calendar-design] > .month-nav {
+  display:grid;
+  grid-template-columns:44px minmax(0,1fr) 44px;
+  align-items:center;
+  gap:12px;
+  margin:0 0 16px;
+}
+#tab-calendar[data-calendar-design] .mnav-btn {
+  width:44px;
+  height:44px;
+  min-width:0;
+  padding:0;
+  border:1px solid var(--kk-cal-line);
+  background:var(--kk-cal-paper);
+  color:var(--kk-cal-ink);
+  box-shadow:none;
+}
+#tab-calendar[data-calendar-design] .mnav-lbl {
+  min-width:0;
+  margin:0;
+  color:var(--kk-cal-ink);
+  font-variant-numeric:tabular-nums;
+  line-height:1.5;
+  text-align:center;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+#tab-calendar[data-calendar-design] > .card {
+  min-width:0;
+  border:1px solid var(--kk-cal-line);
+  background:var(--kk-cal-paper);
+  color:var(--kk-cal-ink);
+  box-shadow:none;
+}
+#tab-calendar[data-calendar-design] .kk-calendar-sheet {
+  position:relative;
+  min-width:0;
+  padding:18px!important; /* Existing sheet has a normal inline padding value. */
+}
+#tab-calendar[data-calendar-design] #calGrid {
+  display:grid;
+  grid-template-columns:repeat(7,minmax(0,1fr));
+  gap:4px;
+  min-width:0;
+  margin:0;
+}
+#tab-calendar[data-calendar-design] .cal-head {
+  min-width:0;
+  padding:8px 0;
+  color:var(--kk-cal-muted);
+  font:400 calc(11px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans,inherit);
+  text-align:center;
+  overflow-wrap:anywhere;
+}
+#tab-calendar[data-calendar-design] .cal-day {
+  position:relative;
+  min-width:0;
+  min-height:80px;
+  padding:9px 2px 18px;
+  border:1px solid var(--kk-cal-line);
+  background:var(--kk-cal-cell);
+  color:var(--kk-cal-ink);
+  text-align:center;
+  overflow-wrap:anywhere;
+  transition:background-color .15s,border-color .15s;
+}
+#tab-calendar[data-calendar-design] .cal-day-num {
+  color:var(--kk-cal-ink);
+  font:500 calc(15px * var(--kn-ledger-scale,1))/1.65 var(--kn-ledger-sans,inherit);
+  font-variant-numeric:tabular-nums;
+}
+#tab-calendar[data-calendar-design] :is(.cal-head.sun,.cal-day.sun .cal-day-num) {color:var(--kk-cal-expense)}
+#tab-calendar[data-calendar-design] :is(.cal-head.sat,.cal-day.sat .cal-day-num) {color:var(--kk-cal-income)}
+#tab-calendar[data-calendar-design] .cal-day-total {
+  max-width:100%;
+  margin:4px 0 0;
+  color:var(--kk-cal-expense);
+  font:500 calc(10px * var(--kn-ledger-scale,1))/1.45 var(--kn-ledger-sans,inherit);
+  font-variant-numeric:tabular-nums;
+  letter-spacing:0;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+#tab-calendar[data-calendar-design] .cal-day.today {
+  border-color:var(--kk-cal-accent);
+  background:var(--kk-cal-chip);
+}
+#tab-calendar[data-calendar-design] .cal-day.today .cal-day-num {
+  color:var(--kk-cal-ink);
+  font-weight:700;
+}
+#tab-calendar[data-calendar-design] .cal-day.today .cal-day-total {color:var(--kk-cal-expense)}
+#tab-calendar[data-calendar-design] .cal-day.has-data::after {
+  bottom:7px;
+  width:5px;
+  height:5px;
+  background:var(--kk-cal-accent);
+}
+#tab-calendar[data-calendar-design] .cal-day.empty {
+  background:transparent;
+  border-color:transparent;
+  box-shadow:none;
+  cursor:default;
+}
+#tab-calendar[data-calendar-design] .kk-cal-log {padding:20px}
+#tab-calendar[data-calendar-design] :is(.kk-cal-day,.kk-cal-record,.kk-cal-category-field,.kk-cal-memo-field,.kk-cal-amount-field) {min-width:0}
+#tab-calendar[data-calendar-design] .kk-cal-day-title {
+  border-color:var(--kk-cal-line);
+  color:var(--kk-cal-ink);
+}
+#tab-calendar[data-calendar-design] .kk-cal-record {
+  gap:14px;
+  border-color:var(--kk-cal-line);
+}
+#tab-calendar[data-calendar-design] :is(.kk-cal-category,.kk-cal-memo) {color:var(--kk-cal-ink)}
+#tab-calendar[data-calendar-design] :is(.kk-cal-field-label,.kk-cal-kind) {color:var(--kk-cal-muted)}
+#tab-calendar[data-calendar-design] :is(.kk-cal-amount,.kk-cal-memo,#calCatSummary) {
+  min-width:0;
+  max-width:100%;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+#tab-calendar[data-calendar-design] .kk-cal-memo {white-space:pre-wrap}
+#tab-calendar[data-calendar-design] .kk-cal-record[data-type="inc"] .kk-cal-amount {color:var(--kk-cal-income)}
+#tab-calendar[data-calendar-design] .kk-cal-record[data-type="exp"] .kk-cal-amount {color:var(--kk-cal-expense)}
+#tab-calendar[data-calendar-design] .kk-cal-record[data-type="inv"] .kk-cal-amount {color:var(--kk-cal-investment)}
+#tab-calendar[data-calendar-design] #calCatSummary > div > div > span {
+  min-width:0;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+
+/* Planner: soft serif month, binding holes, margins and quiet ruled rows. */
+#tab-calendar[data-calendar-design="planner"] > .month-nav {
+  padding:0 0 13px;
+  border-bottom:1px dashed var(--kk-cal-line);
+}
+#tab-calendar[data-calendar-design="planner"] .mnav-lbl {
+  font-family:var(--kn-ledger-serif,inherit);
+  font-size:calc(27px * var(--kn-ledger-scale,1));
+  font-weight:500;
+  letter-spacing:.045em;
+}
+#tab-calendar[data-calendar-design="planner"] .mnav-btn {border-radius:50%}
+#tab-calendar[data-calendar-design="planner"] .kk-calendar-sheet {
+  padding:18px 18px 18px 34px!important;
+  border-radius:9px 15px 15px 9px;
+  background-image:repeating-linear-gradient(0deg,transparent 0 31px,color-mix(in srgb,var(--kk-cal-line) 36%,transparent) 31px 32px);
+}
+#tab-calendar[data-calendar-design="planner"] .kk-calendar-sheet::before {
+  content:"";
+  position:absolute;
+  inset:17px auto 17px 12px;
+  width:6px;
+  background:radial-gradient(circle,var(--kk-cal-line) 0 2px,transparent 2.5px) 0 0/6px 34px repeat-y;
+  pointer-events:none;
+}
+#tab-calendar[data-calendar-design="planner"] .kk-calendar-sheet::after {
+  content:"";
+  position:absolute;
+  inset:12px auto 12px 25px;
+  width:1px;
+  background:color-mix(in srgb,var(--kk-cal-expense) 28%,transparent);
+  pointer-events:none;
+}
+#tab-calendar[data-calendar-design="planner"] .cal-head {border-bottom:1px solid var(--kk-cal-line)}
+#tab-calendar[data-calendar-design="planner"] .cal-day {
+  border-width:0 0 1px;
+  border-radius:3px;
+  background:color-mix(in srgb,var(--kk-cal-paper) 82%,transparent);
+}
+#tab-calendar[data-calendar-design="planner"] .cal-day.today {
+  outline:1px solid var(--kk-cal-accent);
+  outline-offset:-1px;
+  background:var(--kk-cal-chip);
+}
+#tab-calendar[data-calendar-design="planner"] .kk-cal-record {border-bottom-style:dashed}
+#tab-calendar[data-calendar-design="planner"] .kk-cal-day-title {font-family:var(--kn-ledger-serif,inherit)}
+
+/* Modern: a larger typographic month and continuous square table geometry. */
+#tab-calendar[data-calendar-design="modern"] {
+  --kk-cal-paper:#fbfdfd;
+  --kk-cal-cell:#fbfdfd;
+  --kk-cal-ink:#253c47;
+  --kk-cal-muted:#566a75;
+  --kk-cal-line:#cad8df;
+  --kk-cal-accent:#3b677c;
+  --kk-cal-chip:#e9f1f5;
+  --kk-cal-income:#286d57;
+  --kk-cal-expense:#a14348;
+  --kk-cal-investment:#315f8e;
+}
+#tab-calendar[data-calendar-design="modern"] > .month-nav {padding:0 0 5px;margin-bottom:20px}
+#tab-calendar[data-calendar-design="modern"] .mnav-lbl {
+  font-family:var(--kn-ledger-sans,inherit);
+  font-size:calc(34px * var(--kn-ledger-scale,1));
+  font-weight:600;
+  letter-spacing:-.025em;
+}
+#tab-calendar[data-calendar-design="modern"] .mnav-btn {border-radius:2px}
+#tab-calendar[data-calendar-design="modern"] > .card {border-radius:2px}
+#tab-calendar[data-calendar-design="modern"] .kk-calendar-sheet {padding:0!important}
+#tab-calendar[data-calendar-design="modern"] #calGrid {gap:0}
+#tab-calendar[data-calendar-design="modern"] :is(.cal-head,.cal-day) {
+  border:0;
+  border-right:1px solid var(--kk-cal-line);
+  border-bottom:1px solid var(--kk-cal-line);
+  border-radius:0;
+  background:var(--kk-cal-cell);
+}
+#tab-calendar[data-calendar-design="modern"] .cal-head:nth-child(7n),
+#tab-calendar[data-calendar-design="modern"] .cal-day:nth-child(7n) {border-right:0}
+#tab-calendar[data-calendar-design="modern"] .cal-head {padding:12px 0}
+#tab-calendar[data-calendar-design="modern"] .cal-day {min-height:94px;padding-top:14px}
+#tab-calendar[data-calendar-design="modern"] .cal-day.today {background:var(--kk-cal-chip)}
+#tab-calendar[data-calendar-design="modern"] .cal-day-num {font-size:calc(17px * var(--kn-ledger-scale,1))}
+#tab-calendar[data-calendar-design="modern"] .cal-day.empty {background:var(--kk-cal-chip)}
+#tab-calendar[data-calendar-design="modern"] .kk-cal-day-title {
+  padding-bottom:12px;
+  font-family:var(--kn-ledger-sans,inherit);
+  font-weight:600;
+}
+#tab-calendar[data-calendar-design="modern"] .kk-cal-record {padding-block:18px}
+
+/* Retro pop: butter paper, a full outline and round date badges. */
+#tab-calendar[data-calendar-design="pop"] {
+  --kk-cal-paper:#fff4cc;
+  --kk-cal-cell:#fffbeb;
+  --kk-cal-ink:#4d4a3a;
+  --kk-cal-muted:#70674e;
+  --kk-cal-line:#c9aa7b;
+  --kk-cal-accent:#a4473b;
+  --kk-cal-chip:#f8dfb9;
+  --kk-cal-income:#32695d;
+  --kk-cal-expense:#a4473b;
+  --kk-cal-investment:#366b86;
+}
+#tab-calendar[data-calendar-design="pop"] > .month-nav {
+  padding:13px 10px;
+  border:2px solid var(--kk-cal-line);
+  border-radius:17px;
+  background:var(--kk-cal-paper);
+}
+#tab-calendar[data-calendar-design="pop"] .mnav-lbl {
+  font-family:var(--kn-ledger-sans,inherit);
+  font-size:calc(28px * var(--kn-ledger-scale,1));
+  font-weight:700;
+  letter-spacing:.01em;
+}
+#tab-calendar[data-calendar-design="pop"] .mnav-btn {
+  border-color:var(--kk-cal-line);
+  border-radius:50%;
+  background:var(--kk-cal-cell);
+}
+#tab-calendar[data-calendar-design="pop"] > .card {
+  border:2px solid var(--kk-cal-line);
+  border-radius:19px;
+}
+#tab-calendar[data-calendar-design="pop"] .kk-calendar-sheet {padding:16px!important}
+#tab-calendar[data-calendar-design="pop"] #calGrid {gap:6px}
+#tab-calendar[data-calendar-design="pop"] .cal-head {font-weight:600}
+#tab-calendar[data-calendar-design="pop"] .cal-day {
+  min-height:93px;
+  padding-top:8px;
+  border:1px solid var(--kk-cal-line);
+  border-radius:13px;
+}
+#tab-calendar[data-calendar-design="pop"] .cal-day-num {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:calc(29px * var(--kn-ledger-scale,1));
+  min-height:calc(29px * var(--kn-ledger-scale,1));
+  padding:0 3px;
+  border-radius:50%;
+  background:var(--kk-cal-chip);
+  font-weight:700;
+}
+#tab-calendar[data-calendar-design="pop"] .cal-day.today {
+  border-color:var(--kk-cal-accent);
+  background:var(--kk-cal-cell);
+}
+#tab-calendar[data-calendar-design="pop"] .cal-day.today .cal-day-num {
+  background:var(--kk-cal-ink);
+  color:var(--kk-cal-paper);
+}
+#tab-calendar[data-calendar-design="pop"] .cal-day.empty {border-color:transparent;background:transparent}
+#tab-calendar[data-calendar-design="pop"] .kk-cal-log .kk-cal-day-title {
+  width:fit-content;
+  max-width:100%;
+  padding:5px 12px;
+  border:1px solid var(--kk-cal-line);
+  border-radius:999px;
+  background:var(--kk-cal-chip);
+  overflow-wrap:anywhere;
+}
+#tab-calendar[data-calendar-design="pop"] .kk-cal-record {
+  margin-top:10px;
+  padding:13px;
+  border:1px solid var(--kk-cal-line);
+  border-radius:13px;
+  background:var(--kk-cal-cell);
+}
+#tab-calendar[data-calendar-design="pop"] .kk-cal-record:last-child {border-bottom:1px solid var(--kk-cal-line)}
+
+/* Explicit dark papers retain each genre and readable semantic money colors. */
+body[data-kn-ledger-dark="true"] #tab-calendar[data-calendar-design] {
+  --kk-cal-paper:#2c3129;--kk-cal-cell:#30362d;--kk-cal-ink:#f1efdf;
+  --kk-cal-muted:#c3c5b3;--kk-cal-line:#616858;--kk-cal-accent:#c3d09e;
+  --kk-cal-chip:#3a4434;--kk-cal-income:#b2dbbb;--kk-cal-expense:#f3b4a6;--kk-cal-investment:#a6d0dd;
+}
+body[data-kn-ledger-dark="true"] #tab-calendar[data-calendar-design="modern"] {
+  --kk-cal-paper:#26343e;--kk-cal-cell:#26343e;--kk-cal-ink:#e8f0f4;
+  --kk-cal-muted:#b5c7d1;--kk-cal-line:#596f7b;--kk-cal-accent:#a5c8db;
+  --kk-cal-chip:#354b59;--kk-cal-income:#a7d8c2;--kk-cal-expense:#f2b0b7;--kk-cal-investment:#a9c9ed;
+}
+body[data-kn-ledger-dark="true"] #tab-calendar[data-calendar-design="pop"] {
+  --kk-cal-paper:#3b3227;--kk-cal-cell:#473c2d;--kk-cal-ink:#fff0c5;
+  --kk-cal-muted:#dbc9a1;--kk-cal-line:#a98f65;--kk-cal-accent:#ffb19c;
+  --kk-cal-chip:#584236;--kk-cal-income:#a8dbcf;--kk-cal-expense:#ffc0ac;--kk-cal-investment:#aecfe6;
+}
+@media (hover:hover) {
+  #tab-calendar[data-calendar-design] .kk-calendar-design:not(:disabled):hover {background:var(--kk-cal-chip);color:var(--kk-cal-ink)}
+  #tab-calendar[data-calendar-design] .mnav-btn:not(:disabled):hover,
+  #tab-calendar[data-calendar-design] .cal-day:not(.empty):hover {background:var(--kk-cal-chip)}
+}
+@media (max-width:600px) {
+  #tab-calendar[data-calendar-design] .kk-cal-record {gap:10px 12px}
+}
+@media (max-width:480px) {
+  #tab-calendar[data-calendar-design] .kk-calendar-designs {gap:6px;margin-bottom:20px}
+  #tab-calendar[data-calendar-design] .kk-calendar-design {padding:9px 5px;font-size:calc(12px * var(--kn-ledger-scale,1))}
+  #tab-calendar[data-calendar-design] > .month-nav {gap:8px}
+  #tab-calendar[data-calendar-design] .kk-calendar-sheet {padding:10px!important}
+  #tab-calendar[data-calendar-design] #calGrid {gap:2px}
+  #tab-calendar[data-calendar-design] .cal-head {font-size:calc(10px * var(--kn-ledger-scale,1))}
+  #tab-calendar[data-calendar-design] .cal-day {min-height:76px;padding:7px 1px 17px}
+  #tab-calendar[data-calendar-design] .cal-day-num {font-size:calc(13px * var(--kn-ledger-scale,1))}
+  #tab-calendar[data-calendar-design] .cal-day-total {font-size:calc(9px * var(--kn-ledger-scale,1))}
+  #tab-calendar[data-calendar-design] .kk-cal-log {padding:14px}
+  #tab-calendar[data-calendar-design="planner"] .kk-calendar-sheet {padding:12px 8px 12px 22px!important}
+  #tab-calendar[data-calendar-design="planner"] .kk-calendar-sheet::before {left:6px;width:5px;background-size:5px 30px}
+  #tab-calendar[data-calendar-design="planner"] .kk-calendar-sheet::after {left:16px}
+  #tab-calendar[data-calendar-design="planner"] .mnav-lbl {font-size:calc(23px * var(--kn-ledger-scale,1))}
+  #tab-calendar[data-calendar-design="modern"] .kk-calendar-sheet {padding:0!important}
+  #tab-calendar[data-calendar-design="modern"] #calGrid {gap:0}
+  #tab-calendar[data-calendar-design="modern"] .mnav-lbl {font-size:calc(28px * var(--kn-ledger-scale,1))}
+  #tab-calendar[data-calendar-design="modern"] .cal-day {min-height:82px}
+  #tab-calendar[data-calendar-design="pop"] > .month-nav {padding:10px 6px}
+  #tab-calendar[data-calendar-design="pop"] .mnav-lbl {font-size:calc(23px * var(--kn-ledger-scale,1))}
+  #tab-calendar[data-calendar-design="pop"] .kk-calendar-sheet {padding:10px!important}
+  #tab-calendar[data-calendar-design="pop"] #calGrid {gap:3px}
+  #tab-calendar[data-calendar-design="pop"] .cal-day {min-height:85px}
+  #tab-calendar[data-calendar-design="pop"] .cal-day-num {min-width:0;min-height:0;width:100%;max-width:29px;aspect-ratio:1;padding:0 1px;font-size:calc(12px * var(--kn-ledger-scale,1))}
+}
+@media (prefers-reduced-motion:reduce) {
+  #tab-calendar[data-calendar-design] :is(.kk-calendar-design,.mnav-btn,.cal-day) {transition:none;animation:none}
+}
