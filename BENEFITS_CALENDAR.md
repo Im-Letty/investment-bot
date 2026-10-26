@@ -1,9 +1,10 @@
 # Shareholder benefits calendar
 
-The catalogue contains 35 company information records: the original nine reviewed
+The catalogue contains 36 company information records: the original nine reviewed
 on 2026-09-25, fifteen additions on 2026-10-17, three on 2026-10-18, three on
 2026-10-19, two on 2026-10-20, two on 2026-10-23 and one dated one-time benefit
-on 2026-10-24. This total includes past-record information; it is not a count of
+on 2026-10-24 and one current programme on 2026-10-27. This total includes
+past-record information; it is not a count of
 companies currently offering an annual programme. The owner chose phased
 expansion using free official sources only. This remains a partial, manually reviewed catalogue, not a
 complete benefit-issuer list or automatic data updater. Missing records never mean
@@ -656,3 +657,36 @@ All previous34 public records, their confirmation dates and12 explicit schedules
 are preserved. The new dated one-time record is shown outside the purchase
 calendar and ordinary next-deadline list. Asset and actual public UI verification
 remain separate from repository build and this source note.
+
+
+## Current programme reviewed on 2026-10-27
+
+- 1801 Taisei Corporation: https://www.taisei.co.jp/ir/stock/yutai/
+  The annual March 31 register determines the benefit, with late-June dispatch
+  planned. Golf coupons have two nonadditive share brackets: 100–999 shares
+  receive one 2,000-yen A coupon and one 2,000-yen B coupon; 1,000+ shares
+  receive one 5,000-yen coupon of each type. Their validity periods differ.
+  Construction and brokerage discounts have four share/holding alternatives,
+  each with three coupons of 10,000, 30,000 or 50,000 yen. The three-year test
+  requires the same shareholder number at seven consecutive March/September
+  registers; historical minimum shares at every register are unstated.
+  Contract amounts limit usable coupon counts, and notice at the first
+  negotiation is required. Separate brokerage validity exceptions are retained.
+  At 1,000+ shares, one simplified seismic-risk application covers one eligible
+  domestic building owned by the shareholder or a relative within the third
+  degree. This is not an on-site structural inspection.
+  Golf redemption limits, provider restrictions, application deadlines and
+  the distinction between a processing estimate and actual receipt remain
+  explicit in the public record. Unstated minimum holding durations remain
+  unknown. Programme inception in 2010 and share brackets used from June 2018
+  do not establish an exact current-version effective date. The root review
+  covered programme/FAQ/terms and bounded IR evidence; a separate reviewer
+  checked the programme HTML's numeric tiers and conditions. Dynamic IR
+  rows did not establish complete amendment coverage. Only independently
+  written facts are used; note and original HTML hashes remain separate.
+
+All 35 previous public records, their confirmation dates and 12 explicit
+purchase schedules retain their exact values. The new record has no purchase
+schedule; no next-year entitlement, trade deadline, actual dispatch or arrival
+is inferred. Coverage remains partial. Repository validation and public
+publication verification are separate steps.
