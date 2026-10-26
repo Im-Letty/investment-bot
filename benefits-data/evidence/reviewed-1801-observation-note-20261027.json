@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "code": "1801",
+  "name": "大成建設",
+  "recorded_at_jst": "2026-10-27T07:38:56.704530+09:00",
+  "evidence_kind": "authored_primary_source_observation_note",
+  "primary_observations": [
+    {
+      "receipt": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261027-072420/company-1801/http-10.json",
+        "sha256": "0d3c009390e888fd4407c418881418ad768ad67280ae07dc977e27872ff4876f",
+        "bytes": 16905
+      },
+      "source_URL": "https://www.taisei.co.jp/ir/news.html",
+      "observed_at_jst": "2026-10-27T07:35:42.081331+09:00",
+      "http_status": 200,
+      "original_page_sha256": "667d74da0004830f53c5db763a823441e82e66c805bad7e5a91e0836ffeb0d0d",
+      "response_bytes": 49840
+    },
+    {
+      "receipt": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261027-072420/company-1801/http-11.json",
+        "sha256": "0ed6d62d79a3e0fa44d2eaf3ff27ca1839dc47256930034285bdf1673ae60070",
+        "bytes": 18901
+      },
+      "source_URL": "https://www.taisei.co.jp/ir/stock/yutai/",
+      "observed_at_jst": "2026-10-27T07:36:53.813343+09:00",
+      "http_status": 200,
+      "original_page_sha256": "546c176c809eadf8807a52ac4a510637eee5225f705847ae888fe44a46f4ed7b",
+      "response_bytes": 70785
+    },
+    {
+      "receipt": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261027-072420/company-1801/http-3.json",
+        "sha256": "81b470cf5007c474a52aedc3e15dec11033b8118775b482d3db2a4162e54b4a8",
+        "bytes": 18900
+      },
+      "source_URL": "https://www.taisei.co.jp/ir/stock/yutai/",
+      "observed_at_jst": "2026-10-27T07:31:15.434669+09:00",
+      "http_status": 200,
+      "original_page_sha256": "546c176c809eadf8807a52ac4a510637eee5225f705847ae888fe44a46f4ed7b",
+      "response_bytes": 70785
+    },
+    {
+      "receipt": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261027-072420/company-1801/http-4.json",
+        "sha256": "82be01d4d25c5bc386b48946c7f7667ea46fcf14dcadf07dac05b88b18ed9f13",
+        "bytes": 16730
+      },
+      "source_URL": "https://www.taisei.co.jp/terms.html",
+      "observed_at_jst": "2026-10-27T07:32:11.680035+09:00",
+      "http_status": 200,
+      "original_page_sha256": "fa165404b2cf05d7abfb8ee7cbc145a2680800e699feed2a9ff096e0123735d9",
+      "response_bytes": 51313
+    },
+    {
+      "receipt": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261027-072420/company-1801/http-5.json",
+        "sha256": "2b9ca4bd26129f33f39e9b2c7d4c1bb5c1843b15cba90cf05e1a3ff38f604729",
+        "bytes": 18298
+      },
+      "source_URL": "https://www.taisei.co.jp/ir/stock/yutai-faq/",
+      "observed_at_jst": "2026-10-27T07:35:06.188367+09:00",
+      "http_status": 200,
+      "original_page_sha256": "544c7928388bf83e2c85c6b6a34739fbc88f08cd24df64152f64a87e78053500",
+      "response_bytes": 79125
+    },
+    {
+      "receipt": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261027-072420/company-1801/http-6.json",
+        "sha256": "d721dac44052045ce3506a6070d72d72a84ef866bb1d8d50351a0fab7cde87b2",
+        "bytes": 16736
+      },
+      "source_URL": "https://www.taisei.co.jp/ir/question.html",
+      "observed_at_jst": "2026-10-27T07:35:16.851929+09:00",
+      "http_status": 200,
+      "original_page_sha256": "81610e3f1c4b57eeab6c3e6331b0604ff7a364c7c70efb5a9d49ad26762a5f92",
+      "response_bytes": 52553
+    }
+  ],
+  "issuer_identity": {
+    "local_StockSearch_code": "1801",
+    "symbol": "1801.T",
+    "name": "大成建設",
+    "primary_exchange": "Tokyo",
+    "local_market": "プライム（内国株式）",
+    "other_listing": "Nagoya",
+    "official_general_FAQ_observed_exchanges": [
+      "東京",
+      "名古屋"
+    ],
+    "official_unit_shares": 100,
+    "official_benefit_page_issuer_name_matches": true,
+    "official_programme_body_explicit_code_observed": false,
+    "all_market_snapshot_today_freshness_proven": false
+  },
+  "facts": {
+    "annual_record_month_day": "03-31",
+    "annual_count": 1,
+    "minimum_shares": 100,
+    "base_holding_months_unstated": null,
+    "programme_creation_year_from_FAQ": 2010,
+    "present_share_brackets_used_from_dispatch": "2018-06",
+    "current_full_version_effective_date": null,
+    "new_purchase_deadline": null,
+    "dispatch": "6月下旬予定。実発送・到着は未確認。",
+    "golf": {
+      "shares_100_to_999": {
+        "A_yen": 2000,
+        "A_count": 1,
+        "B_yen": 2000,
+        "B_count": 1
+      },
+      "shares_1000_plus": {
+        "A_yen": 5000,
+        "A_count": 1,
+        "B_yen": 5000,
+        "B_count": 1
+      },
+      "A_valid": "交付年8月1日から11月下旬",
+      "B_valid": "翌年4月上旬から7月31日",
+      "usage": "軽井沢高原ゴルフ倶楽部の現地精算。休日は1名1プレー1枚、平日は1組4名まで1プレー1枚。平日同士の宿泊利用は1枚で2プレー。金曜から土曜の例では土曜分は別券が必要。AとBは期間が異なり合算利用しない。",
+      "restrictions": "旅行会社への前払い、年会費・名義変更料には使えない。飲食・物販・宿泊はプレーと同時にフロント精算する場合に利用。一般客と同じ予約扱い。割引併用可、差額のおつりなし。譲渡可能。"
+    },
+    "construction": {
+      "tiers": [
+        [
+          100,
+          999,
+          "3年未満",
+          10000,
+          3
+        ],
+        [
+          100,
+          999,
+          "3年以上",
+          30000,
+          3
+        ],
+        [
+          1000,
+          null,
+          "3年未満",
+          30000,
+          3
+        ],
+        [
+          1000,
+          null,
+          "3年以上",
+          50000,
+          3
+        ]
+      ],
+      "long_holding": "同一株主番号で3月末・9月末の名簿に7回以上連続して記録された3月31日時点の株主。過去の各回の最低株数は確認資料に明記なし。",
+      "tax_exclusive_construction_price_coupon_count": [
+        [
+          200000,
+          999999,
+          1
+        ],
+        [
+          1000000,
+          1999999,
+          2
+        ],
+        [
+          2000000,
+          null,
+          3
+        ]
+      ],
+      "brokerage": "同じ金額区分を使い、20万円未満でも1枚可。税区分の別記は未確認。",
+      "companies": [
+        "大成建設ハウジング",
+        "大成ユーレック",
+        "大成有楽不動産",
+        "大成有楽不動産販売"
+      ],
+      "validity": "翌年6月30日まで。工事費等の支払時点が基準。仲介は有効期間内の媒介契約であれば支払が期限後でも利用可、継続した更新も対象。",
+      "restrictions": "最初の商談時に券を使う旨を事前申告。譲渡可能、割引併用可、おつりなし。契約ごとの税抜代金で枚数を判定し、共同発注人数では増えない。追加工事が別契約ならその金額区分で判定。"
+    },
+    "seismic": {
+      "minimum_shares": 1000,
+      "application_forms": 1,
+      "buildings_per_form": 1,
+      "eligible": "日本国内、株主本人または3親等以内の親族名義の建物。共有・区分所有も可。賃借入居だけでは対象外。",
+      "validity": "翌年6月30日の申込まで。",
+      "scope": "チェックシートに基づく簡易診断。現地・図面の調査はしない。マンションは区分部分ではなく建物単位。工業化住宅の分析には限りがある。",
+      "processing_estimate": "チェックシート提出後2〜3週間の場合がある。発送・到着の確約ではない。"
+    }
+  },
+  "source_conditions": {
+    "scope": "著作権のあるサイト表現の無断複製等を制限する条項として確認。独立した短い数値事実の自作文のみを採用し、原文の表・画像・長文は転載しない。包括的な再利用許諾を得たとは扱わない。",
+    "outgoing_link_contact_or_homepage_only_rule_observed": false,
+    "linked_external_site_disclaimer_is_citation_permission_rule": false
+  },
+  "limits": [
+    "IRニュース本文は動的一覧が表示されず、全ての改廃不存在を確認したとはいえない。現在の公式制度とFAQを根拠とする限定確認。",
+    "制度創設年2010と現行区分・全条件の適用日を混同しない。",
+    "元の公表日・現行全条件の適用開始日は不明。次回購入締切は別の日程・継続条件未確認のため作らない。",
+    "優待額を無条件の現金や年次総額へ換算しない。"
+  ],
+  "source_prose_tables_or_images_republished": false,
+  "raw_HTML_saved": false,
+  "observation_note_SHA_is_raw_page_SHA": false
+}

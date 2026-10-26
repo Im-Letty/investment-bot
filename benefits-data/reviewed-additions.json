@@ -1926,6 +1926,144 @@
           "schedules": []
         }
       ]
+    },
+    {
+      "code": "1801",
+      "symbol": "1801.T",
+      "name": "大成建設",
+      "category": "ゴルフ・工事等割引",
+      "aliases": "大成建設株式会社 軽井沢高原ゴルフ倶楽部",
+      "versions": [
+        {
+          "id": "current-html-reviewed-20261027",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-10-27",
+          "programme_start_year": 2010,
+          "programme_start_year_is_current_tier_start": false,
+          "current_share_thresholds_since_month": "2018-06",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://www.taisei.co.jp/ir/stock/yutai/",
+            "title": "大成建設公式 株主優待制度",
+            "security_code": "1801",
+            "issuer_name": "大成建設",
+            "official_legal_name": "大成建設株式会社",
+            "security_code_basis": "発行体名・公式FAQの上場市場と単元を、現在ローカルStockSearchの1801.T・大成建設・東京Prime/名古屋Premierに照合。制度HTMLへの証券コード印字を確認したという意味ではない。",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-27T07:31:15.434669+09:00",
+            "observed_at_kind": "actual_root_official_HTML_GET_finished_at_jst",
+            "evidence_path": "evidence/reviewed-1801-observation-note-20261027.json",
+            "evidence_sha256": "eec5a6532c047cdf5585e12dcefe77f44a13c378710dbd0c9ff54d4c7fa014c0",
+            "original_HTML_sha256": "546c176c809eadf8807a52ac4a510637eee5225f705847ae888fe44a46f4ed7b",
+            "original_HTML_bytes": 70785
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "root-primary-FAQ-terms-and-independent-programme-HTML-numeric-review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "Rootが制度本文・制度FAQ・一般IRFAQ・利用条件・現在IR一覧を確認。別担当が制度HTMLを1回通常GETし、ゴルフ2区分・工事等4区分・簡易診断1区分と主要条件を独立照合。FAQ・利用条件の詳細はRootの観測ノートと取得receiptを照合し、別担当がその原本文を再読したとは主張しない。IRニュースは動的本文の実際の発表行を確認できず、全改廃や将来の変更不存在を保証しない。2010年の制度開始と2018年6月発送からの株数基準を、正確な現行区分開始日へ読み替えない。原文・表・画像を転載せず短い独立した事実を記載。",
+            "all_future_amendments_verified_absent": false,
+            "general_reuse_licence_claimed": false,
+            "primary_original_SHA_separate_from_note_SHA": true,
+            "official_programme_body_printed_security_code_verified": false,
+            "local_StockSearch_code_name_symbol_market_join_verified": true,
+            "all_listing_freshness_verified": false,
+            "independent_numeric_source_review": {
+              "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261027-072420/company-1801/independent-source-review.json",
+              "sha256": "0ebd78d5e79b4a87577ca930aa2b7934763a34f998d63b0e689efda6df9d1d39"
+            },
+            "final_public_record_wording_reviewed": true,
+            "root_FAQ_note_checked": {
+              "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261027-072420/company-1801/observation-note.json",
+              "sha256": "eec5a6532c047cdf5585e12dcefe77f44a13c378710dbd0c9ff54d4c7fa014c0",
+              "scope": "Authored observations and receipt metadata; FAQ original body was not independently reread."
+            },
+            "final_public_record_wording_review": {
+              "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261027-072420/company-1801/final-wording-review.json",
+              "sha256": "3840fd1a13436704db0ecc050f70a22872cd5e6aa5bbc7ea305b1e945168def6",
+              "candidate_sha256": "abc480b9079408501e4fbc4a3cca92e230541ada2c677ce77290d51c17bee3d4",
+              "scope": "Exact root-final candidate wording; numeric programme original independently read and FAQ details compared to root observations, as recorded in the proof."
+            }
+          },
+          "period": "毎年3月31日の株主名簿で対象を判定する年1回の優待です。制度は2010年開始、現在の株数基準は2018年6月発送からとの案内です。現在区分の正確な適用開始日と、次回の具体的な購入締切日は未確認です。",
+          "conditions": "最低100株。売買単元も100株です。ゴルフ割引、工事・仲介等の割引、簡易地震リスク診断には、それぞれ利用条件があります。工事等の割引は株数と保有期間の4区分のうち該当する1区分で、加算しません。3年以上の判定は同一株主番号で3月末・9月末に7回以上連続記録が必要ですが、過去各回の最低株数は未記載です。3年未満区分や他の優待の未記載の保有期間を0とは扱っていません。",
+          "use": "優待クーポン券は譲渡可能です。割引後の代金を超える分のおつりは出ません。\nゴルフは軽井沢高原ゴルフ倶楽部の現地精算に使います。土日祝は1人1プレーにつき1枚、平日は1組4人までの1プレーに1枚で、1組2枚以上は使えません。平日同士の宿泊利用は1枚で2プレーが対象です。金曜日プレー・1泊・土曜日プレーの例では、土曜分に別券が必要です。同じ日の1.5〜2プレーでも1枚につき1プレー分です。A券は交付年8月1日〜11月下旬、B券は翌年4月上旬〜7月31日。期間が異なるためA・Bをまとめて利用できません。予約の優先権はなく、旅行会社への事前払い、年会費・名義変更料には使えません。飲食・物販・宿泊代はプレー代と併せてフロント精算する場合だけ使えます。他の割引との併用は可能です。\n工事等の対象は、大成建設ハウジングの新築・リフォーム、大成ユーレックの新築・リニューアル、大成有楽不動産のリニューアル、大成有楽不動産販売の売買・賃貸仲介とリフォームです。最初の商談時に利用を事前に申し出てください。税抜請負代金20万円以上100万円未満は1枚、100万円以上200万円未満は2枚、200万円以上は3枚です。仲介手数料も同じ金額区分で、20万円未満でも1枚可。仲介手数料の税区分の別記は未確認です。共同発注でも契約ごとの金額で枚数を判定し、別契約の追加工事はその金額区分で判定します。他の割引と併用可能です。期限は翌年6月30日で、工事費等の支払時点が基準です。仲介は有効期間内の媒介契約なら支払が期限後でも利用でき、元の契約と連続する更新も対象です。\n簡易地震リスク診断は1,000株以上に申込書1枚、1枚で1棟。日本国内の、株主本人または3親等以内の親族名義の建物が対象で、共有・区分所有も可能です。賃借入居だけでは対象外です。チェックシートの情報に基づき、現地調査や図面による耐震診断は行いません。マンションは区分部分ではなく建物単位の診断です。工業化住宅の分析には限りがあります。申込みは翌年6月30日まで。提出後2〜3週間かかる場合があるという処理目安で、到着の確約ではありません。",
+          "delivery": "毎年6月下旬に発送予定です。実際の発送・到着は未確認です。ゴルフ券の有効期間、工事等の割引券の利用期限、簡易診断の申込期限はそれぞれ異なります。次回分の具体的な購入締切日から発送・到着日を推測していません。",
+          "grant_summary": "6月下旬発送予定。ゴルフ2区分、工事等4区分、1,000株以上の簡易診断を、それぞれの条件で利用します。",
+          "tiers": [
+            {
+              "id": "golf-100-999",
+              "shares_min": 100,
+              "shares_max": 999,
+              "holding_months_min": null,
+              "holding_requirement": "保有期間・同一株主番号・連続名簿回数の追加条件は、確認した資料では未記載",
+              "reward": "ゴルフ割引A券2,000円1枚とB券2,000円1枚",
+              "conditions": "A券・B券は利用期間が異なり、併用できません。現地での対象プレー代の割引で、現金給付ではありません。"
+            },
+            {
+              "id": "golf-1000plus",
+              "shares_min": 1000,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "保有期間・同一株主番号・連続名簿回数の追加条件は、確認した資料では未記載",
+              "reward": "ゴルフ割引A券5,000円1枚とB券5,000円1枚",
+              "conditions": "A券・B券は利用期間が異なり、併用できません。100〜999株区分と加算しません。対象プレー代の割引です。"
+            },
+            {
+              "id": "work-100-999-under3years",
+              "shares_min": 100,
+              "shares_max": 999,
+              "holding_months_min": null,
+              "holding_requirement": "3年未満の区分。これ以外の最低保有期間・連続名簿条件は未記載",
+              "reward": "工事請負代金・仲介手数料等の割引券10,000円3枚",
+              "conditions": "初回商談時の申告が必要です。契約・支払額によって利用可能な枚数が変わり、券面の合計額を無条件で利用できるものではありません。他の株数・保有期間区分と加算しません。"
+            },
+            {
+              "id": "work-100-999-3years",
+              "shares_min": 100,
+              "shares_max": 999,
+              "holding_months_min": 36,
+              "holding_requirement": "3年以上。同一株主番号で3月末・9月末の株主名簿に7回以上連続記録。各回の最低株数は未記載",
+              "reward": "工事請負代金・仲介手数料等の割引券30,000円3枚",
+              "conditions": "初回商談時の申告が必要です。契約・支払額によって利用可能な枚数が変わり、券面の合計額を無条件で利用できるものではありません。3年未満区分等と加算しません。"
+            },
+            {
+              "id": "work-1000plus-under3years",
+              "shares_min": 1000,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "3年未満の区分。これ以外の最低保有期間・連続名簿条件は未記載",
+              "reward": "工事請負代金・仲介手数料等の割引券30,000円3枚",
+              "conditions": "初回商談時の申告が必要です。契約・支払額によって利用可能な枚数が変わり、券面の合計額を無条件で利用できるものではありません。他の株数・保有期間区分と加算しません。"
+            },
+            {
+              "id": "work-1000plus-3years",
+              "shares_min": 1000,
+              "shares_max": null,
+              "holding_months_min": 36,
+              "holding_requirement": "3年以上。同一株主番号で3月末・9月末の株主名簿に7回以上連続記録。各回の最低株数は未記載",
+              "reward": "工事請負代金・仲介手数料等の割引券50,000円3枚",
+              "conditions": "初回商談時の申告が必要です。契約・支払額によって利用可能な枚数が変わり、券面の合計額を無条件で利用できるものではありません。3年未満区分等と加算しません。"
+            },
+            {
+              "id": "simplified-seismic-1000plus",
+              "shares_min": 1000,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "保有期間・同一株主番号・連続名簿回数の追加条件は、確認した資料では未記載",
+              "reward": "簡易地震リスク診断の申込書1枚（1棟分）",
+              "conditions": "日本国内で株主又は3親等以内の親族名義の建物が対象。共有・区分所有を含み、賃借人は対象外。マンションも建物単位。翌年6月30日までに申込み。現地調査・図面による耐震診断や安全性の保証は含みません。"
+            }
+          ],
+          "schedules": []
+        }
+      ]
     }
   ]
 }
