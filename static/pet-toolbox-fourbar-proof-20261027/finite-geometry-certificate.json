@@ -1,0 +1,3174 @@
+{
+  "schema_version": 1,
+  "scope": "36 authored integer-angle samples by default; samples are not unique tests; no continuous collision/load/friction guarantee",
+  "unit": "wardrobe:other:storybook-sewing-toolbox:standalone-fourbar-tray:v1",
+  "uniqueTests": 10,
+  "finitePoses": 36,
+  "angles": [
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63,
+    64,
+    65,
+    66,
+    67,
+    68,
+    69,
+    70,
+    71,
+    72,
+    73,
+    74,
+    75,
+    76,
+    77,
+    78,
+    79,
+    80
+  ],
+  "maximumActualPinClosure": 4.577566798522237e-16,
+  "maximumTrayRise": 2.220446049250313e-16,
+  "maximumBoreOffAxis": 4.577566798522237e-16,
+  "minimumRadialChordClearance": 0.006927159818824129,
+  "collisionCount": 0,
+  "bounds": {
+    "min": [
+      -1.47,
+      0,
+      -0.7000000000000001
+    ],
+    "max": [
+      1.47,
+      1.864807753012208,
+      0.719
+    ],
+    "size": [
+      2.94,
+      1.864807753012208,
+      1.419
+    ],
+    "method": "actual rigid vertices; analytic trig extrema over45..80deg on circle-solved equal-length parallelogram branch; envelope, not continuous collision proof"
+  },
+  "budget": {
+    "parts": 92,
+    "triangles": 18288,
+    "geometries": 7,
+    "materials": 5,
+    "textures": 0,
+    "geometryAllocationsPerPose": 0
+  },
+  "placement": {
+    "townPoint": {
+      "x": 1200,
+      "y": 1300
+    },
+    "worldPosition": {
+      "x": -2.4,
+      "y": 0.02499999999999937,
+      "z": 3.4
+    },
+    "finiteFootprintGrid": {
+      "count": 722,
+      "blocked": 0
+    },
+    "feet": [
+      {
+        "id": "base-sole--1.22--0.55",
+        "localSoleY": 0,
+        "supportY": 0.02499999999999937,
+        "surface": "dry-land",
+        "soleMinusFloor": 0,
+        "actualWorldSoleY": 0.024999999999999363,
+        "actualWorldSoleMinusFloor": -6.938893903907228e-18
+      },
+      {
+        "id": "base-sole--1.22-0.55",
+        "localSoleY": 0,
+        "supportY": 0.024999999999999346,
+        "surface": "dry-land",
+        "soleMinusFloor": 2.42861286636753e-17,
+        "actualWorldSoleY": 0.024999999999999363,
+        "actualWorldSoleMinusFloor": 1.734723475976807e-17
+      },
+      {
+        "id": "base-sole-1.22--0.55",
+        "localSoleY": 0,
+        "supportY": 0.02499999999999937,
+        "surface": "dry-land",
+        "soleMinusFloor": 0,
+        "actualWorldSoleY": 0.024999999999999363,
+        "actualWorldSoleMinusFloor": -6.938893903907228e-18
+      },
+      {
+        "id": "base-sole-1.22-0.55",
+        "localSoleY": 0,
+        "supportY": 0.024999999999999346,
+        "surface": "dry-land",
+        "soleMinusFloor": 2.42861286636753e-17,
+        "actualWorldSoleY": 0.024999999999999363,
+        "actualWorldSoleMinusFloor": 1.734723475976807e-17
+      }
+    ],
+    "normalPlacement": false,
+    "otherDecorationCollisionVerified": false,
+    "scope": "one dryland preview location; actual transformed four sole vertices/floor ray hits, finite walkability samples, current original Sprite full-quad conservative envelope; no ordinary placement or all-camera occlusion proof",
+    "actualWorldSolesChecked": true,
+    "originalSpriteEnvelopeClearance": {
+      "checkedCards": 141,
+      "kinds": {
+        "home": 1,
+        "cafe": 1,
+        "shop": 1,
+        "fountain": 1,
+        "tree": 27,
+        "flowers": 106,
+        "lantern": 4
+      },
+      "minimumGap": 0.45464741358960226,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -3.620171337412489,
+            0.026,
+            1.9259135351825603
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 0.7740864648174395,
+          "gap": 0.45464741358960226
+        },
+        {
+          "kind": "lantern",
+          "sourceSHA256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+          "contact": [
+            -5.472,
+            0.025,
+            4.223999999999998
+          ],
+          "fullQuadRadius": 0.9909739577995439,
+          "envelopeDistance": 1.60543732359753,
+          "gap": 0.6144633657979862
+        },
+        {
+          "kind": "tree",
+          "sourceSHA256": "f2f13fd18a0b27cec312c10b2f9dc55694d98072f06b8c52c5a56b25210e03a1",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            -1.4520000000000004
+          ],
+          "fullQuadRadius": 3.540721855111509,
+          "envelopeDistance": 4.167063714415703,
+          "gap": 0.6263418593041941
+        },
+        {
+          "kind": "shop",
+          "sourceSHA256": "25ea663a1132f09b55329ed326f881a601162689d962ff084a6c653359d61e85",
+          "contact": [
+            -8.064,
+            0.025,
+            2.6999999999999997
+          ],
+          "fullQuadRadius": 3.469184978044895,
+          "envelopeDistance": 4.194,
+          "gap": 0.7248150219551048
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            6.035999999999999
+          ],
+          "fullQuadRadius": 0.9507114619876108,
+          "envelopeDistance": 1.949411449643198,
+          "gap": 0.9986999876555872
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -3.4762096606368775,
+            0.026,
+            6.079101177556104
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 1.960101177556104,
+          "gap": 1.6406621263282668
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            1.3751814482148574,
+            0.026,
+            5.10897405510206
+          ],
+          "fullQuadRadius": 0.8081047426894692,
+          "envelopeDistance": 2.508766656939055,
+          "gap": 1.700661914249586
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -5.696198453616935,
+            0.026,
+            5.1798366606554165
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 2.111960040479796,
+          "gap": 1.7925209892519587
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -5.646198453616935,
+            0.026,
+            5.199836660655416
+          ],
+          "fullQuadRadius": 0.1314263525051673,
+          "envelopeDistance": 2.0792038941979554,
+          "gap": 1.947777541692788
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -8.090402616939109,
+            0.026,
+            6.04046415084556
+          ],
+          "fullQuadRadius": 0.9221901181279824,
+          "envelopeDistance": 4.637221445224622,
+          "gap": 3.7150313270966393
+        }
+      ],
+      "method": "sphere enclosing all four full raw Sprite quad corners from actual world scale/center; sphere-to-conservative-3D-pose-envelope distance; includes faint/transparent corners without cropping",
+      "cameraOrientationIndependentGeometryEnvelope": true,
+      "physicalFixtureVolumes": false,
+      "allCameraProjectionOcclusionGuaranteed": false
+    },
+    "originalSpriteVisualEnvelopeClearanceVerified": true
+  },
+  "finitePoseWitnesses": [
+    {
+      "angle": 45,
+      "maximumActualPinClosure": 1.1102230246251565e-16,
+      "actualTrayPivotSpan": 0.9999999999999999,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.006927159818824344,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": false,
+          "maxSeparation": -3.576278717609682e-9,
+          "minOverlap": 3.576278717609682e-9,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.20168272622312822,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": false,
+          "maxSeparation": -3.576278717609682e-9,
+          "minOverlap": 3.576278717609682e-9,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.20168272622312822,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 46,
+      "maximumActualPinClosure": 0,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.006927159818824455,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.006618203433964243,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.19710668127255893,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.006618203433964243,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.19710668127255893,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 47,
+      "maximumActualPinClosure": 3.1401849173675503e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.006927159818824177,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.013206979602390256,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.19244318084451983,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.013206979602390256,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.19244318084451983,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 48,
+      "maximumActualPinClosure": 2.220446049250313e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.006927159818824129,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.019764317923951613,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.18769364548641765,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.019764317923951613,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.18769364548641765,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 49,
+      "maximumActualPinClosure": 2.220446049250313e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": -2.220446049250313e-16,
+      "minimumRadialChordClearance": 0.006927159818824399,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.026288220969873044,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.18285952195273214,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.026288220969873044,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.18285952195273214,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 50,
+      "maximumActualPinClosure": 3.1401849173675503e-16,
+      "actualTrayPivotSpan": 0.9999999999999999,
+      "actualTrayRiseBetweenPins": 2.220446049250313e-16,
+      "minimumRadialChordClearance": 0.006927159818824323,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.03277670149608858,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.17794228276432078,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.03277670149608858,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.17794228276432078,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 51,
+      "maximumActualPinClosure": 2.220446049250313e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": -2.220446049250313e-16,
+      "minimumRadialChordClearance": 0.006927159818824344,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.039227783048574105,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.17294342575987498,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.039227783048574105,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.17294342575987498,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 52,
+      "maximumActualPinClosure": 0,
+      "actualTrayPivotSpan": 0.9999999999999999,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.006927159818824337,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.04563950056539634,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.16786447363966317,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.04563950056539634,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.16786447363966317,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 53,
+      "maximumActualPinClosure": 1.1102230246251565e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.006927159818824184,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.05200990097528746,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.16270697350170227,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.05200990097528746,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.16270697350170227,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 54,
+      "maximumActualPinClosure": 0,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.0069271598188242675,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.05833704379257143,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.15747249637049576,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.05833704379257143,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.15747249637049576,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 55,
+      "maximumActualPinClosure": 3.1401849173675503e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.006927159818824254,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.06461900170825352,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.15216263671848562,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.06461900170825352,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.15216263671848562,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 56,
+      "maximumActualPinClosure": 0,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.006927159818824441,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.07085386117709802,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.14677901198035936,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.07085386117709802,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.14677901198035936,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 57,
+      "maximumActualPinClosure": 0,
+      "actualTrayPivotSpan": 0.9999999999999999,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.006927159818824344,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.07703972300051232,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.14132326206036494,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.07703972300051232,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.14132326206036494,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 58,
+      "maximumActualPinClosure": 2.220446049250313e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": -2.220446049250313e-16,
+      "minimumRadialChordClearance": 0.006927159818824198,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.08317470290506124,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.13579704883277877,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.08317470290506124,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.13579704883277877,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 59,
+      "maximumActualPinClosure": 3.1401849173675503e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": -2.220446049250313e-16,
+      "minimumRadialChordClearance": 0.006927159818824198,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.0892569321164347,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.13020205563568354,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.0892569321164347,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.13020205563568354,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 60,
+      "maximumActualPinClosure": 0,
+      "actualTrayPivotSpan": 0.9999999999999999,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.0069271598188242745,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.09528455792869533,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.12453998675820721,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.09528455792869533,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.12453998675820721,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 61,
+      "maximumActualPinClosure": 2.482534153247273e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": -2.220446049250313e-16,
+      "minimumRadialChordClearance": 0.006927159818824483,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.10125574426862965,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.11881256692137943,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.10125574426862965,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.11881256692137943,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 62,
+      "maximumActualPinClosure": 2.220446049250313e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.006927159818824177,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.10716867225503435,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.11302154075276527,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.10716867225503435,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.11302154075276527,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 63,
+      "maximumActualPinClosure": 1.1102230246251565e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.006927159818824392,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.11302154075276505,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.10716867225503446,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.11302154075276505,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.10716867225503446,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 64,
+      "maximumActualPinClosure": 2.482534153247273e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.00692715981882417,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.11881256692137931,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.10125574426862971,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.11881256692137931,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.10125574426862971,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 65,
+      "maximumActualPinClosure": 3.1401849173675503e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": -2.220446049250313e-16,
+      "minimumRadialChordClearance": 0.0069271598188242745,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.12453998675820721,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.09528455792869528,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.12453998675820721,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.09528455792869528,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 66,
+      "maximumActualPinClosure": 0,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.006927159818824351,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.1302020556356835,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.0892569321164347,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.1302020556356835,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.0892569321164347,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 67,
+      "maximumActualPinClosure": 2.482534153247273e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": -2.220446049250313e-16,
+      "minimumRadialChordClearance": 0.006927159818824247,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.13579704883277866,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.08317470290506135,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.13579704883277866,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.08317470290506135,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 68,
+      "maximumActualPinClosure": 1.1102230246251565e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.006927159818824344,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.141323262060365,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.07703972300051232,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.141323262060365,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.07703972300051232,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 69,
+      "maximumActualPinClosure": 1.1102230246251565e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.006927159818824316,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.14677901198035953,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.07085386117709824,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.14677901198035953,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.07085386117709824,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 70,
+      "maximumActualPinClosure": 2.220446049250313e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": -2.220446049250313e-16,
+      "minimumRadialChordClearance": 0.006927159818824316,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.15216263671848562,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.06461900170825363,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.15216263671848562,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.06461900170825363,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 71,
+      "maximumActualPinClosure": 4.577566798522237e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": -2.220446049250313e-16,
+      "minimumRadialChordClearance": 0.006927159818824337,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.15747249637049576,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.05833704379257154,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.15747249637049576,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.05833704379257154,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 72,
+      "maximumActualPinClosure": 0,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.006927159818824351,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.1627069735017022,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.05200990097528757,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.1627069735017022,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.05200990097528757,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 73,
+      "maximumActualPinClosure": 0,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.006927159818824295,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.16786447363966317,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.04563950056539645,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.16786447363966317,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.04563950056539645,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 74,
+      "maximumActualPinClosure": 1.1102230246251565e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.006927159818824337,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.17294342575987498,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.03922778304857433,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.17294342575987498,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.03922778304857433,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 75,
+      "maximumActualPinClosure": 3.3306690738754696e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.006927159818824295,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.17794228276432078,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.03277670149608858,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.17794228276432078,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.03277670149608858,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 76,
+      "maximumActualPinClosure": 2.220446049250313e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": 2.220446049250313e-16,
+      "minimumRadialChordClearance": 0.00692715981882424,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.18285952195273203,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.026288220969873266,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.18285952195273203,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.026288220969873266,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 77,
+      "maximumActualPinClosure": 1.6653345369377348e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.0069271598188243785,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.18769364548641754,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.019764317923951502,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.18769364548641754,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.019764317923951502,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 78,
+      "maximumActualPinClosure": 3.3306690738754696e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.006927159818824337,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.19244318084451972,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.013206979602390367,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.19244318084451972,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.013206979602390367,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 79,
+      "maximumActualPinClosure": 2.482534153247273e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": -2.220446049250313e-16,
+      "minimumRadialChordClearance": 0.006927159818824295,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.19710668127255887,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.006618203433964132,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.19710668127255887,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.006618203433964132,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    },
+    {
+      "angle": 80,
+      "maximumActualPinClosure": 2.482534153247273e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": 0,
+      "minimumRadialChordClearance": 0.006927159818824191,
+      "minimumAxialEngagement": 0.04500000722706321,
+      "checkedCrossAssemblyPairs": 2173,
+      "collisions": [],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.20168272622312805,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": false,
+          "maxSeparation": -3.5762786065873797e-9,
+          "minOverlap": 3.5762786065873797e-9,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.20168272622312805,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": false,
+          "maxSeparation": -3.5762786065873797e-9,
+          "minOverlap": 3.5762786065873797e-9,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ]
+    }
+  ],
+  "actualDetailedEndpointWitnesses": [
+    {
+      "angleDegrees": 45,
+      "rangeDegrees": [
+        45,
+        80
+      ],
+      "manualOnly": true,
+      "manualCoordinates": 1,
+      "pairedSides": 2,
+      "physicalLinks": 4,
+      "realPinJoints": 8,
+      "closureMethod": "second-upper-pin from follower-circle / rigid-tray-circle intersection",
+      "trayAttitudeDegrees": 0,
+      "maximumSolverResidual": 1.1102230246251565e-16,
+      "trayPoseDerivedFromTwoSolvedPins": true,
+      "externalGuideStand": false,
+      "singleTrayCarrierOnly": true,
+      "fullToolboxClosure": false,
+      "sealedStorage": false,
+      "physicalLoadFriction": false,
+      "continuousCollisionGuarantee": false,
+      "normalGame": false,
+      "save": false,
+      "linkEndpointClosures": [
+        {
+          "joint": "s-1-a0-lower",
+          "distance": 0
+        },
+        {
+          "joint": "s-1-a0-upper",
+          "distance": 1.1102230246251565e-16
+        },
+        {
+          "joint": "s-1-a1-lower",
+          "distance": 0
+        },
+        {
+          "joint": "s-1-a1-upper",
+          "distance": 0
+        },
+        {
+          "joint": "s1-a0-lower",
+          "distance": 0
+        },
+        {
+          "joint": "s1-a0-upper",
+          "distance": 1.1102230246251565e-16
+        },
+        {
+          "joint": "s1-a1-lower",
+          "distance": 0
+        },
+        {
+          "joint": "s1-a1-upper",
+          "distance": 0
+        }
+      ],
+      "maximumActualPinClosure": 1.1102230246251565e-16,
+      "actualTrayPivotSpan": 0.9999999999999999,
+      "actualTrayRiseBetweenPins": 0,
+      "actualTrayUpDot": 1,
+      "boreRows": [
+        {
+          "joint": "s-1-a0-lower",
+          "part": "s-1-a0-lower-bored-cheek--1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s-1-a0-lower",
+          "part": "s-1-a0-lower-bored-cheek-1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s-1-a0-lower",
+          "part": "two-bored-link--1-0",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.03399999843558998,
+          "maximumBoreVertexRadius": 0.03400000184774396,
+          "radialChordClearance": 0.006927201005658454
+        },
+        {
+          "joint": "s-1-a0-upper",
+          "part": "s-1-a0-upper-bored-cheek--1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s-1-a0-upper",
+          "part": "s-1-a0-upper-bored-cheek-1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s-1-a0-upper",
+          "part": "two-bored-link--1-0",
+          "innerVertexSamples": 96,
+          "offAxis": 1.1102230246251565e-16,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.03399995716038248,
+          "maximumBoreVertexRadius": 0.034000042756629545,
+          "radialChordClearance": 0.006927159818824344
+        },
+        {
+          "joint": "s-1-a1-lower",
+          "part": "s-1-a1-lower-bored-cheek--1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s-1-a1-lower",
+          "part": "s-1-a1-lower-bored-cheek-1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s-1-a1-lower",
+          "part": "two-bored-link--1-1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.03399999843558998,
+          "maximumBoreVertexRadius": 0.03400000184774396,
+          "radialChordClearance": 0.006927201005658454
+        },
+        {
+          "joint": "s-1-a1-upper",
+          "part": "s-1-a1-upper-bored-cheek--1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s-1-a1-upper",
+          "part": "s-1-a1-upper-bored-cheek-1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s-1-a1-upper",
+          "part": "two-bored-link--1-1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.03399995716038248,
+          "maximumBoreVertexRadius": 0.034000042756629614,
+          "radialChordClearance": 0.006927159818824344
+        },
+        {
+          "joint": "s1-a0-lower",
+          "part": "s1-a0-lower-bored-cheek--1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s1-a0-lower",
+          "part": "s1-a0-lower-bored-cheek-1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s1-a0-lower",
+          "part": "two-bored-link-1-0",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.03399999843558998,
+          "maximumBoreVertexRadius": 0.03400000184774396,
+          "radialChordClearance": 0.006927201005658454
+        },
+        {
+          "joint": "s1-a0-upper",
+          "part": "s1-a0-upper-bored-cheek--1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s1-a0-upper",
+          "part": "s1-a0-upper-bored-cheek-1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s1-a0-upper",
+          "part": "two-bored-link-1-0",
+          "innerVertexSamples": 96,
+          "offAxis": 1.1102230246251565e-16,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.03399995716038248,
+          "maximumBoreVertexRadius": 0.034000042756629545,
+          "radialChordClearance": 0.006927159818824344
+        },
+        {
+          "joint": "s1-a1-lower",
+          "part": "s1-a1-lower-bored-cheek--1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s1-a1-lower",
+          "part": "s1-a1-lower-bored-cheek-1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s1-a1-lower",
+          "part": "two-bored-link-1-1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.03399999843558998,
+          "maximumBoreVertexRadius": 0.03400000184774396,
+          "radialChordClearance": 0.006927201005658454
+        },
+        {
+          "joint": "s1-a1-upper",
+          "part": "s1-a1-upper-bored-cheek--1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s1-a1-upper",
+          "part": "s1-a1-upper-bored-cheek-1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s1-a1-upper",
+          "part": "two-bored-link-1-1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.03399995716038248,
+          "maximumBoreVertexRadius": 0.034000042756629614,
+          "radialChordClearance": 0.006927159818824344
+        }
+      ],
+      "jointRows": [
+        {
+          "joint": "s-1-a0-lower",
+          "linkToCheekGaps": [
+            0.020000001564621894,
+            0.020000001564621894
+          ],
+          "shaftOverhang": [
+            0.04500000722706321,
+            0.04500000722706321
+          ],
+          "boardToCollarGaps": [
+            0.008000000894069714,
+            0.008000000894069714
+          ],
+          "collarToCapGaps": [
+            0.017000000391155456,
+            0.017000000391155456
+          ],
+          "shaftEndToCapGaps": [
+            -6.388872875184859e-9,
+            -6.388872875184859e-9
+          ],
+          "actualEndcapChordRadius": 0.05188866598022013,
+          "maximumCheekBoreVertexRadius": 0.03600000133968117,
+          "endcapRetentionMargin": 0.01588866464053896
+        },
+        {
+          "joint": "s-1-a0-upper",
+          "linkToCheekGaps": [
+            0.020000001564621894,
+            0.020000001564621894
+          ],
+          "shaftOverhang": [
+            0.04500000722706321,
+            0.04500000722706321
+          ],
+          "boardToCollarGaps": [
+            0.008000000894069714,
+            0.008000000894069714
+          ],
+          "collarToCapGaps": [
+            0.017000000391155456,
+            0.017000000391155456
+          ],
+          "shaftEndToCapGaps": [
+            -6.388872875184859e-9,
+            -6.388872875184859e-9
+          ],
+          "actualEndcapChordRadius": 0.05188866598022013,
+          "maximumCheekBoreVertexRadius": 0.03600000133968117,
+          "endcapRetentionMargin": 0.01588866464053896
+        },
+        {
+          "joint": "s-1-a1-lower",
+          "linkToCheekGaps": [
+            0.020000001564621894,
+            0.020000001564621894
+          ],
+          "shaftOverhang": [
+            0.04500000722706321,
+            0.04500000722706321
+          ],
+          "boardToCollarGaps": [
+            0.008000000894069714,
+            0.008000000894069714
+          ],
+          "collarToCapGaps": [
+            0.017000000391155456,
+            0.017000000391155456
+          ],
+          "shaftEndToCapGaps": [
+            -6.388872875184859e-9,
+            -6.388872875184859e-9
+          ],
+          "actualEndcapChordRadius": 0.05188866598022013,
+          "maximumCheekBoreVertexRadius": 0.03600000133968117,
+          "endcapRetentionMargin": 0.01588866464053896
+        },
+        {
+          "joint": "s-1-a1-upper",
+          "linkToCheekGaps": [
+            0.020000001564621894,
+            0.020000001564621894
+          ],
+          "shaftOverhang": [
+            0.04500000722706321,
+            0.04500000722706321
+          ],
+          "boardToCollarGaps": [
+            0.008000000894069714,
+            0.008000000894069714
+          ],
+          "collarToCapGaps": [
+            0.017000000391155456,
+            0.017000000391155456
+          ],
+          "shaftEndToCapGaps": [
+            -6.388872875184859e-9,
+            -6.388872875184859e-9
+          ],
+          "actualEndcapChordRadius": 0.05188866598022013,
+          "maximumCheekBoreVertexRadius": 0.03600000133968117,
+          "endcapRetentionMargin": 0.01588866464053896
+        },
+        {
+          "joint": "s1-a0-lower",
+          "linkToCheekGaps": [
+            0.020000001564621894,
+            0.020000001564621894
+          ],
+          "shaftOverhang": [
+            0.04500000722706321,
+            0.04500000722706321
+          ],
+          "boardToCollarGaps": [
+            0.008000000894069714,
+            0.008000000894069714
+          ],
+          "collarToCapGaps": [
+            0.017000000391155456,
+            0.017000000391155456
+          ],
+          "shaftEndToCapGaps": [
+            -6.388872875184859e-9,
+            -6.388872875184859e-9
+          ],
+          "actualEndcapChordRadius": 0.05188866598022013,
+          "maximumCheekBoreVertexRadius": 0.03600000133968117,
+          "endcapRetentionMargin": 0.01588866464053896
+        },
+        {
+          "joint": "s1-a0-upper",
+          "linkToCheekGaps": [
+            0.020000001564621894,
+            0.020000001564621894
+          ],
+          "shaftOverhang": [
+            0.04500000722706321,
+            0.04500000722706321
+          ],
+          "boardToCollarGaps": [
+            0.008000000894069714,
+            0.008000000894069714
+          ],
+          "collarToCapGaps": [
+            0.017000000391155456,
+            0.017000000391155456
+          ],
+          "shaftEndToCapGaps": [
+            -6.388872875184859e-9,
+            -6.388872875184859e-9
+          ],
+          "actualEndcapChordRadius": 0.05188866598022013,
+          "maximumCheekBoreVertexRadius": 0.03600000133968117,
+          "endcapRetentionMargin": 0.01588866464053896
+        },
+        {
+          "joint": "s1-a1-lower",
+          "linkToCheekGaps": [
+            0.020000001564621894,
+            0.020000001564621894
+          ],
+          "shaftOverhang": [
+            0.04500000722706321,
+            0.04500000722706321
+          ],
+          "boardToCollarGaps": [
+            0.008000000894069714,
+            0.008000000894069714
+          ],
+          "collarToCapGaps": [
+            0.017000000391155456,
+            0.017000000391155456
+          ],
+          "shaftEndToCapGaps": [
+            -6.388872875184859e-9,
+            -6.388872875184859e-9
+          ],
+          "actualEndcapChordRadius": 0.05188866598022013,
+          "maximumCheekBoreVertexRadius": 0.03600000133968117,
+          "endcapRetentionMargin": 0.01588866464053896
+        },
+        {
+          "joint": "s1-a1-upper",
+          "linkToCheekGaps": [
+            0.020000001564621894,
+            0.020000001564621894
+          ],
+          "shaftOverhang": [
+            0.04500000722706321,
+            0.04500000722706321
+          ],
+          "boardToCollarGaps": [
+            0.008000000894069714,
+            0.008000000894069714
+          ],
+          "collarToCapGaps": [
+            0.017000000391155456,
+            0.017000000391155456
+          ],
+          "shaftEndToCapGaps": [
+            -6.388872875184859e-9,
+            -6.388872875184859e-9
+          ],
+          "actualEndcapChordRadius": 0.05188866598022013,
+          "maximumCheekBoreVertexRadius": 0.03600000133968117,
+          "endcapRetentionMargin": 0.01588866464053896
+        }
+      ],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": false,
+          "maxSeparation": -3.576278717609682e-9,
+          "minOverlap": 3.576278717609682e-9,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": true,
+          "maxSeparation": 0.20168272622312822,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": false,
+          "maxSeparation": -3.576278717609682e-9,
+          "minOverlap": 3.576278717609682e-9,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": true,
+          "maxSeparation": 0.20168272622312822,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ],
+      "collisions": [],
+      "checkedCrossAssemblyPairs": 2173,
+      "finiteMeshPrismSAT": true,
+      "method": "actual transformed vertex convex XY silhouettes / real Z slabs; matching bored-pin pairs excluded only with separate axis, radial clearance and axial engagement witnesses"
+    },
+    {
+      "angleDegrees": 80,
+      "rangeDegrees": [
+        45,
+        80
+      ],
+      "manualOnly": true,
+      "manualCoordinates": 1,
+      "pairedSides": 2,
+      "physicalLinks": 4,
+      "realPinJoints": 8,
+      "closureMethod": "second-upper-pin from follower-circle / rigid-tray-circle intersection",
+      "trayAttitudeDegrees": 0,
+      "maximumSolverResidual": 1.1102230246251565e-16,
+      "trayPoseDerivedFromTwoSolvedPins": true,
+      "externalGuideStand": false,
+      "singleTrayCarrierOnly": true,
+      "fullToolboxClosure": false,
+      "sealedStorage": false,
+      "physicalLoadFriction": false,
+      "continuousCollisionGuarantee": false,
+      "normalGame": false,
+      "save": false,
+      "linkEndpointClosures": [
+        {
+          "joint": "s-1-a0-lower",
+          "distance": 0
+        },
+        {
+          "joint": "s-1-a0-upper",
+          "distance": 2.482534153247273e-16
+        },
+        {
+          "joint": "s-1-a1-lower",
+          "distance": 0
+        },
+        {
+          "joint": "s-1-a1-upper",
+          "distance": 1.1102230246251565e-16
+        },
+        {
+          "joint": "s1-a0-lower",
+          "distance": 0
+        },
+        {
+          "joint": "s1-a0-upper",
+          "distance": 2.482534153247273e-16
+        },
+        {
+          "joint": "s1-a1-lower",
+          "distance": 0
+        },
+        {
+          "joint": "s1-a1-upper",
+          "distance": 1.1102230246251565e-16
+        }
+      ],
+      "maximumActualPinClosure": 2.482534153247273e-16,
+      "actualTrayPivotSpan": 1,
+      "actualTrayRiseBetweenPins": 0,
+      "actualTrayUpDot": 1,
+      "boreRows": [
+        {
+          "joint": "s-1-a0-lower",
+          "part": "s-1-a0-lower-bored-cheek--1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s-1-a0-lower",
+          "part": "s-1-a0-lower-bored-cheek-1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s-1-a0-lower",
+          "part": "two-bored-link--1-0",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.03399999843558998,
+          "maximumBoreVertexRadius": 0.034000001847744,
+          "radialChordClearance": 0.006927201005658454
+        },
+        {
+          "joint": "s-1-a0-upper",
+          "part": "s-1-a0-upper-bored-cheek--1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s-1-a0-upper",
+          "part": "s-1-a0-upper-bored-cheek-1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s-1-a0-upper",
+          "part": "two-bored-link--1-0",
+          "innerVertexSamples": 96,
+          "offAxis": 2.482534153247273e-16,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.03399995716038233,
+          "maximumBoreVertexRadius": 0.03400004275662937,
+          "radialChordClearance": 0.006927159818824191
+        },
+        {
+          "joint": "s-1-a1-lower",
+          "part": "s-1-a1-lower-bored-cheek--1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s-1-a1-lower",
+          "part": "s-1-a1-lower-bored-cheek-1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s-1-a1-lower",
+          "part": "two-bored-link--1-1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.03399999843558998,
+          "maximumBoreVertexRadius": 0.034000001847744,
+          "radialChordClearance": 0.006927201005658454
+        },
+        {
+          "joint": "s-1-a1-upper",
+          "part": "s-1-a1-upper-bored-cheek--1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s-1-a1-upper",
+          "part": "s-1-a1-upper-bored-cheek-1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s-1-a1-upper",
+          "part": "two-bored-link--1-1",
+          "innerVertexSamples": 96,
+          "offAxis": 1.1102230246251565e-16,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.03399995716038234,
+          "maximumBoreVertexRadius": 0.03400004275662951,
+          "radialChordClearance": 0.006927159818824198
+        },
+        {
+          "joint": "s1-a0-lower",
+          "part": "s1-a0-lower-bored-cheek--1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s1-a0-lower",
+          "part": "s1-a0-lower-bored-cheek-1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s1-a0-lower",
+          "part": "two-bored-link-1-0",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.03399999843558998,
+          "maximumBoreVertexRadius": 0.034000001847744,
+          "radialChordClearance": 0.006927201005658454
+        },
+        {
+          "joint": "s1-a0-upper",
+          "part": "s1-a0-upper-bored-cheek--1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s1-a0-upper",
+          "part": "s1-a0-upper-bored-cheek-1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s1-a0-upper",
+          "part": "two-bored-link-1-0",
+          "innerVertexSamples": 96,
+          "offAxis": 2.482534153247273e-16,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.03399995716038233,
+          "maximumBoreVertexRadius": 0.03400004275662937,
+          "radialChordClearance": 0.006927159818824191
+        },
+        {
+          "joint": "s1-a1-lower",
+          "part": "s1-a1-lower-bored-cheek--1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s1-a1-lower",
+          "part": "s1-a1-lower-bored-cheek-1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s1-a1-lower",
+          "part": "two-bored-link-1-1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.03399999843558998,
+          "maximumBoreVertexRadius": 0.034000001847744,
+          "radialChordClearance": 0.006927201005658454
+        },
+        {
+          "joint": "s1-a1-upper",
+          "part": "s1-a1-upper-bored-cheek--1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s1-a1-upper",
+          "part": "s1-a1-upper-bored-cheek-1",
+          "innerVertexSamples": 96,
+          "offAxis": 0,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.035999998450279236,
+          "maximumBoreVertexRadius": 0.03600000133968117,
+          "radialChordClearance": 0.008922918866793465
+        },
+        {
+          "joint": "s1-a1-upper",
+          "part": "two-bored-link-1-1",
+          "innerVertexSamples": 96,
+          "offAxis": 1.1102230246251565e-16,
+          "axisDot": 1,
+          "actualPinRadius": 0.027000000823393565,
+          "minimumBoreVertexRadius": 0.03399995716038234,
+          "maximumBoreVertexRadius": 0.03400004275662951,
+          "radialChordClearance": 0.006927159818824198
+        }
+      ],
+      "jointRows": [
+        {
+          "joint": "s-1-a0-lower",
+          "linkToCheekGaps": [
+            0.020000001564621894,
+            0.020000001564621894
+          ],
+          "shaftOverhang": [
+            0.04500000722706321,
+            0.04500000722706321
+          ],
+          "boardToCollarGaps": [
+            0.008000000894069714,
+            0.008000000894069714
+          ],
+          "collarToCapGaps": [
+            0.017000000391155456,
+            0.017000000391155456
+          ],
+          "shaftEndToCapGaps": [
+            -6.388872875184859e-9,
+            -6.388872875184859e-9
+          ],
+          "actualEndcapChordRadius": 0.05188866598022013,
+          "maximumCheekBoreVertexRadius": 0.03600000133968117,
+          "endcapRetentionMargin": 0.01588866464053896
+        },
+        {
+          "joint": "s-1-a0-upper",
+          "linkToCheekGaps": [
+            0.020000001564621894,
+            0.020000001564621894
+          ],
+          "shaftOverhang": [
+            0.04500000722706321,
+            0.04500000722706321
+          ],
+          "boardToCollarGaps": [
+            0.008000000894069714,
+            0.008000000894069714
+          ],
+          "collarToCapGaps": [
+            0.017000000391155456,
+            0.017000000391155456
+          ],
+          "shaftEndToCapGaps": [
+            -6.388872875184859e-9,
+            -6.388872875184859e-9
+          ],
+          "actualEndcapChordRadius": 0.05188866598022013,
+          "maximumCheekBoreVertexRadius": 0.03600000133968117,
+          "endcapRetentionMargin": 0.01588866464053896
+        },
+        {
+          "joint": "s-1-a1-lower",
+          "linkToCheekGaps": [
+            0.020000001564621894,
+            0.020000001564621894
+          ],
+          "shaftOverhang": [
+            0.04500000722706321,
+            0.04500000722706321
+          ],
+          "boardToCollarGaps": [
+            0.008000000894069714,
+            0.008000000894069714
+          ],
+          "collarToCapGaps": [
+            0.017000000391155456,
+            0.017000000391155456
+          ],
+          "shaftEndToCapGaps": [
+            -6.388872875184859e-9,
+            -6.388872875184859e-9
+          ],
+          "actualEndcapChordRadius": 0.05188866598022013,
+          "maximumCheekBoreVertexRadius": 0.03600000133968117,
+          "endcapRetentionMargin": 0.01588866464053896
+        },
+        {
+          "joint": "s-1-a1-upper",
+          "linkToCheekGaps": [
+            0.020000001564621894,
+            0.020000001564621894
+          ],
+          "shaftOverhang": [
+            0.04500000722706321,
+            0.04500000722706321
+          ],
+          "boardToCollarGaps": [
+            0.008000000894069714,
+            0.008000000894069714
+          ],
+          "collarToCapGaps": [
+            0.017000000391155456,
+            0.017000000391155456
+          ],
+          "shaftEndToCapGaps": [
+            -6.388872875184859e-9,
+            -6.388872875184859e-9
+          ],
+          "actualEndcapChordRadius": 0.05188866598022013,
+          "maximumCheekBoreVertexRadius": 0.03600000133968117,
+          "endcapRetentionMargin": 0.01588866464053896
+        },
+        {
+          "joint": "s1-a0-lower",
+          "linkToCheekGaps": [
+            0.020000001564621894,
+            0.020000001564621894
+          ],
+          "shaftOverhang": [
+            0.04500000722706321,
+            0.04500000722706321
+          ],
+          "boardToCollarGaps": [
+            0.008000000894069714,
+            0.008000000894069714
+          ],
+          "collarToCapGaps": [
+            0.017000000391155456,
+            0.017000000391155456
+          ],
+          "shaftEndToCapGaps": [
+            -6.388872875184859e-9,
+            -6.388872875184859e-9
+          ],
+          "actualEndcapChordRadius": 0.05188866598022013,
+          "maximumCheekBoreVertexRadius": 0.03600000133968117,
+          "endcapRetentionMargin": 0.01588866464053896
+        },
+        {
+          "joint": "s1-a0-upper",
+          "linkToCheekGaps": [
+            0.020000001564621894,
+            0.020000001564621894
+          ],
+          "shaftOverhang": [
+            0.04500000722706321,
+            0.04500000722706321
+          ],
+          "boardToCollarGaps": [
+            0.008000000894069714,
+            0.008000000894069714
+          ],
+          "collarToCapGaps": [
+            0.017000000391155456,
+            0.017000000391155456
+          ],
+          "shaftEndToCapGaps": [
+            -6.388872875184859e-9,
+            -6.388872875184859e-9
+          ],
+          "actualEndcapChordRadius": 0.05188866598022013,
+          "maximumCheekBoreVertexRadius": 0.03600000133968117,
+          "endcapRetentionMargin": 0.01588866464053896
+        },
+        {
+          "joint": "s1-a1-lower",
+          "linkToCheekGaps": [
+            0.020000001564621894,
+            0.020000001564621894
+          ],
+          "shaftOverhang": [
+            0.04500000722706321,
+            0.04500000722706321
+          ],
+          "boardToCollarGaps": [
+            0.008000000894069714,
+            0.008000000894069714
+          ],
+          "collarToCapGaps": [
+            0.017000000391155456,
+            0.017000000391155456
+          ],
+          "shaftEndToCapGaps": [
+            -6.388872875184859e-9,
+            -6.388872875184859e-9
+          ],
+          "actualEndcapChordRadius": 0.05188866598022013,
+          "maximumCheekBoreVertexRadius": 0.03600000133968117,
+          "endcapRetentionMargin": 0.01588866464053896
+        },
+        {
+          "joint": "s1-a1-upper",
+          "linkToCheekGaps": [
+            0.020000001564621894,
+            0.020000001564621894
+          ],
+          "shaftOverhang": [
+            0.04500000722706321,
+            0.04500000722706321
+          ],
+          "boardToCollarGaps": [
+            0.008000000894069714,
+            0.008000000894069714
+          ],
+          "collarToCapGaps": [
+            0.017000000391155456,
+            0.017000000391155456
+          ],
+          "shaftEndToCapGaps": [
+            -6.388872875184859e-9,
+            -6.388872875184859e-9
+          ],
+          "actualEndcapChordRadius": 0.05188866598022013,
+          "maximumCheekBoreVertexRadius": 0.03600000133968117,
+          "endcapRetentionMargin": 0.01588866464053896
+        }
+      ],
+      "stops": [
+        {
+          "side": -1,
+          "endpoint": 45,
+          "id": "integral-stop--1-45",
+          "separated": true,
+          "maxSeparation": 0.20168272622312805,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": -1,
+          "endpoint": 80,
+          "id": "integral-stop--1-80",
+          "separated": false,
+          "maxSeparation": -3.5762786065873797e-9,
+          "minOverlap": 3.5762786065873797e-9,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 45,
+          "id": "integral-stop-1-45",
+          "separated": true,
+          "maxSeparation": 0.20168272622312805,
+          "minOverlap": 0,
+          "axis": "actual-convex-XY-and-Z-slab"
+        },
+        {
+          "side": 1,
+          "endpoint": 80,
+          "id": "integral-stop-1-80",
+          "separated": false,
+          "maxSeparation": -3.5762786065873797e-9,
+          "minOverlap": 3.5762786065873797e-9,
+          "axis": "actual-convex-XY-and-Z-slab"
+        }
+      ],
+      "collisions": [],
+      "checkedCrossAssemblyPairs": 2173,
+      "finiteMeshPrismSAT": true,
+      "method": "actual transformed vertex convex XY silhouettes / real Z slabs; matching bored-pin pairs excluded only with separate axis, radial clearance and axial engagement witnesses"
+    }
+  ],
+  "physicalLoadFriction": false,
+  "continuousCollisionGuarantee": false,
+  "fullToolboxClosure": false,
+  "sealedStorage": false,
+  "normalPlacement": false,
+  "save": false,
+  "minimumActualEndcapRetentionMargin": 0.015888664640538924,
+  "retentionScope": "actual cap polygon chord radius exceeds actual cheek bore vertex radius with authored axial endplay; no fastening, load or force guarantee"
+}

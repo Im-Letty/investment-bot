@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "unit": "wardrobe:fit-prerequisite:komorebi-vest:local-deformation-socket-transport:v1",
+  "run_id": "automation360-20261027-081020",
+  "source_base_sha": "2decf6de3ffe34588d1126aead0e980ea9d36b9c",
+  "files": [
+    {
+      "path": "vest.mjs",
+      "sha256": "3ce49cffd2c6adc467582de7bf508a9d5e0f348f5968f5473b1a6c705c8a4559",
+      "bytes": 6372
+    },
+    {
+      "path": "viewer.mjs",
+      "sha256": "f882f83a01aba9c9fa95416cf0086df753660264959206cba91a7f1769b28fe6",
+      "bytes": 8555
+    },
+    {
+      "path": "index.html",
+      "sha256": "34bf8de8a31220cd999aff7f9fd1ff26f69b15dabfa31f75ee4e78dc25137e48",
+      "bytes": 3889
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/static/pet-vest-volume-proof-20261026/vest.mjs",
+      "sha256": "07d2ab9a87c29ffc8bc2cfb56c55760c482d5041e6b8f17b3d02db888e97566f",
+      "bytes": 12226
+    },
+    {
+      "path": "/static/pet-vest-volume-proof-20261026/input-manifest.json",
+      "sha256": "e31b1f19b5a3b931d2eaf18c92ced3d47e76569f2c23cc04a76a3351f41db60e",
+      "bytes": 2160
+    },
+    {
+      "path": "/static/pet-boat-route-proof-20261026/runtime/vendor/three-0.160.1.module.js",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    {
+      "path": "/static/pet-fit-mask-refinement-20261026/assets/komorebi-vest.png",
+      "sha256": "9f47ad550c0925db40f04f1be0071dff87c54431e393d44f6a5c98fd80d08bba",
+      "bytes": 1333492
+    }
+  ],
+  "scope": "Actual existing garment mesh deformation and garment-local surface socket transport only. Authored bounded test amplitude; not measured cloth elasticity, physical fastening or character fit.",
+  "max_amplitude": 0.045,
+  "pin_above_y": 0.82,
+  "bodyBinding": null,
+  "characterRig": false,
+  "calibrationApproved": false,
+  "wearingFit": false,
+  "allGrowthFit": false,
+  "characterBody360": false,
+  "functionalFastenerVerified": false,
+  "normalGame": false,
+  "unlock": false,
+  "save": false,
+  "newDesigns": 0,
+  "newRawVersions": 0,
+  "imagegenCalls": 0,
+  "newBodyReferences": 0,
+  "MeshLibraryIncrement": 0,
+  "continuousCollisionSafetyVerified": false,
+  "contact_evidence": "Only finite sampled poses in accompanying tests; rendered opening rays and socket positions shown in confirmation notes are current-pose measurements.",
+  "native_review_pending": true
+}
