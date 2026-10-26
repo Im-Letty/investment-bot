@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "unit_id": "wardrobe:fit-prerequisite:komorebi-vest:milne-newborn-child:body-landmark-basis:v1",
+  "run_id": "automation360-20261027-064049",
+  "revision": "milne-newborn-child-body-source-landmark-basis-v1",
+  "frozen_at_jst": "2026-10-27T06:48:51.605485+09:00",
+  "scope": "Six visible source-image landmarks for each of two preserved Milne newborn/child poses. Source-pixel chord and crop/letterbox only; no garment, body depth, physical scale or anatomical sockets.",
+  "source_reuse": {
+    "path": "/static/pet-body-basis-proof-20261026/basis.js",
+    "sha256": "2b6fb717fd2c4bc1453500ac7a96507e35c48169c098e268e60bc9f519671c2a",
+    "scope": "PR88 coordinate mechanics reused in separate stage-bound module; successful baby/adult evidence not remade or overwritten"
+  },
+  "own_sources": [
+    {
+      "path": "basis.js",
+      "sha256": "70c561f147f56476d1ff33af1ee478ff202f67603b6e94add9b6156c000cfc3f",
+      "bytes": 5781
+    },
+    {
+      "path": "basis-data-v1.json",
+      "sha256": "c1bf6c1601d3d0901e4b0949dbb14d7b2366b1eac09440de0fbbbccc15800672",
+      "bytes": 13207
+    },
+    {
+      "path": "index.html",
+      "sha256": "371e18e8c930032cc26b99166869d5273e8a3c208dbbc090b752c771f49d02dc",
+      "bytes": 4966
+    },
+    {
+      "path": "preview.js",
+      "sha256": "87df9be012c481cc80c24f4fafeb52359add8c4ce40ca206ff63697a5e752be4",
+      "bytes": 7595
+    }
+  ],
+  "source_originals": [
+    {
+      "path": "assets/milne-newborn.png",
+      "sha256": "14c8978b1eb8864bc3c1eb54a24107d9111a6e53d8690d1275a1caa42e8a7766",
+      "bytes": 1228684
+    },
+    {
+      "path": "assets/milne-child.png",
+      "sha256": "495e395a63f1d7e95b43d84deb9c66a60ddcdcc0142dea74640ee3e63b1f6a85",
+      "bytes": 1101555
+    }
+  ],
+  "new_designs": 0,
+  "new_raw_versions": 0,
+  "imagegen_calls": 0,
+  "new_body_references": 0,
+  "canonical_fit_records_added": 0,
+  "bodyBinding": null,
+  "calibrationApproved": false,
+  "wearingVerified": false,
+  "characterBody360": false,
+  "normal_game_changes": 0
+}

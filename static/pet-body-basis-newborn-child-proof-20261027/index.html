@@ -1,0 +1,19 @@
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ミルネ・生まれたてとこどもの画像座標</title><style>
+:root{font-family:system-ui,-apple-system,sans-serif;color:#344b40;background:#f6f4ed;font-size:15px}*{box-sizing:border-box}body{margin:0}main{max-width:1160px;margin:auto;padding:20px}h1{font-size:1.5rem;margin:0 0 10px}p{line-height:1.65;margin:9px 0}.panel{background:#fffdf8;border:1px solid #d5ded1;border-radius:14px;padding:14px;margin:14px 0}.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:9px 0}button{font:inherit;border:1px solid #a4b6a3;border-radius:9px;padding:9px 14px;background:#fff;min-height:42px;color:#344b40;cursor:pointer}button[aria-pressed=true]{background:#e0eadb;border-color:#6d8c70}button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #a8b5de;outline-offset:2px}button:disabled{opacity:.6}.frame{max-width:790px;margin:auto;line-height:0}canvas{width:100%;height:auto;display:block;touch-action:pan-y}label{padding:6px}input{width:18px;height:18px;vertical-align:middle}.muted{color:#65705f;font-size:.9rem}.tableFrame{overflow-x:auto}table{border-collapse:collapse;min-width:750px;width:100%;font-size:.86rem}th,td{text-align:left;padding:8px;border-bottom:1px solid #e0e4db;vertical-align:top}th{background:#eef1e8}pre{overflow:auto;font-size:12px;max-height:420px;background:#f2f3ed;padding:10px}ul{padding-left:22px;line-height:1.6}.warning{border-left:4px solid #af8c56;padding-left:10px}#identity{word-break:break-all}summary{cursor:pointer;padding:6px}h2{font-size:1.1rem}@media(max-width:420px){main{padding:12px}h1{font-size:1.24rem}.panel{padding:10px}button{padding:8px 11px}.controls{gap:6px}}
+</style></head><body data-status="loading" data-unit="wardrobe:fit-prerequisite:komorebi-vest:milne-newborn-child:body-landmark-basis:v1"><main><h1>ミルネ・生まれたてとこどもの画像座標</h1>
+<p>保存済みの生まれたて（座り姿）とこども（立ち姿）に、見える前足と胴の目印を重ねています。衣服を着せる前の、身体側の座標を確かめる工程です。</p>
+<p class="warning"><strong>保存済みの元画像1姿ずつの検証です。視線方向の数値は未確認です。</strong> 首と肩の接合点、奥行き、背中は不明です。服との接続・実着用・立体の身体・全成長の適合は未確認です。</p>
+<p id="status" role="status">元画像を照合しています…</p>
+<section class="panel" aria-label="表示を切り替える">
+<div class="controls" aria-label="成長姿"><button data-stage="newborn" aria-pressed="true">生まれたて</button><button data-stage="child" aria-pressed="false">こども</button></div>
+<div class="controls" aria-label="表示範囲"><button data-region="torso" aria-pressed="true">胴まわり拡大</button><button data-region="whole" aria-pressed="false">元画像全体</button><label><input id="labels" type="checkbox" checked>目印と不明領域</label></div>
+<div class="controls" aria-label="背景"><button data-matte="#ffffff" aria-pressed="false">白</button><button data-matte="#edf5e9" aria-pressed="true">薄緑</button><button data-matte="#234b3b" aria-pressed="false">濃緑</button></div>
+<p class="muted">青＝画面左、桃＝画面右、緑＝中央。左右は画面基準です。身体の左右は割り当てていません。楕円は目視注記の幅、茶の破線枠は未確定の領域です。</p></section>
+<div class="frame"><canvas id="bodyCanvas" width="1254" height="1254" aria-label="元画像と身体側の画像座標の目印"></canvas></div>
+<p id="probe" class="muted">画像を触れると元画像上の座標を読めます。目印や保存済み原画は変更しません。</p>
+<div class="controls"><button id="capture" disabled>この表示をPNGで保存</button><span id="captureResult" role="status"></span></div>
+<section class="panel"><h2>見える目印</h2><p>u軸は左右の前足の見える内側点を結ぶ線、v軸はその直交方向です。単位は元画像のpxです。胴幅・肩幅・身体角度や3Dの寸法を測った値ではありません。</p>
+<div class="tableFrame"><table><thead><tr><th>目印</th><th>元画像 x,y</th><th>画像内 u,v</th><th>注記の幅</th><th>見える範囲</th></tr></thead><tbody id="metrics"></tbody></table></div><p id="identity" class="muted"></p></section>
+<section class="panel"><h2>まだ接続できない箇所</h2><ul id="hidden"></ul><p class="muted">破線枠は接合点を置く場所の確定ではありません。bodyBinding は null、着用合格記録の追加は0件です。</p></section>
+<details class="panel"><summary>実描画と座標の検証記録</summary><pre id="proof"></pre></details>
+</main><script src="./basis.js"></script><script src="./preview.js"></script></body></html>
