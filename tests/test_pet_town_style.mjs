@@ -25,11 +25,26 @@ test('pointed foliage is a closed thin bowed volume with finite smooth normals a
  }finally{g.dispose();}
 });
 for(const kind of ['trunk','branch'])test(kind+' is a closed tapered curved mesh with independently capped ends',()=>{
- const g=Style.branchGeometry(THREE,kind);try{closed(g);const p=g.attributes.position,rings=kind==='trunk'?9:5,sides=kind==='trunk'?8:6;
-  assert.ok(Math.abs(p.getX(Math.floor(rings/2)*(sides+1)))-1>.1,'the centerline visibly curves');
+ const g=Style.branchGeometry(THREE,kind);try{
+  closed(g);
+  // Derive cross-section centroids from actual unique position vertices.
+  // This checks the curve without assuming one particular ring/side indexing.
+  const p=g.attributes.position,levels=new Map();
+  for(let i=0;i<p.count;i++){
+   const y=p.getY(i),key=Math.round(y*1e8),row=levels.get(key)||{y,points:new Map()};
+   const x=p.getX(i),z=p.getZ(i);row.points.set([x,z].map(n=>Math.round(n*1e6)).join(','),[x,z]);levels.set(key,row);
+  }
+  const centers=[...levels.values()].sort((a,b)=>a.y-b.y).map(r=>{
+   const pts=[...r.points.values()];return{y:r.y,x:pts.reduce((n,p)=>n+p[0],0)/pts.length,z:pts.reduce((n,p)=>n+p[1],0)/pts.length};
+  });
+  const first=centers[0],last=centers.at(-1);
+  assert.ok(centers.length>=5);
+  const bend=Math.max(...centers.map(c=>{const t=(c.y-first.y)/(last.y-first.y);return Math.hypot(c.x-first.x-(last.x-first.x)*t,c.z-first.z-(last.z-first.z)*t);}));
+  assert.ok(bend>.1,'actual section centroids curve away from the endpoint line');
   assert.ok(g.index.count/3<=180);assert.equal(g.boundingBox.min.y,0);assert.equal(g.boundingBox.max.y,1);
  }finally{g.dispose();}
 });
+
 test('scalloped ceramic roof stays inside the same normalized tile envelope and is closed from below',()=>{
  const g=Style.tileGeometry(THREE);try{closed(g);const size=g.boundingBox.getSize(new THREE.Vector3());for(const n of size.toArray())assert.ok(Math.abs(n-2)<1e-5);}finally{g.dispose();}
 });

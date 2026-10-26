@@ -94,19 +94,19 @@
   }
   function loadSeasons() {
     var current = Seasons || globalThis.PetJapanSeasons;
-    if (current && current.artRevision === 'shop-collection-unity1' && typeof current.watch === 'function') { Seasons = current; return Promise.resolve(current); }
-    if (!seasonsLoading) seasonsLoading = import('/static/pet-japan-seasons.js?v=20261026-shop-collection-unity1').then(function () {
+    if (current && current.artRevision === 'shop-cottage-match2' && typeof current.watch === 'function') { Seasons = current; return Promise.resolve(current); }
+    if (!seasonsLoading) seasonsLoading = import('/static/pet-japan-seasons.js?v=20261026-shop-cottage-match2').then(function () {
       var api = globalThis.PetJapanSeasons;
-      if (!api || api.artRevision !== 'shop-collection-unity1' || typeof api.watch !== 'function') throw new Error('seasons_unavailable');
+      if (!api || api.artRevision !== 'shop-cottage-match2' || typeof api.watch !== 'function') throw new Error('seasons_unavailable');
       Seasons = api; return api;
     }).catch(function (error) { seasonsLoading = null; throw error; });
     return seasonsLoading;
   }
-  function styleReady(api) { return !!api && api.revision === 'shop-collection-unity1' && ['leafGeometry','branchGeometry','tileGeometry','bowlGeometry','archGeometry','surfaceTexture','paletteColor','materialFinish'].every(function (key) { return typeof api[key] === 'function'; }) && !!api.collection && !!api.collection.light; }
+  function styleReady(api) { return !!api && api.revision === 'shop-cottage-match2' && ['leafGeometry','branchGeometry','tileGeometry','bowlGeometry','archGeometry','surfaceTexture','paletteColor','materialFinish'].every(function (key) { return typeof api[key] === 'function'; }) && !!api.collection && !!api.collection.light; }
   function loadStyle() {
     var current = Style || globalThis.PetTownStyle;
     if (styleReady(current)) { Style = current; return Promise.resolve(current); }
-    if (!styleLoading) styleLoading = import('/static/pet-town-style.js?v=20261026-shop-collection-unity1').then(function () {
+    if (!styleLoading) styleLoading = import('/static/pet-town-style.js?v=20261026-shop-cottage-match2').then(function () {
       var api = globalThis.PetTownStyle;
       if (!styleReady(api)) throw new Error('town_style_unavailable');
       Style = api; return api;
@@ -134,9 +134,47 @@
     for (var c = 0; c < patches; c++) {
       var cx = unit(c + 8000) * 512, cy = unit(c + 10000) * 512, radius = 1.2 + unit(c + 17000) * 3.4;
       ctx.fillStyle = c % 4 ? palette.grain : palette.spark;
-      wrapped(cx, cy, function (wx, wy) { ctx.beginPath(); ctx.ellipse(wx, wy, radius, radius * (.28 + unit(c + 19000) * .4), unit(c + 21000) * TAU, 0, TAU); ctx.fill(); });
+      wrapped(cx, cy, function (wx, wy) { ctx.beginPath(); ctx.ellipse(wx, wy, radius, radius * (.28 + unit(c + 19000) * .4), unit(c + 21000) * TAU, 0, TAU); ctx.fill();
+        // Sparse three-blade grains vary in lean/height, with no repeating icon.
+        for (var blade = 0; blade < 3; blade++) {
+          ctx.beginPath(); ctx.ellipse(wx + blade * 1.5, wy - blade * .7, .45 + unit(c + blade + 24000) * .25, 1.8 + unit(c + blade + 26000) * 2.4, -.35 + unit(c + blade + 28000) * .7, 0, TAU); ctx.fill();
+        } });
     }
     var texture = new THREE.CanvasTexture(canvas); texture.colorSpace = THREE.SRGBColorSpace; texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.anisotropy = 4; return texture;
+  }
+  // A small equirectangular sky is a world background only: never a screen wash.
+  // It has no game clock, reflection/environment role, or effect on sprite colors.
+  function skyTexture(THREE, doc, palette) {
+    if (!doc || !doc.createElement || !palette || !palette.sky) return null;
+    var canvas = doc.createElement('canvas'); canvas.width = 256; canvas.height = 128;
+    var ctx = canvas.getContext && canvas.getContext('2d');
+    if (!ctx || typeof ctx.createLinearGradient !== 'function') return null;
+    var gradient = ctx.createLinearGradient(0, 0, 0, 128);
+    gradient.addColorStop(0, palette.sky);
+    gradient.addColorStop(.52, palette.sky);
+    gradient.addColorStop(.65, palette.horizon || '#f0ecdf');
+    gradient.addColorStop(1, palette.horizon || '#f0ecdf');
+    ctx.fillStyle = gradient; ctx.fillRect(0, 0, 256, 128);
+    var texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.mapping = THREE.EquirectangularReflectionMapping;
+    texture.userData.presentationRole = 'bounded-seasonal-sky-background';
+    return texture;
+  }
+  function coastMaskTexture(THREE, doc) {
+    if (!doc || !doc.createElement) return null;
+    var canvas=doc.createElement('canvas');canvas.width=canvas.height=128;
+    var ctx=canvas.getContext&&canvas.getContext('2d');
+    if(!ctx||!ctx.createImageData||!ctx.putImageData)return null;
+    var pixels=ctx.createImageData(128,128);
+    for(var y=0;y<128;y++)for(var x=0;x<128;x++){
+      var edge=Math.max(Math.abs((x+.5)/128*2-1),Math.abs((y+.5)/128*2-1));
+      var t=Math.max(0,Math.min(1,(edge-.78)/.20)),value=Math.round(255*(1-t*t*(3-2*t))),i=(y*128+x)*4;
+      pixels.data[i]=pixels.data[i+1]=pixels.data[i+2]=value;pixels.data[i+3]=255;
+    }
+    ctx.putImageData(pixels,0,0);
+    var texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.NoColorSpace;
+    texture.userData.presentationRole='distant-coast-edge-mask';return texture;
   }
   function buildWorld(THREE, world, view, avoid, doc, seasonKey) {
     var scene = new THREE.Scene(), group = new THREE.Group(), geometries = new Set(), materials = new Set(), textures = new Set();
@@ -222,21 +260,44 @@
     function ball(parent, color, x, y, z, rx, ry, rz) { var m = mesh(sphereGeometry, color, parent, x, y, z); m.scale.set(rx, ry, rz); return m; }
     function cylinder(parent, radius, height, color, x, y, z) { var m = mesh(cylinderGeometry, color, parent, x, y, z); m.scale.set(radius, height, radius); return m; }
     function leaf(parent, color, x, y, z, size, tilt, turn) {
-      var m = mesh(leafGeometry, color, parent, x, y, z); m.scale.set(size * (style ? 1 : .52), size, size * (style ? 1 : .22)); m.rotation.set(tilt || 0, turn || 0, .12 * Math.sin(x * 8 + z)); return m;
+      var m = mesh(leafGeometry, color, parent, x, y, z);
+      m.scale.set(size * (style ? 1 : .52), size, size * (style ? 1 : .22));
+      m.rotation.set(tilt || 0, turn || 0, .08 * Math.sin(x * 8 + z)); return m;
     }
     function leafBush(parent, x, y, z, size, seed) {
       var bush = new THREE.Group(); bush.name = 'layered-leaf-bush'; bush.position.set(x, y, z); parent.add(bush);
-      ball(bush, '#80ab6b', 0, size * .14, 0, size * .45, size * .16, size * .39);
-      for (var l = 0; l < 13; l++) { var a = l * 2.4 + seed, ring = l < 8 ? .48 : .24, ly = l < 8 ? .24 : .5;
-        var petal = leaf(bush, ['#9bc67e', '#bbd998', '#78aa65'][l % 3], Math.sin(a) * size * ring, size * ly, Math.cos(a) * size * ring, size * (.24+(l%4)*.025), .6+(l%3)*.15, a); petal.rotation.z += .35 * Math.sin(a); }
+      // A low shared root cushion is hidden by individual curved blades, not a
+      // large green sphere filling the space between every leaf.
+      ball(bush, '#80ab6b', 0, size * .08, 0, size * .23, size * .08, size * .21);
+      for (var l = 0; l < 13; l++) {
+        var a = l * 2.399963 + seed, outer = l < 8, ring = outer ? .36 : .14;
+        var ly = outer ? .30 + .025 * Math.sin(a * 1.7) : .48 + .03 * Math.sin(a);
+        var petal = leaf(bush, ['#9bc67e', '#bbd998', '#78aa65'][l % 3],
+          Math.sin(a) * size * ring, size * ly, Math.cos(a) * size * ring,
+          size * (.23 + (l % 4) * .018), .80 + (l % 3) * .14, a);
+        petal.rotation.z += .16 * Math.sin(a);
+      }
       return bush;
     }
     function daisy(parent, x, y, z, size, blush) {
-      var g = new THREE.Group(); g.name = 'botanical-seven-petal-flower'; g.position.set(x, y, z); parent.add(g);
-      cylinder(g, .012 * size, .19 * size, '#82aa68', 0, .095 * size, 0);
-      for (var d = 0; d < 7; d++) { var angle = d * TAU / 7; var petal = mesh(flowerPetalGeometry, mat(blush ? '#edc0c1' : '#fff1d9', false, 'flower'),g, Math.sin(angle) * .055 * size, .21 * size, Math.cos(angle) * .055 * size);petal.scale.set(.037*size,.045*size,.064*size);petal.rotation.y=angle;petal.rotation.x=.10;petal.name='thin-botanical-flower-petal'; }
-      ball(g, '#dfb666', 0, .23 * size, 0, .033 * size, .017 * size, .033 * size);
-      leaf(g, '#a0c583', -.035 * size, .06 * size, .02 * size, .08 * size, 1.1, -.8); return g;
+      var g = new THREE.Group(); g.name = 'botanical-soft-meadow-flower'; g.position.set(x, y, z); parent.add(g);
+      var variant = Math.floor(Math.abs(Math.sin(x * 17 + z * 29 + size * 11)) * 3);
+      var count = variant === 1 ? 6 : 7, stemHeight = (.17 + variant * .006) * size;
+      g.userData.blossomVariant = variant; g.userData.petalCount = count;
+      cylinder(g, .012 * size, stemHeight, '#82aa68', 0, stemHeight / 2, 0);
+      for (var d = 0; d < count; d++) {
+        var angle = d * TAU / count + variant * .17, cup = variant === 2 ? .26 : .12;
+        var petal = mesh(flowerPetalGeometry, mat(blush || variant === 2 ? '#edc0c1' : '#fff1d9', false, 'flower'),
+          g, Math.sin(angle) * .048 * size, stemHeight + .008 * size,
+          Math.cos(angle) * .048 * size);
+        petal.scale.set((variant === 1 ? .032 : .036) * size, .027 * size, .060 * size);
+        petal.rotation.set(cup + .035 * Math.sin(angle * 2), angle, .035 * Math.cos(angle * 3));
+        petal.name = 'thin-botanical-flower-petal';
+      }
+      // The smaller soft ochre centre meets the actual stem. Cream/blush
+      // petals keep the head from reading as a repeated solid yellow button.
+      ball(g, '#dfb666', 0, stemHeight + .012 * size, 0, .028 * size, .017 * size, .028 * size);
+      leaf(g, '#a0c583', -.035 * size, .06 * size, .02 * size, .07 * size, 1.1, -.8); return g;
     }
     function legacySoftTree(parent, seed, scale) {
       var trunk = cylinder(parent, .17 * scale, 1.36 * scale, '#9c704d', 0, .68 * scale, 0); trunk.name = 'rounded-tree-trunk';
@@ -269,8 +330,10 @@
         exposed.name = 'tapered-tree-root';
       }
       for (var fork = 0; fork < 3; fork++) {
-        var a = seed + fork * TAU / 3;
-        branchBetween(tree, new THREE.Vector3(.025, .64, 0), new THREE.Vector3(Math.sin(a)*.43, 1.56+fork*.055, Math.cos(a)*.35), .085-fork*.009, '#8c6043').name='visible-tree-fork';
+        // The three structural forks end inside the existing middle leaf
+        // sprays instead of protruding like pruned tips above the canopy.
+        var a = seed + fork * TAU / 3 + .86;
+        branchBetween(tree, new THREE.Vector3(.025, .64, 0), new THREE.Vector3(Math.sin(a)*.315, 1.45+fork*.012, Math.cos(a)*.2835), .085-fork*.009, '#8c6043').name='visible-tree-fork';
       }
       for(var mossPart=0;mossPart<5;mossPart++){var ma=mossPart*2.4+seed,moss=ball(tree,'#80ab6b',Math.sin(ma)*.16,.025,Math.cos(ma)*.15,.17,.025,.13);moss.name='quiet-root-moss';}
       var crown = new THREE.Group(); crown.name = 'overlapping-leaf-crown'; crown.position.y=1.23; tree.add(crown);
@@ -280,32 +343,130 @@
         var center=new THREE.Vector3(Math.sin(a)*radius,-.02+tier*.24,Math.cos(a)*radius*.9);
         var twig=branchBetween(crown,new THREE.Vector3(-.156,-.19,.056),center,.028,'#825b3e');twig.name='canopy-twig';
         for(var l=0;l<style.limits.leavesPerTwig&&leaves<style.limits.treeLeaves;l++,leaves++){
+          // Interleaved loose sprays surround the twig tips. Their visible
+          // faces turn outward around the canopy instead of all facing skyward
+          // as edge-on paired fern rows. The gaps still reveal real branches.
           var turn=l*2.399963+a, spread=.075+(l%4)*.021;
-          var x=center.x+Math.sin(turn)*spread,y=center.y+(l%4-1.5)*.045,z=center.z+Math.cos(turn)*spread*.88;
+          // Four leaves per spray overlap toward its inner twig, covering
+          // the upper forks without a sphere core or any additional leaves.
+          var inward=l%4===0?.72:1;
+          var x=center.x*inward+Math.sin(turn)*spread,y=center.y+(l%4-1.5)*.045,z=center.z*inward+Math.cos(turn)*spread*.88;
           var size=(.175+(l%5)*.012)*.72*.94, color=['#82ad6b','#9bc67e','#bbd998','#78aa65'][(l+cluster)%4];
           var material=mat(color,false,'foliage');
-          // Only a few botanical tips carry autumn gold. Evergreen midtones
-          // keep their reference green base; bark/wood are never season-tinted.
           if(l===12){material=mat(cluster%2?'#adc17b':'#c6cc99',false,'foliage');material.userData.seasonRole='accent';material.userData.seasonIndex=cluster%2;}
           var m=leaf(crown,material,x,y,z,size);
           var normal=new THREE.Vector3(Math.sin(turn)*.64,.62+(l%3)*.12,Math.cos(turn)*.64).normalize();
-          m.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),normal);m.rotateZ(turn*.34);m.scale.x*=.82+(l%4)*.06;m.userData.botanicalSize=size;m.name='small-pointed-tree-leaf';
+          m.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),normal);
+          m.rotateZ(turn*.34);
+          m.scale.x*=.82+(l%4)*.06;m.userData.botanicalSize=size;
+          m.userData.foliagePlacement='overlapping-inner-and-tip-spray-contact-unverified';m.name='small-pointed-tree-leaf';
         }
       }
       tree.userData.leafCount=leaves;tree.userData.twigCount=style.limits.treeTwigs;trees.push(crown);return crown;
     }
     function solid(g, place) { g.traverse(function (m) { if (m.isMesh) { m.castShadow = true; occluders.push(m); if (place) { m.userData.placeId = place.id; pickables.push(m); } } }); }
+    // BEGIN shop-cottage-match2: local home shell/roof/joinery only.
+    function shopCottage(g, w, depth, rx) {
+      var roofBase=1.54,roofRise=1.06,run=w*.62,profileSteps=32;
+      // Keep the shared shop/cafe tile untouched. One nearly tangent face in
+      // its smooth normals needs a home-local lighting correction.
+      var homeTileGeometry=roofTileGeometry?roofTileGeometry.toNonIndexed():null;
+      if(homeTileGeometry){var tp=homeTileGeometry.attributes.position,tn=homeTileGeometry.attributes.normal,corrections=0;
+        for(var ti=0;ti<tp.count;ti+=3){var ta=new THREE.Vector3().fromBufferAttribute(tp,ti),tb=new THREE.Vector3().fromBufferAttribute(tp,ti+1),tc=new THREE.Vector3().fromBufferAttribute(tp,ti+2),face=new THREE.Vector3().subVectors(tb,ta).cross(new THREE.Vector3().subVectors(tc,ta)).normalize(),average=new THREE.Vector3();for(var tk=0;tk<3;tk++)average.add(new THREE.Vector3().fromBufferAttribute(tn,ti+tk));if(face.dot(average.normalize())<.05){for(var tj=0;tj<3;tj++)tn.setXYZ(ti+tj,face.x,face.y,face.z);corrections++;}}
+        tn.needsUpdate=true;homeTileGeometry.computeBoundingBox();homeTileGeometry.computeBoundingSphere();homeTileGeometry.userData.cottageAdjustedTriangleNormals=corrections;
+      }
+      function curve(t){return Math.pow(Math.max(0,1-Math.abs(t)),1.35);}
+      function profilePoints(half,rise){var points=[];for(var i=0;i<=profileSteps;i++){var t=-1+2*i/profileSteps;points.push([t*half,curve(t)*rise]);}return points;}
+      function outline(points){var s=new THREE.Shape();s.moveTo(points[0][0],points[0][1]);for(var i=1;i<points.length;i++)s.lineTo(points[i][0],points[i][1]);s.closePath();return s;}
+      function solidProfile(points,thickness,bevel){var shape=outline(points),geo=new THREE.ExtrudeGeometry(shape,{depth:thickness,bevelEnabled:!!bevel,bevelThickness:bevel||0,bevelSize:bevel||0,bevelSegments:3,curveSegments:16,steps:1});geo.translate(0,0,-thickness/2);return finishGeometry(geo);}
+      function archPoints(width,height,base){var half=width/2,spring=height*.62,rise=height-spring,points=[[-half,base],[half,base],[half,base+spring]];for(var i=1;i<=32;i++){var a=Math.PI*i/32;points.push([i===32?-half:Math.cos(a)*half,base+spring+(i===32?0:Math.sin(a)*rise)]);}return points;}
+      function archSolid(width,height,base,thickness){return solidProfile(archPoints(width,height,base),thickness,.006);}
+      function archRing(width,height,base,innerWidth,innerHeight,innerBase,thickness){var shape=outline(archPoints(width,height,base)),inner=archPoints(innerWidth,innerHeight,innerBase).slice().reverse(),hole=new THREE.Path();hole.moveTo(inner[0][0],inner[0][1]);for(var i=1;i<inner.length;i++)hole.lineTo(inner[i][0],inner[i][1]);hole.closePath();shape.holes.push(hole);var geo=new THREE.ExtrudeGeometry(shape,{depth:thickness,bevelEnabled:true,bevelThickness:.008,bevelSize:.008,bevelSegments:3,curveSegments:16,steps:1});geo.translate(0,0,-thickness/2);return finishGeometry(geo);}
+      function part(geo,color,role,parent,x,y,z,name){var m=mesh(geo,mat(color,false,role),parent,x,y,z);m.name=name;return m;}
+      function marked(m){m.userData.door=true;return m;}
+      g.userData.homeDesignRevision='shop-cottage-match2';g.userData.doorEntrancePolicyUnchanged=true;
+      // Shorter walls and a larger curved, flared roof keep the same footprint
+      // and old maximum ridge/overhang envelope, without stretching the actor.
+      box(g,w,1.42,depth,mat('#f0e4cf',false,'plaster'),0,.83,0).name='cottage-short-cream-wall';
+      var top=profilePoints(run,roofRise),roofOutline=top.slice();
+      var roofGeo=solidProfile(roofOutline,depth+.30,.025);
+      var roof=mesh(roofGeo,[mat('#f0e4cf',false,'plaster'),mat('#9b7ab5',false,'ceramic')],g,0,roofBase,0);roof.name='cottage-curved-gable-roof';roof.userData.profileExponent=1.35;
+      var fasciaPoints=top.concat(top.slice().reverse().map(function(v){return[v[0],v[1]-.075];})),fasciaGeo=solidProfile(fasciaPoints,.065,.008);
+      [-1,1].forEach(function(side){part(fasciaGeo,'#d1aa76','wood',g,0,roofBase,side*(depth/2+.17),'cottage-curved-wood-fascia');});
+      var roofRows=4,roofColumns=Math.max(3,Math.ceil((depth+.30)/.30));
+      for(var side=-1;side<=1;side+=2)for(var row=0;row<roofRows;row++)for(var col=0;col<roofColumns;col++){
+        var f=(row+.45)/roofRows,tz=-depth/2-.12+(col+.5)*(depth+.24)/roofColumns;
+        var angle=Math.atan(roofRise/run*1.35*Math.pow(1-f,.35)),tile=mesh(homeTileGeometry||sphereGeometry,mat(row%2?'#9b7ab5':'#ae8ec5',false,'ceramic'),g,side*run*f,roofBase+roofRise*curve(f)+.035,tz);
+        tile.name='overlapping-round-roof-tile';tile.userData.cottageCurveFollower=true;
+        if(homeTileGeometry){tile.scale.set((depth+.30)/roofColumns*.61,.060,run/roofRows*.72);tile.quaternion.setFromAxisAngle(new THREE.Vector3(0,0,1),-side*angle).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),-side*Math.PI/2));}
+        else{tile.scale.set(run/roofRows*.72,.060,(depth+.30)/roofColumns*.61);tile.rotation.z=-side*angle;}
+      }
+      var ridge=cylinder(g,.052,depth+.30,mat('#9b7ab5',false,'ceramic'),0,roofBase+roofRise-.005,0);ridge.rotation.x=Math.PI/2;ridge.name='cottage-closed-rounded-ridge';
+      var ridgeCap=ball(g,mat('#d1aa76',false,'wood'),0,roofBase+roofRise-.006,depth/2+.178,.063,.073,.026);ridgeCap.name='cottage-rounded-wood-ridge-cap';
+      var capRing=part(new THREE.TorusGeometry(.027,.004,6,24),'#ba8652','wood',g,0,roofBase+roofRise-.006,depth/2+.205,'cottage-ridge-scroll-ring');
+      // The front door is an actual arch-shaped solid inside a closed wooden
+      // frame with a real opening. UserData.door and the old threshold remain.
+      marked(part(archRing(.67,1.39,.10,.50,1.21,.13,.12),'#d1aa76','wood',g,0,0,depth/2+.03,'cottage-arched-door-frame'));
+      marked(part(archSolid(.485,1.19,.135,.07),'#ba8652','wood',g,0,0,depth/2+.04,'cottage-arched-door-panel'));
+      marked(ball(g,mat('#d1aa76',false,'wood'),-.15,.64,depth/2+.105,.030,.030,.028)).name='cottage-door-left-knob';
+      for(var hinge=0;hinge<2;hinge++){var h=marked(cylinder(g,.009,.13,mat('#96673f',false,'wood'),.245,.40+hinge*.51,depth/2+.093));h.name='cottage-door-right-hinge';}
+      for(var seam=0;seam<4;seam++){var sx=(seam-1.5)*.095,half=.485/2,spring=.135+1.19*.62,rise=1.19*.38,topY=spring+rise*Math.sqrt(Math.max(0,1-sx*sx/(half*half)))-.035,bottom=.16;
+        marked(box(g,.004,topY-bottom,.004,mat('#96673f',false,'wood'),sx,(topY+bottom)/2,depth/2+.077)).name='cottage-door-grain-groove';}
+      marked(box(g,.53,.1,.26,mat('#d1aa76',false,'wood'),0,.065,depth/2+.1)).name='cottage-retained-wood-threshold';
+      // Round upper window, with cylindrical glass and joined wooden crossbars.
+      var roundGroup=new THREE.Group();roundGroup.name='cottage-round-gable-window';roundGroup.position.set(0,1.80,depth/2+.195);roundGroup.scale.y=1/.9;g.add(roundGroup);
+      part(new THREE.TorusGeometry(.142,.025,8,40),'#ba8652','wood',roundGroup,0,0,0,'cottage-round-window-frame');
+      var glass=part(new THREE.CylinderGeometry(.128,.128,.025,32),'#715d47','glass',roundGroup,0,0,-.008,'cottage-round-window-glass');glass.rotation.x=Math.PI/2;
+      box(roundGroup,.022,.30,.035,mat('#d1aa76',false,'wood'),0,0,.012);box(roundGroup,.30,.022,.035,mat('#d1aa76',false,'wood'),0,0,.012);
+      for(var post=-1;post<=1;post+=2)box(g,.075,1.38,.075,mat('#d1aa76',false,'wood'),post*w*.47,.81,depth/2+.005).name='cottage-round-corner-post';
+      box(g,w*1.04,.10,depth*1.04,mat('#d1aa76',false,'wood'),0,1.49,0).name='cottage-eave-beam';
+      box(g,w*1.04,.13,depth*1.04,mat('#ba8652',false,'wood'),0,.14,0).name='cottage-low-wood-plinth';
+      // The dormer faces diagonally forward so its arched window reads from
+      // the normal village view. Its lower solid sinks into the real roof.
+      var dormer=new THREE.Group();dormer.name='market-photo-dormer';dormer.position.set(-w*.35,1.90,depth*.05);dormer.rotation.y=-.70;dormer.scale.setScalar(.8);g.add(dormer);
+      part(archSolid(.60,.90,-.20,.40),'#f0e4cf','plaster',dormer,0,0,-.03,'cottage-dormer-joined-cream-body');
+      part(archRing(.43,.53,.04,.30,.42,.10,.09),'#d1aa76','wood',dormer,0,0,.15,'dormer-arched-frame');
+      part(archSolid(.285,.405,.108,.025),'#715d47','glass',dormer,0,0,.17,'cottage-dormer-arched-glass');
+      box(dormer,.024,.44,.035,mat('#d1aa76',false,'wood'),0,.31,.190);box(dormer,.32,.024,.035,mat('#d1aa76',false,'wood'),0,.30,.190);
+      box(dormer,.48,.075,.16,mat('#ba8652',false,'wood'),0,.04,.13).name='cottage-dormer-rounded-sill';
+      // An arch-band hood leaves the arched window visible through its front.
+      // The cream body meets the underside; it is not a filled triangle cap.
+      var dTop=[];for(var di=0;di<=32;di++){var dt=-1+2*di/32;dTop.push([dt*.31,.30*Math.sqrt(Math.max(0,1-dt*dt))]);}
+      var dOutline=dTop.concat(dTop.slice().reverse().map(function(v){return[v[0],v[1]-.065];}));
+      part(solidProfile(dOutline,.48,.012),'#9b7ab5','ceramic',dormer,0,.40,0,'cottage-curved-dormer-roof');
+      for(var side=-1;side<=1;side+=2){var hoodY=.40+.30*Math.sqrt(1-Math.pow(.12/.31,2)),hoodAngle=Math.atan(.30*.12/(.31*.31*Math.sqrt(1-Math.pow(.12/.31,2)))),cap=mesh(homeTileGeometry||sphereGeometry,mat('#ae8ec5',false,'ceramic'),dormer,side*.12,hoodY+.016,.025);cap.name='dormer-rounded-cap';cap.scale.set(.26,.027,.13);cap.quaternion.setFromAxisAngle(new THREE.Vector3(0,0,1),-side*hoodAngle).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),-side*Math.PI/2));}
+      function cottageSideWindow(turn,x,y,z){var s=new THREE.Group();s.name='all-angle-arched-window';s.position.set(x,y,z);s.rotation.y=turn;g.add(s);
+        part(archRing(.43,.65,0,.30,.50,.07,.10),'#ba8652','wood',s,0,0,.02,'cottage-side-window-ring');
+        part(archSolid(.285,.48,.08,.025),'#715d47','glass',s,0,0,.055,'cottage-side-window-glass');
+        box(s,.024,.60,.035,mat('#d1aa76',false,'wood'),0,.315,.075);box(s,.34,.024,.035,mat('#d1aa76',false,'wood'),0,.30,.075);
+        box(s,.50,.09,.12,mat('#ba8652',false,'wood'),0,.015,.04).name='cottage-side-rounded-sill';}
+      for(var side=-1;side<=1;side+=2)cottageSideWindow(side*Math.PI/2,side*(w/2-.015),.55,-.02);
+      cottageSideWindow(Math.PI,0,.58,-depth/2+.012);
+      box(g,.22,.50,.22,mat('#d1aa76',false,'wood'),w*.28,2.23,-.12).name='cottage-short-roof-chimney';
+      box(g,.29,.075,.29,mat('#ba8652',false,'wood'),w*.28,2.495,-.12).name='cottage-rounded-chimney-cap';
+      // Keep the two saved small yard accents at the same local sites.
+      for(var yard=-1;yard<=1;yard+=2){var px=yard*Math.min(rx*.58,.54),pz=depth/2+.13,pot=mesh(flowerPotGeometry,mat('#f7efdf',false,'ceramic'),g,px,0,pz);pot.scale.set(.09,.17,.0765);pot.name='rounded-ivory-yard-pot';leafBush(g,px,.17,pz,.2,yard);daisy(g,px,.2,pz,.85,false);box(g,.26,.07,.045,mat('#d1aa76',false,'wood'),yard*rx*.66,.21,.38);for(var fence=-1;fence<=1;fence+=2)box(g,.035,.28,.045,mat('#ba8652',false,'wood'),yard*rx*.66+fence*.1,.14,.38);}
+      var entryLamp=new THREE.Group();entryLamp.name='warm-paper-entry-lantern';entryLamp.position.set(-w*.36,1.16,depth/2+.10);g.add(entryLamp);
+      box(entryLamp,.085,.13,.075,mat('#fff1d8',false,'paper'),0,0,0);for(var ex=-1;ex<=1;ex+=2)for(var ez=-1;ez<=1;ez+=2)box(entryLamp,.012,.15,.012,mat('#ba8652',false,'wood'),ex*.047,0,ez*.042);
+      box(entryLamp,.115,.02,.105,mat('#ba8652',false,'wood'),0,-.075,0);var entryCap=mesh(lanternCapGeometry,mat('#ba8652',false,'wood'),entryLamp,0,.075,0);entryCap.scale.setScalar(.38);entryCap.rotation.y=Math.PI/4;
+    }
+    // END shop-cottage-match2 local home shell/roof/joinery.
     var landShape = new THREE.Shape();
     landShape.moveTo(-world.width / 200, world.height / 200); landShape.lineTo(world.width / 200, world.height / 200);
     shoreline.forEach(function (row) { landShape.lineTo((row[1] - world.width / 2) / UNIT, -(row[0] - world.height / 2) / UNIT); });
     landShape.lineTo(-world.width / 200, -world.height / 200); landShape.closePath();
     // ShapeGeometry is XY; rotate it into XZ. The shoreline shares the collision model's coordinates.
     var land = mesh(new THREE.ShapeGeometry(landShape), '#b1cf83', group, 0, .025, 0); land.rotation.x = -Math.PI / 2; land.name = 'dry-land'; surfaces.push(land);
-    var grassTexture = null; land.material = mat('#ffffff', false, 'grass'); land.material.userData.seasonRole = 'ground';
+    var grassTexture = null, skyMap = null; land.material = mat('#ffffff', false, 'grass'); land.material.userData.seasonRole = 'ground';
     var landVertices = land.geometry.attributes.position, uv = land.geometry.attributes.uv;
     for (var li = 0; li < uv.count; li++) uv.setXY(li, (landVertices.getX(li) + world.width / 200) / (world.width / UNIT), (landVertices.getY(li) + world.height / 200) / (world.height / UNIT));
     uv.needsUpdate = true;
-    var sea = box(group, 160, .06, 160, '#86c8c8', 0, -.08, 0); sea.name = 'water';
+    // The old160-unit sea filled even the upper view with cyan water.
+    // Keep the entire28.8x19.2 saved map plus a generous8-unit coast margin wet,
+    // while allowing the real sky to appear beyond this finite village horizon.
+    var sea = box(group, 48, .06, 48, mat('#abd3cf',false,'water'), 0, -.08, 0); sea.name = 'water';
+    var coastMask=coastMaskTexture(THREE,doc);
+    if(coastMask){textures.add(coastMask);sea.material.alphaMap=coastMask;sea.material.transparent=true;sea.material.opacity=1;sea.material.depthWrite=false;}
     for (var r = 0; r < 26; r++) {
       var py = (r + .5) / 26 * world.height, bankIndex = Math.min(shoreline.length - 2, Math.floor(py / 500));
       while (bankIndex > 0 && py < shoreline[bankIndex][0]) bankIndex--;
@@ -352,25 +513,41 @@
 
       } else if (p.id === 'playground') {
         var fountain=new THREE.Group();fountain.name='market-photo-fountain';g.add(fountain);
-        var foot=cylinder(fountain,.40,.12,mat('#eadbc3',false,'ceramic'),0,.06,0);foot.scale.z*=.78;foot.name='fountain-foot';
+        // Authored fountain pigments bypass the coarse shared palette bands:
+        // its muted lavender/cream must not inherit the house roof's brighter glaze.
+        var fountainFinishes={};
+        function fountainFinish(color,role,transparent){
+          var key=color+':'+role+':'+!!transparent;
+          if(!fountainFinishes[key]){
+            var m=mat(color,!!transparent,role).clone();m.color.set(color);
+            m.roughness=role==='water'?.20:role==='glaze'?.30:.62;m.metalness=0;
+            m.bumpScale=role==='glaze'?.003:role==='water'?0:.010;
+            m.userData.baseColor=color;m.userData.paletteColor=color;m.userData.paletteRole='identity';
+            m.userData.fountainReferenceFinish=true;
+            if(transparent){m.opacity=.38;m.depthWrite=false;}
+            materials.add(m);fountainFinishes[key]=m;
+          }
+          return fountainFinishes[key];
+        }
+        var foot=cylinder(fountain,.40,.12,[fountainFinish('#ad9bb7','glaze',false),fountainFinish('#c6ad76','ceramic',false),fountainFinish('#c6ad76','ceramic',false)],0,.06,0);foot.scale.z*=.78;foot.name='fountain-foot';
         function bowl(name,xz,height,y){
-          var m=mesh(bowlGeometry||sphereGeometry,mat('#f2e4cd',false,'ceramic'),fountain,0,y,0);m.name=name;m.scale.set(xz,height,xz*.75);return m;
+          var m=mesh(bowlGeometry||sphereGeometry,fountainFinish('#d6c4a3','ceramic',false),fountain,0,y,0);m.name=name;m.scale.set(xz,height,xz*.75);return m;
         }
         bowl('fountain-lower-bowl',.74,.42,.12);
         bowl('fountain-upper-bowl',.37,.27,.77);
-        [[.74,.42,.12,12,'lower'],[.37,.27,.77,8,'upper']].forEach(function(tier){var tierGroup=new THREE.Group();tierGroup.position.y=tier[2];tierGroup.scale.set(tier[0],tier[1],tier[0]*.75);fountain.add(tierGroup);for(var pi=0;pi<tier[3];pi++){var panel=mesh(panelGeometry,mat('#f6ead5',false,'ceramic'),tierGroup,0,0,0);panel.rotation.y=(pi+.5)*TAU/tier[3];panel.name='fountain-raised-petal-panel';panel.userData.bowlTier=tier[4];}});
+        [[.74,.42,.12,12,'lower'],[.37,.27,.77,8,'upper']].forEach(function(tier){var tierGroup=new THREE.Group();tierGroup.position.y=tier[2];tierGroup.scale.set(tier[0],tier[1],tier[0]*.75);fountain.add(tierGroup);for(var pi=0;pi<tier[3];pi++){var panel=mesh(panelGeometry,fountainFinish('#e3d4b8','ceramic',false),tierGroup,0,0,0);panel.rotation.y=(pi+.5)*TAU/tier[3];panel.name='fountain-raised-petal-panel';panel.userData.bowlTier=tier[4];}});
 
-        function rim(radius,y){var m=mesh(new THREE.TorusGeometry(radius,.026,6,32),mat('#ad94be',false,'glaze'),fountain,0,y,0);m.rotation.x=-Math.PI/2;m.scale.y=.75;m.name='lilac-glazed-fountain-rim';return m;}
+        function rim(radius,y){var m=mesh(new THREE.TorusGeometry(radius,.026,6,32),fountainFinish('#ad9bb7','glaze',false),fountain,0,y,0);m.rotation.x=-Math.PI/2;m.scale.y=.75;m.name='lilac-glazed-fountain-rim';return m;}
         rim(.704,.536);rim(.352,1.038);
-        cylinder(fountain,.105,.43,mat('#eadbc3',false,'ceramic'),0,.66,0);
-        var lowerWater=cylinder(fountain,.61,.012,mat('#acd4d0',true,'water'),0,.469,0);lowerWater.scale.z*=.75;lowerWater.name='fountain-lower-water';
-        var upperWater=cylinder(fountain,.28,.012,mat('#beded8',true,'water'),0,.995,0);upperWater.scale.z*=.75;upperWater.name='fountain-upper-water';
+        cylinder(fountain,.105,.43,fountainFinish('#d6c4a3','ceramic',false),0,.66,0);
+        var lowerWater=cylinder(fountain,.61,.012,fountainFinish('#dce4df','water',true),0,.469,0);lowerWater.scale.z*=.75;lowerWater.name='fountain-lower-water';
+        var upperWater=cylinder(fountain,.28,.012,fountainFinish('#dce4df','water',true),0,.995,0);upperWater.scale.z*=.75;upperWater.name='fountain-upper-water';
         for(var stream=0;stream<8;stream++){
           var angle=(stream+.5)*TAU/8,start=new THREE.Vector3(Math.sin(angle)*.315,1.01,Math.cos(angle)*.236),end=new THREE.Vector3(Math.sin(angle)*.55,.48,Math.cos(angle)*.412);
-          var delta=end.clone().sub(start),cascade=mesh(branchGeometry||cylinderGeometry,mat('#b9deda',true,'water'),fountain,start.x,start.y,start.z);cascade.name='fountain-cascade';cascade.material.opacity=.42;cascade.material.depthWrite=false;cascade.scale.set(.009,delta.length(),.009);cascade.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),delta.normalize());
-          var droplet=ball(fountain,mat('#d8eddf',true,'water'),start.x,start.y,start.z,.018,.045,.018);droplet.userData.phase=stream/8;droplet.userData.cascade={start:start,end:end};droplets.push(droplet);
+          var delta=end.clone().sub(start),cascade=mesh(branchGeometry||cylinderGeometry,fountainFinish('#eef1e7','water',true),fountain,start.x,start.y,start.z);cascade.name='fountain-cascade';cascade.material.opacity=.42;cascade.material.depthWrite=false;cascade.scale.set(.009,delta.length(),.009);cascade.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),delta.normalize());
+          var droplet=ball(fountain,fountainFinish('#eef1e7','water',true),start.x,start.y,start.z,.018,.045,.018);droplet.userData.phase=stream/8;droplet.userData.cascade={start:start,end:end};droplets.push(droplet);
         }
-        var jet=ball(fountain,mat('#cde4db',true,'water'),0,1.075,0,.045,.10,.045);jet.name='fountain-top-jet';
+        var jet=ball(fountain,fountainFinish('#eef1e7','water',true),0,1.075,0,.045,.10,.045);jet.name='fountain-top-jet';
       } else {
         // The solid base is inscribed in the existing elliptical footprint; roofs can overhang above the pet.
         var cafe = p.id === 'cafe' || p.shopId === 'cafe', market = p.id === 'shop' || p.shopId && !cafe;
@@ -379,6 +556,8 @@
         if (funding) {
           for (var sx = -1; sx <= 1; sx += 2) for (var sz = -1; sz <= 1; sz += 2) box(g, .08, .6, .08, '#b38657', sx * w / 2, .3, sz * depth / 2);
           box(g, w, .17, .06, '#d8bd95', 0, .45, depth / 2);
+        } else if (p.id === 'home') {
+          shopCottage(g,w,depth,rx);
         } else {
           box(g, w, 1.8, depth, cafe ? '#f6e8d6' : '#f2ead9', 0, .96, 0);
           var roof = new THREE.Shape(); roof.moveTo(-w * .62, 0); roof.lineTo(0, .8); roof.lineTo(w * .62, 0); roof.closePath();
@@ -476,7 +655,7 @@
           box(entryLamp,.115,.02,.105,mat('#a8754d',false,'wood'),0,-.075,0);var entryCap=mesh(lanternCapGeometry,mat('#a8754d',false,'wood'),entryLamp,0,.075,0);entryCap.scale.setScalar(.38);entryCap.rotation.y=Math.PI/4;
 
         }
-        if (doc && doc.createElement) {
+        if (doc && doc.createElement && (p.id !== 'home' || funding)) {
           var signCanvas = doc.createElement('canvas'); signCanvas.width = 256; signCanvas.height = 64; var signContext = signCanvas.getContext && signCanvas.getContext('2d');
           if (signContext) { var signBacking=box(g,funding?1.10:.84,funding?.29:.23,.055,mat('#b98856',false,'wood'),0,funding?.7:1.67,depth/2+.095);signBacking.name='rounded-wood-sign-backing';signContext.fillStyle = '#f5e9d6'; signContext.fillRect(0, 0, 256, 64); signContext.fillStyle = '#526449'; signContext.font = '500 28px sans-serif'; signContext.textAlign = 'center'; signContext.fillText(p.label + (funding ? p.status === 'building' ? '・建設中' : '・予定地' : ''), 128, 42, 244);
             var signTexture = new THREE.CanvasTexture(signCanvas); signTexture.colorSpace = THREE.SRGBColorSpace; textures.add(signTexture); var signMaterial = new THREE.MeshBasicMaterial({ map: signTexture }); materials.add(signMaterial); mesh(new THREE.PlaneGeometry(funding ? 1.05 : .78, funding ? .26 : .2), signMaterial, g, 0, funding ? .7 : 1.67, depth / 2 + .13); }
@@ -515,7 +694,17 @@
       var treeScale = .75 + (edgeTree * 7 % 9) * .055; softTree(edgeGroup, edgeTree * 2.4, treeScale);
       if (edgeTree % 2) { leafBush(group, ex + .5, .025, ez + .5, .6, edgeTree); for (var edgeFlower = 0; edgeFlower < 3; edgeFlower++) daisy(group, ex + .25 + edgeFlower * .2, .026, ez + .85, .85, false); }
     }
-    for (var hill = 0; hill < 7; hill++) { ball(group, hill % 2 ? '#b0ceac' : '#c4dbb9', -16 + hill * 5, -.45, -14.5, 3.2, 2.4, 3.2); if (hill < 5) ball(group, '#bad4b1', -16 + hill * 4.5, -.65, 14.5, 3, 2.3, 3); }
+    // Low smoothly rounded distant mounds leave a real view of the sky.
+    // They stay outside the saved walkable map and never enter the collision set.
+    var hillGeometry = finishGeometry(new THREE.SphereGeometry(1, 32, 16));
+    function distantHill(color,x,y,z,sx,sy,sz) {
+      var m=mesh(hillGeometry,mat(color,false,'foliage'),group,x,y,z);
+      m.scale.set(sx,sy,sz);m.name='distant-rounded-hill';return m;
+    }
+    for (var hill = 0; hill < 7; hill++) {
+      distantHill(hill % 2 ? '#b0ceac' : '#c4dbb9', -16 + hill * 5, -.6, -14.5, 3.2, 1.4, 3.2);
+      if (hill < 5) distantHill('#bad4b1', -16 + hill * 4.5, -.7, 14.5, 3, 1.3, 3);
+    }
     // Small, solid seasonal accents share this village's positions. They are
     // decorative only: never added to walking surfaces, saved layouts or doors.
     ['spring', 'summer', 'autumn', 'winter'].forEach(function (key) {
@@ -572,7 +761,18 @@
         } else if(role==='accent'&&palette.accents){m.color.set(palette.accents[m.userData.seasonIndex||0]);} else if (role === 'flower' && palette.flowers) m.color.set(palette.flowers[base === '#edc0c1' ? 0 : 1]);
       });
       Object.keys(seasonGroups).forEach(function (k) { seasonGroups[k].visible = k === key; });
-      activeSeason = key; scene.background.set(palette.sky); scene.userData.season = key;
+      var nextSky = skyTexture(THREE, doc, palette);
+      if (nextSky) {
+        textures.add(nextSky);
+        // Retain the older isolated previews' background.set(color) operation.
+        // That explicit request selects their flat background; the game itself
+        // keeps the authored gradient until its next actual season transition.
+        nextSky.set = function (color) { scene.background = new THREE.Color(color); return scene.background; };
+      }
+      scene.background = nextSky || new THREE.Color(palette.sky);
+      if (skyMap) { textures.delete(skyMap); skyMap.dispose(); }
+      skyMap = nextSky;
+      activeSeason = key; scene.userData.season = key;
       scene.updateMatrixWorld(true);
       return true;
     }
@@ -752,7 +952,7 @@
       var seasonNow = typeof options.seasonNow === 'function' ? options.seasonNow : Date.now, firstSeason = null;
       try { firstSeason = Seasons.resolve(seasonNow()); } catch (_) {}
       model = buildWorld(THREE, world, options.view, position, doc, firstSeason ? firstSeason.key : 'summer');
-      host.dataset.townStyle = model.styleLimits ? 'shop-collection-unity1' : 'legacy';
+      host.dataset.townStyle = model.styleLimits ? 'shop-cottage-match2' : 'legacy';
       if (Fishing && typeof Fishing.createVisual === 'function') { fishingVisual = Fishing.createVisual(THREE, world); model.scene.add(fishingVisual.group); }
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: false }); renderer.setPixelRatio(Math.min(win.devicePixelRatio || 1, 1.5));
       renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true; renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -791,5 +991,5 @@
     } catch (_) { fail('town_renderer_unavailable'); return null; }
   }
   return Object.freeze({ mount: mount, buildWorld: buildWorld, groundPoint: groundPoint, townPoint: townPoint, cameraState: cameraState,
-    cameraDirection: cameraDirection, facingFrame: facingFrame, cameraDistance: cameraDistance, safeCamera: safeCamera, natureFrame: natureFrame, people: people, alphaAnchor: alphaAnchor, sourceSize: sourceSize, groundTexture: groundTexture, heightAt: heightAt });
+    cameraDirection: cameraDirection, facingFrame: facingFrame, cameraDistance: cameraDistance, safeCamera: safeCamera, natureFrame: natureFrame, people: people, alphaAnchor: alphaAnchor, sourceSize: sourceSize, groundTexture: groundTexture, skyTexture: skyTexture, heightAt: heightAt });
 }));

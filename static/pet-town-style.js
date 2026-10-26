@@ -9,11 +9,11 @@
  // Geometry, bitmap originals, seasonal leaf indexing and texture allocation
  // stay independent. No canvas-wide color filter or exposure is applied.
  var palette={
-  wood:['#795135','#96673f','#ba8652','#d1aa76','#e2c596'],
+  wood:['#765034','#9a693f','#bd8d58','#d5ad79','#e9cba0'],
   bark:['#62432d','#795236','#906540','#a57b51','#b9956a'],
   plaster:['#c7b38f','#d9c7a7','#e6d6b9','#f0e4cf','#f8efdf'],
   ceramic:['#c4af89','#d6c4a3','#e3d4b8','#eee2cc','#f7eedb'],
-  glaze:['#8667a3','#9b7ab5','#ae8ec5','#c1a7d3','#d3c0e0'],
+  glaze:['#785897','#9572ae','#ae8bc5','#c5a5d8','#dfcbea'],
   terracotta:['#8e4e35','#a55e3e','#bc7650','#cf946d','#dfb18c'],
   stone:['#9e8b6d','#b7a384','#ccba9b','#dfd1b5','#eee4cd'],
   metal:['#76613d','#937b4c','#ae925b','#c6ad76','#ddc79a']
@@ -56,15 +56,17 @@
   var family=hex(color)&&familyFor(role,hex(color));
   return finishDefinitions[family||role];
  }
- var light=Object.freeze({hemisphereSky:'#fffaf4',hemisphereGround:'#ddd4c8',hemisphereIntensity:1.45,sunColor:'#fff9f0',sunIntensity:2.2});
- var collection=Object.freeze({revision:'shop-collection-unity1',palette:palette,finishes:finishDefinitions,light:light,
+ var light=Object.freeze({hemisphereSky:'#eaf1fb',hemisphereGround:'#ddd8d1',hemisphereIntensity:1.6,sunColor:'#fff4e7',sunIntensity:2.1});
+ var collection=Object.freeze({revision:'shop-cottage-match2',palette:palette,finishes:finishDefinitions,light:light,
   references:Object.freeze({tree:'60cb702d2cac8ad22b09ad01621f55d24ddb4d3876f1f550f21cbfcdbaf8c7b9',house:'69ce8c93823a50c5f2225414d4df8adcfe92fcd271ae113982e64f7ccd01cd60',fountain:'b7394422852121b2d5b971fb42f82de6b9eb6460cb1b8bff5979b7e39d205006',sunflower:'3fe2389b077f5d01be2685ac8c6e4401b80703887d20227224e66d79aa422120',lantern:'fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da',flower:'f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6',mushroom:'67e1d44960fd7fba76768b240e098bf1981304951d6474cef19ff72275eb03db'})});
  function leafGeometry(THREE){
-  // Closed tapered volume, with a softly raised midrib; never an alpha card.
+  // Broad small pointed leaf with a thin bowed blade and soft midrib.
+  // Keep the shop reference fullness; never an alpha card or a needle.
   var g=new THREE.SphereGeometry(1,limits.leafWidthSegments,limits.leafHeightSegments),p=g.attributes.position;
   for(var i=0;i<p.count;i++){
    var y=p.getY(i),body=Math.max(0,1-y*y);
-   p.setXYZ(i,p.getX(i)*.50*Math.pow(body,.12)*(1+.18*y),y,p.getZ(i)*.045+.055*body);
+   var t=(y+1)/2,bow=Math.sin(Math.PI*t);
+   p.setXYZ(i,p.getX(i)*.48*Math.pow(body,.12)*(1+.18*y)+.012*bow,y,p.getZ(i)*.04+.035*bow);
   }
   var uv=g.attributes.uv;for(var u=0;u<uv.count;u++)uv.setX(u,Math.max(0,Math.min(1,uv.getX(u))));
   g.computeVertexNormals();
@@ -76,24 +78,26 @@
   g.computeBoundingBox();g.computeBoundingSphere();g.userData.styleRole='closed-pointed-leaf';return g;
  }
  function branchGeometry(THREE,kind){
-  var rings=kind==='trunk'?9:5,sides=kind==='trunk'?8:6,positions=[],uv=[],indices=[];
-  function center(t){return kind==='trunk'?[Math.sin(t*Math.PI*2)*1.25+.32*t,t,Math.sin(t*Math.PI)*.48]:[Math.sin(t*Math.PI)*.6,t,Math.sin(t*Math.PI*2)*.18];}
+  // More radial sides soften the bark silhouette; fewer longitudinal rings
+  // keep the old per-component triangle budget. The centreline/endpoints
+  // remain bounded by the previous trunk/branch recipe.
+  var rings=kind==='trunk'?8:4,sides=kind==='trunk'?10:8,depth=kind==='trunk'?1:.84,positions=[],uv=[],indices=[],axis=[];
+  function center(t){return kind==='trunk'?[Math.sin(t*Math.PI*2)*1.10+.32*t,t,Math.sin(t*Math.PI)*.42]:[Math.sin(t*Math.PI)*.55,t,Math.sin(t*Math.PI*2)*.13];}
   for(var y=0;y<=rings;y++){
-   var t=y/rings,c=center(t),radius=1-.76*t;
-   for(var j=0;j<=sides;j++){var a=j/sides*Math.PI*2;positions.push(c[0]+Math.cos(a)*radius,c[1],c[2]+Math.sin(a)*radius);uv.push(j/sides,t);}
+   var t=y/rings,c=center(t),radius=(1-.76*t)*(kind==='trunk'?.92:1);axis.push(c.slice());
+   for(var j=0;j<=sides;j++){var a=j/sides*Math.PI*2;positions.push(c[0]+Math.cos(a)*radius,c[1],c[2]+Math.sin(a)*radius*depth);uv.push(j/sides,t);}
   }
   for(var r=0;r<rings;r++)for(var s=0;s<sides;s++){var a=r*(sides+1)+s,b=a+sides+1;indices.push(a,b,a+1,b,b+1,a+1);}
-  // Independent cap rings preserve hard end normals and an actually closed mesh.
   for(var end=0;end<=1;end++){
-   var c=center(end),radius=1-.76*end,base=positions.length/3;positions.push(c[0],c[1],c[2]);uv.push(.5,.5);
-   for(var n=0;n<=sides;n++){var a=n/sides*Math.PI*2;positions.push(c[0]+Math.cos(a)*radius,c[1],c[2]+Math.sin(a)*radius);uv.push((Math.cos(a)+1)/2,(Math.sin(a)+1)/2);}
+   var c=center(end),radius=(1-.76*end)*(kind==='trunk'?.92:1),base=positions.length/3;positions.push(c[0],c[1],c[2]);uv.push(.5,.5);
+   for(var n=0;n<=sides;n++){var a=n/sides*Math.PI*2;positions.push(c[0]+Math.cos(a)*radius,c[1],c[2]+Math.sin(a)*radius*depth);uv.push((Math.cos(a)+1)/2,(Math.sin(a)+1)/2);}
    for(var n=0;n<sides;n++)if(end)indices.push(base,base+n+2,base+n+1);else indices.push(base,base+n+1,base+n+2);
   }
   var g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(indices);g.computeVertexNormals();
-  // Average the side seam only. Independent cap normals stay hard.
   var n=g.attributes.normal;
   for(var r=0;r<=rings;r++){var a=r*(sides+1),b=a+sides,v=new THREE.Vector3(n.getX(a)+n.getX(b),n.getY(a)+n.getY(b),n.getZ(a)+n.getZ(b)).normalize();n.setXYZ(a,v.x,v.y,v.z);n.setXYZ(b,v.x,v.y,v.z);}
-  g.computeBoundingBox();g.computeBoundingSphere();g.userData.styleRole=kind==='trunk'?'curved-tapered-trunk':'curved-tapered-branch';return g;
+  g.computeBoundingBox();g.computeBoundingSphere();g.userData.axisCenters=axis;g.userData.radialSides=sides;
+  g.userData.styleRole=kind==='trunk'?'curved-tapered-trunk':'curved-tapered-branch';return g;
  }
  function tileGeometry(THREE){
   // Two closed tessellated caps give each tile a real cross-section crown.
@@ -147,5 +151,5 @@
   }
   ctx.putImageData(image,0,0);var texture=new THREE.CanvasTexture(c);texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.colorSpace=THREE.NoColorSpace;texture.anisotropy=2;texture.userData.styleRole=kind;texture.userData.usage='shared-linear-shade-and-height';return texture;
  }
- return Object.freeze({revision:'shop-collection-unity1',collection:collection,paletteColor:paletteColor,materialFinish:materialFinish,limits:limits,leafGeometry:leafGeometry,branchGeometry:branchGeometry,tileGeometry:tileGeometry,bowlGeometry:bowlGeometry,archGeometry:archGeometry,surfaceTexture:surfaceTexture});
+ return Object.freeze({revision:'shop-cottage-match2',collection:collection,paletteColor:paletteColor,materialFinish:materialFinish,limits:limits,leafGeometry:leafGeometry,branchGeometry:branchGeometry,tileGeometry:tileGeometry,bowlGeometry:bowlGeometry,archGeometry:archGeometry,surfaceTexture:surfaceTexture});
 }));
