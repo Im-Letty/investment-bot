@@ -1,0 +1,31 @@
+{
+  "frozen_main": "968f5980",
+  "frozen_sources": [
+    {
+      "path": "baseline/static/pet-town-scene.js",
+      "sha256": "8f5e950cbf2f6bf511a0dad8e2adb3ef74712d70b74a006c4880c92a5ebf037f",
+      "bytes": 75452
+    },
+    {
+      "path": "baseline/static/pet-town-style.js",
+      "sha256": "f4be723076791221fcfa215bd81eb49e3d8d38edf2e036963a1e2ef85ed3806e",
+      "bytes": 12185
+    }
+  ],
+  "scope": "Actual old shared leaf geometry bounds, not canopy/world bounds",
+  "min": [
+    -0.4959692358970642,
+    -1,
+    -0.007448303978890181
+  ],
+  "max": [
+    0.4959692358970642,
+    1,
+    0.0925455093383789
+  ],
+  "size": [
+    0.9919384717941284,
+    2,
+    0.09999381331726909
+  ]
+}

@@ -173,8 +173,9 @@ test('camera segments stop before actual roofs, walls and foliage for every boun
 });
 
 test('the observed home-approach orbit cannot zoom the pet into a screen-filling close-up',async()=>{
- const f=await fixture({position:{x:633.6,y:511.6},camera:{yaw:2.26,pitch:.6835987756,distance:8}});f.controller.setFrame(f.source);
- const view=JSON.parse(f.host.dataset.townCamera);assert.ok(view.distance>=5.5);assert.equal(view.yaw,2.26);assert.equal(view.pitch,.6835987756);assert.ok(Math.abs(view.actualYaw-view.yaw)>.01||Math.abs(view.actualPitch-view.pitch)>.01);
+ // The shorter curved cottage clears the old2.26 ray; this measured ray still hits its roof.
+ const f=await fixture({position:{x:633.6,y:511.6},camera:{yaw:7*Math.PI/8,pitch:.6835987756,distance:8}});f.controller.setFrame(f.source);
+ const view=JSON.parse(f.host.dataset.townCamera);assert.ok(view.distance>=5.5);assert.ok(Math.abs(view.yaw-7*Math.PI/8)<1e-12,'normalized requested yaw remains the same within floating point precision');assert.equal(view.pitch,.6835987756);assert.ok(Math.abs(view.actualYaw-view.yaw)>.01||Math.abs(view.actualPitch-view.pitch)>.01);
  const {scene,camera}=f.renderers[0].calls.at(-1),sprite=scene.getObjectByName('current-pet-2d-frame'),up=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion);
  const top=sprite.position.clone().addScaledVector(up,(1-sprite.center.y)*sprite.scale.y).project(camera),bottom=sprite.position.clone().addScaledVector(up,-sprite.center.y*sprite.scale.y).project(camera);
  assert.ok(Math.abs(top.y-bottom.y)/2<.4,'the real Sprite shader billboard cannot fill most of the viewport height');
@@ -225,7 +226,7 @@ test('a renderer failure during ambient animation restores the flat view and can
 test('village facing packets use the rendered camera at arbitrary yaw, including a blocked requested camera', async t => {
  const cases = [
   {yaw:0,position:{x:1100,y:1100}}, {yaw:.731,position:{x:1100,y:1100}},
-  {yaw:-2.413,position:{x:1100,y:1100}}, {yaw:13*Math.PI/16,pitch:22*Math.PI/180,position:{x:633.6,y:511.6}}
+  {yaw:-2.413,position:{x:1100,y:1100}}, {yaw:7*Math.PI/8,pitch:22*Math.PI/180,position:{x:633.6,y:511.6}}
  ];
  let blockedYawObserved=false;
  for(const {yaw,pitch=.6835987756,position} of cases){
@@ -447,7 +448,7 @@ test('daylight fill lifts shadow-facing surfaces with the same two lights and re
   const luma=c=>.2126*c.r+.7152*c.g+.0722*c.b,old=new THREE.Color('#90a77e');
   assert.equal(lights.length,2);assert.ok(luma(fill.groundColor)>luma(old)*1.3,'the lower hemisphere brightens dark sides');
   assert.ok(luma(fill.groundColor)<.7,'fill retains shade instead of becoming white ambient');
-  assert.ok(fill.intensity>=1.45&&fill.intensity<=1.6);assert.equal(fill.color.getHexString(),'fffaf4');assert.ok(Math.max(fill.groundColor.r,fill.groundColor.g,fill.groundColor.b)-Math.min(fill.groundColor.r,fill.groundColor.g,fill.groundColor.b)<.18,'neutral fill cannot tint the whole world olive');assert.equal(sun.intensity,2.2);assert.equal(sun.color.getHexString(),'fff9f0');
+  assert.ok(fill.intensity>=1.45&&fill.intensity<=1.6);assert.equal(fill.color.getHexString(),'eaf1fb');assert.ok(Math.max(fill.groundColor.r,fill.groundColor.g,fill.groundColor.b)-Math.min(fill.groundColor.r,fill.groundColor.g,fill.groundColor.b)<.18,'neutral fill cannot tint the whole world olive');assert.equal(sun.intensity,2.1);assert.equal(sun.color.getHexString(),'fff4e7');
   for(const key of ['spring','summer','autumn','winter']){
    m.setSeason(key);assert.deepEqual(m.scene.children.filter(o=>o.isLight),lights);assert.equal(m.scene.fog,null);
    for(const material of m.materials)if(['wood','bark','plaster','ceramic','stone'].includes(material.userData.surfaceRole))assert.equal(material.color.getHex(),new THREE.Color(TownStyle.paletteColor(material.userData.baseColor,material.userData.paletteRole||material.userData.surfaceRole)).getHex(),'authored role family is preserved across seasons');
@@ -460,7 +461,7 @@ test('a cached old detailing API cannot satisfy new bowl/arch readiness; concurr
  const source=readFileSync(new URL('../static/pet-town-scene.js',import.meta.url),'utf8'),start=source.indexOf('  function styleReady('),end=source.indexOf('  function groundTexture(',start);
  assert.ok(start>=0&&end>start);
  let imports=0,release;
- const context=vm.createContext({Style:{leafGeometry(){},surfaceTexture(){}},styleLoading:null,importer:specifier=>{imports++;assert.equal(specifier,'/static/pet-town-style.js?v=20261026-shop-collection-unity1');return new Promise(r=>{release=r;});}});
+ const context=vm.createContext({Style:{leafGeometry(){},surfaceTexture(){}},styleLoading:null,importer:specifier=>{imports++;assert.equal(specifier,'/static/pet-town-style.js?v=20261026-shop-cottage-match2');return new Promise(r=>{release=r;});}});
  vm.runInContext(source.slice(start,end).replace(/import\(/g,'importer(')+';globalThis.loadUnderTest=loadStyle;',context);
  const first=context.loadUnderTest(),same=context.loadUnderTest();assert.equal(first,same);assert.equal(imports,1,'old cached helper must download the revision rather than silently constructing a fallback bowl');
  context.PetTownStyle=Object.assign({},TownStyle,{paletteColor:undefined});release();
