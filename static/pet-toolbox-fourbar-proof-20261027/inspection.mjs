@@ -1,0 +1,33 @@
+/* Actual vertex witnesses at a finite pose. No dynamics or continuous safety claim. */
+import {polygonSAT} from '../pet-toolbox-joint-proof-20261026/inspection.mjs';
+import {dimensions} from './mechanism.mjs';
+function hull(points){const ps=[...new Map(points.map(p=>[p.map(n=>Math.round(n*1e8)).join(','),p])).values()].sort((a,b)=>a[0]-b[0]||a[1]-b[1]),cross=(a,b,c)=>(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]),lo=[],hi=[];for(const p of ps){while(lo.length>1&&cross(lo.at(-2),lo.at(-1),p)<=1e-12)lo.pop();lo.push(p);}for(const p of ps.slice().reverse()){while(hi.length>1&&cross(hi.at(-2),hi.at(-1),p)<=1e-12)hi.pop();hi.push(p);}return lo.slice(0,-1).concat(hi.slice(0,-1));}
+function prism(T,mesh){const p=mesh.geometry.attributes.position,xy=[];let minZ=Infinity,maxZ=-Infinity;for(let i=0;i<p.count;i++){const v=new T.Vector3().fromBufferAttribute(p,i).applyMatrix4(mesh.matrixWorld);xy.push([v.x,v.y]);minZ=Math.min(minZ,v.z);maxZ=Math.max(maxZ,v.z);}return{polygon:hull(xy),minZ,maxZ};}
+function separation(a,b){const zg=Math.max(b.minZ-a.maxZ,a.minZ-b.maxZ);if(zg>1e-7)return{separated:true,maxSeparation:zg,minOverlap:0,axis:'z'};const r=polygonSAT(a.polygon,b.polygon);return{...r,minOverlap:r.separated?0:Math.min(r.minOverlap,-zg),axis:'actual-convex-XY-and-Z-slab'};}
+function pinPair(a,b){const pin=p=>['pin','collar','endcap'].includes(p.role),board=p=>['rigid-link','bored-cheek'].includes(p.role);return(pin(a)&&board(b)||pin(b)&&board(a))&&a.joints.some(j=>b.joints.includes(j));}
+export function auditPose(T,item){
+ item.group.updateMatrixWorld(true);const profiles=new Map(item.parts.map(p=>[p.id,prism(T,p.mesh)])),collisions=[];let tested=0;
+ for(let i=0;i<item.parts.length;i++)for(let j=i+1;j<item.parts.length;j++){const a=item.parts[i],b=item.parts[j];if(a.assembly===b.assembly||pinPair(a,b))continue;tested++;const r=separation(profiles.get(a.id),profiles.get(b.id));if(!r.separated&&r.minOverlap>2e-6)collisions.push({a:a.id,b:b.id,...r});}
+ const boreRows=[],jointRows=[],closures=[],axis=new T.Vector3(0,0,1);
+ for(const joint of item.joints){
+  const center=joint.pin.getWorldPosition(new T.Vector3()),pinP=joint.pin.geometry.attributes.position;let pinRadius=0;for(let i=0;i<pinP.count;i++){const v=new T.Vector3().fromBufferAttribute(pinP,i).applyMatrix4(joint.pin.matrixWorld);pinRadius=Math.max(pinRadius,Math.hypot(v.x-center.x,v.y-center.y));}
+  const endpoint=new T.Vector3(joint.endpoint,0,0).applyMatrix4(joint.link.matrixWorld);closures.push({joint:joint.id,distance:endpoint.distanceTo(center)});
+  for(const mesh of[...joint.cheeks,joint.link]){const bore=mesh.geometry.userData.bores[mesh===joint.link?joint.endpoint:0],lc=bore.center,wc=new T.Vector3(...lc,0).applyMatrix4(mesh.matrixWorld),p=mesh.geometry.attributes.position;let radius=Infinity,maximumRadius=0,count=0;
+   for(let i=0;i<p.count;i++){const v=new T.Vector3().fromBufferAttribute(p,i);if(Math.abs(Math.hypot(v.x-lc[0],v.y-lc[1])-bore.nominalRadius)<1e-6){v.applyMatrix4(mesh.matrixWorld);radius=Math.min(radius,Math.hypot(v.x-center.x,v.y-center.y));maximumRadius=Math.max(maximumRadius,Math.hypot(v.x-center.x,v.y-center.y));count++;}}
+   boreRows.push({joint:joint.id,part:mesh.name,innerVertexSamples:count,offAxis:Math.hypot(wc.x-center.x,wc.y-center.y),axisDot:Math.abs(new T.Vector3(0,0,1).transformDirection(mesh.matrixWorld).dot(axis)),actualPinRadius:pinRadius,minimumBoreVertexRadius:radius,maximumBoreVertexRadius:maximumRadius,radialChordClearance:radius*Math.cos(Math.PI/48)-pinRadius});
+  }
+  const cheeks=joint.cheeks.map(m=>profiles.get(m.name)).sort((a,b)=>a.minZ-b.minZ),bar=profiles.get(joint.link.name),shaft=profiles.get(joint.pin.name),collars=joint.collars.map(m=>profiles.get(m.name)).sort((a,b)=>a.minZ-b.minZ),caps=joint.caps.map(m=>profiles.get(m.name)).sort((a,b)=>a.minZ-b.minZ);
+  const capRadii=joint.caps.map(mesh=>{let r=0;const p=mesh.geometry.attributes.position;for(let i=0;i<p.count;i++){const v=new T.Vector3().fromBufferAttribute(p,i).applyMatrix4(mesh.matrixWorld);r=Math.max(r,Math.hypot(v.x-center.x,v.y-center.y));}return r;}),actualEndcapChordRadius=Math.min(...capRadii)*Math.cos(Math.PI/48),maximumCheekBoreVertexRadius=Math.max(...boreRows.filter(r=>r.joint===joint.id&&joint.cheeks.some(m=>m.name===r.part)).map(r=>r.maximumBoreVertexRadius));
+  jointRows.push({joint:joint.id,linkToCheekGaps:[bar.minZ-cheeks[0].maxZ,cheeks[1].minZ-bar.maxZ],shaftOverhang:[cheeks[0].minZ-shaft.minZ,shaft.maxZ-cheeks[1].maxZ],
+   boardToCollarGaps:[cheeks[0].minZ-collars[0].maxZ,collars[1].minZ-cheeks[1].maxZ],collarToCapGaps:[collars[0].minZ-caps[0].maxZ,caps[1].minZ-collars[1].maxZ],shaftEndToCapGaps:[shaft.minZ-caps[0].maxZ,caps[1].minZ-shaft.maxZ],actualEndcapChordRadius,maximumCheekBoreVertexRadius,endcapRetentionMargin:actualEndcapChordRadius-maximumCheekBoreVertexRadius});
+ }
+ const origin=item.trayRoot.localToWorld(new T.Vector3(0,0,0)),other=item.trayRoot.localToWorld(new T.Vector3(1,0,0)),normal=new T.Vector3(0,1,0).transformDirection(item.trayRoot.matrixWorld),stops=item.stopRecords.map(s=>({side:s.side,endpoint:s.endpoint,id:s.mesh.name,...separation(profiles.get(s.link.name),profiles.get(s.mesh.name))}));
+ return{...item.getState(),linkEndpointClosures:closures,maximumActualPinClosure:Math.max(...closures.map(r=>r.distance)),actualTrayPivotSpan:origin.distanceTo(other),actualTrayRiseBetweenPins:other.y-origin.y,actualTrayUpDot:normal.y,
+ boreRows,jointRows,stops,collisions,checkedCrossAssemblyPairs:tested,finiteMeshPrismSAT:true,
+ method:'actual transformed vertex convex XY silhouettes / real Z slabs; matching bored-pin pairs excluded only with separate axis, radial clearance and axial engagement witnesses',physicalLoadFriction:false,continuousCollisionGuarantee:false};
+}
+export function auditSweep(T,item,angles=dimensions.finiteAngles){
+ if(!Array.isArray(angles)||!angles.length||angles.length>180)throw Error('invalid_finite_angle_set');const before=item.getState().angleDegrees,rows=[];
+ try{for(const a of angles){item.setAngle(a);rows.push(auditPose(T,item));}}finally{item.setAngle(before);}
+ return{finitePoses:rows.length,angles:angles.slice(),uniqueTests:0,maximumActualPinClosure:Math.max(...rows.map(r=>r.maximumActualPinClosure)),maximumTrayRise:Math.max(...rows.map(r=>Math.abs(r.actualTrayRiseBetweenPins))),maximumBoreOffAxis:Math.max(...rows.flatMap(r=>r.boreRows.map(b=>b.offAxis))),minimumRadialChordClearance:Math.min(...rows.flatMap(r=>r.boreRows.map(b=>b.radialChordClearance))),collisionCount:rows.reduce((n,r)=>n+r.collisions.length,0),rows,scope:'36 authored integer-angle samples by default; samples are not unique tests; no continuous collision/load/friction guarantee'};
+}
