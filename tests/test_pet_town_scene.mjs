@@ -447,10 +447,10 @@ test('daylight fill lifts shadow-facing surfaces with the same two lights and re
   const luma=c=>.2126*c.r+.7152*c.g+.0722*c.b,old=new THREE.Color('#90a77e');
   assert.equal(lights.length,2);assert.ok(luma(fill.groundColor)>luma(old)*1.3,'the lower hemisphere brightens dark sides');
   assert.ok(luma(fill.groundColor)<.7,'fill retains shade instead of becoming white ambient');
-  assert.ok(fill.intensity>=1.45&&fill.intensity<=1.6);assert.equal(fill.color.getHexString(),'f5f8ff');assert.equal(sun.intensity,2.2);assert.equal(sun.color.getHexString(),'fff8ed');
+  assert.ok(fill.intensity>=1.45&&fill.intensity<=1.6);assert.equal(fill.color.getHexString(),'fffaf4');assert.ok(Math.max(fill.groundColor.r,fill.groundColor.g,fill.groundColor.b)-Math.min(fill.groundColor.r,fill.groundColor.g,fill.groundColor.b)<.18,'neutral fill cannot tint the whole world olive');assert.equal(sun.intensity,2.2);assert.equal(sun.color.getHexString(),'fff9f0');
   for(const key of ['spring','summer','autumn','winter']){
    m.setSeason(key);assert.deepEqual(m.scene.children.filter(o=>o.isLight),lights);assert.equal(m.scene.fog,null);
-   for(const material of m.materials)if(['wood','bark','plaster','ceramic','stone'].includes(material.userData.surfaceRole))assert.equal(material.color.getHex(),new THREE.Color(material.userData.baseColor).getHex(),'base finish is untouched');
+   for(const material of m.materials)if(['wood','bark','plaster','ceramic','stone'].includes(material.userData.surfaceRole))assert.equal(material.color.getHex(),new THREE.Color(TownStyle.paletteColor(material.userData.baseColor,material.userData.paletteRole||material.userData.surfaceRole)).getHex(),'authored role family is preserved across seasons');
   }
  }finally{m.dispose();}
 });
@@ -460,10 +460,10 @@ test('a cached old detailing API cannot satisfy new bowl/arch readiness; concurr
  const source=readFileSync(new URL('../static/pet-town-scene.js',import.meta.url),'utf8'),start=source.indexOf('  function styleReady('),end=source.indexOf('  function groundTexture(',start);
  assert.ok(start>=0&&end>start);
  let imports=0,release;
- const context=vm.createContext({Style:{leafGeometry(){},surfaceTexture(){}},styleLoading:null,importer:specifier=>{imports++;assert.equal(specifier,'/static/pet-town-style.js?v=20261026-market-photo1');return new Promise(r=>{release=r;});}});
+ const context=vm.createContext({Style:{leafGeometry(){},surfaceTexture(){}},styleLoading:null,importer:specifier=>{imports++;assert.equal(specifier,'/static/pet-town-style.js?v=20261026-shop-collection-unity1');return new Promise(r=>{release=r;});}});
  vm.runInContext(source.slice(start,end).replace(/import\(/g,'importer(')+';globalThis.loadUnderTest=loadStyle;',context);
  const first=context.loadUnderTest(),same=context.loadUnderTest();assert.equal(first,same);assert.equal(imports,1,'old cached helper must download the revision rather than silently constructing a fallback bowl');
- context.PetTownStyle=Object.assign({},TownStyle,{archGeometry:undefined});release();
+ context.PetTownStyle=Object.assign({},TownStyle,{paletteColor:undefined});release();
  await assert.rejects(first,/town_style_unavailable/);await assert.rejects(same,/town_style_unavailable/);assert.equal(context.styleLoading,null);
  const retry=context.loadUnderTest();assert.equal(imports,2);context.PetTownStyle=TownStyle;release();assert.equal(await retry,TownStyle);
  assert.equal(await context.loadUnderTest(),TownStyle);assert.equal(imports,2,'validated current API is reused');

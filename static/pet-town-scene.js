@@ -94,19 +94,19 @@
   }
   function loadSeasons() {
     var current = Seasons || globalThis.PetJapanSeasons;
-    if (current && current.artRevision === 'market-photo1' && typeof current.watch === 'function') { Seasons = current; return Promise.resolve(current); }
-    if (!seasonsLoading) seasonsLoading = import('/static/pet-japan-seasons.js?v=20261026-market-photo1').then(function () {
+    if (current && current.artRevision === 'shop-collection-unity1' && typeof current.watch === 'function') { Seasons = current; return Promise.resolve(current); }
+    if (!seasonsLoading) seasonsLoading = import('/static/pet-japan-seasons.js?v=20261026-shop-collection-unity1').then(function () {
       var api = globalThis.PetJapanSeasons;
-      if (!api || api.artRevision !== 'market-photo1' || typeof api.watch !== 'function') throw new Error('seasons_unavailable');
+      if (!api || api.artRevision !== 'shop-collection-unity1' || typeof api.watch !== 'function') throw new Error('seasons_unavailable');
       Seasons = api; return api;
     }).catch(function (error) { seasonsLoading = null; throw error; });
     return seasonsLoading;
   }
-  function styleReady(api) { return !!api && api.revision === 'market-photo1' && ['leafGeometry','branchGeometry','tileGeometry','bowlGeometry','archGeometry','surfaceTexture'].every(function (key) { return typeof api[key] === 'function'; }); }
+  function styleReady(api) { return !!api && api.revision === 'shop-collection-unity1' && ['leafGeometry','branchGeometry','tileGeometry','bowlGeometry','archGeometry','surfaceTexture','paletteColor','materialFinish'].every(function (key) { return typeof api[key] === 'function'; }) && !!api.collection && !!api.collection.light; }
   function loadStyle() {
     var current = Style || globalThis.PetTownStyle;
     if (styleReady(current)) { Style = current; return Promise.resolve(current); }
-    if (!styleLoading) styleLoading = import('/static/pet-town-style.js?v=20261026-market-photo1').then(function () {
+    if (!styleLoading) styleLoading = import('/static/pet-town-style.js?v=20261026-shop-collection-unity1').then(function () {
       var api = globalThis.PetTownStyle;
       if (!styleReady(api)) throw new Error('town_style_unavailable');
       Style = api; return api;
@@ -146,6 +146,30 @@
     var trunkGeometry = style ? style.branchGeometry(THREE, 'trunk') : null, branchGeometry = style ? style.branchGeometry(THREE, 'branch') : null, roofTileGeometry = style ? style.tileGeometry(THREE) : null;
     var bowlGeometry = style && style.bowlGeometry ? style.bowlGeometry(THREE) : null, archGeometry = style && style.archGeometry ? style.archGeometry(THREE) : null;
     [trunkGeometry, branchGeometry, roofTileGeometry, bowlGeometry, archGeometry].forEach(function (g) { if (g) geometries.add(g); });
+    // Shared closed botanical/ceramic shapes: one allocation per shape, never one per petal.
+    function finishGeometry(g) {
+      g.computeVertexNormals(); var p=g.attributes.position,n=g.attributes.normal,pool=new Map();
+      for(var i=0;i<p.count;i++){var key=[p.getX(i),p.getY(i),p.getZ(i)].map(function(v){return Math.round(v*1e6);}).join(':'),v=pool.get(key)||new THREE.Vector3();v.add(new THREE.Vector3(n.getX(i),n.getY(i),n.getZ(i)));pool.set(key,v);}
+      for(var i=0;i<p.count;i++){var key=[p.getX(i),p.getY(i),p.getZ(i)].map(function(v){return Math.round(v*1e6);}).join(':'),v=pool.get(key);if(v.lengthSq()<1e-12)v.set(0,1,0);v.normalize();n.setXYZ(i,v.x,v.y,v.z);}
+      g.computeBoundingBox();g.computeBoundingSphere();geometries.add(g);return g;
+    }
+    var flowerPetalGeometry=new THREE.SphereGeometry(1,10,6),fp=flowerPetalGeometry.attributes.position;
+    for(var fi=0;fi<fp.count;fi++)fp.setXYZ(fi,fp.getX(fi)*(.82+.18*(fp.getZ(fi)+1)/2),fp.getY(fi)*.22,fp.getZ(fi));
+    finishGeometry(flowerPetalGeometry);flowerPetalGeometry.userData.styleRole='closed-thin-botanical-petal';
+    var panelGeometry=flowerPetalGeometry.clone(),pp=panelGeometry.attributes.position,outerProfile=[[0,.42],[.07,.62],[.21,.81],[.43,.94],[.76,1],[1,.92]];
+    for(var pi=0;pi<pp.count;pi++){
+      var py=.52+pp.getZ(pi)*.22,pr=1;
+      for(var pj=1;pj<outerProfile.length;pj++)if(py<=outerProfile[pj][0]){var pa=outerProfile[pj-1],pb=outerProfile[pj];pr=pa[1]+(pb[1]-pa[1])*(py-pa[0])/(pb[0]-pa[0]);break;}
+      var angle=pp.getX(pi)*.16,radius=pr+.002+pp.getY(pi)*.028;pp.setXYZ(pi,-Math.sin(angle)*radius,py,Math.cos(angle)*radius);
+    }
+    finishGeometry(panelGeometry);panelGeometry.userData.styleRole='closed-raised-fountain-petal';
+    var potPoints=[[0,0],[.35,0],[.55,.05],[.77,.18],[.92,.42],[1,.66],[.96,.82],[.82,.94],[.82,1],[.72,1],[.72,.88],[.78,.70],[.68,.35],[.30,.25],[0,.25]].map(function(p){return new THREE.Vector2(p[0],p[1]);});
+    var flowerPotGeometry=finishGeometry(new THREE.LatheGeometry(potPoints,20));flowerPotGeometry.userData.styleRole='closed-hollow-glazed-pot';
+    var tulipGeometry=new THREE.SphereGeometry(1,10,6),tp=tulipGeometry.attributes.position;
+    for(var ti=0;ti<tp.count;ti++){var ty=(tp.getY(ti)+1)/2;tp.setXYZ(ti,tp.getX(ti)*.42,ty,.12*(1-ty)+.34*Math.sin(Math.PI*ty)+tp.getZ(ti)*.06);}
+    finishGeometry(tulipGeometry);tulipGeometry.userData.styleRole='closed-cupped-tulip-petal';
+    var capPoints=[[0,0],[.17,0],[.18,.025],[.13,.05],[.07,.10],[0,.10]].map(function(p){return new THREE.Vector2(p[0],p[1]);});
+    var lanternCapGeometry=finishGeometry(new THREE.LatheGeometry(capPoints,4));lanternCapGeometry.userData.styleRole='closed-flared-paper-lantern-cap';
     // Shared bevelled box: small trim and furniture keep the adopted soft edges.
     var vertices = boxGeometry.attributes.position, vector = new THREE.Vector3(), inside = new THREE.Vector3();
     for (var vi = 0; vi < vertices.count; vi++) { vector.fromBufferAttribute(vertices, vi); inside.set(clamp(vector.x, -.43, .43), clamp(vector.y, -.43, .43), clamp(vector.z, -.43, .43)); vector.sub(inside).normalize().multiplyScalar(.07).add(inside); vertices.setXYZ(vi, vector.x, vector.y, vector.z); }
@@ -154,7 +178,7 @@
     // Match the saved cream/peach/mint artwork with distinct, softly lit surfaces.
     // Grass and plaster stay matte; glazed roof tiles keep a small clear highlight.
     var finishes = {
-      grass: { roughness: .96, metalness: 0 }, foliage: { roughness: .88, metalness: 0 }, flower: { roughness: .84, metalness: 0 },
+      grass: { roughness: .96, metalness: 0 }, foliage: { roughness: .88, metalness: 0 }, flower: { roughness: .84, metalness: 0 }, 'display-flower': { roughness: .84, metalness: 0 },
       plaster: { roughness: .84, metalness: 0 }, wood: { roughness: .67, metalness: 0 }, bark: { roughness: .91, metalness: 0 }, glass: { roughness: .27, metalness: 0 },
       ceramic: { roughness: .42, metalness: 0 }, stone: { roughness: .83, metalness: 0 },
       water: { roughness: .26, metalness: 0 }, metal: { roughness: .45, metalness: .18 }
@@ -179,12 +203,15 @@
       return surfaceMaps[role];
     }
     function mat(color, transparent, role) {
-      role = role || colorRoles[color] || 'stone';
-      var key = color + ':' + !!transparent + ':' + role, finish = finishes[role] || finishes.stone;
-      if (!cache[key]) { cache[key] = new THREE.MeshStandardMaterial({ color: color, roughness: finish.roughness, metalness: finish.metalness, transparent: !!transparent, opacity: transparent ? .72 : 1 }); var bump = surfaceMap(role); if (bump) { cache[key].bumpMap = bump;
+      var paletteRole = role || colorRoles[color] || null;
+      role = paletteRole || 'stone';
+      var originalColor=color,resolvedColor=paletteRole&&style&&style.paletteColor?style.paletteColor(color,paletteRole):color;
+      var finish=(style&&style.materialFinish?style.materialFinish(role,color):null)||finishes[role]||finishes.stone;
+      var key = originalColor + ':' + resolvedColor + ':' + !!transparent + ':' + role + ':' + (paletteRole||'identity');
+      if (!cache[key]) { cache[key] = new THREE.MeshStandardMaterial({ color: resolvedColor, roughness: finish.roughness, metalness: finish.metalness, transparent: !!transparent, opacity: transparent ? .72 : 1 }); var bump = surfaceMap(finish.textureRole||role); if (bump) { cache[key].bumpMap = bump;
           if (role !== 'foliage') cache[key].map = bump;
-          cache[key].bumpScale = role === 'bark' ? .065 : role === 'wood' ? .03 : role === 'foliage' ? .028 : role === 'ceramic' ? .006 : .018; }
-        cache[key].userData.surfaceRole = role; cache[key].userData.baseColor = color; if (role === 'foliage' || role === 'flower') cache[key].userData.seasonRole = role; materials.add(cache[key]); }
+          cache[key].bumpScale = finish.bumpScale === undefined ? .018 : finish.bumpScale; }
+        cache[key].userData.surfaceRole = role; cache[key].userData.paletteRole = paletteRole || 'identity'; cache[key].userData.baseColor = originalColor; cache[key].userData.paletteColor = resolvedColor; if (role === 'foliage' || role === 'flower') cache[key].userData.seasonRole = role; materials.add(cache[key]); }
       return cache[key];
     }
     function mesh(geo, material, parent, x, y, z) {
@@ -199,16 +226,16 @@
     }
     function leafBush(parent, x, y, z, size, seed) {
       var bush = new THREE.Group(); bush.name = 'layered-leaf-bush'; bush.position.set(x, y, z); parent.add(bush);
-      ball(bush, '#80ab6b', 0, size * .25, 0, size * .65, size * .4, size * .55);
+      ball(bush, '#80ab6b', 0, size * .14, 0, size * .45, size * .16, size * .39);
       for (var l = 0; l < 13; l++) { var a = l * 2.4 + seed, ring = l < 8 ? .48 : .24, ly = l < 8 ? .24 : .5;
-        var petal = leaf(bush, ['#9bc67e', '#bbd998', '#78aa65'][l % 3], Math.sin(a) * size * ring, size * ly, Math.cos(a) * size * ring, size * .34, .6, a); petal.rotation.z += .35 * Math.sin(a); }
+        var petal = leaf(bush, ['#9bc67e', '#bbd998', '#78aa65'][l % 3], Math.sin(a) * size * ring, size * ly, Math.cos(a) * size * ring, size * (.24+(l%4)*.025), .6+(l%3)*.15, a); petal.rotation.z += .35 * Math.sin(a); }
       return bush;
     }
     function daisy(parent, x, y, z, size, blush) {
-      var g = new THREE.Group(); g.name = 'five-petal-daisy'; g.position.set(x, y, z); parent.add(g);
+      var g = new THREE.Group(); g.name = 'botanical-seven-petal-flower'; g.position.set(x, y, z); parent.add(g);
       cylinder(g, .012 * size, .19 * size, '#82aa68', 0, .095 * size, 0);
-      for (var d = 0; d < 5; d++) { var angle = d * TAU / 5; var petal = ball(g, mat(blush ? '#edc0c1' : '#fff1d9', false, 'flower'), Math.sin(angle) * .069 * size, .21 * size, Math.cos(angle) * .069 * size, .058 * size, .035 * size, .078 * size); petal.rotation.y = angle; }
-      ball(g, '#dfb666', 0, .23 * size, 0, .042 * size, .033 * size, .042 * size);
+      for (var d = 0; d < 7; d++) { var angle = d * TAU / 7; var petal = mesh(flowerPetalGeometry, mat(blush ? '#edc0c1' : '#fff1d9', false, 'flower'),g, Math.sin(angle) * .055 * size, .21 * size, Math.cos(angle) * .055 * size);petal.scale.set(.037*size,.045*size,.064*size);petal.rotation.y=angle;petal.rotation.x=.10;petal.name='thin-botanical-flower-petal'; }
+      ball(g, '#dfb666', 0, .23 * size, 0, .033 * size, .017 * size, .033 * size);
       leaf(g, '#a0c583', -.035 * size, .06 * size, .02 * size, .08 * size, 1.1, -.8); return g;
     }
     function legacySoftTree(parent, seed, scale) {
@@ -253,16 +280,16 @@
         var center=new THREE.Vector3(Math.sin(a)*radius,-.02+tier*.24,Math.cos(a)*radius*.9);
         var twig=branchBetween(crown,new THREE.Vector3(-.156,-.19,.056),center,.028,'#825b3e');twig.name='canopy-twig';
         for(var l=0;l<style.limits.leavesPerTwig&&leaves<style.limits.treeLeaves;l++,leaves++){
-          var turn=l*2.399963+a, spread=.084+(l%4)*.0224;
-          var x=center.x+Math.sin(turn)*spread,y=center.y+(l%4-1.5)*.052,z=center.z+Math.cos(turn)*spread*.88;
-          var size=(.20+(l%3)*.014)*.72, color=['#82ad6b','#9bc67e','#bbd998','#78aa65'][(l+cluster)%4];
+          var turn=l*2.399963+a, spread=.075+(l%4)*.021;
+          var x=center.x+Math.sin(turn)*spread,y=center.y+(l%4-1.5)*.045,z=center.z+Math.cos(turn)*spread*.88;
+          var size=(.175+(l%5)*.012)*.72*.94, color=['#82ad6b','#9bc67e','#bbd998','#78aa65'][(l+cluster)%4];
           var material=mat(color,false,'foliage');
           // Only a few botanical tips carry autumn gold. Evergreen midtones
           // keep their reference green base; bark/wood are never season-tinted.
           if(l===12){material=mat(cluster%2?'#adc17b':'#c6cc99',false,'foliage');material.userData.seasonRole='accent';material.userData.seasonIndex=cluster%2;}
           var m=leaf(crown,material,x,y,z,size);
           var normal=new THREE.Vector3(Math.sin(turn)*.64,.62+(l%3)*.12,Math.cos(turn)*.64).normalize();
-          m.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),normal);m.rotateZ(turn*.34);m.name='small-pointed-tree-leaf';
+          m.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),normal);m.rotateZ(turn*.34);m.scale.x*=.82+(l%4)*.06;m.userData.botanicalSize=size;m.name='small-pointed-tree-leaf';
         }
       }
       tree.userData.leafCount=leaves;tree.userData.twigCount=style.limits.treeTwigs;trees.push(crown);return crown;
@@ -317,9 +344,12 @@
       if (p.id === 'tree') {
         softTree(g, .4, 1.08);
       } else if (p.id === 'flowers') {
-        var flowerBase = cylinder(g, rx * .83, .13, '#c7ab88', 0, .065, 0); flowerBase.scale.z *= rz / rx;
-        leafBush(g, 0, .1, 0, Math.min(rx, rz) * .7, .6);
-        for (var f = 0; f < 7; f++) { var fx = Math.sin(f * 2.4) * rx * .6, fz = Math.cos(f * 2.4) * rz * .55; daisy(g, fx, .12, fz, .95, f % 3 === 0); }
+        var flowerBase=mesh(flowerPotGeometry,mat('#f7efdf',false,'ceramic'),g,0,0,0);flowerBase.scale.set(.25,.29,.22);flowerBase.name='rounded-ivory-tulip-pot';
+        var soil=cylinder(g,.174,.012,mat('#6d513b',false,'soil'),0,.268,0);soil.scale.z*=.88;soil.name='tulip-pot-soil';
+        cylinder(g,.012,.46,mat('#82ad6b',false,'foliage'),0,.50,0).name='tulip-main-stem';
+        for(var tulipSide=-1;tulipSide<=1;tulipSide+=2){var blade=leaf(g,mat('#80ab6b',false,'foliage'),tulipSide*.09,.45,0,.19,.12,0);blade.rotation.z=-tulipSide*.60;blade.name='tulip-long-leaf';}
+        for(var petalIndex=0;petalIndex<6;petalIndex++){var turn=petalIndex*TAU/6,petal=mesh(tulipGeometry,mat(petalIndex%2?'#edc0c1':'#e3a9bd',false,'display-flower'),g,Math.sin(turn)*.015,.71,Math.cos(turn)*.015);petal.scale.set(.23,.23,.23);petal.rotation.y=turn;petal.name='cupped-pink-tulip-petal';}
+
       } else if (p.id === 'playground') {
         var fountain=new THREE.Group();fountain.name='market-photo-fountain';g.add(fountain);
         var foot=cylinder(fountain,.40,.12,mat('#eadbc3',false,'ceramic'),0,.06,0);foot.scale.z*=.78;foot.name='fountain-foot';
@@ -328,14 +358,16 @@
         }
         bowl('fountain-lower-bowl',.74,.42,.12);
         bowl('fountain-upper-bowl',.37,.27,.77);
-        function rim(radius,y){var m=mesh(new THREE.TorusGeometry(radius,.026,6,32),mat('#ad94be',false,'ceramic'),fountain,0,y,0);m.rotation.x=-Math.PI/2;m.scale.y=.75;m.name='lilac-glazed-fountain-rim';return m;}
+        [[.74,.42,.12,12,'lower'],[.37,.27,.77,8,'upper']].forEach(function(tier){var tierGroup=new THREE.Group();tierGroup.position.y=tier[2];tierGroup.scale.set(tier[0],tier[1],tier[0]*.75);fountain.add(tierGroup);for(var pi=0;pi<tier[3];pi++){var panel=mesh(panelGeometry,mat('#f6ead5',false,'ceramic'),tierGroup,0,0,0);panel.rotation.y=(pi+.5)*TAU/tier[3];panel.name='fountain-raised-petal-panel';panel.userData.bowlTier=tier[4];}});
+
+        function rim(radius,y){var m=mesh(new THREE.TorusGeometry(radius,.026,6,32),mat('#ad94be',false,'glaze'),fountain,0,y,0);m.rotation.x=-Math.PI/2;m.scale.y=.75;m.name='lilac-glazed-fountain-rim';return m;}
         rim(.704,.536);rim(.352,1.038);
         cylinder(fountain,.105,.43,mat('#eadbc3',false,'ceramic'),0,.66,0);
         var lowerWater=cylinder(fountain,.61,.012,mat('#acd4d0',true,'water'),0,.469,0);lowerWater.scale.z*=.75;lowerWater.name='fountain-lower-water';
         var upperWater=cylinder(fountain,.28,.012,mat('#beded8',true,'water'),0,.995,0);upperWater.scale.z*=.75;upperWater.name='fountain-upper-water';
         for(var stream=0;stream<8;stream++){
           var angle=(stream+.5)*TAU/8,start=new THREE.Vector3(Math.sin(angle)*.315,1.01,Math.cos(angle)*.236),end=new THREE.Vector3(Math.sin(angle)*.55,.48,Math.cos(angle)*.412);
-          var delta=end.clone().sub(start),cascade=mesh(branchGeometry||cylinderGeometry,mat('#b9deda',true,'water'),fountain,start.x,start.y,start.z);cascade.name='fountain-cascade';cascade.scale.set(.014,delta.length(),.014);cascade.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),delta.normalize());
+          var delta=end.clone().sub(start),cascade=mesh(branchGeometry||cylinderGeometry,mat('#b9deda',true,'water'),fountain,start.x,start.y,start.z);cascade.name='fountain-cascade';cascade.material.opacity=.42;cascade.material.depthWrite=false;cascade.scale.set(.009,delta.length(),.009);cascade.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),delta.normalize());
           var droplet=ball(fountain,mat('#d8eddf',true,'water'),start.x,start.y,start.z,.018,.045,.018);droplet.userData.phase=stream/8;droplet.userData.cascade={start:start,end:end};droplets.push(droplet);
         }
         var jet=ball(fountain,mat('#cde4db',true,'water'),0,1.075,0,.045,.10,.045);jet.name='fountain-top-jet';
@@ -376,6 +408,8 @@
           for (var post=-1;post<=1;post+=2) box(g, .048, 1.56, .045, '#cba67c', post*w*.475, .98, depth/2+.027);
           box(g, w * 1.25, .11, depth + .36, '#cba67c', 0, 1.79, 0);
           box(g, w * 1.04, .12, depth * 1.04, '#c7a06e', 0, .2, 0);
+          for(var footX=-1;footX<=1;footX+=2)for(var footZ=-1;footZ<=1;footZ+=2){var joineryFoot=ball(g,mat('#b98856',false,'wood'),footX*w*.44,.13,footZ*depth*.36,.06,.055,.06);joineryFoot.name='rounded-joinery-foot';}
+
           function doorPart(m) { m.userData.door = true; return m; }
           doorPart(box(g, .47, 1.06, .09, mat('#c49b6f',false,'wood'), 0, .57, depth / 2 + .03));
           doorPart(box(g, .36, .94, .1, '#a8754d', 0, .53, depth / 2 + .08));
@@ -431,16 +465,20 @@
           }
           for (var yard = -1; yard <= 1; yard += 2) {
             var px = yard * Math.min(rx * .58, .54), pz = depth / 2 + .13;
-            var pot = cylinder(g, .09, .17, '#ccae8f', px, .085, pz); pot.scale.z *= .85;
+            var pot=mesh(flowerPotGeometry,mat('#f7efdf',false,'ceramic'),g,px,0,pz);pot.scale.set(.09,.17,.0765);pot.name='rounded-ivory-yard-pot';
             leafBush(g, px, .17, pz, .2, yard); daisy(g, px, .2, pz, .85, false);
             box(g, .26, .07, .045, '#ccaa7a', yard * rx * .66, .21, .38);
             for (var fence = -1; fence <= 1; fence += 2) box(g, .035, .28, .045, '#c29b6b', yard * rx * .66 + fence * .1, .14, .38);
           }
-          var lampGlobe = ball(g, '#f9e6b5', -.26, 1.3, depth / 2 + .14, .065, .08, .06); box(g, .12, .04, .1, '#b49a6b', -.26, 1.4, depth / 2 + .13);
+          var entryLamp=new THREE.Group();entryLamp.name='warm-paper-entry-lantern';entryLamp.position.set(-.26,1.3,depth/2+.14);g.add(entryLamp);
+          box(entryLamp,.085,.13,.075,mat('#fff1d8',false,'paper'),0,0,0);
+          for(var ex=-1;ex<=1;ex+=2)for(var ez=-1;ez<=1;ez+=2)box(entryLamp,.012,.15,.012,mat('#a8754d',false,'wood'),ex*.047,0,ez*.042);
+          box(entryLamp,.115,.02,.105,mat('#a8754d',false,'wood'),0,-.075,0);var entryCap=mesh(lanternCapGeometry,mat('#a8754d',false,'wood'),entryLamp,0,.075,0);entryCap.scale.setScalar(.38);entryCap.rotation.y=Math.PI/4;
+
         }
         if (doc && doc.createElement) {
           var signCanvas = doc.createElement('canvas'); signCanvas.width = 256; signCanvas.height = 64; var signContext = signCanvas.getContext && signCanvas.getContext('2d');
-          if (signContext) { signContext.fillStyle = '#f5e9d6'; signContext.fillRect(0, 0, 256, 64); signContext.fillStyle = '#526449'; signContext.font = '500 28px sans-serif'; signContext.textAlign = 'center'; signContext.fillText(p.label + (funding ? p.status === 'building' ? '・建設中' : '・予定地' : ''), 128, 42, 244);
+          if (signContext) { var signBacking=box(g,funding?1.10:.84,funding?.29:.23,.055,mat('#b98856',false,'wood'),0,funding?.7:1.67,depth/2+.095);signBacking.name='rounded-wood-sign-backing';signContext.fillStyle = '#f5e9d6'; signContext.fillRect(0, 0, 256, 64); signContext.fillStyle = '#526449'; signContext.font = '500 28px sans-serif'; signContext.textAlign = 'center'; signContext.fillText(p.label + (funding ? p.status === 'building' ? '・建設中' : '・予定地' : ''), 128, 42, 244);
             var signTexture = new THREE.CanvasTexture(signCanvas); signTexture.colorSpace = THREE.SRGBColorSpace; textures.add(signTexture); var signMaterial = new THREE.MeshBasicMaterial({ map: signTexture }); materials.add(signMaterial); mesh(new THREE.PlaneGeometry(funding ? 1.05 : .78, funding ? .26 : .2), signMaterial, g, 0, funding ? .7 : 1.67, depth / 2 + .13); }
         }
         g.scale.y = .9;
@@ -451,10 +489,15 @@
     // Existing lantern/flower accents become separate objects, not a tilted background image.
     [[31, 32], [64, 32], [31, 72], [64, 72]].forEach(function (v) {
       var p = groundPoint(world, { x: v[0] / 100 * world.width, y: v[1] / 100 * world.height });
-      var lamp = new THREE.Group(); lamp.position.set(p.x, .025, p.z); group.add(lamp);
-      cylinder(lamp, .075, .09, '#c2ac83', 0, .045, 0); cylinder(lamp, .035, 1.2, '#a59169', 0, .6, 0);
-      var bracket = new THREE.TorusGeometry(.12, .018, 6, 14, Math.PI); var arm = mesh(bracket, '#b3976c', lamp, .1, 1.23, 0); arm.rotation.z = -Math.PI / 2;
-      ball(lamp, '#f6e7bc', .21, 1.16, 0, .12, .15, .12); cylinder(lamp, .14, .055, '#c5a777', .21, 1.31, 0); ball(lamp, '#bda071', .21, 1.36, 0, .1, .06, .1);
+      var lamp = new THREE.Group();lamp.name='collection-garden-lantern'; lamp.position.set(p.x, .025, p.z); group.add(lamp);
+      cylinder(lamp,.08,.07,mat('#ded3bf',false,'stone'),0,.035,0);ball(lamp,mat('#ded3bf',false,'stone'),0,.085,0,.075,.035,.075);
+      cylinder(lamp,.026,1.12,mat('#a8754d',false,'wood'),0,.63,0);
+      var bracket=new THREE.TorusGeometry(.12,.014,6,14,Math.PI),arm=mesh(bracket,mat('#a8754d',false,'wood'),lamp,.1,1.23,0);arm.rotation.z=-Math.PI/2;
+      var head=new THREE.Group();head.name='warm-paper-lantern-head';head.position.set(.21,1.13,0);lamp.add(head);
+      var paper=box(head,.17,.22,.15,mat('#fff1d8',false,'paper'),0,0,0);paper.name='ivory-lantern-paper';paper.material.emissive.set('#fff1d8');paper.material.emissiveIntensity=.10;
+      for(var lx=-1;lx<=1;lx+=2)for(var lz=-1;lz<=1;lz+=2)box(head,.018,.25,.018,mat('#a8754d',false,'wood'),lx*.10,0,lz*.09);
+      box(head,.23,.03,.21,mat('#a8754d',false,'wood'),0,-.13,0);box(head,.23,.025,.21,mat('#a8754d',false,'wood'),0,.125,0);
+      var cap=mesh(lanternCapGeometry,mat('#a8754d',false,'wood'),head,0,.14,0);cap.rotation.y=Math.PI/4;cap.name='flared-wood-lantern-cap';ball(head,mat('#825b3e',false,'wood'),0,.26,0,.025,.025,.025);
     });
     for (var flower = 0; flower < 65; flower++) {
       var fp = { x: 80 + flower % 13 * 193 + Math.sin(flower * 7.3) * 48, y: 110 + Math.floor(flower / 13) * 353 + Math.cos(flower * 3.1) * 64 };
@@ -482,7 +525,7 @@
         if (key === 'spring') {
           cylinder(decor, .012, .18, '#82aa68', p.x, .115, p.z).name = 'spring-blossom-stem';
           for (var b = 0; b < 5; b++) {
-            var a = b * TAU / 5, petal = ball(decor, '#f4c5d4', p.x + Math.sin(a) * .11, .20, p.z + Math.cos(a) * .11, .10, .045, .13);
+            var a = b * TAU / 5, petal = mesh(flowerPetalGeometry,mat('#f4c5d4',false,'flower'),decor,p.x+Math.sin(a)*.08,.20,p.z+Math.cos(a)*.08);petal.scale.set(.065,.07,.095);
             petal.rotation.y = a; petal.name = 'spring-rounded-blossom';
           }
           ball(decor, '#e7c278', p.x, .23, p.z, .055, .035, .055);
@@ -536,8 +579,9 @@
     // A clear finite village needs no white fog wash over the character's colors.
     scene.background = new THREE.Color('#cbe7e8'); scene.fog = null;
     setSeason(seasonKey || 'summer');
-    scene.add(new THREE.HemisphereLight('#f5f8ff', '#b4c49f', 1.45));
-    var sun = new THREE.DirectionalLight('#fff8ed', 2.2); sun.position.set(-7, 12, 8); sun.castShadow = true; sun.shadow.mapSize.set(512, 512); sun.shadow.radius = 3;
+    var light=style&&style.collection?style.collection.light:{hemisphereSky:'#fffaf4',hemisphereGround:'#ddd4c8',hemisphereIntensity:1.45,sunColor:'#fff9f0',sunIntensity:2.2};
+    scene.add(new THREE.HemisphereLight(light.hemisphereSky,light.hemisphereGround,light.hemisphereIntensity));
+    var sun = new THREE.DirectionalLight(light.sunColor,light.sunIntensity); sun.position.set(-7, 12, 8); sun.castShadow = true; sun.shadow.mapSize.set(512, 512); sun.shadow.radius = 3;
     Object.assign(sun.shadow.camera, { left: -16, right: 16, top: 12, bottom: -12, near: .1, far: 45 }); sun.shadow.normalBias = .04; scene.add(sun);
     // Batch repeated primitives by material and neighborhood. Keep the original
     // meshes only as exact picking/camera collision targets; never draw them twice.
@@ -708,7 +752,7 @@
       var seasonNow = typeof options.seasonNow === 'function' ? options.seasonNow : Date.now, firstSeason = null;
       try { firstSeason = Seasons.resolve(seasonNow()); } catch (_) {}
       model = buildWorld(THREE, world, options.view, position, doc, firstSeason ? firstSeason.key : 'summer');
-      host.dataset.townStyle = model.styleLimits ? 'market-photo1' : 'legacy';
+      host.dataset.townStyle = model.styleLimits ? 'shop-collection-unity1' : 'legacy';
       if (Fishing && typeof Fishing.createVisual === 'function') { fishingVisual = Fishing.createVisual(THREE, world); model.scene.add(fishingVisual.group); }
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: false }); renderer.setPixelRatio(Math.min(win.devicePixelRatio || 1, 1.5));
       renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true; renderer.outputColorSpace = THREE.SRGBColorSpace;

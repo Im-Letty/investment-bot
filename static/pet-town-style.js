@@ -5,6 +5,60 @@
 }(typeof window!=='undefined'?window:globalThis,function(){
  'use strict';
  var limits=Object.freeze({treeLeaves:126,treeTwigs:9,leavesPerTwig:14,leafWidthSegments:8,leafHeightSegments:5,surfaceTextures:6,surfaceTextureSize:128,groundTextureSize:512,groundPatches:80});
+ // A single collection contract supplies studio-warm material families.
+ // Geometry, bitmap originals, seasonal leaf indexing and texture allocation
+ // stay independent. No canvas-wide color filter or exposure is applied.
+ var palette={
+  wood:['#795135','#96673f','#ba8652','#d1aa76','#e2c596'],
+  bark:['#62432d','#795236','#906540','#a57b51','#b9956a'],
+  plaster:['#c7b38f','#d9c7a7','#e6d6b9','#f0e4cf','#f8efdf'],
+  ceramic:['#c4af89','#d6c4a3','#e3d4b8','#eee2cc','#f7eedb'],
+  glaze:['#8667a3','#9b7ab5','#ae8ec5','#c1a7d3','#d3c0e0'],
+  terracotta:['#8e4e35','#a55e3e','#bc7650','#cf946d','#dfb18c'],
+  stone:['#9e8b6d','#b7a384','#ccba9b','#dfd1b5','#eee4cd'],
+  metal:['#76613d','#937b4c','#ae925b','#c6ad76','#ddc79a']
+ };
+ Object.keys(palette).forEach(function(k){Object.freeze(palette[k]);});Object.freeze(palette);
+ var finishDefinitions={
+  grass:{roughness:.96,metalness:0,bumpScale:0,textureRole:null},
+  foliage:{roughness:.75,metalness:0,bumpScale:.023,textureRole:'foliage'},
+  flower:{roughness:.78,metalness:0,bumpScale:0,textureRole:null},
+  soil:{roughness:.98,metalness:0,bumpScale:.022,textureRole:'stone'},
+  paper:{roughness:.90,metalness:0,bumpScale:.008,textureRole:'plaster'},
+  plaster:{roughness:.84,metalness:0,bumpScale:.016,textureRole:'plaster'},
+  wood:{roughness:.67,metalness:0,bumpScale:.027,textureRole:'wood'},
+  bark:{roughness:.88,metalness:0,bumpScale:.052,textureRole:'bark'},
+  ceramic:{roughness:.43,metalness:0,bumpScale:.006,textureRole:'ceramic'},
+  glaze:{roughness:.32,metalness:0,bumpScale:.004,textureRole:'ceramic'},
+  terracotta:{roughness:.83,metalness:0,bumpScale:.014,textureRole:'ceramic'},
+  stone:{roughness:.85,metalness:0,bumpScale:.014,textureRole:'stone'},
+  metal:{roughness:.43,metalness:.18,bumpScale:0,textureRole:null},
+  glass:{roughness:.27,metalness:0,bumpScale:0,textureRole:null},
+  water:{roughness:.26,metalness:0,bumpScale:0,textureRole:null}
+ };
+ Object.keys(finishDefinitions).forEach(function(k){Object.freeze(finishDefinitions[k]);});Object.freeze(finishDefinitions);
+ var pigmentFamilies={};
+ function pigment(family,colors){colors.concat(palette[family]||[]).forEach(function(c){pigmentFamilies[c]=family;});}
+ pigment('glaze',['#ad94be','#9b7cb5','#b39bc9','#ad8fbe','#c1a5cf','#9983b0','#b5a0c6','#ab91b8','#c2a7cc']);
+ pigment('terracotta',['#d6a18b','#e7b49b','#c7ab88','#ccae8f']);
+ pigment('ceramic',['#eadbc3','#f2e4cd','#f6e7bc','#f9e6b5','#f2e5cf','#f3e7d3']);
+ Object.freeze(pigmentFamilies);
+ function hex(color){if(typeof color!=='string'||!/^#(?:[a-f0-9]{3}|[a-f0-9]{6})$/i.test(color))return null;var h=color.toLowerCase();return h.length===4?'#'+h[1]+h[1]+h[2]+h[2]+h[3]+h[3]:h;}
+ function familyFor(role,h){if(role==='ceramic')return pigmentFamilies[h]||null;return Object.prototype.hasOwnProperty.call(palette,role)?role:null;}
+ function paletteColor(color,role){
+  var h=hex(color),family=h&&familyFor(role,h);if(!family)return color;
+  var tones=palette[family];if(tones.indexOf(h)>=0)return h;
+  var value=(parseInt(h.slice(1,3),16)*.2126+parseInt(h.slice(3,5),16)*.7152+parseInt(h.slice(5,7),16)*.0722)/255;
+  var at=value<.25?0:value<.42?1:value<.60?2:value<.78?3:4;return tones[at];
+ }
+ function materialFinish(role,color){
+  if(!Object.prototype.hasOwnProperty.call(finishDefinitions,role))return null;
+  var family=hex(color)&&familyFor(role,hex(color));
+  return finishDefinitions[family||role];
+ }
+ var light=Object.freeze({hemisphereSky:'#fffaf4',hemisphereGround:'#ddd4c8',hemisphereIntensity:1.45,sunColor:'#fff9f0',sunIntensity:2.2});
+ var collection=Object.freeze({revision:'shop-collection-unity1',palette:palette,finishes:finishDefinitions,light:light,
+  references:Object.freeze({tree:'60cb702d2cac8ad22b09ad01621f55d24ddb4d3876f1f550f21cbfcdbaf8c7b9',house:'69ce8c93823a50c5f2225414d4df8adcfe92fcd271ae113982e64f7ccd01cd60',fountain:'b7394422852121b2d5b971fb42f82de6b9eb6460cb1b8bff5979b7e39d205006',sunflower:'3fe2389b077f5d01be2685ac8c6e4401b80703887d20227224e66d79aa422120',lantern:'fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da',flower:'f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6',mushroom:'67e1d44960fd7fba76768b240e098bf1981304951d6474cef19ff72275eb03db'})});
  function leafGeometry(THREE){
   // Closed tapered volume, with a softly raised midrib; never an alpha card.
   var g=new THREE.SphereGeometry(1,limits.leafWidthSegments,limits.leafHeightSegments),p=g.attributes.position;
@@ -93,5 +147,5 @@
   }
   ctx.putImageData(image,0,0);var texture=new THREE.CanvasTexture(c);texture.wrapS=texture.wrapT=THREE.RepeatWrapping;texture.colorSpace=THREE.NoColorSpace;texture.anisotropy=2;texture.userData.styleRole=kind;texture.userData.usage='shared-linear-shade-and-height';return texture;
  }
- return Object.freeze({revision:'market-photo1',limits:limits,leafGeometry:leafGeometry,branchGeometry:branchGeometry,tileGeometry:tileGeometry,bowlGeometry:bowlGeometry,archGeometry:archGeometry,surfaceTexture:surfaceTexture});
+ return Object.freeze({revision:'shop-collection-unity1',collection:collection,paletteColor:paletteColor,materialFinish:materialFinish,limits:limits,leafGeometry:leafGeometry,branchGeometry:branchGeometry,tileGeometry:tileGeometry,bowlGeometry:bowlGeometry,archGeometry:archGeometry,surfaceTexture:surfaceTexture});
 }));
