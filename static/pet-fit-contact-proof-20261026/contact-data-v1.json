@@ -1,0 +1,266 @@
+{
+  "schemaVersion": 1,
+  "revision": "komorebi-milne-front-contact-evidence-v1",
+  "representation": "saved_source_pose_only",
+  "angle": null,
+  "calibrationApproved": false,
+  "completedFit": false,
+  "sourcePNGsEdited": false,
+  "transformsChanged": false,
+  "masksChanged": false,
+  "assetSHA": "9f47ad550c0925db40f04f1be0071dff87c54431e393d44f6a5c98fd80d08bba",
+  "bodySHAs": {
+    "baby": "e7024c2baabfb2fc9fa75620df6015cf0de1c6c645e4ce099e02f9d657033e21",
+    "adult": "35b04839b39e50839a6a1734e8919c6d499ececf6b0aba9b766788e399deb404"
+  },
+  "baselineRevision": "komorebi-milne-2d-prerequisite-v1",
+  "maskRevision": "komorebi-milne-front-mask-v2",
+  "cases": {
+    "baby": {
+      "pose": "sitting_with_foreground_feet",
+      "regions": [
+        {
+          "id": "neck",
+          "label": "首元",
+          "roi": [
+            610,
+            850,
+            870,
+            1025
+          ],
+          "bodyPoint": [
+            737,
+            914
+          ],
+          "assetPoint": [
+            632,
+            560
+          ],
+          "color": "#216c65",
+          "coordinateBasis": "1254x1254 original source pixels",
+          "annotationOrigin": "Actual raw source visually rechecked; visible lower head/fur candidate, hidden neck socket unknown.",
+          "registrationByConstruction": false,
+          "anatomicalSocketKnown": false
+        },
+        {
+          "id": "left_arm_root",
+          "label": "左腕根",
+          "roi": [
+            510,
+            870,
+            715,
+            1030
+          ],
+          "bodyPoint": [
+            618,
+            910
+          ],
+          "assetPoint": [
+            254,
+            275
+          ],
+          "color": "#5c739f",
+          "coordinateBasis": "1254x1254 original source pixels",
+          "annotationOrigin": "Frozen semantic shoulder registration candidate, rechecked against source; exact match is by construction.",
+          "registrationByConstruction": true,
+          "anatomicalSocketKnown": false
+        },
+        {
+          "id": "right_arm_root",
+          "label": "右腕根",
+          "roi": [
+            840,
+            850,
+            1035,
+            1020
+          ],
+          "bodyPoint": [
+            878,
+            904
+          ],
+          "assetPoint": [
+            1002,
+            271
+          ],
+          "color": "#5c739f",
+          "coordinateBasis": "1254x1254 original source pixels",
+          "annotationOrigin": "Frozen semantic shoulder registration candidate, rechecked against source; exact match is by construction.",
+          "registrationByConstruction": true,
+          "anatomicalSocketKnown": false
+        },
+        {
+          "id": "left_forepaw",
+          "label": "左前足",
+          "roi": [
+            515,
+            875,
+            706,
+            1000
+          ],
+          "bodyPoint": [
+            611,
+            940
+          ],
+          "assetPoint": [
+            220,
+            450
+          ],
+          "color": "#ad6578",
+          "coordinateBasis": "1254x1254 original source pixels",
+          "annotationOrigin": "Visible forepaw interior source probe selected from raw view; compared to candidate armhole boundary, no anatomical correspondence asserted.",
+          "registrationByConstruction": false,
+          "anatomicalSocketKnown": false
+        },
+        {
+          "id": "right_forepaw",
+          "label": "右前足",
+          "roi": [
+            882,
+            872,
+            1030,
+            980
+          ],
+          "bodyPoint": [
+            964,
+            926
+          ],
+          "assetPoint": [
+            1024,
+            450
+          ],
+          "color": "#ad6578",
+          "coordinateBasis": "1254x1254 original source pixels",
+          "annotationOrigin": "Visible forepaw interior source probe selected from raw view; candidate occlusion only, hidden arm root unknown.",
+          "registrationByConstruction": false,
+          "anatomicalSocketKnown": false
+        }
+      ]
+    },
+    "adult": {
+      "pose": "standing_with_front_paws",
+      "regions": [
+        {
+          "id": "neck",
+          "label": "首元",
+          "roi": [
+            610,
+            850,
+            870,
+            1025
+          ],
+          "bodyPoint": [
+            734,
+            882
+          ],
+          "assetPoint": [
+            632,
+            560
+          ],
+          "color": "#216c65",
+          "coordinateBasis": "1254x1254 original source pixels",
+          "annotationOrigin": "Actual raw source visually rechecked; visible lower head/fur candidate, hidden neck socket unknown.",
+          "registrationByConstruction": false,
+          "anatomicalSocketKnown": false
+        },
+        {
+          "id": "left_arm_root",
+          "label": "左腕根",
+          "roi": [
+            510,
+            870,
+            715,
+            1030
+          ],
+          "bodyPoint": [
+            598,
+            900
+          ],
+          "assetPoint": [
+            254,
+            275
+          ],
+          "color": "#5c739f",
+          "coordinateBasis": "1254x1254 original source pixels",
+          "annotationOrigin": "Frozen semantic shoulder registration candidate, rechecked against source; exact match is by construction.",
+          "registrationByConstruction": true,
+          "anatomicalSocketKnown": false
+        },
+        {
+          "id": "right_arm_root",
+          "label": "右腕根",
+          "roi": [
+            840,
+            850,
+            1035,
+            1020
+          ],
+          "bodyPoint": [
+            855,
+            894
+          ],
+          "assetPoint": [
+            1002,
+            271
+          ],
+          "color": "#5c739f",
+          "coordinateBasis": "1254x1254 original source pixels",
+          "annotationOrigin": "Frozen semantic shoulder registration candidate, rechecked against source; exact match is by construction.",
+          "registrationByConstruction": true,
+          "anatomicalSocketKnown": false
+        },
+        {
+          "id": "left_forepaw",
+          "label": "左前足",
+          "roi": [
+            510,
+            873,
+            710,
+            1026
+          ],
+          "bodyPoint": [
+            608,
+            947
+          ],
+          "assetPoint": [
+            220,
+            450
+          ],
+          "color": "#ad6578",
+          "coordinateBasis": "1254x1254 original source pixels",
+          "annotationOrigin": "Visible forepaw interior source probe selected from raw view; compared to candidate armhole boundary, no anatomical correspondence asserted.",
+          "registrationByConstruction": false,
+          "anatomicalSocketKnown": false
+        },
+        {
+          "id": "right_forepaw",
+          "label": "右前足",
+          "roi": [
+            843,
+            864,
+            961,
+            1002
+          ],
+          "bodyPoint": [
+            903,
+            934
+          ],
+          "assetPoint": [
+            1024,
+            450
+          ],
+          "color": "#ad6578",
+          "coordinateBasis": "1254x1254 original source pixels",
+          "annotationOrigin": "Visible forepaw interior source probe selected from raw view; candidate occlusion only, hidden arm root unknown.",
+          "registrationByConstruction": false,
+          "anatomicalSocketKnown": false
+        }
+      ]
+    }
+  },
+  "annotation_limits": [
+    "Producer actually viewed unchanged vest/baby/adult raw PNGs. New probes are visible-source candidates, not hidden anatomical sockets.",
+    "Boundary polygons and transforms are taken from byte-frozen v1/v2; no new fitted transform or mask.",
+    "Image-space gap/difference metrics diagnose the hypothesis; physical contact, actual angle, rig and calibration remain unknown.",
+    "Only two saved poses; no other growth states or fullbody360."
+  ]
+}

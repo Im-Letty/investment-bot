@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "unit": "wardrobe:fit-prerequisite:komorebi-vest:milne-baby-adult:front-contact-evidence:v1",
+  "revision": "komorebi-milne-front-contact-evidence-v1",
+  "sourceBase": "6a1220eca1c43575148a5e413a93f3c90c0d2178",
+  "scope": "fixed original2D contact/occlusion diagnostic; not a new fitting or anatomy model",
+  "own_sources": [
+    {
+      "path": "index.html",
+      "sha256": "c7f3b1d9391179ce42ac32a26724bc0ee310c66cfd140f338120ba72fadaceed",
+      "bytes": 5911
+    },
+    {
+      "path": "contact-diagnostics.js",
+      "sha256": "01b346cace02dac4d8184b5d7f5d076f0481cfe0d336da0fbf221e379998a2ca",
+      "bytes": 4648
+    },
+    {
+      "path": "preview.js",
+      "sha256": "f52d7476147d9f8de3b1e89efe15f24c89d80a4bc9c0e17b1c3434b23f442db8",
+      "bytes": 8268
+    },
+    {
+      "path": "contact-data-v1.json",
+      "sha256": "2d1efaa390497dc15a0df908875c32994cb46036ea58ffcd3591e881ad9c2684",
+      "bytes": 7903
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "fit-preview-v1.js",
+      "sha256": "e06a8daa5a32e5ed75f27114b0b3bf60523ae913ae172c224d32082b0686219f",
+      "bytes": 5438
+    },
+    {
+      "path": "fit-mask-refinement.js",
+      "sha256": "db32600d0233bd74e15b8e0f515bcd0b44b8849c9481b5bc1dfac075153b40a4",
+      "bytes": 4701
+    },
+    {
+      "path": "fit-data-v1.json",
+      "sha256": "0a06ad893e75abe26c5ce498fb2c9c43c2032e464440ec356162935f759fbd0b",
+      "bytes": 12703
+    },
+    {
+      "path": "fit-data-v2.json",
+      "sha256": "ab50e766a05d12fb0b467fbac46708d202160da54046f01bb12675a6ad0c88e8",
+      "bytes": 6506
+    },
+    {
+      "path": "assets/komorebi-vest.png",
+      "sha256": "9f47ad550c0925db40f04f1be0071dff87c54431e393d44f6a5c98fd80d08bba",
+      "bytes": 1333492
+    },
+    {
+      "path": "assets/milne-baby.png",
+      "sha256": "e7024c2baabfb2fc9fa75620df6015cf0de1c6c645e4ce099e02f9d657033e21",
+      "bytes": 1237016
+    },
+    {
+      "path": "assets/milne-adult.png",
+      "sha256": "35b04839b39e50839a6a1734e8919c6d499ececf6b0aba9b766788e399deb404",
+      "bytes": 1400026
+    }
+  ],
+  "completedFit": false,
+  "angle": null,
+  "approvedCalibration": false
+}
