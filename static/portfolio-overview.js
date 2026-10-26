@@ -183,7 +183,7 @@
     }
     function paintGoal(s){var body=doc.getElementById('poGoalBody');body.replaceChildren();var g=s.goal;
       if(s.goalError){body.appendChild(node('p','po-muted','目標を読み込めませんでした。再読み込みしてください。'));return;}
-      if(!g){body.appendChild(node('p','po-muted','目標を設定すると、達成率を確認できます。'));return;}
+      if(!g)return;
       if(!(g.target>0)){body.appendChild(node('p','po-muted','目標額は未入力です。'));return;}
       var gap=decimalText([g.target].concat(s.model.rows.map(function(row){return -row.amount;}))),ratio=s.model.total/g.target*100,ratioLabel=percent(s.model.total,g.target,gap),pct=Math.max(0,Math.min(gap!=='0'&&gap[0]!=='-'?99.9:100,ratio)),above=gap[0]==='-';
       if(gap!=='0'){var distance=node('p','po-goal-gap');distance.appendChild(node('span','po-goal-label',above?'目標を上回った金額':'目標まであと'));distance.appendChild(node('strong','po-goal-amount',money(above?gap.slice(1):gap)));body.appendChild(distance);}
