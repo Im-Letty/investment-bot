@@ -1,0 +1,1084 @@
+{
+  "scope": "One chair geometry and one synthetic meadow placement. No native rendering, sitting fit, physics, owner save or full-body character 360.",
+  "uniqueTests": 14,
+  "referenceSha": "81cfce2470abb2e6f55ce5d9d251ec9404e9796ce4cc9db8644b3036002956e0",
+  "bounds": {
+    "min": [
+      -0.8118763331078125,
+      0,
+      -0.5850000001490117
+    ],
+    "max": [
+      0.8118763331078125,
+      1.5328396558761597,
+      0.58
+    ],
+    "size": [
+      1.623752666215625,
+      1.5328396558761597,
+      1.1650000001490115
+    ]
+  },
+  "budget": {
+    "components": 31,
+    "geometries": 20,
+    "materials": 4,
+    "textures": 0,
+    "triangles": 32996,
+    "lights": 0,
+    "geometryVertices": 17088
+  },
+  "attributes": {
+    "invalidPositions": 0,
+    "invalidNormals": 0,
+    "minNormal": 0.9999999608149086,
+    "maxNormal": 1.0000000450128919
+  },
+  "topologyWeldToleranceWorld": 1e-08,
+  "topologyNote": "Closed independently oriented components with geometric support overlaps; not a Boolean-unioned manufacture-ready solid. Lathe pole zero-area triangles are excluded from edge incidence.",
+  "topology": [
+    {
+      "ids": [
+        "foundation",
+        "side-support--1",
+        "side-support-1",
+        "back-center-padding",
+        "back-left-padding",
+        "back-right-padding",
+        "back-leaf-mint",
+        "back-leaf-lilac"
+      ],
+      "badEdges": 0,
+      "volume": 4.13630678196225,
+      "degenerate": 0
+    },
+    {
+      "ids": [
+        "seat-cushion"
+      ],
+      "badEdges": 0,
+      "volume": 6.044679719730537,
+      "degenerate": 0
+    },
+    {
+      "ids": [
+        "arm-left",
+        "arm-right"
+      ],
+      "badEdges": 0,
+      "volume": 4.112418424687375,
+      "degenerate": 0
+    },
+    {
+      "ids": [
+        "back-shell"
+      ],
+      "badEdges": 0,
+      "volume": 0.34454155524313534,
+      "degenerate": 0
+    },
+    {
+      "ids": [
+        "foot-left-front",
+        "foot-right-front",
+        "foot-left-back",
+        "foot-right-back"
+      ],
+      "badEdges": 0,
+      "volume": 0.0073687861721725995,
+      "degenerate": 64
+    },
+    {
+      "ids": [
+        "foot-left-front-neck"
+      ],
+      "badEdges": 0,
+      "volume": 0.0026940516129951506,
+      "degenerate": 0
+    },
+    {
+      "ids": [
+        "foot-left-front-collar"
+      ],
+      "badEdges": 0,
+      "volume": 8.362620783226975e-05,
+      "degenerate": 0
+    },
+    {
+      "ids": [
+        "foot-right-front-neck"
+      ],
+      "badEdges": 0,
+      "volume": 0.0026940516129951506,
+      "degenerate": 0
+    },
+    {
+      "ids": [
+        "foot-right-front-collar"
+      ],
+      "badEdges": 0,
+      "volume": 8.362620783226975e-05,
+      "degenerate": 0
+    },
+    {
+      "ids": [
+        "foot-left-back-neck"
+      ],
+      "badEdges": 0,
+      "volume": 0.0027880281022440914,
+      "degenerate": 0
+    },
+    {
+      "ids": [
+        "foot-left-back-collar"
+      ],
+      "badEdges": 0,
+      "volume": 8.362620783226975e-05,
+      "degenerate": 0
+    },
+    {
+      "ids": [
+        "foot-right-back-neck"
+      ],
+      "badEdges": 0,
+      "volume": 0.0027880281022440914,
+      "degenerate": 0
+    },
+    {
+      "ids": [
+        "foot-right-back-collar"
+      ],
+      "badEdges": 0,
+      "volume": 8.362620783226975e-05,
+      "degenerate": 0
+    },
+    {
+      "ids": [
+        "seat-piping"
+      ],
+      "badEdges": 0,
+      "volume": 0.0005844737714907948,
+      "degenerate": 0
+    },
+    {
+      "ids": [
+        "back-scallop-piping"
+      ],
+      "badEdges": 0,
+      "volume": 0.0009216507946464271,
+      "degenerate": 0
+    },
+    {
+      "ids": [
+        "arm-vein--1"
+      ],
+      "badEdges": 0,
+      "volume": 9.670625427507236e-05,
+      "degenerate": 0
+    },
+    {
+      "ids": [
+        "arm-leaf-seam--1"
+      ],
+      "badEdges": 0,
+      "volume": 8.514631401873842e-05,
+      "degenerate": 0
+    },
+    {
+      "ids": [
+        "arm-vein-1"
+      ],
+      "badEdges": 0,
+      "volume": 9.67058945671264e-05,
+      "degenerate": 0
+    },
+    {
+      "ids": [
+        "arm-leaf-seam-1"
+      ],
+      "badEdges": 0,
+      "volume": 8.514673457042696e-05,
+      "degenerate": 0
+    },
+    {
+      "ids": [
+        "back-leaf-stem"
+      ],
+      "badEdges": 0,
+      "volume": 5.7794231320163026e-05,
+      "degenerate": 0
+    }
+  ],
+  "faceNormalAgreement": [
+    {
+      "ids": [
+        "foundation",
+        "side-support--1",
+        "side-support-1",
+        "back-center-padding",
+        "back-left-padding",
+        "back-right-padding",
+        "back-leaf-mint",
+        "back-leaf-lilac"
+      ],
+      "checkedNondegenerateFaces": 1216,
+      "negativeOrZero": 0,
+      "minimumDot": 0.9990184026627986
+    },
+    {
+      "ids": [
+        "seat-cushion"
+      ],
+      "checkedNondegenerateFaces": 1840,
+      "negativeOrZero": 0,
+      "minimumDot": 0.8965553294270481
+    },
+    {
+      "ids": [
+        "arm-left",
+        "arm-right"
+      ],
+      "checkedNondegenerateFaces": 1216,
+      "negativeOrZero": 0,
+      "minimumDot": 0.9977453853580213
+    },
+    {
+      "ids": [
+        "back-shell"
+      ],
+      "checkedNondegenerateFaces": 1700,
+      "negativeOrZero": 0,
+      "minimumDot": 0.27607673737754734
+    },
+    {
+      "ids": [
+        "foot-left-front",
+        "foot-right-front",
+        "foot-left-back",
+        "foot-right-back"
+      ],
+      "checkedNondegenerateFaces": 448,
+      "negativeOrZero": 0,
+      "minimumDot": 0.636872173343609
+    },
+    {
+      "ids": [
+        "foot-left-front-neck"
+      ],
+      "checkedNondegenerateFaces": 96,
+      "negativeOrZero": 0,
+      "minimumDot": 0.8492950034177522
+    },
+    {
+      "ids": [
+        "foot-left-front-collar"
+      ],
+      "checkedNondegenerateFaces": 512,
+      "negativeOrZero": 0,
+      "minimumDot": 0.9880703558900022
+    },
+    {
+      "ids": [
+        "foot-right-front-neck"
+      ],
+      "checkedNondegenerateFaces": 96,
+      "negativeOrZero": 0,
+      "minimumDot": 0.8492950034177522
+    },
+    {
+      "ids": [
+        "foot-right-front-collar"
+      ],
+      "checkedNondegenerateFaces": 512,
+      "negativeOrZero": 0,
+      "minimumDot": 0.9880703558900022
+    },
+    {
+      "ids": [
+        "foot-left-back-neck"
+      ],
+      "checkedNondegenerateFaces": 96,
+      "negativeOrZero": 0,
+      "minimumDot": 0.8498268837729064
+    },
+    {
+      "ids": [
+        "foot-left-back-collar"
+      ],
+      "checkedNondegenerateFaces": 512,
+      "negativeOrZero": 0,
+      "minimumDot": 0.9880703558900022
+    },
+    {
+      "ids": [
+        "foot-right-back-neck"
+      ],
+      "checkedNondegenerateFaces": 96,
+      "negativeOrZero": 0,
+      "minimumDot": 0.8498268837729064
+    },
+    {
+      "ids": [
+        "foot-right-back-collar"
+      ],
+      "checkedNondegenerateFaces": 512,
+      "negativeOrZero": 0,
+      "minimumDot": 0.9880703558900022
+    },
+    {
+      "ids": [
+        "seat-piping"
+      ],
+      "checkedNondegenerateFaces": 1728,
+      "negativeOrZero": 0,
+      "minimumDot": 0.9804135437687908
+    },
+    {
+      "ids": [
+        "back-scallop-piping"
+      ],
+      "checkedNondegenerateFaces": 7680,
+      "negativeOrZero": 0,
+      "minimumDot": 0.9285072313958713
+    },
+    {
+      "ids": [
+        "arm-vein--1"
+      ],
+      "checkedNondegenerateFaces": 696,
+      "negativeOrZero": 0,
+      "minimumDot": 0.702918562850579
+    },
+    {
+      "ids": [
+        "arm-leaf-seam--1"
+      ],
+      "checkedNondegenerateFaces": 768,
+      "negativeOrZero": 0,
+      "minimumDot": 0.7443758137527103
+    },
+    {
+      "ids": [
+        "arm-vein-1"
+      ],
+      "checkedNondegenerateFaces": 696,
+      "negativeOrZero": 0,
+      "minimumDot": 0.7029200610242127
+    },
+    {
+      "ids": [
+        "arm-leaf-seam-1"
+      ],
+      "checkedNondegenerateFaces": 768,
+      "negativeOrZero": 0,
+      "minimumDot": 0.7441202499193464
+    },
+    {
+      "ids": [
+        "back-leaf-stem"
+      ],
+      "checkedNondegenerateFaces": 480,
+      "negativeOrZero": 0,
+      "minimumDot": 0.7284739222886192
+    }
+  ],
+  "supportOverlap": [
+    {
+      "footId": "foot-left-front",
+      "neckId": "foot-left-front-neck",
+      "footNeckInteriorWitness": [
+        -0.5330616210865559,
+        0.1814539525317268,
+        0.4033593004990281
+      ],
+      "foundationNeckInteriorWitness": [
+        -0.4077131180171659,
+        0.27547621625005986,
+        0.2972607327695075
+      ],
+      "foundationSurfaceTriangle": 870,
+      "foundationSurfaceError": 5.551115123125783e-17,
+      "scope": "Geometric positive overlap; not physical load or joint strength."
+    },
+    {
+      "footId": "foot-right-front",
+      "neckId": "foot-right-front-neck",
+      "footNeckInteriorWitness": [
+        0.5330616210836217,
+        0.18145395252901494,
+        0.4033593004960447
+      ],
+      "foundationNeckInteriorWitness": [
+        0.4077131178244896,
+        0.27547621607198264,
+        0.2972607325736001
+      ],
+      "foundationSurfaceTriangle": 888,
+      "foundationSurfaceError": 7.850462293418876e-17,
+      "scope": "Geometric positive overlap; not physical load or joint strength."
+    },
+    {
+      "footId": "foot-left-back",
+      "neckId": "foot-left-back-neck",
+      "footNeckInteriorWitness": [
+        -0.5330144653404782,
+        0.18154180106031917,
+        -0.40331135396023865
+      ],
+      "foundationNeckInteriorWitness": [
+        -0.40461655735806684,
+        0.2812449362942927,
+        -0.2941122433890036
+      ],
+      "foundationSurfaceTriangle": 857,
+      "foundationSurfaceError": 1.2412670766236366e-16,
+      "scope": "Geometric positive overlap; not physical load or joint strength."
+    },
+    {
+      "footId": "foot-right-back",
+      "neckId": "foot-right-back-neck",
+      "footNeckInteriorWitness": [
+        0.5330144653419266,
+        0.1815418010595897,
+        -0.403311353958507
+      ],
+      "foundationNeckInteriorWitness": [
+        0.4046165574531817,
+        0.2812449362463902,
+        -0.294112243275291
+      ],
+      "foundationSurfaceTriangle": 838,
+      "foundationSurfaceError": 1.1102230246251565e-16,
+      "scope": "Geometric positive overlap; not physical load or joint strength."
+    }
+  ],
+  "chairContacts": {
+    "seatCenter": {
+      "partId": "seat-cushion",
+      "triangleIndex": 4,
+      "triangleVertexIndices": [
+        4,
+        45,
+        46
+      ],
+      "triangleMeshLocal": [
+        [
+          0,
+          0.6499999761581421,
+          0
+        ],
+        [
+          -0.28395333886146545,
+          0.9791021943092346,
+          0.2374396026134491
+        ],
+        [
+          -0.26333117485046387,
+          0.9796424508094788,
+          0.26333117485046387
+        ]
+      ],
+      "barycentric": [
+        0.9999999999999976,
+        2.6873207025357152e-15,
+        -1.550147451045534e-16
+      ],
+      "pointChairLocal": [
+        0,
+        0.621699997186661,
+        0.07
+      ],
+      "normalChairLocal": [
+        0.14272314597533908,
+        0.979687165629659,
+        -0.14086575560947115
+      ],
+      "basis": "actual indexed triangle ray hit, chair-side interface only",
+      "bodyBinding": null
+    },
+    "seatLeft": {
+      "partId": "seat-cushion",
+      "triangleIndex": 121,
+      "triangleVertexIndices": [
+        82,
+        123,
+        124
+      ],
+      "triangleMeshLocal": [
+        [
+          -0.46911343932151794,
+          0.9502043128013611,
+          0
+        ],
+        [
+          -0.5839695334434509,
+          0.9321256875991821,
+          0
+        ],
+        [
+          -0.5799323916435242,
+          0.95425945520401,
+          0.20664094388484955
+        ]
+      ],
+      "barycentric": [
+        0.6918660219681942,
+        0.3081339780318058,
+        3.484809078262284e-17
+      ],
+      "pointChairLocal": [
+        -0.2800000000000001,
+        0.6564667735438552,
+        0.07
+      ],
+      "normalChairLocal": [
+        -0.03343537456823873,
+        0.9990927573463082,
+        -0.026376844876382935
+      ],
+      "basis": "actual indexed triangle ray hit, chair-side interface only",
+      "bodyBinding": null
+    },
+    "seatRight": {
+      "partId": "seat-cushion",
+      "triangleIndex": 161,
+      "triangleVertexIndices": [
+        102,
+        143,
+        144
+      ],
+      "triangleMeshLocal": [
+        [
+          0.46911343932151794,
+          0.9502043128013611,
+          5.761876531451549e-10
+        ],
+        [
+          0.5839695334434509,
+          0.9321256875991821,
+          7.172594740367799e-10
+        ],
+        [
+          0.5799323916435242,
+          0.95425945520401,
+          -0.20664094388484955
+        ]
+      ],
+      "barycentric": [
+        0.6918660218627912,
+        0.30813397513849666,
+        2.998712180008393e-09
+      ],
+      "pointChairLocal": [
+        0.2800000000000001,
+        0.6564667735514623,
+        0.07
+      ],
+      "normalChairLocal": [
+        0.033435374541205556,
+        0.9990927573496108,
+        0.02637684478554792
+      ],
+      "basis": "actual indexed triangle ray hit, chair-side interface only",
+      "bodyBinding": null
+    },
+    "backSupport": {
+      "partId": "back-center-padding",
+      "triangleIndex": 561,
+      "triangleVertexIndices": [
+        305,
+        338,
+        339
+      ],
+      "triangleMeshLocal": [
+        [
+          -6.047847007131226e-17,
+          0.15643446147441864,
+          0.9876883625984192
+        ],
+        [
+          -6.123234262925839e-17,
+          6.123234262925839e-17,
+          1
+        ],
+        [
+          0.19509032368659973,
+          6.123234262925839e-17,
+          0.9807852506637573
+        ]
+      ],
+      "barycentric": [
+        0.8753320639611103,
+        0.12466793603889013,
+        -5.156296072817114e-16
+      ],
+      "pointChairLocal": [
+        0,
+        1.04,
+        -0.24575841480330737
+      ],
+      "normalChairLocal": [
+        0.03292420365949858,
+        0.07219854544498619,
+        0.9968467118113075
+      ],
+      "basis": "actual indexed triangle ray hit, chair-side interface only",
+      "bodyBinding": null
+    },
+    "armLeft": {
+      "partId": "arm-left",
+      "triangleIndex": 14,
+      "triangleVertexIndices": [
+        14,
+        47,
+        48
+      ],
+      "triangleMeshLocal": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0.17572231590747833,
+          0.9887935519218445,
+          0.05986487865447998
+        ],
+        [
+          0.18556033074855804,
+          0.9892444610595703,
+          0.030518850311636925
+        ]
+      ],
+      "barycentric": [
+        0.1594242529185827,
+        0.1871160600926554,
+        0.6534596869887619
+      ],
+      "pointChairLocal": [
+        -0.6349999999999999,
+        0.9411646231692148,
+        0.039999999999999994
+      ],
+      "normalChairLocal": [
+        -0.105322034857254,
+        0.9916041021431096,
+        -0.07502382012724397
+      ],
+      "basis": "actual indexed triangle ray hit, chair-side interface only",
+      "bodyBinding": null
+    },
+    "armRight": {
+      "partId": "arm-right",
+      "triangleIndex": 1,
+      "triangleVertexIndices": [
+        1,
+        34,
+        35
+      ],
+      "triangleMeshLocal": [
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          -0.18556033074855804,
+          0.9892444610595703,
+          0.030518850311636925
+        ],
+        [
+          -0.17572231590747833,
+          0.9887935519218445,
+          0.05986487865447998
+        ]
+      ],
+      "barycentric": [
+        0.15942425291858275,
+        0.6534596869887619,
+        0.1871160600926554
+      ],
+      "pointChairLocal": [
+        0.6349999999999999,
+        0.9411646231692148,
+        0.039999999999999994
+      ],
+      "normalChairLocal": [
+        0.105322034857254,
+        0.9916041021431096,
+        -0.07502382012724397
+      ],
+      "basis": "actual indexed triangle ray hit, chair-side interface only",
+      "bodyBinding": null
+    }
+  },
+  "footContacts": [
+    {
+      "partId": "foot-left-front",
+      "triangleIndex": 49,
+      "triangleVertexIndices": [
+        37,
+        28,
+        36
+      ],
+      "triangleMeshLocal": [
+        [
+          0.06717514246702194,
+          0,
+          0.06717514246702194
+        ],
+        [
+          0.052779171615839005,
+          0,
+          0.07898961007595062
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "barycentric": [
+        0.2977291787630899,
+        1.3661693677304138e-16,
+        0.70227082123691
+      ],
+      "pointChairLocal": [
+        -0.515,
+        0,
+        0.42500000000000004
+      ],
+      "normalChairLocal": [
+        0,
+        -1,
+        0
+      ],
+      "basis": "actual indexed triangle ray hit, chair-side interface only",
+      "bodyBinding": null
+    },
+    {
+      "partId": "foot-right-front",
+      "triangleIndex": 49,
+      "triangleVertexIndices": [
+        37,
+        28,
+        36
+      ],
+      "triangleMeshLocal": [
+        [
+          0.06717514246702194,
+          0,
+          0.06717514246702194
+        ],
+        [
+          0.052779171615839005,
+          0,
+          0.07898961007595062
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "barycentric": [
+        0.2977291787630899,
+        1.3661693677304138e-16,
+        0.70227082123691
+      ],
+      "pointChairLocal": [
+        0.555,
+        0,
+        0.42500000000000004
+      ],
+      "normalChairLocal": [
+        0,
+        -1,
+        0
+      ],
+      "basis": "actual indexed triangle ray hit, chair-side interface only",
+      "bodyBinding": null
+    },
+    {
+      "partId": "foot-left-back",
+      "triangleIndex": 49,
+      "triangleVertexIndices": [
+        37,
+        28,
+        36
+      ],
+      "triangleMeshLocal": [
+        [
+          0.06717514246702194,
+          0,
+          0.06717514246702194
+        ],
+        [
+          0.052779171615839005,
+          0,
+          0.07898961007595062
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "barycentric": [
+        0.2977291787630899,
+        1.3661693677304138e-16,
+        0.70227082123691
+      ],
+      "pointChairLocal": [
+        -0.515,
+        0,
+        -0.385
+      ],
+      "normalChairLocal": [
+        0,
+        -1,
+        0
+      ],
+      "basis": "actual indexed triangle ray hit, chair-side interface only",
+      "bodyBinding": null
+    },
+    {
+      "partId": "foot-right-back",
+      "triangleIndex": 49,
+      "triangleVertexIndices": [
+        37,
+        28,
+        36
+      ],
+      "triangleMeshLocal": [
+        [
+          0.06717514246702194,
+          0,
+          0.06717514246702194
+        ],
+        [
+          0.052779171615839005,
+          0,
+          0.07898961007595062
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "barycentric": [
+        0.2977291787630899,
+        1.3661693677304138e-16,
+        0.70227082123691
+      ],
+      "pointChairLocal": [
+        0.555,
+        0,
+        -0.385
+      ],
+      "normalChairLocal": [
+        0,
+        -1,
+        0
+      ],
+      "basis": "actual indexed triangle ray hit, chair-side interface only",
+      "bodyBinding": null
+    }
+  ],
+  "geometryOnlySeatGap": {
+    "leftInnerX": -0.45812366689218753,
+    "rightInnerX": 0.45812366689218753,
+    "frontLeafWidth": 0.6039760112762451,
+    "rearLeafWidth": 0.7413883209228516,
+    "notBodyClearance": true
+  },
+  "framing": {
+    "finitePoseAspectSamples": 600,
+    "notContinuousCollisionProof": true
+  },
+  "placement": {
+    "townPoint": {
+      "x": 780,
+      "y": 700
+    },
+    "worldPosition": {
+      "x": -6.6,
+      "y": 0.025000000000000668,
+      "z": -2.6
+    },
+    "feet": [
+      {
+        "id": "foot-left-front",
+        "authoredSupportNotHiddenOriginalLegProof": true,
+        "localSolePoint": [
+          -0.535,
+          0,
+          0.405
+        ],
+        "localSoleY": 0,
+        "soleFaceIndex": 1,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "supportPoint": [
+          -7.135,
+          0.025000000000000487,
+          -2.1950000000000007
+        ],
+        "supportY": 0.025000000000000487,
+        "surface": "dry-land",
+        "supportFaceIndex": 0,
+        "soleMinusFloor": 1.8041124150158794e-16
+      },
+      {
+        "id": "foot-right-front",
+        "authoredSupportNotHiddenOriginalLegProof": true,
+        "localSolePoint": [
+          0.535,
+          0,
+          0.405
+        ],
+        "localSoleY": 0,
+        "soleFaceIndex": 1,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "supportPoint": [
+          -6.0649999999999995,
+          0.025000000000000487,
+          -2.1950000000000007
+        ],
+        "supportY": 0.025000000000000487,
+        "surface": "dry-land",
+        "supportFaceIndex": 0,
+        "soleMinusFloor": 1.8041124150158794e-16
+      },
+      {
+        "id": "foot-left-back",
+        "authoredSupportNotHiddenOriginalLegProof": true,
+        "localSolePoint": [
+          -0.535,
+          0,
+          -0.405
+        ],
+        "localSoleY": 0,
+        "soleFaceIndex": 1,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "supportPoint": [
+          -7.135,
+          0.025000000000000668,
+          -3.0050000000000003
+        ],
+        "supportY": 0.025000000000000668,
+        "surface": "dry-land",
+        "supportFaceIndex": 0,
+        "soleMinusFloor": 0
+      },
+      {
+        "id": "foot-right-back",
+        "authoredSupportNotHiddenOriginalLegProof": true,
+        "localSolePoint": [
+          0.535,
+          0,
+          -0.405
+        ],
+        "localSoleY": 0,
+        "soleFaceIndex": 1,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "supportPoint": [
+          -6.0649999999999995,
+          0.025000000000000668,
+          -3.0050000000000003
+        ],
+        "supportY": 0.025000000000000668,
+        "surface": "dry-land",
+        "supportFaceIndex": 0,
+        "soleMinusFloor": 0
+      }
+    ],
+    "expandedNavigationGrid": {
+      "stepMaxWorld": 0.08,
+      "marginWorld": 0.22,
+      "count": 594,
+      "blocked": 0
+    },
+    "walkClearanceRing": {
+      "radiusWorld": 1.220683856387686,
+      "samples": 64,
+      "blocked": 0,
+      "continuousNavigationGuarantee": false
+    },
+    "waterBoundary": {
+      "source": "actual-dry-land-triangulated-Mesh-boundary",
+      "shorelineSegments": 4,
+      "rectangleToShorelineClearanceWorld": 16.200189652729627
+    },
+    "sceneMeshEnvelopes": {
+      "tested": 915,
+      "collisions": [],
+      "minimumAABBSeparationWorld": 1.9575597039878458,
+      "scope": "Conservative actual-occluder Mesh AABBs at this one placement, including retained originals used by instance batches; not triangle-contact/physics or all decorations."
+    },
+    "placeCenterDistances": [
+      {
+        "id": "home",
+        "centerDistanceWorld": 3.4319254071147873
+      },
+      {
+        "id": "cafe",
+        "centerDistanceWorld": 13.303191797459736
+      },
+      {
+        "id": "shop",
+        "centerDistanceWorld": 5.171546770551341
+      },
+      {
+        "id": "playground",
+        "centerDistanceWorld": 13.854302436427465
+      },
+      {
+        "id": "tree",
+        "centerDistanceWorld": 6.132412249677936
+      },
+      {
+        "id": "flowers",
+        "centerDistanceWorld": 10.529438351593116
+      }
+    ],
+    "worldUnchanged": true,
+    "normalPlacement": false,
+    "ownerLayoutOrSave": false,
+    "physicalLoadOrFurnitureFit": false,
+    "scope": "One authored chair on one synthetic saved meadow placement. Actual four sole/floor rays, exact dryland boundary separation and conservative scene envelopes; finite navigation samples only. Body binding and sitting are unverified."
+  },
+  "disposal": {
+    "uniqueOwnedResources": 24,
+    "eachDisposedOnce": true,
+    "idempotent": true
+  },
+  "proceduralCloth": {
+    "textureCount": 1,
+    "rasterReferenceUnchanged": true,
+    "physicalTextureScan": false
+  },
+  "generated_at_jst": "2026-10-26T19:38:39.257130+09:00",
+  "test_result": {
+    "unique_tests": 14,
+    "pass": 14,
+    "fail": 0,
+    "code_and_fixture_validation_only": true
+  }
+}
