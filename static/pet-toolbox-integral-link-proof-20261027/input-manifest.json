@@ -1,0 +1,194 @@
+{
+  "schema_version": 1,
+  "id": "storybook-sewing-toolbox-integral-two-pivot-link-v1",
+  "unit": "wardrobe:other:storybook-sewing-toolbox:integral-two-pivot-link:v1",
+  "source_image_SHA256": "6afc65a45e78a938b018987a85037a9bbbd4b63905aca1438927ea13d76db070",
+  "scope": "one integral body-side bay, a two-bored rigid link and an attached tray-side bay with two independent retained pin joints; partial cutaway only",
+  "range_A_degrees": [
+    20,
+    50
+  ],
+  "range_B_relative_degrees": [
+    -20,
+    0
+  ],
+  "finite_pose_samples": 99,
+  "unique_tests": 10,
+  "current_village_originals_awaited": true,
+  "external_guide_stand": false,
+  "full_toolbox_standalone_opening": false,
+  "physical_load_friction": false,
+  "continuous_collision_guarantee": false,
+  "new_designs": 0,
+  "new_raw": 0,
+  "new_mesh_library": 0,
+  "normal_placement": false,
+  "unlock": false,
+  "save": false,
+  "files": [
+    {
+      "path": "mechanism.mjs",
+      "sha256": "5d0b6380e40a6585f5fae90a9b662ac5f3d442371f521890ed551df5587f074d",
+      "bytes": 11204
+    },
+    {
+      "path": "inspection.mjs",
+      "sha256": "401ac8ad6f5a7c96123c557e4f6a68b5d339aeea42882dd52fe9d306b8afad7d",
+      "bytes": 6234
+    },
+    {
+      "path": "placement.mjs",
+      "sha256": "b56467e091b3d0408d2f1d52d83a48cdd88f837304fa3b1fb71717b5b3dce961",
+      "bytes": 2718
+    },
+    {
+      "path": "preview.mjs",
+      "sha256": "be74dfdffb02fb0b9d2e61134d029951083e9d375e076c8b67f9f29e38c252cd",
+      "bytes": 9678
+    },
+    {
+      "path": "index.html",
+      "sha256": "3d1d3874d18185230ad9d6f3e5a21e2533f71b251c411e9e05d9907a140e8eee",
+      "bytes": 5138
+    },
+    {
+      "path": "finite-geometry-certificate.json",
+      "sha256": "fb5791c45e4242f3ad4b6d78125498d4a0b20b641591af9405a91003541f2ddf",
+      "bytes": 18570
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/static/pet-toolbox-joint-proof-20261026/joint.mjs",
+      "sha256": "d078d5997e7dfd7a7aed73cadf3b76e4ad74b17eb2c3d20313e0169ab3e3f1f8",
+      "bytes": 9090
+    },
+    {
+      "path": "/static/pet-toolbox-joint-proof-20261026/inspection.mjs",
+      "sha256": "ff50881045fb62d703e7be10fecefc82d37054d84bd2467305b609bfc43f23a2",
+      "bytes": 4387
+    },
+    {
+      "path": "/static/pet-toolbox-joint-proof-20261026/placement.mjs",
+      "sha256": "1419d42a6fd4f3e83547ec105506c38a32058a9e2ac05321a324340c1ae62fc1",
+      "bytes": 1577
+    },
+    {
+      "path": "/static/pet-toolbox-mesh-proof-20261026/framing.mjs",
+      "sha256": "d1a2e51112f7548c2e516e2f29359e1315574c501874a30afa0a1977b93e3e92",
+      "bytes": 1819
+    },
+    {
+      "path": "/static/pet-toolbox-mesh-proof-20261026/toolbox.js",
+      "sha256": "8e4d65f59698f2f336f46d4ecb0a5daff13830941e8d96239dece6dc6c0ea05d",
+      "bytes": 10411
+    },
+    {
+      "path": "/static/pet-toolbox-mesh-proof-20261026/assets/storybook-sewing-toolbox-v1.png",
+      "sha256": "6afc65a45e78a938b018987a85037a9bbbd4b63905aca1438927ea13d76db070",
+      "bytes": 2141999
+    },
+    {
+      "path": "/static/vendor/three-0.160.1.module.js",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    {
+      "path": "/static/pet-town-walk.js",
+      "sha256": "e5394a48f76449dddec52e497d1b231ad1ed213d1fa69aec3657bbb3045b1aac",
+      "bytes": 24418
+    },
+    {
+      "path": "/static/pet-frame-fit.js",
+      "sha256": "7b3b730dc7834e1c56f455161d59005f8352a3cd918e52be1893bc4b7706dc13",
+      "bytes": 2434
+    },
+    {
+      "path": "/static/pet-river-fishing.js",
+      "sha256": "8b4e1d2d9f2b9fda72f66e79b2105dccdadd2e6de5230c24e920cbdcf561aedb",
+      "bytes": 8325
+    },
+    {
+      "path": "/static/pet-japan-seasons.js",
+      "sha256": "944ff98aa81f7975b4daf4dc3ca59887f042e2c8be9eb1e5b6ea29637f46225a",
+      "bytes": 5025
+    },
+    {
+      "path": "/static/pet-town-style.js",
+      "sha256": "7985e1f983329bcef7567c634543a74b442de56b8757858693ae54ef64b68e2a",
+      "bytes": 13719
+    },
+    {
+      "path": "/static/pet-town-layout-art.js",
+      "sha256": "2cb9581f8593eb6569a7de97fdac231f72201121ee81154c6c01ebb400001a0f",
+      "bytes": 14102
+    },
+    {
+      "path": "/static/pet-town-placement-originals.js",
+      "sha256": "dd07e3756f0a1aa2f6ea0a4ec92137b430a87897093a2ed4c0a4193c5395845e",
+      "bytes": 10838
+    },
+    {
+      "path": "/static/pet-town-scene.js",
+      "sha256": "103da61d9c45db9d6840da1145c49d56edd95d19af4bfb51468cb0496f3c25f7",
+      "bytes": 107565
+    },
+    {
+      "path": "/static/pet-items-v1/house.webp",
+      "sha256": "69ce8c93823a50c5f2225414d4df8adcfe92fcd271ae113982e64f7ccd01cd60",
+      "bytes": 21548
+    },
+    {
+      "path": "/static/pet-village-art/cafe.webp",
+      "sha256": "86ebde4ab01135291d6f7135296686f10aefc64187ac7acf4043f585c29a879d",
+      "bytes": 29444
+    },
+    {
+      "path": "/static/pet-village-art/shop.webp",
+      "sha256": "25ea663a1132f09b55329ed326f881a601162689d962ff084a6c653359d61e85",
+      "bytes": 34058
+    },
+    {
+      "path": "/static/pet-village-art/tree-v2.webp",
+      "sha256": "f2f13fd18a0b27cec312c10b2f9dc55694d98072f06b8c52c5a56b25210e03a1",
+      "bytes": 34836
+    },
+    {
+      "path": "/static/pet-village-art/flowerbed-v2.webp",
+      "sha256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+      "bytes": 41068
+    },
+    {
+      "path": "/static/pet-items-v1/fountain.webp",
+      "sha256": "b7394422852121b2d5b971fb42f82de6b9eb6460cb1b8bff5979b7e39d205006",
+      "bytes": 32224
+    },
+    {
+      "path": "/static/pet-items-v1/lantern.webp",
+      "sha256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+      "bytes": 17206
+    }
+  ],
+  "retained_immutable_references": [
+    "/static/pet-toolbox-mesh-proof-20261026/index.html",
+    "/static/pet-toolbox-joint-proof-20261026/index.html"
+  ],
+  "remaining": [
+    "complete-box closure and multi-link constraints",
+    "full continuous all-part collision and contact",
+    "physical pin retention/load/friction/manufacturing tolerances",
+    "grip and body contact",
+    "ordinary ownership/unlock/placement/save"
+  ],
+  "preview_town_point": {
+    "x": 1200,
+    "y": 1300
+  },
+  "original_sprite_clearance": {
+    "cards": 141,
+    "required_margin": 0.2,
+    "minimum_gap": 0.9112781448884908,
+    "physical_fixture_volume": false,
+    "all_camera_projection_guarantee": false
+  }
+}

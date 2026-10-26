@@ -1,0 +1,608 @@
+{
+  "recordedAtJst": "2026-10-27T07:03:48.776+09:00",
+  "unit": "wardrobe:other:storybook-sewing-toolbox:integral-two-pivot-link:v1",
+  "finitePoseSamples": 99,
+  "uniqueTestCases": 10,
+  "maximumEndpointClosure": 0,
+  "maximumBoreOffAxis": 0,
+  "minimumActualRadialChordClearance": 0.005912175815416393,
+  "crossAssemblyInterferenceCount": 0,
+  "checkedCrossAssemblyPairsPerPose": 388,
+  "linkLength": 1.05,
+  "rangeA": [
+    20,
+    50
+  ],
+  "rangeB": [
+    -20,
+    0
+  ],
+  "conservativeEnvelope": {
+    "min": [
+      -0.5499999999999999,
+      0,
+      -0.4
+    ],
+    "max": [
+      1.9196831467690676,
+      2.0447032108758942,
+      0.4
+    ],
+    "size": [
+      2.4696831467690674,
+      2.0447032108758942,
+      0.8
+    ],
+    "method": "actual local rigid vertices; analytic separate trig extrema; conservative tray-center plus attitude envelope, not collision proof"
+  },
+  "budget": {
+    "parts": 39,
+    "triangles": 4764,
+    "geometries": 9,
+    "materials": 5,
+    "textures": 0,
+    "geometryAllocationsPerPose": 0
+  },
+  "jointDimensionClearances": [
+    {
+      "joint": "A",
+      "boardTongueAxialGaps": [
+        0.019999999552965164,
+        0.019999999552965164
+      ],
+      "collars": [
+        {
+          "side": -1,
+          "boardToCollarAxialGap": 0.014499998137354864,
+          "collarToEndcapAxialGap": 0.020500000093132242,
+          "shaftEndToCapGap": 5.532056090995496e-9
+        },
+        {
+          "side": 1,
+          "boardToCollarAxialGap": 0.014499998137354864,
+          "collarToEndcapAxialGap": 0.020500000093132242,
+          "shaftEndToCapGap": 5.532056090995496e-9
+        }
+      ]
+    },
+    {
+      "joint": "B",
+      "boardTongueAxialGaps": [
+        0.019999999552965164,
+        0.019999999552965164
+      ],
+      "collars": [
+        {
+          "side": -1,
+          "boardToCollarAxialGap": 0.014499998137354864,
+          "collarToEndcapAxialGap": 0.020500000093132242,
+          "shaftEndToCapGap": 5.532056090995496e-9
+        },
+        {
+          "side": 1,
+          "boardToCollarAxialGap": 0.014499998137354864,
+          "collarToEndcapAxialGap": 0.020500000093132242,
+          "shaftEndToCapGap": 5.532056090995496e-9
+        }
+      ]
+    }
+  ],
+  "endpointWitnesses": [
+    {
+      "a": 20,
+      "b": -20,
+      "stops": [
+        {
+          "joint": "A",
+          "endpoint": 20,
+          "id": "A-integral-positive-stop-20",
+          "separated": false,
+          "maxSeparation": -2.086162576020456e-9,
+          "minOverlap": 2.086162576020456e-9,
+          "axis": "actual-XY-convex-profile-plus-Z-prism"
+        },
+        {
+          "joint": "A",
+          "endpoint": 50,
+          "id": "A-integral-positive-stop-50",
+          "separated": true,
+          "maxSeparation": 0.14959291934904784,
+          "minOverlap": 0,
+          "axis": "actual-XY-convex-profile-plus-Z-prism"
+        },
+        {
+          "joint": "B",
+          "endpoint": 0,
+          "id": "B-integral-positive-stop-0",
+          "separated": true,
+          "maxSeparation": 0.06488887940260746,
+          "minOverlap": 0,
+          "axis": "actual-XY-convex-profile-plus-Z-prism"
+        },
+        {
+          "joint": "B",
+          "endpoint": -20,
+          "id": "B-integral-positive-stop--20",
+          "separated": false,
+          "maxSeparation": -2.086162576020456e-9,
+          "minOverlap": 2.086162576020456e-9,
+          "axis": "actual-XY-convex-profile-plus-Z-prism"
+        }
+      ]
+    },
+    {
+      "a": 20,
+      "b": 0,
+      "stops": [
+        {
+          "joint": "A",
+          "endpoint": 20,
+          "id": "A-integral-positive-stop-20",
+          "separated": false,
+          "maxSeparation": -2.086162576020456e-9,
+          "minOverlap": 2.086162576020456e-9,
+          "axis": "actual-XY-convex-profile-plus-Z-prism"
+        },
+        {
+          "joint": "A",
+          "endpoint": 50,
+          "id": "A-integral-positive-stop-50",
+          "separated": true,
+          "maxSeparation": 0.14959291934904784,
+          "minOverlap": 0,
+          "axis": "actual-XY-convex-profile-plus-Z-prism"
+        },
+        {
+          "joint": "B",
+          "endpoint": 0,
+          "id": "B-integral-positive-stop-0",
+          "separated": false,
+          "maxSeparation": -2.086162576020456e-9,
+          "minOverlap": 2.086162576020456e-9,
+          "axis": "actual-XY-convex-profile-plus-Z-prism"
+        },
+        {
+          "joint": "B",
+          "endpoint": -20,
+          "id": "B-integral-positive-stop--20",
+          "separated": true,
+          "maxSeparation": 0.0648888794026074,
+          "minOverlap": 0,
+          "axis": "actual-XY-convex-profile-plus-Z-prism"
+        }
+      ]
+    },
+    {
+      "a": 50,
+      "b": -20,
+      "stops": [
+        {
+          "joint": "A",
+          "endpoint": 20,
+          "id": "A-integral-positive-stop-20",
+          "separated": true,
+          "maxSeparation": 0.149592919349048,
+          "minOverlap": 0,
+          "axis": "actual-XY-convex-profile-plus-Z-prism"
+        },
+        {
+          "joint": "A",
+          "endpoint": 50,
+          "id": "A-integral-positive-stop-50",
+          "separated": false,
+          "maxSeparation": -2.086162576020456e-9,
+          "minOverlap": 2.086162576020456e-9,
+          "axis": "actual-XY-convex-profile-plus-Z-prism"
+        },
+        {
+          "joint": "B",
+          "endpoint": 0,
+          "id": "B-integral-positive-stop-0",
+          "separated": true,
+          "maxSeparation": 0.06488887940260735,
+          "minOverlap": 0,
+          "axis": "actual-XY-convex-profile-plus-Z-prism"
+        },
+        {
+          "joint": "B",
+          "endpoint": -20,
+          "id": "B-integral-positive-stop--20",
+          "separated": false,
+          "maxSeparation": -2.086162576020456e-9,
+          "minOverlap": 2.086162576020456e-9,
+          "axis": "actual-XY-convex-profile-plus-Z-prism"
+        }
+      ]
+    },
+    {
+      "a": 50,
+      "b": 0,
+      "stops": [
+        {
+          "joint": "A",
+          "endpoint": 20,
+          "id": "A-integral-positive-stop-20",
+          "separated": true,
+          "maxSeparation": 0.149592919349048,
+          "minOverlap": 0,
+          "axis": "actual-XY-convex-profile-plus-Z-prism"
+        },
+        {
+          "joint": "A",
+          "endpoint": 50,
+          "id": "A-integral-positive-stop-50",
+          "separated": false,
+          "maxSeparation": -2.086162576020456e-9,
+          "minOverlap": 2.086162576020456e-9,
+          "axis": "actual-XY-convex-profile-plus-Z-prism"
+        },
+        {
+          "joint": "B",
+          "endpoint": 0,
+          "id": "B-integral-positive-stop-0",
+          "separated": false,
+          "maxSeparation": -2.086162576020456e-9,
+          "minOverlap": 2.086162576020456e-9,
+          "axis": "actual-XY-convex-profile-plus-Z-prism"
+        },
+        {
+          "joint": "B",
+          "endpoint": -20,
+          "id": "B-integral-positive-stop--20",
+          "separated": true,
+          "maxSeparation": 0.06488887940260746,
+          "minOverlap": 0,
+          "axis": "actual-XY-convex-profile-plus-Z-prism"
+        }
+      ]
+    }
+  ],
+  "method": "actual closed bored geometry + transformed convex-prismatic cross-assembly SAT; shaft/bore pairs separately checked by actual vertex/chord radial clearance, axes and endplay",
+  "scope": "99 finite poses in ten tests; not 99 tests or continuous/full-toolbox/load/friction proof",
+  "newDesign": 0,
+  "newRaw": 0,
+  "newMeshLibrary": 0,
+  "externalGuideStand": false,
+  "fullToolboxStandaloneOpening": false,
+  "physicalLoadFriction": false,
+  "continuousCollisionGuarantee": false,
+  "normalPlacement": false,
+  "save": false,
+  "placement": {
+    "townPoint": {
+      "x": 1200,
+      "y": 1300
+    },
+    "worldPosition": {
+      "x": -2.4,
+      "y": 0.024999999999999536,
+      "z": 3.4
+    },
+    "finiteFootprintGrid": {
+      "count": 352,
+      "blocked": 0
+    },
+    "feet": [
+      {
+        "id": "body-foot--0.45--0.3",
+        "localSoleY": 0,
+        "supportY": 0.024999999999999536,
+        "surface": "dry-land",
+        "soleMinusFloor": 0
+      },
+      {
+        "id": "body-foot--0.45-0.3",
+        "localSoleY": 0,
+        "supportY": 0.0249999999999994,
+        "surface": "dry-land",
+        "soleMinusFloor": 1.3530843112619095e-16
+      },
+      {
+        "id": "body-foot-0.55--0.3",
+        "localSoleY": 0,
+        "supportY": 0.024999999999999536,
+        "surface": "dry-land",
+        "soleMinusFloor": 0
+      },
+      {
+        "id": "body-foot-0.55-0.3",
+        "localSoleY": 0,
+        "supportY": 0.0249999999999994,
+        "surface": "dry-land",
+        "soleMinusFloor": 1.3530843112619095e-16
+      }
+    ],
+    "normalPlacement": false,
+    "otherDecorationCollisionVerified": false,
+    "scope": "one synthetic dryland preview location, actual four sole rays/finite walkability samples and current original-Sprite full-quad envelope clearance only; no ordinary owner placement, physical fixture volume or all-camera visibility proof",
+    "originalSpriteEnvelopeClearance": {
+      "checkedCards": 141,
+      "kinds": {
+        "home": 1,
+        "cafe": 1,
+        "shop": 1,
+        "fountain": 1,
+        "tree": 27,
+        "flowers": 106,
+        "lantern": 4
+      },
+      "minimumGap": 0.9112781448884908,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "kind": "tree",
+          "sourceSHA256": "f2f13fd18a0b27cec312c10b2f9dc55694d98072f06b8c52c5a56b25210e03a1",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            -1.4520000000000004
+          ],
+          "fullQuadRadius": 3.540721855111509,
+          "envelopeDistance": 4.452,
+          "gap": 0.9112781448884908
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -3.620171337412489,
+            0.026,
+            1.9259135351825603
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 1.2660139633484575,
+          "gap": 0.9465749121206203
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            6.035999999999999
+          ],
+          "fullQuadRadius": 0.9507114619876108,
+          "envelopeDistance": 2.235999999999999,
+          "gap": 1.285288538012388
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            1.3751814482148574,
+            0.026,
+            5.10897405510206
+          ],
+          "fullQuadRadius": 0.8081047426894692,
+          "envelopeDistance": 2.2707459178865745,
+          "gap": 1.4626411751971053
+        },
+        {
+          "kind": "lantern",
+          "sourceSHA256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+          "contact": [
+            -5.472,
+            0.025,
+            4.223999999999998
+          ],
+          "fullQuadRadius": 0.9909739577995439,
+          "envelopeDistance": 2.557393204026319,
+          "gap": 1.5664192462267752
+        },
+        {
+          "kind": "shop",
+          "sourceSHA256": "25ea663a1132f09b55329ed326f881a601162689d962ff084a6c653359d61e85",
+          "contact": [
+            -8.064,
+            0.025,
+            2.6999999999999997
+          ],
+          "fullQuadRadius": 3.469184978044895,
+          "envelopeDistance": 5.122791816968557,
+          "gap": 1.653606838923662
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -3.4762096606368775,
+            0.026,
+            6.079101177556104
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 2.339059380281997,
+          "gap": 2.0196203290541597
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -5.696198453616935,
+            0.026,
+            5.1798366606554165
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 3.0733621909460553,
+          "gap": 2.7539231397182182
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -5.646198453616935,
+            0.026,
+            5.199836660655416
+          ],
+          "fullQuadRadius": 0.1314263525051673,
+          "envelopeDistance": 3.037931661147311,
+          "gap": 2.906505308642144
+        },
+        {
+          "kind": "lantern",
+          "sourceSHA256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+          "contact": [
+            4.032,
+            0.025,
+            4.223999999999998
+          ],
+          "fullQuadRadius": 0.9909739577995439,
+          "envelopeDistance": 4.532193661346777,
+          "gap": 3.541219703547233
+        }
+      ],
+      "method": "sphere enclosing all four full raw Sprite quad corners from actual world scale/center; sphere-to-conservative-3D-pose-envelope distance; includes faint/transparent corners without cropping",
+      "cameraOrientationIndependentGeometryEnvelope": true,
+      "physicalFixtureVolumes": false,
+      "allCameraProjectionOcclusionGuaranteed": false
+    },
+    "originalSpriteVisualEnvelopeClearanceVerified": true
+  },
+  "rejectedFormerPlacement": {
+    "townPoint": {
+      "x": 780,
+      "y": 700
+    },
+    "clearance": {
+      "checkedCards": 141,
+      "kinds": {
+        "home": 1,
+        "cafe": 1,
+        "shop": 1,
+        "fountain": 1,
+        "tree": 27,
+        "flowers": 106,
+        "lantern": 4
+      },
+      "minimumGap": -0.7764497308966201,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "kind": "home",
+          "sourceSHA256": "69ce8c93823a50c5f2225414d4df8adcfe92fcd271ae113982e64f7ccd01cd60",
+          "contact": [
+            -8.064,
+            0.025,
+            -5.364
+          ],
+          "fullQuadRadius": 3.3109895313337723,
+          "envelopeDistance": 2.534539800437152,
+          "gap": -0.7764497308966201
+        },
+        {
+          "kind": "lantern",
+          "sourceSHA256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+          "contact": [
+            -5.472,
+            0.025,
+            -3.4560000000000004
+          ],
+          "fullQuadRadius": 0.9909739577995439,
+          "envelopeDistance": 0.4560000000000004,
+          "gap": -0.5349739577995435
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -6.259399075916727,
+            0.026,
+            -1.2368456310273905
+          ],
+          "fullQuadRadius": 0.8081047426894692,
+          "envelopeDistance": 0.9631543689726096,
+          "gap": 0.15504962628314045
+        },
+        {
+          "kind": "tree",
+          "sourceSHA256": "f2f13fd18a0b27cec312c10b2f9dc55694d98072f06b8c52c5a56b25210e03a1",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            -1.4520000000000004
+          ],
+          "fullQuadRadius": 3.540721855111509,
+          "envelopeDistance": 4.171920520781221,
+          "gap": 0.6311986656697117
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -3.899535539329861,
+            0.026,
+            -1.6177433432232216
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 0.9739826869600686,
+          "gap": 0.6545436357322314
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -8.25965110858006,
+            0.026,
+            -1.6682139987210292
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 1.2304966208524248,
+          "gap": 0.9110575696245876
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -4.1996166048182895,
+            0.026,
+            -4.501138353561017
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 1.576226216428295,
+          "gap": 1.2567871652004579
+        },
+        {
+          "kind": "shop",
+          "sourceSHA256": "25ea663a1132f09b55329ed326f881a601162689d962ff084a6c653359d61e85",
+          "contact": [
+            -8.064,
+            0.025,
+            2.6999999999999997
+          ],
+          "fullQuadRadius": 3.469184978044895,
+          "envelopeDistance": 4.984515623408156,
+          "gap": 1.5153306453632611
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -9.833703601862195,
+            0.026,
+            -1.1871211131594146
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 2.8684819438259583,
+          "gap": 2.5490428925981212
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -9.783703601862195,
+            0.026,
+            -1.1671211131594146
+          ],
+          "fullQuadRadius": 0.1314263525051673,
+          "envelopeDistance": 2.8289986669037064,
+          "gap": 2.6975723143985393
+        }
+      ],
+      "method": "sphere enclosing all four full raw Sprite quad corners from actual world scale/center; sphere-to-conservative-3D-pose-envelope distance; includes faint/transparent corners without cropping",
+      "cameraOrientationIndependentGeometryEnvelope": true,
+      "physicalFixtureVolumes": false,
+      "allCameraProjectionOcclusionGuaranteed": false
+    },
+    "nativeObservation": "root observed an original lantern directly beneath raised tray; former draft retained in delivery history"
+  },
+  "worldUnchanged": true
+}

@@ -1,0 +1,455 @@
+{
+  "schemaVersion": 1,
+  "revision": "milne-newborn-child-body-source-landmark-basis-v1",
+  "coordinateSpace": "original_image_pixel_centres",
+  "sideConvention": "screen-left/screen-right; anatomical side unassigned",
+  "depth": null,
+  "bodyBinding": null,
+  "angleDegrees": null,
+  "worldUnitsPerPixel": null,
+  "calibrationApproved": false,
+  "wearingVerified": false,
+  "characterBody360": false,
+  "canonicalFitRecordsAdded": 0,
+  "annotationMethod": "Both actual unchanged newborn/child PNGs viewed first. Six visible source-feature probes each; authored uncertainty radii are annotation widths, not anatomical tolerance or statistical confidence. Baby/adult annotations retained in their previous proof and not rescaled.",
+  "cases": {
+    "newborn": {
+      "source": {
+        "family": "milne",
+        "stage": "newborn",
+        "src": "./assets/milne-newborn.png",
+        "sha256": "14c8978b1eb8864bc3c1eb54a24107d9111a6e53d8690d1275a1caa42e8a7766",
+        "width": 1254,
+        "height": 1254
+      },
+      "pose": "single_saved_source_pose",
+      "poseObservation": "seated newborn source image",
+      "depth": null,
+      "anatomicalSocketsKnown": false,
+      "crop": [
+        395,
+        865,
+        940,
+        1185
+      ],
+      "landmarks": [
+        {
+          "id": "forepaw_screen_left",
+          "tag": "L1",
+          "label": "画面左の前足・見える毛の面",
+          "px": [
+            626,
+            969
+          ],
+          "screenSide": "screen-left",
+          "anatomicalSide": null,
+          "depth": null,
+          "observation": "visible_source_feature",
+          "uncertaintyRadiusPx": [
+            18,
+            16
+          ],
+          "note": "胴の前に見える前足の毛面。肩や腕の根ではありません。",
+          "labelOffsetPx": [
+            -61,
+            -20
+          ]
+        },
+        {
+          "id": "forepaw_screen_right",
+          "tag": "R1",
+          "label": "画面右の前足・見える毛の面",
+          "px": [
+            822,
+            965
+          ],
+          "screenSide": "screen-right",
+          "anatomicalSide": null,
+          "depth": null,
+          "observation": "visible_source_feature",
+          "uncertaintyRadiusPx": [
+            18,
+            16
+          ],
+          "note": "胴の前に見える前足の毛面。身体の左右は未割当です。",
+          "labelOffsetPx": [
+            18,
+            -13
+          ]
+        },
+        {
+          "id": "chest_visible",
+          "tag": "C1",
+          "label": "中央の胴・見える毛の面",
+          "px": [
+            722,
+            1041
+          ],
+          "screenSide": "centre",
+          "anatomicalSide": null,
+          "depth": null,
+          "observation": "visible_source_feature",
+          "uncertaintyRadiusPx": [
+            17,
+            13
+          ],
+          "note": "前足の間より下に見える毛の面。胸骨の位置ではありません。",
+          "labelOffsetPx": [
+            18,
+            -13
+          ]
+        },
+        {
+          "id": "belly_visible",
+          "tag": "C2",
+          "label": "下腹・見える毛の面",
+          "px": [
+            726,
+            1090
+          ],
+          "screenSide": "centre",
+          "anatomicalSide": null,
+          "depth": null,
+          "observation": "visible_source_feature",
+          "uncertaintyRadiusPx": [
+            17,
+            13
+          ],
+          "note": "両足より上に見える胴の毛面。骨盤や床の位置ではありません。",
+          "labelOffsetPx": [
+            18,
+            -13
+          ]
+        },
+        {
+          "id": "foot_screen_left",
+          "tag": "L2",
+          "label": "画面左の足・見える毛の面",
+          "px": [
+            600,
+            1095
+          ],
+          "screenSide": "screen-left",
+          "anatomicalSide": null,
+          "depth": null,
+          "observation": "visible_source_feature",
+          "uncertaintyRadiusPx": [
+            17,
+            13
+          ],
+          "note": "描かれた足の毛面。実際の床接触点や荷重は未確認です。",
+          "labelOffsetPx": [
+            -61,
+            -20
+          ]
+        },
+        {
+          "id": "foot_screen_right",
+          "tag": "R2",
+          "label": "画面右の足・見える毛の面",
+          "px": [
+            832,
+            1100
+          ],
+          "screenSide": "screen-right",
+          "anatomicalSide": null,
+          "depth": null,
+          "observation": "visible_source_feature",
+          "uncertaintyRadiusPx": [
+            17,
+            13
+          ],
+          "note": "描かれた足の毛面。歩行や実際の床接触は未確認です。",
+          "labelOffsetPx": [
+            18,
+            -13
+          ]
+        }
+      ],
+      "basis": {
+        "screenLeftLandmark": "forepaw_screen_left",
+        "screenRightLandmark": "forepaw_screen_right",
+        "units": "source_pixels",
+        "anatomicalAxis": false,
+        "scaleCalibration": false,
+        "origin": "midpoint of visible forepaw chord, not anatomical centre"
+      },
+      "unresolved": [
+        {
+          "id": "neck_socket",
+          "label": "首の身体接合点",
+          "roi": [
+            620,
+            895,
+            790,
+            975
+          ],
+          "point": null,
+          "depth": null,
+          "binding": null,
+          "status": "unresolved_hidden_or_unmeasured",
+          "note": "頭と胴の毛が重なり、正確な接合点は読み取れません。"
+        },
+        {
+          "id": "screen_left_arm_root",
+          "label": "画面左側の腕の根",
+          "roi": [
+            520,
+            925,
+            675,
+            1040
+          ],
+          "point": null,
+          "depth": null,
+          "binding": null,
+          "status": "unresolved_hidden_or_unmeasured",
+          "note": "前足の奥の肩・関節と服の接続面は未確認です。枠は点ではありません。"
+        },
+        {
+          "id": "screen_right_arm_root",
+          "label": "画面右側の腕の根",
+          "roi": [
+            760,
+            920,
+            890,
+            1040
+          ],
+          "point": null,
+          "depth": null,
+          "binding": null,
+          "status": "unresolved_hidden_or_unmeasured",
+          "note": "毛と前足の重なりがあります。見える毛面を関節へ流用しません。"
+        },
+        {
+          "id": "back_and_tail_root",
+          "label": "背中と尻尾の接続・奥行き",
+          "roi": null,
+          "point": null,
+          "depth": null,
+          "binding": null,
+          "status": "unresolved_hidden_or_unmeasured",
+          "note": "背中側・尻尾の根元・体の厚みをこの1枚から復元していません。"
+        }
+      ]
+    },
+    "child": {
+      "source": {
+        "family": "milne",
+        "stage": "child",
+        "src": "./assets/milne-child.png",
+        "sha256": "495e395a63f1d7e95b43d84deb9c66a60ddcdcc0142dea74640ee3e63b1f6a85",
+        "width": 1254,
+        "height": 1254
+      },
+      "pose": "single_saved_source_pose",
+      "poseObservation": "standing child source image",
+      "depth": null,
+      "anatomicalSocketsKnown": false,
+      "crop": [
+        385,
+        795,
+        930,
+        1175
+      ],
+      "landmarks": [
+        {
+          "id": "forepaw_screen_left",
+          "tag": "L1",
+          "label": "画面左の前足・見える毛の面",
+          "px": [
+            620,
+            915
+          ],
+          "screenSide": "screen-left",
+          "anatomicalSide": null,
+          "depth": null,
+          "observation": "visible_source_feature",
+          "uncertaintyRadiusPx": [
+            18,
+            16
+          ],
+          "note": "胴の前に見える前足の毛面。肩や腕の根ではありません。",
+          "labelOffsetPx": [
+            -61,
+            -20
+          ]
+        },
+        {
+          "id": "forepaw_screen_right",
+          "tag": "R1",
+          "label": "画面右の前足・見える毛の面",
+          "px": [
+            843,
+            916
+          ],
+          "screenSide": "screen-right",
+          "anatomicalSide": null,
+          "depth": null,
+          "observation": "visible_source_feature",
+          "uncertaintyRadiusPx": [
+            18,
+            16
+          ],
+          "note": "胴の前に見える前足の毛面。身体の左右は未割当です。",
+          "labelOffsetPx": [
+            18,
+            -13
+          ]
+        },
+        {
+          "id": "chest_visible",
+          "tag": "C1",
+          "label": "中央の胴・見える毛の面",
+          "px": [
+            737,
+            990
+          ],
+          "screenSide": "centre",
+          "anatomicalSide": null,
+          "depth": null,
+          "observation": "visible_source_feature",
+          "uncertaintyRadiusPx": [
+            17,
+            13
+          ],
+          "note": "前足の間より下に見える毛の面。胸骨の位置ではありません。",
+          "labelOffsetPx": [
+            18,
+            -13
+          ]
+        },
+        {
+          "id": "belly_visible",
+          "tag": "C2",
+          "label": "下腹・見える毛の面",
+          "px": [
+            726,
+            1050
+          ],
+          "screenSide": "centre",
+          "anatomicalSide": null,
+          "depth": null,
+          "observation": "visible_source_feature",
+          "uncertaintyRadiusPx": [
+            17,
+            13
+          ],
+          "note": "両足より上に見える胴の毛面。骨盤や床の位置ではありません。",
+          "labelOffsetPx": [
+            18,
+            -13
+          ]
+        },
+        {
+          "id": "foot_screen_left",
+          "tag": "L2",
+          "label": "画面左の足・見える毛の面",
+          "px": [
+            576,
+            1116
+          ],
+          "screenSide": "screen-left",
+          "anatomicalSide": null,
+          "depth": null,
+          "observation": "visible_source_feature",
+          "uncertaintyRadiusPx": [
+            17,
+            13
+          ],
+          "note": "描かれた足の毛面。実際の床接触点や荷重は未確認です。",
+          "labelOffsetPx": [
+            -61,
+            -20
+          ]
+        },
+        {
+          "id": "foot_screen_right",
+          "tag": "R2",
+          "label": "画面右の足・見える毛の面",
+          "px": [
+            798,
+            1118
+          ],
+          "screenSide": "screen-right",
+          "anatomicalSide": null,
+          "depth": null,
+          "observation": "visible_source_feature",
+          "uncertaintyRadiusPx": [
+            17,
+            13
+          ],
+          "note": "描かれた足の毛面。歩行や実際の床接触は未確認です。",
+          "labelOffsetPx": [
+            18,
+            -13
+          ]
+        }
+      ],
+      "basis": {
+        "screenLeftLandmark": "forepaw_screen_left",
+        "screenRightLandmark": "forepaw_screen_right",
+        "units": "source_pixels",
+        "anatomicalAxis": false,
+        "scaleCalibration": false,
+        "origin": "midpoint of visible forepaw chord, not anatomical centre"
+      },
+      "unresolved": [
+        {
+          "id": "neck_socket",
+          "label": "首の身体接合点",
+          "roi": [
+            620,
+            825,
+            815,
+            915
+          ],
+          "point": null,
+          "depth": null,
+          "binding": null,
+          "status": "unresolved_hidden_or_unmeasured",
+          "note": "頭と胴の毛が重なり、正確な接合点は読み取れません。"
+        },
+        {
+          "id": "screen_left_arm_root",
+          "label": "画面左側の腕の根",
+          "roi": [
+            540,
+            860,
+            695,
+            985
+          ],
+          "point": null,
+          "depth": null,
+          "binding": null,
+          "status": "unresolved_hidden_or_unmeasured",
+          "note": "前足の奥の肩・関節と服の接続面は未確認です。枠は点ではありません。"
+        },
+        {
+          "id": "screen_right_arm_root",
+          "label": "画面右側の腕の根",
+          "roi": [
+            765,
+            850,
+            910,
+            985
+          ],
+          "point": null,
+          "depth": null,
+          "binding": null,
+          "status": "unresolved_hidden_or_unmeasured",
+          "note": "毛と前足の重なりがあります。見える毛面を関節へ流用しません。"
+        },
+        {
+          "id": "back_and_tail_root",
+          "label": "背中と尻尾の接続・奥行き",
+          "roi": null,
+          "point": null,
+          "depth": null,
+          "binding": null,
+          "status": "unresolved_hidden_or_unmeasured",
+          "note": "背中側・尻尾の根元・体の厚みをこの1枚から復元していません。"
+        }
+      ]
+    }
+  }
+}
