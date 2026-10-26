@@ -1,0 +1,804 @@
+{
+  "scope": "One structural arch-plan doorstep and one unchanged synthetic home-door placement. Native views, walking adoption, door swing, load, owner save, character bodyfit are separate.",
+  "formalUniqueTests": 12,
+  "passed": [
+    "construction dimensions use the actual transformed home wooden-threshold Mesh",
+    "one independently authored arch has full lower/upper/side volume and fixed bounded resource budget",
+    "actual positions and smoothed vertex normals are finite unit values",
+    "actual triangles have closed oriented welded edges positive volume and agreeing outward normals",
+    "nine actual underside rays lie on the retained dry-land triangle surface",
+    "three finite joint witnesses are inside both actual stone and retained wood volumes",
+    "retained closed door spatial clearance excludes the explicitly joined threshold",
+    "one placement has actual scene envelopes river boundary separation and finite retained approach samples",
+    "invalid construction foreign transforms and ambiguous retained thresholds fail before acceptance",
+    "continuous camera construction keeps actual stone bounds inside narrow and wide finite view samples",
+    "each owned geometry material and optional procedural grain texture disposes once",
+    "retained world and home door matrices remain unchanged and no body or traversal scope is promoted"
+  ],
+  "bodyBinding": null,
+  "threshold": {
+    "geometryType": "BoxGeometry",
+    "localScale": [
+      0.53,
+      0.1,
+      0.26
+    ],
+    "localPosition": [
+      0,
+      0.065,
+      0.44000000000000006
+    ],
+    "worldMatrix": [
+      0.53,
+      0,
+      0,
+      0,
+      0,
+      0.09000000000000001,
+      0,
+      0,
+      0,
+      0,
+      0.26,
+      0,
+      -8.064,
+      0.0835,
+      -5.263999999999999,
+      1
+    ],
+    "worldBounds": {
+      "min": [
+        -8.329,
+        0.0385,
+        -5.393999999999999
+      ],
+      "max": [
+        -7.799,
+        0.1285,
+        -5.1339999999999995
+      ],
+      "size": [
+        0.5300000000000002,
+        0.09,
+        0.2599999999999998
+      ]
+    }
+  },
+  "homeTransform": {
+    "position": [
+      -8.064,
+      0.025,
+      -5.704
+    ],
+    "scale": [
+      1,
+      0.9,
+      1
+    ],
+    "worldMatrix": [
+      1,
+      0,
+      0,
+      0,
+      0,
+      0.9,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      -8.064,
+      0.025,
+      -5.704,
+      1
+    ]
+  },
+  "dimensions": {
+    "width": 0.9010000000000004,
+    "height": 0.072,
+    "depth": 0.5719999999999996
+  },
+  "mesh": {
+    "dimensions": {
+      "width": 0.9010000000000004,
+      "height": 0.072,
+      "depth": 0.5719999999999996
+    },
+    "bevel": 0.010799999999999999,
+    "bounds": {
+      "min": [
+        -0.4505000114440918,
+        0,
+        0
+      ],
+      "max": [
+        0.4505000114440918,
+        0.07199999690055847,
+        0.5720025300979614
+      ],
+      "size": [
+        0.9010000228881836,
+        0.07199999690055847,
+        0.5720025300979614
+      ]
+    },
+    "budget": {
+      "components": 1,
+      "geometries": 1,
+      "materials": 2,
+      "textures": 0,
+      "triangles": 1068,
+      "lights": 0
+    },
+    "invalidPositions": 0,
+    "invalidNormals": 0,
+    "minNormal": 0.9999999631206149,
+    "maxNormal": 1.0000000373762636,
+    "bodyBinding": null,
+    "doorSwing": false,
+    "stepTraversal": false,
+    "loadFriction": false,
+    "normalGamePlacement": false,
+    "unlockOrSave": false
+  },
+  "meshTopologyAndNormals": {
+    "checked": 1068,
+    "degenerate": 0,
+    "negative": 0,
+    "minDot": 0.848907737358675,
+    "volume": 0.031376123497824066,
+    "badEdges": 0,
+    "weldTolerance": 1e-07
+  },
+  "placement": {
+    "worldPosition": {
+      "x": -8.064,
+      "y": 0.02500000000000108,
+      "z": -5.145999999999999
+    },
+    "homeTransform": {
+      "position": [
+        -8.064,
+        0.025,
+        -5.704
+      ],
+      "scale": [
+        1,
+        0.9,
+        1
+      ],
+      "worldMatrix": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        0.9,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        -8.064,
+        0.025,
+        -5.704,
+        1
+      ]
+    },
+    "sourceContract": "userData.door assembly; existing wooden threshold uniquely identified by source .53/.1/.26 scale, dimensions measured from actual transformed mesh, UNIT100 map conversion only",
+    "threshold": {
+      "geometryType": "BoxGeometry",
+      "localScale": [
+        0.53,
+        0.1,
+        0.26
+      ],
+      "localPosition": [
+        0,
+        0.065,
+        0.44000000000000006
+      ],
+      "worldMatrix": [
+        0.53,
+        0,
+        0,
+        0,
+        0,
+        0.09000000000000001,
+        0,
+        0,
+        0,
+        0,
+        0.26,
+        0,
+        -8.064,
+        0.0835,
+        -5.263999999999999,
+        1
+      ],
+      "worldBounds": {
+        "min": [
+          -8.329,
+          0.0385,
+          -5.393999999999999
+        ],
+        "max": [
+          -7.799,
+          0.1285,
+          -5.1339999999999995
+        ],
+        "size": [
+          0.5300000000000002,
+          0.09,
+          0.2599999999999998
+        ]
+      }
+    },
+    "dimensionsDerivedFromThreshold": {
+      "width": 0.9010000000000004,
+      "height": 0.072,
+      "depth": 0.5719999999999996
+    },
+    "actualStoneBounds": {
+      "min": [
+        -8.514500011444092,
+        0.02500000000000108,
+        -5.145999999999999
+      ],
+      "max": [
+        -7.613499988555908,
+        0.09699999690055955,
+        -4.573997469902038
+      ],
+      "size": [
+        0.9010000228881836,
+        0.07199999690055847,
+        0.5720025300979614
+      ]
+    },
+    "supports": [
+      {
+        "pointWorld": [
+          -8.064,
+          0.02500000000000108,
+          -5.060199620485305
+        ],
+        "soleFaceIndex": 0,
+        "floorPointWorld": [
+          -8.064,
+          0.025000000000001125,
+          -5.060199620485305
+        ],
+        "floorFaceIndex": 0,
+        "soleMinusFloor": -4.5102810375396984e-17
+      },
+      {
+        "pointWorld": [
+          -8.334300006866455,
+          0.02500000000000108,
+          -5.043039544582366
+        ],
+        "soleFaceIndex": 0,
+        "floorPointWorld": [
+          -8.334300006866455,
+          0.025000000000001122,
+          -5.043039544582366
+        ],
+        "floorFaceIndex": 0,
+        "soleMinusFloor": -4.163336342344337e-17
+      },
+      {
+        "pointWorld": [
+          -7.793699993133545,
+          0.02500000000000108,
+          -5.043039544582366
+        ],
+        "soleFaceIndex": 33,
+        "floorPointWorld": [
+          -7.793699993133545,
+          0.025000000000001122,
+          -5.043039544582366
+        ],
+        "floorFaceIndex": 0,
+        "soleMinusFloor": -4.163336342344337e-17
+      },
+      {
+        "pointWorld": [
+          -8.388360008239745,
+          0.02500000000000108,
+          -4.905758937358855
+        ],
+        "soleFaceIndex": 58,
+        "floorPointWorld": [
+          -8.388360008239745,
+          0.02500000000000109,
+          -4.905758937358855
+        ],
+        "floorFaceIndex": 0,
+        "soleMinusFloor": -1.0408340855860843e-17
+      },
+      {
+        "pointWorld": [
+          -7.739639991760254,
+          0.02500000000000108,
+          -4.905758937358855
+        ],
+        "soleFaceIndex": 58,
+        "floorPointWorld": [
+          -7.739639991760254,
+          0.02500000000000109,
+          -4.905758937358855
+        ],
+        "floorFaceIndex": 0,
+        "soleMinusFloor": -1.0408340855860843e-17
+      },
+      {
+        "pointWorld": [
+          -8.064,
+          0.02500000000000108,
+          -4.83139860844612
+        ],
+        "soleFaceIndex": 62,
+        "floorPointWorld": [
+          -8.064,
+          0.025000000000001073,
+          -4.83139860844612
+        ],
+        "floorFaceIndex": 0,
+        "soleMinusFloor": 6.938893903907228e-18
+      },
+      {
+        "pointWorld": [
+          -8.244200004577637,
+          0.02500000000000108,
+          -4.762758304834365
+        ],
+        "soleFaceIndex": 64,
+        "floorPointWorld": [
+          -8.244200004577637,
+          0.02500000000000106,
+          -4.762758304834365
+        ],
+        "floorFaceIndex": 0,
+        "soleMinusFloor": 2.0816681711721685e-17
+      },
+      {
+        "pointWorld": [
+          -7.883799995422363,
+          0.02500000000000108,
+          -4.762758304834365
+        ],
+        "soleFaceIndex": 64,
+        "floorPointWorld": [
+          -7.883799995422363,
+          0.02500000000000106,
+          -4.762758304834365
+        ],
+        "floorFaceIndex": 0,
+        "soleMinusFloor": 2.0816681711721685e-17
+      },
+      {
+        "pointWorld": [
+          -8.064,
+          0.02500000000000108,
+          -4.665517874717711
+        ],
+        "soleFaceIndex": 64,
+        "floorPointWorld": [
+          -8.064,
+          0.02500000000000104,
+          -4.665517874717711
+        ],
+        "floorFaceIndex": 0,
+        "soleMinusFloor": 4.163336342344337e-17
+      }
+    ],
+    "woodJoint": {
+      "intendedPenetrationWorld": 0.012,
+      "witnesses": [
+        {
+          "worldPoint": [
+            -8.244200004577637,
+            0.06819999814033616,
+            -5.14
+          ],
+          "insideNewStone": true,
+          "insideExistingWood": true
+        },
+        {
+          "worldPoint": [
+            -8.064,
+            0.06819999814033616,
+            -5.14
+          ],
+          "insideNewStone": true,
+          "insideExistingWood": true
+        },
+        {
+          "worldPoint": [
+            -7.883799995422363,
+            0.06819999814033616,
+            -5.14
+          ],
+          "insideNewStone": true,
+          "insideExistingWood": true
+        }
+      ],
+      "scope": "three finite interior witnesses in actual new stone and retained wooden threshold; not attachment strength, friction, manufacture or walking adoption"
+    },
+    "closedDoorStaticClearance": {
+      "thresholdExcludedAsIntentionalJoint": true,
+      "otherDoorParts": [
+        {
+          "assemblyIndex": 0,
+          "staticBounds": {
+            "min": [
+              -8.299,
+              0.061,
+              -5.379
+            ],
+            "max": [
+              -7.829,
+              1.0150000000000001,
+              -5.289
+            ],
+            "size": [
+              0.46999999999999975,
+              0.9540000000000002,
+              0.08999999999999986
+            ]
+          },
+          "AABBSeparationWorld": 0.14300000000000068
+        },
+        {
+          "assemblyIndex": 1,
+          "staticBounds": {
+            "min": [
+              -8.244,
+              0.07900000000000001,
+              -5.334
+            ],
+            "max": [
+              -7.884,
+              0.925,
+              -5.234
+            ],
+            "size": [
+              0.35999999999999943,
+              0.8460000000000001,
+              0.09999999999999964
+            ]
+          },
+          "AABBSeparationWorld": 0.08800000000000097
+        },
+        {
+          "assemblyIndex": 2,
+          "staticBounds": {
+            "min": [
+              -8.299,
+              0.7720000000000001,
+              -5.384
+            ],
+            "max": [
+              -7.829,
+              1.2220000000000002,
+              -5.254
+            ],
+            "size": [
+              0.46999999999999975,
+              0.45000000000000007,
+              0.13000000000000078
+            ]
+          },
+          "AABBSeparationWorld": 0.6835854037238104
+        },
+        {
+          "assemblyIndex": 3,
+          "staticBounds": {
+            "min": [
+              -8.244,
+              0.7990000000000002,
+              -5.329
+            ],
+            "max": [
+              -7.884,
+              1.177,
+              -5.219
+            ],
+            "size": [
+              0.35999999999999943,
+              0.3779999999999999,
+              0.10999999999999943
+            ]
+          },
+          "AABBSeparationWorld": 0.7057853812254934
+        },
+        {
+          "assemblyIndex": 4,
+          "staticBounds": {
+            "min": [
+              -8.174,
+              0.5830000000000001,
+              -5.2335
+            ],
+            "max": [
+              -7.954,
+              0.8710000000000001,
+              -5.2185
+            ],
+            "size": [
+              0.21999999999999975,
+              0.28800000000000003,
+              0.015000000000000568
+            ]
+          },
+          "AABBSeparationWorld": 0.4913779126219008
+        },
+        {
+          "assemblyIndex": 5,
+          "staticBounds": {
+            "min": [
+              -7.984,
+              0.4255,
+              -5.229
+            ],
+            "max": [
+              -7.914,
+              0.48850000000000005,
+              -5.178999999999999
+            ],
+            "size": [
+              0.07000000000000028,
+              0.06300000000000006,
+              0.05000000000000071
+            ]
+          },
+          "AABBSeparationWorld": 0.33015337653329
+        },
+        {
+          "assemblyIndex": 6,
+          "staticBounds": {
+            "min": [
+              -8.152000000000001,
+              0.1825,
+              -5.234
+            ],
+            "max": [
+              -8.146,
+              0.8575,
+              -5.228
+            ],
+            "size": [
+              0.006000000000000227,
+              0.675,
+              0.006000000000000227
+            ]
+          },
+          "AABBSeparationWorld": 0.11846624215363821
+        },
+        {
+          "assemblyIndex": 7,
+          "staticBounds": {
+            "min": [
+              -8.067,
+              0.1825,
+              -5.234
+            ],
+            "max": [
+              -8.061,
+              0.8575,
+              -5.228
+            ],
+            "size": [
+              0.006000000000000227,
+              0.675,
+              0.006000000000000227
+            ]
+          },
+          "AABBSeparationWorld": 0.11846624215363821
+        },
+        {
+          "assemblyIndex": 8,
+          "staticBounds": {
+            "min": [
+              -7.982,
+              0.1825,
+              -5.234
+            ],
+            "max": [
+              -7.976,
+              0.8575,
+              -5.228
+            ],
+            "size": [
+              0.006000000000000227,
+              0.675,
+              0.006000000000000227
+            ]
+          },
+          "AABBSeparationWorld": 0.11846624215363821
+        }
+      ],
+      "minimumConservativeAABBSeparationWorld": 0.08800000000000097,
+      "doorSwingVerified": false,
+      "doorTraversalVerified": false
+    },
+    "otherSceneEnvelopes": {
+      "tested": 914,
+      "intersections": [],
+      "scope": "conservative actual mesh AABBs excluding the explicit threshold joint; not triangle collision simulation"
+    },
+    "existingFootprintNavigation": {
+      "samples": [
+        {
+          "pointTown": {
+            "x": 633.6,
+            "y": 453.9800379514695
+          },
+          "existingWalkable": false
+        },
+        {
+          "pointTown": {
+            "x": 606.5699993133545,
+            "y": 455.6960455417634
+          },
+          "existingWalkable": false
+        },
+        {
+          "pointTown": {
+            "x": 660.6300006866454,
+            "y": 455.6960455417634
+          },
+          "existingWalkable": false
+        },
+        {
+          "pointTown": {
+            "x": 601.1639991760254,
+            "y": 469.42410626411447
+          },
+          "existingWalkable": false
+        },
+        {
+          "pointTown": {
+            "x": 666.0360008239746,
+            "y": 469.42410626411447
+          },
+          "existingWalkable": false
+        },
+        {
+          "pointTown": {
+            "x": 633.6,
+            "y": 476.86013915538797
+          },
+          "existingWalkable": true
+        },
+        {
+          "pointTown": {
+            "x": 615.5799995422362,
+            "y": 483.7241695165635
+          },
+          "existingWalkable": true
+        },
+        {
+          "pointTown": {
+            "x": 651.6200004577637,
+            "y": 483.7241695165635
+          },
+          "existingWalkable": true
+        },
+        {
+          "pointTown": {
+            "x": 633.6,
+            "y": 493.4482125282289
+          },
+          "existingWalkable": true
+        }
+      ],
+      "blocked": 5,
+      "retainedHouseFootprintPolicyUnchanged": true,
+      "stepIsNotWalkableAdopted": true
+    },
+    "existingApproach": {
+      "samples": [
+        {
+          "pointWorld": [
+            -8.514500011444092,
+            0.02500000000000108,
+            -4.459596963882445
+          ],
+          "pointTown": {
+            "x": 588.5499988555908,
+            "y": 514.0403036117555
+          },
+          "existingWalkable": true
+        },
+        {
+          "pointWorld": [
+            -8.064,
+            0.02500000000000108,
+            -4.459596963882445
+          ],
+          "pointTown": {
+            "x": 633.6,
+            "y": 514.0403036117555
+          },
+          "existingWalkable": true
+        },
+        {
+          "pointWorld": [
+            -7.613499988555908,
+            0.02500000000000108,
+            -4.459596963882445
+          ],
+          "pointTown": {
+            "x": 678.6500011444092,
+            "y": 514.0403036117555
+          },
+          "existingWalkable": true
+        },
+        {
+          "pointWorld": [
+            -8.739750017166138,
+            0.02500000000000108,
+            -4.5167972168922415
+          ],
+          "pointTown": {
+            "x": 566.0249982833863,
+            "y": 508.32027831077585
+          },
+          "existingWalkable": true
+        },
+        {
+          "pointWorld": [
+            -7.388249982833862,
+            0.02500000000000108,
+            -4.5167972168922415
+          ],
+          "pointTown": {
+            "x": 701.1750017166138,
+            "y": 508.32027831077585
+          },
+          "existingWalkable": true
+        }
+      ],
+      "blocked": 0,
+      "stepIsNotAddedToWalkableSurfaces": true,
+      "fullDoorCorridorTraversable": false
+    },
+    "waterBoundary": {
+      "source": "actual dry-land triangulated mesh boundary",
+      "segments": 4,
+      "rectangleToShorelineClearanceWorld": 19.309740988437603
+    },
+    "retainedGroundBoundaryAABB": {
+      "leftWorld": 5.885499607086182,
+      "frontWorld": 14.173997851371764,
+      "backWorld": 4.4540003814697275
+    },
+    "groundRaySupportsAreDryLand": true,
+    "worldUnchanged": true,
+    "bodyBinding": null,
+    "normalPlacement": false,
+    "stepTraversal": false,
+    "loadFriction": false,
+    "ownershipUnlockSave": false,
+    "scope": "One closed-door placement on saved synthetic meadow; actual underside support rays and finite positive wood joint; static spatial clearance only. Existing navigation can remain blocked near the house footprint."
+  },
+  "retainedWorldExact": true,
+  "allNavigationOrContinuousCollisionGuarantee": false,
+  "framing": {
+    "finitePoseAspectSamples": 360,
+    "notExtraUniqueTests": true,
+    "notActualPhonePerformance": true
+  },
+  "disposal": {
+    "idempotent": true,
+    "baseOwnedResources": 3,
+    "browserOnlyProceduralTextures": 1
+  },
+  "allRequiredChecksPass": true,
+  "previewSyntaxParsed": true,
+  "previewSyntaxMethod": "Node vm.Script syntax parse without browser execution"
+}

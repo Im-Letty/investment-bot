@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "id": "arched-stone-doorstep-v1",
+  "unit_id": "village:asset-library:arched-stone-doorstep:v1",
+  "base_main": "fc9f0ebec08320d6d65c96f7d696db62cf23ca04",
+  "frozen_for_native_review_at_jst": "2026-10-26T21:03:51.014003+09:00",
+  "native_acceptance_in_manifest": false,
+  "source_reference": {
+    "path": "/static/pet-items-v1/house.webp",
+    "sha256": "69ce8c93823a50c5f2225414d4df8adcfe92fcd271ae113982e64f7ccd01cd60",
+    "bytes": 21548,
+    "actual_geometry_author_view_image": true,
+    "scope": "warm wood/cream walls/lilac roof reference, not original doorstep art"
+  },
+  "scope": {
+    "new_code_native_mesh_designs": 1,
+    "new_PNG_designs": 0,
+    "new_raw_PNG_versions": 0,
+    "imagegen_calls": 0,
+    "geometry": "one closed beveled D/arch-plan stone body",
+    "placement": "one unchanged synthetic home closed-door/wood-threshold location, actual9floor rays/3finite positive wood joint witnesses/static9door AABB clearances,914other scene envelopes,5front approach samples and9under-step retained map samples,exactdryland boundary separation",
+    "existing_walkmap_under_step": "5of9 finite sample locations remain blocked by retained house footprint; front approach5of5 pass, not a walkable or door-traversable adoption",
+    "bodyBinding": null,
+    "doorSwing": false,
+    "stepTraversal": false,
+    "loadFriction": false,
+    "normalGamePlacement": false,
+    "unlockOwnershipSave": false,
+    "real_phone_performance": false,
+    "characterRelativeSizeVerified": false,
+    "character_reference": "none; compare actual retained doorway and house only",
+    "marker_display": "explicit xray debug helper at actual computed world positions"
+  },
+  "files": [
+    {
+      "path": "doorstep.mjs",
+      "sha256": "ede547013c039e2cbe6d48cd6b91e0ec71cff539b99cc70d6b6e22278e66e4bf",
+      "bytes": 4412
+    },
+    {
+      "path": "framing.mjs",
+      "sha256": "dba92c2f6dec2816ebcf25434ee07c3b699accb61b7e1961a11baf366edad08a",
+      "bytes": 1678
+    },
+    {
+      "path": "geometry-evidence.json",
+      "sha256": "5ed9e2f79f31cca54d499d59782ed628f092a0ee7d8b575121f067678fbe000b",
+      "bytes": 19431
+    },
+    {
+      "path": "index.html",
+      "sha256": "d9b5c85b19d38c48cb33f18da2a6b311e743df936c426443983b8e8ed068caaf",
+      "bytes": 4642
+    },
+    {
+      "path": "placement.mjs",
+      "sha256": "126b8d9bc2cfb1e8148f22519a65644f02feee28fa482b5df9b6cb11315c03e3",
+      "bytes": 11553
+    },
+    {
+      "path": "preview.mjs",
+      "sha256": "6e3c1bc4572b163cedd46a31e7b096d6e7ba077df41e76d1c5b0715cfc633c45",
+      "bytes": 10525
+    }
+  ],
+  "reused_dependencies": [
+    {
+      "path": "/static/pet-town-walk.js",
+      "sha256": "e5394a48f76449dddec52e497d1b231ad1ed213d1fa69aec3657bbb3045b1aac",
+      "bytes": 24418,
+      "reused_existing_dependency": true,
+      "new_production_file": false
+    },
+    {
+      "path": "/static/pet-frame-fit.js",
+      "sha256": "7b3b730dc7834e1c56f455161d59005f8352a3cd918e52be1893bc4b7706dc13",
+      "bytes": 2434,
+      "reused_existing_dependency": true,
+      "new_production_file": false
+    },
+    {
+      "path": "/static/pet-river-fishing.js",
+      "sha256": "8b4e1d2d9f2b9fda72f66e79b2105dccdadd2e6de5230c24e920cbdcf561aedb",
+      "bytes": 8325,
+      "reused_existing_dependency": true,
+      "new_production_file": false
+    },
+    {
+      "path": "/static/pet-japan-seasons.js",
+      "sha256": "8007af08bc4b5b059724ec96a4c473b16619177b7a9ab16aac4f81047eb14b94",
+      "bytes": 4137,
+      "reused_existing_dependency": true,
+      "new_production_file": false
+    },
+    {
+      "path": "/static/pet-town-style.js",
+      "sha256": "f4be723076791221fcfa215bd81eb49e3d8d38edf2e036963a1e2ef85ed3806e",
+      "bytes": 12185,
+      "reused_existing_dependency": true,
+      "new_production_file": false
+    },
+    {
+      "path": "/static/pet-town-scene.js",
+      "sha256": "8f5e950cbf2f6bf511a0dad8e2adb3ef74712d70b74a006c4880c92a5ebf037f",
+      "bytes": 75452,
+      "reused_existing_dependency": true,
+      "new_production_file": false
+    },
+    {
+      "path": "/static/vendor/three-0.160.1.module.js",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972,
+      "reused_existing_dependency": true,
+      "new_production_file": false
+    },
+    {
+      "path": "/static/vendor/three-0.160.1.LICENSE.txt",
+      "sha256": "852e0e8699169bf9f6fdc6bda3e682d078dcbc738b5d33e74df594721bff271d",
+      "bytes": 1081,
+      "reused_existing_dependency": true,
+      "new_production_file": false
+    }
+  ],
+  "node_validation": {
+    "formal_unique_tests": 12,
+    "pass": 12,
+    "fail": 0,
+    "test_source": {
+      "path": "tests/test_arched_stone_doorstep.mjs",
+      "sha256": "d24d75104bc33d054d18cf48104aaf436f40846bbb96d52a4e04631b63091054",
+      "bytes": 9940
+    },
+    "work_test_receipt": {
+      "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/heartbeat-20261026-204110/doorstep-node-test-output.json",
+      "sha256": "51d686926508a8fa9e25cb19b56ad01892b5353ddf0435b5c6735bc6350c41ca",
+      "bytes": 2234
+    }
+  },
+  "development_failure_history": [
+    {
+      "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/heartbeat-20261026-204110/development-history/joint-development-observation.json",
+      "sha256": "0310482a3d39506f88d5adc80d2eea7db66fbd46773a0719d2da14e549d6839d",
+      "bytes": 408
+    },
+    {
+      "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/heartbeat-20261026-204110/development-history/arc-development-observation.json",
+      "sha256": "585c18c3cd1353a7a1609e0189e3c248029ddac5b1e031b2bc98ce7bb94e859e",
+      "bytes": 531
+    }
+  ],
+  "source_review": {
+    "author_geometry_and_node_tests": true,
+    "actual_native_root_review_required": true,
+    "independent_root_review": "separate evidence; no native claim from this manifest"
+  }
+}
