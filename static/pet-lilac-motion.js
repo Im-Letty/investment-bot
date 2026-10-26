@@ -1326,17 +1326,17 @@
   // premultiplied additive blending. Drawing and touch picking must own the
   // same single, fully opaque view throughout every turn.
   function directionSourceIndex(frame) { return frame.blend < .5 ? frame.currentIndex : frame.nextIndex; }
-  // Village travel owns a persistent facing, separate from timed room cues.
+  // Manual travel owns a persistent facing, separate from timed room cues.
   // These are the saved directional drawings, not a claim of volumetric 360.
   function locomotionFrame(value, seconds, reduced) {
     if (!value || !Number.isFinite(value.yawDeg)) return null;
     var yaw = ((value.yawDeg % 360) + 360) % 360, index = Math.floor(yaw / 22.5), fraction = yaw / 22.5 - index;
     var blend = smooth((fraction - .46) / .08), selected = blend < .5 ? index : (index + 1) % 16;
-    var walking = !!value.walking, phase = Number.isFinite(value.distance) ? value.distance / .42 * TAU : Math.max(0, finite(seconds, 0)) * TAU * 1.8;
+    var walking = !!value.walking, phase = Number.isFinite(value.distance) ? value.distance / .56 * TAU : Math.max(0, finite(seconds, 0)) * TAU * 1.8;
     return { id: 'village_locomotion', yawDeg: yaw, currentIndex: index, nextIndex: (index + 1) % 16,
       blend: blend, front: selected === 0, done: false,
       roomWalk: { x: 0, walking: walking, speed: walking ? 1 : 0, phase: walking ? 'walking' : 'idle',
-        yawDeg: yaw, footPhase: reduced ? 0 : phase, travel: walking ? 1 : 0 } };
+        yawDeg: yaw, footPhase: reduced ? 0 : phase, travel: walking ? 1 : 0, strideScale: walking && !reduced ? 1.2 : 1 } };
   }
   // Materials and landmarks belong to each real view, never to a flattened
   // frontal face. View zero deliberately uses the unchanged original B image.
@@ -1406,6 +1406,7 @@
   function roomWalkDeform(index,x,y,point,frame,appearanceKey) {
     if(!frame||!frame.walking||appearanceProfile(appearanceKey).family==='egg')return {x:point.x,y:point.y};
     var view=directionView(index,appearanceKey),speed=clamp(finite(frame.speed,0),0,1),step=Math.sin(finite(frame.footPhase,0)),swing=Math.cos(finite(frame.footPhase,0));
+    var strideScale=clamp(finite(frame.strideScale,1),1,1.2);
     if(appearanceProfile(appearanceKey).family==='baby'){
       var feet=nurseryFootLandmarks[view.index],middle=(feet.left.x+feet.right.x)/2,gap=feet.right.x-feet.left.x;
       var right=smooth((x-middle+gap*.32)/(gap*.64)),left=1-right;
@@ -1413,14 +1414,14 @@
       var legL=smooth((y-feet.left.soleY+.22)/.17)*within*left,legR=smooth((y-feet.right.soleY+.22)/.17)*within*right;
       var lower=clamp(legL+legR,0,1),lift=.045*speed*(legL*Math.max(0,step)+legR*Math.max(0,-step));
       var hips=smooth((y-view.neckY)/.18)*(1-smooth((y-view.groundY+.10)/.09));
-      return {x:point.x+finite(frame.travel,0)*.014*swing*speed*(legR-legL)+.006*step*speed*hips,
+      return {x:point.x+finite(frame.travel,0)*.014*strideScale*swing*speed*(legR-legL)+.006*step*speed*hips,
         y:point.y-lift-.008*Math.abs(step)*speed*(1-lower)};
     }
 
     var lower=smooth((y-(view.groundY-.145))/.10),center=view.torso[0],width=view.torso[2];
     var within=1-smooth((Math.abs(x-center)-width*.95)/(width*.65));
     var right=smooth((x-center+.07)/.14),left=1-right,feet=lower*within;
-    var dx=finite(frame.travel,0)*.018*swing*speed*feet*(right-left);
+    var dx=finite(frame.travel,0)*.018*strideScale*swing*speed*feet*(right-left);
     var lift=.027*speed*feet*(left*Math.max(0,step)+right*Math.max(0,-step));
     // Only the lifted foot leaves the floor. The upper-body bounce fades away
     // before the sole line, while source UVs/alpha stay on the same continuous mesh.
@@ -2046,7 +2047,7 @@
     var profile=growthProfile(stage),name=p.situation,e=p.presence,a=Math.max(0,age),s=Math.max(0,seconds);
     var baseAmount=(nursery?appearance.overallScale:profile.overallScale)*clamp(finite(scale,1),.35,1.15);
     if(nursery)baseAmount*=nurseryPresentationScale(stage,path,appearance.key,baseAmount,eggOrigin);
-    var amount=baseAmount,flight=flightAmount(p);
+    var amount=baseAmount,flight=flightAmount(p),strideScale=clamp(finite(p.strideScale,1),1,1.2);
     // Only genuine flight is shared by every body part. Breathing, posture and
     // squash belong to the torso; a raised hand cannot resize the head or feet.
     var root=bone({x:.5,y:.92},0,0,-flight*.055);
@@ -2111,7 +2112,7 @@
       else if(part.parent==='head')matrices[part.id]=multiply(head,local);
       else if(part.id==='foot_l'||part.id==='foot_r'){
         var side=part.id==='foot_l'?1:-1,lift=Math.max(0,side*footStep),footLandmark=nursery?(part.id==='foot_l'?nurseryFootLandmarks[0].left:nurseryFootLandmarks[0].right):null,sole=point(footLandmark?footLandmark.x:part.pivot[0],footLandmark?footLandmark.soleY:.92);
-        local=lower?bone(point(part.pivot[0],.865),side*(.28*lift+lower.toeIn),-side*.020*lift,0,1-.12*lift,1-.15*lift):bone(pivot,side*.42*lift,side*.018*footStep,-.025*lift);
+        local=lower?bone(point(part.pivot[0],.865),side*(.28*lift+lower.toeIn),-side*.020*strideScale*lift,0,1-.12*lift,1-.15*lift):bone(pivot,side*.42*lift,side*.018*strideScale*footStep,-.025*lift);
         var m=multiply(root,local),current=transform(m,sole),targetY=.92-flight*.055*amount-lift*(lower?lower.lift:feetDemo ? .035 : .025)*amount;
         m[5]+=targetY-current.y;matrices[part.id]=m;
       }else if(part.id==='arm_l'||part.id==='arm_r'||part.id==='tail')matrices[part.id]=socketMatrix(root,bodyRoot,pivot,angle,lowerBodyTorsoPoint(lower,part.pivot[0],part.pivot[1],pivot));
@@ -2745,6 +2746,7 @@
         if (locomotion && !reduced) {
           p.situation = 'moving'; p.presence = 1;
           p.step = locomotion.walking ? Math.sin(turn.roomWalk.footPhase) : 0;
+          p.strideScale = turn.roomWalk.strideScale;
           p.bounce = .25 * Math.abs(p.step); p.bodyAngle = .035 * p.step;
           p.shiftX = 0; p.wave = locomotion.walking ? .25 : 0;
         }
