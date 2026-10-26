@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "unit_id": "wardrobe:fit-prerequisite:komorebi-vest:milne-baby-adult:body-landmark-basis:v1",
+  "revision": "milne-body-source-landmark-basis-v1",
+  "created_at_jst": "2026-10-26T15:09:27.261629+09:00",
+  "scope": "Body-side source-pixel basis prerequisite only. No garment transform, hidden anatomy, wearing calibration or body-volume claim.",
+  "own_sources": [
+    {
+      "path": "basis-data-v1.json",
+      "sha256": "6df780d5b9ac82e79ae7a67719d7579b4eb4ea203c8f7e1b016b1acdf0be98dd",
+      "bytes": 12901
+    },
+    {
+      "path": "basis.js",
+      "sha256": "2b6fb717fd2c4bc1453500ac7a96507e35c48169c098e268e60bc9f519671c2a",
+      "bytes": 5400
+    },
+    {
+      "path": "preview.js",
+      "sha256": "e0f6f71908bc24c39acc6145446f1d4c5494b93813c1490cbc7dc35e76ade03c",
+      "bytes": 7011
+    },
+    {
+      "path": "index.html",
+      "sha256": "0c3c2573becf936754bdbcde5b5df8d36e6f905bee1af1d808751e9133023351",
+      "bytes": 4778
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "../pet-fit-prerequisite-20261026/assets/milne-baby.png",
+      "sha256": "e7024c2baabfb2fc9fa75620df6015cf0de1c6c645e4ce099e02f9d657033e21",
+      "bytes": 1237016
+    },
+    {
+      "path": "../pet-fit-prerequisite-20261026/assets/milne-adult.png",
+      "sha256": "35b04839b39e50839a6a1734e8919c6d499ececf6b0aba9b766788e399deb404",
+      "bytes": 1400026
+    }
+  ],
+  "originals_view_image_inspected": true,
+  "source_PNG_bytes_modified": false,
+  "depth": null,
+  "bodyBinding": null,
+  "calibrationApproved": false,
+  "canonical_fit_records_added": 0,
+  "character_body360": false,
+  "new_designs": 0,
+  "new_raw_versions": 0,
+  "imagegen_calls": 0,
+  "normal_game_changes": 0,
+  "uncertainty": "Authored image-space ellipses, not statistical confidence or anatomical tolerances.",
+  "capture_endpoint_local_only": "/__qa/capture-body-basis"
+}
