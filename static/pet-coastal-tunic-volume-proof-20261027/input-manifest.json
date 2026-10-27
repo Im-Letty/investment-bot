@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "recorded_at_jst": "2026-10-27T23:21:43.262340+09:00",
+  "model_id": "coastal-sailor-tunic-garment-volume-v1",
+  "unit_id": "wardrobe:fit-prerequisite:coastal-sailor-tunic:garment-volume-openings:v1",
+  "run_id": "automation360-20261027-230633",
+  "base_main_sha": "f6f85db63692ac0cc3474eb9eb6412b79cd4b43f",
+  "parent_reservation": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/heartbeat-20261027-230633/parent-reserved.json",
+    "sha256": "51aa6407f452e5867bf98e1aaecadfe36bf69068450dc773307fc1cdee55199f",
+    "bytes": 271
+  },
+  "source_original": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/assets/coastal-sailor-tunic-v1.png",
+    "sha256": "0a845475fcd03c1c7fae659b99fe557986a87502ef17827bfd3a9dbeb824ff1c",
+    "bytes": 2447382
+  },
+  "source_original_viewed_before_design": true,
+  "original_copy_unmodified": true,
+  "new_raw_PNGs": 0,
+  "new_original_designs": 0,
+  "imagegen_calls": 0,
+  "new_body_references": 0,
+  "new_canonical_fit_success": 0,
+  "new_village_library_candidates": 0,
+  "bodyBinding": null,
+  "not_a_body_or_fitting_pass": true,
+  "authored_garment_depth_back_and_interior": true,
+  "bitmap_applied_to_all_sides": false,
+  "model_textures": 0,
+  "ordinary_game_changes": 0,
+  "scope": "One newly authored front-V/high-back paired-pattern tunic material shell with shared-index shoulder/underarm/side seams, cuffs and hem-side-vent openings; original reference separate. Fixed-pose geometry and actual cloth-only join witnesses, no body calibration or wearing.",
+  "finite_passage_segments": 20,
+  "finite_camera_samples": 21,
+  "finite_witnesses_are_not_unique_tests": true,
+  "crossing_limit": "strict nonadjacent edge/interior crossings only; adjacent/coplanar contacts excluded; no continuous/physical safety guarantee",
+  "files": [
+    {
+      "path": "SPEC.json",
+      "sha256": "84d90990c4d4f6b1184b0292ff2ec6caa8bd8a44f3fb3678f1d5bce127b64470",
+      "bytes": 1467
+    },
+    {
+      "path": "entry.mjs",
+      "sha256": "19ae29cf0a3e16c9e53868021d0e1f86b03cea138852cf9a3c82aea550570442",
+      "bytes": 1351
+    },
+    {
+      "path": "finite-geometry-certificate.json",
+      "sha256": "74e3fa95058d33c6f2ba7051564fa1c523da87a13d1188b5af22e6050395ef88",
+      "bytes": 19451
+    },
+    {
+      "path": "index.html",
+      "sha256": "b519442a7b275076a5530a9eed24fb6b4f0e739f7a81b6e247c1691e27336e03",
+      "bytes": 3886
+    },
+    {
+      "path": "reference.png",
+      "sha256": "0a845475fcd03c1c7fae659b99fe557986a87502ef17827bfd3a9dbeb824ff1c",
+      "bytes": 2447382
+    },
+    {
+      "path": "tunic.mjs",
+      "sha256": "7e9c2387abfff43750c6f662779bd8344a3afe40bdb5bb6a84d3463df6056459",
+      "bytes": 16670
+    },
+    {
+      "path": "viewer.mjs",
+      "sha256": "7334ac1749c63c493b142855f743cc73da2109f88db6303114c4f2881757ec7f",
+      "bytes": 7613
+    }
+  ],
+  "inputs": [
+    {
+      "path": "static/vendor/three-0.160.1.module.js",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    {
+      "path": "static/pet-scalloped-path-proof-20261027/framing.mjs",
+      "sha256": "dba92c2f6dec2816ebcf25434ee07c3b699accb61b7e1961a11baf366edad08a",
+      "bytes": 1678
+    }
+  ]
+}

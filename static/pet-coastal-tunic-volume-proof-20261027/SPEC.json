@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "unit_id": "wardrobe:fit-prerequisite:coastal-sailor-tunic:garment-volume-openings:v1",
+  "source_asset": "prepared_clothing_03c_coastal_sailor_tunic_v1",
+  "source_SHA256": "0a845475fcd03c1c7fae659b99fe557986a87502ef17827bfd3a9dbeb824ff1c",
+  "representation": "New paired front-V and high-back pattern panels, shared-index shoulder/underarm/side seams, two cuff strips; thick inner/outer/rim material with four actual opening loops, hem loop includes both side vents.",
+  "authored_geometry": {"nominal_pattern_inset_and_face_depth": 0.024, "fixed_sleeves": true, "back_depth_and_inside": "new garment construction, not measurements or recovered backside", "pockets": "attached decorative closed patch solids only; no storage function", "interior_camera": "one authored interior point, no all-interior visibility guarantee"},
+  "not_verified": ["body attachment and anatomical anchors", "actual wearing and numerical size calibration", "rig, cloth physics, all growth and character volume360", "ordinary ownership, unlock, save and normal game integration", "continuous collision or physical safety"],
+  "finite_passages": 20,
+  "finite_passages_are_not_unique_tests": true,
+  "bodyBinding": null,
+  "new_raw_PNGs": 0,
+  "imagegen_calls": 0,
+  "new_original_designs": 0,
+  "new_body_references": 0,
+  "new_canonical_fit_success": 0,
+  "new_village_library_candidates": 0,
+  "model_textures": 0,
+  "original_applied_to_all_faces": false
+}
