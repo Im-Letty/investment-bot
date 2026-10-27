@@ -16,7 +16,7 @@
   'use strict';
   var doc=w.document, state=null, sequence=0, replyDrafts=Object.create(null);
   var categories=config.categories||[['all','みんな'],['economy','経済'],['news','ニュース'],['life','暮らしのお金'],['learn','学び'],['chat','雑談']];
-  var languages=[['ja','日本語'],['en','English'],['ko','한국어'],['zh','中文'],['other','その他']];
+  var postLanguages=['ja','en','ko','zh','other'];
   var reasons=[['spam','広告・勧誘'],['abuse','攻撃的な投稿'],['privacy','個人情報'],['misinformation','誤った情報'],['other','その他']];
   var draftKey=config.stock?'kn_stock_talk_drafts_v1':'kn_community_drafts_v1',retryKey=config.stock?'kn_stock_talk_requests_v1':'kn_community_requests_v1';
   var english={
@@ -33,7 +33,7 @@
     '投稿する銘柄を選んでください。':'Choose a stock for your post.',
     '話題や順番を決めず、気になることから交流できます。投稿は個人の意見です。相手を尊重し、気になる投稿は「…」から通報してください。日時は日本時間（JST）です。':'Start with whatever is on your mind. Posts are personal opinions. Respect others and use “…” to report a concern. Dates and times are in Japan Standard Time (JST).',
     '銘柄ごとの会話を読む':'Read stock conversations','いまの下書き':'Current draft','以前の下書き':'Earlier draft',
-    'つぶやく':'Write a post','つぶやき':'Your post','ニックネーム':'Display name','投稿する話題':'Topic','投稿の言語':'Post language',
+    'つぶやく':'Write a post','つぶやき':'Your post','ニックネーム':'Display name','投稿する話題':'Topic',
     '変更':'Change','保存':'Save','ニックネーム（20文字まで）':'Display name (up to 20 characters)',
     'ユーザー名を確認できませんでした。メニューのプロフィールを確認してください。':'Could not verify your username. Check Profile in the menu.',
     '前回と同じニックネームで再送します。':'Retrying with the same display name as the previous attempt.',
@@ -106,7 +106,7 @@
   function message(text,bad) {if(!current())return;state.notice.textContent=t(text||'');state.notice.classList.toggle('cw-error',!!bad);}
   function persist() {
     if(!current())return;
-    var collection=drafts();collection[state.legacyDraft||state.category]={body:state.input.value,category:state.categoryInput.value,language:state.languageInput.value};
+    var collection=drafts();collection[state.legacyDraft||state.category]={body:state.input.value,category:state.categoryInput.value,language:state.postLanguage};
     save(draftKey,JSON.stringify(collection));save(retryKey,JSON.stringify(state.retries));
   }
   // Reply drafts belong to this page's conversation instance and topic only.
@@ -240,7 +240,7 @@
   function restoreDraft() {
     var s=state,collection=drafts(),saved=collection[s.category]||{};if(!config.stock&&s.legacyDraft&&collection[s.legacyDraft])saved=collection[s.legacyDraft];s.input.value=typeof saved.body==='string'?saved.body:'';
     s.categoryInput.value=s.category==='all'?(categories.some(function(item){return item[0]===saved.category&&item[0]!=='all';})?saved.category:'chat'):s.category;
-    s.languageInput.value=languages.some(function(item){return item[0]===saved.language;})?saved.language:'ja';count();
+    s.postLanguage=postLanguages.includes(saved.language)?saved.language:'ja';count();
   }
   function count() {if(!current())return;var n=chars(state.input.value);state.counter.textContent=n+' / 200';state.counter.classList.toggle('cw-error',n>200);}
   function retryId(key,payload) {
@@ -257,7 +257,7 @@
     if(!current())return;var s=state,epoch=s.epoch,key=parent?'reply:'+parent.id:'compose:'+s.category,input=parent?replyModel.input:s.input,submittedInput=input.value,body=input.value.trim();
     if(s.pending.has(key))return;if(!body){message('投稿する内容を入力してください。',true);return;}if(chars(body)>200){message('投稿は200文字以内にしてください。',true);return;}
     if(w.KNUserProfile&&typeof w.KNUserProfile.ready==='function'){if(s.preparingName)return;s.preparingName=true;var preparingAccount=profileAccount();try{await w.KNUserProfile.ready();if(!profileAccountUnchanged(preparingAccount))throw new Error('account_changed');}catch(_){if(alive(s,epoch))message('ユーザー名を確認できませんでした。メニューのプロフィールを確認してください。',true);return;}finally{s.preparingName=false;}if(!alive(s,epoch))return;}
-    var postingAccount=profileAccount();s.syncNickname();var payload={name:s.committedNickname,body:body,category:parent?parent.category:s.categoryInput.value,language:s.languageInput.value,parent_id:parent?parent.id:null},currentName=payload.name;
+    var postingAccount=profileAccount();s.syncNickname();var payload={name:s.committedNickname,body:body,category:parent?parent.category:s.categoryInput.value,language:s.postLanguage,parent_id:parent?parent.id:null},currentName=payload.name;
     s.pending.add(key);s.writes++;var sendButton=parent?replyModel.send:s.sendButton;sendButton.disabled=true;if(!parent&&s.draftSelect)s.draftSelect.disabled=true;persist();
     try {var access=await token(s);if(!access||!alive(s,epoch))return;if(!profileAccountUnchanged(postingAccount)){message('アカウントが切り替わりました。内容を確認して、もう一度投稿してください。',true);return;}
       payload.request_id=retryId(key,payload);if(!payload.request_id){message('別のアカウントで送信を確認中の内容です。元のアカウントで確認してください。',true);return;}persist();if(payload.name!==currentName)message('前回と同じニックネームで再送します。');
@@ -360,14 +360,14 @@
 
     var toolbar=el('div','cw-toolbar');s.categoryToolbar=toolbar;toolbar.hidden=!config.stock;s.categoryNote=el('p','cw-description');toolbar.appendChild(s.categoryNote);var composeToggle=button('cw-primary cw-compose-toggle','つぶやく',null,function(){s.composer.hidden=!s.composer.hidden;composeToggle.setAttribute('aria-expanded',String(!s.composer.hidden));if(!s.composer.hidden)s.input.focus({preventScroll:true});});composeToggle.setAttribute('aria-expanded','false');composeToggle.setAttribute('aria-controls',root.id+'Composer');if(config.stock)toolbar.appendChild(composeToggle);content.appendChild(toolbar);
     var composer=el('form','cw-composer');composer.id=root.id+'Composer';composer.hidden=!!config.stock;if(!config.stock)composer.classList.add('cw-composer-inline');s.composer=composer;if(config.stock){s.destination=el('p','cw-description','投稿先：'+title(s.category));composer.appendChild(s.destination);}
-    var fields=el('div','cw-composer-fields');
+    var fields=el('div','cw-composer-fields');fields.hidden=true;
     s.committedNickname=savedNickname('');
     s.syncNickname=function(){s.committedNickname=savedNickname(s.committedNickname);};
     var categoryLabel=fieldLabel('投稿する話題');s.categoryInput=select(config.stock?categories:categories.slice(1),'投稿する話題');categoryLabel.appendChild(s.categoryInput);categoryLabel.hidden=true;fields.appendChild(categoryLabel);if(config.stock)s.categoryInput.disabled=true;
-    var languageLabel=fieldLabel('投稿の言語');s.languageInput=select(languages,'投稿の言語');languageLabel.appendChild(s.languageInput);fields.appendChild(languageLabel);composer.appendChild(fields);
+    composer.appendChild(fields);
     var inputLabel=fieldLabel('つぶやき'),input=el('textarea','cw-input cw-compose-body');input.id='cmInput';input.rows=3;var composePlaceholder=config.stock?'気になったことや、みんなへの質問を書いてみよう。':'気になることを、自由につぶやこう。';input.placeholder=t(composePlaceholder);input.dataset.cwPlaceholder=composePlaceholder;input.setAttribute('aria-label','つぶやき（200文字まで）');inputLabel.appendChild(input);if(config.stock)composer.appendChild(inputLabel);else composer.insertBefore(inputLabel,fields);s.input=input;
     var composerBottom=el('div','cw-form-bottom');s.counter=el('span','cw-small','0 / 200');s.counter.id='cmCount';composerBottom.appendChild(s.counter);s.sendButton=button('cw-primary','投稿する');s.sendButton.type='submit';composerBottom.appendChild(s.sendButton);composer.appendChild(composerBottom);composer.appendChild(el('p','cw-small','個人情報や、利益を保証する勧誘は書き込まないでください。'));content.appendChild(composer);
-    input.addEventListener('input',function(){count();persist();});[s.categoryInput,s.languageInput].forEach(function(field){field.addEventListener('change',persist);});composer.addEventListener('submit',function(event){event.preventDefault();send();});
+    input.addEventListener('input',function(){count();persist();});s.categoryInput.addEventListener('change',persist);composer.addEventListener('submit',function(event){event.preventDefault();send();});
     s.notice=el('p','cw-notice');s.notice.setAttribute('role','status');s.notice.setAttribute('aria-live','polite');content.appendChild(s.notice);
     s.newButton=button('cw-new-posts','新しい投稿があります',null,function(){if(!s.newPosts)return;applyPage(s.newPosts,false);message('新しい投稿を表示しました。');});s.newButton.hidden=true;content.appendChild(s.newButton);
     s.loadingNode=el('p','cw-state','投稿を読み込み中…');s.loadingNode.setAttribute('role','status');content.appendChild(s.loadingNode);
