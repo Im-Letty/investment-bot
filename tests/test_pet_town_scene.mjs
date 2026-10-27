@@ -11,6 +11,7 @@ import LayoutArt from '../static/pet-town-layout-art.js';
 import Originals from '../static/pet-town-placement-originals.js';
 import WaterLife from '../static/pet-town-water-life.js';
 import OceanLife from '../static/pet-town-ocean-life.js';
+import ShoreTransition from '../static/pet-town-shore-transition.js';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
@@ -106,7 +107,7 @@ test('browser registration can precede the visual-only helper and mount adopts t
  assert.equal(context.PetTownScene.alphaAnchor({tagName:'CANVAS',width:16,height:16,getContext:()=>null}),null);
  const painted={tagName:'CANVAS',width:16,height:16,getContext:()=>({RGBA:1,UNSIGNED_BYTE:2,readPixels(x,y,w,h,a,b,p){p[(2*w+8)*4+3]=255;}})};
  assert.equal(context.PetTownScene.alphaAnchor(painted),.125,'the existing public diagnostics work synchronously before any mount or helper import');
- context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;context.PetTownStyle=TownStyle;context.PetTownLayoutArt=LayoutArt;context.PetTownPlacementOriginals=Originals;context.PetTownWaterLife=WaterLife;context.PetTownOceanLife=OceanLife;
+ context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;context.PetTownStyle=TownStyle;context.PetTownLayoutArt=LayoutArt;context.PetTownPlacementOriginals=Originals;context.PetTownWaterLife=WaterLife;context.PetTownOceanLife=OceanLife;context.PetTownShoreTransition=ShoreTransition;
  const f=await fixture({sceneAPI:context.PetTownScene});try{assert.ok(f.controller);assert.equal(f.controller.setFrame(f.source,{anchor:.3}),true);const scene=f.renderers[0].calls.at(-1).scene;assert.equal(scene.getObjectByName('current-pet-2d-frame').center.y,.3);assert.equal(f.host.dataset.townLayoutArt,LayoutArt.revision);assert.equal(scene.userData.layoutArtRevision,LayoutArt.revision);assert.ok(scene.getObjectByName('layout-art-native-landscape'));assert.equal(scene.getObjectByName('bridge-deck').userData.layoutBoardCount,11);assert.deepEqual(f.failures,[]);}finally{f.controller?.destroy();}
 });
 
@@ -655,4 +656,33 @@ test('viewport projection stays finite for invalid dimensions and transitions co
  assert.ok(values.every(v=>Number.isFinite(v)&&v>=49.99&&v<63));
  for(let i=1;i<values.length;i++)assert.ok(values[i]<=values[i-1]);
  assert.ok(Math.abs(Scene.viewportFov(700,700)-Scene.viewportFov(701,700))<1e-10);
+});
+
+test('shore bands follow the real ground aprons without becoming walkable, pickable or camera-solid',()=>{
+ const world=Town.createWorld(),before=JSON.stringify(world),m=Scene.buildWorld(THREE,world,{},null,textureDocument());
+ try{
+  const shore=m.shoreTransition;assert.ok(shore);assert.equal(shore.revision,'shore-transition1');assert.equal(m.scene.userData.shoreTransitionRevision,shore.revision);
+  const meshes=[];shore.group.traverse(o=>{if(o.isMesh)meshes.push(o);});
+  assert.ok(meshes.length>=2&&meshes.length<=6);
+  for(const mesh of meshes){
+   assert.equal(m.surfaces.includes(mesh),false);assert.equal(m.occluders.includes(mesh),false);assert.equal(m.pickables.includes(mesh),false);
+   assert.ok(m.geometries.has(mesh.geometry));assert.ok(m.materials.has(mesh.material));assert.equal(mesh.visible,true);
+  }
+  assert.deepEqual(m.surfaces.map(s=>s.name),['dry-land','bridge-deck']);
+  assert.equal(JSON.stringify(world),before);
+  const far=Scene.groundPoint(world,{x:1300,y:1950}),ray=new THREE.Raycaster(new THREE.Vector3(far.x,5,far.z),new THREE.Vector3(0,-1,0));
+  assert.equal(ray.intersectObjects(m.surfaces).length,0);assert.equal(Town.isWalkable(world,1300,1950),false);
+ }finally{m.dispose();}
+});
+
+test('shore season changes only color buffers while native scene owns and releases all shore resources once',()=>{
+ const m=Scene.buildWorld(THREE,Town.createWorld(),{},null,textureDocument()),meshes=[],counts=new Map();
+ m.shoreTransition.group.traverse(o=>{if(o.isMesh)meshes.push(o);});
+ const positions=meshes.map(o=>Array.from(o.geometry.attributes.position.array)),geometries=[...m.geometries],materials=[...m.materials];
+ const colors=meshes.map(o=>Array.from(o.geometry.attributes.color.array));
+ for(const r of new Set(meshes.flatMap(o=>[o.geometry,o.material])))r.addEventListener('dispose',()=>counts.set(r,(counts.get(r)||0)+1));
+ m.setSeason('winter');assert.ok(meshes.some((o,i)=>JSON.stringify(Array.from(o.geometry.attributes.color.array))!==JSON.stringify(colors[i])));
+ assert.deepEqual(meshes.map(o=>Array.from(o.geometry.attributes.position.array)),positions);assert.deepEqual([...m.geometries],geometries);assert.deepEqual([...m.materials],materials);
+ m.animate(0,true);m.animate(5000,false);assert.deepEqual(meshes.map(o=>Array.from(o.geometry.attributes.position.array)),positions);
+ m.dispose();m.dispose();for(const r of new Set(meshes.flatMap(o=>[o.geometry,o.material])))assert.equal(counts.get(r),1);
 });
