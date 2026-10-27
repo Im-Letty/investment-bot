@@ -2706,7 +2706,7 @@
     var listings = node('div', 'ipg-village-listings');
     (view.listings || []).forEach(function (x) {
       var row = node('div', 'ipg-village-trade-row'); row.dataset.listingId = x.id;
-      append(row, node('strong', '', x.name), text('1個 ' + number(x.unitPrice) + 'コイン · 残り' + number(x.remaining) + '個', 'ipg-small'));
+      append(row, itemArtwork(x.itemId, 'ipg-village-market-art'), node('strong', '', x.name), text('1個 ' + number(x.unitPrice) + 'コイン · 残り' + number(x.remaining) + '個', 'ipg-small'));
       if (x.remaining > 0) {
         var cancel = button('取り下げる', function () {
           transact(cancel, { type: 'cancelVillageListing', listingId: x.id }, '売れ残りをもちものへ戻しました。');
@@ -2720,7 +2720,7 @@
     var offers = node('div', 'ipg-village-offers');
     (view.offers || []).forEach(function (x) {
       var row = node('div', 'ipg-village-trade-row'); row.dataset.offerId = x.id;
-      append(row, node('strong', '', x.itemName), text(x.name + 'から · 1個 ' + number(x.unitPrice) + 'コイン · 残り' + number(x.remaining) + '個', 'ipg-small'));
+      append(row, itemArtwork(x.itemId, 'ipg-village-market-art'), node('strong', '', x.itemName), text(x.name + 'から · 1個 ' + number(x.unitPrice) + 'コイン · 残り' + number(x.remaining) + '個', 'ipg-small'));
       if (x.remaining > 0) {
         var key = 'village-offer-' + x.id, qty = inputValue(key, 1, x.remaining), controls = node('div', 'ipg-village-transaction');
         var buy = button('買う', function () {

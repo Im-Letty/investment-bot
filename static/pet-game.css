@@ -321,6 +321,8 @@ img.ipg-lilac-compact{width:80px;height:80px;animation:none}
 .ipg-item-art-placeholder:before{content:"";width:34%;height:28%;border:1px solid var(--ipg-line);border-radius:4px;opacity:.6}
 .ipg-item-art-image[hidden],.ipg-item-art-placeholder[hidden]{display:none!important}
 .ipg-shop-item .ipg-item-art{margin:0 auto 8px;filter:drop-shadow(0 5px 5px #75624c18)}
+.ipg-village-trade-row>.ipg-village-market-art{display:block;width:120px;height:120px;margin:0 auto 12px}
+@media(max-width:540px){.ipg-village-trade-row>.ipg-village-market-art{width:104px;height:104px}}
 .ipg-shop-item{background:radial-gradient(ellipse at 50% 0,#fff9,transparent 62%),var(--ipg-surface,var(--ipg-bg))}
 .ipg-care-item-art{width:34px;height:34px}
 .ipg-room-care .ipg-care-item-art{width:30px;height:30px}

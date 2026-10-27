@@ -3905,6 +3905,52 @@ async function nextVillageDay(f) {
   await f.click(f.focusButton('village-advance'));
 }
 
+test('village market cards map both real offers and own listings to existing product art without saving image state',async()=>{
+  const f=await marketVillageFixture({seed:{pg_coins:'10000',pg_items:'{"apple":30,"berry":30,"cake":30,"rice":30,"feast":30}'}});
+  const sources={apple:'/static/pet-items-v1/apple.webp',berry:'/static/pet-items-v1/berry.webp',cake:'/static/pet-items-v1/cake.webp',rice:'/static/pet-items-v1/rice.webp',feast:'/static/pet-items-v1/feast.webp'};
+  try{
+    for(const id of Object.keys(sources)){
+      villageInput(f,'village-list-item',id,'change');villageInput(f,'village-list-quantity',1);villageInput(f,'village-list-price',999);
+      await f.click(f.focusButton('village-list'));
+    }
+    const view=villageView(f),before=f.data.get(Core.KEY),writes=f.writes.length;
+    assert.equal(view.listings.length,5);assert.ok(view.offers.length>0);
+    for(const [rows,key,title] of [[view.listings,'listingId','name'],[view.offers,'offerId','itemName']])for(const x of rows){
+      const row=f.host.querySelectorAll('.ipg-village-trade-row').find(el=>String(el.dataset[key])===String(x.id));assert.ok(row);
+      const art=row.querySelector('.ipg-village-market-art'),image=art.querySelector('img'),placeholder=art.querySelector('.ipg-item-art-placeholder');
+      assert.equal(row.children[0],art);assert.equal(art.dataset.itemArt,x.itemId);assert.equal(image.src,sources[x.itemId]);
+      assert.equal(row.querySelector('strong').textContent,x[title]);assert.ok(row.textContent.includes('残り'+x.remaining+'個'));
+      assert.equal(art.getAttribute('aria-hidden'),'true');assert.equal(image.alt,'');assert.equal(image.getAttribute('aria-hidden'),'true');assert.equal(image.draggable,false);
+      assert.equal(art.dataset.artState,'loading');assert.equal(image.hidden,true);assert.equal(placeholder.hidden,false);
+      image.emit('load');assert.equal(art.dataset.artState,'ready');assert.equal(image.hidden,false);assert.equal(placeholder.hidden,true);
+      image.emit('error');assert.equal(art.dataset.artState,'error');assert.equal(image.hidden,true);assert.equal(placeholder.hidden,false);
+      image.emit('load');assert.equal(art.dataset.artState,'ready');assert.equal(image.hidden,false);assert.equal(placeholder.hidden,true);
+    }
+    assert.equal(f.data.get(Core.KEY),before);assert.equal(f.writes.length,writes);
+    assert.doesNotMatch(before,/itemArt|artReady|artState|pet-items-v1/);
+  }finally{f.ui.close();}
+});
+
+test('failed village market images preserve quantity purchases, escrow cancellation and stale-control protection',async()=>{
+  const f=await marketVillageFixture();try{
+    villageInput(f,'village-list-item','rice','change');villageInput(f,'village-list-quantity',2);villageInput(f,'village-list-price',999);
+    await f.click(f.focusButton('village-list'));
+    const view=villageView(f),listing=view.listings[0],offer=view.offers[0],before=f.saved(),writes=f.writes.length;
+    assert.ok(offer.remaining>=2);
+    for(const row of f.host.querySelectorAll('.ipg-village-trade-row'))row.querySelector('.ipg-village-market-art img').emit('error');
+    assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
+    villageInput(f,'village-offer-'+offer.id,2);await f.click(f.focusButton('village-offer-'+offer.id+'-buy'));
+    const bought=f.saved();assert.equal(bought.coins,before.coins-offer.unitPrice*2);
+    assert.equal(bought.inventory[offer.itemId],(before.inventory[offer.itemId]||0)+2);
+    assert.equal(villageView(f).offers.find(x=>x.id===offer.id).remaining,offer.remaining-2);
+    const cancel=f.focusButton('village-cancel-'+listing.id);await f.click(cancel);
+    assert.equal(f.saved().inventory.rice,bought.inventory.rice+2);assert.equal(f.saved().coins,bought.coins);
+    assert.equal(villageView(f).listings.length,0);
+    const after=f.data.get(Core.KEY),savedWrites=f.writes.length;cancel.emit('click');await flush();
+    assert.equal(f.data.get(Core.KEY),after);assert.equal(f.writes.length,savedWrites);
+  }finally{f.ui.close();}
+});
+
 test('village market views, redraw and reopen never initialize an old save or reroll visitors; old stocks and care shop remain separate',async()=>{
   const f=await marketVillageFixture(),before=f.saved(),raw=f.data.get(Core.KEY),writes=f.writes.length,view=villageView(f);
   assert.equal(Object.hasOwn(before,'villageEconomy'),false);
