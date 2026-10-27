@@ -2,5 +2,6 @@
 # Extra processes would duplicate collectors, source budgets and cached state.
 workers = 1
 worker_class = "gthread"
-# At most six selected market quotes can wait upstream; leave room for the page.
+# Middleware admits at most six noncritical requests, including serial waiters.
+# Keep two of the eight serving threads available for GET/HEAD page/static reads.
 threads = 8
