@@ -2560,3 +2560,37 @@ test('wider manual foot meshes remain unfolded and inside their existing directi
   }
  }
 });
+
+
+test('manual walking relaxes the original eyes without selecting an emotional or open-mouth donor', t => {
+ for (const key of [null,'newborn','child','adult']) {
+  const f=fixture({options:{appearanceKey:key}});t.after(()=>f.api.destroy());f.complete();
+  f.api.setLocomotion({yawDeg:0,walking:true,distance:.14});f.api.refreshFrame();
+  const head=f.drawCalls.filter(d=>d.frame===f.clears&&d.part===6)[0];
+  assert.equal(head.uniforms.u_detail[0],.32);
+  assert.deepEqual(head.uniforms.u_face,[0,0,0,0]);
+  assert.equal(head.uniforms.u_gesture[3],0,'mouth remains the original neutral smile');
+  f.api.setLocomotion({yawDeg:0,walking:false,distance:.14});f.api.refreshFrame();
+  assert.equal(f.uniforms.u_detail[0],0,'stopping clears walking-only eye relaxation');
+  f.api.setLocomotion(null);f.api.setSituation('angry',{elapsedMs:1500});f.api.refreshFrame();
+  assert.ok(f.uniforms.u_faceAngry>.9,'an intentional reaction retains its own expression');
+ }
+});
+
+test('own-view walking eyes share a bounded relaxation and restore on stop or timed direction cues', t => {
+ for (const key of [null,'newborn','adult']) {
+  const f=fixture({options:{appearanceKey:key}});t.after(()=>f.api.destroy());f.complete();
+  for(let index=1;index<16;index++){
+   f.api.setLocomotion({yawDeg:index*22.5,walking:true,distance:.14});f.api.refreshFrame();
+   let d=f.drawCalls.at(-1);assert.equal(d.part,10+index);assert.equal(d.uniforms.u_detail[3],.32);
+   assert.equal(d.uniforms.u_motionA[0],1,'single fully opaque source drawing');
+   f.api.setLocomotion({yawDeg:index*22.5,walking:false,distance:.14});f.api.refreshFrame();
+   assert.equal(f.drawCalls.at(-1).uniforms.u_detail[3],0);
+  }
+  f.api.setLocomotion(null);f.api.setSituation('direction_left',{elapsedMs:2800});f.api.refreshFrame();
+  assert.equal(f.drawCalls.at(-1).uniforms.u_detail[3],0,'scripted direction remains unchanged');
+ }
+ const reduced=fixture({reduced:true});t.after(()=>reduced.api.destroy());reduced.complete();
+ reduced.api.setLocomotion({yawDeg:90,walking:true,distance:.14});reduced.api.refreshFrame();
+ assert.equal(reduced.drawCalls.at(-1).uniforms.u_detail[3],0);
+});
