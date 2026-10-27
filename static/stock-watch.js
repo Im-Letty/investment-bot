@@ -201,6 +201,7 @@
           freezeBackground();
         }
         opened=true;
+        manager.dataset.mode=options.mode==='search'?'search':'favorites';
         if(title)title.textContent=options.mode==='search'?'銘柄を検索':'お気に入り';
         const savedSection=doc.getElementById('stock-watch-saved');if(savedSection)savedSection.hidden=options.mode==='search';
         if(returnFocus)returnFocus.setAttribute('aria-expanded','true');

@@ -76,6 +76,20 @@ body[data-theme="dark"] #alert-section.stock-watch-manager {--sw-paper:var(--kn-
   overflow:hidden;
 }
 #alert-section.stock-watch-manager .sw-sheet:focus {outline:none}
+/* The heading search opens in the center of the visible viewport. */
+#alert-section.stock-watch-manager[data-mode="search"] .sw-sheet {
+  top:50%;
+  bottom:auto;
+  width:calc(100% - 32px);
+  max-width:620px;
+  height:auto;
+  max-height:calc(100% - max(16px,env(safe-area-inset-top,0px)) - max(16px,env(safe-area-inset-bottom,0px)));
+  border:1px solid var(--sw-line);
+  border-radius:22px;
+  box-shadow:0 14px 48px color-mix(in srgb,var(--sw-ink) 12%,transparent);
+  transform:translate(-50%,-50%);
+}
+#alert-section.stock-watch-manager[data-mode="search"] .sw-handle {display:none}
 #alert-section.stock-watch-manager .sw-handle {
   flex:none;
   width:32px;
@@ -323,6 +337,8 @@ body[data-theme="dark"] #alert-section.stock-watch-manager {--sw-paper:var(--kn-
   #alert-section.stock-watch-manager .sw-backdrop {animation:swVeilIn .22s ease both}
   #alert-section.stock-watch-manager[data-closing="true"] .sw-sheet {animation:swSheetOut .18s ease both}
   #alert-section.stock-watch-manager[data-closing="true"] .sw-backdrop {animation:swVeilOut .18s ease both}
+  #alert-section.stock-watch-manager[data-mode="search"] .sw-sheet {animation:swSearchIn .2s cubic-bezier(.22,.7,.25,1) both}
+  #alert-section.stock-watch-manager[data-mode="search"][data-closing="true"] .sw-sheet {animation:swSearchOut .18s ease both}
 }
 @media (prefers-reduced-motion:reduce) {
   #alert-section.stock-watch-manager button {transition:none}
@@ -331,6 +347,8 @@ body[data-theme="dark"] #alert-section.stock-watch-manager {--sw-paper:var(--kn-
 }
 @keyframes swSheetIn {from{opacity:0;transform:translate(-50%,18px)}to{opacity:1;transform:translate(-50%,0)}}
 @keyframes swSheetOut {from{opacity:1;transform:translate(-50%,0)}to{opacity:0;transform:translate(-50%,18px)}}
+@keyframes swSearchIn {from{opacity:0;transform:translate(-50%,-50%) scale(.96)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@keyframes swSearchOut {from{opacity:1;transform:translate(-50%,-50%) scale(1)}to{opacity:0;transform:translate(-50%,-50%) scale(.98)}}
 @keyframes swVeilIn {from{opacity:0}to{opacity:1}}
 @keyframes swVeilOut {from{opacity:1}to{opacity:0}}
 

@@ -190,6 +190,7 @@ test('heading search and favorite management use one sheet and retain the same s
  const h=uiHarness();await flush();
  await h.w.openStockWatchManager({mode:'search',trigger:h.originalFocus});
  assert.equal(h.manager.style.display,'flex');assert.equal(h.nodes.get('stock-watch-title').textContent,'銘柄を検索');
+ assert.equal(h.manager.dataset.mode,'search');
  assert.equal(h.nodes.get('stock-watch-saved').hidden,true,'Search offers adding while the saved list stays in favorite management');
  const input=h.nodes.get('alert-ticker-input');input.value='トヨタ';
  h.nodes.get('stock-search-form').listeners.submit({preventDefault(){}});await flush();
@@ -201,6 +202,7 @@ test('heading search and favorite management use one sheet and retain the same s
  h.w.closeStockWatchManager();
  await h.w.openStockWatchManager();
  assert.equal(h.manager.style.display,'flex');assert.equal(h.nodes.get('stock-watch-title').textContent,'お気に入り');
+ assert.equal(h.manager.dataset.mode,'favorites','Favorite management must not retain centered search presentation');
  assert.equal(h.nodes.get('stock-watch-saved').hidden,false);
  assert.equal(h.nodes.get('stock-watch-count').textContent,'1件');
  assert.equal(h.nodes.get('alert-watchlist').children[0].children[0].children[0].children[0].textContent,toyota.name);
