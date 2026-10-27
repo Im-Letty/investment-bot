@@ -61,6 +61,10 @@ function paired(h){
   h.window.KNStockTalk=stock;h.window.openStockTalk=stock.open;return stock;
 }
 
+function assertNoNicknameUI(h){
+ for(const selector of ['#cmNick','.cw-nickname','.cw-nickname-summary','.cw-nickname-value','.cw-nickname-editor','.cw-nickname-change','.cw-nickname-save','.cw-nickname-cancel','.cw-nickname-status','.cw-nickname-caption','.cw-nickname-scope','.cw-nickname-actions'])assert.equal(h.nodes(selector).length,0,selector+' must be absent');
+}
+
 test('scoped company voices load the selected room first and preserve its existing draft',async()=>{
   const storage=new Map([['kn_stock_talk_drafts_v1',JSON.stringify({'stock:1832':{body:'地方銘柄の下書き',category:'stock:1832',language:'ja'},'stock:7203':{body:'別の会社の下書き',category:'stock:7203',language:'ja'}})]]);
   const h=harness({storage}),stock=paired(h);assert.equal(stock.openRoom(companyRoom()),true);await h.settle();
@@ -147,13 +151,13 @@ test('language change uses English fallback without translating user content',as
 });
 test('delayed language events preserve composer and reply controls and allow sending',async()=>{
   const h=harness();paired(h);h.ui.open();await h.response({ok:true,posts:[post(20,{category:'life'})],has_more:false});
-  const nickname=h.node('#cmNick'),body=h.node('#cmInput'),selects=h.node('.cw-composer').querySelectorAll('select');
-  nickname.value='表示名';h.node('.cw-nickname-save').click();body.value='入力中の投稿';body.emit('input');selects[0].value='news';selects[1].value='ja';
+  const body=h.node('#cmInput'),selects=h.node('.cw-composer').querySelectorAll('select');
+  h.window.KNUserProfile={username:()=>'表示名',ready:async()=>{}};body.value='入力中の投稿';body.emit('input');selects[0].value='news';selects[1].value='ja';
   h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});let reply=h.node('.cw-reply-form').querySelector('textarea');reply.value='入力中の返信';reply.emit('input');
   const search=h.node('.cw-community-search').querySelector('input');search.value='表示用';search.emit('input');
   for(const language of ['ja','en','ko','ja']){
     h.document.documentElement.lang=language;h.document.emit('langChanged');
-    assert.equal(h.node('#cmNick'),nickname);assert.equal(h.node('#cmInput'),body);assert.equal(body.value,'入力中の投稿');assert.equal(nickname.value,'表示名');
+    assertNoNicknameUI(h);assert.equal(h.node('#cmInput'),body);assert.equal(body.value,'入力中の投稿');
     assert.deepEqual(h.node('.cw-composer').querySelectorAll('select'),selects);assert.equal(selects[0].value,'news');assert.equal(selects[1].value,'ja');
     assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'入力中の返信');assert.equal(h.nodes('label[data-cw-copy]').length,0);
     assert.equal(h.node('.cw-community-search').querySelector('input'),search);assert.equal(search.value,'表示用');
@@ -234,7 +238,7 @@ test('separate conversation APIs clean up reads and retain drafts without cross-
  const h=harness(),stock=paired(h);stock.open();await h.settle();h.morning.scrollTop=0;
  assert.equal(h.node('.cw-context-title').textContent,'みんなの声');assert.equal(h.node('#stockTalkOv').getAttribute('aria-label'),'みんなの声');assert.equal(h.nodes('.cw-view-tab').length,0);
  const old=h.pending[0];h.node('#cmInput').value='銘柄の下書き';h.node('#cmInput').emit('input');h.ui.open();await h.settle();
- assert.equal(old.options.signal.aborted,true);assert.equal(h.nodes('.cw-screen').length,1);assert.equal(h.document.getElementById('stockTalkOv'),null);assert.equal(h.nodes('#cmInput').length,1);assert.equal(h.nodes('#cmNick').length,1);assert.equal(h.window.knTalkLastView,'community');assert.equal(h.timers.size,1);
+ assert.equal(old.options.signal.aborted,true);assert.equal(h.nodes('.cw-screen').length,1);assert.equal(h.document.getElementById('stockTalkOv'),null);assert.equal(h.nodes('#cmInput').length,1);assertNoNicknameUI(h);assert.equal(h.window.knTalkLastView,'community');assert.equal(h.timers.size,1);
  assert.equal(h.node('.cw-context-title').textContent,'みんなのトーク');assert.equal(h.nodes('.cw-stock-talk-link').length,0);
  for(const event of ['visibilitychange','langChanged','knAuthChange'])assert.equal(h.events.get(event).length,1);
  await h.response({ok:true,posts:[post(999,{body:'古い銘柄の返答'})],has_more:false},200,0);assert.equal(h.nodes('.cw-post').length,0);
@@ -364,87 +368,76 @@ test('typing the next compose or reply draft while a write is pending keeps the 
  h.ui.close();h.ui.open();await h.response({ok:true,posts:[post(20,{reply_count:1})],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[post(21,{parent_id:20,body:'送信中の返信',is_mine:true})],has_more:false});assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'次の返信下書き');
 });
 
-test('an existing cm_nick becomes a fixed name without rewriting it during drafts or close',async()=>{
+test('legacy names remain stored without exposing nickname controls or rewriting the value',async()=>{
  const storage=new Map([['cm_nick','以前の名前']]),h=harness({storage}),writes=[];
  h.window.localStorage.setItem=(key,value)=>{writes.push(key);storage.set(key,value);};h.ui.open();await h.response({ok:true,posts:[],has_more:false});
- assert.equal(h.node('.cw-nickname-summary').hidden,false);assert.equal(h.node('.cw-nickname-value').textContent,'以前の名前');assert.equal(h.node('.cw-nickname-editor').hidden,true);assert.equal(h.node('.cw-nickname-change').type,'button');
- h.node('#cmInput').value='下書き';h.node('#cmInput').emit('input');h.ui.close();assert.equal(storage.get('cm_nick'),'以前の名前');assert.equal(writes.filter(key=>key==='cm_nick').length,0);
+ assertNoNicknameUI(h);h.node('#cmInput').value='下書き';h.node('#cmInput').emit('input');h.ui.close();
+ assert.equal(storage.get('cm_nick'),'以前の名前');assert.equal(writes.filter(key=>key==='cm_nick').length,0);
 });
 
-test('an explicitly saved nickname is shared by fresh general and stock posts and replies',async()=>{
- const storage=new Map(),h=harness({storage});h.ui.open();await h.response({ok:true,posts:[],has_more:false});
- assert.equal(h.node('.cw-nickname-editor').hidden,false);h.node('#cmNick').value='  固定の名前  ';h.node('.cw-nickname-save').click();
- assert.equal(storage.get('cm_nick'),'固定の名前');assert.equal(h.node('.cw-nickname-value').textContent,'固定の名前');assert.equal(h.node('.cw-nickname-editor').hidden,true);assert.equal(h.calls.filter(call=>call.options.method==='POST').length,0);
- h.node('#cmInput').value='一般の投稿';h.ui.send();await h.settle();assert.equal(JSON.parse(h.calls.at(-1).options.body).name,'固定の名前');await h.response({ok:true,post:post(40,{name:'固定の名前',body:'一般の投稿'})});
- h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});h.node('.cw-reply-form').querySelector('textarea').value='一般の返信';h.node('.cw-reply-form').emit('submit');await h.settle();assert.equal(JSON.parse(h.calls.at(-1).options.body).name,'固定の名前');await h.response({ok:true,post:post(41,{name:'固定の名前',parent_id:40})});h.ui.close();
- const fresh=harness({storage}),stock=paired(fresh);stock.open();await fresh.response({ok:true,posts:[],has_more:false});assert.equal(fresh.node('.cw-nickname-editor').hidden,true);assert.equal(fresh.node('.cw-nickname-value').textContent,'固定の名前');
- fresh.node('#cmInput').value='銘柄の投稿';stock.send();await fresh.settle();assert.equal(JSON.parse(fresh.calls.at(-1).options.body).name,'固定の名前');await fresh.response({ok:true,post:post(50,{category:'stock:7203',name:'固定の名前'})});
- fresh.node('.cw-reply-toggle').click();await fresh.response({ok:true,posts:[],has_more:false});fresh.node('.cw-reply-form').querySelector('textarea').value='銘柄の返信';fresh.node('.cw-reply-form').emit('submit');await fresh.settle();const reply=JSON.parse(fresh.calls.at(-1).options.body);assert.equal(reply.name,'固定の名前');assert.equal(reply.parent_id,50);assert.match(fresh.calls.at(-1).url,/\/api\/stock-talk\/posts$/);
+test('profile names reach general and stock posts and replies without composer name controls or writes',async()=>{
+ const storage=new Map([['cm_nick','以前の端末名']]),h=harness({storage}),writes=[];let profileSaves=0;
+ h.window.KNUserProfile={username:()=>'メニューの名前',ready:async()=>{},saveUsername:async()=>{profileSaves++;}};
+ h.window.localStorage.setItem=(key,value)=>{writes.push(key);storage.set(key,value);};h.ui.open();await h.response({ok:true,posts:[],has_more:false});assertNoNicknameUI(h);
+ h.node('#cmInput').value='一般の投稿';h.ui.send();await h.settle();assert.equal(JSON.parse(h.calls.at(-1).options.body).name,'メニューの名前');await h.response({ok:true,post:post(40,{name:'メニューの名前',body:'一般の投稿'})});
+ h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});h.node('.cw-reply-form').querySelector('textarea').value='一般の返信';h.node('.cw-reply-form').emit('submit');await h.settle();assert.equal(JSON.parse(h.calls.at(-1).options.body).name,'メニューの名前');await h.response({ok:true,post:post(41,{name:'メニューの名前',parent_id:40})});h.ui.close();
+ const stock=paired(h);stock.open();await h.response({ok:true,posts:[],has_more:false});assertNoNicknameUI(h);
+ h.node('#cmInput').value='銘柄の投稿';stock.send();await h.settle();assert.equal(JSON.parse(h.calls.at(-1).options.body).name,'メニューの名前');await h.response({ok:true,post:post(50,{category:'stock:7203',name:'メニューの名前'})});
+ h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});h.node('.cw-reply-form').querySelector('textarea').value='銘柄の返信';h.node('.cw-reply-form').emit('submit');await h.settle();const reply=JSON.parse(h.calls.at(-1).options.body);assert.equal(reply.name,'メニューの名前');assert.equal(reply.parent_id,50);assert.match(h.calls.at(-1).url,/\/api\/stock-talk\/posts$/);await h.response({ok:true,post:post(51,{category:'stock:7203',parent_id:50,name:'メニューの名前'})});
+ assertNoNicknameUI(h);stock.close();assert.equal(profileSaves,0);assert.equal(writes.filter(key=>key==='cm_nick').length,0);assert.equal(storage.get('cm_nick'),'以前の端末名');
 });
 
-test('unsaved name edits never override the committed name through drafting, posting or cancel',async()=>{
- const storage=new Map([['cm_nick','保存済み']]),h=harness({storage});h.ui.open();await h.response({ok:true,posts:[],has_more:false});
- h.node('.cw-nickname-change').click();h.node('#cmNick').value='未保存の編集';h.node('#cmNick').emit('change');h.node('#cmInput').value='投稿する本文';h.node('#cmInput').emit('input');assert.equal(storage.get('cm_nick'),'保存済み');
- h.ui.send();await h.settle();assert.equal(JSON.parse(h.calls.at(-1).options.body).name,'保存済み');await h.response({ok:true,post:post(20,{name:'保存済み'})});assert.equal(h.node('#cmNick').value,'未保存の編集');assert.equal(h.node('.cw-nickname-editor').hidden,false);
- h.node('.cw-nickname-cancel').click();assert.equal(h.node('#cmNick').value,'保存済み');assert.equal(h.node('.cw-nickname-editor').hidden,true);assert.equal(storage.get('cm_nick'),'保存済み');
+test('fresh posts and replies use the latest name changed in the menu profile',async()=>{
+ const h=harness();let name='以前のプロフィール名';h.window.KNUserProfile={username:()=>name,ready:async()=>{}};h.ui.open();await h.response({ok:true,posts:[],has_more:false});
+ name='メニューで変更した名前';h.document.emit('knProfileChange');h.node('#cmInput').value='新しい投稿';h.ui.send();await h.settle();assert.equal(JSON.parse(h.calls.at(-1).options.body).name,name);await h.response({ok:true,post:post(30)});
+ h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});name='さらに変更した名前';h.document.emit('knProfileChange');h.node('.cw-reply-form').querySelector('textarea').value='返信';h.node('.cw-reply-form').emit('submit');await h.settle();assert.equal(JSON.parse(h.calls.at(-1).options.body).name,name);assertNoNicknameUI(h);
 });
 
-test('send uses the latest stored nickname without clobbering an unsaved name editor',async()=>{
- const storage=new Map([['cm_nick','古い保存名']]),h=harness({storage});h.ui.open();await h.response({ok:true,posts:[],has_more:false});h.node('.cw-nickname-change').click();h.node('#cmNick').value='入力中の編集';
- storage.set('cm_nick','別タブの保存名');h.node('#cmInput').value='新しい投稿';h.ui.send();await h.settle();assert.equal(JSON.parse(h.calls.at(-1).options.body).name,'別タブの保存名');assert.equal(h.node('.cw-nickname-value').textContent,'別タブの保存名');assert.equal(h.node('#cmNick').value,'入力中の編集');await h.response({ok:true,post:post(30)});
- h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});storage.set('cm_nick','さらに新しい保存名');h.node('.cw-reply-form').querySelector('textarea').value='返信';h.node('.cw-reply-form').emit('submit');await h.settle();assert.equal(JSON.parse(h.calls.at(-1).options.body).name,'さらに新しい保存名');assert.equal(h.node('#cmNick').value,'入力中の編集');
+test('a legacy name read failure retains the loaded name without writing nickname storage',async()=>{
+ const storage=new Map([['cm_nick','元の名前']]),h=harness({storage});let nicknameWrites=0;
+ h.window.localStorage.setItem=(key,value)=>{if(key==='cm_nick'){nicknameWrites++;throw new Error('fixture storage denied');}storage.set(key,value);};h.ui.open();await h.response({ok:true,posts:[],has_more:false});
+ h.window.localStorage.getItem=key=>{if(key==='cm_nick')throw new Error('fixture read denied');return storage.get(key)||null;};h.node('#cmInput').value='元の名前で投稿';h.ui.send();await h.settle();
+ assert.equal(JSON.parse(h.calls.at(-1).options.body).name,'元の名前');assert.equal(storage.get('cm_nick'),'元の名前');assert.equal(nicknameWrites,0);assertNoNicknameUI(h);
 });
 
-test('nickname storage failures keep the editor and do not claim a new fixed name was saved',async()=>{
- const storage=new Map([['cm_nick','元の名前']]),h=harness({storage});h.ui.open();await h.response({ok:true,posts:[],has_more:false});h.node('.cw-nickname-change').click();h.node('#cmNick').value='保存できない編集';
- h.window.localStorage.setItem=(key,value)=>{if(key==='cm_nick')throw new Error('fixture storage denied');storage.set(key,value);};h.node('.cw-nickname-save').click();assert.equal(h.node('#cmNick').value,'保存できない編集');assert.equal(h.node('.cw-nickname-editor').hidden,false);assert.equal(h.node('.cw-nickname-value').textContent,'元の名前');assert.equal(storage.get('cm_nick'),'元の名前');assert.match(h.node('.cw-nickname-status').textContent,/保存できませんでした/);
- h.window.localStorage.getItem=key=>{if(key==='cm_nick')throw new Error('fixture read denied');return storage.get(key)||null;};h.node('#cmInput').value='元の名前で投稿';h.ui.send();await h.settle();assert.equal(JSON.parse(h.calls.at(-1).options.body).name,'元の名前');assert.equal(h.node('#cmNick').value,'保存できない編集');
+test('blank legacy names keep anonymous posting without presenting a name editor',async()=>{
+ const h=harness({logged:false,storage:new Map([['cm_nick','   ']])});h.window.knEnsureGuest=async()=>({access_token:'local-guest-fixture'});h.ui.open();await h.response({ok:true,posts:[],has_more:false});assertNoNicknameUI(h);
+ h.node('#cmInput').value='匿名のまま投稿';h.ui.send();await h.settle();assert.equal(JSON.parse(h.calls.at(-1).options.body).name,'');assert.equal(h.authPrompts(),0);assert.equal(h.storage.get('cm_nick'),'   ');await h.response({ok:true,post:post(3,{name:'名無しさん'})});
 });
 
-test('blank names keep anonymous posting while explicit saves validate nonblank and 20 characters',async()=>{
- const h=harness({logged:false,storage:new Map([['cm_nick','   ']])});h.window.knEnsureGuest=async()=>({access_token:'local-guest-fixture'});h.ui.open();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-nickname-editor').hidden,false);h.node('.cw-nickname-save').click();assert.match(h.node('.cw-nickname-status').textContent,/入力してください/);assert.equal(h.storage.get('cm_nick'),'   ');
- h.node('#cmInput').value='匿名のまま投稿';h.ui.send();await h.settle();assert.equal(JSON.parse(h.calls.at(-1).options.body).name,'');assert.equal(h.authPrompts(),0);await h.response({ok:true,post:post(3,{name:'名無しさん'})});
- h.node('#cmNick').value='あ'.repeat(21);h.node('.cw-nickname-save').click();assert.match(h.node('.cw-nickname-status').textContent,/20文字以内/);assert.equal(h.node('.cw-nickname-editor').hidden,false);h.node('#cmNick').value='あ'.repeat(20);h.node('.cw-nickname-save').click();assert.equal(h.storage.get('cm_nick'),'あ'.repeat(20));assert.equal(h.node('.cw-nickname-editor').hidden,true);
-});
-
-test('Enter saves the nickname without submitting the composer and respects IME composition',async()=>{
- const h=harness();h.ui.open();await h.response({ok:true,posts:[],has_more:false});h.node('#cmInput').value='まだ送らない本文';h.node('#cmNick').value='確定した名前';let prevented=0,stopped=0;
- h.node('#cmNick').emit('keydown',{key:'Enter',isComposing:true,preventDefault(){prevented++;}});assert.equal(prevented,0);assert.equal(h.storage.has('cm_nick'),false);
- h.node('#cmNick').emit('keydown',{key:'Enter',preventDefault(){prevented++;},stopPropagation(){stopped++;}});await h.settle();assert.equal(prevented,1);assert.equal(stopped,1);assert.equal(h.storage.get('cm_nick'),'確定した名前');assert.equal(h.calls.filter(call=>call.options.method==='POST').length,0);assert.equal(h.node('#cmInput').value,'まだ送らない本文');assert.equal(h.node('.cw-nickname-save').type,'button');assert.equal(h.node('.cw-nickname-cancel').type,'button');
-});
-
-test('saved user nicknames matching interface copy are never translated or parsed as markup',async()=>{
+test('profile names in post and reply authors remain literal text during language changes',async()=>{
  for(const name of ['ニュース','保存','<b>名前</b>']){
-  const h=harness({storage:new Map([['cm_nick',name]])});h.ui.open();await h.response({ok:true,posts:[],has_more:false});const value=h.node('.cw-nickname-value');assert.equal(value.getAttribute('data-cw-copy'),null);
-  h.node('.cw-nickname-change').click();h.node('#cmNick').value='未保存の名前';h.document.documentElement.lang='en';h.document.emit('langChanged');assert.equal(value.textContent,name);assert.equal(h.node('#cmNick').value,'未保存の名前');assert.equal(h.node('.cw-nickname-save').textContent,'Save');h.node('.cw-nickname-cancel').click();assert.equal(value.textContent,name);
+  const h=harness();h.window.KNUserProfile={username:()=>name,ready:async()=>{}};h.ui.open();await h.response({ok:true,posts:[post(20,{name,reply_count:1})],has_more:false});
+  h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[post(21,{name,parent_id:20})],has_more:false});h.document.documentElement.lang='en';h.document.emit('langChanged');
+  assert.equal(h.nodes('.cw-author').length,2);for(const author of h.nodes('.cw-author')){assert.equal(author.textContent,name);assert.equal(author.getAttribute('data-cw-copy'),null);assert.equal(author.children.length,0);}
+  assertNoNicknameUI(h);h.node('#cmInput').value='名前を変更しない本文';h.ui.send();await h.settle();assert.equal(JSON.parse(h.calls.at(-1).options.body).name,name);
  }
 });
 
-test('an unknown-outcome retry keeps its original name and UUID after saving a new name and reopening',async()=>{
- const storage=new Map([['cm_nick','前の名前']]),h=harness({storage});h.ui.open();await h.response({ok:true,posts:[],has_more:false});h.node('#cmInput').value='結果が不明の投稿';h.node('#cmInput').emit('input');h.ui.send();await h.settle();const first=JSON.parse(h.calls.at(-1).options.body);h.pending.shift().reject(new Error('fixture unknown outcome'));await h.settle();
- h.node('.cw-nickname-change').click();h.node('#cmNick').value='新しい名前';h.node('.cw-nickname-save').click();h.ui.close();const fresh=harness({storage});let generated=0;fresh.window.crypto.randomUUID=()=>{generated++;return '20000000-0000-4000-8000-000000000001';};fresh.ui.open();await fresh.response({ok:true,posts:[],has_more:false});fresh.ui.send();await fresh.settle();const retry=JSON.parse(fresh.calls.at(-1).options.body);assert.equal(retry.request_id,first.request_id);assert.equal(retry.name,'前の名前');assert.equal(generated,0);assert.equal(fresh.node('.cw-nickname-value').textContent,'新しい名前');assert.match(fresh.node('.cw-notice').textContent,/前回と同じニックネーム/);await fresh.response({ok:true,post:post(50,{name:'前の名前',body:first.body})});
+test('an unknown-outcome retry keeps its original name and UUID after a menu profile change and reopening',async()=>{
+ const storage=new Map(),h=harness({storage});let name='前の名前';h.window.KNUserProfile={username:()=>name,ready:async()=>{}};h.ui.open();await h.response({ok:true,posts:[],has_more:false});h.node('#cmInput').value='結果が不明の投稿';h.node('#cmInput').emit('input');h.ui.send();await h.settle();const first=JSON.parse(h.calls.at(-1).options.body);h.pending.shift().reject(new Error('fixture unknown outcome'));await h.settle();
+ name='新しい名前';h.document.emit('knProfileChange');h.ui.close();const fresh=harness({storage});fresh.window.KNUserProfile={username:()=>name,ready:async()=>{}};let generated=0;fresh.window.crypto.randomUUID=()=>{generated++;return '20000000-0000-4000-8000-000000000001';};fresh.ui.open();await fresh.response({ok:true,posts:[],has_more:false});fresh.ui.send();await fresh.settle();const retry=JSON.parse(fresh.calls.at(-1).options.body);assert.equal(retry.request_id,first.request_id);assert.equal(retry.name,'前の名前');assert.equal(generated,0);assertNoNicknameUI(fresh);assert.match(fresh.node('.cw-notice').textContent,/前回と同じ/);await fresh.response({ok:true,post:post(50,{name:'前の名前',body:first.body})});
  fresh.node('#cmInput').value='別の新しい投稿';fresh.ui.send();await fresh.settle();const next=JSON.parse(fresh.calls.at(-1).options.body);assert.equal(next.name,'新しい名前');assert.notEqual(next.request_id,first.request_id);assert.equal(generated,1);
 });
 
-test('a confirmed invalid-name rejection can use a corrected saved name with a fresh request ID',async()=>{
- const h=harness({storage:new Map([['cm_nick','前の名前']])});h.ui.open();await h.response({ok:true,posts:[],has_more:false});h.node('#cmInput').value='明示拒否された投稿';h.ui.send();await h.settle();const first=JSON.parse(h.calls.at(-1).options.body);await h.response({ok:false,reason:'invalid_name'},400);
- h.node('.cw-nickname-change').click();h.node('#cmNick').value='修正した名前';h.node('.cw-nickname-save').click();h.ui.send();await h.settle();const next=JSON.parse(h.calls.at(-1).options.body);assert.equal(next.name,'修正した名前');assert.notEqual(next.request_id,first.request_id);
+test('a confirmed invalid-name rejection uses the corrected menu profile name with a fresh request ID',async()=>{
+ const h=harness();let name='前の名前';h.window.KNUserProfile={username:()=>name,ready:async()=>{}};h.ui.open();await h.response({ok:true,posts:[],has_more:false});h.node('#cmInput').value='明示拒否された投稿';h.ui.send();await h.settle();const first=JSON.parse(h.calls.at(-1).options.body);await h.response({ok:false,reason:'invalid_name'},400);assert.match(h.node('.cw-notice').textContent,/メニュー.*プロフィール/);
+ name='修正した名前';h.document.emit('knProfileChange');h.ui.send();await h.settle();const next=JSON.parse(h.calls.at(-1).options.body);assert.equal(next.name,'修正した名前');assert.notEqual(next.request_id,first.request_id);
 });
 
-test('saving a name during a pending post leaves its captured payload unchanged',async()=>{
- const h=harness({storage:new Map([['cm_nick','送信時の名前']])});h.ui.open();await h.response({ok:true,posts:[],has_more:false});h.node('#cmInput').value='送信中';h.ui.send();await h.settle();const sent=h.calls.at(-1),payload=JSON.parse(sent.options.body);
- h.node('.cw-nickname-change').click();h.node('#cmNick').value='次回からの名前';h.node('.cw-nickname-save').click();assert.deepEqual(JSON.parse(sent.options.body),payload);assert.equal(payload.name,'送信時の名前');await h.response({ok:true,post:post(1,{name:'送信時の名前'})});h.node('#cmInput').value='次の投稿';h.ui.send();await h.settle();assert.equal(JSON.parse(h.calls.at(-1).options.body).name,'次回からの名前');
+test('changing the menu profile during a pending post leaves its captured payload unchanged',async()=>{
+ const h=harness();let name='送信時の名前';h.window.KNUserProfile={username:()=>name,ready:async()=>{}};h.ui.open();await h.response({ok:true,posts:[],has_more:false});h.node('#cmInput').value='送信中';h.ui.send();await h.settle();const sent=h.calls.at(-1),payload=JSON.parse(sent.options.body);
+ name='次回からの名前';h.document.emit('knProfileChange');assert.deepEqual(JSON.parse(sent.options.body),payload);assert.equal(payload.name,'送信時の名前');await h.response({ok:true,post:post(1,{name:'送信時の名前'})});h.node('#cmInput').value='次の投稿';h.ui.send();await h.settle();assert.equal(JSON.parse(h.calls.at(-1).options.body).name,'次回からの名前');
 });
 
-test('menu profile name is shared by both chat composers and replies without sending other profile fields',async()=>{
- const h=harness({storage:new Map([['cm_nick','別アカウントの旧名']])});let name='メニューの名前';
- h.window.KNUserProfile={username:()=>name,ready:async()=>{},saveUsername:async value=>{name=value;h.document.emit('knProfileChange');}};
- h.ui.open();await h.response({ok:true,posts:[],has_more:false});
- assert.equal(h.node('.cw-nickname-value').textContent,name);h.node('#cmInput').value='共通名の投稿';h.ui.send();await h.settle();
+test('menu profile updates are shared by chat composers and replies without sending other profile fields',async()=>{
+ const h=harness({storage:new Map([['cm_nick','別アカウントの旧名']])});let name='メニューの名前',profileSaves=0;
+ h.window.KNUserProfile={username:()=>name,ready:async()=>{},saveUsername:async()=>{profileSaves++;}};
+ h.ui.open();await h.response({ok:true,posts:[],has_more:false});assertNoNicknameUI(h);h.node('#cmInput').value='共通名の投稿';h.ui.send();await h.settle();
  const payload=JSON.parse(h.calls.at(-1).options.body);assert.equal(payload.name,name);assert.deepEqual(Object.keys(payload).sort(),['body','category','language','name','parent_id','request_id']);
- await h.response({ok:true,post:post(30,{name})});h.node('.cw-nickname-change').click();h.node('#cmNick').value='プロフィールの新名';h.node('.cw-nickname-save').click();await h.settle();assert.equal(name,'プロフィールの新名');
- const stock=paired(h);stock.open();await h.response({ok:true,posts:[post(40,{category:'stock:7203'})],has_more:false});assert.equal(h.node('.cw-nickname-value').textContent,name);
- h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});h.node('.cw-reply-form').querySelector('textarea').value='共通名の返信';h.node('.cw-reply-form').emit('submit');await h.settle();assert.equal(JSON.parse(h.calls.at(-1).options.body).name,name);
+ await h.response({ok:true,post:post(30,{name})});name='プロフィールの新名';h.document.emit('knProfileChange');
+ const stock=paired(h);stock.open();await h.response({ok:true,posts:[post(40,{category:'stock:7203'})],has_more:false});assertNoNicknameUI(h);
+ h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});h.node('.cw-reply-form').querySelector('textarea').value='共通名の返信';h.node('.cw-reply-form').emit('submit');await h.settle();const reply=JSON.parse(h.calls.at(-1).options.body);assert.equal(reply.name,name);assert.deepEqual(Object.keys(reply).sort(),['body','category','language','name','parent_id','request_id']);assert.equal(profileSaves,0);assert.equal(h.storage.get('cm_nick'),'別アカウントの旧名');
 });
 test('profile loading blocks duplicate sends and failure preserves the draft instead of using another account name',async()=>{
  const h=harness({storage:new Map([['cm_nick','以前のアカウント']])});let resolve;

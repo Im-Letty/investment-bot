@@ -161,7 +161,7 @@ body.kn-home-a :is(#cmOv,#stockTalkOv) :is(.cw-composer,.cw-reply-form) {
   color:var(--kn-sh-ink);
 }
 body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-composer-fields {
-  grid-template-columns:repeat(2,minmax(0,1fr));
+  grid-template-columns:minmax(0,1fr);
 }
 body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-nickname {
   grid-column:1/-1;
