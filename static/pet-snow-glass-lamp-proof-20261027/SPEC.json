@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "model_id": "snow-sheltered-glass-lamp-v1",
+  "unit_id": "village:asset-library:snow-sheltered-glass-lamp:v1",
+  "run_id": "automation360-20261027-092652",
+  "base_main_sha": "5538b774466a85cb6a5cedd81aed800c61e20300",
+  "representation": "Actual closed code-native solids: four stone feet, base/stem, recessed snow collector floor/rails, raised chamber floor, four wooden posts, four upper rails, four thick transparent panes, two pitched roof slabs, separate rigid snow caps/ridge and warm emissive insert.",
+  "category": "seasonal_and_event_props",
+  "style": "winter_glass_and_wood",
+  "season": "winter",
+  "size_unit": "unchanged village world units",
+  "height": 1.765,
+  "pane_thickness": 0.016,
+  "snow_cap_vertical_thickness": 0.045,
+  "snow_tray_pocket_depth": 0.0675,
+  "preview_anchor": {
+    "x": 1200,
+    "y": 1300
+  },
+  "light_behavior": "Manual emissive-material switch, no added dynamic light and no ground illumination claim.",
+  "snow_behavior": "Rigid authored snow geometry, no weather fetch, accumulation, melting or load simulation.",
+  "floor_method": "20 actual dry-land Mesh rays at four real stone-foot centers/corners; unchanged default world only.",
+  "clearance_method": "All current authored road/plaza triangles against conservative model XZ rectangle,141 original full-quad sphere envelopes and existing building Mesh AABBs.",
+  "character_scale_reference": "Existing whole2D source-frame worldHeight1.65 only; no anatomy, contact or body fitting proof.",
+  "scope_limits": [
+    "Isolated winter library candidate at one unchanged synthetic default-village anchor.",
+    "Finite geometry/floor/clearance witnesses do not prove physical load/friction, all-world collision or all-camera non-occlusion.",
+    "The snow tray and roof are authored shape, not weatherproofing or functional snow-removal proof.",
+    "Ordinary placement/navigation, unlocking, ownership, prices, EXP and saves remain unconnected.",
+    "Existing original placement images and all successful recipes remain unchanged."
+  ],
+  "bodyBinding": null,
+  "normal_placement": false,
+  "ownership_unlock_save": false,
+  "new_original_PNG_designs": 0,
+  "new_raw_PNGs": 0,
+  "imagegen_calls": 0,
+  "new_mesh_candidate": 1,
+  "conservative_footprint_width": 0.96,
+  "conservative_footprint_depth": 0.94
+}

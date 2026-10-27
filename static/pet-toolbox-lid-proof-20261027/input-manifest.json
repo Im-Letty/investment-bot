@@ -1,0 +1,230 @@
+{
+  "schema_version": 1,
+  "unit": "wardrobe:other:storybook-sewing-toolbox:standalone-lid-hinge-envelope:v1",
+  "run_id": "automation360-20261027-092652",
+  "source_base_sha": "5538b774466a85cb6a5cedd81aed800c61e20300",
+  "source_image_SHA256": "6afc65a45e78a938b018987a85037a9bbbd4b63905aca1438927ea13d76db070",
+  "predecessor_manifest_SHA256": "ef45f09cb30dd09e48e5edf341a9f321195f616c023a065bb73175ed03c1226e",
+  "scope": "one real hinge lid attached to the existing single tray, not complete toolbox closure",
+  "authored_uniform_instance_scale": 0.6,
+  "anatomical_scale_calibration": false,
+  "manual_coordinates": 2,
+  "finite_carrier_angles": [
+    45,
+    62.5,
+    80
+  ],
+  "finite_lid_angles": [
+    0,
+    10,
+    20,
+    30,
+    40,
+    50,
+    60,
+    70,
+    80,
+    90,
+    100
+  ],
+  "finite_pose_samples": 33,
+  "sampled_poses_are_not_unique_tests": true,
+  "unique_tests": 10,
+  "continuous_collision_guarantee": false,
+  "full_toolbox_closure": false,
+  "sealed_storage": false,
+  "physical_load_friction": false,
+  "grip": false,
+  "body360": false,
+  "normal_placement": false,
+  "unlock": false,
+  "save": false,
+  "new_designs": 0,
+  "new_raw_versions": 0,
+  "imagegen_calls": 0,
+  "Mesh_library_increment": 0,
+  "files": [
+    {
+      "path": "finite-geometry-certificate.json",
+      "sha256": "6df38abb9f0f1dbd0ebdc00fb1c592d5d7908cd466912fed9e9ee9e2c107bb50",
+      "bytes": 171167
+    },
+    {
+      "path": "index.html",
+      "sha256": "f4d235b9bfff7961e18229fbc5fbeea27ea354bce22eb0d69935bafa1f8c8392",
+      "bytes": 5056
+    },
+    {
+      "path": "inspection.mjs",
+      "sha256": "d534f7e125a99197beafbb164af472e4e5b1a1afe595c23465d29052bb917585",
+      "bytes": 8731
+    },
+    {
+      "path": "mechanism.mjs",
+      "sha256": "7d09e5b07627b1c3c1d76d9f9cd46eb0ac470435181d8e5412fb406288a54093",
+      "bytes": 9360
+    },
+    {
+      "path": "placement.mjs",
+      "sha256": "8fa92a6d20493b5347398622875962eb38389c52400c46065bc46ef7ae825535",
+      "bytes": 3701
+    },
+    {
+      "path": "preview.mjs",
+      "sha256": "851b62c106ae4dd0c5a4e3c10d93240885dec7f99873ce018cfd7cf87c8e0568",
+      "bytes": 9705
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "/static/pet-toolbox-joint-proof-20261026/joint.mjs",
+      "sha256": "d078d5997e7dfd7a7aed73cadf3b76e4ad74b17eb2c3d20313e0169ab3e3f1f8",
+      "bytes": 9090
+    },
+    {
+      "path": "/static/pet-toolbox-joint-proof-20261026/inspection.mjs",
+      "sha256": "ff50881045fb62d703e7be10fecefc82d37054d84bd2467305b609bfc43f23a2",
+      "bytes": 4387
+    },
+    {
+      "path": "/static/pet-toolbox-joint-proof-20261026/placement.mjs",
+      "sha256": "1419d42a6fd4f3e83547ec105506c38a32058a9e2ac05321a324340c1ae62fc1",
+      "bytes": 1577
+    },
+    {
+      "path": "/static/pet-toolbox-mesh-proof-20261026/framing.mjs",
+      "sha256": "d1a2e51112f7548c2e516e2f29359e1315574c501874a30afa0a1977b93e3e92",
+      "bytes": 1819
+    },
+    {
+      "path": "/static/pet-toolbox-mesh-proof-20261026/toolbox.js",
+      "sha256": "8e4d65f59698f2f336f46d4ecb0a5daff13830941e8d96239dece6dc6c0ea05d",
+      "bytes": 10411
+    },
+    {
+      "path": "/static/pet-toolbox-mesh-proof-20261026/assets/storybook-sewing-toolbox-v1.png",
+      "sha256": "6afc65a45e78a938b018987a85037a9bbbd4b63905aca1438927ea13d76db070",
+      "bytes": 2141999
+    },
+    {
+      "path": "/static/vendor/three-0.160.1.module.js",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    {
+      "path": "/static/pet-town-walk.js",
+      "sha256": "e5394a48f76449dddec52e497d1b231ad1ed213d1fa69aec3657bbb3045b1aac",
+      "bytes": 24418
+    },
+    {
+      "path": "/static/pet-frame-fit.js",
+      "sha256": "7b3b730dc7834e1c56f455161d59005f8352a3cd918e52be1893bc4b7706dc13",
+      "bytes": 2434
+    },
+    {
+      "path": "/static/pet-river-fishing.js",
+      "sha256": "8b4e1d2d9f2b9fda72f66e79b2105dccdadd2e6de5230c24e920cbdcf561aedb",
+      "bytes": 8325
+    },
+    {
+      "path": "/static/pet-japan-seasons.js",
+      "sha256": "944ff98aa81f7975b4daf4dc3ca59887f042e2c8be9eb1e5b6ea29637f46225a",
+      "bytes": 5025
+    },
+    {
+      "path": "/static/pet-town-style.js",
+      "sha256": "7985e1f983329bcef7567c634543a74b442de56b8757858693ae54ef64b68e2a",
+      "bytes": 13719
+    },
+    {
+      "path": "/static/pet-town-layout-art.js",
+      "sha256": "2cb9581f8593eb6569a7de97fdac231f72201121ee81154c6c01ebb400001a0f",
+      "bytes": 14102
+    },
+    {
+      "path": "/static/pet-town-placement-originals.js",
+      "sha256": "dd07e3756f0a1aa2f6ea0a4ec92137b430a87897093a2ed4c0a4193c5395845e",
+      "bytes": 10838
+    },
+    {
+      "path": "/static/pet-town-scene.js",
+      "sha256": "103da61d9c45db9d6840da1145c49d56edd95d19af4bfb51468cb0496f3c25f7",
+      "bytes": 107565
+    },
+    {
+      "path": "/static/pet-items-v1/house.webp",
+      "sha256": "69ce8c93823a50c5f2225414d4df8adcfe92fcd271ae113982e64f7ccd01cd60",
+      "bytes": 21548
+    },
+    {
+      "path": "/static/pet-village-art/cafe.webp",
+      "sha256": "86ebde4ab01135291d6f7135296686f10aefc64187ac7acf4043f585c29a879d",
+      "bytes": 29444
+    },
+    {
+      "path": "/static/pet-village-art/shop.webp",
+      "sha256": "25ea663a1132f09b55329ed326f881a601162689d962ff084a6c653359d61e85",
+      "bytes": 34058
+    },
+    {
+      "path": "/static/pet-village-art/tree-v2.webp",
+      "sha256": "f2f13fd18a0b27cec312c10b2f9dc55694d98072f06b8c52c5a56b25210e03a1",
+      "bytes": 34836
+    },
+    {
+      "path": "/static/pet-village-art/flowerbed-v2.webp",
+      "sha256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+      "bytes": 41068
+    },
+    {
+      "path": "/static/pet-items-v1/fountain.webp",
+      "sha256": "b7394422852121b2d5b971fb42f82de6b9eb6460cb1b8bff5979b7e39d205006",
+      "bytes": 32224
+    },
+    {
+      "path": "/static/pet-items-v1/lantern.webp",
+      "sha256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+      "bytes": 17206
+    },
+    {
+      "path": "/static/pet-toolbox-integral-link-proof-20261027/mechanism.mjs",
+      "sha256": "5d0b6380e40a6585f5fae90a9b662ac5f3d442371f521890ed551df5587f074d",
+      "bytes": 11204
+    },
+    {
+      "path": "/static/pet-toolbox-integral-link-proof-20261027/placement.mjs",
+      "sha256": "b56467e091b3d0408d2f1d52d83a48cdd88f837304fa3b1fb71717b5b3dce961",
+      "bytes": 2718
+    },
+    {
+      "path": "/static/pet-toolbox-integral-link-proof-20261027/input-manifest.json",
+      "sha256": "550e97a98c2943b611e4700580ec553898935eda5ed73a38b3a409cc94286e59",
+      "bytes": 6368
+    },
+    {
+      "path": "/static/pet-toolbox-fourbar-proof-20261027/mechanism.mjs",
+      "sha256": "d9b751fbcb68c4dbfe4aacfcffb79a2caca133d74803669e1e3201a30c2c1c76",
+      "bytes": 13513
+    },
+    {
+      "path": "/static/pet-toolbox-fourbar-proof-20261027/input-manifest.json",
+      "sha256": "ef45f09cb30dd09e48e5edf341a9f321195f616c023a065bb73175ed03c1226e",
+      "bytes": 7761
+    },
+    {
+      "path": "/static/pet-oak-wayfinding-sign-proof-20261027/placement.mjs",
+      "sha256": "40638099bdd3cd96925042126d3426a57fe8776182e588fc60667cbe2f6c9b51",
+      "bytes": 6496
+    }
+  ],
+  "preview_town_point": {
+    "x": 1200,
+    "y": 1300
+  },
+  "remaining": [
+    "full toolbox fold/closure and sealed storage",
+    "continuous collision certificate and physical load/friction",
+    "hand grip/body contact/fit",
+    "ordinary game placement, unlock and save"
+  ]
+}

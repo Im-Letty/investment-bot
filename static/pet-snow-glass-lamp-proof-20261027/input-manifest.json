@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "model_id": "snow-sheltered-glass-lamp-v1",
+  "unit_id": "village:asset-library:snow-sheltered-glass-lamp:v1",
+  "run_id": "automation360-20261027-092652",
+  "base_main_sha": "5538b774466a85cb6a5cedd81aed800c61e20300",
+  "created_at_jst": "2026-10-27 09:37:15+09:00",
+  "parent_reservation_sha256": "990161f3e07d5dcf9f108ca9b726fe50c80d71c3b6ce0c63e949c5b5075a1d45",
+  "inputs": [
+    {
+      "path": "static/vendor/three-0.160.1.module.js",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    {
+      "path": "static/pet-town-walk.js",
+      "sha256": "e5394a48f76449dddec52e497d1b231ad1ed213d1fa69aec3657bbb3045b1aac",
+      "bytes": 24418
+    },
+    {
+      "path": "static/pet-frame-fit.js",
+      "sha256": "7b3b730dc7834e1c56f455161d59005f8352a3cd918e52be1893bc4b7706dc13",
+      "bytes": 2434
+    },
+    {
+      "path": "static/pet-river-fishing.js",
+      "sha256": "8b4e1d2d9f2b9fda72f66e79b2105dccdadd2e6de5230c24e920cbdcf561aedb",
+      "bytes": 8325
+    },
+    {
+      "path": "static/pet-japan-seasons.js",
+      "sha256": "944ff98aa81f7975b4daf4dc3ca59887f042e2c8be9eb1e5b6ea29637f46225a",
+      "bytes": 5025
+    },
+    {
+      "path": "static/pet-town-style.js",
+      "sha256": "7985e1f983329bcef7567c634543a74b442de56b8757858693ae54ef64b68e2a",
+      "bytes": 13719
+    },
+    {
+      "path": "static/pet-town-layout-art.js",
+      "sha256": "2cb9581f8593eb6569a7de97fdac231f72201121ee81154c6c01ebb400001a0f",
+      "bytes": 14102
+    },
+    {
+      "path": "static/pet-town-placement-originals.js",
+      "sha256": "dd07e3756f0a1aa2f6ea0a4ec92137b430a87897093a2ed4c0a4193c5395845e",
+      "bytes": 10838
+    },
+    {
+      "path": "static/pet-town-scene.js",
+      "sha256": "103da61d9c45db9d6840da1145c49d56edd95d19af4bfb51468cb0496f3c25f7",
+      "bytes": 107565
+    },
+    {
+      "path": "static/pet-scalloped-path-proof-20261027/framing.mjs",
+      "sha256": "dba92c2f6dec2816ebcf25434ee07c3b699accb61b7e1961a11baf366edad08a",
+      "bytes": 1678
+    },
+    {
+      "path": "static/pet-toolbox-integral-link-proof-20261027/placement.mjs",
+      "sha256": "b56467e091b3d0408d2f1d52d83a48cdd88f837304fa3b1fb71717b5b3dce961",
+      "bytes": 2718
+    },
+    {
+      "path": "static/pet-toolbox-joint-proof-20261026/placement.mjs",
+      "sha256": "1419d42a6fd4f3e83547ec105506c38a32058a9e2ac05321a324340c1ae62fc1",
+      "bytes": 1577
+    },
+    {
+      "path": "static/pet-items-v1/house.webp",
+      "sha256": "69ce8c93823a50c5f2225414d4df8adcfe92fcd271ae113982e64f7ccd01cd60",
+      "bytes": 21548
+    },
+    {
+      "path": "static/pet-village-art/cafe.webp",
+      "sha256": "86ebde4ab01135291d6f7135296686f10aefc64187ac7acf4043f585c29a879d",
+      "bytes": 29444
+    },
+    {
+      "path": "static/pet-village-art/shop.webp",
+      "sha256": "25ea663a1132f09b55329ed326f881a601162689d962ff084a6c653359d61e85",
+      "bytes": 34058
+    },
+    {
+      "path": "static/pet-village-art/tree-v2.webp",
+      "sha256": "f2f13fd18a0b27cec312c10b2f9dc55694d98072f06b8c52c5a56b25210e03a1",
+      "bytes": 34836
+    },
+    {
+      "path": "static/pet-village-art/flowerbed-v2.webp",
+      "sha256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+      "bytes": 41068
+    },
+    {
+      "path": "static/pet-items-v1/fountain.webp",
+      "sha256": "b7394422852121b2d5b971fb42f82de6b9eb6460cb1b8bff5979b7e39d205006",
+      "bytes": 32224
+    },
+    {
+      "path": "static/pet-items-v1/lantern.webp",
+      "sha256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+      "bytes": 17206
+    },
+    {
+      "path": "static/pet_lilac_reference_v2.png",
+      "sha256": "2d2cc24745bc74dadeb6dd861c8f85c16e8f36c3cdfbec956e118b0d469e3de6",
+      "bytes": 1300225
+    }
+  ],
+  "files": [
+    {
+      "path": "lamp.mjs",
+      "sha256": "9a966352a9b7676bf866179f28fcb04121aafea01096a94cf67f3999bb3a7852",
+      "bytes": 6438
+    },
+    {
+      "path": "placement.mjs",
+      "sha256": "eb6d92d6dd9e06d4c0391d39ea9b3c6df4e86dcd28e243b74b15097cec5c214e",
+      "bytes": 5943
+    },
+    {
+      "path": "viewer.mjs",
+      "sha256": "8559dcd1b5803afc6bb9d70499f61e8f3eb85f54781bc0f7964a9063904c2c3e",
+      "bytes": 9204
+    },
+    {
+      "path": "index.html",
+      "sha256": "5a85ff72ba5eb938236ef5a6256a2a66274554af262780906860c2b27e8c1a41",
+      "bytes": 3962
+    },
+    {
+      "path": "SPEC.json",
+      "sha256": "4ba84f97017798e939429ca4cfee4d5b9d2be1b9cf42ef92d7a03182cb450cc8",
+      "bytes": 2335
+    },
+    {
+      "path": "finite-geometry-certificate.json",
+      "sha256": "89a3850cd02a57e54bbc4308940b84b0f4b389737f32b809555e33b2bbbd7ebb",
+      "bytes": 30162
+    }
+  ],
+  "normal_game_changes": 0,
+  "new_raw_PNGs": 0,
+  "new_original_PNG_designs": 0,
+  "imagegen_calls": 0,
+  "new_mesh_candidate": 1,
+  "bodyBinding": null,
+  "native_review_pending": true,
+  "finite_witnesses_not_all_angles_or_world_guarantees": true
+}
