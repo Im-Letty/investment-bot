@@ -30,7 +30,7 @@ class Element extends Events {
  setAttribute(){}
  getBoundingClientRect(){return {left:0,top:0,width:390,height:700};}
 }
-// Independent dimensions of the seven existing files. The fixture has synthetic
+// Independent dimensions of the eleven exact originals. The fixture has synthetic
 // alpha pixels and never delegates image acquisition to a browser or network.
 const originalDimensions=new Map([
  ['/static/pet-items-v1/house.webp',[384,384]],
@@ -41,7 +41,9 @@ const originalDimensions=new Map([
  ['/static/pet-village-art/tree-silver-birch-v1.png',[1254,1254]],
  ['/static/pet-village-art/flowerbed-v2.webp',[512,341]],
  ['/static/pet-items-v1/fountain.webp',[384,384]],
- ['/static/pet-items-v1/lantern.webp',[384,384]]
+ ['/static/pet-items-v1/lantern.webp',[384,384]],
+ ['/static/pet-village-art/tree-shop-grove-v1.png',[1254,1254]],
+ ['/static/pet-items-v1/flower.webp',[384,384]]
 ]);
 function textureLoaderFixture(loads=[],settings={}){
  return class TextureLoader {
@@ -217,7 +219,7 @@ test('actual 3D front doors keep entry semantics while roofs and windows remain 
   const place=world.places.find(p=>p.id===id),f=await fixture({world,position:place.entrance,camera:{yaw:0,pitch:.4,distance:5}});
   try{
    assert.equal(f.controller.setFrame(f.source),true);const {scene,camera}=f.renderers[0].calls.at(-1),group=scene.getObjectByName('place-'+id),art=[];
-   group.traverse(o=>{if(o.isSprite&&o.userData.originalArt)art.push(o);});assert.equal(art.length,0,'solid buildings no longer use flat pictures');
+   group.traverse(o=>{if(o.isSprite&&o.userData.originalArt)art.push(o);});assert.equal(art.length,2);assert.ok(art.every(o=>o.userData.shopStylePot),'solid buildings keep only two decorative original potted flowers');
    function screen(point){const v=point.clone().project(camera);return {clientX:(v.x+1)*195,clientY:(1-v.y)*350};}
    const panel=group.getObjectByName('cottage-arched-door-panel');assert.ok(panel);
    panel.geometry.computeBoundingBox();const doorPoint=panel.geometry.boundingBox.getCenter(new THREE.Vector3());panel.localToWorld(doorPoint);
@@ -505,9 +507,9 @@ test('canonical originals keep their source pixels, shared materials and saved p
   assert.ok(art.length>27);assert.ok(art.every(o=>!o.visible),'an incomplete asset set cannot appear as a successful village');
   await m.loadOriginalArt(new (textureLoaderFixture(loads))());m.scene.updateMatrixWorld(true);
   assert.equal(m.scene.userData.originalArtRepresentation,'original-2d-art-in-3d-world');assert.equal(m.scene.userData.originalArtState,'ready');
-  assert.deepEqual(loads,[...originalDimensions.keys()]);assert.equal(new Set(loads).size,9);
+  assert.deepEqual(loads,[...originalDimensions.keys()]);assert.equal(new Set(loads).size,11);
   assert.equal(art.filter(o=>/^tree/.test(o.userData.originalArtKind||'')).length,27);
-  const expectedBounds={home:[38,51,349,340],cafe:[29,47,362,347],shop:[26,27,366,360],tree:[39,42,475,448],flowers:[37,55,476,293],fountain:[40,40,344,342],lantern:[57,38,325,351],treeApple:[29,42,1236,1183],treeBirch:[212,14,1131,1236]},byKind=new Map();
+  const expectedBounds={home:[38,51,349,340],cafe:[29,47,362,347],shop:[26,27,366,360],tree:[39,42,475,448],flowers:[37,55,476,293],fountain:[40,40,344,342],lantern:[57,38,325,351],treeApple:[29,42,1236,1183],treeBirch:[212,14,1131,1236],treeGrove:[55,42,1221,1214],shopTulip:[70,14,312,369]},byKind=new Map();
   for(const sprite of art){
    const kind=sprite.userData.originalArtKind,material=sprite.material,texture=material.map,[width,height]=originalDimensions.get(sprite.userData.sourceUrl),bounds=expectedBounds[kind];
    assert.ok(sprite.visible);assert.ok(material.isSpriteMaterial);assert.equal(material.color.getHexString(),'ffffff');assert.equal(material.opacity,1);assert.equal(material.toneMapped,false);assert.equal(material.fog,false);
@@ -517,11 +519,11 @@ test('canonical originals keep their source pixels, shared materials and saved p
    assert.equal(m.geometries.has(sprite.geometry),false,'the global Three Sprite quad is borrowed and cannot be scene-disposed');
    if(byKind.has(kind))assert.equal(material,byKind.get(kind),'repeated originals share one material and texture');else byKind.set(kind,material);
   }
-  assert.deepEqual(new Set(byKind.keys()),new Set(['tree','treeApple','treeBirch','flowers','lantern']));
+  assert.deepEqual(new Set(byKind.keys()),new Set(['tree','treeApple','treeBirch','treeGrove','flowers','lantern','shopTulip']));
   for(const id of ['home','cafe','shop','playground']){
    const group=m.placeGroups.find(g=>g.userData.placeId===id),sprites=[],meshes=[];
    group.traverse(o=>{if(o.isSprite&&o.userData.originalArt)sprites.push(o);if(o.isMesh)meshes.push(o);});
-   assert.equal(sprites.length,0,'buildings and fountain now have genuine volume rather than the old illustration');
+   assert.ok(sprites.every(o=>o.userData.shopStylePot&&o.userData.originalArtKind==='shopTulip'),'only the two fixed potted accents use original cards; walls/roof/fountain remain solid');assert.equal(sprites.length,id==='playground'?0:2);
    assert.ok(meshes.length>0);assert.ok(meshes.every(o=>!o.userData.originalArtProxy),'solid objects are no longer hidden bitmap proxies');
    assert.ok(m.pickables.some(o=>o.userData.placeId===id&&!o.userData.originalArt));
    assert.ok(m.occluders.some(o=>o.userData.placeId===id),'actual solid walls/bowls still provide camera clearance');
@@ -536,7 +538,7 @@ test('canonical originals keep their source pixels, shared materials and saved p
 test('mounted original art textures and shared materials are released once without disposing the global Sprite quad',async()=>{
  const f=await fixture();f.controller.setFrame(f.source);const scene=f.renderers[0].calls.at(-1).scene,materials=new Set(),quads=new Set(),counts=new Map();
  scene.traverse(o=>{if(o.isSprite&&o.userData.originalArt){materials.add(o.material);quads.add(o.geometry);}});
- assert.equal(f.originalTextures.length,9);assert.equal(materials.size,5);const resources=[...f.originalTextures,...materials];for(const resource of resources){counts.set(resource,0);resource.addEventListener('dispose',()=>counts.set(resource,counts.get(resource)+1));}
+ assert.equal(f.originalTextures.length,11);assert.equal(materials.size,7);const resources=[...f.originalTextures,...materials];for(const resource of resources){counts.set(resource,0);resource.addEventListener('dispose',()=>counts.set(resource,counts.get(resource)+1));}
  let quadDisposals=0;const onQuad=()=>quadDisposals++;for(const quad of quads)quad.addEventListener('dispose',onQuad);
  try{f.controller.destroy();f.controller.destroy();for(const resource of resources)assert.equal(counts.get(resource),1);assert.equal(quadDisposals,0);assert.equal(f.host.children.length,0);assert.equal(f.frames.size,0);assert.equal(f.timers.size,0);}
  finally{for(const quad of quads)quad.removeEventListener('dispose',onQuad);f.controller.destroy();}
@@ -545,7 +547,7 @@ test('mounted original art textures and shared materials are released once witho
 test('an unavailable original stops mount before allocating a renderer and releases the other completed images',async()=>{
  const counts=new Map(),f=await fixture({rejectOriginal:'/static/pet-items-v1/lantern.webp',onOriginalTexture:texture=>{counts.set(texture,0);texture.addEventListener('dispose',()=>counts.set(texture,counts.get(texture)+1));}});
  assert.equal(f.controller,null);assert.deepEqual(f.failures,['town_renderer_unavailable']);assert.equal(f.renderers.length,0);assert.equal(f.host.children.length,0);assert.equal(f.frames.size,0);assert.equal(f.timers.size,0);assert.equal(f.win.count(),0);assert.equal(f.doc.count(),0);
- assert.equal(counts.size,8);for(const count of counts.values())assert.equal(count,1,'an asset failure cannot leak successful partial loads');
+ assert.equal(counts.size,10);for(const count of counts.values())assert.equal(count,1,'an asset failure cannot leak successful partial loads');
 });
 
 test('daylight fill lifts shadow-facing surfaces with the same two lights and retains authored material colors',()=>{

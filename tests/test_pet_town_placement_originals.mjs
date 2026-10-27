@@ -29,8 +29,8 @@ function webpSize(bytes) {
   throw Error('missing WebP image dimensions');
 }
 
-test('immutable catalog binds the nine actual unmodified source files including two new PNG trees and exact decoded canvas dimensions',async()=>{
-  assert.equal(Originals.revision,'placement-originals1'); assert.equal(Originals.kinds.length,9);
+test('immutable catalog binds eleven actual source files while keeping prior originals and authored shop botanicals',async()=>{
+  assert.equal(Originals.revision,'placement-originals1'); assert.equal(Originals.kinds.length,11); assert.equal(Originals.shopStyleRevision,'shop-style1');
   assert.ok(Object.isFrozen(Originals.catalog)); assert.ok(Object.isFrozen(Originals.kinds));
   for(const [kind,spec] of Object.entries(Originals.catalog)) {
     const bytes=await readFile(new URL('../'+spec.url.slice(1),import.meta.url));
@@ -76,15 +76,15 @@ test('one complete strict preload reveals pending sprites, loads only exact orig
   const first=atlas.preload(loader),second=atlas.preload(loader);
   assert.strictEqual(first,second); assert.equal(atlas.state,'loading');
   assert.deepEqual(new Set(calls),new Set(Object.values(Originals.catalog).map(spec=>spec.url)));
-  assert.equal(calls.length,9); assert.equal(home1.visible,false);
+  assert.equal(calls.length,11); assert.equal(home1.visible,false);
   resolvers[0](); await Promise.resolve(); await Promise.resolve();
   assert.equal(atlas.ready,false); assert.equal(home1.visible,false); assert.equal(home1.material.map,null);
   resolvers.slice(1).forEach(resolve=>resolve()); assert.strictEqual(await first,atlas);
-  assert.equal(atlas.ready,true); assert.equal(atlas.state,'ready'); assert.equal(ctx.textures.size,9); assert.equal(ctx.materials.size,2);
+  assert.equal(atlas.ready,true); assert.equal(atlas.state,'ready'); assert.equal(ctx.textures.size,11); assert.equal(ctx.materials.size,2);
   for(const sprite of [home1,home2,flower,flower2])assert.equal(sprite.visible,true);
   assert.strictEqual(home1.material.map,atlas.textureFor('home')); assert.strictEqual(flower.material.map,atlas.textureFor('garden'));
   assert.strictEqual(await atlas.preload({loadAsync(){throw Error('must not load again');}}),atlas);
-  assert.equal(calls.length,9); atlas.dispose();
+  assert.equal(calls.length,11); atlas.dispose();
 });
 
 test('original pixels use full-image SRGB white unlit materials unaffected by scene light, fog or tone mapping',()=>{
@@ -150,8 +150,8 @@ test('a rejected load stays failed without substitute, retry, leaked textures or
     const texture=textureForUrl(url);texture.addEventListener('dispose',()=>disposed++);return Promise.resolve(texture);}};
   const load=atlas.preload(loader); await assert.rejects(load,/^Error: placement_originals_load_failed:fountain$/);
   await Promise.resolve(); assert.equal(atlas.state,'failed'); assert.equal(atlas.error,'placement_originals_load_failed:fountain');
-  assert.equal(sprite.visible,false); assert.equal(sprite.material.map,null); assert.equal(ctx.textures.size,0); assert.equal(disposed,8);
-  assert.strictEqual(atlas.preload(loader),load); assert.equal(calls,9); atlas.dispose();
+  assert.equal(sprite.visible,false); assert.equal(sprite.material.map,null); assert.equal(ctx.textures.size,0); assert.equal(disposed,10);
+  assert.strictEqual(atlas.preload(loader),load); assert.equal(calls,11); atlas.dispose();
 });
 
 test('owner disposal is idempotent, releases each shared local resource once and leaves borrowed textures intact',()=>{
@@ -160,9 +160,9 @@ test('owner disposal is idempotent, releases each shared local resource once and
   const sprites=[atlas.createSprite('home',{width:3}),atlas.createSprite('home',{width:1}),atlas.createSprite('garden',{width:1}),atlas.createSprite('flowers',{width:2})];
   let textureDisposals=0,materialDisposals=0;
   ctx.textures.forEach(texture=>texture.addEventListener('dispose',()=>textureDisposals++));ctx.materials.forEach(material=>material.addEventListener('dispose',()=>materialDisposals++));
-  assert.equal(ctx.materials.size,2); assert.equal(ctx.textures.size,9);
+  assert.equal(ctx.materials.size,2); assert.equal(ctx.textures.size,11);
   atlas.dispose(); atlas.dispose(); assert.equal(atlas.state,'disposed'); assert.equal(atlas.ready,false);
-  assert.equal(textureDisposals,9); assert.equal(materialDisposals,2); assert.equal(borrowedDisposals,0);
+  assert.equal(textureDisposals,11); assert.equal(materialDisposals,2); assert.equal(borrowedDisposals,0);
   assert.equal(ctx.textures.size,0); assert.equal(ctx.materials.size,0); sprites.forEach(sprite=>assert.equal(sprite.visible,false));
   assert.throws(()=>atlas.createSprite('home',{width:2}),/placement_originals_disposed/);
 });
@@ -174,6 +174,6 @@ test('disposal while loading rejects promptly and safely releases later arrivals
   const rejection=assert.rejects(load,/placement_originals_disposed/); atlas.dispose();await rejection;
   assert.equal(sprite.visible,false); assert.equal(ctx.materials.size,0);
   finish.forEach(resolve=>resolve());await Promise.resolve();await Promise.resolve();await Promise.resolve();
-  assert.equal(disposed,9); assert.equal(ctx.textures.size,0); assert.equal(atlas.state,'disposed');
+  assert.equal(disposed,11); assert.equal(ctx.textures.size,0); assert.equal(atlas.state,'disposed');
   await assert.rejects(atlas.preload({}),/placement_originals_disposed/);
 });

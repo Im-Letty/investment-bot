@@ -42,29 +42,31 @@ test('UMD selection is stable without ambient randomness, clocks, images or brow
   const guardedMath=Object.create(Math);guardedMath.random=()=>{throw Error('ambient random');};
   const sandbox={Math:guardedMath,Date:class{constructor(){throw Error('clock');}},fetch(){throw Error('network');}};
   vm.runInNewContext(readFileSync(new URL('../static/pet-town-tree-variety.js',import.meta.url),'utf8'),sandbox);
-  assert.equal(sandbox.PetTownTreeVariety.revision,'tree-variety1');
+  assert.equal(sandbox.PetTownTreeVariety.revision,'tree-variety1');assert.equal(sandbox.PetTownTreeVariety.shopStyleRevision,'shop-style1');
   assert.deepEqual(Array.from(sandbox.PetTownTreeVariety.plan()),Trees.plan());
   assert.deepEqual(Trees.plan({seed:42}),Trees.plan({seed:42}));
   assert.notDeepEqual(Trees.plan({seed:42}),Trees.plan({seed:43}));
 });
 
-test('every bounded plan keeps the saved tree and balances distinct original species',()=>{
+test('every bounded weighted plan keeps the primary grove and retains prior species when size permits',()=>{
   assert.ok(Object.isFrozen(Trees)&&Object.isFrozen(Trees.kinds));
   for(let count=1;count<=64;count++){
     const input=Object.freeze({count,seed:'stable-border'}),rows=Trees.plan(input);
-    assert.ok(Object.isFrozen(rows));assert.equal(rows.length,count);assert.equal(rows[0],'tree');
+    assert.ok(Object.isFrozen(rows));assert.equal(rows.length,count);assert.equal(rows[0],'treeGrove');
     const counts=Trees.kinds.map(kind=>rows.filter(row=>row===kind).length);
-    assert.ok(Math.max(...counts)-Math.min(...counts)<=1);
-    if(count>=3)assert.deepEqual(new Set(rows),new Set(['tree','treeApple','treeBirch']));
+    assert.ok(counts.every(n=>n>=0));assert.equal(counts.reduce((a,b)=>a+b,0),count);
+    assert.ok(counts[3]>=Math.max(...counts.slice(0,3)),'the new grove is primary');
+    if(count>=4)assert.deepEqual(new Set(rows),new Set(['tree','treeApple','treeBirch','treeGrove']));
     assert.deepEqual(input,{count,seed:'stable-border'});
   }
   assert.throws(()=>{Trees.plan()[0]='treeBirch';},TypeError);
 });
 
-test('the actual 27-site mix is nonperiodic and retains nine pictures of each species',()=>{
+test('the actual 27-site mix is nonperiodic with12grove and5of each saved original',()=>{
   const rows=Trees.plan(),border=rows.slice(1);
   assert.equal(rows.length,27);
-  for(const kind of Trees.kinds)assert.equal(rows.filter(row=>row===kind).length,9);
+  assert.deepEqual(Trees.counts27,{treeGrove:12,tree:5,treeApple:5,treeBirch:5});
+  for(const [kind,n] of Object.entries(Trees.counts27))assert.equal(rows.filter(row=>row===kind).length,n);
   for(let period=1;period<=13;period++)assert.equal(border.slice(period).every((kind,i)=>kind===border[i]),false,'repeating border period '+period);
 });
 
@@ -72,7 +74,7 @@ test('invalid count/seed inputs fail explicitly before constructing a plan',()=>
   for(const options of [null,[],2,'27'])assert.throws(()=>Trees.plan(options),/tree_variety_options/);
   for(const count of [null,0,-1,1.5,65,Infinity,NaN,'27'])assert.throws(()=>Trees.plan({count}),/tree_variety_count/);
   for(const seed of [null,{},'',Array(130).join('x'),-1,.5,0x100000000,NaN])assert.throws(()=>Trees.plan({seed}),/tree_variety_seed/);
-  assert.equal(Trees.plan({seed:0,count:1})[0],'tree');
+  assert.equal(Trees.plan({seed:0,count:1})[0],'treeGrove');
 });
 
 test('actual Three tree cards keep all 27 existing centers, widths, contact heights and original source bindings',async()=>{
@@ -97,7 +99,7 @@ test('actual Three tree cards keep all 27 existing centers, widths, contact heig
       assert.equal(picture.material.color.getHex(),0xffffff);assert.equal(picture.material.toneMapped,false);
       assert.ok(picture.scale.x>0&&picture.scale.y>0,'no mirror or negative scale');
     }
-    assert.equal(rows[0].userData.originalArtKind,'tree');assert.equal(JSON.stringify(f.world),f.before);
+    assert.equal(rows[0].userData.originalArtKind,'treeGrove');assert.equal(JSON.stringify(f.world),f.before);
   }finally{f.model.dispose();}
 });
 
@@ -124,7 +126,7 @@ test('repeated cards share one material/texture per species and release those re
       const kind=picture.userData.originalArtKind;
       if(byKind.has(kind))assert.strictEqual(picture.material,byKind.get(kind));else byKind.set(kind,picture.material);
     }
-    assert.equal(byKind.size,3);assert.equal(new Set([...byKind.values()].map(m=>m.map)).size,3);
+    assert.equal(byKind.size,4);assert.equal(new Set([...byKind.values()].map(m=>m.map)).size,4);
     for(const resource of [...byKind.values(),...[...byKind.values()].map(m=>m.map)]){counts.set(resource,0);resource.addEventListener('dispose',()=>counts.set(resource,counts.get(resource)+1));}
     let quadDisposals=0;const quads=new Set(rows.map(o=>o.geometry)),onQuad=()=>quadDisposals++;
     for(const quad of quads){assert.equal(f.model.geometries.has(quad),false);quad.addEventListener('dispose',onQuad);}
