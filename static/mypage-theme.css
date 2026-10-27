@@ -1,5 +1,11 @@
 /* MyPage keeps its existing panels and storage while sharing the morning palette. */
+body.kn-home-a.kn-mypage-active {
+  --mypage-top-space: max(20px, env(safe-area-inset-top, 0px));
+}
 body.kn-home-a.kn-mypage-active #knFloatHam { z-index: 100001 !important; }
+body.kn-home-a.kn-mypage-active:has(#myPageOv.open:not([data-mp-view="memo"])) #knFloatHam {
+  top: calc(var(--kn-a-header-top, 18px) + var(--mypage-top-space)) !important;
+}
 body.kn-home-a.kn-mypage-active #drawerOverlay { z-index: 100010 !important; }
 body.kn-home-a.kn-mypage-active #sideDrawer { z-index: 100020 !important; }
 
@@ -58,7 +64,7 @@ body.kn-home-a #myPageOv .mp-toptabs {
   min-width: 0;
   gap: 8px;
   box-sizing: border-box;
-  padding: 12px var(--mypage-gutter);
+  padding: calc(12px + var(--mypage-top-space, 20px)) var(--mypage-gutter) 12px;
   /* The floating menu now shares the first row with these tabs. */
   padding-left: max(var(--mypage-gutter), calc(var(--kn-a-menu-left) + 48px));
   background: var(--kn-sh-bg, #f0eedf) !important;
@@ -303,14 +309,17 @@ body.kn-home-a #myPageOv button:disabled { opacity: .55; cursor: wait; }
     padding-bottom: 14px;
     font-size: calc(var(--kn-type-page,19px) * var(--kn-type-scale,1)) !important;
   }
-  body.kn-home-a #myPageOv .mp-toptabs { padding-top: 10px; padding-bottom: 10px; }
+  body.kn-home-a #myPageOv .mp-toptabs { padding-top: calc(10px + var(--mypage-top-space, 20px)); padding-bottom: 10px; }
   body.kn-home-a #myPageOv .mp-toptab { padding-right: 14px; padding-left: 14px; }
   body.kn-home-a #myPageOv .mo-body { padding-top: 18px; padding-bottom: 18px; }
 }
 
 @media (max-height: 480px) {
+  body.kn-home-a.kn-mypage-active {
+    --mypage-top-space: max(10px, env(safe-area-inset-top, 0px));
+  }
   body.kn-home-a #myPageOv .mo-head { min-height: 54px; padding-top: 7px; padding-bottom: 7px; }
-  body.kn-home-a #myPageOv .mp-toptabs { padding-top: 6px; padding-bottom: 6px; }
+  body.kn-home-a #myPageOv .mp-toptabs { padding-top: calc(6px + var(--mypage-top-space, 10px)); padding-bottom: 6px; }
 }
 
 /* Logout remains a distinct destructive action; existing handlers own visibility. */
