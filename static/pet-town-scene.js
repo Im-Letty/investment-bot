@@ -9,12 +9,13 @@
     typeof module === 'object' && module.exports ? require('./pet-town-layout-art.js') : root.PetTownLayoutArt,
     typeof module === 'object' && module.exports ? require('./pet-town-placement-originals.js') : root.PetTownPlacementOriginals,
     typeof module === 'object' && module.exports ? require('./pet-town-water-life.js') : root.PetTownWaterLife,
-    typeof module === 'object' && module.exports ? require('./pet-town-ocean-life.js') : root.PetTownOceanLife);
+    typeof module === 'object' && module.exports ? require('./pet-town-ocean-life.js') : root.PetTownOceanLife,
+    typeof module === 'object' && module.exports ? require('./pet-town-shore-transition.js') : root.PetTownShoreTransition);
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.PetTownScene = api;
-}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit, Fishing, Seasons, Style, LayoutArt, Originals, WaterLife, OceanLife) {
+}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit, Fishing, Seasons, Style, LayoutArt, Originals, WaterLife, OceanLife, ShoreTransition) {
   'use strict';
-  var threeLoading = null, frameFitLoading = null, seasonsLoading = null, styleLoading = null, layoutLoading = null, originalsLoading = null, waterLifeLoading = null, oceanLifeLoading = null, UNIT = 100, TAU = Math.PI * 2;
+  var threeLoading = null, frameFitLoading = null, seasonsLoading = null, styleLoading = null, layoutLoading = null, originalsLoading = null, waterLifeLoading = null, oceanLifeLoading = null, shoreTransitionLoading = null, UNIT = 100, TAU = Math.PI * 2;
   var shoreline = [[0, 2880], [550, 2840], [1050, 2720], [1450, 2510], [1920, 1990]];
   function finite(n) { return typeof n === 'number' && Number.isFinite(n); }
   function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
@@ -164,6 +165,16 @@
       return OceanLife;
     }).catch(function(error){oceanLifeLoading=null;throw error;});
     return oceanLifeLoading;
+  }
+  function loadShoreTransition() {
+    var current=ShoreTransition||globalThis.PetTownShoreTransition;
+    if(current&&current.revision==='shore-transition1'&&typeof current.create==='function'){ShoreTransition=current;return Promise.resolve(current);}
+    if(!shoreTransitionLoading)shoreTransitionLoading=import('/static/pet-town-shore-transition.js?v=20261028-shore1').then(function(){
+      ShoreTransition=globalThis.PetTownShoreTransition;
+      if(!ShoreTransition||ShoreTransition.revision!=='shore-transition1'||typeof ShoreTransition.create!=='function')throw new Error('town_shore_transition_unavailable');
+      return ShoreTransition;
+    }).catch(function(error){shoreTransitionLoading=null;throw error;});
+    return shoreTransitionLoading;
   }
   function groundTexture(THREE, doc, season) {
     if (!doc || !doc.createElement) return null;
@@ -822,6 +833,13 @@
       landscape.build(THREE, world, { group: group, groundPoint: groundPoint, townPoint: townPoint, doorContact: Town.doorContact,
         mesh: mesh, box: box, ball: ball, mat: mat, groundMaterial: land.material, surfaces: surfaces, occluders: occluders }) : null;
     scene.userData.layoutArtRevision = layoutModel ? layoutModel.layoutArtRevision : 'legacy';
+    // A visual shoreline follows the actual dry land and its support aprons.
+    // It never expands the saved map, walkable surfaces or collision boundaries.
+    var shoreAPI=ShoreTransition||globalThis.PetTownShoreTransition;
+    var shoreTransition=shoreAPI&&shoreAPI.revision==='shore-transition1'&&typeof shoreAPI.create==='function'?
+      shoreAPI.create(THREE,{group:group,world:world,shoreline:shoreline,groundAprons:layoutModel?layoutModel.groundAprons:[],
+        geometries:geometries,materials:materials,groundColor:'#b1cf83'}):null;
+    scene.userData.shoreTransitionRevision=shoreTransition?shoreTransition.revision:null;
     // Synchronous historical previews may call the builder before lazy dependencies.
     // Normal mounts await the complete native layout module.
     if (!layoutModel) {
@@ -1015,6 +1033,7 @@
         key === 'summer' ? { ground: '#b1cf83', sky: '#cbe7e8' } : null;
       if (disposed || !palette) return false;
       if (activeSeason === key) return true;
+      if(shoreTransition)shoreTransition.setGroundColor(palette.ground);
       // Texture hues are authored for each season; a green bitmap tinted white
       // would leave winter muddy. One replacement happens only at a season edge.
       var nextTexture = groundTexture(THREE, doc, key);
@@ -1074,7 +1093,7 @@
       return frame;
     }
     function dispose() { if (disposed) return; disposed = true; if(originalArt)originalArt.dispose(); if(oceanLife&&oceanLife.instanceMeshes)oceanLife.instanceMeshes.forEach(function(m){m.dispose();}); batches.forEach(function (b) { b.mesh.dispose(); }); geometries.forEach(function (g) { g.dispose(); }); materials.forEach(function (m) { m.dispose(); }); textures.forEach(function (t) { t.dispose(); }); sun.shadow.dispose(); scene.clear(); }
-    return { scene: scene, surfaces: surfaces, occluders: occluders, pickables: pickables, placeGroups: placeGroups, solidLifeRevision:solidLifeRevision, windowRooms:windowRooms, windowLifeMaterials:windowLifeMaterials, waterLife:waterLife, oceanLife:oceanLife, animate: animate, dispose: dispose,
+    return { scene: scene, surfaces: surfaces, occluders: occluders, pickables: pickables, placeGroups: placeGroups, solidLifeRevision:solidLifeRevision, windowRooms:windowRooms, windowLifeMaterials:windowLifeMaterials, waterLife:waterLife, oceanLife:oceanLife, shoreTransition:shoreTransition, animate: animate, dispose: dispose,
       loadOriginalArt:loadOriginalArt, originalHit:originalHit, originalDoorHit:originalDoorHit, originalArt:originalArt, setSeason: setSeason, seasonGroups: seasonGroups, styleLimits: style ? style.limits : null, layoutArtRevision: scene.userData.layoutArtRevision,
       geometries: geometries, materials: materials, textures: textures, batches: batches, people: people(world, view, avoid) };
   }
@@ -1097,11 +1116,11 @@
       if (fishingVisual) release(function () { fishingVisual.dispose(); });
       if (model) release(function () { model.dispose(); }); if (texture) release(function () { texture.dispose(); });
       if (renderer) { release(function () { renderer.renderLists.dispose(); }); release(function () { renderer.dispose(); }); release(function () { renderer.forceContextLoss(); }); release(function () { renderer.domElement.remove(); }); }
-      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; delete host.dataset.townOriginalArt; delete host.dataset.townSolidLife; }
+      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; delete host.dataset.townOriginalArt; delete host.dataset.townSolidLife; delete host.dataset.townShoreTransition; }
     }
     function fail(code) { if (dead || failed) return; failed = true; destroy(); report('onFailure', code); }
     var THREE;
-    try { var dependencies = await Promise.all([options.three || loadThree(), loadFrameFit(), loadSeasons(), loadStyle(), loadLayoutArt(), loadOriginals(), loadWaterLife(), loadOceanLife()]); THREE = dependencies[0]; } catch (_) { fail('town_module_unavailable'); return null; }
+    try { var dependencies = await Promise.all([options.three || loadThree(), loadFrameFit(), loadSeasons(), loadStyle(), loadLayoutArt(), loadOriginals(), loadWaterLife(), loadOceanLife(), loadShoreTransition()]); THREE = dependencies[0]; } catch (_) { fail('town_module_unavailable'); return null; }
     if (!active()) { destroy(); return null; }
     var sprite, playerShadow, camera, ray, pointer, direction, target, desired, contactMap = null, fishingVisual = null, fishingState = null;
     function contactShadow(radius) {
@@ -1224,7 +1243,7 @@
       model = buildWorld(THREE, world, options.view, position, doc, firstSeason ? firstSeason.key : 'summer');
       await model.loadOriginalArt();
       if(!active()){destroy();return null;}
-      host.dataset.townOriginalArt=model.scene.userData.originalArtRevision;host.dataset.townSolidLife=model.solidLifeRevision;host.dataset.townOceanMotion=model.scene.userData.oceanMotionRevision;
+      host.dataset.townOriginalArt=model.scene.userData.originalArtRevision;host.dataset.townSolidLife=model.solidLifeRevision;host.dataset.townOceanMotion=model.scene.userData.oceanMotionRevision;host.dataset.townShoreTransition=model.scene.userData.shoreTransitionRevision;
       host.dataset.townStyle = model.styleLimits ? 'shop-cottage-match2' : 'legacy';
       host.dataset.townLayoutArt = model.layoutArtRevision;
       if (Fishing && typeof Fishing.createVisual === 'function') { fishingVisual = Fishing.createVisual(THREE, world); model.scene.add(fishingVisual.group); }
