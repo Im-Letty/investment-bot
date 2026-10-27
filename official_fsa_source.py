@@ -152,7 +152,19 @@ def extract_fsa_article(document, item, original, final, now, since, observed_at
     if title.endswith("公表しました。"):
         title = title[:-len("公表しました。")]
     if _compact(sources._body_text(headings[0])) != _compact(title):
-        return None
+        # A release can put the registered issuer in a parenthetical subtitle
+        # after one explicit line break. The RSS names its primary heading.
+        # Require that exact DOM shape and primary-title equality; an arbitrary
+        # heading prefix or an unmarked extra sentence is not a correlation.
+        parts = [node for node in headings[0].children
+                 if not isinstance(node, str) or node.strip()]
+        if (len(parts) != 3 or not isinstance(parts[0], str)
+                or isinstance(parts[1], str) or parts[1].tag != "br"
+                or parts[1].attrs or parts[1].children
+                or not isinstance(parts[2], str)
+                or _compact(parts[0]) != _compact(title)
+                or re.fullmatch(r"\([^()]+\)", _compact(parts[2])) is None):
+            return None
     contacts = [n for n in document.nodes if "contact_box" in n.attrs.get("class", "").split()
                 and sources._descends(n, inner)]
     if len(contacts) != 1 or contacts[0].parent is not inner:

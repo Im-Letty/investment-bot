@@ -135,6 +135,59 @@ class FsaSourceTest(unittest.TestCase):
         self.assertIsNone(extract(html=fixture(heading="別の金融制度について")))
         self.assertIsNone(extract(html=fixture().replace("</h1>", "</h1><h1>別の金融制度</h1>")))
 
+    def test_explicit_parenthetical_subtitle_matches_primary_and_preserves_original_heading(self):
+        html = fixture().replace(f"<h1>{TITLE}</h1>",
+                                 f"<h1>{TITLE}<br>\n  （検証用株式会社）</h1>")
+        original = item()
+        before = dict(original)
+        result = extract(html=html, record=original)
+        self.assertIsNotNone(result)
+        self.assertEqual(result["title"], TITLE + "\n（検証用株式会社）")
+        self.assertIn("（検証用株式会社）", result["body"])
+        self.assertEqual(original, before)
+        self.assertEqual(result["published_date"], DAY)
+        self.assertIsNone(result["published_at"])
+        self.assertFalse(result["attachments_verified"])
+
+    def test_subtitle_correlation_requires_exact_primary_and_one_explicit_simple_break(self):
+        endings = (
+            f"{TITLE}（検証用株式会社）",
+            f"{TITLE}追加<br>（検証用株式会社）",
+            "別の金融制度について<br>（検証用株式会社）",
+            f"{TITLE}<br>追加の説明です",
+            f"{TITLE}<br>（）",
+            f"{TITLE}<br>（検証用株式会社",
+            f"{TITLE}<br>検証用株式会社）",
+            f"{TITLE}<br>（検証用（子会社））",
+            f"{TITLE}<br>（検証用株式会社）追加",
+            f"{TITLE}<br><span>（検証用株式会社）</span>",
+            f"<span>{TITLE}</span><br>（検証用株式会社）",
+            f"{TITLE}<br><br>（検証用株式会社）",
+            f"{TITLE}<br class=\"other\">（検証用株式会社）",
+        )
+        for heading in endings:
+            with self.subTest(heading=heading):
+                html = fixture().replace(f"<h1>{TITLE}</h1>", f"<h1>{heading}</h1>")
+                self.assertIsNone(extract(html=html))
+
+    def test_subtitle_path_keeps_visibility_date_issuer_body_contact_and_source_guards(self):
+        html = fixture().replace(f"<h1>{TITLE}</h1>",
+                                 f"<h1>{TITLE}<br>（検証用株式会社）</h1>")
+        changes = (
+            html.replace("<h1>", '<h1 hidden>'),
+            html.replace("<br>", '<br aria-hidden="true">'),
+            html.replace("令和８年10月13日", "令和８年10月12日"),
+            html.replace('<p class="mt0">金融庁</p>', '<p class="mt0">別機関</p>'),
+            html.replace(BODY, "短い説明"),
+            html.replace('class="contact_box"', 'class="other"'),
+            html.replace("<head>", '<head><meta name="date" content="2026-10-12">'),
+        )
+        for changed in changes:
+            with self.subTest(changed=changed):
+                self.assertIsNone(extract(html=changed))
+        self.assertIsNone(extract(html=html, final=URL.replace("hoken", "sonota")))
+        self.assertIsNone(extract(html=html, record=item(published_date="2026-10-12")))
+
     def test_hidden_issuer_heading_main_and_body_fail_closed(self):
         changes = (
             fixture().replace('<p class="mt0">', '<p class="mt0" hidden>'),
