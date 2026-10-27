@@ -8,12 +8,13 @@
     typeof module === 'object' && module.exports ? require('./pet-town-style.js') : root.PetTownStyle,
     typeof module === 'object' && module.exports ? require('./pet-town-layout-art.js') : root.PetTownLayoutArt,
     typeof module === 'object' && module.exports ? require('./pet-town-placement-originals.js') : root.PetTownPlacementOriginals,
-    typeof module === 'object' && module.exports ? require('./pet-town-water-life.js') : root.PetTownWaterLife);
+    typeof module === 'object' && module.exports ? require('./pet-town-water-life.js') : root.PetTownWaterLife,
+    typeof module === 'object' && module.exports ? require('./pet-town-ocean-life.js') : root.PetTownOceanLife);
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.PetTownScene = api;
-}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit, Fishing, Seasons, Style, LayoutArt, Originals, WaterLife) {
+}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit, Fishing, Seasons, Style, LayoutArt, Originals, WaterLife, OceanLife) {
   'use strict';
-  var threeLoading = null, frameFitLoading = null, seasonsLoading = null, styleLoading = null, layoutLoading = null, originalsLoading = null, waterLifeLoading = null, UNIT = 100, TAU = Math.PI * 2;
+  var threeLoading = null, frameFitLoading = null, seasonsLoading = null, styleLoading = null, layoutLoading = null, originalsLoading = null, waterLifeLoading = null, oceanLifeLoading = null, UNIT = 100, TAU = Math.PI * 2;
   var shoreline = [[0, 2880], [550, 2840], [1050, 2720], [1450, 2510], [1920, 1990]];
   function finite(n) { return typeof n === 'number' && Number.isFinite(n); }
   function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
@@ -146,6 +147,16 @@
     }).catch(function(error){waterLifeLoading=null;throw error;});
     return waterLifeLoading;
   }
+  function loadOceanLife() {
+    var current=OceanLife||globalThis.PetTownOceanLife;
+    if(current&&current.revision==='ocean-motion1'&&typeof current.create==='function'){OceanLife=current;return Promise.resolve(current);}
+    if(!oceanLifeLoading)oceanLifeLoading=import('/static/pet-town-ocean-life.js?v=20261027-ocean1').then(function(){
+      OceanLife=globalThis.PetTownOceanLife;
+      if(!OceanLife||OceanLife.revision!=='ocean-motion1'||typeof OceanLife.create!=='function')throw new Error('town_ocean_life_unavailable');
+      return OceanLife;
+    }).catch(function(error){oceanLifeLoading=null;throw error;});
+    return oceanLifeLoading;
+  }
   function groundTexture(THREE, doc, season) {
     if (!doc || !doc.createElement) return null;
     var canvas = doc.createElement('canvas'); canvas.width = canvas.height = 512;
@@ -211,7 +222,7 @@
   }
   function buildWorld(THREE, world, view, avoid, doc, seasonKey) {
     var scene = new THREE.Scene(), group = new THREE.Group(), geometries = new Set(), materials = new Set(), textures = new Set();
-    var surfaces = [], occluders = [], pickables = [], trees = [], ripples = [], droplets = [], placeGroups = [], seasonalSites = [], seasonGroups = {}, seasonBatches = [], activeSeason = null, disposed = false;
+    var surfaces = [], occluders = [], pickables = [], trees = [], droplets = [], placeGroups = [], seasonalSites = [], seasonGroups = {}, seasonBatches = [], activeSeason = null, disposed = false;
     scene.add(group); group.name = 'saved-town-geometry';
     var originalAPI=Originals||globalThis.PetTownPlacementOriginals;
     var originalArt=originalAPI?originalAPI.create(THREE,{textures:textures,materials:materials}):null, originalCoverage=new Map(), buildingGeometry=false;
@@ -793,13 +804,11 @@
     var sea = box(group, 48, .06, 48, mat('#abd3cf',false,'water'), 0, -.08, 0); sea.name = 'water';
     var coastMask=coastMaskTexture(THREE,doc);
     if(coastMask){textures.add(coastMask);sea.material.alphaMap=coastMask;sea.material.transparent=true;sea.material.opacity=1;sea.material.depthWrite=false;}
-    for (var r = 0; r < 26; r++) {
-      var py = (r + .5) / 26 * world.height, bankIndex = Math.min(shoreline.length - 2, Math.floor(py / 500));
-      while (bankIndex > 0 && py < shoreline[bankIndex][0]) bankIndex--;
-      var a = shoreline[bankIndex], b = shoreline[bankIndex + 1], edge = a[1] + (b[1] - a[1]) * clamp((py - a[0]) / (b[0] - a[0]), 0, 1);
-      var rp = groundPoint(world, { x: Math.min(world.width - 25, edge + 40 + r % 3 * 55), y: py });
-      var ripple = box(group, .4, .009, .025, '#c6e8dd', rp.x, -.035, rp.z); ripple.userData.baseX = rp.x; ripples.push(ripple);
-    }
+    // Draw the existing water first, then its non-solid foam under the original art.
+    sea.renderOrder=-3;
+    var oceanAPI=OceanLife||globalThis.PetTownOceanLife;
+    var oceanLife=oceanAPI?oceanAPI.create(THREE,{group:group,world:world,shoreline:shoreline,geometries:geometries,materials:materials}):null;
+    scene.userData.oceanMotionRevision=oceanLife?oceanAPI.revision:null;
     var landscape = LayoutArt || globalThis.PetTownLayoutArt;
     var layoutModel = landscape && landscape.revision === 'layout-art-3d1' && typeof landscape.build === 'function' ?
       landscape.build(THREE, world, { group: group, groundPoint: groundPoint, townPoint: townPoint, doorContact: Town.doorContact,
@@ -1043,22 +1052,21 @@
       var key = m.geometry.uuid + ':' + m.material.uuid + ':' + cell; (buckets[key] || (buckets[key] = [])).push(m); });
     Object.keys(buckets).forEach(function (key) {
       var rows = buckets[key]; if (rows.length < 2) return;
-      var batch = new THREE.InstancedMesh(rows[0].geometry, rows[0].material, rows.length), dynamic = rows.some(function (m) { for (var p = m; p && p !== group; p = p.parent) if (trees.indexOf(p) >= 0 || ripples.indexOf(p) >= 0 || droplets.indexOf(p) >= 0) return true; return false; });
+      var batch = new THREE.InstancedMesh(rows[0].geometry, rows[0].material, rows.length), dynamic = rows.some(function (m) { for (var p = m; p && p !== group; p = p.parent) if (trees.indexOf(p) >= 0 || droplets.indexOf(p) >= 0) return true; return false; });
       batch.name = 'town-detail-batch'; batch.castShadow = rows.some(function (m) { return m.castShadow; }); batch.receiveShadow = rows.some(function (m) { return m.receiveShadow; });
       rows.forEach(function (m, i) { batch.setMatrixAt(i, m.matrixWorld); m.visible = false; originals.push(m); }); batch.computeBoundingSphere(); if (dynamic) batch.boundingSphere.radius += .75; scene.add(batch); batches.push({ mesh: batch, rows: rows, dynamic: dynamic });
     });
     scene.updateMatrixWorld(true); scene.matrixWorldAutoUpdate = false;
     function animate(ms, reduced) {
       var frame = natureFrame(ms, reduced);
-      animateWindowRooms(frame,reduced);if(waterLife)waterLife.animate(ms,reduced);
+      animateWindowRooms(frame,reduced);if(waterLife)waterLife.animate(ms,reduced);if(oceanLife)oceanLife.animate(ms,reduced);
       trees.forEach(function (g, i) { g.rotation.z = frame.wind * Math.cos(i * 1.7); g.updateMatrixWorld(true); });
-      ripples.forEach(function (m, i) { m.position.x = m.userData.baseX + (reduced ? 0 : Math.sin(frame.time * 1.1 + i) * .07); m.updateMatrixWorld(true); });
       droplets.forEach(function (m) { var a = reduced ? m.userData.phase : (frame.fountain + m.userData.phase) % 1; if(m.userData.cascade)m.position.lerpVectors(m.userData.cascade.start,m.userData.cascade.end,a);else m.position.set(Math.sin(a * TAU) * .2, .48 + Math.sin(a * Math.PI) * .65, Math.cos(a * TAU) * .15); m.updateMatrixWorld(true); });
       batches.forEach(function (b) { if (b.dynamic) { b.rows.forEach(function (m, i) { b.mesh.setMatrixAt(i, m.matrixWorld); }); b.mesh.instanceMatrix.needsUpdate = true; } });
       return frame;
     }
-    function dispose() { if (disposed) return; disposed = true; if(originalArt)originalArt.dispose(); batches.forEach(function (b) { b.mesh.dispose(); }); geometries.forEach(function (g) { g.dispose(); }); materials.forEach(function (m) { m.dispose(); }); textures.forEach(function (t) { t.dispose(); }); sun.shadow.dispose(); scene.clear(); }
-    return { scene: scene, surfaces: surfaces, occluders: occluders, pickables: pickables, placeGroups: placeGroups, solidLifeRevision:solidLifeRevision, windowRooms:windowRooms, windowLifeMaterials:windowLifeMaterials, waterLife:waterLife, animate: animate, dispose: dispose,
+    function dispose() { if (disposed) return; disposed = true; if(originalArt)originalArt.dispose(); if(oceanLife&&oceanLife.instanceMeshes)oceanLife.instanceMeshes.forEach(function(m){m.dispose();}); batches.forEach(function (b) { b.mesh.dispose(); }); geometries.forEach(function (g) { g.dispose(); }); materials.forEach(function (m) { m.dispose(); }); textures.forEach(function (t) { t.dispose(); }); sun.shadow.dispose(); scene.clear(); }
+    return { scene: scene, surfaces: surfaces, occluders: occluders, pickables: pickables, placeGroups: placeGroups, solidLifeRevision:solidLifeRevision, windowRooms:windowRooms, windowLifeMaterials:windowLifeMaterials, waterLife:waterLife, oceanLife:oceanLife, animate: animate, dispose: dispose,
       loadOriginalArt:loadOriginalArt, originalHit:originalHit, originalDoorHit:originalDoorHit, originalArt:originalArt, setSeason: setSeason, seasonGroups: seasonGroups, styleLimits: style ? style.limits : null, layoutArtRevision: scene.userData.layoutArtRevision,
       geometries: geometries, materials: materials, textures: textures, batches: batches, people: people(world, view, avoid) };
   }
@@ -1085,7 +1093,7 @@
     }
     function fail(code) { if (dead || failed) return; failed = true; destroy(); report('onFailure', code); }
     var THREE;
-    try { var dependencies = await Promise.all([options.three || loadThree(), loadFrameFit(), loadSeasons(), loadStyle(), loadLayoutArt(), loadOriginals(), loadWaterLife()]); THREE = dependencies[0]; } catch (_) { fail('town_module_unavailable'); return null; }
+    try { var dependencies = await Promise.all([options.three || loadThree(), loadFrameFit(), loadSeasons(), loadStyle(), loadLayoutArt(), loadOriginals(), loadWaterLife(), loadOceanLife()]); THREE = dependencies[0]; } catch (_) { fail('town_module_unavailable'); return null; }
     if (!active()) { destroy(); return null; }
     var sprite, playerShadow, camera, ray, pointer, direction, target, desired, contactMap = null, fishingVisual = null, fishingState = null;
     function contactShadow(radius) {
@@ -1208,7 +1216,7 @@
       model = buildWorld(THREE, world, options.view, position, doc, firstSeason ? firstSeason.key : 'summer');
       await model.loadOriginalArt();
       if(!active()){destroy();return null;}
-      host.dataset.townOriginalArt=model.scene.userData.originalArtRevision;host.dataset.townSolidLife=model.solidLifeRevision;
+      host.dataset.townOriginalArt=model.scene.userData.originalArtRevision;host.dataset.townSolidLife=model.solidLifeRevision;host.dataset.townOceanMotion=model.scene.userData.oceanMotionRevision;
       host.dataset.townStyle = model.styleLimits ? 'shop-cottage-match2' : 'legacy';
       host.dataset.townLayoutArt = model.layoutArtRevision;
       if (Fishing && typeof Fishing.createVisual === 'function') { fishingVisual = Fishing.createVisual(THREE, world); model.scene.add(fishingVisual.group); }

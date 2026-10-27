@@ -10,6 +10,7 @@ import TownStyle from '../static/pet-town-style.js';
 import LayoutArt from '../static/pet-town-layout-art.js';
 import Originals from '../static/pet-town-placement-originals.js';
 import WaterLife from '../static/pet-town-water-life.js';
+import OceanLife from '../static/pet-town-ocean-life.js';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
@@ -105,7 +106,7 @@ test('browser registration can precede the visual-only helper and mount adopts t
  assert.equal(context.PetTownScene.alphaAnchor({tagName:'CANVAS',width:16,height:16,getContext:()=>null}),null);
  const painted={tagName:'CANVAS',width:16,height:16,getContext:()=>({RGBA:1,UNSIGNED_BYTE:2,readPixels(x,y,w,h,a,b,p){p[(2*w+8)*4+3]=255;}})};
  assert.equal(context.PetTownScene.alphaAnchor(painted),.125,'the existing public diagnostics work synchronously before any mount or helper import');
- context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;context.PetTownStyle=TownStyle;context.PetTownLayoutArt=LayoutArt;context.PetTownPlacementOriginals=Originals;context.PetTownWaterLife=WaterLife;
+ context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;context.PetTownStyle=TownStyle;context.PetTownLayoutArt=LayoutArt;context.PetTownPlacementOriginals=Originals;context.PetTownWaterLife=WaterLife;context.PetTownOceanLife=OceanLife;
  const f=await fixture({sceneAPI:context.PetTownScene});try{assert.ok(f.controller);assert.equal(f.controller.setFrame(f.source,{anchor:.3}),true);const scene=f.renderers[0].calls.at(-1).scene;assert.equal(scene.getObjectByName('current-pet-2d-frame').center.y,.3);assert.equal(f.host.dataset.townLayoutArt,LayoutArt.revision);assert.equal(scene.userData.layoutArtRevision,LayoutArt.revision);assert.ok(scene.getObjectByName('layout-art-native-landscape'));assert.equal(scene.getObjectByName('bridge-deck').userData.layoutBoardCount,11);assert.deepEqual(f.failures,[]);}finally{f.controller?.destroy();}
 });
 
@@ -570,4 +571,49 @@ test('a cached old detailing API cannot satisfy new bowl/arch readiness; concurr
  await assert.rejects(first,/town_style_unavailable/);await assert.rejects(same,/town_style_unavailable/);assert.equal(context.styleLoading,null);
  const retry=context.loadUnderTest();assert.equal(imports,2);context.PetTownStyle=TownStyle;release();assert.equal(await retry,TownStyle);
  assert.equal(await context.loadUnderTest(),TownStyle);assert.equal(imports,2,'validated current API is reused');
+});
+
+test('ocean presentation moves actual unbatched roots without changing the saved shore, collisions or fountain resources',()=>{
+ const world=Town.createWorld(),before=JSON.stringify(world),m=Scene.buildWorld(THREE,world,{});
+ try{
+  assert.equal(m.oceanLife.revision,'ocean-motion1');assert.equal(m.scene.userData.oceanMotionRevision,'ocean-motion1');
+  assert.equal(m.scene.getObjectByName('water').renderOrder,-3);
+  const roots=m.oceanLife.group.children,geometries=[...m.geometries],materials=[...m.materials];
+  assert.equal(roots.length,4);assert.equal(m.scene.matrixWorldAutoUpdate,false);
+  for(const o of roots){assert.equal(o.userData.noStaticBatch,true);assert.equal(o.userData.nonSolidWater,true);
+   assert.equal(m.surfaces.includes(o),false);assert.equal(m.pickables.includes(o),false);assert.equal(m.occluders.includes(o),false);
+   assert.equal(m.batches.some(b=>b.rows.includes(o)),false);assert.equal(o.visible,true);}
+  const snap=()=>roots.map(o=>({matrix:o.matrixWorld.toArray(),opacity:o.material.opacity,instances:o.isInstancedMesh?Array.from(o.instanceMatrix.array):null}));
+  m.animate(0,false);const a=snap();m.animate(1700,false);assert.notDeepEqual(snap(),a);
+  m.animate(0,true);const still=snap();m.animate(99999,true);assert.deepEqual(snap(),still);
+  assert.deepEqual([...m.geometries],geometries);assert.deepEqual([...m.materials],materials);assert.equal(JSON.stringify(world),before);
+  assert.equal(m.waterLife.revision,'fountain-water-life1');
+ }finally{m.dispose();}
+});
+
+test('ocean instance buffers, geometries and materials release exactly once with their scene',()=>{
+ const m=Scene.buildWorld(THREE,Town.createWorld(),{}),ocean=m.oceanLife,resources=new Set();
+ ocean.group.traverse(o=>{if(o.isMesh){resources.add(o.geometry);resources.add(o.material);if(o.isInstancedMesh)resources.add(o);}});
+ const counts=new Map();for(const r of resources)r.addEventListener('dispose',()=>counts.set(r,(counts.get(r)||0)+1));
+ assert.equal(resources.size,7);m.animate(1200,false);assert.equal(counts.size,0);
+ m.dispose();m.dispose();for(const r of resources)assert.equal(counts.get(r),1);
+});
+
+test('actual Three transparent ordering draws the masked sea before foam and original sprites',()=>{
+ const m=Scene.buildWorld(THREE,Town.createWorld(),{},null,textureDocument());
+ try{
+  const sea=m.scene.getObjectByName('water'),foam=m.oceanLife.group.children[0],art=[];
+  m.scene.traverse(o=>{if(o.isSprite&&o.userData.originalArtKind==='tree')art.push(o);});
+  assert.equal(sea.material.transparent,true);assert.equal(sea.material.opacity,1);assert.equal(sea.material.depthWrite,false);
+  const vendor=readFileSync(new URL('../static/vendor/three-0.160.1.module.js',import.meta.url),'utf8');
+  const start=vendor.indexOf('function reversePainterSortStable('),end=vendor.indexOf('function WebGLRenderList()',start);
+  assert.ok(start>=0&&end>start);
+  const compare=vm.runInNewContext(vendor.slice(start,end)+';reversePainterSortStable',{});
+  // projectObject replaces groupOrder at each Group; use the nearest actual
+  // ancestor, then the pinned renderer's real transparent comparator.
+  const item=(o,z)=>{let groupOrder=0;for(let p=o.parent;p;p=p.parent)if(p.isGroup){groupOrder=p.renderOrder;break;}
+   return {object:o,id:o.id,groupOrder,renderOrder:o.renderOrder,z};};
+  const rows=[item(foam,999),item(art[0],9999),item(sea,0)].sort(compare);
+  assert.deepEqual(rows.map(r=>r.object),[sea,foam,art[0]]);
+ }finally{m.dispose();}
 });
