@@ -1,0 +1,835 @@
+{
+  "schema_version": 1,
+  "geometry": {
+    "model_id": "coastal-sailor-tunic-garment-volume-v1",
+    "sourceSHA": "0a845475fcd03c1c7fae659b99fe557986a87502ef17827bfd3a9dbeb824ff1c",
+    "topology": {
+      "vertices": 76,
+      "triangles": 160,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.14500935744222462
+    },
+    "construction": {
+      "pattern": "new paired front-V / high-back panels, two shared-index cuff strips, sewn shoulder/underarm/side strips",
+      "outerTriangles": 58,
+      "innerTriangles": 58,
+      "rimWallTriangles": 44,
+      "passageRims": 4,
+      "sleevesShareTorsoBoundaryIndices": true,
+      "hemIncludesTwoUnsewnSideVents": true,
+      "bodyBinding": null
+    },
+    "budget": {
+      "meshes": 32,
+      "geometries": 11,
+      "materials": 5,
+      "textures": 0,
+      "lights": 0,
+      "triangles": 1424
+    },
+    "bounds": {
+      "min": [
+        -1.1399999856948853,
+        0,
+        -0.22499999403953552
+      ],
+      "max": [
+        1.1399999856948853,
+        1.5499999523162842,
+        0.33968460570022774
+      ],
+      "size": [
+        2.2799999713897705,
+        1.5499999523162842,
+        0.5646845997397633
+      ]
+    },
+    "garmentRims": {
+      "neck": {
+        "space": "garment_local",
+        "surfaceMesh": "joined-tunic-material-shell",
+        "outerVertex": 18,
+        "actualSurfacePosition": [
+          0,
+          1.0399999618530273,
+          0.2549999952316284
+        ],
+        "actualSurfaceNormal": [
+          -0.01602700560208203,
+          0.004745061106637862,
+          0.9998602999852154
+        ],
+        "localFrame": [
+          0.9998715564050373,
+          0,
+          0.016027186033991916,
+          0,
+          0.00007604997709874458,
+          0.9999887421341774,
+          -0.004744451633931009,
+          0,
+          -0.01602700560208203,
+          0.004745061106637862,
+          0.9998602999852154,
+          0,
+          0,
+          1.0399999618530273,
+          0.2549999952316284,
+          1
+        ],
+        "boundaryOuterVertexIndices": [
+          18,
+          0,
+          19,
+          37,
+          36,
+          17
+        ],
+        "bodyBinding": null,
+        "anatomicalSocket": false
+      },
+      "left_cuff": {
+        "space": "garment_local",
+        "surfaceMesh": "joined-tunic-material-shell",
+        "outerVertex": 3,
+        "actualSurfacePosition": [
+          -1.1399999856948853,
+          1,
+          0.20951400697231293
+        ],
+        "actualSurfaceNormal": [
+          -0.7980645757292876,
+          0.23729696460378327,
+          0.5538800263196564
+        ],
+        "localFrame": [
+          0.5701655759772764,
+          0,
+          0.8215298022412216,
+          0,
+          0.19494652840338825,
+          0.9714371573034619,
+          -0.13529856050097544,
+          0,
+          -0.7980645757292876,
+          0.23729696460378327,
+          0.5538800263196564,
+          0,
+          -1.1399999856948853,
+          1,
+          0.20951400697231293,
+          1
+        ],
+        "boundaryOuterVertexIndices": [
+          3,
+          4,
+          23,
+          22
+        ],
+        "bodyBinding": null,
+        "anatomicalSocket": false
+      },
+      "right_cuff": {
+        "space": "garment_local",
+        "surfaceMesh": "joined-tunic-material-shell",
+        "outerVertex": 13,
+        "actualSurfacePosition": [
+          0.9700000286102295,
+          0.7300000190734863,
+          0.22206850349903107
+        ],
+        "actualSurfaceNormal": [
+          0.025284175212034847,
+          -0.7897795558186355,
+          0.6128694507762369
+        ],
+        "localFrame": [
+          0.9991500807001193,
+          3.4694469519536134e-18,
+          -0.04122033766170565,
+          0,
+          0.03255497996915606,
+          0.6133907834414527,
+          0.789108306931494,
+          0,
+          0.025284175212034847,
+          -0.7897795558186355,
+          0.6128694507762369,
+          0,
+          0.9700000286102295,
+          0.7300000190734863,
+          0.22206850349903107,
+          1
+        ],
+        "boundaryOuterVertexIndices": [
+          13,
+          14,
+          33,
+          32
+        ],
+        "bodyBinding": null,
+        "anatomicalSocket": false
+      },
+      "hem_with_side_vents": {
+        "space": "garment_local",
+        "surfaceMesh": "joined-tunic-material-shell",
+        "outerVertex": 7,
+        "actualSurfacePosition": [
+          -0.5600000023841858,
+          0.18000000715255737,
+          0.24402399361133575
+        ],
+        "actualSurfaceNormal": [
+          -0.3152869263145565,
+          -0.010934334900059592,
+          0.9489333983032807
+        ],
+        "localFrame": [
+          0.9489901304770739,
+          -4.336808689942019e-19,
+          0.3153057758067658,
+          0,
+          -0.003447658948594284,
+          0.9999402183732253,
+          0.010376575903487575,
+          0,
+          -0.3152869263145565,
+          -0.010934334900059592,
+          0.9489333983032807,
+          0,
+          -0.5600000023841858,
+          0.18000000715255737,
+          0.24402399361133575,
+          1
+        ],
+        "boundaryOuterVertexIndices": [
+          7,
+          8,
+          9,
+          10,
+          29,
+          28,
+          27,
+          26
+        ],
+        "bodyBinding": null,
+        "anatomicalSocket": false
+      }
+    },
+    "passages": {
+      "count": 20,
+      "blocked": 0,
+      "segments": [
+        {
+          "opening": "neck",
+          "from": [
+            0,
+            1.7,
+            0
+          ],
+          "to": [
+            0,
+            -0.15,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "neck",
+          "from": [
+            0.055,
+            1.7,
+            0
+          ],
+          "to": [
+            0.055,
+            -0.15,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "neck",
+          "from": [
+            -0.055,
+            1.7,
+            0
+          ],
+          "to": [
+            -0.055,
+            -0.15,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "neck",
+          "from": [
+            0,
+            1.7,
+            0.055
+          ],
+          "to": [
+            0,
+            -0.15,
+            0.055
+          ],
+          "hits": []
+        },
+        {
+          "opening": "neck",
+          "from": [
+            0,
+            1.7,
+            -0.055
+          ],
+          "to": [
+            0,
+            -0.15,
+            -0.055
+          ],
+          "hits": []
+        },
+        {
+          "opening": "hem_with_side_vents",
+          "from": [
+            0,
+            -0.15,
+            0
+          ],
+          "to": [
+            0,
+            1.7,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "hem_with_side_vents",
+          "from": [
+            0.13,
+            -0.15,
+            0
+          ],
+          "to": [
+            0.13,
+            1.7,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "hem_with_side_vents",
+          "from": [
+            -0.13,
+            -0.15,
+            0
+          ],
+          "to": [
+            -0.13,
+            1.7,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "left_cuff",
+          "from": [
+            -1.22,
+            0.735,
+            0
+          ],
+          "to": [
+            -0.67,
+            0.995,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "left_cuff",
+          "from": [
+            -1.22,
+            0.77,
+            0
+          ],
+          "to": [
+            -0.67,
+            1.03,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "left_cuff",
+          "from": [
+            -1.22,
+            0.805,
+            0
+          ],
+          "to": [
+            -0.67,
+            1.065,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "right_cuff",
+          "from": [
+            1.22,
+            0.735,
+            0
+          ],
+          "to": [
+            0.67,
+            0.995,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "right_cuff",
+          "from": [
+            1.22,
+            0.77,
+            0
+          ],
+          "to": [
+            0.67,
+            1.03,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "right_cuff",
+          "from": [
+            1.22,
+            0.805,
+            0
+          ],
+          "to": [
+            0.67,
+            1.065,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "left_side_vent",
+          "from": [
+            -0.75,
+            0.08,
+            -0.055
+          ],
+          "to": [
+            -0.4,
+            0.08,
+            -0.055
+          ],
+          "hits": []
+        },
+        {
+          "opening": "left_side_vent",
+          "from": [
+            -0.75,
+            0.08,
+            0
+          ],
+          "to": [
+            -0.4,
+            0.08,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "left_side_vent",
+          "from": [
+            -0.75,
+            0.08,
+            0.055
+          ],
+          "to": [
+            -0.4,
+            0.08,
+            0.055
+          ],
+          "hits": []
+        },
+        {
+          "opening": "right_side_vent",
+          "from": [
+            0.75,
+            0.08,
+            -0.055
+          ],
+          "to": [
+            0.4,
+            0.08,
+            -0.055
+          ],
+          "hits": []
+        },
+        {
+          "opening": "right_side_vent",
+          "from": [
+            0.75,
+            0.08,
+            0
+          ],
+          "to": [
+            0.4,
+            0.08,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "right_side_vent",
+          "from": [
+            0.75,
+            0.08,
+            0.055
+          ],
+          "to": [
+            0.4,
+            0.08,
+            0.055
+          ],
+          "hits": []
+        }
+      ]
+    },
+    "contactWitnesses": [
+      {
+        "part": "left-sailor-collar",
+        "point": [
+          0.2904,
+          1.2770000000000001,
+          0.24726731007353608
+        ],
+        "target": "joined-tunic-material-shell",
+        "scope": "strict common-solid witness with actual tunic material"
+      },
+      {
+        "part": "right-sailor-collar",
+        "point": [
+          -0.2904,
+          1.2770000000000001,
+          0.245333964767241
+        ],
+        "target": "joined-tunic-material-shell",
+        "scope": "strict common-solid witness with actual tunic material"
+      },
+      {
+        "part": "left-collar-line-0-0",
+        "target": "left-sailor-collar",
+        "point": [
+          0.385,
+          1.2999999999999998,
+          0.27099460901037226
+        ],
+        "scope": "strict common-solid witness on attached cloth"
+      },
+      {
+        "part": "left-collar-line-0-1",
+        "target": "left-sailor-collar",
+        "point": [
+          0.25,
+          1.1625,
+          0.2749128312048332
+        ],
+        "scope": "strict common-solid witness on attached cloth"
+      },
+      {
+        "part": "left-collar-line-0.02-0",
+        "target": "left-sailor-collar",
+        "point": [
+          0.365,
+          1.2999999999999998,
+          0.2714284770430881
+        ],
+        "scope": "strict common-solid witness on attached cloth"
+      },
+      {
+        "part": "left-collar-line-0.02-1",
+        "target": "left-sailor-collar",
+        "point": [
+          0.23,
+          1.1625,
+          0.27523660864061544
+        ],
+        "scope": "strict common-solid witness on attached cloth"
+      },
+      {
+        "part": "right-collar-line-0-0",
+        "target": "right-sailor-collar",
+        "point": [
+          -0.385,
+          1.2999999999999998,
+          0.27086540949624366
+        ],
+        "scope": "strict common-solid witness on attached cloth"
+      },
+      {
+        "part": "right-collar-line-0-1",
+        "target": "right-sailor-collar",
+        "point": [
+          -0.25,
+          1.1625,
+          0.27359997536718
+        ],
+        "scope": "strict common-solid witness on attached cloth"
+      },
+      {
+        "part": "right-collar-line-0.02-0",
+        "target": "right-sailor-collar",
+        "point": [
+          -0.365,
+          1.2999999999999998,
+          0.27124524680243706
+        ],
+        "scope": "strict common-solid witness on attached cloth"
+      },
+      {
+        "part": "right-collar-line-0.02-1",
+        "target": "right-sailor-collar",
+        "point": [
+          -0.23,
+          1.1625,
+          0.2739798126733736
+        ],
+        "scope": "strict common-solid witness on attached cloth"
+      },
+      {
+        "part": "left-pocket-patch",
+        "point": [
+          -0.30833333333333335,
+          0.3916666666666666,
+          0.24000100230544352
+        ],
+        "target": "joined-tunic-material-shell",
+        "scope": "strict common-solid witness with actual tunic material"
+      },
+      {
+        "part": "left-pocket-patch-cream-band",
+        "point": [
+          -0.31,
+          0.5675,
+          0.24017147195337873
+        ],
+        "target": "joined-tunic-material-shell",
+        "scope": "strict common-solid witness with actual tunic material"
+      },
+      {
+        "part": "left-pocket-patch-wood-toggle",
+        "target": "left-pocket-patch",
+        "point": [
+          -0.31,
+          0.51,
+          0.2531162162516084
+        ],
+        "scope": "strict common-solid witness with pocket patch"
+      },
+      {
+        "part": "right-pocket-patch",
+        "point": [
+          0.31166666666666665,
+          0.3916666666666666,
+          0.2408326935828684
+        ],
+        "target": "joined-tunic-material-shell",
+        "scope": "strict common-solid witness with actual tunic material"
+      },
+      {
+        "part": "right-pocket-patch-cream-band",
+        "point": [
+          0.31,
+          0.5675,
+          0.24493423930741698
+        ],
+        "target": "joined-tunic-material-shell",
+        "scope": "strict common-solid witness with actual tunic material"
+      },
+      {
+        "part": "right-pocket-patch-wood-toggle",
+        "target": "right-pocket-patch",
+        "point": [
+          0.31,
+          0.51,
+          0.2566342286701021
+        ],
+        "scope": "strict common-solid witness with pocket patch"
+      },
+      {
+        "part": "left-tie-tail",
+        "point": [
+          -0.04275,
+          0.8524999999999999,
+          0.24578347017634616
+        ],
+        "target": "joined-tunic-material-shell",
+        "scope": "strict common-solid witness with actual tunic material"
+      },
+      {
+        "part": "right-tie-tail",
+        "point": [
+          0.04275,
+          0.8524999999999999,
+          0.24724795090431462
+        ],
+        "target": "joined-tunic-material-shell",
+        "scope": "strict common-solid witness with actual tunic material"
+      },
+      {
+        "part": "wood-shell-knot",
+        "target": "joined-tunic-material-shell",
+        "point": [
+          0,
+          0.985,
+          0.25068460570022777
+        ],
+        "scope": "strict common-solid witness with front material"
+      },
+      {
+        "part": "one-pocket-wave-0",
+        "target": "right-pocket-patch",
+        "point": [
+          0.20900000000000002,
+          0.36736121593216775,
+          0.2620462193828454
+        ],
+        "scope": "strict common-solid witness on attached cloth"
+      },
+      {
+        "part": "one-pocket-wave-1",
+        "target": "right-pocket-patch",
+        "point": [
+          0.227,
+          0.37472243186433546,
+          0.26224047480636287
+        ],
+        "scope": "strict common-solid witness on attached cloth"
+      },
+      {
+        "part": "one-pocket-wave-2",
+        "target": "right-pocket-patch",
+        "point": [
+          0.245,
+          0.36736121593216775,
+          0.26224453171926515
+        ],
+        "scope": "strict common-solid witness on attached cloth"
+      },
+      {
+        "part": "one-pocket-wave-3",
+        "target": "right-pocket-patch",
+        "point": [
+          0.263,
+          0.3526387840678322,
+          0.26215348937686017
+        ],
+        "scope": "strict common-solid witness on attached cloth"
+      },
+      {
+        "part": "one-pocket-wave-4",
+        "target": "right-pocket-patch",
+        "point": [
+          0.281,
+          0.3452775681356645,
+          0.26215754628976246
+        ],
+        "scope": "strict common-solid witness on attached cloth"
+      },
+      {
+        "part": "one-pocket-wave-5",
+        "target": "right-pocket-patch",
+        "point": [
+          0.29900000000000004,
+          0.3526387840678322,
+          0.26235180171327993
+        ],
+        "scope": "strict common-solid witness on attached cloth"
+      },
+      {
+        "part": "one-pocket-wave-6",
+        "target": "right-pocket-patch",
+        "point": [
+          0.317,
+          0.36736121593216775,
+          0.26264115639210467
+        ],
+        "scope": "strict common-solid witness on attached cloth"
+      },
+      {
+        "part": "one-pocket-wave-7",
+        "target": "right-pocket-patch",
+        "point": [
+          0.33499999999999996,
+          0.37472243186433546,
+          0.26283541181562214
+        ],
+        "scope": "strict common-solid witness on attached cloth"
+      },
+      {
+        "part": "one-pocket-wave-8",
+        "target": "right-pocket-patch",
+        "point": [
+          0.353,
+          0.36736121593216775,
+          0.26283946872852443
+        ],
+        "scope": "strict common-solid witness on attached cloth"
+      },
+      {
+        "part": "one-pocket-wave-9",
+        "target": "right-pocket-patch",
+        "point": [
+          0.371,
+          0.3526387840678322,
+          0.26274842638611945
+        ],
+        "scope": "strict common-solid witness on attached cloth"
+      },
+      {
+        "part": "one-pocket-wave-10",
+        "target": "right-pocket-patch",
+        "point": [
+          0.389,
+          0.3452775681356645,
+          0.26275248329902173
+        ],
+        "scope": "strict common-solid witness on attached cloth"
+      },
+      {
+        "part": "one-pocket-wave-11",
+        "target": "right-pocket-patch",
+        "point": [
+          0.40700000000000003,
+          0.3526387840678322,
+          0.2628983885856579
+        ],
+        "scope": "strict common-solid witness on attached cloth"
+      }
+    ],
+    "bodyBinding": null,
+    "authoredGarmentDepthNotBodyDepth": true,
+    "wearing": false,
+    "rig": false,
+    "normalGamePlacement": false,
+    "ownershipUnlockSave": false
+  },
+  "strictCrossings": {
+    "triangles": 160,
+    "candidateNonadjacentAABBPairs": 530,
+    "strictEdgeInteriorCrossings": 0,
+    "witnesses": [],
+    "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+  },
+  "finite_samples_are_not_unique_tests": true
+}
