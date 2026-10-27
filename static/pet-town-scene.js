@@ -7,12 +7,13 @@
     typeof module === 'object' && module.exports ? require('./pet-japan-seasons.js') : root.PetJapanSeasons,
     typeof module === 'object' && module.exports ? require('./pet-town-style.js') : root.PetTownStyle,
     typeof module === 'object' && module.exports ? require('./pet-town-layout-art.js') : root.PetTownLayoutArt,
-    typeof module === 'object' && module.exports ? require('./pet-town-placement-originals.js') : root.PetTownPlacementOriginals);
+    typeof module === 'object' && module.exports ? require('./pet-town-placement-originals.js') : root.PetTownPlacementOriginals,
+    typeof module === 'object' && module.exports ? require('./pet-town-water-life.js') : root.PetTownWaterLife);
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.PetTownScene = api;
-}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit, Fishing, Seasons, Style, LayoutArt, Originals) {
+}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit, Fishing, Seasons, Style, LayoutArt, Originals, WaterLife) {
   'use strict';
-  var threeLoading = null, frameFitLoading = null, seasonsLoading = null, styleLoading = null, layoutLoading = null, originalsLoading = null, UNIT = 100, TAU = Math.PI * 2;
+  var threeLoading = null, frameFitLoading = null, seasonsLoading = null, styleLoading = null, layoutLoading = null, originalsLoading = null, waterLifeLoading = null, UNIT = 100, TAU = Math.PI * 2;
   var shoreline = [[0, 2880], [550, 2840], [1050, 2720], [1450, 2510], [1920, 1990]];
   function finite(n) { return typeof n === 'number' && Number.isFinite(n); }
   function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
@@ -118,7 +119,7 @@
   function loadLayoutArt() {
     var current = LayoutArt || globalThis.PetTownLayoutArt;
     if (current && current.revision === 'layout-art-3d1' && typeof current.build === 'function') { LayoutArt = current; return Promise.resolve(current); }
-    if (!layoutLoading) layoutLoading = import('/static/pet-town-layout-art.js?v=20261027-layout-art3d1').then(function () {
+    if (!layoutLoading) layoutLoading = import('/static/pet-town-layout-art.js?v=20261027-solidlife1').then(function () {
       var api = globalThis.PetTownLayoutArt;
       if (!api || api.revision !== 'layout-art-3d1' || typeof api.build !== 'function') throw new Error('layout_art_unavailable');
       LayoutArt = api; return api;
@@ -134,6 +135,16 @@
       return Originals;
     }).catch(function(error){ originalsLoading=null; throw error; });
     return originalsLoading;
+  }
+  function loadWaterLife() {
+    var current=WaterLife||globalThis.PetTownWaterLife;
+    if(current&&current.revision==='fountain-water-life1'&&typeof current.create==='function'){WaterLife=current;return Promise.resolve(current);}
+    if(!waterLifeLoading)waterLifeLoading=import('/static/pet-town-water-life.js?v=20261027-waterlife1').then(function(){
+      WaterLife=globalThis.PetTownWaterLife;
+      if(!WaterLife||WaterLife.revision!=='fountain-water-life1'||typeof WaterLife.create!=='function')throw new Error('town_water_life_unavailable');
+      return WaterLife;
+    }).catch(function(error){waterLifeLoading=null;throw error;});
+    return waterLifeLoading;
   }
   function groundTexture(THREE, doc, season) {
     if (!doc || !doc.createElement) return null;
@@ -511,9 +522,115 @@
       }
       tree.userData.leafCount = leaves; tree.userData.twigCount = 3; trees.push(crown); return crown;
     }
-    function solid(g, place) { g.traverse(function (m) { if (m.isMesh) { m.castShadow = true; occluders.push(m); if (place) { m.userData.placeId = place.id; pickables.push(m); } } }); }
+    function solid(g, place) { g.traverse(function (m) { if (m.isMesh) { var decorative=!!(m.userData.nonSolidWater||m.userData.nonSolidWindow);m.castShadow=!decorative;if(!decorative)occluders.push(m);if(place&&!m.userData.nonSolidWater){m.userData.placeId=place.id;pickables.push(m);} } }); }
     // BEGIN shop-cottage-match2: local home shell/roof/joinery only.
-    function shopCottage(g, w, depth, rx) {
+
+    // Closed wall panels and shallow window rooms share the same physical
+    // building dimensions as walking. These are decorative interiors only;
+    // entered rooms and the player's saved state remain separate.
+    var windowRooms = [], windowLifeMaterials = [], waterLife = null;
+    var solidLifeRevision = 'solid-living-buildings1';
+    scene.userData.solidLifeRevision = solidLifeRevision;
+    scene.userData.buildingRepresentation = 'closed-volume-with-recessed-window-rooms';
+    function archPointsLocal(width,height,base,x) {
+      var half=width/2,spring=height*.62,rise=height-spring,points=[[x-half,base],[x+half,base],[x+half,base+spring]];
+      for(var i=1;i<=24;i++){var a=Math.PI*i/24;points.push([x+Math.cos(a)*half,base+spring+Math.sin(a)*rise]);}
+      return points;
+    }
+    function outlinePath(points,isHole) {
+      var path=isHole?new THREE.Path():new THREE.Shape(),p=isHole?points.slice().reverse():points;
+      path.moveTo(p[0][0],p[0][1]);for(var i=1;i<p.length;i++)path.lineTo(p[i][0],p[i][1]);path.closePath();return path;
+    }
+    function windowArchGeometry(width,height,base,thickness,inset) {
+      var shape=outlinePath(archPointsLocal(width,height,base,0),false);
+      if(inset)shape.holes.push(outlinePath(archPointsLocal(width-inset*2,height-inset*2,base+inset,0),true));
+      var geo=new THREE.ExtrudeGeometry(shape,{depth:thickness,bevelEnabled:false,steps:1,curveSegments:12});
+      geo.translate(0,0,-thickness/2);return finishGeometry(geo);
+    }
+    function wallShell(parent,width,height,depth,base,color,profiles) {
+      var thickness=.10, rows=[
+        ['front',width,0,depth/2-thickness/2,0],
+        ['back',width,0,-depth/2+thickness/2,Math.PI],
+        ['left',depth,-width/2+thickness/2,0,-Math.PI/2],
+        ['right',depth,width/2-thickness/2,0,Math.PI/2]
+      ], parts=[];
+      rows.forEach(function(row){
+        var shape=outlinePath([[-row[1]/2,base],[row[1]/2,base],[row[1]/2,base+height],[-row[1]/2,base+height]],false);
+        (profiles[row[0]]||[]).forEach(function(hole){shape.holes.push(outlinePath(archPointsLocal(hole.width,hole.height,hole.base,hole.x||0),true));});
+        var geo=new THREE.ExtrudeGeometry(shape,{depth:thickness,bevelEnabled:false,steps:1,curveSegments:12});geo.translate(0,0,-thickness/2);finishGeometry(geo);
+        var wall=mesh(geo,mat(color,false,'plaster'),parent,row[2],0,row[3]);wall.rotation.y=row[4];
+        wall.name=row[0]==='front'?'cottage-short-cream-wall':'solid-building-'+row[0]+'-wall';
+        wall.userData.solidWall=true;wall.userData.wallSide=row[0];wall.userData.actualOpeningCount=(profiles[row[0]]||[]).length;
+        parts.push(wall);
+      });return parts;
+    }
+    function ownedWindowMaterial(color,emission,intensity,transparent) {
+      var material=new THREE.MeshStandardMaterial({color:color,roughness:transparent?.24:.82,metalness:0,
+        emissive:emission||'#000000',emissiveIntensity:intensity||0,transparent:!!transparent,opacity:transparent?.30:1,depthWrite:!transparent});
+      material.userData.windowLifeOwned=true;materials.add(material);windowLifeMaterials.push(material);return material;
+    }
+    function windowPart(mesh,dynamic) {
+      mesh.userData.nonSolidWindow=true;mesh.userData.windowLife=true;mesh.castShadow=false;mesh.receiveShadow=false;
+      if(dynamic)mesh.userData.noStaticBatch=true;return mesh;
+    }
+    function windowRoom(parent,spec) {
+      var room=new THREE.Group(),width=spec.width,height=spec.height,phase=windowRooms.length*.73;
+      room.name=spec.name||'recessed-window-room';room.position.set(spec.x||0,spec.base||0,spec.z||0);room.rotation.y=spec.turn||0;
+      room.userData.windowRoom=true;room.userData.aperture={width:width,height:height,depth:.22,round:!!spec.round};room.userData.decorativeInteriorOnly=true;
+      parent.add(room);
+      if(spec.frame!==false){
+        var frame=mesh(windowArchGeometry(width+.12,height+.12,-.06,.075,.06),mat('#ba8652',false,'wood'),room,0,0,.025);
+        frame.name='living-arched-window-ring';
+        box(room,width+.17,.07,.07,mat('#ba8652',false,'wood'),0,-.025,.025).name='living-window-sill';
+      }
+      var backMaterial=ownedWindowMaterial('#c6a777','#e8b777',.30,false);
+      var back=windowPart(box(room,width,height,.018,backMaterial,0,height/2,-.205),false);back.name='window-room-warm-backwall';
+      windowPart(box(room,width,.018,.19,mat('#b98a5e',false,'wood'),0,.006,-.108),false).name='window-room-floor';
+      [-1,1].forEach(function(side){windowPart(box(room,.018,height,.19,mat('#c6aa80',false,'plaster'),side*(width/2-.009),height/2,-.108),false).name='window-room-reveal';});
+      var glassMaterial=ownedWindowMaterial('#ecdfbd','#ffd394',.065,true),pane;
+      if(spec.round){pane=mesh(new THREE.CylinderGeometry(width/2,width/2,.016,24),glassMaterial,room,0,height/2,.012);pane.rotation.x=Math.PI/2;}
+      else pane=mesh(windowArchGeometry(width,height,0,.016,0),glassMaterial,room,0,0,.012);
+      windowPart(pane,false);pane.name='living-window-glass';pane.userData.windowPane=true;
+      var curtainColor=spec.kind==='cafe'?'#e8b9b4':spec.kind==='shop'?'#bdcdaa':'#eee1cb',curtains=[];
+      [-1,1].forEach(function(side){
+        var pivot=new THREE.Group();pivot.position.set(side*width*.37,height*.93,-.035);room.add(pivot);
+        var cloth=windowPart(box(pivot,width*.19,height*.82,.018,mat(curtainColor,false,'paper'),0,-height*.41,0),true);cloth.name='living-window-curtain';
+        pivot.userData.side=side;curtains.push(pivot);
+      });
+      var lamp=new THREE.Group();lamp.name='window-room-hanging-lamp';lamp.position.set(0,height*.69,-.10);room.add(lamp);
+      var glowMaterial=ownedWindowMaterial('#fff1cd','#ffd493',.62,false);
+      var bulb=windowPart(ball(lamp,glowMaterial,0,0,0,width*.075,height*.052,width*.075),true);bulb.name='window-room-lamp-bulb';
+      var shadeGeo=new THREE.ConeGeometry(width*.15,height*.14,12,1,true),shade=windowPart(mesh(shadeGeo,mat('#b79b73',false,'paper'),lamp,0,height*.055,0),true);shade.name='window-room-lamp-shade';
+      if(spec.display){
+        windowPart(box(room,width*.86,.035,.12,mat('#b98856',false,'wood'),0,height*.25,-.105),false).name='display-window-shelf';
+        if(spec.kind==='cafe'){
+          var cake=windowPart(cylinder(room,width*.17,height*.10,mat('#b77f50',false,'ceramic'),-width*.16,height*.32,-.105),false);cake.name='cafe-display-cake';
+          windowPart(ball(room,mat('#f4e6cf',false,'ceramic'),-width*.16,height*.38,-.105,width*.18,height*.035,width*.16),false);
+          windowPart(ball(room,mat('#c9817d',false,'display-flower'),-width*.16,height*.42,-.105,width*.035,height*.025,width*.035),false);
+          windowPart(cylinder(room,width*.065,height*.13,mat('#e6ceb0',false,'ceramic'),width*.24,height*.34,-.105),false).name='cafe-display-cup';
+        }else{
+          for(var jar=0;jar<3;jar++){var x=(jar-1)*width*.23;windowPart(box(room,width*.16,height*.16,.08,mat(jar%2?'#c4d09b':'#d8b08c',false,'ceramic'),x,height*.34,-.105),false).name='market-display-goods';}
+        }
+      }
+      if(!spec.round){
+        box(room,.025,height*.86,.035,mat('#c69b69',false,'wood'),0,height*.43,.040).name='living-window-mullion';
+        box(room,width*.96,.025,.035,mat('#c69b69',false,'wood'),0,height*.49,.040).name='living-window-crossbar';
+      }
+      room.userData.phase=phase;
+      windowRooms.push({group:room,curtains:curtains,lamp:lamp,backMaterial:backMaterial,glassMaterial:glassMaterial,glowMaterial:glowMaterial,phase:phase});
+      return room;
+    }
+    function animateWindowRooms(frame,reduced) {
+      windowRooms.forEach(function(room){
+        var wave=reduced?0:Math.sin(frame.time*.62+room.phase),sway=reduced?0:Math.sin(frame.time*.82+room.phase)*.025;
+        room.curtains.forEach(function(c){c.rotation.z=sway*c.userData.side;c.updateMatrixWorld(true);});
+        room.lamp.rotation.z=reduced?0:Math.sin(frame.time*.47+room.phase)*.018;room.lamp.updateMatrixWorld(true);
+        room.backMaterial.emissiveIntensity=.30+wave*.025;room.glassMaterial.emissiveIntensity=.065+wave*.008;room.glowMaterial.emissiveIntensity=.62+wave*.035;
+      });
+    }
+
+    function shopCottage(g, w, depth, rx, kind) {
+      kind=kind||'home';var commercial=kind==='cafe'||kind==='shop',roofPigment=kind==='cafe'?'#929d83':kind==='shop'?'#cb8b7b':'#9b7ab5',roofLight=kind==='cafe'?'#b6bda1':kind==='shop'?'#e4af9e':'#ae8ec5';
       var roofBase=1.54,roofRise=1.06,run=w*.62,profileSteps=32;
       // Keep the shared shop/cafe tile untouched. One nearly tangent face in
       // its smooth normals needs a home-local lighting correction.
@@ -525,7 +642,33 @@
       function curve(t){return Math.pow(Math.max(0,1-Math.abs(t)),1.35);}
       function profilePoints(half,rise){var points=[];for(var i=0;i<=profileSteps;i++){var t=-1+2*i/profileSteps;points.push([t*half,curve(t)*rise]);}return points;}
       function outline(points){var s=new THREE.Shape();s.moveTo(points[0][0],points[0][1]);for(var i=1;i<points.length;i++)s.lineTo(points[i][0],points[i][1]);s.closePath();return s;}
-      function solidProfile(points,thickness,bevel){var shape=outline(points),geo=new THREE.ExtrudeGeometry(shape,{depth:thickness,bevelEnabled:!!bevel,bevelThickness:bevel||0,bevelSize:bevel||0,bevelSegments:3,curveSegments:16,steps:1});geo.translate(0,0,-thickness/2);return finishGeometry(geo);}
+      function solidProfile(points,thickness,bevel,holes){
+        var shape=outline(points);(holes||[]).forEach(function(h){shape.holes.push(h);});
+        var geo=new THREE.ExtrudeGeometry(shape,{depth:thickness,bevelEnabled:!!bevel,bevelThickness:bevel||0,bevelSize:bevel||0,bevelSegments:3,curveSegments:16,steps:1});geo.translate(0,0,-thickness/2);
+        if(holes&&holes.length){
+          // Extrude's circular-hole seam emits four zero-area triangles.
+          // Keep every nonzero face and its original cap/side material group.
+          var positions=geo.attributes.position,groups=geo.groups.slice(),indices=[],keptGroups=[],removed=0;
+          groups.forEach(function(group){var start=indices.length;for(var i=group.start;i<group.start+group.count;i+=3){
+            var a=new THREE.Vector3().fromBufferAttribute(positions,i),b=new THREE.Vector3().fromBufferAttribute(positions,i+1),c=new THREE.Vector3().fromBufferAttribute(positions,i+2);
+            if(new THREE.Vector3().subVectors(b,a).cross(new THREE.Vector3().subVectors(c,a)).lengthSq()<1e-20){removed++;continue;}
+            indices.push(i,i+1,i+2);
+          }keptGroups.push({start:start,count:indices.length-start,materialIndex:group.materialIndex});});
+          geo.setIndex(indices);geo.clearGroups();keptGroups.forEach(function(group){geo.addGroup(group.start,group.count,group.materialIndex);});geo.userData.removedZeroAreaTriangles=removed;
+        }
+        finishGeometry(geo);
+        if(holes&&holes.length){
+          // Welding across the circular bevel seam can oppose four tiny
+          // nonzero faces. Their vertices remain distinct draw indices;
+          // retain the real face direction instead of blending across it.
+          var p=geo.attributes.position,n=geo.attributes.normal,index=geo.index,normalCorrections=0;
+          for(var i=0;i<index.count;i+=3){var ids=[index.getX(i),index.getX(i+1),index.getX(i+2)],a=new THREE.Vector3().fromBufferAttribute(p,ids[0]),b=new THREE.Vector3().fromBufferAttribute(p,ids[1]),c=new THREE.Vector3().fromBufferAttribute(p,ids[2]),face=new THREE.Vector3().subVectors(b,a).cross(new THREE.Vector3().subVectors(c,a)).normalize(),average=new THREE.Vector3();ids.forEach(function(id){average.add(new THREE.Vector3().fromBufferAttribute(n,id));});
+            if(face.dot(average.normalize())<0){ids.forEach(function(id){n.setXYZ(id,face.x,face.y,face.z);});normalCorrections++;}
+          }
+          n.needsUpdate=true;geo.userData.correctedProfileSeamFaceNormals=normalCorrections;
+        }
+        return geo;
+      }
       function archPoints(width,height,base){var half=width/2,spring=height*.62,rise=height-spring,points=[[-half,base],[half,base],[half,base+spring]];for(var i=1;i<=32;i++){var a=Math.PI*i/32;points.push([i===32?-half:Math.cos(a)*half,base+spring+(i===32?0:Math.sin(a)*rise)]);}return points;}
       function archSolid(width,height,base,thickness){return solidProfile(archPoints(width,height,base),thickness,.006);}
       function archRing(width,height,base,innerWidth,innerHeight,innerBase,thickness){var shape=outline(archPoints(width,height,base)),inner=archPoints(innerWidth,innerHeight,innerBase).slice().reverse(),hole=new THREE.Path();hole.moveTo(inner[0][0],inner[0][1]);for(var i=1;i<inner.length;i++)hole.lineTo(inner[i][0],inner[i][1]);hole.closePath();shape.holes.push(hole);var geo=new THREE.ExtrudeGeometry(shape,{depth:thickness,bevelEnabled:true,bevelThickness:.008,bevelSize:.008,bevelSegments:3,curveSegments:16,steps:1});geo.translate(0,0,-thickness/2);return finishGeometry(geo);}
@@ -534,38 +677,64 @@
       g.userData.homeDesignRevision='shop-cottage-match2';g.userData.doorEntrancePolicyUnchanged=true;
       // Shorter walls and a larger curved, flared roof keep the same footprint
       // and old maximum ridge/overhang envelope, without stretching the actor.
-      box(g,w,1.42,depth,mat('#f0e4cf',false,'plaster'),0,.83,0).name='cottage-short-cream-wall';
+      var small={width:.285,height:.48},frontHoles=[{x:0,base:.13,width:.50,height:1.21}];
+      if(commercial)frontHoles.push({x:w*.35,base:.63,width:.285,height:.48});
+      var profiles={front:frontHoles,back:[{x:0,base:.66,width:.285,height:.48}],
+        left:[commercial?{x:0,base:.36,width:depth*.66,height:.82}:{x:-.02,base:.63,width:.285,height:.48}],
+        right:[{x:.02,base:.63,width:.285,height:.48}]};
+      wallShell(g,w,1.42,depth,.12,'#f0e4cf',profiles);
+      g.userData.solidDimensions={width:w,depth:depth};g.userData.solidLifeRevision=solidLifeRevision;g.userData.buildingTheme=kind;
+
       var top=profilePoints(run,roofRise),roofOutline=top.slice();
-      var roofGeo=solidProfile(roofOutline,depth+.30,.025);
-      var roof=mesh(roofGeo,[mat('#f0e4cf',false,'plaster'),mat('#9b7ab5',false,'ceramic')],g,0,roofBase,0);roof.name='cottage-curved-gable-roof';roof.userData.profileExponent=1.35;
+      var roofHoles=[];if(!commercial){var roundHole=new THREE.Path();roundHole.absellipse(0,1.80-roofBase,.128,.128/.9,0,TAU,true);roofHoles.push(roundHole);}
+      var roofGeo=solidProfile(roofOutline,depth+.30,.025,roofHoles);
+      var roof=mesh(roofGeo,[mat('#f0e4cf',false,'plaster'),mat(roofPigment,false,'ceramic')],g,0,roofBase,0);roof.name='cottage-curved-gable-roof';roof.userData.profileExponent=1.35;
       var fasciaPoints=top.concat(top.slice().reverse().map(function(v){return[v[0],v[1]-.075];})),fasciaGeo=solidProfile(fasciaPoints,.065,.008);
       [-1,1].forEach(function(side){part(fasciaGeo,'#d1aa76','wood',g,0,roofBase,side*(depth/2+.17),'cottage-curved-wood-fascia');});
       var roofRows=4,roofColumns=Math.max(3,Math.ceil((depth+.30)/.30));
       for(var side=-1;side<=1;side+=2)for(var row=0;row<roofRows;row++)for(var col=0;col<roofColumns;col++){
         var f=(row+.45)/roofRows,tz=-depth/2-.12+(col+.5)*(depth+.24)/roofColumns;
-        var angle=Math.atan(roofRise/run*1.35*Math.pow(1-f,.35)),tile=mesh(homeTileGeometry||sphereGeometry,mat(row%2?'#9b7ab5':'#ae8ec5',false,'ceramic'),g,side*run*f,roofBase+roofRise*curve(f)+.035,tz);
+        var angle=Math.atan(roofRise/run*1.35*Math.pow(1-f,.35)),tile=mesh(homeTileGeometry||sphereGeometry,mat(row%2?roofPigment:roofLight,false,'ceramic'),g,side*run*f,roofBase+roofRise*curve(f)+.035,tz);
         tile.name='overlapping-round-roof-tile';tile.userData.cottageCurveFollower=true;
         if(homeTileGeometry){tile.scale.set((depth+.30)/roofColumns*.61,.060,run/roofRows*.72);tile.quaternion.setFromAxisAngle(new THREE.Vector3(0,0,1),-side*angle).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),-side*Math.PI/2));}
         else{tile.scale.set(run/roofRows*.72,.060,(depth+.30)/roofColumns*.61);tile.rotation.z=-side*angle;}
       }
-      var ridge=cylinder(g,.052,depth+.30,mat('#9b7ab5',false,'ceramic'),0,roofBase+roofRise-.005,0);ridge.rotation.x=Math.PI/2;ridge.name='cottage-closed-rounded-ridge';
+      var ridge=cylinder(g,.052,depth+.30,mat(roofPigment,false,'ceramic'),0,roofBase+roofRise-.005,0);ridge.rotation.x=Math.PI/2;ridge.name='cottage-closed-rounded-ridge';
       var ridgeCap=ball(g,mat('#d1aa76',false,'wood'),0,roofBase+roofRise-.006,depth/2+.178,.063,.073,.026);ridgeCap.name='cottage-rounded-wood-ridge-cap';
       var capRing=part(new THREE.TorusGeometry(.027,.004,6,24),'#ba8652','wood',g,0,roofBase+roofRise-.006,depth/2+.205,'cottage-ridge-scroll-ring');
       // The front door is an actual arch-shaped solid inside a closed wooden
       // frame with a real opening. UserData.door and the old threshold remain.
-      marked(part(archRing(.67,1.39,.10,.50,1.21,.13,.12),'#d1aa76','wood',g,0,0,depth/2+.03,'cottage-arched-door-frame'));
-      marked(part(archSolid(.485,1.19,.135,.07),'#ba8652','wood',g,0,0,depth/2+.04,'cottage-arched-door-panel'));
-      marked(ball(g,mat('#d1aa76',false,'wood'),-.15,.64,depth/2+.105,.030,.030,.028)).name='cottage-door-left-knob';
-      for(var hinge=0;hinge<2;hinge++){var h=marked(cylinder(g,.009,.13,mat('#96673f',false,'wood'),.245,.40+hinge*.51,depth/2+.093));h.name='cottage-door-right-hinge';}
+      marked(part(archRing(.67,1.39,.10,.50,1.21,.13,.12),'#d1aa76','wood',g,0,0,depth/2-.05,'cottage-arched-door-frame'));
+      marked(part(archSolid(.485,1.19,.135,.07),'#ba8652','wood',g,0,0,depth/2-.025,'cottage-arched-door-panel'));
+      marked(ball(g,mat('#d1aa76',false,'wood'),-.15,.64,depth/2+.040,.030,.030,.028)).name='cottage-door-left-knob';
+      for(var hinge=0;hinge<2;hinge++){var h=marked(cylinder(g,.009,.13,mat('#96673f',false,'wood'),.245,.40+hinge*.51,depth/2+.028));h.name='cottage-door-right-hinge';}
       for(var seam=0;seam<4;seam++){var sx=(seam-1.5)*.095,half=.485/2,spring=.135+1.19*.62,rise=1.19*.38,topY=spring+rise*Math.sqrt(Math.max(0,1-sx*sx/(half*half)))-.035,bottom=.16;
-        marked(box(g,.004,topY-bottom,.004,mat('#96673f',false,'wood'),sx,(topY+bottom)/2,depth/2+.077)).name='cottage-door-grain-groove';}
+        marked(box(g,.004,topY-bottom,.004,mat('#96673f',false,'wood'),sx,(topY+bottom)/2,depth/2+.012)).name='cottage-door-grain-groove';}
       marked(box(g,.53,.1,.26,mat('#d1aa76',false,'wood'),0,.065,depth/2+.1)).name='cottage-retained-wood-threshold';
-      // Round upper window, with cylindrical glass and joined wooden crossbars.
-      var roundGroup=new THREE.Group();roundGroup.name='cottage-round-gable-window';roundGroup.position.set(0,1.80,depth/2+.195);roundGroup.scale.y=1/.9;g.add(roundGroup);
-      part(new THREE.TorusGeometry(.142,.025,8,40),'#ba8652','wood',roundGroup,0,0,0,'cottage-round-window-frame');
-      var glass=part(new THREE.CylinderGeometry(.128,.128,.025,32),'#715d47','glass',roundGroup,0,0,-.008,'cottage-round-window-glass');glass.rotation.x=Math.PI/2;
-      box(roundGroup,.022,.30,.035,mat('#d1aa76',false,'wood'),0,0,.012);box(roundGroup,.30,.022,.035,mat('#d1aa76',false,'wood'),0,0,.012);
-      for(var post=-1;post<=1;post+=2)box(g,.075,1.38,.075,mat('#d1aa76',false,'wood'),post*w*.47,.81,depth/2+.005).name='cottage-round-corner-post';
+      if(!commercial){
+        [-1,1].forEach(function(side){
+          var roundGroup=new THREE.Group();roundGroup.name=side===1?'cottage-round-gable-window':'cottage-rear-round-gable-window';
+          roundGroup.position.set(0,1.80,side*(depth/2+.195));roundGroup.rotation.y=side===1?0:Math.PI;roundGroup.scale.y=1/.9;g.add(roundGroup);
+          part(new THREE.TorusGeometry(.142,.025,8,32),'#ba8652','wood',roundGroup,0,0,0,'cottage-round-window-frame');
+          windowRoom(roundGroup,{name:'cottage-round-window-room',width:.256,height:.256,base:-.128,z:-.008,round:true,frame:false,kind:kind});
+          box(roundGroup,.022,.30,.035,mat('#d1aa76',false,'wood'),0,0,.035);box(roundGroup,.30,.022,.035,mat('#d1aa76',false,'wood'),0,0,.035);
+        });
+      }else{
+        var badge=new THREE.Group();badge.name=kind==='cafe'?'cafe-cup-sign':'market-basket-sign';badge.position.set(0,1.86,depth/2+.20);g.add(badge);
+        var backing=cylinder(badge,.20,.065,mat('#b98856',false,'wood'),0,0,0);backing.rotation.x=Math.PI/2;
+        var inset=cylinder(badge,.163,.070,mat('#d1aa76',false,'wood'),0,0,.025);inset.rotation.x=Math.PI/2;
+        if(kind==='cafe'){
+          var cup=cylinder(badge,.065,.075,mat('#f7eedb',false,'ceramic'),0,-.015,.09);cup.name='cafe-sign-cup-volume';
+          var handle=part(new THREE.TorusGeometry(.045,.012,6,16),'#f7eedb','ceramic',badge,.065,-.005,.09,'cafe-sign-cup-handle');
+          var saucer=ball(badge,mat('#f7eedb',false,'ceramic'),0,-.060,.09,.095,.018,.055);saucer.name='cafe-sign-saucer';
+        }else{
+          var basket=ball(badge,mat('#b98856',false,'wood'),0,-.025,.09,.10,.065,.045);basket.name='market-sign-basket-volume';
+          var handle=part(new THREE.TorusGeometry(.080,.012,6,20),'#ba8652','wood',badge,0,.015,.09,'market-sign-basket-handle');handle.scale.y=.8;
+          for(var produce=0;produce<3;produce++)ball(badge,mat(produce%2?'#87a66d':'#d69a7e',false,'display-flower'),(produce-1)*.055,.025,.13,.030,.045,.023);
+        }
+        windowRoom(g,{name:'commercial-front-window-room',x:w*.35,base:.63,z:depth/2-.048,width:.285,height:.48,kind:kind});
+      }
+      for(var post=-1;post<=1;post+=2)box(g,.075,1.38,.075,mat('#d1aa76',false,'wood'),post*w*.47,.81,depth/2-.02).name='cottage-round-corner-post';
       box(g,w*1.04,.10,depth*1.04,mat('#d1aa76',false,'wood'),0,1.49,0).name='cottage-eave-beam';
       box(g,w*1.04,.13,depth*1.04,mat('#ba8652',false,'wood'),0,.14,0).name='cottage-low-wood-plinth';
       // The dormer faces diagonally forward so its arched window reads from
@@ -580,15 +749,23 @@
       // The cream body meets the underside; it is not a filled triangle cap.
       var dTop=[];for(var di=0;di<=32;di++){var dt=-1+2*di/32;dTop.push([dt*.31,.30*Math.sqrt(Math.max(0,1-dt*dt))]);}
       var dOutline=dTop.concat(dTop.slice().reverse().map(function(v){return[v[0],v[1]-.065];}));
-      part(solidProfile(dOutline,.48,.012),'#9b7ab5','ceramic',dormer,0,.40,0,'cottage-curved-dormer-roof');
-      for(var side=-1;side<=1;side+=2){var hoodY=.40+.30*Math.sqrt(1-Math.pow(.12/.31,2)),hoodAngle=Math.atan(.30*.12/(.31*.31*Math.sqrt(1-Math.pow(.12/.31,2)))),cap=mesh(homeTileGeometry||sphereGeometry,mat('#ae8ec5',false,'ceramic'),dormer,side*.12,hoodY+.016,.025);cap.name='dormer-rounded-cap';cap.scale.set(.26,.027,.13);cap.quaternion.setFromAxisAngle(new THREE.Vector3(0,0,1),-side*hoodAngle).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),-side*Math.PI/2));}
-      function cottageSideWindow(turn,x,y,z){var s=new THREE.Group();s.name='all-angle-arched-window';s.position.set(x,y,z);s.rotation.y=turn;g.add(s);
-        part(archRing(.43,.65,0,.30,.50,.07,.10),'#ba8652','wood',s,0,0,.02,'cottage-side-window-ring');
-        part(archSolid(.285,.48,.08,.025),'#715d47','glass',s,0,0,.055,'cottage-side-window-glass');
-        box(s,.024,.60,.035,mat('#d1aa76',false,'wood'),0,.315,.075);box(s,.34,.024,.035,mat('#d1aa76',false,'wood'),0,.30,.075);
-        box(s,.50,.09,.12,mat('#ba8652',false,'wood'),0,.015,.04).name='cottage-side-rounded-sill';}
-      for(var side=-1;side<=1;side+=2)cottageSideWindow(side*Math.PI/2,side*(w/2-.015),.55,-.02);
-      cottageSideWindow(Math.PI,0,.58,-depth/2+.012);
+      part(solidProfile(dOutline,.48,.012),roofPigment,'ceramic',dormer,0,.40,0,'cottage-curved-dormer-roof');
+      for(var side=-1;side<=1;side+=2){var hoodY=.40+.30*Math.sqrt(1-Math.pow(.12/.31,2)),hoodAngle=Math.atan(.30*.12/(.31*.31*Math.sqrt(1-Math.pow(.12/.31,2)))),cap=mesh(homeTileGeometry||sphereGeometry,mat(roofLight,false,'ceramic'),dormer,side*.12,hoodY+.016,.025);cap.name='dormer-rounded-cap';cap.scale.set(.26,.027,.13);cap.quaternion.setFromAxisAngle(new THREE.Vector3(0,0,1),-side*hoodAngle).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),-side*Math.PI/2));}
+      function cottageSideWindow(turn,x,y,z,display){
+        var room=windowRoom(g,{name:'all-angle-arched-window',turn:turn,x:x,base:y,z:z,width:display?depth*.66:.285,height:display?.82:.48,kind:kind,display:!!display});
+        return room;
+      }
+      cottageSideWindow(-Math.PI/2,-w/2+.048,commercial?.36:.63,commercial?0:-.02,commercial);
+      cottageSideWindow(Math.PI/2,w/2-.048,.63,-.02,false);
+      cottageSideWindow(Math.PI,0,.66,-depth/2+.048,false);
+      if(commercial){
+        var awningRoot=new THREE.Group();awningRoot.name='commercial-side-striped-awning';awningRoot.position.set(-w/2-.045,1.30,0);awningRoot.rotation.y=-Math.PI/2;g.add(awningRoot);
+        var awningWidth=depth*.66+.19;
+        for(var stripe=0;stripe<7;stripe++){
+          var awning=box(awningRoot,awningWidth/7,.075,.35,mat(stripe%2?'#f4e6d0':kind==='cafe'?'#d9a6a3':'#98b090',false,'paper'),(stripe-3)*awningWidth/7,0,.13);awning.rotation.x=.12;
+          ball(awningRoot,awning.material,(stripe-3)*awningWidth/7,-.025,.30,awningWidth/14,.055,.04).name='rounded-awning-scallop';
+        }
+      }
       box(g,.22,.50,.22,mat('#d1aa76',false,'wood'),w*.28,2.23,-.12).name='cottage-short-roof-chimney';
       box(g,.29,.075,.29,mat('#ba8652',false,'wood'),w*.28,2.495,-.12).name='cottage-rounded-chimney-cap';
       // Keep the two saved small yard accents at the same local sites.
@@ -625,7 +802,7 @@
     }
     var landscape = LayoutArt || globalThis.PetTownLayoutArt;
     var layoutModel = landscape && landscape.revision === 'layout-art-3d1' && typeof landscape.build === 'function' ?
-      landscape.build(THREE, world, { group: group, groundPoint: groundPoint, townPoint: townPoint,
+      landscape.build(THREE, world, { group: group, groundPoint: groundPoint, townPoint: townPoint, doorContact: Town.doorContact,
         mesh: mesh, box: box, ball: ball, mat: mat, groundMaterial: land.material, surfaces: surfaces, occluders: occluders }) : null;
     scene.userData.layoutArtRevision = layoutModel ? layoutModel.layoutArtRevision : 'legacy';
     // Synchronous historical previews may call the builder before lazy dependencies.
@@ -702,114 +879,20 @@
           var droplet=ball(fountain,fountainFinish('#eef1e7','water',true),start.x,start.y,start.z,.018,.045,.018);droplet.userData.phase=stream/8;droplet.userData.cascade={start:start,end:end};droplets.push(droplet);
         }
         var jet=ball(fountain,fountainFinish('#eef1e7','water',true),0,1.075,0,.045,.10,.045);jet.name='fountain-top-jet';
+        var waterAPI=WaterLife||globalThis.PetTownWaterLife;if(waterAPI&&waterAPI.revision==='fountain-water-life1')waterLife=waterAPI.create(THREE,{fountain:fountain,materials:materials,geometries:geometries});
       } else {
         // The solid base is inscribed in the existing elliptical footprint; roofs can overhang above the pet.
         var cafe = p.id === 'cafe' || p.shopId === 'cafe', market = p.id === 'shop' || p.shopId && !cafe;
-        var w = rx * (cafe || market ? 1.15 : 1.7), depth = rz, funding = p.status === 'funding' || p.status === 'building';
+        var dimensions=Town.solidDimensions?Town.solidDimensions(p):{width:rx*2.05,depth:rz*2.0};
+        var w = dimensions.width, depth = dimensions.depth, funding = p.status === 'funding' || p.status === 'building';
         box(g, w, .13, depth, '#d0af80', 0, .065, 0);
         if (funding) {
           for (var sx = -1; sx <= 1; sx += 2) for (var sz = -1; sz <= 1; sz += 2) box(g, .08, .6, .08, '#b38657', sx * w / 2, .3, sz * depth / 2);
           box(g, w, .17, .06, '#d8bd95', 0, .45, depth / 2);
-        } else if (p.id === 'home') {
-          shopCottage(g,w,depth,rx);
         } else {
-          box(g, w, 1.8, depth, cafe ? '#f6e8d6' : '#f2ead9', 0, .96, 0);
-          var roof = new THREE.Shape(); roof.moveTo(-w * .62, 0); roof.lineTo(0, .8); roof.lineTo(w * .62, 0); roof.closePath();
-          var roofGeo = new THREE.ExtrudeGeometry(roof, { depth: depth + .3, bevelEnabled: true, bevelThickness: .045, bevelSize: .04, bevelSegments: 3, steps: 1 }); roofGeo.translate(0, 1.8, -depth / 2 - .15);
-          var roofColor = p.id === 'home' ? '#9b7cb5' : cafe ? '#ad8fbe' : market ? '#9983b0' : '#ab91b8';
-          mesh(roofGeo, [mat('#f6e9d2',false,'plaster'), mat(roofColor,false,'ceramic')], g);
-          for (var gableSide = -1; gableSide <= 1; gableSide += 2) for (var gableEdge = -1; gableEdge <= 1; gableEdge += 2) { var trim = box(g, Math.hypot(w * .62, .8), .065, .065, '#b88555', gableEdge * w * .31, 2.2, gableSide * (depth / 2 + .19)); trim.rotation.z = -gableEdge * Math.atan2(.8, w * .62); }
-          // Thick overlapping ceramic shingles follow both real sloping roof planes.
-          var roofRun = w * .62, roofAngle = Math.atan2(.8, roofRun), tileRows = 4, tileColumns = Math.max(3, Math.ceil((depth + .3) / .3));
-          for (var roofSide = -1; roofSide <= 1; roofSide += 2) for (var tileRow = 0; tileRow < tileRows; tileRow++) for (var tileColumn = 0; tileColumn < tileColumns; tileColumn++) {
-            var fraction = (tileRow + .4) / tileRows, tz = -depth / 2 - .12 + (tileColumn + .5) * (depth + .24) / tileColumns;
-            var tile = (roofTileGeometry ? function (color, x, y, z, rx, ry, rz) { var m = mesh(roofTileGeometry, color, g, x, y, z); m.scale.set(rx, ry, rz); return m; } : function (color, x, y, z, rx, ry, rz) { return ball(g, color, x, y, z, rx, ry, rz); })(mat(tileRow % 2 ? roofColor : p.id === 'home' ? '#b39bc9' : cafe ? '#c1a5cf' : market ? '#b5a0c6' : '#c2a7cc',false,'ceramic'), roofSide * roofRun * fraction, 2.6 - fraction * .8 + .035, tz, roofRun / tileRows * .72, .065, (depth + .3) / tileColumns * .61); tile.name = 'overlapping-round-roof-tile';
-            if (roofTileGeometry) {
-              // The scallop is local -Z. Rotate it down the +/-X roof slope,
-              // swapping local X/Z scale so its established box does not grow.
-              var rx = tile.scale.x, rz = tile.scale.z; tile.scale.set(rz, tile.scale.y, rx);
-              tile.quaternion.setFromAxisAngle(new THREE.Vector3(0,0,1), -roofSide * roofAngle)
-                .multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0), -roofSide * Math.PI / 2));
-            } else tile.rotation.z = -roofSide * roofAngle;
-          }
-          // Fine gable joinery, warm wood edges and door seams echo the shop art.
-          // Everything sits inside the existing roof/porch projection.
-          ball(g, '#b88555', 0, 2.12, depth / 2 + .175, .15, .18, .035);
-          ball(g, mat('#715d47',false,'glass'), 0, 2.12, depth / 2 + .203, .113, .14, .018);
-          box(g, .022, .28, .032, mat('#c69b69',false,'wood'), 0, 2.12, depth / 2 + .224);
-          box(g, .225, .022, .032, mat('#c69b69',false,'wood'), 0, 2.12, depth / 2 + .224);
-          for (var post=-1;post<=1;post+=2) box(g, .048, 1.56, .045, '#cba67c', post*w*.475, .98, depth/2+.027);
-          box(g, w * 1.25, .11, depth + .36, '#cba67c', 0, 1.79, 0);
-          box(g, w * 1.04, .12, depth * 1.04, '#c7a06e', 0, .2, 0);
-          for(var footX=-1;footX<=1;footX+=2)for(var footZ=-1;footZ<=1;footZ+=2){var joineryFoot=ball(g,mat('#b98856',false,'wood'),footX*w*.44,.13,footZ*depth*.36,.06,.055,.06);joineryFoot.name='rounded-joinery-foot';}
-
-          function doorPart(m) { m.userData.door = true; return m; }
-          doorPart(box(g, .47, 1.06, .09, mat('#c49b6f',false,'wood'), 0, .57, depth / 2 + .03));
-          doorPart(box(g, .36, .94, .1, '#a8754d', 0, .53, depth / 2 + .08));
-          doorPart(ball(g, mat('#c49b6f',false,'wood'), 0, 1.08, depth / 2 + .045, .235, .25, .065)); doorPart(ball(g, '#a8754d', 0, 1.07, depth / 2 + .09, .18, .21, .055));
-          doorPart(box(g, .22, .32, .015, mat('#b78658',false,'wood'), 0, .78, depth / 2 + .138));
-          doorPart(ball(g, '#b79461', .115, .48, depth / 2 + .16, .035, .035, .025));
-          for (var seam=-1;seam<=1;seam++) doorPart(box(g,.006,.75,.006,'#825b3e',seam*.085,.55,depth/2+.133));
-          doorPart(box(g, .53, .1, .26, '#d8b88b', 0, .065, depth / 2 + .1));
-          for (var wx = -1; wx <= 1; wx += 2) {
-            var windowX = wx * w * .32;
-            function arch(parent,color,x,y,z,width,height,depth){
-              var m=mesh(archGeometry||boxGeometry,mat(color,false,color==='#715d47'?'glass':'wood'),parent,x,y,z);m.scale.set(width,height,depth);return m;
-            }
-            arch(g,'#b98856',windowX,.96,depth/2+.06,.39,.58,.10).name='arched-window-frame';
-            arch(g,'#715d47',windowX,1.015,depth/2+.12,.28,.43,.035).name='arched-window-glass';
-            box(g,.035,.39,.055,mat('#c69b69',false,'wood'),windowX,1.205,depth/2+.145);
-            box(g,.28,.035,.055,mat('#c69b69',false,'wood'),windowX,1.21,depth/2+.145);
-            box(g,.43,.10,.20,mat('#b98856',false,'wood'),windowX,.955,depth/2+.09);
-            for (var fl = -1; fl <= 1; fl++) { leaf(g, '#a2c786', windowX + fl * .09, 1.02, depth / 2 + .13, .09, .5, fl); daisy(g, windowX + fl * .09, .93, depth / 2 + .14, .42, fl === 0); }
-          }
-          if(archGeometry&&(p.id==='home'||cafe||market)){
-            var dormer=new THREE.Group();dormer.name='market-photo-dormer';dormer.position.set(-w*.32,2.02,-depth*.12);dormer.rotation.y=-Math.PI/2;g.add(dormer);
-            var face=mesh(archGeometry,mat('#f8ead3',false,'plaster'),dormer,0,0,.10);face.scale.set(.49,.49,.40);
-            var frame=mesh(archGeometry,mat('#b98856',false,'wood'),dormer,0,.055,.325);frame.scale.set(.32,.35,.075);frame.name='dormer-arched-frame';
-            var glass=mesh(archGeometry,mat('#715d47',false,'glass'),dormer,0,.095,.368);glass.scale.set(.225,.255,.025);
-            box(dormer,.028,.25,.035,mat('#c69b69',false,'wood'),0,.22,.389);box(dormer,.23,.028,.035,mat('#c69b69',false,'wood'),0,.23,.389);
-            box(dormer,.40,.065,.15,mat('#b98856',false,'wood'),0,.045,.34);
-            for(var ds=-1;ds<=1;ds+=2){var cap=mesh(roofTileGeometry,mat('#b39bc9',false,'ceramic'),dormer,ds*.14,.46,.1);cap.scale.set(.32,.055,.20);cap.rotation.z=-ds*.52;cap.name='dormer-rounded-cap';}
-          }
-          // The same warm arched joinery continues around both sides and rear.
-          function sideWindow(parent,turn,x,y,z){
-            var frameGroup=new THREE.Group();frameGroup.name='all-angle-arched-window';frameGroup.position.set(x,y,z);frameGroup.rotation.y=turn;parent.add(frameGroup);
-            var outer=mesh(archGeometry||boxGeometry,mat('#b98856',false,'wood'),frameGroup,0,0,0);outer.scale.set(.35,.52,.065);
-            var inner=mesh(archGeometry||boxGeometry,mat('#715d47',false,'glass'),frameGroup,0,.06,.04);inner.scale.set(.25,.39,.025);
-            box(frameGroup,.028,.35,.035,mat('#c69b69',false,'wood'),0,.24,.06);box(frameGroup,.25,.028,.035,mat('#c69b69',false,'wood'),0,.25,.06);
-            box(frameGroup,.40,.075,.11,mat('#b98856',false,'wood'),0,.025,.025);
-          }
-          for(var side=-1;side<=1;side+=2)sideWindow(g,side*Math.PI/2,side*(w/2+.025),.88,0);
-          sideWindow(g,Math.PI,0,.9,-depth/2-.025);
-
-          box(g, .22, .42, .22, '#d2b18a', w * .28, 2.4, -.12); box(g, .3, .09, .3, '#bc956b', w * .28, 2.64, -.12);
-          if (cafe || market) {
-            for (var stripe = 0; stripe < 7; stripe++) { var awning = box(g, w * .14, .09, .38, stripe % 2 ? '#faf0db' : cafe ? '#ddb1bc' : '#a5c4aa', (stripe - 3) * w * .14, 1.5, depth / 2 + .14); awning.rotation.x = .12; }
-            box(g, .48, .2, .09, cafe ? '#d8afc0' : '#b6cfae', 0, 1.75, depth / 2 + .08);
-          }
-          if (cafe) {
-            var tx = rx * .7;
-            cylinder(g, .15, .05, '#c39a6b', tx, .43, .02); cylinder(g, .035, .4, '#a7794e', tx, .2, .02);
-            for (var chair = -1; chair <= 1; chair += 2) { box(g, .15, .05, .15, '#bc8f5e', tx, .24, chair * .26); box(g, .15, .25, .035, '#cba46f', tx, .36, chair * .32); for (var leg = -1; leg <= 1; leg += 2) box(g, .025, .22, .025, '#a77549', tx + leg * .05, .11, chair * .26); }
-            cylinder(g, .035, .06, '#f3e7d2', tx, .49, .02);
-          } else if (market) {
-            for (var crate = 0; crate < 2; crate++) { box(g, .22, .2, .24, '#b98655', rx * .7, .13 + crate * .17, .05 + crate * .13); for (var fruit = 0; fruit < 3; fruit++) ball(g, crate ? '#c4cf8c' : '#e5a795', rx * .7 + (fruit - 1) * .055, .27 + crate * .17, .05 + crate * .13, .045, .045, .045); }
-          }
-          for (var yard = -1; yard <= 1; yard += 2) {
-            var px = yard * Math.min(rx * .58, .54), pz = depth / 2 + .13;
-            var pot=mesh(flowerPotGeometry,mat('#f7efdf',false,'ceramic'),g,px,0,pz);pot.scale.set(.09,.17,.0765);pot.name='rounded-ivory-yard-pot';
-            leafBush(g, px, .17, pz, .2, yard); daisy(g, px, .2, pz, .85, false);
-            box(g, .26, .07, .045, '#ccaa7a', yard * rx * .66, .21, .38);
-            for (var fence = -1; fence <= 1; fence += 2) box(g, .035, .28, .045, '#c29b6b', yard * rx * .66 + fence * .1, .14, .38);
-          }
-          var entryLamp=new THREE.Group();entryLamp.name='warm-paper-entry-lantern';entryLamp.position.set(-.26,1.3,depth/2+.14);g.add(entryLamp);
-          box(entryLamp,.085,.13,.075,mat('#fff1d8',false,'paper'),0,0,0);
-          for(var ex=-1;ex<=1;ex+=2)for(var ez=-1;ez<=1;ez+=2)box(entryLamp,.012,.15,.012,mat('#a8754d',false,'wood'),ex*.047,0,ez*.042);
-          box(entryLamp,.115,.02,.105,mat('#a8754d',false,'wood'),0,-.075,0);var entryCap=mesh(lanternCapGeometry,mat('#a8754d',false,'wood'),entryLamp,0,.075,0);entryCap.scale.setScalar(.38);entryCap.rotation.y=Math.PI/4;
-
+          shopCottage(g,w,depth,rx,cafe?'cafe':market?'shop':'home');
         }
-        if (doc && doc.createElement && (p.id !== 'home' || funding)) {
+        if (doc && doc.createElement && funding) {
           var signCanvas = doc.createElement('canvas'); signCanvas.width = 256; signCanvas.height = 64; var signContext = signCanvas.getContext && signCanvas.getContext('2d');
           if (signContext) { var signBacking=box(g,funding?1.10:.84,funding?.29:.23,.055,mat('#b98856',false,'wood'),0,funding?.7:1.67,depth/2+.095);signBacking.name='rounded-wood-sign-backing';signContext.fillStyle = '#f5e9d6'; signContext.fillRect(0, 0, 256, 64); signContext.fillStyle = '#526449'; signContext.font = '500 28px sans-serif'; signContext.textAlign = 'center'; signContext.fillText(p.label + (funding ? p.status === 'building' ? '・建設中' : '・予定地' : ''), 128, 42, 244);
             var signTexture = new THREE.CanvasTexture(signCanvas); signTexture.colorSpace = THREE.SRGBColorSpace; textures.add(signTexture); var signMaterial = new THREE.MeshBasicMaterial({ map: signTexture }); materials.add(signMaterial); mesh(new THREE.PlaneGeometry(funding ? 1.05 : .78, funding ? .26 : .2), signMaterial, g, 0, funding ? .7 : 1.67, depth / 2 + .13); }
@@ -818,14 +901,7 @@
         if (!layoutModel) road(p.entrance, junction);
       }
       solid(g, p); buildingGeometry=false;
-      // Retain collision/camera proxies; show the exact placement artwork.
-      // Original transparent corners do not become new clickable rectangles.
-      if(originalArt && ['home','cafe','shop','playground'].indexOf(p.id)>=0 && p.status!=='funding' && p.status!=='building'){
-        g.traverse(function(m){if(m.isMesh){m.visible=false;m.castShadow=false;m.userData.originalArtProxy=true;}});
-        pickables=pickables.filter(function(m){return m.userData.placeId!==p.id;});
-        var art=originalSprite(p.id==='playground'?'fountain':p.id,g,p.id==='playground'?2.25:3.25,0,0,.34);
-        art.scale.y/=g.scale.y;art.userData.placeId=p.id;pickables.push(art);
-      } else if(originalArt && (p.id==='tree'||p.id==='flowers')){
+      if(originalArt && (p.id==='tree'||p.id==='flowers')){
         g.traverse(function(o){if(o.isSprite){o.userData.placeId=p.id;pickables.push(o);}});
       }
     });
@@ -963,7 +1039,7 @@
     // meshes only as exact picking/camera collision targets; never draw them twice.
     scene.updateMatrixWorld(true);
     var buckets = {}, batches = seasonBatches.slice(), originals = [];
-    group.traverse(function (m) { if (!m.isMesh || !m.visible) return; var cell = Math.floor(m.matrixWorld.elements[12] / 5) + ':' + Math.floor(m.matrixWorld.elements[14] / 5);
+    group.traverse(function (m) { if (!m.isMesh || !m.visible || m.userData.noStaticBatch) return; var cell = Math.floor(m.matrixWorld.elements[12] / 5) + ':' + Math.floor(m.matrixWorld.elements[14] / 5);
       var key = m.geometry.uuid + ':' + m.material.uuid + ':' + cell; (buckets[key] || (buckets[key] = [])).push(m); });
     Object.keys(buckets).forEach(function (key) {
       var rows = buckets[key]; if (rows.length < 2) return;
@@ -974,6 +1050,7 @@
     scene.updateMatrixWorld(true); scene.matrixWorldAutoUpdate = false;
     function animate(ms, reduced) {
       var frame = natureFrame(ms, reduced);
+      animateWindowRooms(frame,reduced);if(waterLife)waterLife.animate(ms,reduced);
       trees.forEach(function (g, i) { g.rotation.z = frame.wind * Math.cos(i * 1.7); g.updateMatrixWorld(true); });
       ripples.forEach(function (m, i) { m.position.x = m.userData.baseX + (reduced ? 0 : Math.sin(frame.time * 1.1 + i) * .07); m.updateMatrixWorld(true); });
       droplets.forEach(function (m) { var a = reduced ? m.userData.phase : (frame.fountain + m.userData.phase) % 1; if(m.userData.cascade)m.position.lerpVectors(m.userData.cascade.start,m.userData.cascade.end,a);else m.position.set(Math.sin(a * TAU) * .2, .48 + Math.sin(a * Math.PI) * .65, Math.cos(a * TAU) * .15); m.updateMatrixWorld(true); });
@@ -981,7 +1058,7 @@
       return frame;
     }
     function dispose() { if (disposed) return; disposed = true; if(originalArt)originalArt.dispose(); batches.forEach(function (b) { b.mesh.dispose(); }); geometries.forEach(function (g) { g.dispose(); }); materials.forEach(function (m) { m.dispose(); }); textures.forEach(function (t) { t.dispose(); }); sun.shadow.dispose(); scene.clear(); }
-    return { scene: scene, surfaces: surfaces, occluders: occluders, pickables: pickables, placeGroups: placeGroups, animate: animate, dispose: dispose,
+    return { scene: scene, surfaces: surfaces, occluders: occluders, pickables: pickables, placeGroups: placeGroups, solidLifeRevision:solidLifeRevision, windowRooms:windowRooms, windowLifeMaterials:windowLifeMaterials, waterLife:waterLife, animate: animate, dispose: dispose,
       loadOriginalArt:loadOriginalArt, originalHit:originalHit, originalDoorHit:originalDoorHit, originalArt:originalArt, setSeason: setSeason, seasonGroups: seasonGroups, styleLimits: style ? style.limits : null, layoutArtRevision: scene.userData.layoutArtRevision,
       geometries: geometries, materials: materials, textures: textures, batches: batches, people: people(world, view, avoid) };
   }
@@ -1004,11 +1081,11 @@
       if (fishingVisual) release(function () { fishingVisual.dispose(); });
       if (model) release(function () { model.dispose(); }); if (texture) release(function () { texture.dispose(); });
       if (renderer) { release(function () { renderer.renderLists.dispose(); }); release(function () { renderer.dispose(); }); release(function () { renderer.forceContextLoss(); }); release(function () { renderer.domElement.remove(); }); }
-      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; delete host.dataset.townOriginalArt; }
+      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; delete host.dataset.townOriginalArt; delete host.dataset.townSolidLife; }
     }
     function fail(code) { if (dead || failed) return; failed = true; destroy(); report('onFailure', code); }
     var THREE;
-    try { var dependencies = await Promise.all([options.three || loadThree(), loadFrameFit(), loadSeasons(), loadStyle(), loadLayoutArt(), loadOriginals()]); THREE = dependencies[0]; } catch (_) { fail('town_module_unavailable'); return null; }
+    try { var dependencies = await Promise.all([options.three || loadThree(), loadFrameFit(), loadSeasons(), loadStyle(), loadLayoutArt(), loadOriginals(), loadWaterLife()]); THREE = dependencies[0]; } catch (_) { fail('town_module_unavailable'); return null; }
     if (!active()) { destroy(); return null; }
     var sprite, playerShadow, camera, ray, pointer, direction, target, desired, contactMap = null, fishingVisual = null, fishingState = null;
     function contactShadow(radius) {
@@ -1131,7 +1208,7 @@
       model = buildWorld(THREE, world, options.view, position, doc, firstSeason ? firstSeason.key : 'summer');
       await model.loadOriginalArt();
       if(!active()){destroy();return null;}
-      host.dataset.townOriginalArt=model.scene.userData.originalArtRevision;
+      host.dataset.townOriginalArt=model.scene.userData.originalArtRevision;host.dataset.townSolidLife=model.solidLifeRevision;
       host.dataset.townStyle = model.styleLimits ? 'shop-cottage-match2' : 'legacy';
       host.dataset.townLayoutArt = model.layoutArtRevision;
       if (Fishing && typeof Fishing.createVisual === 'function') { fishingVisual = Fishing.createVisual(THREE, world); model.scene.add(fishingVisual.group); }

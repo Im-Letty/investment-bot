@@ -11,7 +11,7 @@ function fixture(world=Town.createWorld(),moduleThree=THREE){
  const group=new THREE.Group(),geometries=new Set(),materials=new Set(),cache=new Map(),surfaces=[],occluders=[];
  const boxGeometry=new THREE.BoxGeometry(1,1,1),ballGeometry=new THREE.SphereGeometry(1,16,10);
  geometries.add(boxGeometry);geometries.add(ballGeometry);
- const ctx={group,surfaces,occluders,groundPoint:Scene.groundPoint,townPoint:Scene.townPoint,
+ const ctx={group,surfaces,occluders,groundPoint:Scene.groundPoint,townPoint:Scene.townPoint,doorContact:Town.doorContact,
   mat(color,transparent,role){const key=color+':'+role;if(!cache.has(key)){const m=new THREE.MeshStandardMaterial({color,roughness:.8});materials.add(m);cache.set(key,m);}return cache.get(key);},
   mesh(geo,material,parent,x=0,y=0,z=0){geometries.add(geo);const m=new THREE.Mesh(geo,material);m.position.set(x,y,z);parent.add(m);return m;},
   box(parent,w,h,d,material,x,y,z){const m=this.mesh(boxGeometry,material,parent,x,y,z);m.scale.set(w,h,d);return m;},
@@ -124,7 +124,7 @@ test('short native porch connectors close the visible door gap while canonical w
   for(const c of f.out.porchConnectors){
    const place=f.world.places.find(p=>p.id===c.placeId),canonical=f.out.paths.find(p=>p.placeId===c.placeId);
    assert.deepEqual(c.entrance,place.entrance);assert.deepEqual(canonical.entrance,place.entrance);
-   assert.deepEqual(c.porchPoint,{x:place.footprint.x,y:place.footprint.y+place.footprint.ry+22});
+   assert.deepEqual(c.porchPoint,Town.doorContact(place));
    const start=Scene.groundPoint(f.world,place.entrance),end=Scene.groundPoint(f.world,c.porchPoint),a=c.curve.getPoint(0),b=c.curve.getPoint(1);
    close(a.x,start.x);close(a.z,start.z);close(b.x,end.x);close(b.z,end.z);
    close(canonical.curve.getPoint(1).x,start.x);close(canonical.curve.getPoint(1).z,start.z);

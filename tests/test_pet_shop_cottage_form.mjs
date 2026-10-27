@@ -7,10 +7,10 @@ const candidateRoot=new URL('../',import.meta.url),fallbackRoot=new URL('../../s
 async function staticURL(name){const u=new URL('static/'+name,candidateRoot);try{await fs.access(u);return u;}catch{return new URL('static/'+name,fallbackRoot);}}
 const THREE=await import((await staticURL('vendor/three-0.160.1.module.js')).href);
 const context={console};context.window=context;context.globalThis=context;vm.createContext(context);
-for(const name of ['pet-town-walk','pet-frame-fit','pet-river-fishing','pet-japan-seasons','pet-town-style','pet-town-scene'])vm.runInContext(await fs.readFile(await staticURL(name+'.js'),'utf8'),context);
+for(const name of ['pet-town-walk','pet-frame-fit','pet-river-fishing','pet-japan-seasons','pet-town-style','pet-town-layout-art','pet-town-placement-originals','pet-town-water-life','pet-town-scene'])vm.runInContext(await fs.readFile(await staticURL(name+'.js'),'utf8'),context);
 const world=context.PetTownWalk.createWorld(),worldBefore=JSON.stringify(world);
 const model=context.PetTownScene.buildWorld(THREE,world,{},null,null,'autumn');model.scene.updateMatrixWorld(true);
-const home=model.placeGroups.find(g=>g.userData.placeId==='home');
+const home=model.placeGroups.find(g=>g.userData.placeId==='home'),homePlace=world.places.find(p=>p.id==='home'),dimensions=context.PetTownWalk.solidDimensions(homePlace);
 const named=n=>{const m=home.getObjectByName(n);assert.ok(m,n);return m;};
 const passed=[],facts={scope:'home form and material Mesh checks; finite witnesses, not traversal, body fit, physics or owner adoption',passed};
 const hash=x=>crypto.createHash('sha256').update(x).digest('hex');
@@ -35,42 +35,65 @@ await check('world definition, place transforms, and initial population stay unc
  assert.equal(JSON.stringify(world),worldBefore);assert.deepEqual(Array.from(home.position.toArray()),[-8.064,.025,-5.704]);assert.deepEqual(Array.from(home.scale.toArray()),[1,.9,1]);assert.equal(model.people.length,0);assert.equal(home.userData.homeDesignRevision,'shop-cottage-match2');
  facts.world_sha256=hash(worldBefore);facts.home_matrix=home.matrixWorld.toArray();
 });
-await check('old wooden threshold keeps actual dimensions and world pose',()=>{
- const m=named('cottage-retained-wood-threshold'),box=new THREE.Box3().setFromObject(m);m.position.toArray().forEach((v,i)=>assert.ok(Math.abs(v-[0,.065,.44][i])<1e-12));assert.deepEqual(m.scale.toArray(),[.53,.1,.26]);assert.ok(Math.abs(box.min.y-.0385)<1e-10&&Math.abs(box.max.y-.1285)<1e-10);assert.ok(Math.abs(box.max.z+5.134)<1e-10);let doors=0;home.traverse(o=>{if(o.userData.door)doors++;});assert.equal(doors,10);facts.threshold_bounds={min:box.min.toArray(),max:box.max.toArray()};
+await check('wooden threshold keeps its size and meets the shared deeper front contact',()=>{
+ const m=named('cottage-retained-wood-threshold'),box=new THREE.Box3().setFromObject(m),localZ=dimensions.depth/2+dimensions.stepOffset;
+ m.position.toArray().forEach((v,i)=>assert.ok(Math.abs(v-[0,.065,localZ][i])<1e-12));
+ assert.deepEqual(m.scale.toArray(),[dimensions.stepWidth,.1,dimensions.stepDepth]);
+ assert.ok(Math.abs(box.min.y-.0385)<1e-10&&Math.abs(box.max.y-.1285)<1e-10);
+ const expectedFront=home.position.z+localZ+dimensions.stepDepth/2;
+ assert.ok(Math.abs(box.max.z-expectedFront)<1e-10);
+ const contact=context.PetTownWalk.doorContact(homePlace),actualFront=context.PetTownScene.townPoint(world,{x:0,z:box.max.z});
+ assert.ok(contact.y>=actualFront.y+18,'the full actor radius remains outside the actual step');
+ let doors=0;home.traverse(o=>{if(o.userData.door)doors++;});assert.equal(doors,10);
+ facts.threshold_bounds={min:box.min.toArray(),max:box.max.toArray(),contact:contact,sharedDimensions:dimensions};
 });
 await check('short wall and curved gable use real volume, not a tinted image plane',()=>{
- const wall=named('cottage-short-cream-wall'),roof=named('cottage-curved-gable-roof');assert.equal(wall.scale.y,1.42);assert.equal(roof.userData.profileExponent,1.35);assert.ok(roof.geometry.attributes.position.count>100);assert.ok(!roof.isSprite&&roof.material.every(m=>!m.map||m.map.userData.kind!=='reference-image'));
- const topAt=x=>{const p=roof.geometry.attributes.position;let best=-Infinity;for(let i=0;i<p.count;i++)if(Math.abs(p.getX(i)-x)<.035)best=Math.max(best,p.getY(i));return best;};assert.ok(topAt(0)>1.05);assert.ok(topAt(.495)<.51);assert.ok(topAt(.495)>.38);facts.profile={ridge:topAt(0),midSlope:topAt(.495)};
+ const wall=named('cottage-short-cream-wall'),roof=named('cottage-curved-gable-roof');assert.ok(wall.isMesh&&wall.userData.solidWall);assert.ok(Math.abs(wall.geometry.boundingBox.max.y-wall.geometry.boundingBox.min.y-1.42)<1e-6);assert.equal(wall.userData.actualOpeningCount,1);assert.equal(roof.userData.profileExponent,1.35);assert.ok(roof.geometry.attributes.position.count>100);assert.ok(!roof.isSprite&&roof.material.every(m=>!m.map||m.map.userData.kind!=='reference-image'));
+ const topAt=x=>{const p=roof.geometry.attributes.position;let best=-Infinity;for(let i=0;i<p.count;i++)if(Math.abs(p.getX(i)-x)<.035)best=Math.max(best,p.getY(i));return best;};const midSlopeX=dimensions.width*.62*.5;assert.ok(topAt(0)>1.05);assert.ok(topAt(midSlopeX)<.51);assert.ok(topAt(midSlopeX)>.38);facts.profile={ridge:topAt(0),midSlopeX:midSlopeX,midSlope:topAt(midSlopeX),sampleRoofRunFraction:.5};
 });
-await check('door frame has a real arched void and separate solid arched panel',()=>{
- const f=named('cottage-arched-door-frame'),p=named('cottage-arched-door-panel');assert.equal(inside(f,point(home,[0,.6,.37])),false);assert.equal(inside(f,point(home,[.30,.60,.37])),true);assert.equal(inside(f,point(home,[0,1.42,.37])),true);assert.equal(inside(p,point(home,[0,1.28,.38])),true);assert.equal(inside(p,point(home,[.23,1.28,.38])),false);
+await check('door frame and actual wall have arched voids around a separate closed arched panel',()=>{
+ const f=named('cottage-arched-door-frame'),p=named('cottage-arched-door-panel'),wall=named('cottage-short-cream-wall'),fz=f.position.z,pz=p.position.z;
+ assert.equal(inside(f,point(home,[0,.6,fz])),false);
+ assert.equal(inside(f,point(home,[.30,.60,fz])),true);
+ assert.equal(inside(f,point(home,[0,1.42,fz])),true);
+ assert.equal(inside(p,point(home,[0,1.28,pz])),true);
+ assert.equal(inside(p,point(home,[.23,1.28,pz])),false);
+ assert.equal(localRay(wall,home,[0,.6,dimensions.depth/2+1]).length,0,'the wall no longer fills the doorway aperture');
+ assert.ok(localRay(p,home,[0,.6,dimensions.depth/2+1]).length>0,'the closed door panel remains a real solid');
 });
 await check('new named home solids have closed edges, finite outward normals and positive volume',()=>{
- const unique=new Set(),all=[];home.traverse(m=>{if(m.isMesh&&(/^cottage-|^dormer-|overlapping-round-roof-tile/.test(m.name))&&!unique.has(m.geometry)){unique.add(m.geometry);all.push(geometryFacts(m));}});assert.ok(all.length>=12);for(const f of all){assert.equal(f.badEdges,0,f.name);assert.equal(f.badNormals,0,f.name);assert.equal(f.negativeFaces,0,f.name);assert.equal(f.degenerate,0,f.name);assert.ok(f.localVolume>0,f.name);}facts.geometry=all;
+ const unique=new Set(),all=[];home.traverse(m=>{if(m.isMesh&&(/^cottage-|^dormer-|^solid-building-|overlapping-round-roof-tile|living-arched-window-ring|living-window-glass/.test(m.name))&&!unique.has(m.geometry)){unique.add(m.geometry);all.push(geometryFacts(m));}});assert.ok(all.length>=12);for(const f of all){assert.equal(f.badEdges,0,f.name);assert.equal(f.badNormals,0,f.name);assert.equal(f.negativeFaces,0,f.name);assert.equal(f.degenerate,0,f.name);assert.ok(f.localVolume>0,f.name);}facts.geometry=all;
 });
-await check('six finite structural join witnesses lie inside both actual solids',()=>{
- const d=named('market-photo-dormer');facts.joins=[
- witness(named('cottage-short-cream-wall'),named('cottage-curved-gable-roof'),[.4,1.535,0]),
- witness(named('cottage-short-cream-wall'),named('cottage-arched-door-frame'),[.30,.60,.33]),
- witness(named('cottage-short-cream-wall'),named('cottage-arched-door-panel'),[.1,.60,.3395]),
+await check('six finite structural join witnesses lie inside the actual wall, frame, post and roof solids',()=>{
+ const d=named('market-photo-dormer'),front=named('cottage-short-cream-wall'),frame=named('cottage-arched-door-frame'),post=named('cottage-round-corner-post');
+ facts.joins=[
+ witness(front,named('cottage-curved-gable-roof'),[.4,1.535,front.position.z]),
+ witness(front,frame,[.30,.60,frame.position.z]),
+ witness(front,post,[post.position.x,.80,post.position.z]),
  witness(named('cottage-curved-gable-roof'),named('cottage-dormer-joined-cream-body'),[-.51,1.86,0]),
  witness(named('cottage-dormer-joined-cream-body'),named('dormer-arched-frame'),[.19,.20,.13],d),
  witness(named('cottage-dormer-joined-cream-body'),named('cottage-curved-dormer-roof'),[0,.66,0],d)];
 });
-await check('all 34 home tile solids join their own real roof at finite interior samples',()=>{
- const tiles=[];home.traverse(m=>{if(m.name==='overlapping-round-roof-tile'||m.name==='dormer-rounded-cap')tiles.push(m);});assert.equal(tiles.length,34);facts.tileJoins=tiles.map(m=>{const support=named(m.name==='dormer-rounded-cap'?'cottage-curved-dormer-roof':'cottage-curved-gable-roof');let found=null;outer:for(const x of [-.65,0,.65])for(const y of [-.9,-.5,0,.5])for(const z of [-.65,0,.65]){const p=point(m,[x,y,z]);if(inside(m,p)&&inside(support,p)){found=p.toArray();break outer;}}assert.ok(found,m.name);assert.equal(m.geometry.userData.cottageAdjustedTriangleNormals,1);return{name:m.name,point:found};});
+await check('all authored home tile solids join their own real roof at finite interior samples',()=>{
+ const tiles=[];home.traverse(m=>{if(m.name==='overlapping-round-roof-tile'||m.name==='dormer-rounded-cap')tiles.push(m);});const expectedTiles=2*4*Math.max(3,Math.ceil((dimensions.depth+.30)/.30))+2;assert.equal(tiles.length,expectedTiles);facts.authoredTileCount=expectedTiles;facts.tileJoins=tiles.map(m=>{const support=named(m.name==='dormer-rounded-cap'?'cottage-curved-dormer-roof':'cottage-curved-gable-roof');let found=null;outer:for(const x of [-.65,0,.65])for(const y of [-.9,-.5,0,.5])for(const z of [-.65,0,.65]){const p=point(m,[x,y,z]);if(inside(m,p)&&inside(support,p)){found=p.toArray();break outer;}}assert.ok(found,m.name);assert.equal(m.geometry.userData.cottageAdjustedTriangleNormals,1);return{name:m.name,point:found};});
 });
 await check('dormer arch top remains visible below its curved open-front hood',()=>{
  const d=named('market-photo-dormer'),f=named('dormer-arched-frame'),hood=named('cottage-curved-dormer-roof');assert.ok(localRay(f,d,[0,.55,1]).length>0);assert.equal(localRay(hood,d,[0,.55,1]).length,0);const forward=new THREE.Vector3(0,0,1).transformDirection(d.matrixWorld);assert.ok(forward.z>.7&&forward.x<-.6);facts.dormer_front_direction=forward.toArray();assert.deepEqual(d.scale.toArray(),[.8,.8,.8]);const dormerBox=new THREE.Box3().setFromObject(d),ridgeBox=new THREE.Box3().setFromObject(named('cottage-closed-rounded-ridge'));assert.ok(dormerBox.max.y<ridgeBox.max.y-.07);facts.dormer_bounds={min:dormerBox.min.toArray(),max:dormerBox.max.toArray(),main_ridge_max_y:ridgeBox.max.y};
 });
 await check('side and rear arched window rings each have real openings',()=>{
- const windows=[];home.traverse(m=>{if(m.name==='all-angle-arched-window')windows.push(m);});assert.equal(windows.length,3);for(const w of windows){const ring=w.getObjectByName('cottage-side-window-ring');assert.equal(localRay(ring,w,[0,.3,1]).length,0);assert.ok(localRay(ring,w,[.19,.3,1]).length>0);}
+ const windows=[];home.traverse(m=>{if(m.name==='all-angle-arched-window')windows.push(m);});assert.equal(windows.length,3);for(const w of windows){const ring=w.getObjectByName('living-arched-window-ring');assert.ok(ring);const pane=w.getObjectByName('living-window-glass'),back=w.getObjectByName('window-room-warm-backwall');assert.ok(pane&&back&&pane.position.z-back.position.z>.20);assert.equal(localRay(ring,w,[0,.3,1]).length,0);assert.ok(localRay(ring,w,[.19,.3,1]).length>0);}
 });
-await check('new static home stays inside its measured old Mesh envelope',()=>{
- const oldMin=new THREE.Vector3(-9.108097065925598,.024999999999999994,-6.2665),oldMax=new THREE.Vector3(-7.019902934074402,2.4708472857272827,-5.094431097911412),b=new THREE.Box3().setFromObject(home);for(const k of ['x','y','z']){assert.ok(b.min[k]>=oldMin[k]-1e-8,k+' min');assert.ok(b.max[k]<=oldMax[k]+1e-8,k+' max');}facts.home_bounds={min:b.min.toArray(),max:b.max.toArray()};facts.old_measured_home_bounds={min:oldMin.toArray(),max:oldMax.toArray()};
+await check('wider deeper home stays in shared-dimension envelopes and retains the prior height limits',()=>{
+ const oldMin=new THREE.Vector3(-9.108097065925598,.024999999999999994,-6.2665),oldMax=new THREE.Vector3(-7.019902934074402,2.4708472857272827,-5.094431097911412),b=new THREE.Box3().setFromObject(home);
+ assert.ok(b.min.y>=oldMin.y-1e-8&&b.max.y<=oldMax.y+1e-8,'old vertical silhouette cap retained');
+ const widthEnvelope=dimensions.width*.62+.075;
+ assert.ok(b.min.x>=home.position.x-widthEnvelope&&b.max.x<=home.position.x+widthEnvelope,'curved roof and tiles stay inside their shared-width authored overhang');
+ const depthEnvelope=dimensions.depth/2+.27;
+ assert.ok(b.min.z>=home.position.z-depthEnvelope&&b.max.z<=home.position.z+depthEnvelope,'roof trim and recessed rooms have a bounded authored depth');
+ facts.home_bounds={min:b.min.toArray(),max:b.max.toArray()};facts.prior_Y_limits_retained=true;facts.shared_width_envelope=widthEnvelope;facts.shared_depth_envelope=depthEnvelope;facts.old_measured_home_bounds={min:oldMin.toArray(),max:oldMax.toArray()};
 });
 await check('home mesh/material budget is bounded and does not add live lights',()=>{
- let meshes=0,triangles=0,lights=0;home.traverse(m=>{if(m.isMesh){meshes++;triangles+=(m.geometry.index?m.geometry.index.count:m.geometry.attributes.position.count)/3;}if(m.isLight)lights++;});assert.ok(meshes<=150);assert.ok(triangles<35000);assert.equal(lights,0);facts.budget={homeMeshes:meshes,homeTriangles:triangles,homeLights:lights,geometries:model.geometries.size,materials:model.materials.size};
+ let meshes=0,triangles=0,lights=0;home.traverse(m=>{if(m.isMesh){meshes++;triangles+=(m.geometry.index?m.geometry.index.count:m.geometry.attributes.position.count)/3;}if(m.isLight)lights++;});assert.ok(meshes<=210,'five authored recessed home rooms remain within the210Mesh cap');assert.ok(triangles<44000,'six authored depth-columns and real window walls/roof stay below44k home triangles');assert.ok(model.geometries.size<=140&&model.materials.size<=130,'shared resources remain bounded');assert.ok(model.batches.length<=120,'static/dynamic batching stays bounded');assert.equal(lights,0);facts.budget={homeMeshes:meshes,homeTriangles:triangles,homeLights:lights,geometries:model.geometries.size,materials:model.materials.size};
 });
 await check('all four season changes preserve home geometry and doorway transform',()=>{
  const m=named('cottage-retained-wood-threshold'),pose=JSON.stringify(m.matrixWorld.elements),geometries=[];home.traverse(o=>{if(o.isMesh)geometries.push(o.geometry);});for(const season of ['spring','summer','autumn','winter']){model.setSeason(season);model.scene.updateMatrixWorld(true);assert.equal(JSON.stringify(m.matrixWorld.elements),pose);let at=0;home.traverse(o=>{if(o.isMesh)assert.equal(o.geometry,geometries[at++]);});assert.equal(at,geometries.length);}assert.equal(JSON.stringify(world),worldBefore);facts.seasonSamples=4;
