@@ -213,3 +213,46 @@ test('the first visible scene waits for both inline pictures, then preserves the
   const bad=picture(false),fallback=harness(false,false,undefined,true,[picture(true),bad]);
   bad.fire('error');bad.fire('load');assert.ok(!fallback.classes.has('kn-orbit-art-pending'),'A broken picture must not hide the whole scene forever');
 });
+
+test('critical geometry and original artwork exist before mounting or external CSS',()=>{
+  // Definition must be safe before a DOM exists; do not call mount to obtain the fallback.
+  const context={window:{}};vm.runInNewContext(source,context);
+  const markup=context.window.KNNewsOrbit.markup;
+  const critical=markup.match(/^<style data-kn-orbit-critical>([\s\S]*?)<\/style>/);
+  assert.ok(critical,'Geometry must precede the first image in the delivered markup');
+  const rules=new Map([...critical[1].split('@media',1)[0].matchAll(/([^{}]+)\{([^{}]*)\}/g)].map(([,selector,body])=>[
+    selector.trim(),new Map(body.split(';').filter(Boolean).map(declaration=>{
+      const colon=declaration.indexOf(':');assert.ok(colon>0);
+      return [declaration.slice(0,colon).trim(),declaration.slice(colon+1).trim()];
+    }))
+  ]));
+  const root=rules.get('.kn-news-orbit'),globe=rules.get('.kn-news-orbit .kn-orbit-globe');
+  assert.equal(root.get('position'),'relative');assert.equal(root.get('max-width'),'100%');
+  assert.equal(root.get('height'),'220px');
+  for(const dimension of ['width','height'])assert.equal(globe.get(dimension),'208px');
+  for(const crop of ['clip-path','-webkit-clip-path'])assert.equal(globe.get(crop),'circle(43.25% at 50% 50%)');
+  assert.equal(globe.get('left'),'50%');assert.equal(globe.get('margin-left'),'-104px');
+  const buttons=rules.get('.kn-news-orbit .kn-orbit-guide,.kn-news-orbit .kn-orbit-shortcut');
+  assert.equal(buttons.get('width'),'80px');assert.equal(buttons.get('height'),'80px');
+  assert.equal(buttons.get('pointer-events'),'auto');
+  const coinCrop=rules.get('.kn-news-orbit .kn-orbit-orbiter-coin img');
+  assert.equal(coinCrop.get('width'),'54px');assert.equal(coinCrop.get('height'),'54px');
+  assert.equal(coinCrop.get('clip-path'),'circle(38.5% at 50% 49.6%)');
+  for(const child of ['kn-orbit-scene','kn-orbit-plane','kn-orbit-earth-fixed'])
+    assert.equal(rules.get('.kn-news-orbit .'+child).get('position'),'absolute');
+  const poses=['one','two','three'].map(name=>rules.get('.kn-news-orbit .kn-orbit-orbiter-'+name).get('transform'));
+  assert.equal(new Set(poses).size,3);for(const pose of poses)assert.match(pose,/^translate\([^)]+\) scale\([^)]+\)$/);
+  for(const selectorList of rules.keys())for(const selector of selectorList.split(','))
+    assert.match(selector,/^\.kn-news-orbit(?: \.[\w-]+(?: (?:img|svg))?)?$/,'Ordinary class selectors stay below the external body-scoped rules without requiring newer selector syntax');
+  assert.doesNotMatch(critical[1],/!important|@keyframes|animation:|--kn-|color-mix|#[\da-f]{3,8}\b/i,'Fallback must not own motion or theme colors');
+  const earth=markup.match(/<img class="kn-orbit-globe kn-orbit-illustrated-earth"[^>]+>/)[0];
+  assert.match(earth,/src="\/static\/news-orbit\/earth\.webp"/);
+  assert.match(earth,/width="208" height="208"/);
+  assert.ok(markup.indexOf('</style>')<markup.indexOf(earth));
+  const paper=markup.match(/src="data:image\/webp;base64,([^"]+)"/);
+  assert.deepEqual(Buffer.from(paper[1],'base64'),fs.readFileSync(path.join(__dirname,'../static/news-orbit/newspaper.webp')));
+  const coin=markup.match(/class="kn-orbit-coordinated-coin" src="data:image\/svg\+xml;base64,([^"]+)"/);
+  const original=Buffer.from(coin[1],'base64').toString('utf8').match(/href="data:image\/webp;base64,([^"]+)"/);
+  assert.deepEqual(Buffer.from(original[1],'base64'),fs.readFileSync(path.join(__dirname,'../static/news-orbit/coin.webp')));
+  // Parsing/markup assertions do not substitute for native CSS-failure layout checks.
+});
