@@ -41,7 +41,7 @@
   function solidDimensions(place) {
     var f = place && place.footprint;
     if (!f || !finite(f.rx) || !finite(f.ry) || f.rx <= 0 || f.ry <= 0) return null;
-    if (place.id === 'playground') return Object.freeze({ kind: 'fountain', radiusX: .78, radiusZ: .585 });
+    if (place.id === 'playground') return Object.freeze({ kind: 'fountain', radiusX: .76, radiusZ: .76 });
     if (['home', 'cafe', 'shop'].indexOf(place.id) < 0 && !place.shopId) return null;
     return Object.freeze({ kind: 'building', width: f.rx / 100 * 2.05, depth: f.ry / 100 * 2.0,
       groundPlinthScale: 1.04, stepWidth: .53, stepDepth: .26, stepOffset: .10,

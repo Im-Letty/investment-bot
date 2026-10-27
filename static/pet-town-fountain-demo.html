@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>写真に合わせた二段噴水</title>
+<style>
+*{box-sizing:border-box}body{margin:20px;background:#f6f3e8;color:#565b3c;font:15px/1.6 system-ui,sans-serif}h1{font-size:25px}p{max-width:75ch}button,label{font:inherit}button{min-height:44px;padding:8px 13px;margin:3px;background:#fffdf5;color:inherit;border:1px solid #cbc7ac;border-radius:12px}button[aria-pressed=true]{background:#e9e7d2;border-color:#929369;font-weight:600}.compare{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;max-width:1060px}.reference,.render{border:1px solid #d5d1b9;border-radius:18px;background:#f2eedf;padding:14px;min-width:0}.reference img{display:block;width:100%;max-width:384px;margin:38px auto;object-fit:contain}h2{font-size:17px;margin:0 0 12px}#view{width:100%;height:480px;max-width:100%;border-radius:12px;overflow:hidden}canvas{display:block;width:100%;height:100%;touch-action:none}pre{white-space:pre-wrap;font-size:12px}.options{max-width:1060px;margin:14px 0}a{color:inherit}@media(max-width:620px){body{margin:12px}.compare{grid-template-columns:1fr}.reference img{max-width:200px;margin:8px auto}#view{height:400px}}
+</style>
+<h1>写真に合わせた二段噴水</h1>
+<p>丸い二段の器、薄紫の縁、花びら模様と台座を見比べられます。噴水をドラッグすると、周りから見られます。<a href="/static/pet-solid-living-demo-game.html?fountain=1">村の中で見る</a></p>
+<div class="compare"><section class="reference"><h2>お店の商品画像</h2><img src="/static/pet-items-v1/fountain.webp" width="384" height="384" alt="クリーム色と薄紫の二段噴水の参照画像"></section><section class="render"><h2>村で使う立体の噴水</h2><p id="status" role="status">読み込み中</p><div id="view"></div></section></div>
+<div class="options"><button data-angle="front" aria-pressed="true">写真と比べる角度</button><button data-angle="back">背面</button><button data-angle="left">左側</button><button data-angle="right">右側</button><button data-angle="top">上から</button><button data-angle="bottom">底を見る</button><button id="pause" aria-pressed="false">水を止める</button><button id="night" aria-pressed="false">夜の光</button><button id="export">この角度をPNGで保存</button></div>
+<div class="options"><button data-size="390">390px</button><button data-size="320">320px</button><button data-size="landscape">740px横向き</button><button data-size="wide">広く表示</button><button data-season="spring">春</button><button data-season="autumn">秋</button><button data-season="winter">冬</button></div>
+<p>同じ立体を比較用の視点で表示しています。村での配置や通常ゲームの記録を変更する見本ではありません。</p><details><summary>見本の確認情報</summary><pre id="proof"></pre></details>
+<script type="module">
+import * as THREE from '/static/vendor/three-0.160.1.module.js';
+import '/static/pet-town-walk.js?v=20261028-fountain-reference1';
+import '/static/pet-frame-fit.js?v=20261025-fit1';import '/static/pet-river-fishing.js?v=20261027-solidlife1';
+import '/static/pet-japan-seasons.js?v=20261025-seasons1';import '/static/pet-town-style.js?v=20261027-layout-art3d1';import '/static/pet-town-layout-art.js?v=20261027-layout-art3d1';
+import '/static/pet-town-placement-originals.js?v=20261028-tree1';import '/static/pet-town-water-life.js?v=20261028-fountain-reference1';import '/static/pet-town-ocean-life.js?v=20261027-ocean1';
+import '/static/pet-town-tree-variety.js?v=20261028-tree1';import '/static/pet-town-shore-transition.js?v=20261028-shore1';import '/static/pet-town-scene.js?v=20261028-fountain-reference1';
+try{
+const host=document.querySelector('#view'),status=document.querySelector('#status'),proof=document.querySelector('#proof'),world=PetTownWalk.createWorld(),before=JSON.stringify(world),model=PetTownScene.buildWorld(THREE,world,{},null,document,'autumn'),f=model.scene.getObjectByName('market-photo-fountain');
+if(!f)throw Error('fountain_missing');
+const scene=new THREE.Scene();scene.background=new THREE.Color('#f2eedf');
+const ambient=new THREE.HemisphereLight('#fff8ec','#b9ae8e',2.3),sun=new THREE.DirectionalLight('#fff2d8',2.1),fill=new THREE.DirectionalLight('#e2e8ff',.65);
+sun.position.set(-2,4,3);fill.position.set(3,2,-2);scene.add(ambient,sun,fill);
+// The world batches static parts and hides their source meshes; this isolated viewer restores those same source meshes, without rendering the world batches.
+f.removeFromParent();f.position.set(0,0,0);scene.add(f);f.traverse(o=>{if(o.isMesh)o.visible=true;});
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:false});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.12;host.appendChild(renderer.domElement);
+const camera=new THREE.PerspectiveCamera(40,1,.01,25),bounds=new THREE.Box3().setFromObject(f),target=new THREE.Vector3(0,(bounds.min.y+bounds.max.y)/2,0),angles={front:[.28,.32],back:[Math.PI+.28,.32],left:[-Math.PI/2,.32],right:[Math.PI/2,.32],top:[.28,1.40],bottom:[.28,-.95]};
+let yaw=.28,pitch=.32,zoom=1,view='front',drag=null,paused=matchMedia('(prefers-reduced-motion: reduce)').matches,night=false,save=false,dead=false,raf=0,time=0,last=null,seq=0;
+// Fit the actual transformed part bounds, including the high jet, at every orbit angle.
+const fitPoints=[];f.updateMatrixWorld(true);f.traverse(o=>{if(!o.isMesh)return;o.geometry.computeBoundingBox();const b=o.geometry.boundingBox;for(const x of [b.min.x,b.max.x])for(const y of [b.min.y,b.max.y])for(const z of [b.min.z,b.max.z])fitPoints.push(new THREE.Vector3(x,y,z).applyMatrix4(o.matrixWorld).sub(target));});
+function fittedDistance(){const sy=Math.sin(yaw),cy=Math.cos(yaw),sp=Math.sin(pitch),cp=Math.cos(pitch),tv=Math.tan(camera.fov*Math.PI/360),th=tv*camera.aspect;let minimum=.1;for(const p of fitPoints){const depth=p.x*sy*cp+p.y*sp+p.z*cy*cp,right=p.x*cy-p.z*sy,up=-p.x*sy*sp+p.y*cp-p.z*cy*sp;minimum=Math.max(minimum,depth+Math.max(Math.abs(right)/th,Math.abs(up)/tv));}return minimum*1.08;}
+function size(){renderer.setSize(host.clientWidth,host.clientHeight);camera.aspect=host.clientWidth/host.clientHeight;camera.updateProjectionMatrix();}
+const ro=new ResizeObserver(size);ro.observe(host);
+function setAngle(name){view=name;[yaw,pitch]=angles[name];document.querySelectorAll('[data-angle]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.angle===name)));}
+document.querySelectorAll('[data-angle]').forEach(b=>b.onclick=()=>setAngle(b.dataset.angle));
+const pause=document.querySelector('#pause');function pauseLabel(){pause.textContent=paused?'水を動かす':'水を止める';pause.setAttribute('aria-pressed',String(paused));}pauseLabel();pause.onclick=()=>{paused=!paused;pauseLabel();};
+document.querySelector('#night').onclick=e=>{night=!night;e.currentTarget.setAttribute('aria-pressed',String(night));ambient.intensity=night?.7:2.3;sun.intensity=night?.25:2.1;fill.intensity=night?.35:.65;scene.background.set(night?'#262f45':'#f2eedf');};
+document.querySelectorAll('[data-season]').forEach(b=>b.onclick=()=>model.setSeason(b.dataset.season));
+document.querySelectorAll('[data-size]').forEach(b=>b.onclick=()=>{let v=b.dataset.size;host.style.width=v==='wide'?'100%':v==='landscape'?'740px':v+'px';host.style.maxWidth=v==='landscape'?'none':'100%';host.style.height=v==='landscape'?'420px':'480px';size();});
+document.querySelector('#export').onclick=()=>save=true;
+renderer.domElement.addEventListener('pointerdown',e=>{if(e.button!==0)return;drag={id:e.pointerId,x:e.clientX,y:e.clientY};renderer.domElement.setPointerCapture(e.pointerId);});
+renderer.domElement.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;yaw-=(e.clientX-drag.x)*.008;pitch=Math.max(-1.35,Math.min(1.48,pitch+(e.clientY-drag.y)*.006));view='orbit';drag.x=e.clientX;drag.y=e.clientY;document.querySelectorAll('[data-angle]').forEach(b=>b.setAttribute('aria-pressed','false'));});
+for(const name of ['pointerup','pointercancel','lostpointercapture'])renderer.domElement.addEventListener(name,()=>drag=null);
+renderer.domElement.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(1,Math.min(1.8,zoom+e.deltaY*.001));},{passive:false});
+function render(ms){if(dead)return;if(last!==null&&!paused)time+=Math.min(50,ms-last);last=ms;model.animate(time,paused);const distance=fittedDistance()*zoom;camera.position.set(target.x+Math.sin(yaw)*Math.cos(pitch)*distance,target.y+Math.sin(pitch)*distance,target.z+Math.cos(yaw)*Math.cos(pitch)*distance);camera.lookAt(target);renderer.render(scene,camera);
+if(++seq%15===0){const parts=[],water=[];f.traverse(o=>{if(o.isMesh){const row={name:o.name,position:o.position.toArray(),scale:o.scale.toArray(),triangles:o.geometry.index?o.geometry.index.count/3:o.geometry.attributes.position.count/3};parts.push(row);if(o.userData.nonSolidWater)water.push(row);}});proof.textContent=JSON.stringify({representation:'same actual fountain Mesh; isolated comparison view',referenceArtSHA:'b7394422852121b2d5b971fb42f82de6b9eb6460cb1b8bff5979b7e39d205006',referenceRevision:f.userData.referenceFormRevision||model.scene.userData.fountainReferenceRevision,worldPreserved:before===JSON.stringify(world),view,cameraDistance:distance,fitPointCount:fitPoints.length,width:host.clientWidth,height:host.clientHeight,waterTime:time,paused,night,partCount:parts.length,waterCount:water.length,triangles:parts.reduce((n,p)=>n+p.triangles,0),bounds:{min:bounds.min.toArray(),max:bounds.max.toArray()},water:water.filter(x=>/drop|ripple|jet/.test(x.name)),renderer:renderer.info.render},null,2);}
+if(save){save=false;renderer.domElement.toBlob(blob=>{if(!blob)return;const a=document.createElement('a'),u=URL.createObjectURL(blob);a.href=u;a.download='fountain-reference-'+view+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);},'image/png');}
+raf=requestAnimationFrame(render);}
+status.textContent='ドラッグで周りを見られます。';size();raf=requestAnimationFrame(render);
+addEventListener('pagehide',()=>{dead=true;cancelAnimationFrame(raf);ro.disconnect();model.dispose();renderer.dispose();},{once:true});
+}catch(e){document.querySelector('#status').textContent='表示を準備できませんでした。';document.querySelector('#proof').textContent=JSON.stringify({safeError:e.name},null,2);}
+</script></html>

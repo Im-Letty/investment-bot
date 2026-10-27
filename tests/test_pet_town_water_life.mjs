@@ -5,8 +5,9 @@ import Water from '../static/pet-town-water-life.js';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
-function fixture(withJet=true) {
+function fixture(withJet=true, surfaces) {
   const fountain=new THREE.Group(),materials=new Set(),geometries=new Set();
+  if(surfaces!==undefined)fountain.userData.fountainWaterSurfaces=surfaces;
   if(withJet){
     const jet=new THREE.Mesh(new THREE.SphereGeometry(1,8,6),new THREE.MeshStandardMaterial({color:'#eef1e7'}));
     jet.name='fountain-top-jet';jet.position.set(0,1.075,0);jet.scale.set(.045,.10,.045);fountain.add(jet);
@@ -99,8 +100,61 @@ test('nonfinite and negative elapsed times yield the defined finite initial pose
 test('resource allocations remain fixed during playback and owner disposal emits once per resource',()=>{
   const f=fixture(),materials=[...f.materials],geometries=[...f.geometries],counts=new Map();
   for(const resource of [...materials,...geometries])resource.addEventListener('dispose',()=>counts.set(resource,(counts.get(resource)||0)+1));
-  for(let i=0;i<120;i++)f.water.animate(i*33,false);
+  const diagnostic=f.water.animate(0,false);
+  for(let i=0;i<120;i++)assert.equal(f.water.animate(i*33,false),diagnostic,'diagnostics are reused without a frame allocation');
   assert.deepEqual([...f.materials],materials);assert.deepEqual([...f.geometries],geometries);assert.equal(counts.size,0);
   for(const resource of [...f.materials,...f.geometries])resource.dispose();
   assert.ok([...materials,...geometries].every(x=>counts.get(x)===1));
+});
+
+test('a Scene without authored water metadata keeps the exact legacy three-ring pose',()=>{
+  const f=fixture();
+  assert.equal(f.water.surfaceMode,'legacy');
+  assert.deepEqual(rings(f).map(m=>m.position.y),[.478,.478,1.004]);
+  assert.deepEqual(f.water.surfaces.lower,{y:.475,radius:.61,depthRatio:.75,rimY:.536,ringY:.478,maximumRadius:.585});
+  assert.deepEqual(f.water.surfaces.upper,{y:1.001,radius:.28,depthRatio:.75,rimY:1.038,ringY:1.004,maximumRadius:.25});
+  f.water.animate(0,true);
+  assert.ok(Math.abs(rings(f)[1].scale.x-.31)<1e-14);
+  assert.equal(rings(f)[1].scale.y,rings(f)[1].scale.x*.75);assert.equal(rings(f)[1].scale.z,.35);
+  assert.equal(Object.isFrozen(f.water.surfaces),true);
+});
+
+test('authored circular water surfaces move at the real basin heights and stay within its discs and rims',()=>{
+  const spec={lower:{y:.51,radius:.64,depthRatio:1,rimY:.56},upper:{y:1.075,radius:.34,depthRatio:1,rimY:1.12}};
+  const before=JSON.stringify(spec),f=fixture(true,spec);
+  assert.equal(f.water.surfaceMode,'authored');assert.equal(JSON.stringify(spec),before);
+  for(const [i,y] of [.513,.513,1.078].entries())assert.ok(Math.abs(rings(f)[i].position.y-y)<1e-14);
+  const authored=JSON.parse(before);
+  // API owns a copy, never a live alias to a changing caller object.
+  spec.lower.y=8;spec.upper.radius=3;
+  for(let ms=0;ms<=12000;ms+=137){
+    f.water.animate(ms,false);f.fountain.updateMatrixWorld(true);
+    for(const m of rings(f)){
+      const row=authored[m.name.includes('-upper-')?'upper':'lower'],box=new THREE.Box3().setFromObject(m);
+      assert.ok(box.min.x>=-row.radius&&box.max.x<=row.radius);
+      assert.ok(box.min.z>=-row.radius*row.depthRatio&&box.max.z<=row.radius*row.depthRatio);
+      assert.ok(box.min.y>row.y&&box.max.y<row.rimY);
+      assert.equal(m.scale.x,m.scale.y,'circular basin has circular local ripple');
+    }
+  }
+  f.water.animate(4000,false);f.water.animate(0,true);const rest=snapshot(f);
+  for(const ms of [1000,Number.MAX_VALUE,NaN]){f.water.animate(ms,true);assert.deepEqual(snapshot(f),rest);}
+});
+
+test('malformed authored surfaces fail before any Scene resources or fountain children are changed',()=>{
+  const valid={lower:{y:.51,radius:.64,depthRatio:1,rimY:.56},upper:{y:1.075,radius:.34,depthRatio:1,rimY:1.12}};
+  const invalid=[null,[],{}, {lower:valid.lower},
+    {...valid,lower:{...valid.lower,y:NaN}},
+    {...valid,lower:{...valid.lower,radius:0}},
+    {...valid,lower:{...valid.lower,radius:1e100}},
+    {...valid,upper:{...valid.upper,depthRatio:0}},
+    {...valid,upper:{...valid.upper,rimY:1.076}},
+    {...valid,upper:{...valid.upper,y:Infinity}}];
+  for(const spec of invalid){
+    const fountain=new THREE.Group(),materials=new Set(),geometries=new Set();
+    fountain.userData.fountainWaterSurfaces=spec;const priorChildren=fountain.children.slice();
+    assert.throws(()=>Water.create(THREE,{fountain,materials,geometries}),/town_water_surfaces_invalid/);
+    assert.deepEqual(fountain.children,priorChildren);assert.equal(materials.size,0);assert.equal(geometries.size,0);
+    assert.equal(fountain.userData.fountainWaterSurfaces,spec);
+  }
 });

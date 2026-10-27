@@ -120,7 +120,7 @@ test('actual geometry uses the six saved facilities and funding/open economy sit
  const before=JSON.stringify(world),m=Scene.buildWorld(THREE,world,{});m.scene.updateMatrixWorld(true);
  assert.equal(m.placeGroups.length,7);assert.deepEqual(m.placeGroups.map(g=>g.userData.placeId),world.places.map(p=>p.id));
  assert.equal(JSON.stringify(world),before);assert.notEqual(before,snapshot);assert.equal(m.surfaces.length,2);assert.ok(m.occluders.length>30);
- assert.ok([...m.materials].every(x=>!x.map),'the terrain is geometry, not the old house-painted image');
+ assert.ok([...m.materials].every(x=>!x.map||x.map.userData.fountainWaterReflection),'only the bounded procedural fountain reflection is mapped without a document; terrain is still native geometry');
  const ray=new THREE.Raycaster();for(const p of [{x:500,y:1100},{x:2200,y:1500},{x:2770,y:1160}]){const q=Scene.groundPoint(world,p);ray.set(new THREE.Vector3(q.x,5,q.z),new THREE.Vector3(0,-1,0));const hits=ray.intersectObjects(m.surfaces);assert.ok(hits.length);assert.ok(Math.abs(hits[0].point.y-Scene.heightAt(p))<1e-6);}
  const wet=Scene.groundPoint(world,{x:2750,y:1550});ray.set(new THREE.Vector3(wet.x,5,wet.z),new THREE.Vector3(0,-1,0));assert.equal(ray.intersectObjects(m.surfaces).length,0,'water has no tap-walkable floor');
  let disposed=0;for(const g of m.geometries)g.addEventListener('dispose',()=>disposed++);const n=m.geometries.size;m.dispose();m.dispose();assert.equal(disposed,n);
@@ -132,13 +132,13 @@ test('the initial population gate returns no appearances and never mutates popul
  assert.notEqual(Scene.natureFrame(0,false).wind,Scene.natureFrame(1200,false).wind);assert.deepEqual(Scene.natureFrame(0,true),Scene.natureFrame(10000,true));
 });
 
-test('original tree artwork stays unchanged while instanced water keeps ambient/reduced-motion updates and resource release',()=>{
- const world=Town.createWorld(),m=Scene.buildWorld(THREE,world,{}),batch=m.batches.find(b=>b.dynamic),art=[];m.scene.traverse(o=>{if(o.isSprite&&/^tree/.test(o.userData.originalArtKind||''))art.push(o);});
+test('original tree artwork stays unchanged while unbatched water keeps ambient/reduced-motion updates and resource release',()=>{
+ const world=Town.createWorld(),m=Scene.buildWorld(THREE,world,{}),art=[],moving=[];m.scene.traverse(o=>{if(o.isSprite&&/^tree/.test(o.userData.originalArtKind||''))art.push(o);if(o.name==='fountain-falling-drop')moving.push(o);});
  assert.equal(art.length,27);const artBefore=art.map(s=>[...s.position.toArray(),...s.scale.toArray(),s.material.rotation]);
- assert.ok(batch);assert.ok(batch.rows.every(row=>!row.visible));assert.equal(m.scene.matrixWorldAutoUpdate,false);
- const snapshot=()=>Array.from(batch.mesh.instanceMatrix.array);m.animate(0,true);const initial=snapshot();m.animate(1100,false);assert.notDeepEqual(snapshot(),initial);m.animate(2000,true);assert.deepEqual(snapshot(),initial);m.animate(8000,true);assert.deepEqual(snapshot(),initial);
+ assert.equal(moving.length,8);assert.ok(moving.every(row=>row.userData.noStaticBatch));assert.ok(m.batches.every(batch=>batch.rows.every(row=>!moving.includes(row))));assert.equal(m.scene.matrixWorldAutoUpdate,false);
+ const snapshot=()=>moving.map(row=>row.matrixWorld.toArray());m.animate(0,true);const initial=snapshot();m.animate(1100,false);assert.notDeepEqual(snapshot(),initial);m.animate(2000,true);assert.deepEqual(snapshot(),initial);m.animate(8000,true);assert.deepEqual(snapshot(),initial);
  assert.deepEqual(art.map(s=>[...s.position.toArray(),...s.scale.toArray(),s.material.rotation]),artBefore,'source artwork is not procedurally deformed');
- let disposed=0;batch.mesh.addEventListener('dispose',()=>disposed++);m.dispose();m.dispose();assert.equal(disposed,1);
+ let disposed=0;moving[0].geometry.addEventListener('dispose',()=>disposed++);m.dispose();m.dispose();assert.equal(disposed,1);
 });
 
 test('only a real loaded static image or a painted nonempty canvas can activate the scene',async()=>{

@@ -75,7 +75,7 @@ test('original 2D tree artwork preserves saved roots, doors, camera clearance an
  function oldTrees(m){const rows=[];m.scene.traverse(o=>{if(o.name==='rounded-tree-trunk')rows.push(o.parent);});return rows;}
  function originalTrees(m){const rows=[];m.scene.traverse(o=>{if(o.isGroup&&o.name==='placement-original-tree')rows.push(o);});return rows;}
  try{
-  const a=oldTrees(old),b=originalTrees(now),spec=Originals.catalog.tree;assert.equal(a.length,27);assert.equal(b.length,a.length);
+  const a=oldTrees(old),b=originalTrees(now);assert.equal(a.length,27);assert.equal(b.length,a.length);
   for(let i=0;i<b.length;i++){
    const root=b[i],scale=i===0?1.08:.75+((i-1)*7%9)*.055;
    // Artwork width is independent of the unchanged world/collision placement.
@@ -83,15 +83,15 @@ test('original 2D tree artwork preserves saved roots, doors, camera clearance an
    assert.deepEqual(root.matrixWorld.elements,a[i].matrixWorld.elements,'tree '+i+' saved root matrix');
    assert.deepEqual(root.parent.matrixWorld.elements,a[i].matrixWorld.elements,'tree '+i+' outer placement matrix');
    assert.ok(root.getWorldPosition(new THREE.Vector3()).distanceTo(a[i].getWorldPosition(new THREE.Vector3()))<1e-12,'tree '+i+' footpoint');
-   assert.equal(root.children.length,1);const sprite=root.children[0];assert.ok(sprite.isSprite);assert.equal(sprite.isMesh,undefined);
+   assert.equal(root.children.length,1);const sprite=root.children[0],spec=Originals.resolve(sprite.userData.originalArtKind);assert.ok(sprite.isSprite);assert.equal(sprite.isMesh,undefined);
    assert.equal(sprite.userData.originalArt,true);assert.equal(sprite.userData.collisionIndependent,true);
    assert.equal(sprite.userData.artRepresentation,'original-2d-in-world-space');
    assert.equal(sprite.userData.sourceUrl,spec.url);assert.equal(sprite.userData.sourceSHA256,spec.sha256);
    assert.deepEqual(sprite.position.toArray(),[0,0,0]);
    assert.ok(Math.abs(sprite.scale.x-3.25*scale)<1e-12);
    assert.ok(Math.abs(sprite.scale.y-sprite.scale.x*spec.height/spec.width)<1e-12);
-   assert.equal(sprite.center.x,(spec.alphaBounds[0]+spec.alphaBounds[2])/(2*spec.width));
-   assert.equal(sprite.center.y,1-spec.alphaBounds[3]/spec.height);
+   assert.equal(sprite.center.x,spec.groundAnchor?spec.groundAnchor[0]:(spec.alphaBounds[0]+spec.alphaBounds[2])/(2*spec.width));
+   assert.equal(sprite.center.y,spec.groundAnchor?1-spec.groundAnchor[1]:1-spec.alphaBounds[3]/spec.height);
    assert.equal(root.getObjectByName('overlapping-leaf-crown'),undefined);
    assert.equal(root.getObjectByName('rounded-tree-trunk'),undefined);
   }
