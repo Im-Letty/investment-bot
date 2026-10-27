@@ -101,6 +101,7 @@ class CompanyProducerTests(unittest.TestCase):
         self.assertEqual(data["source"]["business_url"], original["business_url"])
         self.assertEqual(data["source"]["related_company"], original["related_company"])
         self.assertEqual(data["content_sha256"], company.content_sha256(COPY))
+        self.assertEqual(transport.calls[0][2]["generationConfig"]["responseJsonSchema"], company.REVIEW_SCHEMA)
         self.assertEqual(transport.calls[1][2]["text"]["format"]["schema"], company.REVIEW_SCHEMA)
         self.assertFalse(transport.calls[1][2]["store"])
         self.assertNotIn("tools", transport.calls[0][2])
@@ -119,6 +120,33 @@ class CompanyProducerTests(unittest.TestCase):
         self.assertNotIn("fixture-", json.dumps(result, ensure_ascii=False))
         self.assertTrue(writer.closed)
         transport.session.close.assert_called_once()
+
+    def test_structured_gemini_review_preserves_negative_verdict(self):
+        def review(name, data):
+            result = approval()
+            if name == 'gemini':
+                result['approved'] = False
+                result['checks']['facts'] = False
+                result['issues'] = ['合成資料と異なるため不合格']
+            return result
+        provider, _, transport = self.make(reviewer=review)
+        with self.assertRaisesRegex(GenerationError, '^company_review_failed_gemini_facts$'):
+            self.generate(provider)
+        schema = transport.calls[0][2]['generationConfig']['responseJsonSchema']
+        self.assertEqual(schema['properties']['approved'], {'type': 'boolean'})
+        self.assertEqual(schema['properties']['checks']['properties']['facts'], {'type': 'boolean'})
+        self.assertEqual(schema['properties']['issues'], {'type': 'array', 'items': {'type': 'string'}})
+        self.assertEqual(provider.http_counts, {'gemini': 1, 'openai': 1})
+
+    def test_structured_gemini_review_still_rejects_missing_check(self):
+        def review(name, data):
+            result = approval()
+            if name == 'gemini':
+                result['checks'].pop('company_identity')
+            return result
+        provider, _, _ = self.make(reviewer=review)
+        with self.assertRaisesRegex(GenerationError, '^company_review_failed_gemini_schema$'):
+            self.generate(provider)
 
     def test_contract_hands_off_to_durable_record_validator(self):
         from company_news_runtime import canonical_hash, valid_record

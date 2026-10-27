@@ -57,6 +57,35 @@ class IntradayJobTests(unittest.TestCase):
         progress.value['last_error'] = 'job_deadline'
         self.assertNotIn('editorial_review_diagnostics', progress.fields())
 
+
+    def test_edition_validation_projection_is_fixed_and_clears_on_unrelated_errors(self):
+        diagnostic = {"schema_version": 1, "stage": "edition_validation",
+                      "reason": "source_reference_mismatch", "reference_field": "title"}
+        state = {"status": "review_failed", "phase": "generation", "last_error": "invalid_edition",
+                 "edition_validation_diagnostics": {**diagnostic, "raw": "private rejected copy",
+                                                    "url": "https://private.invalid/secret"}}
+        progress = job.IntradayProgress()
+        progress.record(state)
+        self.assertEqual(progress.fields()["edition_validation_diagnostics"], diagnostic)
+        self.assertEqual(job.safe_report(state, at(), at()+1, False, progress)
+                         ["edition_validation_diagnostics"], diagnostic)
+        copy = progress.fields()
+        copy["edition_validation_diagnostics"]["reason"] = "mutated"
+        self.assertEqual(progress.fields()["edition_validation_diagnostics"], diagnostic)
+        for changes in (
+            {"last_error": "openai_unavailable"},
+            {"last_error": None},
+            {"last_error": "intraday_review_receipt_required"},
+            {"edition_validation_diagnostics": {**diagnostic, "reason": "private raw text"}},
+            {"edition_validation_diagnostics": {**diagnostic, "reference_field": "https://private.invalid"}},
+            {"edition_validation_diagnostics": {**diagnostic, "schema_version": True}},
+        ):
+            self.assertNotIn("edition_validation_diagnostics",
+                             job.safe_report({**state, **changes}, at(), at()+1, False))
+        self.assertNotIn("private rejected copy", json.dumps(progress.fields()))
+        progress.record({"last_error": "job_deadline"})
+        self.assertNotIn("edition_validation_diagnostics", progress.fields())
+
     def test_check_needs_only_storage_and_never_restores_or_checks_login(self):
         env = {key: value for key, value in self.env.items() if key not in ("GEMINI_API_KEY", "OPENAI_API_KEY")}
         with patch("scripts.run_codex_news.preflight_subscription") as preflight:

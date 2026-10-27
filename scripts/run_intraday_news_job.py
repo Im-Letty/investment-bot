@@ -19,7 +19,8 @@ import time
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from intraday_news_runtime import JOB_SECONDS, MAX_ATTEMPTS, _safe_cache_reads, run_job as run_intraday
+from intraday_news_runtime import (JOB_SECONDS, MAX_ATTEMPTS, _safe_cache_reads,
+    safe_edition_validation_diagnostics, run_job as run_intraday)
 from news_cache import JST
 from daily_news_runtime import GENERATION_ERRORS, StorageUnavailable, _safe_generation_error
 from news_review_diagnostics import safe_editorial_review_diagnostics
@@ -78,6 +79,12 @@ class IntradayProgress:
             self.value["editorial_review_diagnostics"] = diagnostics
         elif "last_error" in state or "editorial_review_diagnostics" in state:
             self.value.pop("editorial_review_diagnostics", None)
+        validation = safe_edition_validation_diagnostics(state.get("edition_validation_diagnostics"),
+                                                        error_code=state.get("last_error"))
+        if validation is not None:
+            self.value["edition_validation_diagnostics"] = validation
+        elif "last_error" in state or "edition_validation_diagnostics" in state:
+            self.value.pop("edition_validation_diagnostics", None)
         if isinstance(state.get("source_cache_reads"), dict):
             self.value["source_cache_reads"] = _safe_cache_reads(state["source_cache_reads"])
         observations = state.get("source_cache_observations")
@@ -93,6 +100,10 @@ class IntradayProgress:
             if value.get("last_error") == "isolated_editorial_review_failed" else None)
         if diagnostics is not None:
             value["editorial_review_diagnostics"] = diagnostics
+        validation = safe_edition_validation_diagnostics(value.pop("edition_validation_diagnostics", None),
+                                                        error_code=value.get("last_error"))
+        if validation is not None:
+            value["edition_validation_diagnostics"] = validation
         cost = safe_review_cost(value.pop("api_review_cost", None))
         if cost is not None:
             value["api_review_cost"] = cost
@@ -172,6 +183,10 @@ def safe_report(result, started, finished, check_only, progress=None):
         if value.get("last_error") == "isolated_editorial_review_failed" else None)
     if diagnostics is not None:
         value["editorial_review_diagnostics"] = diagnostics
+    validation = safe_edition_validation_diagnostics(value.pop("edition_validation_diagnostics", None),
+                                                    error_code=value.get("last_error"))
+    if validation is not None:
+        value["edition_validation_diagnostics"] = validation
     value["job_started_at"] = datetime.fromtimestamp(started, JST).isoformat(timespec="seconds")
     original_start = result.get("job_started_at")
     if isinstance(original_start, str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}", original_start):

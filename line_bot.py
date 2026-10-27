@@ -2301,9 +2301,12 @@ def api_morning_news():
                   "supplements": translated[news_count:], "lang": lang,
                   "translation_pending": translating,
                   "updated": datetime.fromtimestamp(fetched_at).strftime("%H:%M") if fetched_at else "--"}
-        return jsonify(result)
-    except Exception as e:
-        return jsonify({"error": str(e), "news": []}), 200
+        response = jsonify(result)
+    except Exception:
+        response = jsonify({"error": "news_unavailable", "news": []})
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["X-KN-News-Pipeline"] = "20261027-r1"
+    return response
 
 @app.route("/api/news-publication")
 def api_news_publication():

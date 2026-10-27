@@ -349,6 +349,12 @@ class CompanyProviders(shared.Providers):
         return deepcopy(REVIEW_SCHEMA)
 
     def _post(self, url, headers, payload, provider):
+        if provider == "gemini":
+            # JSON mode alone does not constrain the seven company checks.
+            # Give Gemini the same fixed contract as OpenAI, including false
+            # verdicts and issue text; the approval gate below stays strict.
+            payload = deepcopy(payload)
+            payload["generationConfig"]["responseJsonSchema"] = deepcopy(REVIEW_SCHEMA)
         with self._lock:
             self._check()
             if (provider not in HTTP_LIMITS or self._counts[provider] >= HTTP_LIMITS[provider]

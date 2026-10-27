@@ -50,6 +50,68 @@ _SAFE_FAILURES = frozenset((
     "source_cache_index_unavailable"))
 
 
+_REFERENCE_FIELDS = ("source", "url", "title", "published_at", "published_date",
+                     "publication_precision", "body_sha256", "body_verified_at", "selection_route")
+_EDITION_REASONS = {
+    "generation": frozenset(("producer_invalid_edition",)),
+    "edition_validation": frozenset(("digest_schema", "publication_mode", "edition_date",
+        "source_window", "review_before_generation", "review_after_completion",
+        "article_count", "source_reference_mismatch")),
+    "receipt_validation": frozenset(("review_receipt",)),
+}
+
+
+def safe_edition_validation_diagnostics(value, *, error_code):
+    """Fixed validator metadata only; never copy, URLs, hashes or exception text."""
+    if (not isinstance(value, dict) or type(value.get("schema_version")) is not int
+            or value["schema_version"] != 1):
+        return None
+    stage, reason = value.get("stage"), value.get("reason")
+    if (not isinstance(stage, str) or stage not in _EDITION_REASONS
+            or not isinstance(reason, str) or reason not in _EDITION_REASONS[stage]
+            or error_code != ("intraday_review_receipt_required"
+                              if stage == "receipt_validation" else "invalid_edition")):
+        return None
+    result = {"schema_version": 1, "stage": stage, "reason": reason}
+    if reason == "source_reference_mismatch":
+        field = value.get("reference_field")
+        if not isinstance(field, str) or field not in _REFERENCE_FIELDS:
+            return None
+        result["reference_field"] = field
+    return result
+
+
+def _edition_validation(issue, source, window, day, generation_started, now):
+    """Keep the existing first-failure order and publication predicates intact."""
+    normalized = _validated_digest(issue)
+    reason, field = None, None
+    if normalized is None:
+        reason = "digest_schema"
+    elif normalized.get("publication_mode") != "curated":
+        reason = "publication_mode"
+    elif normalized["edition_date"] != day:
+        reason = "edition_date"
+    elif normalized.get("source_window") != window:
+        reason = "source_window"
+    elif normalized["reviewed_at"] < generation_started:
+        reason = "review_before_generation"
+    elif normalized["reviewed_at"] > now:
+        reason = "review_after_completion"
+    elif len(normalized["article_refs"]) != 1:
+        reason = "article_count"
+    else:
+        field = next((key for key in _REFERENCE_FIELDS
+                      if normalized["article_refs"][0].get(key) != source.get(key)), None)
+        if field is not None:
+            reason = "source_reference_mismatch"
+    diagnostic = None
+    if reason is not None:
+        diagnostic = {"schema_version": 1, "stage": "edition_validation", "reason": reason}
+        if field is not None:
+            diagnostic["reference_field"] = field
+    return normalized, diagnostic
+
+
 def _safe_cache_reads(value):
     """Only bounded numeric diagnostics; never a storage key or source body."""
     if not isinstance(value, dict):
@@ -397,26 +459,28 @@ def run_job(storage, generator=None, *, cache=None, clock=time.time, preflight=N
             return outcome("no_new_release", eligible_count=0)
         generation_started = clock()
         phase("generation")
+        validation = None
         try:
             issue = generator(generation_started, articles=[deepcopy(source)], source_window=deepcopy(window))
             now = clock()
             if not same_day() or now >= generation_started + GENERATION_SECONDS:
                 raise ValueError("generation_deadline")
-            normalized = _validated_digest(issue)
-            ref_fields = ("source", "url", "title", "published_at", "published_date",
-                          "publication_precision", "body_sha256", "body_verified_at", "selection_route")
-            if (normalized is None or normalized.get("publication_mode") != "curated"
-                    or normalized["edition_date"] != day or normalized.get("source_window") != window
-                    or normalized["reviewed_at"] < generation_started or normalized["reviewed_at"] > now
-                    or len(normalized["article_refs"]) != 1
-                    or any(normalized["article_refs"][0].get(key) != source.get(key) for key in ref_fields)):
+            normalized, validation = _edition_validation(issue, source, window, day, generation_started, now)
+            if validation is not None:
                 raise ValueError("invalid_edition")
+            validation = {"schema_version": 1, "stage": "receipt_validation", "reason": "review_receipt"}
             receipt = _receipt(issue, normalized, now)
+            validation = None
         except Exception as error:
             code = _safe_generation_error(error)
             diagnostics = safe_editorial_review_diagnostics(getattr(error, "editorial_review_diagnostics", None)
                 if code == "isolated_editorial_review_failed" else None)
+            if validation is None and code == "invalid_edition":
+                validation = {"schema_version": 1, "stage": "generation", "reason": "producer_invalid_edition"}
+            validation = safe_edition_validation_diagnostics(validation, error_code=code)
             fields = {"last_error": code}
+            if validation is not None:
+                fields["edition_validation_diagnostics"] = validation
             if diagnostics is not None:
                 fields["editorial_review_diagnostics"] = diagnostics
             save_result(result_path, {**claim, "attempt": slot, "status": "review_failed", **fields})

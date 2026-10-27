@@ -240,6 +240,74 @@ class IntradayTests(unittest.TestCase):
         self.cache = Cache([source(precision="day", verified=at(7, 29))])
         self.assertEqual(self.job()["status"], "no_new_release")
 
+
+    def test_invalid_edition_reasons_are_durable_without_copy_or_automatic_retry(self):
+        def wrong_identity(value):
+            value["article_refs"][0]["title"] += "別"
+            value["article_summaries"][0]["title"] += "別"
+        cases = [
+            ("digest_schema", lambda value: value.update(summary=""), None),
+            ("source_window", lambda value: value["source_window"].update(cutoff_at=self.now - 1), None),
+            ("review_before_generation", lambda value: value.update(reviewed_at=self.now - 1), None),
+            ("source_reference_mismatch", wrong_identity, "title"),
+        ]
+        from scripts.run_intraday_news_job import IntradayProgress, safe_report
+        for reason, mutate, field in cases:
+            with self.subTest(reason=reason):
+                storage, generator, progress = Storage(), Mock(), IntradayProgress()
+                def bad(now, *, articles, source_window):
+                    value = issue_for(articles[0], source_window, now)
+                    value["private_draft"] = "never persist rejected copy"
+                    mutate(value)
+                    return value
+                generator.side_effect = bad
+                preflight = Mock()
+                if reason == "review_before_generation":
+                    # Validation permits review at cutoff; invocation may start later.
+                    preflight.side_effect = lambda: setattr(self, "now", self.now + 1)
+                report = self.job(storage=storage, generator=generator, progress=progress.record,
+                                  preflight=preflight)
+                expected = {"schema_version": 1, "stage": "edition_validation", "reason": reason}
+                if field:
+                    expected["reference_field"] = field
+                self.assertEqual(report["last_error"], "invalid_edition")
+                self.assertEqual(report["edition_validation_diagnostics"], expected)
+                saved = storage.read(f"{PREFIX}/days/2026-10-11/result-1.json")
+                self.assertEqual(saved["edition_validation_diagnostics"], expected)
+                self.assertEqual(safe_report(report, self.now, self.now + 1, False, progress)
+                                 ["edition_validation_diagnostics"], expected)
+                self.assertNotIn("never persist rejected copy", json.dumps(saved))
+                self.assertEqual(storage.reviewed_keys("2026-10-11"), [])
+                self.assertEqual(self.job(storage=storage, generator=generator)["status"], "no_new_release")
+                generator.assert_called_once()
+
+    def test_producer_invalid_edition_is_distinguished_without_trusting_exception_metadata(self):
+        error = ValueError("invalid_edition")
+        error.edition_validation_diagnostics = {"raw": "private provider response"}
+        self.generator.side_effect = error
+        report = self.job()
+        self.assertEqual(report["edition_validation_diagnostics"],
+                         {"schema_version": 1, "stage": "generation", "reason": "producer_invalid_edition"})
+        self.assertNotIn("private provider response", json.dumps(self.storage.values))
+
+    def test_receipt_failure_keeps_specific_code_without_storing_rejected_copy(self):
+        for mutate in (lambda value: value.pop("review_receipt"),
+                       lambda value: value["review_receipt"].update(openai_approved=False),
+                       lambda value: value.update(headline="政府が異なる対策を決定")):
+            with self.subTest(mutate=mutate):
+                storage = Storage()
+                def bad(now, *, articles, source_window):
+                    value = issue_for(articles[0], source_window, now)
+                    mutate(value)
+                    return value
+                report = self.job(storage=storage, generator=bad)
+                self.assertEqual(report["last_error"], "intraday_review_receipt_required")
+                self.assertEqual(report["edition_validation_diagnostics"],
+                                 {"schema_version": 1, "stage": "receipt_validation", "reason": "review_receipt"})
+                saved = storage.read(f"{PREFIX}/days/2026-10-11/result-1.json")
+                self.assertNotIn("review_receipt", saved)
+                self.assertEqual(storage.reviewed_keys("2026-10-11"), [])
+
     def test_missing_rejected_or_tampered_same_copy_receipt_blocks_storage(self):
         for mutate in (lambda value: value.pop("review_receipt"),
                        lambda value: value["review_receipt"].update(openai_approved=False),

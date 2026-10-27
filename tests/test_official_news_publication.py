@@ -84,7 +84,7 @@ class PublicationTests(unittest.TestCase):
                 self.assertEqual(data['edition_date'], '2026-10-06')
                 self.assertEqual(data['news'][0]['published_date'], '2026-10-05')
                 self.assertEqual(current_delivery(data, datetime.fromtimestamp(stamp(), JST)), 'published')
-                html = render_news_markup(data)
+                html = render_news_markup(data, now=stamp())
                 self.assertIn('aria-label="掲載対象日 2026-10-06 ', html)
                 self.assertIn('title="2026/10/05', html)
                 self.assertIn('公式発表をもとに要約', html)

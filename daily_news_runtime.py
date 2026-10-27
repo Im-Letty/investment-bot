@@ -44,6 +44,7 @@ GENERATION_ERRORS = frozenset(("invalid_provider_json", "invalid_model", "gemini
                               "openai_incomplete", "openai_refused", "openai_invalid_response",
                               "openai_not_configured",
                               "future_article", "invalid_edition", "invalid_edition_date",
+                              "intraday_review_receipt_required",
                               "invalid_edition_repeated_summary", "no_verified_articles",
                               "isolated_article_schema", "isolated_article_length",
                               "isolated_article_paragraphs", "isolated_article_evidence",
