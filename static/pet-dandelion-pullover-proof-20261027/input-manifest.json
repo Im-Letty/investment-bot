@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "recorded_at_jst": "2026-10-27T13:11:11.451241+09:00",
+  "model_id": "dandelion-pullover-garment-volume-v1",
+  "unit_id": "wardrobe:fit-prerequisite:dandelion-knit-pullover:garment-volume-openings:v1",
+  "run_id": "automation360-20261027-125625",
+  "base_main_sha": "db02cc6d0d7aea651511c96c736fbacf25ace510",
+  "parent_reservation_sha256": "f36fb683dee17d186d897b7316d982cd475d993f39033f5e9f31eb248a386c4e",
+  "source_original": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/assets/dandelion-knit-pullover-v1.png",
+    "sha256": "2bb355ebf7def056df8d43808ab5e32955223a8d29e1cb16261b41dc8ce3faa2",
+    "bytes": 1501942
+  },
+  "source_original_viewed_before_design": true,
+  "original_copy_unmodified": true,
+  "new_raw_PNGs": 0,
+  "new_original_designs": 0,
+  "imagegen_calls": 0,
+  "new_body_references": 0,
+  "new_canonical_fit_success": 0,
+  "new_village_library_candidates": 0,
+  "bodyBinding": null,
+  "not_a_body_or_fitting_pass": true,
+  "authored_garment_depth_back_and_interior": true,
+  "bitmap_applied_to_all_sides": false,
+  "model_textures": 0,
+  "ordinary_game_changes": 0,
+  "scope": "One shared-index joined garment material shell, four real passages, garment-only actual mesh rim frames, fixed authored sleeves and code-native front relief. Original reference remains separate; wearing/rig/physical stretch/all-growth/body360/unlock/save remain unverified.",
+  "finite_passage_segments": 20,
+  "finite_camera_samples": 21,
+  "finite_witnesses_are_not_unique_tests": true,
+  "static_triangle_intersection_limit": "Strict nonadjacent edge/interior crossings only; coplanar and adjacent contact cases excluded; no continuous collision or physical guarantee.",
+  "files": [
+    {
+      "path": "SPEC.json",
+      "sha256": "56dd79986cb9cabdbe54af80af08e37cf71a0430c8047763b55c1176c8d3db98",
+      "bytes": 1447
+    },
+    {
+      "path": "entry.mjs",
+      "sha256": "ee4dbf175566ad7c5063b95b50b7492c82355db3f8cef1fe7fa4e3e6ef7241fa",
+      "bytes": 3275
+    },
+    {
+      "path": "finite-geometry-certificate.json",
+      "sha256": "619963475af881001729fb55a144466b76a2c886044eab925ff2135370bb1ff2",
+      "bytes": 47397
+    },
+    {
+      "path": "index.html",
+      "sha256": "7f44a2f3778280c892c16b82bed78dd0da2cb59ed87ff9e1aa8d5c3de7605f00",
+      "bytes": 4069
+    },
+    {
+      "path": "pullover.mjs",
+      "sha256": "6c104ae71839782e485fce1e0282669ce7a2f5cda090d9cc8e9f744828ceb08c",
+      "bytes": 16456
+    },
+    {
+      "path": "reference.png",
+      "sha256": "2bb355ebf7def056df8d43808ab5e32955223a8d29e1cb16261b41dc8ce3faa2",
+      "bytes": 1501942
+    },
+    {
+      "path": "viewer.mjs",
+      "sha256": "fffeac1e666259f1969742bfa0296d9939833e0543ab12808e46042fa63beaaf",
+      "bytes": 8280
+    }
+  ],
+  "inputs": [
+    {
+      "path": "static/vendor/three-0.160.1.module.js",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    {
+      "path": "static/pet-scalloped-path-proof-20261027/framing.mjs",
+      "sha256": "dba92c2f6dec2816ebcf25434ee07c3b699accb61b7e1961a11baf366edad08a",
+      "bytes": 1678
+    }
+  ]
+}

@@ -1,0 +1,1744 @@
+{
+  "unit_id": "wardrobe:item:acorn-mailbox:manual-mail-slot-clearance:v1",
+  "source_inputs": [
+    {
+      "path": "static/pet-acorn-mail-slot-proof-20261027/slot-motion.mjs",
+      "sha256": "ef5ce3dba7b54cba1cf2727a55eb8bdb235a8b9c31214db818ef60fbb9ac93fe",
+      "bytes": 8142
+    },
+    {
+      "path": "static/pet-acorn-mailbox-proof-20261027/mailbox.mjs",
+      "sha256": "da25e37cc641fbafb01ffe7025e7300e86870e10a7fbb1b0d82026fcddbdd6fb",
+      "bytes": 11652
+    },
+    {
+      "path": "static/pet-acorn-mailbox-proof-20261027/reference.png",
+      "sha256": "3d7a9773655f9a64536635c319c59b0e00f03dab8a9937af0d6d43daeb69e54a",
+      "bytes": 976067
+    }
+  ],
+  "default": {
+    "samples": 21,
+    "allFinitePosesClear": true,
+    "minimumTriangleBoxGap": 0.032500000000000195,
+    "poses": [
+      {
+        "progress": 0,
+        "center": [
+          0,
+          1.565,
+          0.62
+        ],
+        "box": {
+          "min": [
+            -0.22,
+            1.56,
+            0.5
+          ],
+          "max": [
+            0.22,
+            1.5699999999999998,
+            0.74
+          ]
+        },
+        "dimensions": {
+          "width": 0.44,
+          "thickness": 0.01,
+          "depth": 0.24,
+          "x": 0,
+          "y": 1.565,
+          "startZ": 0.62,
+          "endZ": -0.05
+        },
+        "clear": true,
+        "minimumTriangleBoxGap": 0.08499997138977067,
+        "surfaceIntersections": [],
+        "containedByParts": [],
+        "actualMailboxParts": 57,
+        "actualMailboxTriangles": 7072,
+        "narrowTriangles": 195,
+        "hatchAngle": 0,
+        "finiteSinglePoseOnly": true,
+        "continuousCollisionCertified": false
+      },
+      {
+        "progress": 0.05,
+        "center": [
+          0,
+          1.565,
+          0.5865
+        ],
+        "box": {
+          "min": [
+            -0.22,
+            1.56,
+            0.4665
+          ],
+          "max": [
+            0.22,
+            1.5699999999999998,
+            0.7065
+          ]
+        },
+        "dimensions": {
+          "width": 0.44,
+          "thickness": 0.01,
+          "depth": 0.24,
+          "x": 0,
+          "y": 1.565,
+          "startZ": 0.62,
+          "endZ": -0.05
+        },
+        "clear": true,
+        "minimumTriangleBoxGap": 0.06839042395221646,
+        "surfaceIntersections": [],
+        "containedByParts": [],
+        "actualMailboxParts": 57,
+        "actualMailboxTriangles": 7072,
+        "narrowTriangles": 163,
+        "hatchAngle": 0,
+        "finiteSinglePoseOnly": true,
+        "continuousCollisionCertified": false
+      },
+      {
+        "progress": 0.1,
+        "center": [
+          0,
+          1.565,
+          0.5529999999999999
+        ],
+        "box": {
+          "min": [
+            -0.22,
+            1.56,
+            0.43299999999999994
+          ],
+          "max": [
+            0.22,
+            1.5699999999999998,
+            0.6729999999999999
+          ]
+        },
+        "dimensions": {
+          "width": 0.44,
+          "thickness": 0.01,
+          "depth": 0.24,
+          "x": 0,
+          "y": 1.565,
+          "startZ": 0.62,
+          "endZ": -0.05
+        },
+        "clear": true,
+        "minimumTriangleBoxGap": 0.048466483042844566,
+        "surfaceIntersections": [],
+        "containedByParts": [],
+        "actualMailboxParts": 57,
+        "actualMailboxTriangles": 7072,
+        "narrowTriangles": 166,
+        "hatchAngle": 0,
+        "finiteSinglePoseOnly": true,
+        "continuousCollisionCertified": false
+      },
+      {
+        "progress": 0.15,
+        "center": [
+          0,
+          1.565,
+          0.5195
+        ],
+        "box": {
+          "min": [
+            -0.22,
+            1.56,
+            0.39949999999999997
+          ],
+          "max": [
+            0.22,
+            1.5699999999999998,
+            0.6395
+          ]
+        },
+        "dimensions": {
+          "width": 0.44,
+          "thickness": 0.01,
+          "depth": 0.24,
+          "x": 0,
+          "y": 1.565,
+          "startZ": 0.62,
+          "endZ": -0.05
+        },
+        "clear": true,
+        "minimumTriangleBoxGap": 0.044229516430542695,
+        "surfaceIntersections": [],
+        "containedByParts": [],
+        "actualMailboxParts": 57,
+        "actualMailboxTriangles": 7072,
+        "narrowTriangles": 155,
+        "hatchAngle": 0,
+        "finiteSinglePoseOnly": true,
+        "continuousCollisionCertified": false
+      },
+      {
+        "progress": 0.2,
+        "center": [
+          0,
+          1.565,
+          0.486
+        ],
+        "box": {
+          "min": [
+            -0.22,
+            1.56,
+            0.366
+          ],
+          "max": [
+            0.22,
+            1.5699999999999998,
+            0.606
+          ]
+        },
+        "dimensions": {
+          "width": 0.44,
+          "thickness": 0.01,
+          "depth": 0.24,
+          "x": 0,
+          "y": 1.565,
+          "startZ": 0.62,
+          "endZ": -0.05
+        },
+        "clear": true,
+        "minimumTriangleBoxGap": 0.032500001490116226,
+        "surfaceIntersections": [],
+        "containedByParts": [],
+        "actualMailboxParts": 57,
+        "actualMailboxTriangles": 7072,
+        "narrowTriangles": 120,
+        "hatchAngle": 0,
+        "finiteSinglePoseOnly": true,
+        "continuousCollisionCertified": false
+      },
+      {
+        "progress": 0.25,
+        "center": [
+          0,
+          1.565,
+          0.4525
+        ],
+        "box": {
+          "min": [
+            -0.22,
+            1.56,
+            0.3325
+          ],
+          "max": [
+            0.22,
+            1.5699999999999998,
+            0.5725
+          ]
+        },
+        "dimensions": {
+          "width": 0.44,
+          "thickness": 0.01,
+          "depth": 0.24,
+          "x": 0,
+          "y": 1.565,
+          "startZ": 0.62,
+          "endZ": -0.05
+        },
+        "clear": true,
+        "minimumTriangleBoxGap": 0.032500000000000195,
+        "surfaceIntersections": [],
+        "containedByParts": [],
+        "actualMailboxParts": 57,
+        "actualMailboxTriangles": 7072,
+        "narrowTriangles": 126,
+        "hatchAngle": 0,
+        "finiteSinglePoseOnly": true,
+        "continuousCollisionCertified": false
+      },
+      {
+        "progress": 0.3,
+        "center": [
+          0,
+          1.565,
+          0.419
+        ],
+        "box": {
+          "min": [
+            -0.22,
+            1.56,
+            0.299
+          ],
+          "max": [
+            0.22,
+            1.5699999999999998,
+            0.5389999999999999
+          ]
+        },
+        "dimensions": {
+          "width": 0.44,
+          "thickness": 0.01,
+          "depth": 0.24,
+          "x": 0,
+          "y": 1.565,
+          "startZ": 0.62,
+          "endZ": -0.05
+        },
+        "clear": true,
+        "minimumTriangleBoxGap": 0.032500000000000195,
+        "surfaceIntersections": [],
+        "containedByParts": [],
+        "actualMailboxParts": 57,
+        "actualMailboxTriangles": 7072,
+        "narrowTriangles": 130,
+        "hatchAngle": 0,
+        "finiteSinglePoseOnly": true,
+        "continuousCollisionCertified": false
+      },
+      {
+        "progress": 0.35,
+        "center": [
+          0,
+          1.565,
+          0.3855
+        ],
+        "box": {
+          "min": [
+            -0.22,
+            1.56,
+            0.2655
+          ],
+          "max": [
+            0.22,
+            1.5699999999999998,
+            0.5055000000000001
+          ]
+        },
+        "dimensions": {
+          "width": 0.44,
+          "thickness": 0.01,
+          "depth": 0.24,
+          "x": 0,
+          "y": 1.565,
+          "startZ": 0.62,
+          "endZ": -0.05
+        },
+        "clear": true,
+        "minimumTriangleBoxGap": 0.032500000000000195,
+        "surfaceIntersections": [],
+        "containedByParts": [],
+        "actualMailboxParts": 57,
+        "actualMailboxTriangles": 7072,
+        "narrowTriangles": 122,
+        "hatchAngle": 0,
+        "finiteSinglePoseOnly": true,
+        "continuousCollisionCertified": false
+      },
+      {
+        "progress": 0.4,
+        "center": [
+          0,
+          1.565,
+          0.352
+        ],
+        "box": {
+          "min": [
+            -0.22,
+            1.56,
+            0.23199999999999998
+          ],
+          "max": [
+            0.22,
+            1.5699999999999998,
+            0.472
+          ]
+        },
+        "dimensions": {
+          "width": 0.44,
+          "thickness": 0.01,
+          "depth": 0.24,
+          "x": 0,
+          "y": 1.565,
+          "startZ": 0.62,
+          "endZ": -0.05
+        },
+        "clear": true,
+        "minimumTriangleBoxGap": 0.032500000000000195,
+        "surfaceIntersections": [],
+        "containedByParts": [],
+        "actualMailboxParts": 57,
+        "actualMailboxTriangles": 7072,
+        "narrowTriangles": 118,
+        "hatchAngle": 0,
+        "finiteSinglePoseOnly": true,
+        "continuousCollisionCertified": false
+      },
+      {
+        "progress": 0.45,
+        "center": [
+          0,
+          1.565,
+          0.31849999999999995
+        ],
+        "box": {
+          "min": [
+            -0.22,
+            1.56,
+            0.19849999999999995
+          ],
+          "max": [
+            0.22,
+            1.5699999999999998,
+            0.43849999999999995
+          ]
+        },
+        "dimensions": {
+          "width": 0.44,
+          "thickness": 0.01,
+          "depth": 0.24,
+          "x": 0,
+          "y": 1.565,
+          "startZ": 0.62,
+          "endZ": -0.05
+        },
+        "clear": true,
+        "minimumTriangleBoxGap": 0.032500000000000195,
+        "surfaceIntersections": [],
+        "containedByParts": [],
+        "actualMailboxParts": 57,
+        "actualMailboxTriangles": 7072,
+        "narrowTriangles": 114,
+        "hatchAngle": 0,
+        "finiteSinglePoseOnly": true,
+        "continuousCollisionCertified": false
+      },
+      {
+        "progress": 0.5,
+        "center": [
+          0,
+          1.565,
+          0.285
+        ],
+        "box": {
+          "min": [
+            -0.22,
+            1.56,
+            0.16499999999999998
+          ],
+          "max": [
+            0.22,
+            1.5699999999999998,
+            0.40499999999999997
+          ]
+        },
+        "dimensions": {
+          "width": 0.44,
+          "thickness": 0.01,
+          "depth": 0.24,
+          "x": 0,
+          "y": 1.565,
+          "startZ": 0.62,
+          "endZ": -0.05
+        },
+        "clear": true,
+        "minimumTriangleBoxGap": 0.032500000000000195,
+        "surfaceIntersections": [],
+        "containedByParts": [],
+        "actualMailboxParts": 57,
+        "actualMailboxTriangles": 7072,
+        "narrowTriangles": 109,
+        "hatchAngle": 0,
+        "finiteSinglePoseOnly": true,
+        "continuousCollisionCertified": false
+      },
+      {
+        "progress": 0.55,
+        "center": [
+          0,
+          1.565,
+          0.25149999999999995
+        ],
+        "box": {
+          "min": [
+            -0.22,
+            1.56,
+            0.13149999999999995
+          ],
+          "max": [
+            0.22,
+            1.5699999999999998,
+            0.37149999999999994
+          ]
+        },
+        "dimensions": {
+          "width": 0.44,
+          "thickness": 0.01,
+          "depth": 0.24,
+          "x": 0,
+          "y": 1.565,
+          "startZ": 0.62,
+          "endZ": -0.05
+        },
+        "clear": true,
+        "minimumTriangleBoxGap": 0.032500000000000195,
+        "surfaceIntersections": [],
+        "containedByParts": [],
+        "actualMailboxParts": 57,
+        "actualMailboxTriangles": 7072,
+        "narrowTriangles": 128,
+        "hatchAngle": 0,
+        "finiteSinglePoseOnly": true,
+        "continuousCollisionCertified": false
+      },
+      {
+        "progress": 0.6,
+        "center": [
+          0,
+          1.565,
+          0.21799999999999997
+        ],
+        "box": {
+          "min": [
+            -0.22,
+            1.56,
+            0.09799999999999998
+          ],
+          "max": [
+            0.22,
+            1.5699999999999998,
+            0.33799999999999997
+          ]
+        },
+        "dimensions": {
+          "width": 0.44,
+          "thickness": 0.01,
+          "depth": 0.24,
+          "x": 0,
+          "y": 1.565,
+          "startZ": 0.62,
+          "endZ": -0.05
+        },
+        "clear": true,
+        "minimumTriangleBoxGap": 0.032500000000000195,
+        "surfaceIntersections": [],
+        "containedByParts": [],
+        "actualMailboxParts": 57,
+        "actualMailboxTriangles": 7072,
+        "narrowTriangles": 128,
+        "hatchAngle": 0,
+        "finiteSinglePoseOnly": true,
+        "continuousCollisionCertified": false
+      },
+      {
+        "progress": 0.65,
+        "center": [
+          0,
+          1.565,
+          0.18449999999999994
+        ],
+        "box": {
+          "min": [
+            -0.22,
+            1.56,
+            0.06449999999999995
+          ],
+          "max": [
+            0.22,
+            1.5699999999999998,
+            0.30449999999999994
+          ]
+        },
+        "dimensions": {
+          "width": 0.44,
+          "thickness": 0.01,
+          "depth": 0.24,
+          "x": 0,
+          "y": 1.565,
+          "startZ": 0.62,
+          "endZ": -0.05
+        },
+        "clear": true,
+        "minimumTriangleBoxGap": 0.032500000000000195,
+        "surfaceIntersections": [],
+        "containedByParts": [],
+        "actualMailboxParts": 57,
+        "actualMailboxTriangles": 7072,
+        "narrowTriangles": 119,
+        "hatchAngle": 0,
+        "finiteSinglePoseOnly": true,
+        "continuousCollisionCertified": false
+      },
+      {
+        "progress": 0.7,
+        "center": [
+          0,
+          1.565,
+          0.15100000000000002
+        ],
+        "box": {
+          "min": [
+            -0.22,
+            1.56,
+            0.031000000000000028
+          ],
+          "max": [
+            0.22,
+            1.5699999999999998,
+            0.271
+          ]
+        },
+        "dimensions": {
+          "width": 0.44,
+          "thickness": 0.01,
+          "depth": 0.24,
+          "x": 0,
+          "y": 1.565,
+          "startZ": 0.62,
+          "endZ": -0.05
+        },
+        "clear": true,
+        "minimumTriangleBoxGap": 0.03764638096816228,
+        "surfaceIntersections": [],
+        "containedByParts": [],
+        "actualMailboxParts": 57,
+        "actualMailboxTriangles": 7072,
+        "narrowTriangles": 123,
+        "hatchAngle": 0,
+        "finiteSinglePoseOnly": true,
+        "continuousCollisionCertified": false
+      },
+      {
+        "progress": 0.75,
+        "center": [
+          0,
+          1.565,
+          0.11749999999999994
+        ],
+        "box": {
+          "min": [
+            -0.22,
+            1.56,
+            -0.0025000000000000577
+          ],
+          "max": [
+            0.22,
+            1.5699999999999998,
+            0.23749999999999993
+          ]
+        },
+        "dimensions": {
+          "width": 0.44,
+          "thickness": 0.01,
+          "depth": 0.24,
+          "x": 0,
+          "y": 1.565,
+          "startZ": 0.62,
+          "endZ": -0.05
+        },
+        "clear": true,
+        "minimumTriangleBoxGap": 0.03999999284744282,
+        "surfaceIntersections": [],
+        "containedByParts": [],
+        "actualMailboxParts": 57,
+        "actualMailboxTriangles": 7072,
+        "narrowTriangles": 125,
+        "hatchAngle": 0,
+        "finiteSinglePoseOnly": true,
+        "continuousCollisionCertified": false
+      },
+      {
+        "progress": 0.8,
+        "center": [
+          0,
+          1.565,
+          0.08399999999999996
+        ],
+        "box": {
+          "min": [
+            -0.22,
+            1.56,
+            -0.03600000000000003
+          ],
+          "max": [
+            0.22,
+            1.5699999999999998,
+            0.20399999999999996
+          ]
+        },
+        "dimensions": {
+          "width": 0.44,
+          "thickness": 0.01,
+          "depth": 0.24,
+          "x": 0,
+          "y": 1.565,
+          "startZ": 0.62,
+          "endZ": -0.05
+        },
+        "clear": true,
+        "minimumTriangleBoxGap": 0.03999999284744282,
+        "surfaceIntersections": [],
+        "containedByParts": [],
+        "actualMailboxParts": 57,
+        "actualMailboxTriangles": 7072,
+        "narrowTriangles": 129,
+        "hatchAngle": 0,
+        "finiteSinglePoseOnly": true,
+        "continuousCollisionCertified": false
+      },
+      {
+        "progress": 0.85,
+        "center": [
+          0,
+          1.565,
+          0.05049999999999999
+        ],
+        "box": {
+          "min": [
+            -0.22,
+            1.56,
+            -0.0695
+          ],
+          "max": [
+            0.22,
+            1.5699999999999998,
+            0.17049999999999998
+          ]
+        },
+        "dimensions": {
+          "width": 0.44,
+          "thickness": 0.01,
+          "depth": 0.24,
+          "x": 0,
+          "y": 1.565,
+          "startZ": 0.62,
+          "endZ": -0.05
+        },
+        "clear": true,
+        "minimumTriangleBoxGap": 0.03999999284744282,
+        "surfaceIntersections": [],
+        "containedByParts": [],
+        "actualMailboxParts": 57,
+        "actualMailboxTriangles": 7072,
+        "narrowTriangles": 142,
+        "hatchAngle": 0,
+        "finiteSinglePoseOnly": true,
+        "continuousCollisionCertified": false
+      },
+      {
+        "progress": 0.9,
+        "center": [
+          0,
+          1.565,
+          0.016999999999999904
+        ],
+        "box": {
+          "min": [
+            -0.22,
+            1.56,
+            -0.10300000000000009
+          ],
+          "max": [
+            0.22,
+            1.5699999999999998,
+            0.1369999999999999
+          ]
+        },
+        "dimensions": {
+          "width": 0.44,
+          "thickness": 0.01,
+          "depth": 0.24,
+          "x": 0,
+          "y": 1.565,
+          "startZ": 0.62,
+          "endZ": -0.05
+        },
+        "clear": true,
+        "minimumTriangleBoxGap": 0.03999999284744282,
+        "surfaceIntersections": [],
+        "containedByParts": [],
+        "actualMailboxParts": 57,
+        "actualMailboxTriangles": 7072,
+        "narrowTriangles": 156,
+        "hatchAngle": 0,
+        "finiteSinglePoseOnly": true,
+        "continuousCollisionCertified": false
+      },
+      {
+        "progress": 0.95,
+        "center": [
+          0,
+          1.565,
+          -0.01649999999999996
+        ],
+        "box": {
+          "min": [
+            -0.22,
+            1.56,
+            -0.13649999999999995
+          ],
+          "max": [
+            0.22,
+            1.5699999999999998,
+            0.10350000000000004
+          ]
+        },
+        "dimensions": {
+          "width": 0.44,
+          "thickness": 0.01,
+          "depth": 0.24,
+          "x": 0,
+          "y": 1.565,
+          "startZ": 0.62,
+          "endZ": -0.05
+        },
+        "clear": true,
+        "minimumTriangleBoxGap": 0.03999999284744282,
+        "surfaceIntersections": [],
+        "containedByParts": [],
+        "actualMailboxParts": 57,
+        "actualMailboxTriangles": 7072,
+        "narrowTriangles": 150,
+        "hatchAngle": 0,
+        "finiteSinglePoseOnly": true,
+        "continuousCollisionCertified": false
+      },
+      {
+        "progress": 1,
+        "center": [
+          0,
+          1.565,
+          -0.050000000000000044
+        ],
+        "box": {
+          "min": [
+            -0.22,
+            1.56,
+            -0.17000000000000004
+          ],
+          "max": [
+            0.22,
+            1.5699999999999998,
+            0.06999999999999995
+          ]
+        },
+        "dimensions": {
+          "width": 0.44,
+          "thickness": 0.01,
+          "depth": 0.24,
+          "x": 0,
+          "y": 1.565,
+          "startZ": 0.62,
+          "endZ": -0.05
+        },
+        "clear": true,
+        "minimumTriangleBoxGap": 0.03999999284744282,
+        "surfaceIntersections": [],
+        "containedByParts": [],
+        "actualMailboxParts": 57,
+        "actualMailboxTriangles": 7072,
+        "narrowTriangles": 146,
+        "hatchAngle": 0,
+        "finiteSinglePoseOnly": true,
+        "continuousCollisionCertified": false
+      }
+    ],
+    "finiteSamplesAreNotUniqueTests": true,
+    "continuousCollisionCertified": false,
+    "physicalPaperOrFrictionVerified": false
+  },
+  "rejections": [
+    {
+      "candidate": {
+        "width": 0.7
+      },
+      "samples": 21,
+      "allFinitePosesClear": false,
+      "blockedProgresses": [
+        0.2,
+        0.25,
+        0.3,
+        0.35,
+        0.4,
+        0.45,
+        0.5,
+        0.55,
+        0.6,
+        0.65
+      ],
+      "blockedPartIds": [
+        "gold-mail-slot-rim",
+        "front-wall-actual-door-and-slot-holes"
+      ]
+    },
+    {
+      "candidate": {
+        "thickness": 0.12
+      },
+      "samples": 21,
+      "allFinitePosesClear": false,
+      "blockedProgresses": [
+        0.15,
+        0.2,
+        0.25,
+        0.3,
+        0.35,
+        0.4,
+        0.45,
+        0.5,
+        0.55,
+        0.6,
+        0.65,
+        0.7,
+        0.75,
+        0.8,
+        0.85,
+        0.9,
+        0.95,
+        1
+      ],
+      "blockedPartIds": [
+        "fixed-exterior-hinge-web-2",
+        "gold-mail-slot-rim",
+        "front-wall-actual-door-and-slot-holes",
+        "closed-thick-perimeter-shell"
+      ]
+    },
+    {
+      "candidate": {
+        "x": 0.34
+      },
+      "samples": 21,
+      "allFinitePosesClear": false,
+      "blockedProgresses": [
+        0.2,
+        0.25,
+        0.3,
+        0.35,
+        0.4,
+        0.45,
+        0.5,
+        0.55,
+        0.6,
+        0.65,
+        0.7,
+        0.75,
+        0.8,
+        0.85,
+        0.9,
+        0.95,
+        1
+      ],
+      "blockedPartIds": [
+        "gold-mail-slot-rim",
+        "front-wall-actual-door-and-slot-holes",
+        "closed-thick-perimeter-shell"
+      ]
+    },
+    {
+      "candidate": {
+        "y": 1.65
+      },
+      "samples": 21,
+      "allFinitePosesClear": false,
+      "blockedProgresses": [
+        0,
+        0.05,
+        0.1,
+        0.15,
+        0.2,
+        0.25,
+        0.3,
+        0.35,
+        0.4,
+        0.45,
+        0.5,
+        0.55,
+        0.6,
+        0.65,
+        0.7,
+        0.75,
+        0.8,
+        0.85,
+        0.9,
+        0.95,
+        1
+      ],
+      "blockedPartIds": [
+        "closed-solid-acorn-roof",
+        "front-wall-actual-door-and-slot-holes",
+        "closed-thick-perimeter-shell"
+      ]
+    }
+  ],
+  "placement": {
+    "townPoint": {
+      "x": 1200,
+      "y": 1300
+    },
+    "worldPosition": [
+      -2.4,
+      0.024999999999999186,
+      3.4
+    ],
+    "projectedFootprint": {
+      "minX": -3.099999998807907,
+      "maxX": -1.7000000011920928,
+      "minZ": 2.729079781505438,
+      "maxZ": 4.139999997317791
+    },
+    "supports": [
+      {
+        "foot": "stone-foot--0.25--0.2",
+        "x": -2.65,
+        "z": 3.1999999999999997,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998846,
+        "soleMinusFloor": -1.490112686020062e-10
+      },
+      {
+        "foot": "stone-foot--0.25--0.2",
+        "x": -2.720000000298023,
+        "z": 3.1299999997019765,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998863,
+        "soleMinusFloor": -1.4901128594924096e-10
+      },
+      {
+        "foot": "stone-foot--0.25--0.2",
+        "x": -2.720000000298023,
+        "z": 3.270000000298023,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998832,
+        "soleMinusFloor": -1.490112547242184e-10
+      },
+      {
+        "foot": "stone-foot--0.25--0.2",
+        "x": -2.5799999997019767,
+        "z": 3.1299999997019765,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998863,
+        "soleMinusFloor": -1.4901128594924096e-10
+      },
+      {
+        "foot": "stone-foot--0.25--0.2",
+        "x": -2.5799999997019767,
+        "z": 3.270000000298023,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998832,
+        "soleMinusFloor": -1.490112547242184e-10
+      },
+      {
+        "foot": "stone-foot--0.25-0.2",
+        "x": -2.65,
+        "z": 3.6,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.02499999999999876,
+        "soleMinusFloor": -1.490111818658324e-10
+      },
+      {
+        "foot": "stone-foot--0.25-0.2",
+        "x": -2.720000000298023,
+        "z": 3.529999999701977,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998773,
+        "soleMinusFloor": -1.490111957436202e-10
+      },
+      {
+        "foot": "stone-foot--0.25-0.2",
+        "x": -2.720000000298023,
+        "z": 3.6700000002980233,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998742,
+        "soleMinusFloor": -1.4901116451859764e-10
+      },
+      {
+        "foot": "stone-foot--0.25-0.2",
+        "x": -2.5799999997019767,
+        "z": 3.529999999701977,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998773,
+        "soleMinusFloor": -1.490111957436202e-10
+      },
+      {
+        "foot": "stone-foot--0.25-0.2",
+        "x": -2.5799999997019767,
+        "z": 3.6700000002980233,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998742,
+        "soleMinusFloor": -1.4901116451859764e-10
+      },
+      {
+        "foot": "stone-foot-0.25--0.2",
+        "x": -2.15,
+        "z": 3.1999999999999997,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998846,
+        "soleMinusFloor": -1.490112686020062e-10
+      },
+      {
+        "foot": "stone-foot-0.25--0.2",
+        "x": -2.220000000298023,
+        "z": 3.1299999997019765,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998863,
+        "soleMinusFloor": -1.4901128594924096e-10
+      },
+      {
+        "foot": "stone-foot-0.25--0.2",
+        "x": -2.220000000298023,
+        "z": 3.270000000298023,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998832,
+        "soleMinusFloor": -1.490112547242184e-10
+      },
+      {
+        "foot": "stone-foot-0.25--0.2",
+        "x": -2.0799999997019767,
+        "z": 3.1299999997019765,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998863,
+        "soleMinusFloor": -1.4901128594924096e-10
+      },
+      {
+        "foot": "stone-foot-0.25--0.2",
+        "x": -2.0799999997019767,
+        "z": 3.270000000298023,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998832,
+        "soleMinusFloor": -1.490112547242184e-10
+      },
+      {
+        "foot": "stone-foot-0.25-0.2",
+        "x": -2.15,
+        "z": 3.6,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.02499999999999876,
+        "soleMinusFloor": -1.490111818658324e-10
+      },
+      {
+        "foot": "stone-foot-0.25-0.2",
+        "x": -2.220000000298023,
+        "z": 3.529999999701977,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998773,
+        "soleMinusFloor": -1.490111957436202e-10
+      },
+      {
+        "foot": "stone-foot-0.25-0.2",
+        "x": -2.220000000298023,
+        "z": 3.6700000002980233,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998742,
+        "soleMinusFloor": -1.4901116451859764e-10
+      },
+      {
+        "foot": "stone-foot-0.25-0.2",
+        "x": -2.0799999997019767,
+        "z": 3.529999999701977,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998773,
+        "soleMinusFloor": -1.490111957436202e-10
+      },
+      {
+        "foot": "stone-foot-0.25-0.2",
+        "x": -2.0799999997019767,
+        "z": 3.6700000002980233,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999999186,
+        "soleMinusFloor": -1.490116086078075e-10
+      }
+    ],
+    "finiteWalkability": {
+      "samples": 225,
+      "blocked": 0
+    },
+    "roads": [
+      {
+        "name": "layout-plaza-border",
+        "place": null,
+        "triangles": 192,
+        "minimumGap": 0.3417699135930121
+      },
+      {
+        "name": "layout-plaza-floor",
+        "place": null,
+        "triangles": 96,
+        "minimumGap": 0.5591228006006024
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.858290713019668
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.959917650309336
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 5.025681559213064
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 5.057438075956841
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 5.031734974479825
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.980507181250718
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.90895479325368
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.82163179620844
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.7232080500647315
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.618239526010123
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.510907559526465
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.404743257290991
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.30236357567087
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.20525393543525
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.113132518112022
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.003225651904763
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.864947450130083
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.700663891158308
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.513185912231454
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.3106153771241744
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.1030073551146313
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 2.8879918636794844
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 2.6632108212562593
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 2.427084309774932
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 2.1793644930205818
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 1.9219721916405095
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 1.6601034553515903
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 1.3785360947377197
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 1.087749146178819
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 0.8561572307018652
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 0.6733822060035446
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 0.5192103903041905
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 0.3962797061149228
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 0.3411030493710708
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 0.38657381412182606
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 0.7276016182892229
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 1.1580679226498645
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 1.6024516743251522
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 2.005963755523793
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 2.4010336368776946
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 2.7835199358057627
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.147456258170721
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.4879373905628697
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.800854321073974
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.082813521169813
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.331127223581172
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.543830096952406
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.7197025394789485
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "place": "home",
+        "triangles": 192,
+        "minimumGap": 1.466997121582247
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "place": "home",
+        "triangles": 96,
+        "minimumGap": 1.5269949129008227
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "place": "home",
+        "triangles": 2,
+        "minimumGap": 8.506444955118502
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "place": "cafe",
+        "triangles": 192,
+        "minimumGap": 1.8315476418796355
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "place": "cafe",
+        "triangles": 96,
+        "minimumGap": 1.8792794031391813
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "place": "cafe",
+        "triangles": 2,
+        "minimumGap": 10.464228808677552
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "place": "shop",
+        "triangles": 192,
+        "minimumGap": 1.3758099028920545
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "place": "shop",
+        "triangles": 96,
+        "minimumGap": 1.4358088560026303
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "place": "shop",
+        "triangles": 2,
+        "minimumGap": 4.509000207185745
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "place": "playground",
+        "triangles": 192,
+        "minimumGap": 1.8315292060503516
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "place": "playground",
+        "triangles": 96,
+        "minimumGap": 1.8792635032788145
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "place": "flowers",
+        "triangles": 192,
+        "minimumGap": 0.6090000402927398
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "place": "flowers",
+        "triangles": 96,
+        "minimumGap": 0.6689999830722808
+      }
+    ],
+    "minimumRoadGap": 0.3411030493710708,
+    "requiredRoadMargin": 0.2,
+    "originalSpriteEnvelopeClearance": {
+      "checkedCards": 141,
+      "kinds": {
+        "home": 1,
+        "cafe": 1,
+        "shop": 1,
+        "fountain": 1,
+        "tree": 27,
+        "flowers": 106,
+        "lantern": 4
+      },
+      "minimumGap": 0.6374591882616419,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -3.620171337412489,
+            0.026,
+            1.9259135351825603
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 0.9568982394894792,
+          "gap": 0.6374591882616419
+        },
+        {
+          "kind": "tree",
+          "sourceSHA256": "f2f13fd18a0b27cec312c10b2f9dc55694d98072f06b8c52c5a56b25210e03a1",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            -1.4520000000000004
+          ],
+          "fullQuadRadius": 3.540721855111509,
+          "envelopeDistance": 4.3295270113481665,
+          "gap": 0.7888051562366574
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            6.035999999999999
+          ],
+          "fullQuadRadius": 0.9507114619876108,
+          "envelopeDistance": 2.2041306682408415,
+          "gap": 1.2534192062532306
+        },
+        {
+          "kind": "lantern",
+          "sourceSHA256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+          "contact": [
+            -5.472,
+            0.025,
+            4.223999999999998
+          ],
+          "fullQuadRadius": 0.9909739577995439,
+          "envelopeDistance": 2.3734868876097233,
+          "gap": 1.3825129298101793
+        },
+        {
+          "kind": "shop",
+          "sourceSHA256": "25ea663a1132f09b55329ed326f881a601162689d962ff084a6c653359d61e85",
+          "contact": [
+            -8.064,
+            0.025,
+            2.6999999999999997
+          ],
+          "fullQuadRadius": 3.469184978044895,
+          "envelopeDistance": 4.9640851771023735,
+          "gap": 1.4949001990574784
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -3.4762096606368775,
+            0.026,
+            6.079101177556104
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 1.9752587391156982,
+          "gap": 1.655819687887861
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            1.3751814482148574,
+            0.026,
+            5.10897405510206
+          ],
+          "fullQuadRadius": 0.8081047426894692,
+          "envelopeDistance": 3.224228848304283,
+          "gap": 2.4161241056148137
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -5.696198453616935,
+            0.026,
+            5.1798366606554165
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 2.796695674826954,
+          "gap": 2.477256623599117
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -5.646198453616935,
+            0.026,
+            5.199836660655416
+          ],
+          "fullQuadRadius": 0.1314263525051673,
+          "envelopeDistance": 2.757966700042099,
+          "gap": 2.626540347536932
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -3.899535539329861,
+            0.026,
+            -1.6177433432232216
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 4.419743019479025,
+          "gap": 4.100303968251188
+        }
+      ],
+      "method": "sphere enclosing all four full raw Sprite quad corners from actual world scale/center; sphere-to-conservative-3D-pose-envelope distance; includes faint/transparent corners without cropping",
+      "cameraOrientationIndependentGeometryEnvelope": true,
+      "physicalFixtureVolumes": false,
+      "allCameraProjectionOcclusionGuaranteed": false
+    },
+    "buildingProxyClearance": [
+      {
+        "place": "home",
+        "intersects": false,
+        "separation": 8.780745399393874
+      },
+      {
+        "place": "cafe",
+        "intersects": false,
+        "separation": 10.63821379255847
+      },
+      {
+        "place": "shop",
+        "intersects": false,
+        "separation": 4.242520764112473
+      },
+      {
+        "place": "playground",
+        "intersects": false,
+        "separation": 7.296000001192092
+      },
+      {
+        "place": "tree",
+        "intersects": false,
+        "separation": null
+      },
+      {
+        "place": "flowers",
+        "intersects": false,
+        "separation": null
+      }
+    ],
+    "worldUnchanged": true,
+    "walkableSurfacesUnchanged": true,
+    "occludersUnchanged": true,
+    "notRegisteredAsTownSurface": true,
+    "normalPlacement": false,
+    "ownershipUnlockSave": false,
+    "bodyBinding": null,
+    "characterScaleReference": {
+      "frameWorldHeight": 1.65,
+      "mailboxHeight": 2.2480000016093253,
+      "ratio": 1.3624242433995912,
+      "scope": "existing PetFrameFit whole2D source-frame height; no anatomy, contact, body geometry or fitting proof"
+    },
+    "limits": "one unchanged default-world anchor;20 actual sole/floor rays,finite walkability grid and all current authored diagnostic road triangles against the conservative mailbox XZ rectangle; original full-quad sphere envelopes do not guarantee all-camera visibility or physical decoration collision"
+  },
+  "budget": {
+    "meshes": 58,
+    "geometries": 58,
+    "materials": 7,
+    "textures": 0,
+    "triangles": 7084,
+    "lights": 0
+  },
+  "worldUnchanged": true,
+  "formal_test_count_claimed": 0,
+  "finite_witnesses_not_formal_tests": true,
+  "continuous_collision_certified": false,
+  "physical_paper_friction_or_gravity_verified": false,
+  "actual_delivery": false,
+  "character_grip": false,
+  "bodyBinding": null,
+  "normal_game_registration_or_ownership_save": false,
+  "native_visual_verified": false,
+  "original_initialization_cause_established": false,
+  "initialization_consistency_verified": false
+}
