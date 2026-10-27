@@ -86,7 +86,8 @@
       edge.userData.pathFor=fill.userData.pathFor=place.id;
       paths.push({placeId:place.id,entrance:{x:place.entrance.x,y:place.entrance.y},curve:curve,edge:edge,fill:fill});
       if(['home','cafe','shop'].indexOf(place.id)>=0&&place.footprint){
-        var porchPoint={x:place.footprint.x,y:place.footprint.y+place.footprint.ry+22},porch=gp(porchPoint);
+        var measuredContact=typeof ctx.doorContact==='function'?ctx.doorContact(place):null;
+        var porchPoint=measuredContact?{x:measuredContact.x,y:measuredContact.y}:{x:place.footprint.x,y:place.footprint.y+place.footprint.ry+22},porch=gp(porchPoint);
         var connector=new THREE.LineCurve3(new THREE.Vector3(end.x,.028,end.z),new THREE.Vector3(porch.x,.028,porch.z));
         var strip=ribbon(connector,[[-.455,.455]],.033,cream,'layout-porch-cream-connector',1);
         strip.userData.pathFor=place.id;

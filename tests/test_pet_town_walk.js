@@ -87,7 +87,7 @@ test('world projections use the six saved places and safe display bands without 
   const home = world.places.find(p => p.id === 'home'), cafe = world.places.find(p => p.id === 'cafe'), tree = world.places.find(p => p.id === 'tree'), flowers = world.places.find(p => p.id === 'flowers');
   near(home.x, 432); near(home.y, 422.4); near(cafe.y, 1497.6); near(tree.y, 1612.8); near(flowers.y, 307.2);
   assert.ok(cafe.x < 2880 * .85, 'unsafe saved bank positions are projected inland only for display');
-  for (const place of world.places) { near(place.entrance.x, place.x); near(place.entrance.y, place.y + 70); assert.ok(place.footprint.y < place.y); }
+  for (const place of world.places) { near(place.entrance.x, place.x); near(place.entrance.y, Town.solidDimensions(place)?.kind === "building" ? Town.doorContact(place).y + 12 : place.y + 70); assert.ok(place.footprint.y < place.y); }
 });
 
 test('river collision respects the near bank and the single bounded bridge corridor', () => {
@@ -268,7 +268,7 @@ test('main UI can limit entry to home and shop while former minigame places rema
   assert.equal(f.controller.approach('shop'),true);f.settle();assert.equal(f.enter.hidden,false);f.enter.emit('click');assert.deepEqual(f.entries,['shop']);f.controller.destroy();
 });
 
-function frontContact(place) { return { x: place.footprint.x, y: place.footprint.y + place.footprint.ry + 19 }; }
+function frontContact(place) { const contact = Town.doorContact(place); return { x: contact.x, y: contact.y + .75 }; }
 function doorFixture(options = {}) {
   const world = options.world || Town.createWorld(), home = world.places.find(p => p.id === 'home');
   const f = fixture({ doorEntry: true, noEnter: true, enterableIds: ['home', 'shop', 'cafe'], world, position: frontContact(home), ...options });

@@ -9,6 +9,7 @@ import Seasons from '../static/pet-japan-seasons.js';
 import TownStyle from '../static/pet-town-style.js';
 import LayoutArt from '../static/pet-town-layout-art.js';
 import Originals from '../static/pet-town-placement-originals.js';
+import WaterLife from '../static/pet-town-water-life.js';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
@@ -104,7 +105,7 @@ test('browser registration can precede the visual-only helper and mount adopts t
  assert.equal(context.PetTownScene.alphaAnchor({tagName:'CANVAS',width:16,height:16,getContext:()=>null}),null);
  const painted={tagName:'CANVAS',width:16,height:16,getContext:()=>({RGBA:1,UNSIGNED_BYTE:2,readPixels(x,y,w,h,a,b,p){p[(2*w+8)*4+3]=255;}})};
  assert.equal(context.PetTownScene.alphaAnchor(painted),.125,'the existing public diagnostics work synchronously before any mount or helper import');
- context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;context.PetTownStyle=TownStyle;context.PetTownLayoutArt=LayoutArt;context.PetTownPlacementOriginals=Originals;
+ context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;context.PetTownStyle=TownStyle;context.PetTownLayoutArt=LayoutArt;context.PetTownPlacementOriginals=Originals;context.PetTownWaterLife=WaterLife;
  const f=await fixture({sceneAPI:context.PetTownScene});try{assert.ok(f.controller);assert.equal(f.controller.setFrame(f.source,{anchor:.3}),true);const scene=f.renderers[0].calls.at(-1).scene;assert.equal(scene.getObjectByName('current-pet-2d-frame').center.y,.3);assert.equal(f.host.dataset.townLayoutArt,LayoutArt.revision);assert.equal(scene.userData.layoutArtRevision,LayoutArt.revision);assert.ok(scene.getObjectByName('layout-art-native-landscape'));assert.equal(scene.getObjectByName('bridge-deck').userData.layoutBoardCount,11);assert.deepEqual(f.failures,[]);}finally{f.controller?.destroy();}
 });
 
@@ -205,19 +206,23 @@ test('only a painted pet pixel opens care while transparent sprite padding remai
  const empty=f.controller.resolveTap(screenUV(3.5/16,3.5/16));assert.notEqual(empty?.pet,true,'transparent pixels do not capture a floor tap');f.controller.destroy();
 });
 
-test('original building door pixels keep entry semantics while roofs, windows and transparent corners do not become doors',async()=>{
- const world=Town.createWorld(),doorPixels={home:[256,272],cafe:[243,273],shop:[255,276]};
+test('actual 3D front doors keep entry semantics while roofs and windows remain ordinary approach targets',async()=>{
+ const world=Town.createWorld();
  for(const id of ['home','cafe','shop']){
-  const place=world.places.find(p=>p.id===id),f=await fixture({world,position:place.entrance});
+  const place=world.places.find(p=>p.id===id),f=await fixture({world,position:place.entrance,camera:{yaw:0,pitch:.4,distance:5}});
   try{
-   assert.equal(f.controller.setFrame(f.source),true);const {scene,camera}=f.renderers[0].calls.at(-1),art=[];scene.traverse(o=>{if(o.isSprite&&o.userData.originalArt&&o.userData.placeId===id)art.push(o);});assert.equal(art.length,1);
-   const sprite=art[0],[x,y]=doorPixels[id],door=f.controller.resolveTap(spriteUV(sprite,camera,(x+.5)/384,1-(y+.5)/384));
-   assert.deepEqual(door,{placeId:id,door:true},id+' inset door pixels open the existing entry route');
-   for(const [u,v,label] of [[.5,.74,'roof'],[.4,.48,'window']])assert.deepEqual(f.controller.resolveTap(spriteUV(sprite,camera,u,v)),{placeId:id},id+' '+label+' retains the normal approach behavior');
-   if(id==='home'){
-    const empty=f.controller.resolveTap(spriteUV(sprite,camera,.03,.5));
-    assert.ok(empty&&Number.isFinite(empty.x)&&Number.isFinite(empty.y),'a transparent art corner exposes the actual ground ray');assert.equal(empty.placeId,undefined);assert.notEqual(empty.pet,true);assert.ok(Town.isWalkable(world,empty.x,empty.y));
-   }
+   assert.equal(f.controller.setFrame(f.source),true);const {scene,camera}=f.renderers[0].calls.at(-1),group=scene.getObjectByName('place-'+id),art=[];
+   group.traverse(o=>{if(o.isSprite&&o.userData.originalArt)art.push(o);});assert.equal(art.length,0,'solid buildings no longer use flat pictures');
+   function screen(point){const v=point.clone().project(camera);return {clientX:(v.x+1)*195,clientY:(1-v.y)*350};}
+   const panel=group.getObjectByName('cottage-arched-door-panel');assert.ok(panel);
+   panel.geometry.computeBoundingBox();const doorPoint=panel.geometry.boundingBox.getCenter(new THREE.Vector3());panel.localToWorld(doorPoint);
+   assert.deepEqual(f.controller.resolveTap(screen(doorPoint)),{placeId:id,door:true},id+' actual solid door opens the existing manual entry route');
+   const dims=Town.solidDimensions(place),roofPoint=group.localToWorld(new THREE.Vector3(.25,1.90,dims.depth/2+.18));
+   assert.deepEqual(f.controller.resolveTap(screen(roofPoint)),{placeId:id},id+' roof never acquires door intent');
+   const panes=[];group.traverse(o=>{if(o.userData.windowPane)panes.push(o);});
+   const pane=panes.sort((a,b)=>b.getWorldPosition(new THREE.Vector3()).z-a.getWorldPosition(new THREE.Vector3()).z)[0];assert.ok(pane);
+   pane.geometry.computeBoundingBox();const windowPoint=pane.geometry.boundingBox.getCenter(new THREE.Vector3());pane.localToWorld(windowPoint);
+   assert.deepEqual(f.controller.resolveTap(screen(windowPoint)),{placeId:id},id+' window never acquires door intent');
   }finally{f.controller.destroy();}
  }
 });
@@ -507,14 +512,14 @@ test('canonical originals keep their source pixels, shared materials and saved p
    assert.equal(m.geometries.has(sprite.geometry),false,'the global Three Sprite quad is borrowed and cannot be scene-disposed');
    if(byKind.has(kind))assert.equal(material,byKind.get(kind),'repeated originals share one material and texture');else byKind.set(kind,material);
   }
-  assert.equal(byKind.size,7);
+  assert.deepEqual(new Set(byKind.keys()),new Set(['tree','flowers','lantern']));
   for(const id of ['home','cafe','shop','playground']){
-   const place=world.places.find(p=>p.id===id),group=m.placeGroups.find(g=>g.userData.placeId===id),sprites=[];group.traverse(o=>{if(o.isSprite&&o.userData.originalArt)sprites.push(o);});
-   assert.equal(sprites.length,1,'a building illustration has no floating duplicate yard-flower pictures');
-   const sprite=sprites[0],point=Scene.groundPoint(world,place.footprint),pos=sprite.getWorldPosition(new THREE.Vector3()),scale=sprite.getWorldScale(new THREE.Vector3()),width=id==='playground'?2.25:3.25;
-   assert.ok(Math.abs(pos.x-point.x)<1e-9);assert.ok(Math.abs(pos.z-point.z-.34)<1e-9);assert.ok(Math.abs(pos.y-.025)<1e-9);assert.ok(Math.abs(scale.x-width)<1e-9);assert.ok(Math.abs(scale.y-width)<1e-9,'old cottage height scaling cannot squash the original image');
-   assert.ok(m.pickables.includes(sprite));const hidden=[];group.traverse(o=>{if(o.isMesh&&o.userData.originalArtProxy)hidden.push(o);});assert.ok(hidden.length>0);assert.ok(hidden.every(o=>!o.visible&&!m.pickables.includes(o)),'camera proxies cannot intercept transparent artwork');
-   assert.ok(hidden.some(o=>m.occluders.includes(o)),'physical camera clearance still uses the saved building geometry');
+   const group=m.placeGroups.find(g=>g.userData.placeId===id),sprites=[],meshes=[];
+   group.traverse(o=>{if(o.isSprite&&o.userData.originalArt)sprites.push(o);if(o.isMesh)meshes.push(o);});
+   assert.equal(sprites.length,0,'buildings and fountain now have genuine volume rather than the old illustration');
+   assert.ok(meshes.length>0);assert.ok(meshes.every(o=>!o.userData.originalArtProxy),'solid objects are no longer hidden bitmap proxies');
+   assert.ok(m.pickables.some(o=>o.userData.placeId===id&&!o.userData.originalArt));
+   assert.ok(m.occluders.some(o=>o.userData.placeId===id),'actual solid walls/bowls still provide camera clearance');
   }
   const positions=art.map(o=>o.getWorldPosition(new THREE.Vector3()).toArray()),maps=[...byKind.values()].map(o=>o.map);
   for(const season of ['winter','spring','summer','autumn']){m.setSeason(season);for(const material of byKind.values())assert.equal(material.color.getHexString(),'ffffff','seasonal ground/accents never tint the original art');assert.deepEqual([...byKind.values()].map(o=>o.map),maps);assert.deepEqual(art.map(o=>o.getWorldPosition(new THREE.Vector3()).toArray()),positions);}
@@ -526,7 +531,7 @@ test('canonical originals keep their source pixels, shared materials and saved p
 test('mounted original art textures and shared materials are released once without disposing the global Sprite quad',async()=>{
  const f=await fixture();f.controller.setFrame(f.source);const scene=f.renderers[0].calls.at(-1).scene,materials=new Set(),quads=new Set(),counts=new Map();
  scene.traverse(o=>{if(o.isSprite&&o.userData.originalArt){materials.add(o.material);quads.add(o.geometry);}});
- assert.equal(f.originalTextures.length,7);assert.equal(materials.size,7);const resources=[...f.originalTextures,...materials];for(const resource of resources){counts.set(resource,0);resource.addEventListener('dispose',()=>counts.set(resource,counts.get(resource)+1));}
+ assert.equal(f.originalTextures.length,7);assert.equal(materials.size,3);const resources=[...f.originalTextures,...materials];for(const resource of resources){counts.set(resource,0);resource.addEventListener('dispose',()=>counts.set(resource,counts.get(resource)+1));}
  let quadDisposals=0;const onQuad=()=>quadDisposals++;for(const quad of quads)quad.addEventListener('dispose',onQuad);
  try{f.controller.destroy();f.controller.destroy();for(const resource of resources)assert.equal(counts.get(resource),1);assert.equal(quadDisposals,0);assert.equal(f.host.children.length,0);assert.equal(f.frames.size,0);assert.equal(f.timers.size,0);}
  finally{for(const quad of quads)quad.removeEventListener('dispose',onQuad);f.controller.destroy();}

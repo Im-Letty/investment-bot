@@ -35,12 +35,71 @@
     var bridge = y >= 1070 + RADIUS && y <= 1250 - RADIUS && x >= 2480 + RADIUS && x <= 2810 - RADIUS;
     return x <= bankX(y + RADIUS) - RADIUS || bridge;
   }
+  // Authored ground solids share their dimensions with the visible 3D scene.
+  // Raised roof/eave decoration does not make the walkable ground larger.
+  var solidCache = new WeakMap();
+  function solidDimensions(place) {
+    var f = place && place.footprint;
+    if (!f || !finite(f.rx) || !finite(f.ry) || f.rx <= 0 || f.ry <= 0) return null;
+    if (place.id === 'playground') return Object.freeze({ kind: 'fountain', radiusX: .78, radiusZ: .585 });
+    if (['home', 'cafe', 'shop'].indexOf(place.id) < 0 && !place.shopId) return null;
+    return Object.freeze({ kind: 'building', width: f.rx / 100 * 2.05, depth: f.ry / 100 * 2.0,
+      groundPlinthScale: 1.04, stepWidth: .53, stepDepth: .26, stepOffset: .10,
+      potX: Math.min(f.rx / 100 * .58, .54), potOffset: .13, potRadiusX: .12, potRadiusZ: .11 });
+  }
+  function collisionShapes(place) {
+    var f = place && place.footprint, d = solidDimensions(place);
+    if (!d || !point(f)) return null;
+    var key = [place.id, place.shopId || '', f.x, f.y, f.rx, f.ry].join(':'), cached = solidCache.get(place);
+    if (cached && cached.key === key) return cached.rows;
+    var rows;
+    if (d.kind === 'fountain') rows = [{ kind: 'ellipse', x: f.x, y: f.y, rx: d.radiusX * 100, ry: d.radiusZ * 100 }];
+    else {
+      rows = [{ kind: 'rect', x: f.x, y: f.y, rx: d.width * 50 * d.groundPlinthScale, ry: d.depth * 50 * d.groundPlinthScale },
+        { kind: 'rect', x: f.x, y: f.y + d.depth * 50 + d.stepOffset * 100, rx: d.stepWidth * 50, ry: d.stepDepth * 50 }];
+      [-1, 1].forEach(function (side) { rows.push({ kind: 'ellipse', x: f.x + side * d.potX * 100,
+        y: f.y + d.depth * 50 + d.potOffset * 100, rx: d.potRadiusX * 100, ry: d.potRadiusZ * 100 }); });
+    }
+    rows.forEach(Object.freeze); Object.freeze(rows); solidCache.set(place, { key: key, rows: rows }); return rows;
+  }
+  function ellipseDistanceSquared(x, y, rx, ry) {
+    x = Math.abs(x); y = Math.abs(y);
+    if (x * x / (rx * rx) + y * y / (ry * ry) <= 1) return 0;
+    var a = rx * rx, b = ry * ry, low = 0, high = Math.max(a, b);
+    function equation(t) { return a * x * x / ((t + a) * (t + a)) + b * y * y / ((t + b) * (t + b)); }
+    while (equation(high) > 1) high *= 2;
+    for (var i = 0; i < 40; i++) { var mid = (low + high) / 2; if (equation(mid) > 1) low = mid; else high = mid; }
+    var qx = a * x / (high + a), qy = b * y / (high + b);
+    return (x - qx) * (x - qx) + (y - qy) * (y - qy);
+  }
+  function collidesPlace(place, x, y) {
+    var rows = collisionShapes(place), f = place.footprint;
+    if (!rows) { var dx = (x - f.x) / (f.rx + RADIUS), dy = (y - f.y) / (f.ry + RADIUS); return dx * dx + dy * dy < 1; }
+    return rows.some(function (r) {
+      var xDistance = Math.abs(x - r.x), yDistance = Math.abs(y - r.y);
+      if (xDistance >= r.rx + RADIUS || yDistance >= r.ry + RADIUS) return false;
+      var distance;
+      if (r.kind === 'rect') { var dx = Math.max(0, xDistance - r.rx), dy = Math.max(0, yDistance - r.ry); distance = dx * dx + dy * dy; }
+      else distance = ellipseDistanceSquared(xDistance, yDistance, r.rx, r.ry);
+      return distance < RADIUS * RADIUS - .000001;
+    });
+  }
+  function collisionBounds(place) {
+    var rows = collisionShapes(place), f = place.footprint;
+    if (!rows) return { minX: f.x - f.rx, maxX: f.x + f.rx, minY: f.y - f.ry, maxY: f.y + f.ry };
+    return { minX: Math.min.apply(null, rows.map(function (r) { return r.x - r.rx; })),
+      maxX: Math.max.apply(null, rows.map(function (r) { return r.x + r.rx; })),
+      minY: Math.min.apply(null, rows.map(function (r) { return r.y - r.ry; })),
+      maxY: Math.max.apply(null, rows.map(function (r) { return r.y + r.ry; })) };
+  }
+  function frontDoorContact(place) {
+    var f = place && place.footprint, d = solidDimensions(place);
+    if (!f) return null;
+    return { x: f.x, y: f.y + (d && d.kind === 'building' ? d.depth * 50 + d.stepOffset * 100 + d.stepDepth * 50 : f.ry) + RADIUS + .25 };
+  }
   function isWalkable(world, x, y) {
     if (!world || !finite(x) || !finite(y) || x < 28 || y < 28 || x > world.width - 28 || y > world.height - 28 || !dryGround(x, y)) return false;
-    return !world.places.some(function (place) {
-      var f = place.footprint, dx = (x - f.x) / (f.rx + RADIUS), dy = (y - f.y) / (f.ry + RADIUS);
-      return dx * dx + dy * dy < 1;
-    });
+    return !world.places.some(function (place) { return collidesPlace(place, x, y); });
   }
   function spawn(world, requested) {
     if (point(requested) && isWalkable(world, requested.x, requested.y)) return copy(requested);
@@ -68,6 +127,7 @@
       world.places.push({ id: spec.id, label: spec.label, x: x, y: y,
         entrance: { x: x, y: y + 70 }, footprint: { x: x, y: y - (flora ? 30 : 52), rx: rx, ry: ry } });
     });
+    world.places.forEach(function (place) { var d = solidDimensions(place); if (d && d.kind === 'building') { var contact = frontDoorContact(place); place.entrance = { x: contact.x, y: contact.y + 12 }; } });
     world.spawn = spawn(world);
     return world;
   }
@@ -106,11 +166,12 @@
     // Six footprints produce at most 26 visibility nodes. Search only on a facility tap.
     var nodes = [copy(from), copy(to)];
     world.places.forEach(function (place) {
-      var f = place.footprint;
-      [-1, 1].forEach(function (x) { [-1, 1].forEach(function (y) {
-        var p = { x: f.x + x * (f.rx + RADIUS + 16), y: f.y + y * (f.ry + RADIUS + 16) };
-        if (isWalkable(world, p.x, p.y)) nodes.push(p);
-      }); });
+      var bounds = collisionBounds(place);
+      [bounds.minX - RADIUS - 16, bounds.maxX + RADIUS + 16].forEach(function (x) {
+        [bounds.minY - RADIUS - 16, bounds.maxY + RADIUS + 16].forEach(function (y) {
+          var p = { x: x, y: y }; if (isWalkable(world, p.x, p.y)) nodes.push(p);
+        });
+      });
     });
     var distances = nodes.map(function () { return Infinity; }), parents = [], visited = [], edges = {};
     distances[0] = 0;
@@ -162,14 +223,19 @@
       if (!doorMode || entryLatched || !(distance > 0) || direction.y > -.65) return null;
       for (var i = 0; i < world.places.length; i++) {
         var place = doorPlace(world.places[i].id); if (!place || doorIntent && doorIntent !== place.id) continue;
-        var f = place.footprint, dx = position.x - f.x, rx = f.rx + RADIUS, ry = f.ry + RADIUS;
-        if (Math.abs(dx) > Math.min(30, Math.max(18, f.rx * .28))) continue;
-        var front = f.y + ry * Math.sqrt(Math.max(0, 1 - dx * dx / (rx * rx)));
+        var f = place.footprint, dx = position.x - f.x, d = solidDimensions(place), front;
+        if (d && d.kind === 'building') {
+          if (Math.abs(dx) > 8) continue;
+          front = frontDoorContact(place).y - .25;
+        } else {
+          var rx = f.rx + RADIUS, ry = f.ry + RADIUS;
+          if (Math.abs(dx) > Math.min(30, Math.max(18, f.rx * .28))) continue;
+          front = f.y + ry * Math.sqrt(Math.max(0, 1 - dx * dx / (rx * rx)));
+        }
         if (position.y < front - .001 || position.y > front + 12) continue;
-        // The attempted movement must meet this door's own front collision,
-        // not merely another obstacle within the old 110px nearby band.
-        var probe = Math.max(8, distance), px = (position.x + direction.x * probe - f.x) / rx, py = (position.y + direction.y * probe - f.y) / ry;
-        if (px * px + py * py < 1) return place;
+        // Contact must meet this front door's own ground solid.
+        var probe = Math.max(8, distance);
+        if (collidesPlace(place, position.x + direction.x * probe, position.y + direction.y * probe)) return place;
       }
       return null;
     }
@@ -394,7 +460,7 @@
       if (!active() || entryLatched) return false;
       var place = doorPlace(id); if (!place) return false;
       if (doorIntent === id) return true;
-      var f = place.footprint, contact = { x: f.x, y: f.y + f.ry + RADIUS + .25 };
+      var contact = frontDoorContact(place);
       if (!isWalkable(world, place.entrance.x, place.entrance.y) || !isWalkable(world, contact.x, contact.y) || !clearSegment(world, place.entrance, contact)) return false;
       var path = route(world, position, place.entrance); if (!path) return false;
       path.push(contact);
@@ -410,5 +476,6 @@
     };
   }
   return Object.freeze({ createWorld: createWorld, mount: mount, isWalkable: isWalkable, move: move,
-    nearestFacility: nearestFacility, camera: camera, spawn: spawn, route: route });
+    nearestFacility: nearestFacility, camera: camera, spawn: spawn, route: route,
+    solidDimensions: solidDimensions, collisionShapes: collisionShapes, collisionBounds: collisionBounds, doorContact: frontDoorContact });
 }));
