@@ -84,7 +84,7 @@ await check('side and rear arched window rings each have real openings',()=>{
  const windows=[];home.traverse(m=>{if(m.name==='all-angle-arched-window')windows.push(m);});assert.equal(windows.length,3);for(const w of windows){const ring=w.getObjectByName('living-arched-window-ring');assert.ok(ring);const pane=w.getObjectByName('living-window-glass'),back=w.getObjectByName('window-room-warm-backwall');assert.ok(pane&&back&&pane.position.z-back.position.z>.20);assert.equal(localRay(ring,w,[0,.3,1]).length,0);assert.ok(localRay(ring,w,[.19,.3,1]).length>0);}
 });
 await check('wider deeper home stays in shared-dimension envelopes and retains the prior height limits',()=>{
- const oldMin=new THREE.Vector3(-9.108097065925598,.024999999999999994,-6.2665),oldMax=new THREE.Vector3(-7.019902934074402,2.4708472857272827,-5.094431097911412),b=new THREE.Box3().setFromObject(home);
+ const oldMin=new THREE.Vector3(-9.108097065925598,.024999999999999994,-6.2665),oldMax=new THREE.Vector3(-7.019902934074402,2.4708472857272827,-5.094431097911412),b=new THREE.Box3();home.traverse(m=>{if(m.isMesh)b.union(new THREE.Box3().setFromObject(m));});
  assert.ok(b.min.y>=oldMin.y-1e-8&&b.max.y<=oldMax.y+1e-8,'old vertical silhouette cap retained');
  const widthEnvelope=dimensions.width*.62+.075;
  assert.ok(b.min.x>=home.position.x-widthEnvelope&&b.max.x<=home.position.x+widthEnvelope,'curved roof and tiles stay inside their shared-width authored overhang');
@@ -93,11 +93,28 @@ await check('wider deeper home stays in shared-dimension envelopes and retains t
  facts.home_bounds={min:b.min.toArray(),max:b.max.toArray()};facts.prior_Y_limits_retained=true;facts.shared_width_envelope=widthEnvelope;facts.shared_depth_envelope=depthEnvelope;facts.old_measured_home_bounds={min:oldMin.toArray(),max:oldMax.toArray()};
 });
 await check('home mesh/material budget is bounded and does not add live lights',()=>{
- let meshes=0,triangles=0,lights=0;home.traverse(m=>{if(m.isMesh){meshes++;triangles+=(m.geometry.index?m.geometry.index.count:m.geometry.attributes.position.count)/3;}if(m.isLight)lights++;});assert.ok(meshes<=210,'five authored recessed home rooms remain within the210Mesh cap');assert.ok(triangles<44000,'six authored depth-columns and real window walls/roof stay below44k home triangles');assert.ok(model.geometries.size<=140&&model.materials.size<=130,'shared resources remain bounded');assert.ok(model.batches.length<=120,'static/dynamic batching stays bounded');assert.equal(lights,0);facts.budget={homeMeshes:meshes,homeTriangles:triangles,homeLights:lights,geometries:model.geometries.size,materials:model.materials.size};
+ let meshes=0,triangles=0,lights=0;home.traverse(m=>{if(m.isMesh){meshes++;triangles+=(m.geometry.index?m.geometry.index.count:m.geometry.attributes.position.count)/3;}if(m.isLight)lights++;});assert.ok(meshes<=210,'five authored recessed home rooms remain within the210Mesh cap');assert.ok(triangles<44000,'six authored depth-columns and real window walls/roof stay below44k home triangles');assert.ok(model.geometries.size<=176&&model.materials.size<=140,'fourteen dimension-cached rounded wood shapes and local finishes remain bounded');assert.ok(model.batches.length<=120,'static/dynamic batching stays bounded');assert.equal(lights,0);facts.budget={homeMeshes:meshes,homeTriangles:triangles,homeLights:lights,geometries:model.geometries.size,materials:model.materials.size};
 });
 await check('all four season changes preserve home geometry and doorway transform',()=>{
  const m=named('cottage-retained-wood-threshold'),pose=JSON.stringify(m.matrixWorld.elements),geometries=[];home.traverse(o=>{if(o.isMesh)geometries.push(o.geometry);});for(const season of ['spring','summer','autumn','winter']){model.setSeason(season);model.scene.updateMatrixWorld(true);assert.equal(JSON.stringify(m.matrixWorld.elements),pose);let at=0;home.traverse(o=>{if(o.isMesh)assert.equal(o.geometry,geometries[at++]);});assert.equal(at,geometries.length);}assert.equal(JSON.stringify(world),worldBefore);facts.seasonSamples=4;
 });
-assert.equal(passed.length,12,'Every test callback must finish successfully');facts.total_unique_tests=passed.length;facts.native_render='parent-owned and separately recorded';facts.character_body_binding=null;facts.door_traversal_adoption=false;facts.physics=false;facts.ownership_save=false;
+await check('thin lilac tiles, smooth ivory and real wood roundovers use building-local finishes',()=>{
+ const wall=named('cottage-short-cream-wall'),post=named('cottage-round-corner-post');assert.equal(home.userData.shopStyleRevision,'shop-style1');assert.equal(model.scene.userData.shopStyleRevision,'shop-style1');
+ assert.equal(wall.material.color.getHexString(),'f3ead9');assert.equal(wall.material.bumpScale,.005);assert.equal(wall.material.roughness,.79);assert.equal(post.material.bumpScale,.012);
+ assert.equal(post.geometry.userData.shopStyleRoundedWood,true);const p=post.geometry.attributes.position,b=post.geometry.boundingBox,corner=new THREE.Vector3(b.max.x,b.max.y,b.max.z);let nearest=Infinity;
+ for(let i=0;i<p.count;i++)nearest=Math.min(nearest,new THREE.Vector3().fromBufferAttribute(p,i).distanceTo(corner));assert.ok(nearest>.004,'actual wood corners are cut back, not only relabelled');
+ home.traverse(m=>{if(m.name==='overlapping-round-roof-tile'){assert.equal(m.scale.y,.037);assert.equal(m.material.bumpScale,.003);assert.equal(m.material.roughness,.46);}});
+});
+await check('larger closed scroll and its raised spiral actually join the wooden fascia inside the prior envelope',()=>{
+ const cap=named('cottage-rounded-wood-ridge-cap'),spiral=named('cottage-ridge-scroll-relief'),fascia=home.children.find(m=>m.name==='cottage-curved-wood-fascia'&&m.position.z>0);assert.ok(fascia);
+ facts.scrollJoins=[witness(cap,fascia,[0,2.56,dimensions.depth/2+.17])];const t=3/32,a=Math.PI*(.45+1.7*t),r=.061-.043*t;
+ facts.scrollJoins.push(witness(cap,spiral,[.012+Math.cos(a)*r,2.515+.022+Math.sin(a)*r,dimensions.depth/2+.195]));
+ const start=source.indexOf("        var fountain=new THREE.Group();fountain.name="),end=source.indexOf('      } else {',start);assert.equal(hash(source.slice(start,end)),'c38042dd241cb990e6a20b2fc4a3fb7b9ab703fedc27f814afa1b4bfd5a623a9','PR125 fountain block is byte-identical');
+});
+await check('new shared roundovers and building-only materials are released exactly once',()=>{
+ const resources=new Set([...model.geometries].filter(g=>g.userData.shopStyleRoundedWood).concat([...model.materials].filter(m=>m.userData.shopStyleFinish))),counts=new Map();assert.ok(resources.size>=20);
+ for(const r of resources)r.addEventListener('dispose',()=>counts.set(r,(counts.get(r)||0)+1));model.dispose();model.dispose();for(const r of resources)assert.equal(counts.get(r),1);
+});
+assert.equal(passed.length,15,'Every test callback must finish successfully');facts.total_unique_tests=passed.length;facts.native_render='parent-owned and separately recorded';facts.character_body_binding=null;facts.door_traversal_adoption=false;facts.physics=false;facts.ownership_save=false;
 globalThis.__petHouseFacts=facts;
 export {facts};

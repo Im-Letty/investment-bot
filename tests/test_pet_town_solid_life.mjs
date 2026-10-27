@@ -26,7 +26,8 @@ test('completed buildings and fountain use visible real Mesh volume while nature
   for(const id of ['home','cafe','shop','playground']){
     const g=building(id),sprites=[];let visibleMeshes=0;
     g.traverse(m=>{if(m.isSprite)sprites.push(m);if(m.isMesh&&m.visible)visibleMeshes++;});
-    assert.equal(sprites.length,0,id+' is not a camera-facing art card');
+    assert.ok(sprites.every(o=>o.userData.shopStylePot&&o.userData.originalArtKind==='shopTulip'),id+' structure is solid; only its two fixed potted-flower accents are original cards');
+    assert.equal(sprites.length,id==='playground'?0:2);
     assert.ok(visibleMeshes>=5,id+' has actual rendered volume');
     assert.ok(model.pickables.some(m=>m.userData.placeId===id&&!m.userData.nonSolidWater));
   }
