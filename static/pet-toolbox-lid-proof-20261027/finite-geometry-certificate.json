@@ -1,0 +1,5038 @@
+{
+  "schema_version": 1,
+  "unit": "wardrobe:other:storybook-sewing-toolbox:standalone-lid-hinge-envelope:v1",
+  "scope": "one rigid lid attached to the existing single-tray carrier; two independent authored manual coordinates",
+  "authoredUniformInstanceScale": 0.6,
+  "anatomicalScaleCalibration": false,
+  "bounds": {
+    "min": [
+      -0.882,
+      0,
+      -0.42000000000000004
+    ],
+    "max": [
+      0.9252640688236873,
+      1.6781105015161235,
+      0.43139999999999995
+    ],
+    "size": [
+      1.8072640688236872,
+      1.6781105015161235,
+      0.8514
+    ],
+    "method": "predecessor envelope union actual lid-vertex analytic sine/cosine extrema over0..100deg and solved-tray translation envelope; not continuous collision proof"
+  },
+  "budget": {
+    "parts": 118,
+    "newParts": 26,
+    "triangles": 22832,
+    "geometries": 12,
+    "materials": 9,
+    "textures": 0,
+    "geometryAllocationsPerPose": 0
+  },
+  "newGeometry": [
+    {
+      "geometry": 0,
+      "triangles": 12,
+      "signedOutwardVolume": 1,
+      "closedOrientedWeldedEdges": true,
+      "finitePositions": true,
+      "finiteNormals": true,
+      "maximumUnitNormalError": 0
+    },
+    {
+      "geometry": 1,
+      "triangles": 512,
+      "signedOutwardVolume": 0.0017326922121005963,
+      "closedOrientedWeldedEdges": true,
+      "finitePositions": true,
+      "finiteNormals": true,
+      "maximumUnitNormalError": 2.990442260486503e-8
+    },
+    {
+      "geometry": 2,
+      "triangles": 256,
+      "signedOutwardVolume": 0.0031757553874972697,
+      "closedOrientedWeldedEdges": true,
+      "finitePositions": true,
+      "finiteNormals": true,
+      "maximumUnitNormalError": 2.8842144561558314e-8
+    },
+    {
+      "geometry": 3,
+      "triangles": 512,
+      "signedOutwardVolume": 0.00022263220813449673,
+      "closedOrientedWeldedEdges": true,
+      "finitePositions": true,
+      "finiteNormals": true,
+      "maximumUnitNormalError": 3.677433868531921e-8
+    },
+    {
+      "geometry": 4,
+      "triangles": 256,
+      "signedOutwardVolume": 0.0003312979411273553,
+      "closedOrientedWeldedEdges": true,
+      "finitePositions": true,
+      "finiteNormals": true,
+      "maximumUnitNormalError": 2.8842144561558314e-8
+    }
+  ],
+  "physicalBridges": [
+    {
+      "x": 0.21,
+      "footToBridge": {
+        "separated": false,
+        "maxSeparation": -0.035999999999999956,
+        "minimumOverlap": 0.035999999999999956,
+        "method": "15-axis conservative OBB of actual local bounds and world transforms"
+      },
+      "bridgeToFloor": {
+        "separated": false,
+        "maxSeparation": -0.02399999999999998,
+        "minimumOverlap": 0.02399999999999998,
+        "method": "15-axis conservative OBB of actual local bounds and world transforms"
+      }
+    },
+    {
+      "x": 0.79,
+      "footToBridge": {
+        "separated": false,
+        "maxSeparation": -0.035999999999999956,
+        "minimumOverlap": 0.035999999999999956,
+        "method": "15-axis conservative OBB of actual local bounds and world transforms"
+      },
+      "bridgeToFloor": {
+        "separated": false,
+        "maxSeparation": -0.02399999999999998,
+        "minimumOverlap": 0.02399999999999998,
+        "method": "15-axis conservative OBB of actual local bounds and world transforms"
+      }
+    }
+  ],
+  "sweep": {
+    "finitePoses": 33,
+    "carrierAngles": [
+      45,
+      62.5,
+      80
+    ],
+    "lidAngles": [
+      0,
+      10,
+      20,
+      30,
+      40,
+      50,
+      60,
+      70,
+      80,
+      90,
+      100
+    ],
+    "uniqueTests": 0,
+    "collisionCount": 0,
+    "maximumOffAxis": 0,
+    "minimumBoreClearance": 0.005375425508547398,
+    "minimumPinOverhang": 0.0840000014305114,
+    "minimumCapRetentionMargin": 0.018553023163602772,
+    "rows": [
+      {
+        "lidAngleDegrees": 0,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 45,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.08400000143051145
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.2580000014305115
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547549,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.08400000143051145,
+        "capRetentionMargin": 0.018553023163602883,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": false,
+            "maxSeparation": -7.979727989493313e-17,
+            "minimumOverlap": 7.979727989493313e-17,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": false,
+            "maxSeparation": -7.979727989493313e-17,
+            "minimumOverlap": 7.979727989493313e-17,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.10936225089416701,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 10,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 45,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217577,
+            "maximumInnerVertexRadius": 0.020400001108646464,
+            "chordRadialClearance": 0.005375425508547473,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217577,
+            "maximumInnerVertexRadius": 0.020400001108646464,
+            "chordRadialClearance": 0.005375425508547473,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217577,
+            "maximumInnerVertexRadius": 0.020400001108646464,
+            "chordRadialClearance": 0.005375425508547473,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.08400000143051145
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.2580000014305115
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547473,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.08400000143051145,
+        "capRetentionMargin": 0.01855302316360279,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.08178829168112421,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.08178829168112421,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.09599999999999997,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 20,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 45,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217597,
+            "maximumInnerVertexRadius": 0.020400001108646426,
+            "chordRadialClearance": 0.005375425508547494,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217597,
+            "maximumInnerVertexRadius": 0.020400001108646426,
+            "chordRadialClearance": 0.005375425508547494,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217597,
+            "maximumInnerVertexRadius": 0.020400001108646426,
+            "chordRadialClearance": 0.005375425508547494,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.08400000143051145
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.2580000014305115
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547494,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.08400000143051145,
+        "capRetentionMargin": 0.018553023163602828,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.16109148750639002,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.16109148750639002,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.09264007312102229,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 30,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 45,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217656,
+            "maximumInnerVertexRadius": 0.020400001108646423,
+            "chordRadialClearance": 0.005375425508547553,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217656,
+            "maximumInnerVertexRadius": 0.020400001108646423,
+            "chordRadialClearance": 0.005375425508547553,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217656,
+            "maximumInnerVertexRadius": 0.020400001108646423,
+            "chordRadialClearance": 0.005375425508547553,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.08400000143051145
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.2580000014305115
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547549,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.08400000143051145,
+        "capRetentionMargin": 0.01855302316360283,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.23550000000000007,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.23550000000000007,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.08682993842610828,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 40,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 45,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221765,
+            "maximumInnerVertexRadius": 0.020400001108646412,
+            "chordRadialClearance": 0.005375425508547546,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221765,
+            "maximumInnerVertexRadius": 0.020400001108646412,
+            "chordRadialClearance": 0.005375425508547546,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221765,
+            "maximumInnerVertexRadius": 0.020400001108646412,
+            "chordRadialClearance": 0.005375425508547546,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.08400000143051145
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.2580000014305115
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547546,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.08400000143051145,
+        "capRetentionMargin": 0.01855302316360284,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.3027529641623601,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.3027529641623601,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.07874613391789284,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 50,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 45,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221765,
+            "maximumInnerVertexRadius": 0.020400001108646412,
+            "chordRadialClearance": 0.005375425508547546,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221765,
+            "maximumInnerVertexRadius": 0.020400001108646412,
+            "chordRadialClearance": 0.005375425508547546,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221765,
+            "maximumInnerVertexRadius": 0.020400001108646412,
+            "chordRadialClearance": 0.005375425508547546,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.08400000143051145
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.2580000014305115
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547546,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.08400000143051145,
+        "capRetentionMargin": 0.01855302316360284,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.36080693270903874,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.36080693270903874,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.06863428190575567,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 60,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 45,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217656,
+            "maximumInnerVertexRadius": 0.020400001108646423,
+            "chordRadialClearance": 0.005375425508547553,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217656,
+            "maximumInnerVertexRadius": 0.020400001108646423,
+            "chordRadialClearance": 0.005375425508547553,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217656,
+            "maximumInnerVertexRadius": 0.020400001108646423,
+            "chordRadialClearance": 0.005375425508547553,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.08400000143051145
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.2580000014305115
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547549,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.08400000143051145,
+        "capRetentionMargin": 0.01855302316360283,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.40789796518247057,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.40789796518247057,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.05680162589624153,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 70,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 45,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217597,
+            "maximumInnerVertexRadius": 0.020400001108646426,
+            "chordRadialClearance": 0.005375425508547494,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217597,
+            "maximumInnerVertexRadius": 0.020400001108646426,
+            "chordRadialClearance": 0.005375425508547494,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217597,
+            "maximumInnerVertexRadius": 0.020400001108646426,
+            "chordRadialClearance": 0.005375425508547494,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.08400000143051145
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.2580000014305115
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547494,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.08400000143051145,
+        "capRetentionMargin": 0.018553023163602828,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.44259522439016286,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.44259522439016286,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.04360769515458673,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 80,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 45,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217577,
+            "maximumInnerVertexRadius": 0.020400001108646464,
+            "chordRadialClearance": 0.005375425508547473,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217577,
+            "maximumInnerVertexRadius": 0.020400001108646464,
+            "chordRadialClearance": 0.005375425508547473,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217577,
+            "maximumInnerVertexRadius": 0.020400001108646464,
+            "chordRadialClearance": 0.005375425508547473,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.08400000143051145
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.2580000014305115
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547473,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.08400000143051145,
+        "capRetentionMargin": 0.01855302316360279,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.46384445166874994,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.46384445166874994,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.029453380589925277,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 90,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 45,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.08400000143051145
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.2580000014305115
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547549,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.08400000143051145,
+        "capRetentionMargin": 0.018553023163602883,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.4710000000000001,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.4710000000000001,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.014768753887875625,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 100,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 45,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217577,
+            "maximumInnerVertexRadius": 0.020400001108646464,
+            "chordRadialClearance": 0.005375425508547473,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217577,
+            "maximumInnerVertexRadius": 0.020400001108646464,
+            "chordRadialClearance": 0.005375425508547473,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217577,
+            "maximumInnerVertexRadius": 0.020400001108646464,
+            "chordRadialClearance": 0.005375425508547473,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.08400000143051145
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547549,
+            "actualPinRadius": 0.015000000691589995,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.2580000014305115
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547473,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.08400000143051145,
+        "capRetentionMargin": 0.01855302316360279,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.4788141679950118,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.4788141679950118,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": false,
+            "maxSeparation": 1.0408340855860843e-17,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 0,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 62.5,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.0840000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.2580000014305115
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547471,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.0840000014305114,
+        "capRetentionMargin": 0.018553023163602772,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": false,
+            "maxSeparation": 1.4224732503009818e-16,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": false,
+            "maxSeparation": 1.4224732503009818e-16,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.10936225089416701,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 10,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 62.5,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221764,
+            "maximumInnerVertexRadius": 0.02040000110864642,
+            "chordRadialClearance": 0.005375425508547457,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221764,
+            "maximumInnerVertexRadius": 0.02040000110864642,
+            "chordRadialClearance": 0.005375425508547457,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221764,
+            "maximumInnerVertexRadius": 0.02040000110864642,
+            "chordRadialClearance": 0.005375425508547457,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.0840000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.2580000014305115
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547457,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.0840000014305114,
+        "capRetentionMargin": 0.018553023163602772,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.08178829168112443,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.08178829168112443,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.09599999999999995,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 20,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 62.5,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221766,
+            "maximumInnerVertexRadius": 0.020400001108646426,
+            "chordRadialClearance": 0.005375425508547478,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221766,
+            "maximumInnerVertexRadius": 0.020400001108646426,
+            "chordRadialClearance": 0.005375425508547478,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221766,
+            "maximumInnerVertexRadius": 0.020400001108646426,
+            "chordRadialClearance": 0.005375425508547478,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.0840000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.2580000014305115
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547471,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.0840000014305114,
+        "capRetentionMargin": 0.018553023163602772,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.16109148750639002,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.16109148750639002,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.09264007312102229,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 30,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 62.5,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217656,
+            "maximumInnerVertexRadius": 0.020400001108646423,
+            "chordRadialClearance": 0.005375425508547475,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217656,
+            "maximumInnerVertexRadius": 0.020400001108646423,
+            "chordRadialClearance": 0.005375425508547475,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217656,
+            "maximumInnerVertexRadius": 0.020400001108646423,
+            "chordRadialClearance": 0.005375425508547475,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.0840000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.2580000014305115
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547471,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.0840000014305114,
+        "capRetentionMargin": 0.018553023163602772,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.23550000000000007,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.23550000000000007,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.08682993842610828,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 40,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 62.5,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221758,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547398,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221758,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547398,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221758,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547398,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.0840000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.2580000014305115
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547398,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.0840000014305114,
+        "capRetentionMargin": 0.018553023163602772,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.3027529641623602,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.3027529641623602,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.0787461339178928,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 50,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 62.5,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221758,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547398,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221758,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547398,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221758,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547398,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.0840000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.2580000014305115
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547398,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.0840000014305114,
+        "capRetentionMargin": 0.018553023163602772,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.36080693270903874,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.36080693270903874,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.06863428190575567,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 60,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 62.5,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217622,
+            "maximumInnerVertexRadius": 0.020400001108646423,
+            "chordRadialClearance": 0.00537542550854744,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217622,
+            "maximumInnerVertexRadius": 0.020400001108646423,
+            "chordRadialClearance": 0.00537542550854744,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217622,
+            "maximumInnerVertexRadius": 0.020400001108646423,
+            "chordRadialClearance": 0.00537542550854744,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.0840000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.2580000014305115
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.00537542550854744,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.0840000014305114,
+        "capRetentionMargin": 0.018553023163602772,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.4078979651824707,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.4078979651824707,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.05680162589624153,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 70,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 62.5,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221766,
+            "maximumInnerVertexRadius": 0.020400001108646426,
+            "chordRadialClearance": 0.005375425508547478,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221766,
+            "maximumInnerVertexRadius": 0.020400001108646426,
+            "chordRadialClearance": 0.005375425508547478,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221766,
+            "maximumInnerVertexRadius": 0.020400001108646426,
+            "chordRadialClearance": 0.005375425508547478,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.0840000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.2580000014305115
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547471,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.0840000014305114,
+        "capRetentionMargin": 0.018553023163602772,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.4425952243901629,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.4425952243901629,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.04360769515458673,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 80,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 62.5,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221766,
+            "maximumInnerVertexRadius": 0.02040000110864642,
+            "chordRadialClearance": 0.005375425508547478,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221766,
+            "maximumInnerVertexRadius": 0.02040000110864642,
+            "chordRadialClearance": 0.005375425508547478,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221766,
+            "maximumInnerVertexRadius": 0.02040000110864642,
+            "chordRadialClearance": 0.005375425508547478,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.0840000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.2580000014305115
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547471,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.0840000014305114,
+        "capRetentionMargin": 0.018553023163602772,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.46384445166874994,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.46384445166874994,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.029453380589925242,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 90,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 62.5,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.0840000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.2580000014305115
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547471,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.0840000014305114,
+        "capRetentionMargin": 0.018553023163602772,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.4710000000000001,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.4710000000000001,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.014768753887875625,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 100,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 62.5,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221764,
+            "maximumInnerVertexRadius": 0.02040000110864642,
+            "chordRadialClearance": 0.005375425508547457,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221764,
+            "maximumInnerVertexRadius": 0.02040000110864642,
+            "chordRadialClearance": 0.005375425508547457,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221764,
+            "maximumInnerVertexRadius": 0.02040000110864642,
+            "chordRadialClearance": 0.005375425508547457,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.0840000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.2580000014305115
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547457,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.0840000014305114,
+        "capRetentionMargin": 0.018553023163602772,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.4788141679950118,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.4788141679950118,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": false,
+            "maxSeparation": -2.7755575615628914e-17,
+            "minimumOverlap": 2.7755575615628914e-17,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 0,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 80,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.0840000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.25800000143051144
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547471,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.0840000014305114,
+        "capRetentionMargin": 0.018553023163602772,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": false,
+            "maxSeparation": -7.979727989493313e-17,
+            "minimumOverlap": 7.979727989493313e-17,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": false,
+            "maxSeparation": -7.979727989493313e-17,
+            "minimumOverlap": 7.979727989493313e-17,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.10936225089416701,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 10,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 80,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221764,
+            "maximumInnerVertexRadius": 0.02040000110864642,
+            "chordRadialClearance": 0.005375425508547457,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221764,
+            "maximumInnerVertexRadius": 0.02040000110864642,
+            "chordRadialClearance": 0.005375425508547457,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221764,
+            "maximumInnerVertexRadius": 0.02040000110864642,
+            "chordRadialClearance": 0.005375425508547457,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.0840000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.25800000143051144
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547457,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.0840000014305114,
+        "capRetentionMargin": 0.018553023163602772,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.08178829168112421,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.08178829168112421,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.09599999999999995,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 20,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 80,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221766,
+            "maximumInnerVertexRadius": 0.020400001108646426,
+            "chordRadialClearance": 0.005375425508547478,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221766,
+            "maximumInnerVertexRadius": 0.020400001108646426,
+            "chordRadialClearance": 0.005375425508547478,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221766,
+            "maximumInnerVertexRadius": 0.020400001108646426,
+            "chordRadialClearance": 0.005375425508547478,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.0840000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.25800000143051144
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547471,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.0840000014305114,
+        "capRetentionMargin": 0.018553023163602772,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.16109148750638982,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.16109148750638982,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.09264007312102229,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 30,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 80,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217656,
+            "maximumInnerVertexRadius": 0.020400001108646423,
+            "chordRadialClearance": 0.005375425508547475,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217656,
+            "maximumInnerVertexRadius": 0.020400001108646423,
+            "chordRadialClearance": 0.005375425508547475,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217656,
+            "maximumInnerVertexRadius": 0.020400001108646423,
+            "chordRadialClearance": 0.005375425508547475,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.0840000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.25800000143051144
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547471,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.0840000014305114,
+        "capRetentionMargin": 0.018553023163602772,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.23549999999999988,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.23549999999999988,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.08682993842610828,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 40,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 80,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221758,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547398,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221758,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547398,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221758,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547398,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.0840000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.25800000143051144
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547398,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.0840000014305114,
+        "capRetentionMargin": 0.018553023163602772,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.3027529641623601,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.3027529641623601,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.0787461339178928,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 50,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 80,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221758,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547398,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221758,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547398,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221758,
+            "maximumInnerVertexRadius": 0.02040000110864637,
+            "chordRadialClearance": 0.005375425508547398,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.0840000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.25800000143051144
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547398,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.0840000014305114,
+        "capRetentionMargin": 0.018553023163602772,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.3608069327090386,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.3608069327090386,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.06863428190575567,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 60,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 80,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217622,
+            "maximumInnerVertexRadius": 0.020400001108646423,
+            "chordRadialClearance": 0.00537542550854744,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217622,
+            "maximumInnerVertexRadius": 0.020400001108646423,
+            "chordRadialClearance": 0.00537542550854744,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217622,
+            "maximumInnerVertexRadius": 0.020400001108646423,
+            "chordRadialClearance": 0.00537542550854744,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.0840000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.25800000143051144
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.00537542550854744,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.0840000014305114,
+        "capRetentionMargin": 0.018553023163602772,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.40789796518247057,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.40789796518247057,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.05680162589624153,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 70,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 80,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221766,
+            "maximumInnerVertexRadius": 0.020400001108646426,
+            "chordRadialClearance": 0.005375425508547478,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221766,
+            "maximumInnerVertexRadius": 0.020400001108646426,
+            "chordRadialClearance": 0.005375425508547478,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221766,
+            "maximumInnerVertexRadius": 0.020400001108646426,
+            "chordRadialClearance": 0.005375425508547478,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.0840000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.25800000143051144
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547471,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.0840000014305114,
+        "capRetentionMargin": 0.018553023163602772,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.44259522439016286,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.44259522439016286,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.04360769515458673,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 80,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 80,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221766,
+            "maximumInnerVertexRadius": 0.02040000110864642,
+            "chordRadialClearance": 0.005375425508547478,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221766,
+            "maximumInnerVertexRadius": 0.02040000110864642,
+            "chordRadialClearance": 0.005375425508547478,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221766,
+            "maximumInnerVertexRadius": 0.02040000110864642,
+            "chordRadialClearance": 0.005375425508547478,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.0840000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.25800000143051144
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547471,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.0840000014305114,
+        "capRetentionMargin": 0.018553023163602772,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.46384445166874994,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.46384445166874994,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.029453380589925242,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 90,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 80,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.0840000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.25800000143051144
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547471,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.0840000014305114,
+        "capRetentionMargin": 0.018553023163602772,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.4710000000000001,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.4710000000000001,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": true,
+            "maxSeparation": 0.014768753887875625,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      },
+      {
+        "lidAngleDegrees": 100,
+        "lidRangeDegrees": [
+          0,
+          100
+        ],
+        "carrierAngleDegrees": 80,
+        "rigidLid": true,
+        "realThroughBoreBarrels": 5,
+        "realHingePins": 1,
+        "manualCoordinates": 2,
+        "externalGuideStand": false,
+        "singleTrayLidOnly": true,
+        "fullToolboxClosure": false,
+        "sealedStorage": false,
+        "loadFriction": false,
+        "continuousCollisionSafety": false,
+        "normalPlacement": false,
+        "save": false,
+        "checkedMovingFixedPairs": 1077,
+        "collisions": [],
+        "boreRows": [
+          {
+            "id": "moving-bored-knuckle--0.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221764,
+            "maximumInnerVertexRadius": 0.02040000110864642,
+            "chordRadialClearance": 0.005375425508547457,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.0840000014305115,
+              0.7800000014305114
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-0.5",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221764,
+            "maximumInnerVertexRadius": 0.02040000110864642,
+            "chordRadialClearance": 0.005375425508547457,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.4320000014305115,
+              0.4320000014305115
+            ]
+          },
+          {
+            "id": "moving-bored-knuckle-1.08",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.02039999889221764,
+            "maximumInnerVertexRadius": 0.02040000110864642,
+            "chordRadialClearance": 0.005375425508547457,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.7800000014305115,
+              0.0840000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.21",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.2580000014305115,
+              0.6060000014305114
+            ]
+          },
+          {
+            "id": "fixed-bored-knuckle-0.79",
+            "offAxis": 0,
+            "axisDot": 1,
+            "innerVertexSamples": 128,
+            "minimumInnerVertexRadius": 0.020399998892217653,
+            "maximumInnerVertexRadius": 0.02040000110864648,
+            "chordRadialClearance": 0.005375425508547471,
+            "actualPinRadius": 0.015000000691590073,
+            "axialOverhang": [
+              0.6060000014305115,
+              0.25800000143051144
+            ]
+          }
+        ],
+        "minimumBoreClearance": 0.005375425508547457,
+        "maximumOffAxis": 0,
+        "minimumPinOverhang": 0.0840000014305114,
+        "capRetentionMargin": 0.018553023163602772,
+        "stopRows": [
+          {
+            "id": "closed-lid-rest--0.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.4788141679950118,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "closed-lid-rest-1.1",
+            "endpoint": 0,
+            "separated": true,
+            "maxSeparation": 0.4788141679950118,
+            "minimumOverlap": 0,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          },
+          {
+            "id": "open-lid-positive-stop",
+            "endpoint": 100,
+            "separated": false,
+            "maxSeparation": -2.7755575615628914e-17,
+            "minimumOverlap": 2.7755575615628914e-17,
+            "method": "15-axis conservative OBB of actual local bounds and world transforms"
+          }
+        ],
+        "finitePoseOnly": true,
+        "conservativeUnmatchedSolidBounds": true,
+        "matchingThroughPinSeparatelyAudited": true,
+        "physicalLoadFriction": false
+      }
+    ],
+    "scope": "3 carrier poses ×11 lid poses, not33 unique tests or a continuous no-collision/load certificate"
+  },
+  "placement": {
+    "townPoint": {
+      "x": 1200,
+      "y": 1300
+    },
+    "worldPosition": {
+      "x": -2.4,
+      "y": 0.024999999999999186,
+      "z": 3.4
+    },
+    "authoredUniformInstanceScale": 0.6,
+    "anatomicallyCalibratedScale": false,
+    "feet": [
+      {
+        "id": "base-sole--1.22--0.55",
+        "x": -0.732,
+        "z": -0.33,
+        "actualWorldSoleY": 0,
+        "supportY": 0.024999999999998877,
+        "actualWorldSoleMinusFloor": 3.0878077872387166e-16
+      },
+      {
+        "id": "base-sole--1.22--0.55",
+        "x": -0.786,
+        "z": -0.384,
+        "actualWorldSoleY": 0,
+        "supportY": 0.024999999999998888,
+        "actualWorldSoleMinusFloor": 2.983724378680108e-16
+      },
+      {
+        "id": "base-sole--1.22--0.55",
+        "x": -0.786,
+        "z": -0.276,
+        "actualWorldSoleY": 0,
+        "supportY": 0.024999999999998863,
+        "actualWorldSoleMinusFloor": 3.226585665316861e-16
+      },
+      {
+        "id": "base-sole--1.22--0.55",
+        "x": -0.6779999999999999,
+        "z": -0.384,
+        "actualWorldSoleY": 0,
+        "supportY": 0.024999999999998888,
+        "actualWorldSoleMinusFloor": 2.983724378680108e-16
+      },
+      {
+        "id": "base-sole--1.22--0.55",
+        "x": -0.6779999999999999,
+        "z": -0.276,
+        "actualWorldSoleY": 0,
+        "supportY": 0.024999999999998863,
+        "actualWorldSoleMinusFloor": 3.226585665316861e-16
+      },
+      {
+        "id": "base-sole--1.22-0.55",
+        "x": -0.732,
+        "z": 0.33,
+        "actualWorldSoleY": 0,
+        "supportY": 0.024999999999998728,
+        "actualWorldSoleMinusFloor": 4.579669976578771e-16
+      },
+      {
+        "id": "base-sole--1.22-0.55",
+        "x": -0.786,
+        "z": 0.276,
+        "actualWorldSoleY": 0,
+        "supportY": 0.024999999999998742,
+        "actualWorldSoleMinusFloor": 4.440892098500626e-16
+      },
+      {
+        "id": "base-sole--1.22-0.55",
+        "x": -0.786,
+        "z": 0.384,
+        "actualWorldSoleY": 0,
+        "supportY": 0.024999999999998718,
+        "actualWorldSoleMinusFloor": 4.683753385137379e-16
+      },
+      {
+        "id": "base-sole--1.22-0.55",
+        "x": -0.6779999999999999,
+        "z": 0.276,
+        "actualWorldSoleY": 0,
+        "supportY": 0.024999999999998742,
+        "actualWorldSoleMinusFloor": 4.440892098500626e-16
+      },
+      {
+        "id": "base-sole--1.22-0.55",
+        "x": -0.6779999999999999,
+        "z": 0.384,
+        "actualWorldSoleY": 0,
+        "supportY": 0.024999999999998718,
+        "actualWorldSoleMinusFloor": 4.683753385137379e-16
+      },
+      {
+        "id": "base-sole-1.22--0.55",
+        "x": 0.732,
+        "z": -0.33,
+        "actualWorldSoleY": 0,
+        "supportY": 0.024999999999998877,
+        "actualWorldSoleMinusFloor": 3.0878077872387166e-16
+      },
+      {
+        "id": "base-sole-1.22--0.55",
+        "x": 0.6779999999999999,
+        "z": -0.384,
+        "actualWorldSoleY": 0,
+        "supportY": 0.024999999999998888,
+        "actualWorldSoleMinusFloor": 2.983724378680108e-16
+      },
+      {
+        "id": "base-sole-1.22--0.55",
+        "x": 0.6779999999999999,
+        "z": -0.276,
+        "actualWorldSoleY": 0,
+        "supportY": 0.024999999999998863,
+        "actualWorldSoleMinusFloor": 3.226585665316861e-16
+      },
+      {
+        "id": "base-sole-1.22--0.55",
+        "x": 0.786,
+        "z": -0.384,
+        "actualWorldSoleY": 0,
+        "supportY": 0.024999999999998888,
+        "actualWorldSoleMinusFloor": 2.983724378680108e-16
+      },
+      {
+        "id": "base-sole-1.22--0.55",
+        "x": 0.786,
+        "z": -0.276,
+        "actualWorldSoleY": 0,
+        "supportY": 0.024999999999998863,
+        "actualWorldSoleMinusFloor": 3.226585665316861e-16
+      },
+      {
+        "id": "base-sole-1.22-0.55",
+        "x": 0.732,
+        "z": 0.33,
+        "actualWorldSoleY": 0,
+        "supportY": 0.024999999999999172,
+        "actualWorldSoleMinusFloor": 1.3877787807814457e-17
+      },
+      {
+        "id": "base-sole-1.22-0.55",
+        "x": 0.6779999999999999,
+        "z": 0.276,
+        "actualWorldSoleY": 0,
+        "supportY": 0.024999999999999186,
+        "actualWorldSoleMinusFloor": 0
+      },
+      {
+        "id": "base-sole-1.22-0.55",
+        "x": 0.6779999999999999,
+        "z": 0.384,
+        "actualWorldSoleY": 0,
+        "supportY": 0.024999999999999162,
+        "actualWorldSoleMinusFloor": 2.42861286636753e-17
+      },
+      {
+        "id": "base-sole-1.22-0.55",
+        "x": 0.786,
+        "z": 0.276,
+        "actualWorldSoleY": 0,
+        "supportY": 0.024999999999999186,
+        "actualWorldSoleMinusFloor": 0
+      },
+      {
+        "id": "base-sole-1.22-0.55",
+        "x": 0.786,
+        "z": 0.384,
+        "actualWorldSoleY": 0,
+        "supportY": 0.024999999999999162,
+        "actualWorldSoleMinusFloor": 2.42861286636753e-17
+      }
+    ],
+    "actualWorldSolesChecked": true,
+    "finiteFootprintGrid": {
+      "count": 465,
+      "blocked": 0
+    },
+    "roads": [
+      {
+        "name": "layout-plaza-border",
+        "triangles": 192,
+        "minimumGap": 0.5510056999720688
+      },
+      {
+        "name": "layout-plaza-floor",
+        "triangles": 96,
+        "minimumGap": 0.7655872174039366
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.793843117290972
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.910856173677751
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.993264049336806
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 5.042950589263584
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 5.056053020668499
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 5.026575562898676
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.977958556220621
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.914604319904438
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.840949699855586
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.76122702034707
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.67920399927797
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.597923046127394
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.519468541478871
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.4447948470251255
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.364052736606584
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.2541458703993245
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.115867668624645
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 3.95158410965287
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 3.7641061307260157
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 3.556641532042235
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 3.3375971865654517
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 3.111979581906044
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 2.878217630307405
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 2.635682506972857
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 2.3853266261963153
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 2.1305125185860883
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 1.8591701356243042
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 1.5728634165547155
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 1.3160028392037844
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 1.107077449196427
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 0.9243024244981064
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 0.7701306087987523
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 0.6471999246094846
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 0.5576137500196054
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 0.5504349080137947
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 0.6789270303723955
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 1.029919933483712
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 1.450109359840586
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 1.8744351643580033
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 2.262941963576316
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 2.644747916662757
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 3.011687244273465
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 3.3577198420944896
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 3.678115664976861
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 3.9691305528529126
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.22787931211943
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.452291479186639
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.64110052071615
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 1.7099444848736363
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 1.769942455732276
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 8.627527447521823
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 1.9203047898680934
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 1.973526339960555
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 10.479415574429208
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 1.6143023048561578
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 1.674301168766056
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 4.327000205993652
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 1.9202907301578251
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 1.9735142337725406
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 0.3837359702769596
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 0.4437359130565006
+      }
+    ],
+    "minimumRoadGap": 0.3837359702769596,
+    "requiredRoadMargin": 0.2,
+    "projectedSweepFootprint": {
+      "minX": -3.282,
+      "maxX": -1.4747359311763126,
+      "minZ": 2.98,
+      "maxZ": 3.8314
+    },
+    "originalSpriteEnvelopeClearance": {
+      "checkedCards": 141,
+      "kinds": {
+        "home": 1,
+        "cafe": 1,
+        "shop": 1,
+        "fountain": 1,
+        "tree": 27,
+        "flowers": 106,
+        "lantern": 4
+      },
+      "minimumGap": 0.7875650719617194,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -3.620171337412489,
+            0.026,
+            1.9259135351825603
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 1.1070041231895567,
+          "gap": 0.7875650719617194
+        },
+        {
+          "kind": "tree",
+          "sourceSHA256": "f2f13fd18a0b27cec312c10b2f9dc55694d98072f06b8c52c5a56b25210e03a1",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            -1.4520000000000004
+          ],
+          "fullQuadRadius": 3.540721855111509,
+          "envelopeDistance": 4.522206350221909,
+          "gap": 0.9814844951103998
+        },
+        {
+          "kind": "lantern",
+          "sourceSHA256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+          "contact": [
+            -5.472,
+            0.025,
+            4.223999999999998
+          ],
+          "fullQuadRadius": 0.9909739577995439,
+          "envelopeDistance": 2.2249123038897514,
+          "gap": 1.2339383460902074
+        },
+        {
+          "kind": "shop",
+          "sourceSHA256": "25ea663a1132f09b55329ed326f881a601162689d962ff084a6c653359d61e85",
+          "contact": [
+            -8.064,
+            0.025,
+            2.6999999999999997
+          ],
+          "fullQuadRadius": 3.469184978044895,
+          "envelopeDistance": 4.79019039287584,
+          "gap": 1.3210054148309451
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            6.035999999999999
+          ],
+          "fullQuadRadius": 0.9507114619876108,
+          "envelopeDistance": 2.3807535433108873,
+          "gap": 1.4300420813232764
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -3.4762096606368775,
+            0.026,
+            6.079101177556104
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 2.2560757912516562,
+          "gap": 1.9366367400238191
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            1.3751814482148574,
+            0.026,
+            5.10897405510206
+          ],
+          "fullQuadRadius": 0.8081047426894692,
+          "envelopeDistance": 3.1231753930296255,
+          "gap": 2.3150706503401564
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -5.696198453616935,
+            0.026,
+            5.1798366606554165
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 2.7652550698345952,
+          "gap": 2.445816018606758
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -5.646198453616935,
+            0.026,
+            5.199836660655416
+          ],
+          "fullQuadRadius": 0.1314263525051673,
+          "envelopeDistance": 2.7316758999395323,
+          "gap": 2.600249547434365
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -3.899535539329861,
+            0.026,
+            -1.6177433432232216
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 4.639029423542048,
+          "gap": 4.319590372314211
+        }
+      ],
+      "method": "sphere enclosing all four full raw Sprite quad corners from actual world scale/center; sphere-to-conservative-3D-pose-envelope distance; includes faint/transparent corners without cropping",
+      "cameraOrientationIndependentGeometryEnvelope": true,
+      "physicalFixtureVolumes": false,
+      "allCameraProjectionOcclusionGuaranteed": false
+    },
+    "scope": "one dryland preview site;20 actual sole/floor rays, finite swept-footprint walkability, all actual road triangles and141 conservative original-image card envelopes",
+    "worldUnchanged": true,
+    "ordinaryPlacement": false,
+    "normalPlacement": false
+  },
+  "worldUnchanged": true,
+  "rawOriginalChanges": 0,
+  "newDesigns": 0,
+  "newRawVersions": 0,
+  "imagegenCalls": 0,
+  "canonicalFitIncrement": 0,
+  "MeshLibraryIncrement": 0,
+  "fullToolboxClosure": false,
+  "sealedStorage": false,
+  "loadFriction": false,
+  "continuousCollisionSafety": false,
+  "normalPlacement": false,
+  "unlock": false,
+  "save": false,
+  "limits": [
+    "One lid on existing single tray, not full toolbox folding/closure",
+    "33 authored finite pose combinations are not33 unique tests or continuous collision proof",
+    "Convex outer cover separation suffices to exclude solid collision for tested pairs; bore-pin pairs excluded only with actual clearance checks",
+    "Uniform .6 authored tool-instance scale only; unchanged 1.65 whole-image character frame is not anatomy/grip/fit calibration",
+    "No load/friction/manufacturing/physical-fastening guarantee",
+    "One preview placement with20 rays and original-card/road envelopes; no normal game registration or owner-save proof"
+  ]
+}

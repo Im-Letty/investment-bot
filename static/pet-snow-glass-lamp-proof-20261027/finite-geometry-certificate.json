@@ -1,0 +1,1103 @@
+{
+  "schema_version": 1,
+  "model_id": "snow-sheltered-glass-lamp-v1",
+  "recorded_at_jst": "2026-10-27 09:37:15+09:00",
+  "geometry": {
+    "bounds": {
+      "min": [
+        -0.47999998927116394,
+        2.980232241545089e-10,
+        -0.47
+      ],
+      "max": [
+        0.47999998927116394,
+        1.765000000372529,
+        0.4699999988079071
+      ],
+      "size": [
+        0.9599999785423279,
+        1.7650000000745059,
+        0.9399999988079071
+      ]
+    },
+    "budget": {
+      "meshes": 37,
+      "geometries": 37,
+      "materials": 7,
+      "textures": 0,
+      "triangles": 688,
+      "lights": 0
+    },
+    "invalidPositions": 0,
+    "invalidNormals": 0,
+    "paneThickness": 0.016,
+    "paneCount": 4,
+    "glassIsSolidBoxGeometry": true,
+    "roofSnowThickness": 0.045,
+    "snowTray": {
+      "floorTop": 0.3825,
+      "railTop": 0.45,
+      "pocketDepth": 0.0675,
+      "raisedChamberBaseBottom": 0.4075,
+      "snowIsAuthoredRigidGeometry": true,
+      "snowSimulation": false
+    },
+    "lit": true,
+    "emissiveIntensity": 0.75,
+    "physicalLighting": false,
+    "bodyBinding": null,
+    "normalPlacement": false,
+    "ownershipUnlockSave": false
+  },
+  "parts": [
+    {
+      "id": "stone-foot--0.29--0.29",
+      "role": "foot",
+      "signedVolume": 0.003564000263929372,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "stone-foot--0.29-0.29",
+      "role": "foot",
+      "signedVolume": 0.003564000263929372,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "stone-foot-0.29--0.29",
+      "role": "foot",
+      "signedVolume": 0.003564000263929372,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "stone-foot-0.29-0.29",
+      "role": "foot",
+      "signedVolume": 0.003564000263929372,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "wood-pedestal-base",
+      "role": "base",
+      "signedVolume": 0.04258799705708031,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "square-pedestal-stem",
+      "role": "stem",
+      "signedVolume": 0.019603997997760844,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "snow-tray-closed-floor",
+      "role": "tray-floor",
+      "signedVolume": 0.034848001007080055,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "snow-tray-front-back--0.415",
+      "role": "tray-rail",
+      "signedVolume": 0.003960000194907189,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "snow-tray-front-back-0.415",
+      "role": "tray-rail",
+      "signedVolume": 0.003960000194907189,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "snow-tray-side--0.415",
+      "role": "tray-rail",
+      "signedVolume": 0.0035100000630319066,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "snow-tray-side-0.415",
+      "role": "tray-rail",
+      "signedVolume": 0.0035100000630319066,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "raised-chamber-floor",
+      "role": "chamber-floor",
+      "signedVolume": 0.030719999847412065,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "tray-snow--0.365--0.365",
+      "role": "tray-snow",
+      "signedVolume": 0.0001877274152880459,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "tray-snow--0.365-0.365",
+      "role": "tray-snow",
+      "signedVolume": 0.0001877274152880459,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "tray-snow-0.365--0.365",
+      "role": "tray-snow",
+      "signedVolume": 0.0001877274152880459,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "tray-snow-0.365-0.365",
+      "role": "tray-snow",
+      "signedVolume": 0.0001877274152880459,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "wood-corner-post--0.285--0.285",
+      "role": "post",
+      "signedVolume": 0.004997999949097633,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "wood-corner-post--0.285-0.285",
+      "role": "post",
+      "signedVolume": 0.004997999949097633,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "wood-corner-post-0.285--0.285",
+      "role": "post",
+      "signedVolume": 0.004997999949097633,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "wood-corner-post-0.285-0.285",
+      "role": "post",
+      "signedVolume": 0.004997999949097633,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "upper-front-back-rail--0.285",
+      "role": "upper-rail",
+      "signedVolume": 0.003360000072717664,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "upper-front-back-rail-0.285",
+      "role": "upper-rail",
+      "signedVolume": 0.003360000072717664,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "upper-side-rail--0.285",
+      "role": "upper-rail",
+      "signedVolume": 0.0026250001154839997,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "upper-side-rail-0.285",
+      "role": "upper-rail",
+      "signedVolume": 0.0026250001154839997,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "thick-glass-front-back--0.285",
+      "role": "glass-pane",
+      "signedVolume": 0.00656000025436282,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "thick-glass-front-back-0.285",
+      "role": "glass-pane",
+      "signedVolume": 0.00656000025436282,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "thick-glass-side--0.285",
+      "role": "glass-pane",
+      "signedVolume": 0.00656000025436282,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "thick-glass-side-0.285",
+      "role": "glass-pane",
+      "signedVolume": 0.00656000025436282,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "wood-pitched-roof-left",
+      "role": "roof",
+      "signedVolume": 0.025380000271797154,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "wood-pitched-roof-right",
+      "role": "roof",
+      "signedVolume": 0.025380000271797154,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "snow-cap-left",
+      "role": "roof-snow",
+      "signedVolume": 0.02030398013126894,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "snow-cap-right",
+      "role": "roof-snow",
+      "signedVolume": 0.02030398013126894,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "closed-ridge-cap",
+      "role": "ridge-snow",
+      "signedVolume": 0.0016617010329493616,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "inner-lamp-saucer",
+      "role": "lamp-saucer",
+      "signedVolume": 0.002366000010857189,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "warm-luminous-insert",
+      "role": "emissive-insert",
+      "signedVolume": 0.009775499575877098,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "insert-top",
+      "role": "emissive-insert-top",
+      "signedVolume": 0.0006002500164693773,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    },
+    {
+      "id": "brass-insert-cap",
+      "role": "insert-cap",
+      "signedVolume": 0.00013230000269121213,
+      "degenerateTriangles": 0,
+      "opposedNormals": 0,
+      "badWeldedEdges": 0
+    }
+  ],
+  "placement": {
+    "townPoint": {
+      "x": 1200,
+      "y": 1300
+    },
+    "worldPosition": [
+      -2.4,
+      0.024999999999999183,
+      3.4
+    ],
+    "projectedFootprint": {
+      "minX": -2.879999989271164,
+      "maxX": -1.920000010728836,
+      "minZ": 2.9299999999999997,
+      "maxZ": 3.869999998807907
+    },
+    "supports": [
+      {
+        "foot": "stone-foot--0.29--0.29",
+        "x": -2.69,
+        "z": 3.11,
+        "soleLocalY": 2.980232241545089e-10,
+        "floorY": 0.024999999999998867,
+        "soleMinusFloor": 2.980235398741815e-10
+      },
+      {
+        "foot": "stone-foot--0.29--0.29",
+        "x": -2.7800000035762786,
+        "z": 3.019999996423721,
+        "soleLocalY": 2.980232241545089e-10,
+        "floorY": 0.024999999999998888,
+        "soleMinusFloor": 2.980235190574998e-10
+      },
+      {
+        "foot": "stone-foot--0.29--0.29",
+        "x": -2.7800000035762786,
+        "z": 3.2000000035762786,
+        "soleLocalY": 2.980232241545089e-10,
+        "floorY": 0.024999999999998846,
+        "soleMinusFloor": 2.980235606908632e-10
+      },
+      {
+        "foot": "stone-foot--0.29--0.29",
+        "x": -2.5999999964237213,
+        "z": 3.019999996423721,
+        "soleLocalY": 2.980232241545089e-10,
+        "floorY": 0.024999999999998888,
+        "soleMinusFloor": 2.980235190574998e-10
+      },
+      {
+        "foot": "stone-foot--0.29--0.29",
+        "x": -2.5999999964237213,
+        "z": 3.2000000035762786,
+        "soleLocalY": 2.980232241545089e-10,
+        "floorY": 0.024999999999998846,
+        "soleMinusFloor": 2.980235606908632e-10
+      },
+      {
+        "foot": "stone-foot--0.29-0.29",
+        "x": -2.69,
+        "z": 3.69,
+        "soleLocalY": 2.980232241545089e-10,
+        "floorY": 0.02499999999999874,
+        "soleMinusFloor": 2.9802366824371873e-10
+      },
+      {
+        "foot": "stone-foot--0.29-0.29",
+        "x": -2.7800000035762786,
+        "z": 3.5999999964237213,
+        "soleLocalY": 2.980232241545089e-10,
+        "floorY": 0.02499999999999876,
+        "soleMinusFloor": 2.98023647427037e-10
+      },
+      {
+        "foot": "stone-foot--0.29-0.29",
+        "x": -2.7800000035762786,
+        "z": 3.7800000035762786,
+        "soleLocalY": 2.980232241545089e-10,
+        "floorY": 0.024999999999998718,
+        "soleMinusFloor": 2.9802368906040044e-10
+      },
+      {
+        "foot": "stone-foot--0.29-0.29",
+        "x": -2.5999999964237213,
+        "z": 3.5999999964237213,
+        "soleLocalY": 2.980232241545089e-10,
+        "floorY": 0.02499999999999876,
+        "soleMinusFloor": 2.98023647427037e-10
+      },
+      {
+        "foot": "stone-foot--0.29-0.29",
+        "x": -2.5999999964237213,
+        "z": 3.7800000035762786,
+        "soleLocalY": 2.980232241545089e-10,
+        "floorY": 0.024999999999998718,
+        "soleMinusFloor": 2.9802368906040044e-10
+      },
+      {
+        "foot": "stone-foot-0.29--0.29",
+        "x": -2.11,
+        "z": 3.11,
+        "soleLocalY": 2.980232241545089e-10,
+        "floorY": 0.024999999999998867,
+        "soleMinusFloor": 2.980235398741815e-10
+      },
+      {
+        "foot": "stone-foot-0.29--0.29",
+        "x": -2.2000000035762786,
+        "z": 3.019999996423721,
+        "soleLocalY": 2.980232241545089e-10,
+        "floorY": 0.024999999999998888,
+        "soleMinusFloor": 2.980235190574998e-10
+      },
+      {
+        "foot": "stone-foot-0.29--0.29",
+        "x": -2.2000000035762786,
+        "z": 3.2000000035762786,
+        "soleLocalY": 2.980232241545089e-10,
+        "floorY": 0.024999999999998846,
+        "soleMinusFloor": 2.980235606908632e-10
+      },
+      {
+        "foot": "stone-foot-0.29--0.29",
+        "x": -2.019999996423721,
+        "z": 3.019999996423721,
+        "soleLocalY": 2.980232241545089e-10,
+        "floorY": 0.024999999999998888,
+        "soleMinusFloor": 2.980235190574998e-10
+      },
+      {
+        "foot": "stone-foot-0.29--0.29",
+        "x": -2.019999996423721,
+        "z": 3.2000000035762786,
+        "soleLocalY": 2.980232241545089e-10,
+        "floorY": 0.024999999999998846,
+        "soleMinusFloor": 2.980235606908632e-10
+      },
+      {
+        "foot": "stone-foot-0.29-0.29",
+        "x": -2.11,
+        "z": 3.69,
+        "soleLocalY": 2.980232241545089e-10,
+        "floorY": 0.024999999999999183,
+        "soleMinusFloor": 2.980232241545089e-10
+      },
+      {
+        "foot": "stone-foot-0.29-0.29",
+        "x": -2.2000000035762786,
+        "z": 3.5999999964237213,
+        "soleLocalY": 2.980232241545089e-10,
+        "floorY": 0.02499999999999876,
+        "soleMinusFloor": 2.98023647427037e-10
+      },
+      {
+        "foot": "stone-foot-0.29-0.29",
+        "x": -2.2000000035762786,
+        "z": 3.7800000035762786,
+        "soleLocalY": 2.980232241545089e-10,
+        "floorY": 0.024999999999999162,
+        "soleMinusFloor": 2.980232449711906e-10
+      },
+      {
+        "foot": "stone-foot-0.29-0.29",
+        "x": -2.019999996423721,
+        "z": 3.5999999964237213,
+        "soleLocalY": 2.980232241545089e-10,
+        "floorY": 0.02499999999999876,
+        "soleMinusFloor": 2.98023647427037e-10
+      },
+      {
+        "foot": "stone-foot-0.29-0.29",
+        "x": -2.019999996423721,
+        "z": 3.7800000035762786,
+        "soleLocalY": 2.980232241545089e-10,
+        "floorY": 0.024999999999999162,
+        "soleMinusFloor": 2.980232449711906e-10
+      }
+    ],
+    "finiteWalkability": {
+      "samples": 100,
+      "blocked": 0
+    },
+    "roads": [
+      {
+        "name": "layout-plaza-border",
+        "place": null,
+        "triangles": 192,
+        "minimumGap": 0.5844392065368557
+      },
+      {
+        "name": "layout-plaza-floor",
+        "place": null,
+        "triangles": 96,
+        "minimumGap": 0.8042428391972416
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 5.148508787151761
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 5.252890342802498
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 5.320937728196173
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 5.354367086358364
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 5.329547324538783
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 5.2771790887216685
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 5.2031230383017135
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 5.111700092471025
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 5.007348156148369
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.894412299846382
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.7769101266933065
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.658285822589556
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.541174291273565
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.4272033215809214
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.316863802722696
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.204145870399325
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.065867668624644
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.9015841096528696
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.718069652999169
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.5293755978078316
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.3339318477184223
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.1289423282768802
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 2.9119831130886427
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 2.6813750657967352
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 2.4366283440387293
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 2.179064263681785
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 1.912851887856841
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 1.6409018448376225
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 1.341009270951493
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 1.0672608089788107
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 0.8743024244981061
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 0.720130608798752
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 0.5973179427208807
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 0.5836164369546216
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 0.6822974277753698
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 1.0096367868068579
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 1.4222084455241475
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 1.8613179631029766
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 2.2734212384529893
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 2.6669047071027148
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.0498059170592695
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.415443646204435
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.758448454419455
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.0744004432383205
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.359687434436774
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.611457851785293
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.8276139023409845
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 5.006819373231592
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "place": "home",
+        "triangles": 192,
+        "minimumGap": 1.676461750649495
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "place": "home",
+        "triangles": 96,
+        "minimumGap": 1.736459486301628
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "place": "home",
+        "triangles": 2,
+        "minimumGap": 8.793795659681617
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "place": "cafe",
+        "triangles": 192,
+        "minimumGap": 2.1257934218248637
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "place": "cafe",
+        "triangles": 96,
+        "minimumGap": 2.172609350412153
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "place": "cafe",
+        "triangles": 2,
+        "minimumGap": 10.762109499375631
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "place": "shop",
+        "triangles": 192,
+        "minimumGap": 1.5897053421310492
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "place": "shop",
+        "triangles": 96,
+        "minimumGap": 1.6497043641171913
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "place": "shop",
+        "triangles": 2,
+        "minimumGap": 4.729000216722488
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "place": "playground",
+        "triangles": 192,
+        "minimumGap": 2.1257744288818237
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "place": "playground",
+        "triangles": 96,
+        "minimumGap": 2.172592905349487
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "place": "flowers",
+        "triangles": 192,
+        "minimumGap": 0.8290000498294829
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "place": "flowers",
+        "triangles": 96,
+        "minimumGap": 0.888999992609024
+      }
+    ],
+    "minimumRoadGap": 0.5836164369546216,
+    "requiredRoadMargin": 0.2,
+    "originalSpriteEnvelopeClearance": {
+      "checkedCards": 141,
+      "kinds": {
+        "home": 1,
+        "cafe": 1,
+        "shop": 1,
+        "fountain": 1,
+        "tree": 27,
+        "flowers": 106,
+        "lantern": 4
+      },
+      "minimumGap": 0.9279755764877952,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -3.620171337412489,
+            0.026,
+            1.9259135351825603
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 1.2474146277156324,
+          "gap": 0.9279755764877952
+        },
+        {
+          "kind": "tree",
+          "sourceSHA256": "f2f13fd18a0b27cec312c10b2f9dc55694d98072f06b8c52c5a56b25210e03a1",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            -1.4520000000000004
+          ],
+          "fullQuadRadius": 3.540721855111509,
+          "envelopeDistance": 4.583476849384003,
+          "gap": 1.042754994272494
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            6.035999999999999
+          ],
+          "fullQuadRadius": 0.9507114619876108,
+          "envelopeDistance": 2.5490963171295133,
+          "gap": 1.5983848551419024
+        },
+        {
+          "kind": "lantern",
+          "sourceSHA256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+          "contact": [
+            -5.472,
+            0.025,
+            4.223999999999998
+          ],
+          "fullQuadRadius": 0.9909739577995439,
+          "envelopeDistance": 2.6160619366640177,
+          "gap": 1.6250879788644736
+        },
+        {
+          "kind": "shop",
+          "sourceSHA256": "25ea663a1132f09b55329ed326f881a601162689d962ff084a6c653359d61e85",
+          "contact": [
+            -8.064,
+            0.025,
+            2.6999999999999997
+          ],
+          "fullQuadRadius": 3.469184978044895,
+          "envelopeDistance": 5.189099739958423,
+          "gap": 1.719914761913528
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -3.4762096606368775,
+            0.026,
+            6.079101177556104
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 2.288142038898959,
+          "gap": 1.9687029876711217
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            1.3751814482148574,
+            0.026,
+            5.10897405510206
+          ],
+          "fullQuadRadius": 0.8081047426894692,
+          "envelopeDistance": 3.520408720523268,
+          "gap": 2.7123039778337987
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -5.696198453616935,
+            0.026,
+            5.1798366606554165
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 3.10590500036677,
+          "gap": 2.786465949138933
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -5.646198453616935,
+            0.026,
+            5.199836660655416
+          ],
+          "fullQuadRadius": 0.1314263525051673,
+          "envelopeDistance": 3.069253898155483,
+          "gap": 2.937827545650316
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -3.899535539329861,
+            0.026,
+            -1.6177433432232216
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 4.660624663461392,
+          "gap": 4.341185612233555
+        }
+      ],
+      "method": "sphere enclosing all four full raw Sprite quad corners from actual world scale/center; sphere-to-conservative-3D-pose-envelope distance; includes faint/transparent corners without cropping",
+      "cameraOrientationIndependentGeometryEnvelope": true,
+      "physicalFixtureVolumes": false,
+      "allCameraProjectionOcclusionGuaranteed": false
+    },
+    "buildingProxyClearance": [
+      {
+        "place": "home",
+        "intersects": false,
+        "separation": 9.059555849827296
+      },
+      {
+        "place": "cafe",
+        "intersects": false,
+        "separation": 10.935281570992567
+      },
+      {
+        "place": "shop",
+        "intersects": false,
+        "separation": 4.462520773649215
+      },
+      {
+        "place": "playground",
+        "intersects": false,
+        "separation": 7.516014978782031
+      },
+      {
+        "place": "tree",
+        "intersects": false,
+        "separation": null
+      },
+      {
+        "place": "flowers",
+        "intersects": false,
+        "separation": null
+      }
+    ],
+    "worldUnchanged": true,
+    "walkableSurfacesUnchanged": true,
+    "occludersUnchanged": true,
+    "notRegisteredAsTownSurface": true,
+    "normalPlacement": false,
+    "ownershipUnlockSave": false,
+    "bodyBinding": null,
+    "characterScaleReference": {
+      "frameWorldHeight": 1.65,
+      "lampHeight": 1.7650000000745059,
+      "ratio": 1.0696969697421248,
+      "scope": "existing PetFrameFit whole2D source-frame height; no anatomy, contact, body geometry or fitting proof"
+    },
+    "limits": "one unchanged default-world anchor;20 actual sole/floor rays,finite walkability grid and all current authored diagnostic road triangles against the conservative lamp XZ rectangle; original full-quad sphere envelopes do not guarantee all-camera visibility or physical decoration collision"
+  },
+  "limits": "Finite actual geometry witnesses in one synthetic world; no continuous collision, real light field, snow/weather/load/friction or ownership/save proof.",
+  "native_render_observed": false
+}
