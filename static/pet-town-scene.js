@@ -26,6 +26,14 @@
       pitch: clamp(finite(value.pitch) ? value.pitch : Math.PI / 6, 22 * Math.PI / 180, 56 * Math.PI / 180),
       distance: clamp(finite(value.distance) ? value.distance : 8, 5, 10) };
   }
+  // Widen the portrait view without changing world sizes or the saved orbit.
+  // The capped tangent gain makes the same subject about 22% smaller at a
+  // narrow phone aspect; a landscape view retains the existing 50-degree FOV.
+  function viewportFov(width, height) {
+    var aspect = finite(width) && finite(height) && width > 0 && height > 0 ? width / height : 1;
+    var gain = clamp(1 / aspect, 1, 1.28);
+    return 2 * Math.atan(Math.tan(25 * Math.PI / 180) * gain) * 180 / Math.PI;
+  }
   function cameraDirection(x, y, yaw) { return { x: Math.cos(yaw) * x + Math.sin(yaw) * y, y: -Math.sin(yaw) * x + Math.cos(yaw) * y }; }
   function facingFrame(heading, cameraYaw, walking, distance) {
     heading = finite(heading) ? heading : 0; cameraYaw = finite(cameraYaw) ? cameraYaw : 0;
@@ -1110,7 +1118,7 @@
       if (activityFraming) {
         var water = groundPoint(world, Fishing.site().target), span = Math.hypot(water.x-p.x, water.z-p.z);
         target.set((p.x+water.x)/2, .65, (p.z+water.z)/2);
-        var fitDistance = (span+1.05)/(2*Math.tan(25*Math.PI/180)*Math.max(.3,camera.aspect))*1.15;
+        var fitDistance = (span+1.05)/(2*Math.tan(camera.fov*Math.PI/360)*Math.max(.3,camera.aspect))*1.15;
         requested = { yaw: cameraView.yaw, pitch: cameraView.pitch, distance: Math.max(cameraView.distance,Math.min(10,fitDistance)) };
       }
       var safe = safeCamera(THREE, model.occluders, target, requested); if (!safe) throw new Error('no_safe_camera');
@@ -1145,7 +1153,7 @@
       if ((dirty || !reduced) && stamp - lastPaint >= 32) render(stamp);
       schedule();
     }
-    function resize() { if (!active()) return; try { var box = host.getBoundingClientRect(); if (!(box.width > 0 && box.height > 0)) return; renderer.setSize(box.width, box.height, false); camera.aspect = box.width / box.height; camera.updateProjectionMatrix(); requestRender(); } catch (_) { fail('town_resize_failed'); } }
+    function resize() { if (!active()) return; try { var box = host.getBoundingClientRect(); if (!(box.width > 0 && box.height > 0)) return; renderer.setSize(box.width, box.height, false); camera.aspect = box.width / box.height; camera.fov = viewportFov(box.width, box.height); camera.updateProjectionMatrix(); requestRender(); } catch (_) { fail('town_resize_failed'); } }
     function setFrame(canvas, metadata) {
       if (!active() || !renderer) return false;
       try {
@@ -1257,5 +1265,5 @@
     } catch (_) { fail('town_renderer_unavailable'); return null; }
   }
   return Object.freeze({ mount: mount, buildWorld: buildWorld, groundPoint: groundPoint, townPoint: townPoint, cameraState: cameraState,
-    cameraDirection: cameraDirection, facingFrame: facingFrame, cameraDistance: cameraDistance, safeCamera: safeCamera, natureFrame: natureFrame, people: people, alphaAnchor: alphaAnchor, sourceSize: sourceSize, groundTexture: groundTexture, skyTexture: skyTexture, heightAt: heightAt });
+    viewportFov: viewportFov, cameraDirection: cameraDirection, facingFrame: facingFrame, cameraDistance: cameraDistance, safeCamera: safeCamera, natureFrame: natureFrame, people: people, alphaAnchor: alphaAnchor, sourceSize: sourceSize, groundTexture: groundTexture, skyTexture: skyTexture, heightAt: heightAt });
 }));
