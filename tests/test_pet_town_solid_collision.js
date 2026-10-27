@@ -20,14 +20,14 @@ for (const id of ['home','cafe','shop','playground']) test(id+' ground solid blo
   const past=Town.move(world,start,800,0);
   assert.ok(Math.abs(past.x-(start.x+800))<1e-8,'no invisible picture-sized blocker beyond the ground solid');
 });
-test('fountain actor-circle contacts match analytic ellipse normals at diagonal and cardinal angles', () => {
+test('fountain actor-circle contacts match the circular vessel at diagonal and cardinal angles', () => {
   const {world,place}=isolated('playground'),c=place.footprint;
   for(const theta of [0,Math.PI/12,Math.PI/4,Math.PI/2,2.1,Math.PI,4.2,5.7]) {
-    const ex=78*Math.cos(theta),ey=58.5*Math.sin(theta);
-    const nx=Math.cos(theta)/78,ny=Math.sin(theta)/58.5,n=Math.hypot(nx,ny);
+    const ex=76*Math.cos(theta),ey=76*Math.sin(theta);
+    const nx=Math.cos(theta)/76,ny=Math.sin(theta)/76,n=Math.hypot(nx,ny);
     const p=d=>({x:c.x+ex+nx/n*d,y:c.y+ey+ny/n*d});
     let inner=p(17.99),outer=p(18.01);
-    assert.equal(Town.isWalkable(world,inner.x,inner.y),false,'visible ellipse cannot cut into existing actor radius');
+    assert.equal(Town.isWalkable(world,inner.x,inner.y),false,'the circular vessel cannot cut into the existing actor radius');
     assert.equal(Town.isWalkable(world,outer.x,outer.y),true,'outside the radius stays open');
   }
 });

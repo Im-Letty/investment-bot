@@ -150,7 +150,7 @@
   function loadWaterLife() {
     var current=WaterLife||globalThis.PetTownWaterLife;
     if(current&&current.revision==='fountain-water-life1'&&typeof current.create==='function'){WaterLife=current;return Promise.resolve(current);}
-    if(!waterLifeLoading)waterLifeLoading=import('/static/pet-town-water-life.js?v=20261027-waterlife1').then(function(){
+    if(!waterLifeLoading)waterLifeLoading=import('/static/pet-town-water-life.js?v=20261028-fountain-reference1').then(function(){
       WaterLife=globalThis.PetTownWaterLife;
       if(!WaterLife||WaterLife.revision!=='fountain-water-life1'||typeof WaterLife.create!=='function')throw new Error('town_water_life_unavailable');
       return WaterLife;
@@ -257,7 +257,7 @@
     // Normal mount requires the new helper before reaching this builder.
     var treeKinds = treeAPI ? treeAPI.plan({ count: 27, seed: treeAPI.seed }) : Object.freeze(Array(27).fill('tree'));
     var scene = new THREE.Scene(), group = new THREE.Group(), geometries = new Set(), materials = new Set(), textures = new Set();
-    var surfaces = [], occluders = [], pickables = [], trees = [], droplets = [], placeGroups = [], seasonalSites = [], seasonGroups = {}, seasonBatches = [], activeSeason = null, disposed = false;
+    var surfaces = [], occluders = [], pickables = [], trees = [], droplets = [], placeGroups = [], seasonalSites = [], seasonGroups = {}, seasonBatches = [], activeSeason = null, disposed = false, fountainWaterTexture = null;
     scene.add(group); group.name = 'saved-town-geometry';
     scene.userData.treeVarietyRevision = treeAPI ? treeAPI.revision : null; scene.userData.treeVarietyKinds = treeKinds;
     var originalAPI=Originals||globalThis.PetTownPlacementOriginals;
@@ -317,13 +317,6 @@
     var flowerPetalGeometry=new THREE.SphereGeometry(1,10,6),fp=flowerPetalGeometry.attributes.position;
     for(var fi=0;fi<fp.count;fi++)fp.setXYZ(fi,fp.getX(fi)*(.82+.18*(fp.getZ(fi)+1)/2),fp.getY(fi)*.22,fp.getZ(fi));
     finishGeometry(flowerPetalGeometry);flowerPetalGeometry.userData.styleRole='closed-thin-botanical-petal';
-    var panelGeometry=flowerPetalGeometry.clone(),pp=panelGeometry.attributes.position,outerProfile=[[0,.42],[.07,.62],[.21,.81],[.43,.94],[.76,1],[1,.92]];
-    for(var pi=0;pi<pp.count;pi++){
-      var py=.52+pp.getZ(pi)*.22,pr=1;
-      for(var pj=1;pj<outerProfile.length;pj++)if(py<=outerProfile[pj][0]){var pa=outerProfile[pj-1],pb=outerProfile[pj];pr=pa[1]+(pb[1]-pa[1])*(py-pa[0])/(pb[0]-pa[0]);break;}
-      var angle=pp.getX(pi)*.16,radius=pr+.002+pp.getY(pi)*.028;pp.setXYZ(pi,-Math.sin(angle)*radius,py,Math.cos(angle)*radius);
-    }
-    finishGeometry(panelGeometry);panelGeometry.userData.styleRole='closed-raised-fountain-petal';
     var potPoints=[[0,0],[.35,0],[.55,.05],[.77,.18],[.92,.42],[1,.66],[.96,.82],[.82,.94],[.82,1],[.72,1],[.72,.88],[.78,.70],[.68,.35],[.30,.25],[0,.25]].map(function(p){return new THREE.Vector2(p[0],p[1]);});
     var flowerPotGeometry=finishGeometry(new THREE.LatheGeometry(potPoints,20));flowerPotGeometry.userData.styleRole='closed-hollow-glazed-pot';
     var tulipGeometry=new THREE.SphereGeometry(1,10,6),tp=tulipGeometry.attributes.position;
@@ -896,15 +889,16 @@
         flowerBed(g, .4);
       } else if (p.id === 'playground') {
         var fountain=new THREE.Group();fountain.name='market-photo-fountain';g.add(fountain);
-        // Authored fountain pigments bypass the coarse shared palette bands:
-        // its muted lavender/cream must not inherit the house roof's brighter glaze.
+        fountain.scale.y=1.12;fountain.userData.authoredHeightScale=1.12;
+        fountain.userData.referenceFormRevision='fountain-reference1';
+        scene.userData.fountainReferenceRevision='fountain-reference1';
         var fountainFinishes={};
         function fountainFinish(color,role,transparent){
           var key=color+':'+role+':'+!!transparent;
           if(!fountainFinishes[key]){
             var m=mat(color,!!transparent,role).clone();m.color.set(color);
-            m.roughness=role==='water'?.20:role==='glaze'?.30:.62;m.metalness=0;
-            m.bumpScale=role==='glaze'?.003:role==='water'?0:.010;
+            m.roughness=role==='water'?.10:role==='glaze'?.24:.66;m.metalness=0;
+            m.bumpScale=role==='glaze'?.002:role==='water'?0:.006;
             m.userData.baseColor=color;m.userData.paletteColor=color;m.userData.paletteRole='identity';
             m.userData.fountainReferenceFinish=true;
             if(transparent){m.opacity=.38;m.depthWrite=false;}
@@ -912,25 +906,63 @@
           }
           return fountainFinishes[key];
         }
-        var foot=cylinder(fountain,.40,.12,[fountainFinish('#9471ae','glaze',false),fountainFinish('#c6ad76','ceramic',false),fountainFinish('#c6ad76','ceramic',false)],0,.06,0);foot.scale.z*=.78;foot.name='fountain-foot';
-        function bowl(name,xz,height,y){
-          var m=mesh(bowlGeometry||sphereGeometry,fountainFinish('#c8b084','ceramic',false),fountain,0,y,0);m.name=name;m.scale.set(xz,height,xz*.75);return m;
+        var cream=fountainFinish('#d7c2a0','ceramic',false),border=fountainFinish('#ddc596','ceramic',false),glaze=fountainFinish('#a58aba','glaze',false);
+        // Closed circular material, including the underside and real basin.
+        // Each pole is one vertex; no degenerate axis triangles hide an opening.
+        function turned(name,profile,material,closed,segments){
+          segments=segments||48;var positions=[],uv=[],indices=[],rings=[];
+          profile.forEach(function(p,i){var row=[];if(p[0]===0){row.push(positions.length/3);positions.push(0,p[1],0);uv.push(.5,i/(profile.length-1));}
+            else for(var j=0;j<segments;j++){var a=j/segments*TAU;row.push(positions.length/3);positions.push(Math.sin(a)*p[0],p[1],Math.cos(a)*p[0]);uv.push(j/segments,i/(profile.length-1));}rings.push(row);});
+          for(var i=0;i<profile.length-(closed?0:1);i++){var a=rings[i],b=rings[(i+1)%rings.length];if(a.length===1&&b.length===1)continue;
+            for(var j=0;j<segments;j++){var k=(j+1)%segments;if(a.length===1)indices.push(a[0],b[k],b[j]);else if(b.length===1)indices.push(a[j],a[k],b[0]);else indices.push(a[j],a[k],b[j],a[k],b[k],b[j]);}}
+          var geometry=new THREE.BufferGeometry();geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geometry.setIndex(indices);finishGeometry(geometry);
+          geometry.userData.fountainReferenceSolid=true;var m=mesh(geometry,material,fountain,0,0,0);m.name=name;m.userData.referenceFormPart=true;return m;
         }
-        bowl('fountain-lower-bowl',.74,.42,.12);
-        bowl('fountain-upper-bowl',.37,.27,.77);
-        [[.74,.42,.12,12,'lower'],[.37,.27,.77,8,'upper']].forEach(function(tier){var tierGroup=new THREE.Group();tierGroup.position.y=tier[2];tierGroup.scale.set(tier[0],tier[1],tier[0]*.75);fountain.add(tierGroup);for(var pi=0;pi<tier[3];pi++){var panel=mesh(panelGeometry,fountainFinish('#ddc596','ceramic',false),tierGroup,0,0,0);panel.rotation.y=(pi+.5)*TAU/tier[3];panel.name='fountain-raised-petal-panel';panel.userData.bowlTier=tier[4];}});
-
-        function rim(radius,y){var m=mesh(new THREE.TorusGeometry(radius,.026,6,32),fountainFinish('#9471ae','glaze',false),fountain,0,y,0);m.rotation.x=-Math.PI/2;m.scale.y=.75;m.name='lilac-glazed-fountain-rim';return m;}
-        rim(.704,.536);rim(.352,1.038);
-        cylinder(fountain,.105,.43,fountainFinish('#c8b084','ceramic',false),0,.66,0);
-        var lowerWater=cylinder(fountain,.61,.012,fountainFinish('#dce4df','water',true),0,.469,0);lowerWater.scale.z*=.75;lowerWater.name='fountain-lower-water';
-        var upperWater=cylinder(fountain,.28,.012,fountainFinish('#dce4df','water',true),0,.995,0);upperWater.scale.z*=.75;upperWater.name='fountain-upper-water';
+        function band(name,r,y,rx,ry,material){var profile=[];for(var i=0;i<10;i++){var a=i/10*TAU;profile.push([r+Math.cos(a)*rx,y+Math.sin(a)*ry]);}return turned(name,profile,material,true);}
+        turned('fountain-foot',[[0,0],[.28,0],[.32,.018],[.338,.038],[.338,.064],[.318,.087],[.29,.108],[.267,.123],[0,.123]],glaze);
+        band('fountain-foot-cream-bead',.316,.083,.010,.008,border);
+        var lowerOuter=[[.245,.105],[.29,.125],[.335,.16],[.42,.20],[.54,.27],[.635,.35],[.69,.43],[.711,.48],[.72,.515],[.719,.54],[.70,.557]];
+        var upperOuter=[[.14,.82],[.19,.832],[.27,.865],[.34,.92],[.385,.98],[.40,1.04],[.399,1.085],[.385,1.105]];
+        turned('fountain-lower-bowl',[[0,.105]].concat(lowerOuter,[[.682,.545],[.665,.515],[.62,.43],[.535,.35],[.39,.28],[.20,.25],[0,.25]]),cream);
+        turned('fountain-upper-bowl',[[0,.82]].concat(upperOuter,[[.356,1.105],[.352,1.075],[.325,1.02],[.27,.965],[.185,.928],[0,.918]]),cream);
+        function radiusAt(profile,y){for(var i=1;i<profile.length;i++)if(y<=profile[i][1]){var a=profile[i-1],b=profile[i];return a[0]+(b[0]-a[0])*(y-a[1])/(b[1]-a[1]);}return profile[profile.length-1][0];}
+        function petalSectors(profile,count,minY,maxY,depth,tier){
+          var geometry=new THREE.SphereGeometry(1,14,10),p=geometry.attributes.position;
+          for(var i=0;i<p.count;i++){var y=(minY+maxY)/2+p.getY(i)*(maxY-minY)/2,a=p.getX(i)*Math.PI/count*.97,r=radiusAt(profile,y)-.004+p.getZ(i)*depth;p.setXYZ(i,Math.sin(a)*r,y,Math.cos(a)*r);}
+          finishGeometry(geometry);geometry.userData.fountainReferenceSolid=true;
+          for(var i=0;i<count;i++){var panel=mesh(geometry,tier==='upper'?cream:border,fountain,0,0,0);panel.rotation.y=(i+.5)*TAU/count;panel.name='fountain-raised-petal-panel';panel.userData.bowlTier=tier;panel.userData.referenceFormPart=true;}
+        }
+        petalSectors(lowerOuter,12,.17,.518,.022,'lower');petalSectors(upperOuter,8,.85,1.083,.008,'upper');
+        [[.713,.548,.031,.027,'lower'],[.390,1.092,.028,.023,'upper']].forEach(function(s){
+          var rim=band('lilac-glazed-fountain-rim',s[0],s[1],s[2],s[3],glaze);rim.userData.bowlTier=s[4];
+          band('fountain-inner-cream-bead',s[4]==='lower'?.679:.360,s[4]==='lower'?.551:1.093,.009,.008,border);
+          band('fountain-outer-cream-bead',s[4]==='lower'?.741:.416,s[4]==='lower'?.538:1.085,.008,.007,border);
+        });
+        turned('fountain-turned-stem',[[0,.235],[.14,.235],[.14,.465],[.16,.47],[.184,.485],[.184,.515],[.16,.54],[.12,.565],[.09,.61],[.087,.685],[.105,.74],[.14,.79],[.17,.82],[.175,.845],[0,.845]],cream,false,40);
+        band('fountain-stem-lilac-collar',.174,.514,.011,.008,glaze);
+        fountain.userData.fountainWaterSurfaces=Object.freeze({lower:Object.freeze({y:.533,radius:.670,depthRatio:1,rimY:.575}),upper:Object.freeze({y:1.075,radius:.350,depthRatio:1,rimY:1.115})});
+        function waterPart(m){m.userData.nonSolidWater=true;m.userData.noStaticBatch=true;m.castShadow=false;m.receiveShadow=false;return m;}
+        var basinWater=fountainFinish('#dad8e2','water',true);basinWater.opacity=.70;basinWater.roughness=.12;basinWater.emissive.set('#b7bdcf');basinWater.emissiveIntensity=.13;
+        // One small seamless procedural reflection/height map, shared by both
+        // basins. Only its UV transform moves; pixels are never uploaded again.
+        if(THREE.DataTexture){var size=128,pixels=new Uint8Array(size*size*4);
+          for(var ty=0;ty<size;ty++)for(var tx=0;tx<size;tx++){var u=tx/size,v=ty/size,a=Math.sin(TAU*(5*u+2*v)+.9*Math.sin(TAU*(2*u-3*v))),b=Math.sin(TAU*(3*u-4*v)+.75*Math.cos(TAU*(u+2*v))),crest=Math.pow(Math.max(0,1-Math.abs(.6*a+.4*b)),12),shade=.64+.14*a+.22*crest,k=(ty*size+tx)*4;pixels[k]=Math.round(177+78*shade);pixels[k+1]=Math.round(184+71*shade);pixels[k+2]=Math.round(200+55*shade);pixels[k+3]=255;}
+          fountainWaterTexture=new THREE.DataTexture(pixels,size,size,THREE.RGBAFormat);fountainWaterTexture.colorSpace=THREE.SRGBColorSpace;fountainWaterTexture.wrapS=fountainWaterTexture.wrapT=THREE.RepeatWrapping;fountainWaterTexture.magFilter=fountainWaterTexture.minFilter=THREE.LinearFilter;fountainWaterTexture.generateMipmaps=false;fountainWaterTexture.needsUpdate=true;fountainWaterTexture.userData.fountainWaterReflection=true;textures.add(fountainWaterTexture);
+          basinWater.map=fountainWaterTexture;basinWater.bumpMap=fountainWaterTexture;basinWater.bumpScale=.008;basinWater.needsUpdate=true;
+        }
+        var lowerWater=waterPart(cylinder(fountain,.670,.010,basinWater,0,.528,0));lowerWater.name='fountain-lower-water';
+        var upperWater=waterPart(cylinder(fountain,.350,.010,basinWater,0,1.070,0));upperWater.name='fountain-upper-water';
+        var flow=fountainFinish('#eef1e7','water',true);flow.opacity=.64;flow.emissive.set('#eef1e7');flow.emissiveIntensity=.06;
+        var contactGeometry=finishGeometry(new THREE.TorusGeometry(.039,.0035,3,20));
         for(var stream=0;stream<8;stream++){
-          var angle=(stream+.5)*TAU/8,start=new THREE.Vector3(Math.sin(angle)*.315,1.01,Math.cos(angle)*.236),end=new THREE.Vector3(Math.sin(angle)*.55,.48,Math.cos(angle)*.412);
-          var delta=end.clone().sub(start),cascade=mesh(branchGeometry||cylinderGeometry,fountainFinish('#eef1e7','water',true),fountain,start.x,start.y,start.z);cascade.name='fountain-cascade';cascade.material.opacity=.42;cascade.material.depthWrite=false;cascade.scale.set(.009,delta.length(),.009);cascade.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),delta.normalize());
-          var droplet=ball(fountain,fountainFinish('#eef1e7','water',true),start.x,start.y,start.z,.018,.045,.018);droplet.userData.phase=stream/8;droplet.userData.cascade={start:start,end:end};droplets.push(droplet);
+          var angle=(stream+.5)*TAU/8;
+          function polar(r,y){return new THREE.Vector3(Math.sin(angle)*r,y,Math.cos(angle)*r);}
+          var curve=new THREE.CurvePath();curve.add(new THREE.CubicBezierCurve3(polar(.33,1.075),polar(.32,1.14),polar(.37,1.14),polar(.42,1.13)));curve.add(new THREE.CubicBezierCurve3(polar(.42,1.13),polar(.50,1.13),polar(.60,.80),polar(.60,.542)));
+          var geometry=finishGeometry(new THREE.TubeGeometry(curve,28,.013,6,false)),cascade=waterPart(mesh(geometry,flow,fountain,0,0,0));cascade.name='fountain-cascade';cascade.userData.cascadeCurve=curve;
+          var start=curve.getPointAt(0),end=curve.getPointAt(1),droplet=waterPart(ball(fountain,flow,start.x,start.y,start.z,.010,.018,.010));droplet.name='fountain-falling-drop';droplet.userData.phase=stream/8;droplet.userData.cascade={curve:curve};droplets.push(droplet);
+          var splash=waterPart(mesh(contactGeometry,flow,fountain,end.x,.537,end.z));splash.rotation.x=-Math.PI/2;splash.name='fountain-spill-contact-ring';
         }
-        var jet=ball(fountain,fountainFinish('#eef1e7','water',true),0,1.075,0,.045,.10,.045);jet.name='fountain-top-jet';
+        var jet=turned('fountain-top-jet',[[0,0],[.035,0],[.048,.025],[.041,.055],[.030,.095],[.024,.14],[.008,.18],[0,.19]],flow,false,20);jet.position.y=1.075;jet.userData.referenceFormPart=false;waterPart(jet);
         var waterAPI=WaterLife||globalThis.PetTownWaterLife;if(waterAPI&&waterAPI.revision==='fountain-water-life1')waterLife=waterAPI.create(THREE,{fountain:fountain,materials:materials,geometries:geometries});
       } else {
         // The solid base is inscribed in the existing elliptical footprint; roofs can overhang above the pet.
@@ -1103,9 +1135,10 @@
     scene.updateMatrixWorld(true); scene.matrixWorldAutoUpdate = false;
     function animate(ms, reduced) {
       var frame = natureFrame(ms, reduced);
+      if(fountainWaterTexture)fountainWaterTexture.offset.set(reduced?0:(frame.time*.008)%1,reduced?0:Math.sin(frame.time*.12)*.016);
       animateWindowRooms(frame,reduced);if(waterLife)waterLife.animate(ms,reduced);if(oceanLife)oceanLife.animate(ms,reduced);
       trees.forEach(function (g, i) { g.rotation.z = frame.wind * Math.cos(i * 1.7); g.updateMatrixWorld(true); });
-      droplets.forEach(function (m) { var a = reduced ? m.userData.phase : (frame.fountain + m.userData.phase) % 1; if(m.userData.cascade)m.position.lerpVectors(m.userData.cascade.start,m.userData.cascade.end,a);else m.position.set(Math.sin(a * TAU) * .2, .48 + Math.sin(a * Math.PI) * .65, Math.cos(a * TAU) * .15); m.updateMatrixWorld(true); });
+      droplets.forEach(function (m) { var a = reduced ? m.userData.phase : (frame.fountain + m.userData.phase) % 1; if(m.userData.cascade&&m.userData.cascade.curve)m.userData.cascade.curve.getPointAt(a,m.position);else if(m.userData.cascade)m.position.lerpVectors(m.userData.cascade.start,m.userData.cascade.end,a);else m.position.set(Math.sin(a * TAU) * .2, .48 + Math.sin(a * Math.PI) * .65, Math.cos(a * TAU) * .15); m.updateMatrixWorld(true); });
       batches.forEach(function (b) { if (b.dynamic) { b.rows.forEach(function (m, i) { b.mesh.setMatrixAt(i, m.matrixWorld); }); b.mesh.instanceMatrix.needsUpdate = true; } });
       return frame;
     }
@@ -1134,7 +1167,7 @@
       if (fishingVisual) release(function () { fishingVisual.dispose(); });
       if (model) release(function () { model.dispose(); }); if (texture) release(function () { texture.dispose(); });
       if (renderer) { release(function () { renderer.renderLists.dispose(); }); release(function () { renderer.dispose(); }); release(function () { renderer.forceContextLoss(); }); release(function () { renderer.domElement.remove(); }); }
-      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; delete host.dataset.townOriginalArt; delete host.dataset.townSolidLife; delete host.dataset.townShoreTransition; delete host.dataset.townTreeVariety; delete host.dataset.townTreeKinds; }
+      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; delete host.dataset.townOriginalArt; delete host.dataset.townSolidLife; delete host.dataset.townShoreTransition; delete host.dataset.townTreeVariety; delete host.dataset.townTreeKinds; delete host.dataset.townFountainReference; }
     }
     function fail(code) { if (dead || failed) return; failed = true; destroy(); report('onFailure', code); }
     var THREE;
@@ -1261,7 +1294,7 @@
       model = buildWorld(THREE, world, options.view, position, doc, firstSeason ? firstSeason.key : 'summer');
       await model.loadOriginalArt();
       if(!active()){destroy();return null;}
-      host.dataset.townOriginalArt=model.scene.userData.originalArtRevision;host.dataset.townSolidLife=model.solidLifeRevision;host.dataset.townOceanMotion=model.scene.userData.oceanMotionRevision;host.dataset.townShoreTransition=model.scene.userData.shoreTransitionRevision;host.dataset.townTreeVariety=model.treeVarietyRevision;host.dataset.townTreeKinds=JSON.stringify(model.treeVarietyKinds);
+      host.dataset.townOriginalArt=model.scene.userData.originalArtRevision;host.dataset.townSolidLife=model.solidLifeRevision;host.dataset.townOceanMotion=model.scene.userData.oceanMotionRevision;host.dataset.townShoreTransition=model.scene.userData.shoreTransitionRevision;host.dataset.townTreeVariety=model.treeVarietyRevision;host.dataset.townTreeKinds=JSON.stringify(model.treeVarietyKinds);host.dataset.townFountainReference=model.scene.userData.fountainReferenceRevision;
       host.dataset.townStyle = model.styleLimits ? 'shop-cottage-match2' : 'legacy';
       host.dataset.townLayoutArt = model.layoutArtRevision;
       if (Fishing && typeof Fishing.createVisual === 'function') { fishingVisual = Fishing.createVisual(THREE, world); model.scene.add(fishingVisual.group); }
