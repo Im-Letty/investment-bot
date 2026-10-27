@@ -6,15 +6,23 @@
 }(typeof window !== 'undefined' ? window : globalThis, function () {
   'use strict';
   var REVISION = 'placement-originals1', ALPHA_TEST = 8 / 255;
-  function asset(url, sha256, width, height, bounds) {
-    return Object.freeze({ url: '/static/' + url, sha256: sha256, width: width, height: height,
-      alphaBounds: Object.freeze(bounds), alphaThreshold: 8 });
+  function asset(url, sha256, width, height, bounds, rootPixels) {
+    var spec = { url: '/static/' + url, sha256: sha256, width: width, height: height,
+      alphaBounds: Object.freeze(bounds), alphaThreshold: 8 };
+    if(rootPixels) {
+      if(!Array.isArray(rootPixels)||rootPixels.length!==2||rootPixels.some(function(n){return typeof n!=='number'||!Number.isFinite(n);})||
+        rootPixels[0]<0||rootPixels[0]>width||rootPixels[1]<0||rootPixels[1]>height)throw new Error('placement_originals_ground_anchor');
+      spec.groundAnchor=Object.freeze([rootPixels[0]/width,rootPixels[1]/height]);
+    }
+    return Object.freeze(spec);
   }
   var catalog = Object.freeze({
     home: asset('pet-items-v1/house.webp', '69ce8c93823a50c5f2225414d4df8adcfe92fcd271ae113982e64f7ccd01cd60', 384, 384, [38, 51, 349, 340]),
     cafe: asset('pet-village-art/cafe.webp', '86ebde4ab01135291d6f7135296686f10aefc64187ac7acf4043f585c29a879d', 384, 384, [29, 47, 362, 347]),
     shop: asset('pet-village-art/shop.webp', '25ea663a1132f09b55329ed326f881a601162689d962ff084a6c653359d61e85', 384, 384, [26, 27, 366, 360]),
     tree: asset('pet-village-art/tree-v2.webp', 'f2f13fd18a0b27cec312c10b2f9dc55694d98072f06b8c52c5a56b25210e03a1', 512, 480, [39, 42, 475, 448]),
+    treeApple: asset('pet-village-art/tree-orchard-apple-v1.png', 'ce7ef7adda439841a3fc36de04d5250eb01249ce653337f19b6d9520b028c45b', 1254, 1254, [29, 42, 1236, 1183], [660, 1182]),
+    treeBirch: asset('pet-village-art/tree-silver-birch-v1.png', 'ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0', 1254, 1254, [212, 14, 1131, 1236], [705, 1235]),
     flowers: asset('pet-village-art/flowerbed-v2.webp', 'ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf', 512, 341, [37, 55, 476, 293]),
     fountain: asset('pet-items-v1/fountain.webp', 'b7394422852121b2d5b971fb42f82de6b9eb6460cb1b8bff5979b7e39d205006', 384, 384, [40, 40, 344, 342]),
     lantern: asset('pet-items-v1/lantern.webp', 'fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da', 384, 384, [57, 38, 325, 351])
@@ -91,12 +99,13 @@
       if (![point.x, point.y, point.z].every(finite)) throw new Error('placement_originals_position');
       var sprite = new T.Sprite(materialFor(key)), bounds = spec.alphaBounds;
       sprite.name = 'placement-original-' + key; sprite.visible = state === 'ready';
-      sprite.center.set((bounds[0] + bounds[2]) / (2 * spec.width), 1 - bounds[3] / spec.height);
+      var groundAnchor=spec.groundAnchor;
+      sprite.center.set(groundAnchor?groundAnchor[0]:(bounds[0] + bounds[2]) / (2 * spec.width), groundAnchor?1-groundAnchor[1]:1 - bounds[3] / spec.height);
       sprite.scale.set(options.width, options.width * spec.height / spec.width, 1);
       sprite.position.set(point.x, point.y, point.z); sprite.castShadow = false; sprite.receiveShadow = false;
       sprite.userData = { kind: kind, originalArtKind: key, originalArt: true, collisionIndependent: true,
         sourceUrl: spec.url, sourceSHA256: spec.sha256, sourceWidth: spec.width, sourceHeight: spec.height,
-        alphaBounds: spec.alphaBounds, alphaThreshold: spec.alphaThreshold, artRepresentation: 'original-2d-in-world-space' };
+        alphaBounds: spec.alphaBounds, groundAnchor:spec.groundAnchor||null, alphaThreshold: spec.alphaThreshold, artRepresentation: 'original-2d-in-world-space' };
       sprites.add(sprite); return sprite;
     }
     function loadOne(loader, kind) {
@@ -149,6 +158,6 @@
       get state() { return state; }, get ready() { return state === 'ready'; }, get error() { return failure; } });
     return api;
   }
-  return Object.freeze({ revision: REVISION, catalog: catalog, aliases: aliases, kinds: kinds, alphaTest: ALPHA_TEST,
+  return Object.freeze({ revision: REVISION, treeVarietyRevision:'tree-variety1', catalog: catalog, aliases: aliases, kinds: kinds, alphaTest: ALPHA_TEST,
     resolve: function (kind) { return catalog[canonical(kind)]; }, create: create });
 }));

@@ -12,6 +12,7 @@ import Originals from '../static/pet-town-placement-originals.js';
 import WaterLife from '../static/pet-town-water-life.js';
 import OceanLife from '../static/pet-town-ocean-life.js';
 import ShoreTransition from '../static/pet-town-shore-transition.js';
+import TreeVariety from '../static/pet-town-tree-variety.js';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
@@ -36,6 +37,8 @@ const originalDimensions=new Map([
  ['/static/pet-village-art/cafe.webp',[384,384]],
  ['/static/pet-village-art/shop.webp',[384,384]],
  ['/static/pet-village-art/tree-v2.webp',[512,480]],
+ ['/static/pet-village-art/tree-orchard-apple-v1.png',[1254,1254]],
+ ['/static/pet-village-art/tree-silver-birch-v1.png',[1254,1254]],
  ['/static/pet-village-art/flowerbed-v2.webp',[512,341]],
  ['/static/pet-items-v1/fountain.webp',[384,384]],
  ['/static/pet-items-v1/lantern.webp',[384,384]]
@@ -107,7 +110,7 @@ test('browser registration can precede the visual-only helper and mount adopts t
  assert.equal(context.PetTownScene.alphaAnchor({tagName:'CANVAS',width:16,height:16,getContext:()=>null}),null);
  const painted={tagName:'CANVAS',width:16,height:16,getContext:()=>({RGBA:1,UNSIGNED_BYTE:2,readPixels(x,y,w,h,a,b,p){p[(2*w+8)*4+3]=255;}})};
  assert.equal(context.PetTownScene.alphaAnchor(painted),.125,'the existing public diagnostics work synchronously before any mount or helper import');
- context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;context.PetTownStyle=TownStyle;context.PetTownLayoutArt=LayoutArt;context.PetTownPlacementOriginals=Originals;context.PetTownWaterLife=WaterLife;context.PetTownOceanLife=OceanLife;context.PetTownShoreTransition=ShoreTransition;
+ context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;context.PetTownStyle=TownStyle;context.PetTownLayoutArt=LayoutArt;context.PetTownPlacementOriginals=Originals;context.PetTownWaterLife=WaterLife;context.PetTownOceanLife=OceanLife;context.PetTownShoreTransition=ShoreTransition;context.PetTownTreeVariety=TreeVariety;
  const f=await fixture({sceneAPI:context.PetTownScene});try{assert.ok(f.controller);assert.equal(f.controller.setFrame(f.source,{anchor:.3}),true);const scene=f.renderers[0].calls.at(-1).scene;assert.equal(scene.getObjectByName('current-pet-2d-frame').center.y,.3);assert.equal(f.host.dataset.townLayoutArt,LayoutArt.revision);assert.equal(scene.userData.layoutArtRevision,LayoutArt.revision);assert.ok(scene.getObjectByName('layout-art-native-landscape'));assert.equal(scene.getObjectByName('bridge-deck').userData.layoutBoardCount,11);assert.deepEqual(f.failures,[]);}finally{f.controller?.destroy();}
 });
 
@@ -130,7 +133,7 @@ test('the initial population gate returns no appearances and never mutates popul
 });
 
 test('original tree artwork stays unchanged while instanced water keeps ambient/reduced-motion updates and resource release',()=>{
- const world=Town.createWorld(),m=Scene.buildWorld(THREE,world,{}),batch=m.batches.find(b=>b.dynamic),art=[];m.scene.traverse(o=>{if(o.isSprite&&o.userData.originalArtKind==='tree')art.push(o);});
+ const world=Town.createWorld(),m=Scene.buildWorld(THREE,world,{}),batch=m.batches.find(b=>b.dynamic),art=[];m.scene.traverse(o=>{if(o.isSprite&&/^tree/.test(o.userData.originalArtKind||''))art.push(o);});
  assert.equal(art.length,27);const artBefore=art.map(s=>[...s.position.toArray(),...s.scale.toArray(),s.material.rotation]);
  assert.ok(batch);assert.ok(batch.rows.every(row=>!row.visible));assert.equal(m.scene.matrixWorldAutoUpdate,false);
  const snapshot=()=>Array.from(batch.mesh.instanceMatrix.array);m.animate(0,true);const initial=snapshot();m.animate(1100,false);assert.notDeepEqual(snapshot(),initial);m.animate(2000,true);assert.deepEqual(snapshot(),initial);m.animate(8000,true);assert.deepEqual(snapshot(),initial);
@@ -502,19 +505,19 @@ test('canonical originals keep their source pixels, shared materials and saved p
   assert.ok(art.length>27);assert.ok(art.every(o=>!o.visible),'an incomplete asset set cannot appear as a successful village');
   await m.loadOriginalArt(new (textureLoaderFixture(loads))());m.scene.updateMatrixWorld(true);
   assert.equal(m.scene.userData.originalArtRepresentation,'original-2d-art-in-3d-world');assert.equal(m.scene.userData.originalArtState,'ready');
-  assert.deepEqual(loads,[...originalDimensions.keys()]);assert.equal(new Set(loads).size,7);
-  assert.equal(art.filter(o=>o.userData.originalArtKind==='tree').length,27);
-  const expectedBounds={home:[38,51,349,340],cafe:[29,47,362,347],shop:[26,27,366,360],tree:[39,42,475,448],flowers:[37,55,476,293],fountain:[40,40,344,342],lantern:[57,38,325,351]},byKind=new Map();
+  assert.deepEqual(loads,[...originalDimensions.keys()]);assert.equal(new Set(loads).size,9);
+  assert.equal(art.filter(o=>/^tree/.test(o.userData.originalArtKind||'')).length,27);
+  const expectedBounds={home:[38,51,349,340],cafe:[29,47,362,347],shop:[26,27,366,360],tree:[39,42,475,448],flowers:[37,55,476,293],fountain:[40,40,344,342],lantern:[57,38,325,351],treeApple:[29,42,1236,1183],treeBirch:[212,14,1131,1236]},byKind=new Map();
   for(const sprite of art){
    const kind=sprite.userData.originalArtKind,material=sprite.material,texture=material.map,[width,height]=originalDimensions.get(sprite.userData.sourceUrl),bounds=expectedBounds[kind];
    assert.ok(sprite.visible);assert.ok(material.isSpriteMaterial);assert.equal(material.color.getHexString(),'ffffff');assert.equal(material.opacity,1);assert.equal(material.toneMapped,false);assert.equal(material.fog,false);
    assert.equal(material.alphaTest,8/255);assert.equal(material.depthTest,true);assert.equal(material.depthWrite,true);
    assert.equal(texture.colorSpace,THREE.SRGBColorSpace);assert.deepEqual(texture.repeat.toArray(),[1,1]);assert.deepEqual(texture.offset.toArray(),[0,0]);assert.equal(texture.rotation,0);assert.equal(texture.premultiplyAlpha,false);
-   assert.equal(texture.image.width,width);assert.equal(texture.image.height,height);assert.equal(sprite.center.x,(bounds[0]+bounds[2])/(2*width));assert.equal(sprite.center.y,1-bounds[3]/height);
+   assert.equal(texture.image.width,width);assert.equal(texture.image.height,height);const anchor=Originals.resolve(kind).groundAnchor;assert.equal(sprite.center.x,anchor?anchor[0]:(bounds[0]+bounds[2])/(2*width));assert.equal(sprite.center.y,anchor?1-anchor[1]:1-bounds[3]/height);
    assert.equal(m.geometries.has(sprite.geometry),false,'the global Three Sprite quad is borrowed and cannot be scene-disposed');
    if(byKind.has(kind))assert.equal(material,byKind.get(kind),'repeated originals share one material and texture');else byKind.set(kind,material);
   }
-  assert.deepEqual(new Set(byKind.keys()),new Set(['tree','flowers','lantern']));
+  assert.deepEqual(new Set(byKind.keys()),new Set(['tree','treeApple','treeBirch','flowers','lantern']));
   for(const id of ['home','cafe','shop','playground']){
    const group=m.placeGroups.find(g=>g.userData.placeId===id),sprites=[],meshes=[];
    group.traverse(o=>{if(o.isSprite&&o.userData.originalArt)sprites.push(o);if(o.isMesh)meshes.push(o);});
@@ -533,7 +536,7 @@ test('canonical originals keep their source pixels, shared materials and saved p
 test('mounted original art textures and shared materials are released once without disposing the global Sprite quad',async()=>{
  const f=await fixture();f.controller.setFrame(f.source);const scene=f.renderers[0].calls.at(-1).scene,materials=new Set(),quads=new Set(),counts=new Map();
  scene.traverse(o=>{if(o.isSprite&&o.userData.originalArt){materials.add(o.material);quads.add(o.geometry);}});
- assert.equal(f.originalTextures.length,7);assert.equal(materials.size,3);const resources=[...f.originalTextures,...materials];for(const resource of resources){counts.set(resource,0);resource.addEventListener('dispose',()=>counts.set(resource,counts.get(resource)+1));}
+ assert.equal(f.originalTextures.length,9);assert.equal(materials.size,5);const resources=[...f.originalTextures,...materials];for(const resource of resources){counts.set(resource,0);resource.addEventListener('dispose',()=>counts.set(resource,counts.get(resource)+1));}
  let quadDisposals=0;const onQuad=()=>quadDisposals++;for(const quad of quads)quad.addEventListener('dispose',onQuad);
  try{f.controller.destroy();f.controller.destroy();for(const resource of resources)assert.equal(counts.get(resource),1);assert.equal(quadDisposals,0);assert.equal(f.host.children.length,0);assert.equal(f.frames.size,0);assert.equal(f.timers.size,0);}
  finally{for(const quad of quads)quad.removeEventListener('dispose',onQuad);f.controller.destroy();}
@@ -542,7 +545,7 @@ test('mounted original art textures and shared materials are released once witho
 test('an unavailable original stops mount before allocating a renderer and releases the other completed images',async()=>{
  const counts=new Map(),f=await fixture({rejectOriginal:'/static/pet-items-v1/lantern.webp',onOriginalTexture:texture=>{counts.set(texture,0);texture.addEventListener('dispose',()=>counts.set(texture,counts.get(texture)+1));}});
  assert.equal(f.controller,null);assert.deepEqual(f.failures,['town_renderer_unavailable']);assert.equal(f.renderers.length,0);assert.equal(f.host.children.length,0);assert.equal(f.frames.size,0);assert.equal(f.timers.size,0);assert.equal(f.win.count(),0);assert.equal(f.doc.count(),0);
- assert.equal(counts.size,6);for(const count of counts.values())assert.equal(count,1,'an asset failure cannot leak successful partial loads');
+ assert.equal(counts.size,8);for(const count of counts.values())assert.equal(count,1,'an asset failure cannot leak successful partial loads');
 });
 
 test('daylight fill lifts shadow-facing surfaces with the same two lights and retains authored material colors',()=>{
@@ -604,7 +607,7 @@ test('actual Three transparent ordering draws the masked sea before foam and ori
  const m=Scene.buildWorld(THREE,Town.createWorld(),{},null,textureDocument());
  try{
   const sea=m.scene.getObjectByName('water'),foam=m.oceanLife.group.children[0],art=[];
-  m.scene.traverse(o=>{if(o.isSprite&&o.userData.originalArtKind==='tree')art.push(o);});
+  m.scene.traverse(o=>{if(o.isSprite&&/^tree/.test(o.userData.originalArtKind||''))art.push(o);});
   assert.equal(sea.material.transparent,true);assert.equal(sea.material.opacity,1);assert.equal(sea.material.depthWrite,false);
   const vendor=readFileSync(new URL('../static/vendor/three-0.160.1.module.js',import.meta.url),'utf8');
   const start=vendor.indexOf('function reversePainterSortStable('),end=vendor.indexOf('function WebGLRenderList()',start);

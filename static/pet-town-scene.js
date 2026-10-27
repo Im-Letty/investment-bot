@@ -10,12 +10,13 @@
     typeof module === 'object' && module.exports ? require('./pet-town-placement-originals.js') : root.PetTownPlacementOriginals,
     typeof module === 'object' && module.exports ? require('./pet-town-water-life.js') : root.PetTownWaterLife,
     typeof module === 'object' && module.exports ? require('./pet-town-ocean-life.js') : root.PetTownOceanLife,
-    typeof module === 'object' && module.exports ? require('./pet-town-shore-transition.js') : root.PetTownShoreTransition);
+    typeof module === 'object' && module.exports ? require('./pet-town-shore-transition.js') : root.PetTownShoreTransition,
+    typeof module === 'object' && module.exports ? require('./pet-town-tree-variety.js') : root.PetTownTreeVariety);
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.PetTownScene = api;
-}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit, Fishing, Seasons, Style, LayoutArt, Originals, WaterLife, OceanLife, ShoreTransition) {
+}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit, Fishing, Seasons, Style, LayoutArt, Originals, WaterLife, OceanLife, ShoreTransition, TreeVariety) {
   'use strict';
-  var threeLoading = null, frameFitLoading = null, seasonsLoading = null, styleLoading = null, layoutLoading = null, originalsLoading = null, waterLifeLoading = null, oceanLifeLoading = null, shoreTransitionLoading = null, UNIT = 100, TAU = Math.PI * 2;
+  var threeLoading = null, frameFitLoading = null, seasonsLoading = null, styleLoading = null, layoutLoading = null, originalsLoading = null, waterLifeLoading = null, oceanLifeLoading = null, shoreTransitionLoading = null, treeVarietyLoading = null, UNIT = 100, TAU = Math.PI * 2;
   var shoreline = [[0, 2880], [550, 2840], [1050, 2720], [1450, 2510], [1920, 1990]];
   function finite(n) { return typeof n === 'number' && Number.isFinite(n); }
   function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
@@ -138,10 +139,10 @@
   }
   function loadOriginals() {
     var current = Originals || globalThis.PetTownPlacementOriginals;
-    if (current && current.revision === 'placement-originals1') { Originals=current; return Promise.resolve(current); }
-    if (!originalsLoading) originalsLoading=import('/static/pet-town-placement-originals.js?v=20261027-originals1').then(function () {
+    if (current && current.revision === 'placement-originals1' && current.treeVarietyRevision === 'tree-variety1') { Originals=current; return Promise.resolve(current); }
+    if (!originalsLoading) originalsLoading=import('/static/pet-town-placement-originals.js?v=20261028-tree1').then(function () {
       Originals=globalThis.PetTownPlacementOriginals;
-      if (!Originals || Originals.revision !== 'placement-originals1') throw new Error('town_originals_unavailable');
+      if (!Originals || Originals.revision !== 'placement-originals1' || Originals.treeVarietyRevision !== 'tree-variety1') throw new Error('town_originals_unavailable');
       return Originals;
     }).catch(function(error){ originalsLoading=null; throw error; });
     return originalsLoading;
@@ -175,6 +176,16 @@
       return ShoreTransition;
     }).catch(function(error){shoreTransitionLoading=null;throw error;});
     return shoreTransitionLoading;
+  }
+  function loadTreeVariety() {
+    var current = TreeVariety || globalThis.PetTownTreeVariety;
+    if (current && current.revision === 'tree-variety1' && typeof current.plan === 'function') { TreeVariety = current; return Promise.resolve(current); }
+    if (!treeVarietyLoading) treeVarietyLoading = import('/static/pet-town-tree-variety.js?v=20261028-tree1').then(function () {
+      TreeVariety = globalThis.PetTownTreeVariety;
+      if (!TreeVariety || TreeVariety.revision !== 'tree-variety1' || typeof TreeVariety.plan !== 'function') throw new Error('town_tree_variety_unavailable');
+      return TreeVariety;
+    }).catch(function (error) { treeVarietyLoading = null; throw error; });
+    return treeVarietyLoading;
   }
   function groundTexture(THREE, doc, season) {
     if (!doc || !doc.createElement) return null;
@@ -240,9 +251,15 @@
     texture.userData.presentationRole='distant-coast-edge-mask';return texture;
   }
   function buildWorld(THREE, world, view, avoid, doc, seasonKey) {
+    var treeAPI = TreeVariety || globalThis.PetTownTreeVariety;
+    if (treeAPI && (treeAPI.revision !== 'tree-variety1' || typeof treeAPI.plan !== 'function')) throw new Error('town_tree_variety_unavailable');
+    // Older isolated synchronous previews can still show their saved original.
+    // Normal mount requires the new helper before reaching this builder.
+    var treeKinds = treeAPI ? treeAPI.plan({ count: 27, seed: treeAPI.seed }) : Object.freeze(Array(27).fill('tree'));
     var scene = new THREE.Scene(), group = new THREE.Group(), geometries = new Set(), materials = new Set(), textures = new Set();
     var surfaces = [], occluders = [], pickables = [], trees = [], droplets = [], placeGroups = [], seasonalSites = [], seasonGroups = {}, seasonBatches = [], activeSeason = null, disposed = false;
     scene.add(group); group.name = 'saved-town-geometry';
+    scene.userData.treeVarietyRevision = treeAPI ? treeAPI.revision : null; scene.userData.treeVarietyKinds = treeKinds;
     var originalAPI=Originals||globalThis.PetTownPlacementOriginals;
     var originalArt=originalAPI?originalAPI.create(THREE,{textures:textures,materials:materials}):null, originalCoverage=new Map(), buildingGeometry=false;
     function originalSprite(kind,parent,width,x,y,z) {
@@ -516,8 +533,8 @@
       }
       tree.userData.leafCount=leaves;tree.userData.twigCount=style.limits.treeTwigs;trees.push(crown);return crown;
     }
-    function softTree(parent, seed, scale) {
-      if(originalArt){var root=new THREE.Group();root.name='placement-original-tree';parent.add(root);originalSprite('tree',root,3.25*(scale||1),0,0,0);return root;}
+    function softTree(parent, seed, scale, treeIndex) {
+      if(originalArt){var kind=treeKinds[treeIndex],root=new THREE.Group();root.name='placement-original-tree';root.userData.treeVarietyIndex=treeIndex;root.userData.treeKind=kind;parent.add(root);var picture=originalSprite(kind,root,3.25*(scale||1),0,0,0);picture.userData.treeVarietyIndex=treeIndex;return root;}
       if (!style || typeof style.roundedLeafGeometry !== 'function') return pointedTree(parent, seed, scale);
       var tree = new THREE.Group(); tree.name = 'market-style-branching-tree'; tree.userData.styleRole = 'botanical';
       tree.userData.artDirection = 'rounded-layout-reference'; tree.scale.setScalar(scale); parent.add(tree);
@@ -874,7 +891,7 @@
       g.position.set(ground.x, .025, ground.z); group.add(g); placeGroups.push(g);
       var rx = p.footprint.rx / UNIT, rz = p.footprint.ry / UNIT;
       if (p.id === 'tree') {
-        softTree(g, .4, 1.08);
+        softTree(g, .4, 1.08, 0);
       } else if (p.id === 'flowers') {
         flowerBed(g, .4);
       } else if (p.id === 'playground') {
@@ -978,7 +995,7 @@
     for (var edgeTree = 0; edgeTree < 26; edgeTree++) {
       var ex = edgeTree < 13 ? -world.width / 200 - .45 : -world.width / 200 + (edgeTree - 13) * 1.55, ez = edgeTree < 13 ? -world.height / 200 + edgeTree * 1.55 : -world.height / 200 - .45;
       var edgeGroup = new THREE.Group(); edgeGroup.position.set(ex + Math.sin(edgeTree * 2.7) * .4, .025, ez + Math.cos(edgeTree * 1.7) * .4); group.add(edgeGroup);
-      var treeScale = .75 + (edgeTree * 7 % 9) * .055; softTree(edgeGroup, edgeTree * 2.4, treeScale);
+      var treeScale = .75 + (edgeTree * 7 % 9) * .055; softTree(edgeGroup, edgeTree * 2.4, treeScale, edgeTree + 1);
       if (edgeTree % 2) { leafBush(group, ex + .5, .025, ez + .5, .6, edgeTree); for (var edgeFlower = 0; edgeFlower < 3; edgeFlower++) daisy(group, ex + .25 + edgeFlower * .2, .026, ez + .85, .85, false); }
     }
     // Low smoothly rounded distant mounds leave a real view of the sky.
@@ -1095,6 +1112,7 @@
     function dispose() { if (disposed) return; disposed = true; if(originalArt)originalArt.dispose(); if(oceanLife&&oceanLife.instanceMeshes)oceanLife.instanceMeshes.forEach(function(m){m.dispose();}); batches.forEach(function (b) { b.mesh.dispose(); }); geometries.forEach(function (g) { g.dispose(); }); materials.forEach(function (m) { m.dispose(); }); textures.forEach(function (t) { t.dispose(); }); sun.shadow.dispose(); scene.clear(); }
     return { scene: scene, surfaces: surfaces, occluders: occluders, pickables: pickables, placeGroups: placeGroups, solidLifeRevision:solidLifeRevision, windowRooms:windowRooms, windowLifeMaterials:windowLifeMaterials, waterLife:waterLife, oceanLife:oceanLife, shoreTransition:shoreTransition, animate: animate, dispose: dispose,
       loadOriginalArt:loadOriginalArt, originalHit:originalHit, originalDoorHit:originalDoorHit, originalArt:originalArt, setSeason: setSeason, seasonGroups: seasonGroups, styleLimits: style ? style.limits : null, layoutArtRevision: scene.userData.layoutArtRevision,
+      treeVarietyRevision: treeAPI ? treeAPI.revision : null, treeVarietyKinds: treeKinds,
       geometries: geometries, materials: materials, textures: textures, batches: batches, people: people(world, view, avoid) };
   }
   async function mount(options) {
@@ -1116,11 +1134,11 @@
       if (fishingVisual) release(function () { fishingVisual.dispose(); });
       if (model) release(function () { model.dispose(); }); if (texture) release(function () { texture.dispose(); });
       if (renderer) { release(function () { renderer.renderLists.dispose(); }); release(function () { renderer.dispose(); }); release(function () { renderer.forceContextLoss(); }); release(function () { renderer.domElement.remove(); }); }
-      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; delete host.dataset.townOriginalArt; delete host.dataset.townSolidLife; delete host.dataset.townShoreTransition; }
+      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; delete host.dataset.townOriginalArt; delete host.dataset.townSolidLife; delete host.dataset.townShoreTransition; delete host.dataset.townTreeVariety; delete host.dataset.townTreeKinds; }
     }
     function fail(code) { if (dead || failed) return; failed = true; destroy(); report('onFailure', code); }
     var THREE;
-    try { var dependencies = await Promise.all([options.three || loadThree(), loadFrameFit(), loadSeasons(), loadStyle(), loadLayoutArt(), loadOriginals(), loadWaterLife(), loadOceanLife(), loadShoreTransition()]); THREE = dependencies[0]; } catch (_) { fail('town_module_unavailable'); return null; }
+    try { var dependencies = await Promise.all([options.three || loadThree(), loadFrameFit(), loadSeasons(), loadStyle(), loadLayoutArt(), loadOriginals(), loadWaterLife(), loadOceanLife(), loadShoreTransition(), loadTreeVariety()]); THREE = dependencies[0]; } catch (_) { fail('town_module_unavailable'); return null; }
     if (!active()) { destroy(); return null; }
     var sprite, playerShadow, camera, ray, pointer, direction, target, desired, contactMap = null, fishingVisual = null, fishingState = null;
     function contactShadow(radius) {
@@ -1243,7 +1261,7 @@
       model = buildWorld(THREE, world, options.view, position, doc, firstSeason ? firstSeason.key : 'summer');
       await model.loadOriginalArt();
       if(!active()){destroy();return null;}
-      host.dataset.townOriginalArt=model.scene.userData.originalArtRevision;host.dataset.townSolidLife=model.solidLifeRevision;host.dataset.townOceanMotion=model.scene.userData.oceanMotionRevision;host.dataset.townShoreTransition=model.scene.userData.shoreTransitionRevision;
+      host.dataset.townOriginalArt=model.scene.userData.originalArtRevision;host.dataset.townSolidLife=model.solidLifeRevision;host.dataset.townOceanMotion=model.scene.userData.oceanMotionRevision;host.dataset.townShoreTransition=model.scene.userData.shoreTransitionRevision;host.dataset.townTreeVariety=model.treeVarietyRevision;host.dataset.townTreeKinds=JSON.stringify(model.treeVarietyKinds);
       host.dataset.townStyle = model.styleLimits ? 'shop-cottage-match2' : 'legacy';
       host.dataset.townLayoutArt = model.layoutArtRevision;
       if (Fishing && typeof Fishing.createVisual === 'function') { fishingVisual = Fishing.createVisual(THREE, world); model.scene.add(fishingVisual.group); }
