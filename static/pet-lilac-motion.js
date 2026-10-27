@@ -2359,10 +2359,18 @@
   // A turn borrows the same eight vectors after the frontal pass. No frontal
   // eye, mouth, tear or alpha coordinates are applied to a side/back cell.
   var turnShader=[
+    // Compact C2 falloff: the eye UV mapping stays monotone at this amplitude,
+    // with exact identity outside the eye and no crease at its boundary.
+    'float walkEyeWeight(vec2 p,vec2 center,vec2 radius){if(center.x<0.)return 0.;vec2 q=(p-center)/radius;float h=max(0.,1.-dot(q,q));return h*h*h;}',
     'vec4 turnImage(vec2 p){float index=floor(v_part-10.+.1);vec4 source;',
     'if(index<.5){source=vec4(texture2D(u_original,p).rgb,texture2D(u_alpha,p).a);}',
     'else{vec2 safe=clamp(p,u_detail.xy,vec2(1.)-u_detail.xy);vec2 tile=vec2(mod(index,4.),floor(index/4.));source=texture2D(u_sad,(tile+safe)/4.);}',
     'if(source.a<.01)return vec4(0.);vec3 color=source.rgb;vec3 tooth;',
+    // Relax only the eyes painted in this exact view. Keep its source alpha,
+    // muzzle and silhouette; front-facing blink donors never cover a side face.
+    'if(u_detail.w>0.){vec2 relaxed=p;float amount=.35*clamp(u_detail.w,0.,.65);',
+    'relaxed.y+=amount*((p.y-u_motionB.y)*walkEyeWeight(p,u_motionB.xy,u_face.xy)+(p.y-u_motionB.w)*walkEyeWeight(p,u_motionB.zw,u_face.zw));',
+    'if(index<.5)color=texture2D(u_original,relaxed).rgb;else{vec2 safe=clamp(relaxed,u_detail.xy,vec2(1.)-u_detail.xy);vec2 tile=vec2(mod(index,4.),floor(index/4.));color=texture2D(u_sad,(tile+safe)/4.).rgb;}}',
     'if(index<.5)tooth=texture2D(u_angry,p).rgb;else{vec2 safe=clamp(p,u_detail.xy,vec2(1.)-u_detail.xy);vec2 tile=vec2(mod(index,4.),floor(index/4.));tooth=texture2D(u_angry,(tile+safe)/4.).rgb;}',
     'float toothMask=index<.5?toothPatch(p):ce(p,u_motionC.xy+vec2(0.,u_motionC.w*.18),u_motionC.zw*vec2(.85,.65))*step(-1.,u_motionC.x);color=mix(color,tooth,toothMask);',
     'float eyes=max(ce(p,u_motionB.xy,u_face.xy),ce(p,u_motionB.zw,u_face.zw));float mouth=ce(p,u_motionC.xy,u_motionC.zw);',
@@ -2479,6 +2487,7 @@
     // sheet only while turning. Expanded view rectangles preserve overhanging fur.
     result=result.replace('vec2 tile=vec2(mod(index,4.),floor(index/4.));source=texture2D(u_sad,(tile+safe)/4.);','source=texture2D(u_sad,mix(v_sourceRect.xy,v_sourceRect.zw,safe));');
     result=result.replace('vec2 tile=vec2(mod(index,4.),floor(index/4.));tooth=texture2D(u_angry,(tile+safe)/4.).rgb;','tooth=texture2D(u_angry,mix(v_sourceRect.xy,v_sourceRect.zw,safe)).rgb;');
+    result=result.replace('vec2 tile=vec2(mod(index,4.),floor(index/4.));color=texture2D(u_sad,(tile+safe)/4.).rgb;','color=texture2D(u_sad,mix(v_sourceRect.xy,v_sourceRect.zw,safe)).rgb;');
     // Blink materials share the full-resolution reference UVs. Enlarging a
     // 3x3 expression cell here used to blur the lids and surrounding cream fur.
     // The existing eye-only paint mask keeps the reference face/body intact.
@@ -2715,7 +2724,7 @@
         gl.uniform4f(locations.gesture,view.paws[0],view.paws[1],view.paws[2],view.paws[3]);
         gl.uniform4f(locations.face,view.eyeRadii[0],view.eyeRadii[1],view.eyeRadii[2],view.eyeRadii[3]);
         gl.uniform4f(locations.effect,view.tail[0],view.tail[1],view.tail[2],view.tail[3]);
-        gl.uniform4f(locations.detail,2/textureImages[9].naturalWidth,2/textureImages[9].naturalHeight,Math.sin(index*TAU/16)*.12,0);
+        gl.uniform4f(locations.detail,2/textureImages[9].naturalWidth,2/textureImages[9].naturalHeight,Math.sin(index*TAU/16)*.12,rig.pose.eyeNarrow);
         if(sourceRectAttribute!==null){var rect=view.sourceRect||[0,0,1,1];gl.vertexAttrib4f(sourceRectAttribute,rect[0],rect[1],rect[2],rect[3]);}
         gl.vertexAttrib1f(partAttribute,10+index);gl.drawArrays(gl.TRIANGLES,0,mesh.length/5);
       });
@@ -2749,6 +2758,8 @@
           p.strideScale = turn.roomWalk.strideScale;
           p.bounce = .25 * Math.abs(p.step); p.bodyAngle = .035 * p.step;
           p.shiftX = 0; p.wave = locomotion.walking ? .25 : 0;
+          // A light, symmetric relaxation of the original eyes during manual travel.
+          p.eyeNarrow = locomotion.walking ? .32 : 0;
         }
         if (reduced) { p.tail = 0; }
         var rig=family==='egg'?null:rigFrame(p,reduced?0:phaseMs/1000,elapsed,stageProfile.key,branchProfile.key,scale,appearance.key,eggOrigin);
