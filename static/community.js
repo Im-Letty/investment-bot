@@ -35,10 +35,7 @@
     '銘柄ごとの会話を読む':'Read stock conversations','いまの下書き':'Current draft','以前の下書き':'Earlier draft',
     'つぶやく':'Write a post','つぶやき':'Your post','ニックネーム':'Display name','投稿する話題':'Topic','投稿の言語':'Post language',
     '変更':'Change','保存':'Save','ニックネーム（20文字まで）':'Display name (up to 20 characters)',
-    '経済ニュース共通のニックネーム':'Economic News display name','経済ニュース共通のニックネーム（20文字まで）':'Economic News display name (up to 20 characters)',
-    '一度保存すると、同じブラウザで共通して使えます。':'Save once to use this name throughout Economic News in this browser.',
-    'ニックネームを入力してください。':'Enter a display name.','ニックネームは20文字以内にしてください。':'Keep your display name within 20 characters.',
-    'この端末に保存しました。':'Saved on this device.','この端末に保存できませんでした。入力した名前は残しています。':'Could not save on this device. Your entered name is kept.',
+    'ユーザー名を確認できませんでした。メニューのプロフィールを確認してください。':'Could not verify your username. Check Profile in the menu.',
     '前回と同じニックネームで再送します。':'Retrying with the same display name as the previous attempt.',
     '投稿する':'Post','投稿を読み込み中…':'Loading posts…','まだ投稿はありません。':'No posts yet.','最初のひとことを、気軽にどうぞ。':'You can start the conversation.',
     'もっと見る':'Show more','読み込み中…':'Loading…','新しい投稿があります':'New posts are available','新しい投稿を表示しました。':'New posts are now displayed.',
@@ -100,6 +97,7 @@
     if(reason==='rate_limited')return '少し時間を置いてからお試しください。';
     if(reason==='empty')return '投稿する内容を入力してください。';
     if(reason==='too_long')return '投稿は200文字以内にしてください。';
+    if(reason==='invalid_name')return 'ユーザー名を確認できませんでした。メニューのプロフィールを確認してください。';
     if(reason==='invalid_category')return config.stock?'投稿する銘柄を選んでください。':'投稿を受け付けられませんでした。内容を残しています。';
     if(reason==='not_found')return 'この投稿は表示できなくなりました。';
     if(reason==='forbidden')return 'この操作はご本人の投稿で行ってください。';
@@ -362,22 +360,9 @@
 
     var toolbar=el('div','cw-toolbar');s.categoryToolbar=toolbar;toolbar.hidden=!config.stock;s.categoryNote=el('p','cw-description');toolbar.appendChild(s.categoryNote);var composeToggle=button('cw-primary cw-compose-toggle','つぶやく',null,function(){s.composer.hidden=!s.composer.hidden;composeToggle.setAttribute('aria-expanded',String(!s.composer.hidden));if(!s.composer.hidden)s.input.focus({preventScroll:true});});composeToggle.setAttribute('aria-expanded','false');composeToggle.setAttribute('aria-controls',root.id+'Composer');if(config.stock)toolbar.appendChild(composeToggle);content.appendChild(toolbar);
     var composer=el('form','cw-composer');composer.id=root.id+'Composer';composer.hidden=!!config.stock;if(!config.stock)composer.classList.add('cw-composer-inline');s.composer=composer;if(config.stock){s.destination=el('p','cw-description','投稿先：'+title(s.category));composer.appendChild(s.destination);}
-    var fields=el('div','cw-composer-fields'),nicknameBox=el('div','cw-nickname'),nicknameSummary=el('div','cw-nickname-summary'),nicknameValue=el('span','cw-nickname-value'),nicknameEditor=el('div','cw-nickname-editor'),nicknameLabel=fieldLabel('経済ニュース共通のニックネーム'),nickname=el('input','cw-input');
-    s.committedNickname=savedNickname('');nickname.id='cmNick';nickname.type='text';nickname.maxLength=20;nickname.value=s.committedNickname;nickname.setAttribute('aria-label',t('経済ニュース共通のニックネーム（20文字まで）'));nickname.dataset.cwLabel='経済ニュース共通のニックネーム（20文字まで）';nicknameLabel.appendChild(nickname);s.nickname=nickname;
-    var nicknameStatus=el('p','cw-small cw-nickname-status');nicknameStatus.setAttribute('role','status');nicknameStatus.setAttribute('aria-live','polite');
-    function nicknameNotice(text,bad){nicknameStatus.textContent=t(text);nicknameStatus.dataset.cwCopy=text;nicknameStatus.classList.toggle('cw-error',!!bad);}
-    s.syncNickname=function(){s.committedNickname=savedNickname(s.committedNickname);nicknameValue.textContent=s.committedNickname||t('名無しさん');};
-    function editNickname(edit){nicknameSummary.hidden=edit;nicknameEditor.hidden=!edit;}
-    var nicknameChange=button('cw-text-button cw-nickname-change','変更',null,function(){s.syncNickname();nickname.value=s.committedNickname;nicknameNotice('',false);editNickname(true);nickname.focus({preventScroll:true});});
-    async function saveNickname(){
-      var value=nickname.value.trim();if(!value){nicknameNotice('ニックネームを入力してください。',true);return;}if(chars(value)>20){nicknameNotice('ニックネームは20文字以内にしてください。',true);return;}
-      try {if(w.KNUserProfile&&typeof w.KNUserProfile.saveUsername==='function'){if(nicknameSave.disabled)return;nicknameSave.disabled=true;await w.KNUserProfile.saveUsername(value);if(!alive(s))return;}else{w.localStorage.setItem('cm_nick',value);if(w.localStorage.getItem('cm_nick')!==value)throw new Error('nickname_not_saved');}}
-      catch(_){if(alive(s))nicknameNotice('保存できませんでした。入力した名前は残しています。',true);return;}finally{nicknameSave.disabled=false;}
-      s.committedNickname=value;nickname.value=value;nicknameValue.textContent=value;editNickname(false);nicknameNotice(w.KNUserProfile?'プロフィールに保存しました。':'この端末に保存しました。',false);nicknameChange.focus({preventScroll:true});
-    }
-    var nicknameSave=button('cw-primary cw-nickname-save','保存',null,saveNickname),nicknameCancel=button('cw-text-button cw-nickname-cancel','やめる',null,function(){s.syncNickname();nickname.value=s.committedNickname;nicknameNotice('',false);editNickname(false);nicknameChange.focus({preventScroll:true});}),nicknameActions=el('div','cw-nickname-actions');
-    nickname.addEventListener('keydown',function(event){if(event.key==='Enter'&&!event.isComposing&&event.keyCode!==229){event.preventDefault();if(event.stopPropagation)event.stopPropagation();saveNickname();}});
-    nicknameSummary.appendChild(el('span','cw-nickname-caption','経済ニュース共通のニックネーム'));nicknameSummary.appendChild(nicknameValue);nicknameSummary.appendChild(nicknameChange);nicknameEditor.appendChild(nicknameLabel);nicknameActions.appendChild(nicknameSave);nicknameActions.appendChild(nicknameCancel);nicknameEditor.appendChild(nicknameActions);nicknameBox.appendChild(nicknameSummary);nicknameBox.appendChild(nicknameEditor);nicknameBox.appendChild(el('p','cw-small cw-nickname-scope',w.KNUserProfile?'メニューのプロフィールと共通のユーザー名です。':'一度保存すると、同じブラウザで共通して使えます。'));nicknameBox.appendChild(nicknameStatus);fields.appendChild(nicknameBox);s.syncNickname();editNickname(!s.committedNickname);
+    var fields=el('div','cw-composer-fields');
+    s.committedNickname=savedNickname('');
+    s.syncNickname=function(){s.committedNickname=savedNickname(s.committedNickname);};
     var categoryLabel=fieldLabel('投稿する話題');s.categoryInput=select(config.stock?categories:categories.slice(1),'投稿する話題');categoryLabel.appendChild(s.categoryInput);categoryLabel.hidden=true;fields.appendChild(categoryLabel);if(config.stock)s.categoryInput.disabled=true;
     var languageLabel=fieldLabel('投稿の言語');s.languageInput=select(languages,'投稿の言語');languageLabel.appendChild(s.languageInput);fields.appendChild(languageLabel);composer.appendChild(fields);
     var inputLabel=fieldLabel('つぶやき'),input=el('textarea','cw-input cw-compose-body');input.id='cmInput';input.rows=3;var composePlaceholder=config.stock?'気になったことや、みんなへの質問を書いてみよう。':'気になることを、自由につぶやこう。';input.placeholder=t(composePlaceholder);input.dataset.cwPlaceholder=composePlaceholder;input.setAttribute('aria-label','つぶやき（200文字まで）');inputLabel.appendChild(input);if(config.stock)composer.appendChild(inputLabel);else composer.insertBefore(inputLabel,fields);s.input=input;
