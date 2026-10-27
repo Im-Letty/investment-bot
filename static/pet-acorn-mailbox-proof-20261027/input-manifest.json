@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "recorded_at_jst": "2026-10-27T11:03:27.005731+09:00",
+  "model_id": "acorn-mailbox-shell-door-v1",
+  "unit_id": "wardrobe:item:acorn-mailbox:shell-door-prerequisite:v1",
+  "base_main_sha": "3d6a7ef72908362c9e1e664ac61794d388f90b78",
+  "source_original": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/assets/acorn-mailbox-v1.png",
+    "sha256": "3d7a9773655f9a64536635c319c59b0e00f03dab8a9937af0d6d43daeb69e54a",
+    "bytes": 976067
+  },
+  "source_original_viewed_before_design": true,
+  "source_copy_unmodified": true,
+  "new_raw_PNGs": 0,
+  "new_original_PNG_designs": 0,
+  "imagegen_calls": 0,
+  "new_mesh_library_candidates": 0,
+  "existing_original_technical_geometry_prerequisite": true,
+  "normal_game_changes": 0,
+  "bodyBinding": null,
+  "functional_delivery_rewards": false,
+  "ownership_unlock_save": false,
+  "back_depth_inside_and_dimensions_authored_not_observed": true,
+  "finite_angle_witnesses": 20,
+  "limits": [
+    "Single original image informs style and visible front; rear/interior/hatch depth are authored technical choices.",
+    "Five bored knuckles/one pin and finite0..95manual poses do not establish load, friction, watertight seal or continuous collision safety.",
+    "One unchanged village anchor:20sole rays, finitewalkability/allroad triangles/conservative141card envelopes; no ordinary registration or all-camera nonocclusion guarantee.",
+    "Raw renderer canvas PNG export is not a browser screenshot or a regenerated original."
+  ],
+  "inputs": [
+    {
+      "path": "static/vendor/three-0.160.1.module.js",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    {
+      "path": "static/pet-town-walk.js",
+      "sha256": "e5394a48f76449dddec52e497d1b231ad1ed213d1fa69aec3657bbb3045b1aac",
+      "bytes": 24418
+    },
+    {
+      "path": "static/pet-town-scene.js",
+      "sha256": "103da61d9c45db9d6840da1145c49d56edd95d19af4bfb51468cb0496f3c25f7",
+      "bytes": 107565
+    },
+    {
+      "path": "static/pet-frame-fit.js",
+      "sha256": "7b3b730dc7834e1c56f455161d59005f8352a3cd918e52be1893bc4b7706dc13",
+      "bytes": 2434
+    },
+    {
+      "path": "static/pet-river-fishing.js",
+      "sha256": "8b4e1d2d9f2b9fda72f66e79b2105dccdadd2e6de5230c24e920cbdcf561aedb",
+      "bytes": 8325
+    },
+    {
+      "path": "static/pet-japan-seasons.js",
+      "sha256": "944ff98aa81f7975b4daf4dc3ca59887f042e2c8be9eb1e5b6ea29637f46225a",
+      "bytes": 5025
+    },
+    {
+      "path": "static/pet-town-style.js",
+      "sha256": "7985e1f983329bcef7567c634543a74b442de56b8757858693ae54ef64b68e2a",
+      "bytes": 13719
+    },
+    {
+      "path": "static/pet-town-layout-art.js",
+      "sha256": "2cb9581f8593eb6569a7de97fdac231f72201121ee81154c6c01ebb400001a0f",
+      "bytes": 14102
+    },
+    {
+      "path": "static/pet-town-placement-originals.js",
+      "sha256": "dd07e3756f0a1aa2f6ea0a4ec92137b430a87897093a2ed4c0a4193c5395845e",
+      "bytes": 10838
+    },
+    {
+      "path": "static/pet-scalloped-path-proof-20261027/framing.mjs",
+      "sha256": "dba92c2f6dec2816ebcf25434ee07c3b699accb61b7e1961a11baf366edad08a",
+      "bytes": 1678
+    },
+    {
+      "path": "static/pet-toolbox-integral-link-proof-20261027/placement.mjs",
+      "sha256": "b56467e091b3d0408d2f1d52d83a48cdd88f837304fa3b1fb71717b5b3dce961",
+      "bytes": 2718
+    },
+    {
+      "path": "static/pet-toolbox-joint-proof-20261026/placement.mjs",
+      "sha256": "1419d42a6fd4f3e83547ec105506c38a32058a9e2ac05321a324340c1ae62fc1",
+      "bytes": 1577
+    }
+  ],
+  "files": [
+    {
+      "path": "SPEC.json",
+      "sha256": "c60dc99fd06ecf2a5638b566c569817da67b7597fbfeb10c5a2ea017ea1751ed",
+      "bytes": 1516
+    },
+    {
+      "path": "entry.mjs",
+      "sha256": "13faeeb3fafa3da1386c2a54906c47cc3b51a0d8e3403e35379a1e290dc789f7",
+      "bytes": 3255
+    },
+    {
+      "path": "finite-geometry-certificate.json",
+      "sha256": "b9db503aca347f7c3bc23815e9f941088ff305897a04c69f3658cd9abdc13fce",
+      "bytes": 44016
+    },
+    {
+      "path": "index.html",
+      "sha256": "57887a36b5d80daf65c0e3fbce29c74b31eef091a38928d02bdc3d7732dfd305",
+      "bytes": 4160
+    },
+    {
+      "path": "mailbox.mjs",
+      "sha256": "da25e37cc641fbafb01ffe7025e7300e86870e10a7fbb1b0d82026fcddbdd6fb",
+      "bytes": 11652
+    },
+    {
+      "path": "placement.mjs",
+      "sha256": "a4e744a73314f4cfe74634a47af99b927e6333c539e355ae87a5a2528aacee83",
+      "bytes": 5979
+    },
+    {
+      "path": "reference.png",
+      "sha256": "3d7a9773655f9a64536635c319c59b0e00f03dab8a9937af0d6d43daeb69e54a",
+      "bytes": 976067
+    },
+    {
+      "path": "viewer.mjs",
+      "sha256": "ac1bf882ef0be606ccaac090c3b0cbaf6347a5e0b0c0ebb26eb107339072b1d6",
+      "bytes": 9995
+    }
+  ],
+  "finite_geometry_certificate": {
+    "path": "finite-geometry-certificate.json",
+    "sha256": "b9db503aca347f7c3bc23815e9f941088ff305897a04c69f3658cd9abdc13fce",
+    "bytes": 44016
+  },
+  "geometry_revision": 2,
+  "same_reserved_unit_contact_correction": true,
+  "previous_unaccepted_manifest_SHA256_preserved_in_work_history": "972f0ecbbee984418c9f5e128ffaa05eecea67e3ea2abbaa115d233031b90c1e",
+  "startup_diagnostic_revision": 2,
+  "previous_unaccepted_startup_manifest_SHA256_preserved_in_work_history": "db3e03be947bea7bc30e4d6ddb5aa2d75755c5c8d0a247027ef57e9d41d39692"
+}

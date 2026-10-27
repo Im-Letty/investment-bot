@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "model_id": "spring-garden-arch-v1",
+  "unit_id": "village:asset-library:spring-garden-arch:v1",
+  "label_ja": "春の花のアーチ・独立した立体素材候補",
+  "representation": "actual closed mesh components",
+  "style": "soft_pearl_elegant",
+  "season": "spring",
+  "construction": [
+    "Two capped extruded arch bands with real front/back and lower leg caps",
+    "11closed depth rungs and four stone support pads",
+    "Eight rooted blossoms,40solid petals,16solid leaves with branch connections"
+  ],
+  "authored_passage": {
+    "width": 1.3,
+    "height": 1.9,
+    "depth": 1.16,
+    "description": "Finite diagnostic straight corridor inside actual geometry; not anatomical measurement"
+  },
+  "dimensions_scope": "All dimensions are authored trial world dimensions. No character/furniture scaling or body calibration.",
+  "interaction_scope": "Manual diagnostic marker and continuous camera only; normal game traversal/adoption remains unconnected.",
+  "placement_scope": "One unchanged default village off-road anchor with actual dry-land,road triangles,building mesh proxies and original-card sphere envelopes. Full-camera visibility is not guaranteed.",
+  "pending": [
+    "ordinary placement and obstacle/navigation adoption",
+    "acquisition,ownership,unlock,prices,save and restore",
+    "anatomical contact,all growth body fit and true character360",
+    "physical load,structural strength and continuous collision guarantee"
+  ],
+  "new_original_PNG_designs": 0,
+  "new_raw_PNGs": 0,
+  "imagegen_calls": 0,
+  "new_mesh_candidate": 1,
+  "normal_game_changes": 0,
+  "bodyBinding": null,
+  "normalPlacement": false,
+  "ownershipUnlockSave": false,
+  "finite_witnesses_are_not_unique_tests": true
+}

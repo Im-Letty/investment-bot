@@ -1,0 +1,1702 @@
+{
+  "model_id": "acorn-mailbox-shell-door-v1",
+  "unit_id": "wardrobe:item:acorn-mailbox:shell-door-prerequisite:v1",
+  "geometry_revision": 2,
+  "recorded_at_utc": "2026-10-27T02:20:13.684Z",
+  "actual_recipe_sha256": "da25e37cc641fbafb01ffe7025e7300e86870e10a7fbb1b0d82026fcddbdd6fb",
+  "actual_placement_recipe_sha256": "a4e744a73314f4cfe74634a47af99b927e6333c539e355ae87a5a2528aacee83",
+  "source_original_sha256": "3d7a9773655f9a64536635c319c59b0e00f03dab8a9937af0d6d43daeb69e54a",
+  "all57_individual_components_closed_positive_oriented": true,
+  "partResults": [
+    {
+      "id": "stone-foot--0.25--0.2",
+      "role": "foot",
+      "volume": 0.0013720000175237656,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "stone-foot--0.25-0.2",
+      "role": "foot",
+      "volume": 0.0013720000175237656,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "stone-foot-0.25--0.2",
+      "role": "foot",
+      "volume": 0.0013720000175237656,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "stone-foot-0.25-0.2",
+      "role": "foot",
+      "volume": 0.0013720000175237656,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "stone-leaf-base-core",
+      "role": "base",
+      "volume": 0.035263999864578205,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "base-leaf-0",
+      "role": "base-leaf",
+      "volume": 0.01840767840741766,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "base-leaf-1",
+      "role": "base-leaf",
+      "volume": 0.01840767840741766,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "base-leaf-2",
+      "role": "base-leaf",
+      "volume": 0.01840767840741766,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "tapered-leaf-post",
+      "role": "post",
+      "volume": 0.037525001493494005,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "post-base-collar",
+      "role": "collar",
+      "volume": 0.005117152641917712,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "body-support-collar",
+      "role": "collar",
+      "volume": 0.005804063043423702,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "closed-thick-perimeter-shell",
+      "role": "shell",
+      "volume": 0.15090096959172178,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "closed-authored-back-wall",
+      "role": "back-wall",
+      "volume": 0.04652674114394191,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "front-wall-actual-door-and-slot-holes",
+      "role": "front-wall",
+      "volume": 0.03134116660867881,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "inner-closed-floor",
+      "role": "inner-floor",
+      "volume": 0.015833999573409547,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "gold-hatch-rim",
+      "role": "door-rim",
+      "volume": 0.0007701330178475291,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "gold-mail-slot-rim",
+      "role": "slot-rim",
+      "volume": 0.000509555563842568,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "solid-hatch-panel",
+      "role": "door",
+      "volume": 0.009000903220691383,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "hatch-panel-gold-inlay",
+      "role": "door-decoration",
+      "volume": 0.00013261059443109763,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "letter-envelope-badge-outline",
+      "role": "door-decoration",
+      "volume": 0.00007132498239204333,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "envelope-fold-left",
+      "role": "door-decoration",
+      "volume": 0.000013586310384461793,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "envelope-fold-right",
+      "role": "door-decoration",
+      "volume": 0.000013586310384461793,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "hatch-round-knob",
+      "role": "knob",
+      "volume": 0.00011564824652775057,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "fixed-bored-knuckle-0",
+      "role": "hinge-knuckle",
+      "volume": 0.0004873611232784987,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "fixed-exterior-hinge-web-0",
+      "role": "fixed-web",
+      "volume": 0.0003543750170990822,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "moving-bored-knuckle-1",
+      "role": "hinge-knuckle",
+      "volume": 0.0004873611232784987,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "moving-exterior-hinge-web-1",
+      "role": "moving-web",
+      "volume": 0.00020250001156702627,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "fixed-bored-knuckle-2",
+      "role": "hinge-knuckle",
+      "volume": 0.0004873611232784987,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "fixed-exterior-hinge-web-2",
+      "role": "fixed-web",
+      "volume": 0.0003543750170990822,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "moving-bored-knuckle-3",
+      "role": "hinge-knuckle",
+      "volume": 0.0004873611232784987,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "moving-exterior-hinge-web-3",
+      "role": "moving-web",
+      "volume": 0.00020250001156702627,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "fixed-bored-knuckle-4",
+      "role": "hinge-knuckle",
+      "volume": 0.0004873611232784987,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "fixed-exterior-hinge-web-4",
+      "role": "fixed-web",
+      "volume": 0.0003543750170990822,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "single-through-hinge-pin",
+      "role": "hinge-pin",
+      "volume": 0.00038879998052676173,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "pin-retainer--0.422",
+      "role": "fixed-shaft-collar",
+      "volume": 0.000025214247671191122,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "pin-retainer-0.422",
+      "role": "fixed-shaft-collar",
+      "volume": 0.000025214247671191122,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "closed-solid-acorn-roof",
+      "role": "roof",
+      "volume": 0.32264598785296084,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "acorn-shingle-0-0",
+      "role": "roof-shingle",
+      "volume": 0.006551963947004776,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "acorn-shingle-0-1",
+      "role": "roof-shingle",
+      "volume": 0.006551963947004776,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "acorn-shingle-0-2",
+      "role": "roof-shingle",
+      "volume": 0.006551963947004776,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "acorn-shingle-0-3",
+      "role": "roof-shingle",
+      "volume": 0.006551963947004776,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "acorn-shingle-0-4",
+      "role": "roof-shingle",
+      "volume": 0.006551963947004776,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "acorn-shingle-0-5",
+      "role": "roof-shingle",
+      "volume": 0.006551963947004776,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "acorn-shingle-0-6",
+      "role": "roof-shingle",
+      "volume": 0.006551963947004776,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "acorn-shingle-0-7",
+      "role": "roof-shingle",
+      "volume": 0.006551963947004776,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "acorn-shingle-1-0",
+      "role": "roof-shingle",
+      "volume": 0.00534415240609177,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "acorn-shingle-1-1",
+      "role": "roof-shingle",
+      "volume": 0.00534415240609177,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "acorn-shingle-1-2",
+      "role": "roof-shingle",
+      "volume": 0.00534415240609177,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "acorn-shingle-1-3",
+      "role": "roof-shingle",
+      "volume": 0.00534415240609177,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "acorn-shingle-1-4",
+      "role": "roof-shingle",
+      "volume": 0.00534415240609177,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "acorn-shingle-1-5",
+      "role": "roof-shingle",
+      "volume": 0.00534415240609177,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "acorn-stem-lower",
+      "role": "roof-stem",
+      "volume": 0.0011686203886648828,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "acorn-stem-tip",
+      "role": "roof-stem",
+      "volume": 0.0005434074574616895,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "acorn-stem-rounded-joint",
+      "role": "roof-stem",
+      "volume": 0.0004809698484076321,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "acorn-stem-rounded-tip",
+      "role": "roof-stem",
+      "volume": 0.0003059237749655138,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "acorn-stem-leaf",
+      "role": "roof-leaf",
+      "volume": 0.001944657370895988,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    },
+    {
+      "id": "leaf-center-vein",
+      "role": "roof-leaf-vein",
+      "volume": 0.00004707544036688686,
+      "degenerate": 0,
+      "negative": 0,
+      "badEdges": 0
+    }
+  ],
+  "geometry": {
+    "angle": 0,
+    "bounds": {
+      "min": [
+        -0.6999999988079071,
+        -1.490116086078075e-10,
+        -0.6709202184945618
+      ],
+      "max": [
+        0.6999999988079071,
+        2.248000001460314,
+        0.8644631892873009
+      ],
+      "size": [
+        1.3999999976158142,
+        2.2480000016093253,
+        1.5353834077818629
+      ]
+    },
+    "restBounds": {
+      "min": [
+        -0.6999999988079071,
+        -1.490116086078075e-10,
+        -0.6709202184945618
+      ],
+      "max": [
+        0.6999999988079071,
+        2.248000001460314,
+        0.6709202184945618
+      ]
+    },
+    "budget": {
+      "meshes": 57,
+      "geometries": 57,
+      "materials": 6,
+      "textures": 0,
+      "triangles": 7072,
+      "lights": 0
+    },
+    "invalidPositions": 0,
+    "invalidNormals": 0,
+    "realFrontOpenings": 2,
+    "hinge": {
+      "knuckles": 5,
+      "throughPins": 1,
+      "axis": [
+        0,
+        1.435,
+        0.405
+      ],
+      "innerRadius": 0.016,
+      "pinRadius": 0.012,
+      "pinLength": 0.9,
+      "collarInnerRadius": 0.0105,
+      "collarAttachment": "authored fixed overlap with shaft; not friction or load certification",
+      "radialClearance": 0.004
+    },
+    "sampledPoseWitnesses": 20,
+    "backAndCavityAuthored": true,
+    "bodyBinding": null,
+    "wearingFit": false,
+    "delivery": false,
+    "rewards": false,
+    "normalPlacement": false,
+    "ownershipUnlockSave": false,
+    "physicalLoadFrictionSealVerified": false,
+    "continuousCollisionCertified": false
+  },
+  "actual_contact_correction_witnesses": [
+    {
+      "id": "slot-rim-to-front",
+      "point": [
+        0,
+        1.6125,
+        0.34975
+      ],
+      "insideA": true,
+      "insideB": true,
+      "method": "actual triangle solid-angle inside tests, not AABB"
+    },
+    {
+      "id": "pin-retainer--0.422-to-shaft",
+      "point": [
+        -0.422,
+        1.446,
+        0.405
+      ],
+      "insideA": true,
+      "insideB": true,
+      "shaftExtendsThrough": true,
+      "method": "actual triangle solid-angle inside tests and axial real bounds"
+    },
+    {
+      "id": "pin-retainer-0.422-to-shaft",
+      "point": [
+        0.422,
+        1.446,
+        0.405
+      ],
+      "insideA": true,
+      "insideB": true,
+      "shaftExtendsThrough": true,
+      "method": "actual triangle solid-angle inside tests and axial real bounds"
+    },
+    {
+      "id": "envelope-fold-left-to-panel",
+      "point": [
+        -0.0535,
+        1.2025000000000001,
+        0.396
+      ],
+      "insideA": true,
+      "insideB": true,
+      "method": "actual triangle solid-angle inside tests, not badge envelope overlap"
+    },
+    {
+      "id": "envelope-fold-right-to-panel",
+      "point": [
+        0.0535,
+        1.2025000000000001,
+        0.396
+      ],
+      "insideA": true,
+      "insideB": true,
+      "method": "actual triangle solid-angle inside tests, not badge envelope overlap"
+    }
+  ],
+  "actual_contact_correction_witnesses_all_inside_both": true,
+  "finite_poses": [
+    {
+      "angle": 0,
+      "doorFrontFrameZGap": 0.012500001341104572,
+      "roofDoorYGap": 0.2624999755620956,
+      "doorBounds": {
+        "min": [
+          -0.3149999976158142,
+          0.9775000041723252,
+          0.36250000000000004
+        ],
+        "max": [
+          0.3149999976158142,
+          1.392499995827675,
+          0.39750000014901166
+        ]
+      }
+    },
+    {
+      "angle": 5,
+      "doorFrontFrameZGap": 0.016365846102622927,
+      "roofDoorYGap": 0.26299191827273805,
+      "doorBounds": {
+        "min": [
+          -0.3149999976158142,
+          0.9755368107126992,
+          0.3663658447615184
+        ],
+        "max": [
+          0.3149999976158142,
+          1.3920080531170325,
+          0.437402291856168
+        ]
+      }
+    },
+    {
+      "angle": 10,
+      "doorFrontFrameZGap": 0.020525720113446944,
+      "roofDoorYGap": 0.26315666630835377,
+      "doorBounds": {
+        "min": [
+          -0.3149999976158142,
+          0.9770704095550085,
+          0.3705257187723424
+        ],
+        "max": [
+          0.3149999976158142,
+          1.3918433050814167,
+          0.4770579825572603
+        ]
+      }
+    },
+    {
+      "angle": 15,
+      "doorFrontFrameZGap": 0.024947964220553454,
+      "roofDoorYGap": 0.26299296583691434,
+      "doorBounds": {
+        "min": [
+          -0.3149999976158142,
+          0.9820891290860507,
+          0.3749479628794489
+        ],
+        "max": [
+          0.3149999976158142,
+          1.3920070055528562,
+          0.5161652685012922
+        ]
+      }
+    },
+    {
+      "angle": 20,
+      "doorFrontFrameZGap": 0.029598922476063605,
+      "roofDoorYGap": 0.26250206271785226,
+      "doorBounds": {
+        "min": [
+          -0.3149999976158142,
+          0.990554773819809,
+          0.3795989211349591
+        ],
+        "max": [
+          0.3149999976158142,
+          1.3924979086719182,
+          0.554426519628605
+        ]
+      }
+    },
+    {
+      "angle": 25,
+      "doorFrontFrameZGap": 0.0344431982793274,
+      "roofDoorYGap": 0.2616876930203189,
+      "doorBounds": {
+        "min": [
+          -0.3149999976158142,
+          1.002402915088164,
+          0.3844431969382229
+        ],
+        "max": [
+          0.3149999976158142,
+          1.3933122783694516,
+          0.5915505447153446
+        ]
+      }
+    },
+    {
+      "angle": 30,
+      "doorFrontFrameZGap": 0.03944392376642847,
+      "roofDoorYGap": 0.26055605458944275,
+      "doorBounds": {
+        "min": [
+          -0.3149999976158142,
+          1.017543381381959,
+          0.38944392242532394
+        ],
+        "max": [
+          0.3149999976158142,
+          1.3944439168003278,
+          0.627254807514502
+        ]
+      }
+    },
+    {
+      "angle": 35,
+      "doorFrontFrameZGap": 0.04456304039688924,
+      "roofDoorYGap": 0.25911575987698443,
+      "doorBounds": {
+        "min": [
+          -0.3149999976158142,
+          1.0358609446106355,
+          0.3945630390557847
+        ],
+        "max": [
+          0.3149999976158142,
+          1.395884211512786,
+          0.661267577027352
+        ]
+      }
+    },
+    {
+      "angle": 40,
+      "doorFrontFrameZGap": 0.0497615886021448,
+      "roofDoorYGap": 0.2573777703953799,
+      "doorBounds": {
+        "min": [
+          -0.3149999976158142,
+          1.057216197057576,
+          0.3997615872610403
+        ],
+        "max": [
+          0.3149999976158142,
+          1.3976222009943906,
+          0.69332999554043
+        ]
+      }
+    },
+    {
+      "angle": 45,
+      "doorFrontFrameZGap": 0.055000004291383964,
+      "roofDoorYGap": 0.25535531329401007,
+      "doorBounds": {
+        "min": [
+          -0.3149999976158142,
+          1.0814466123570057,
+          0.40500000295027944
+        ],
+        "max": [
+          0.3149999976158142,
+          1.3996446580957604,
+          0.7231980486890341
+        ]
+      }
+    },
+    {
+      "angle": 50,
+      "doorFrontFrameZGap": 0.06023841995816964,
+      "roofDoorYGap": 0.25306378069261015,
+      "doorBounds": {
+        "min": [
+          -0.3149999976158142,
+          1.1083677824177707,
+          0.4102384186170651
+        ],
+        "max": [
+          0.3149999976158142,
+          1.4019361906971604,
+          0.7506444225538798
+        ]
+      }
+    },
+    {
+      "angle": 55,
+      "doorFrontFrameZGap": 0.06543696809623595,
+      "roofDoorYGap": 0.25052061253794156,
+      "doorBounds": {
+        "min": [
+          -0.3149999976158142,
+          1.1377748208802616,
+          0.4154369667551314
+        ],
+        "max": [
+          0.3149999976158142,
+          1.404479358851829,
+          0.7754602336572818
+        ]
+      }
+    },
+    {
+      "angle": 60,
+      "doorFrontFrameZGap": 0.07055608461528268,
+      "roofDoorYGap": 0.24774516387526857,
+      "doorBounds": {
+        "min": [
+          -0.3149999976158142,
+          1.169443922425324,
+          0.42055608327417815
+        ],
+        "max": [
+          0.3149999976158142,
+          1.407254807514502,
+          0.7974566186925469
+        ]
+      }
+    },
+    {
+      "angle": 65,
+      "doorFrontFrameZGap": 0.07555680994759323,
+      "roofDoorYGap": 0.2447585575447755,
+      "doorBounds": {
+        "min": [
+          -0.3149999976158142,
+          1.203134066067873,
+          0.4255568086064887
+        ],
+        "max": [
+          0.3149999976158142,
+          1.410241413844995,
+          0.8164661718877765
+        ]
+      }
+    },
+    {
+      "angle": 70,
+      "doorFrontFrameZGap": 0.08040108555386782,
+      "roofDoorYGap": 0.2415835234239998,
+      "doorBounds": {
+        "min": [
+          -0.3149999976158142,
+          1.2385888494721247,
+          0.4304010842127633
+        ],
+        "max": [
+          0.3149999976158142,
+          1.4134164479657707,
+          0.8323442190648723
+        ]
+      }
+    },
+    {
+      "angle": 75,
+      "doorFrontFrameZGap": 0.08505204357168944,
+      "roofDoorYGap": 0.23824422543973878,
+      "doorBounds": {
+        "min": [
+          -0.3149999976158142,
+          1.2755384403281886,
+          0.4350520422305849
+        ],
+        "max": [
+          0.3149999976158142,
+          1.4167557459500317,
+          0.8449699186973904
+        ]
+      }
+    },
+    {
+      "angle": 80,
+      "doorFrontFrameZGap": 0.08947428740221702,
+      "roofDoorYGap": 0.23476607766597546,
+      "doorBounds": {
+        "min": [
+          -0.3149999976158142,
+          1.313701629938877,
+          0.4394742860611125
+        ],
+        "max": [
+          0.3149999976158142,
+          1.420233893723795,
+          0.8542471815875207
+        ]
+      }
+    },
+    {
+      "angle": 85,
+      "doorFrontFrameZGap": 0.09363416109967637,
+      "roofDoorYGap": 0.23117555090743158,
+      "doorBounds": {
+        "min": [
+          -0.3149999976158142,
+          1.3527879733876893,
+          0.44363415975857184
+        ],
+        "max": [
+          0.3149999976158142,
+          1.423824420482339,
+          0.8601054021629051
+        ]
+      }
+    },
+    {
+      "angle": 90,
+      "doorFrontFrameZGap": 0.09750000551342969,
+      "roofDoorYGap": 0.22749997124075882,
+      "doorBounds": {
+        "min": [
+          -0.3149999976158142,
+          1.3925,
+          0.44750000417232516
+        ],
+        "max": [
+          0.3149999976158142,
+          1.4275000001490117,
+          0.8624999958276749
+        ]
+      }
+    },
+    {
+      "angle": 95,
+      "doorFrontFrameZGap": 0.09799194822407203,
+      "roofDoorYGap": 0.1875976795336025,
+      "doorBounds": {
+        "min": [
+          -0.3149999976158142,
+          1.3963658447615184,
+          0.4479919468829675
+        ],
+        "max": [
+          0.3149999976158142,
+          1.467402291856168,
+          0.8644631892873009
+        ]
+      }
+    }
+  ],
+  "minimum_sampled_door_front_frame_z_gap": 0.012500001341104572,
+  "minimum_sampled_roof_door_y_gap": 0.1875976795336025,
+  "manual_angles_not_measured_cloth_or_body_motion": true,
+  "pose_count_is_not_unique_test_count": true,
+  "continuous_collision_safety_certified": false,
+  "actual_openings_test": "Two holes in the front solid;9 finite hatch rays +1 slot ray validated in dedicated Node test. Empty authored cavity is not a seal/load/delivery guarantee.",
+  "actual_pin_bore_test": "5 actual bores .016radius and1 .012radius shaft remain unchanged. Shaft length.90 passes through2 fixed annular collars whose .0105bore overlaps shaft as an authored rigid attachment. Not a friction/load or assembly guarantee.",
+  "placement": {
+    "townPoint": {
+      "x": 1200,
+      "y": 1300
+    },
+    "worldPosition": [
+      -2.4,
+      0.024999999999999186,
+      3.4
+    ],
+    "projectedFootprint": {
+      "minX": -3.099999998807907,
+      "maxX": -1.7000000011920928,
+      "minZ": 2.729079781505438,
+      "maxZ": 4.070920218494562
+    },
+    "supports": [
+      {
+        "foot": "stone-foot--0.25--0.2",
+        "x": -2.65,
+        "z": 3.1999999999999997,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998846,
+        "soleMinusFloor": -1.490112686020062e-10
+      },
+      {
+        "foot": "stone-foot--0.25--0.2",
+        "x": -2.720000000298023,
+        "z": 3.1299999997019765,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998863,
+        "soleMinusFloor": -1.4901128594924096e-10
+      },
+      {
+        "foot": "stone-foot--0.25--0.2",
+        "x": -2.720000000298023,
+        "z": 3.270000000298023,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998832,
+        "soleMinusFloor": -1.490112547242184e-10
+      },
+      {
+        "foot": "stone-foot--0.25--0.2",
+        "x": -2.5799999997019767,
+        "z": 3.1299999997019765,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998863,
+        "soleMinusFloor": -1.4901128594924096e-10
+      },
+      {
+        "foot": "stone-foot--0.25--0.2",
+        "x": -2.5799999997019767,
+        "z": 3.270000000298023,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998832,
+        "soleMinusFloor": -1.490112547242184e-10
+      },
+      {
+        "foot": "stone-foot--0.25-0.2",
+        "x": -2.65,
+        "z": 3.6,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.02499999999999876,
+        "soleMinusFloor": -1.490111818658324e-10
+      },
+      {
+        "foot": "stone-foot--0.25-0.2",
+        "x": -2.720000000298023,
+        "z": 3.529999999701977,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998773,
+        "soleMinusFloor": -1.490111957436202e-10
+      },
+      {
+        "foot": "stone-foot--0.25-0.2",
+        "x": -2.720000000298023,
+        "z": 3.6700000002980233,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998742,
+        "soleMinusFloor": -1.4901116451859764e-10
+      },
+      {
+        "foot": "stone-foot--0.25-0.2",
+        "x": -2.5799999997019767,
+        "z": 3.529999999701977,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998773,
+        "soleMinusFloor": -1.490111957436202e-10
+      },
+      {
+        "foot": "stone-foot--0.25-0.2",
+        "x": -2.5799999997019767,
+        "z": 3.6700000002980233,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998742,
+        "soleMinusFloor": -1.4901116451859764e-10
+      },
+      {
+        "foot": "stone-foot-0.25--0.2",
+        "x": -2.15,
+        "z": 3.1999999999999997,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998846,
+        "soleMinusFloor": -1.490112686020062e-10
+      },
+      {
+        "foot": "stone-foot-0.25--0.2",
+        "x": -2.220000000298023,
+        "z": 3.1299999997019765,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998863,
+        "soleMinusFloor": -1.4901128594924096e-10
+      },
+      {
+        "foot": "stone-foot-0.25--0.2",
+        "x": -2.220000000298023,
+        "z": 3.270000000298023,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998832,
+        "soleMinusFloor": -1.490112547242184e-10
+      },
+      {
+        "foot": "stone-foot-0.25--0.2",
+        "x": -2.0799999997019767,
+        "z": 3.1299999997019765,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998863,
+        "soleMinusFloor": -1.4901128594924096e-10
+      },
+      {
+        "foot": "stone-foot-0.25--0.2",
+        "x": -2.0799999997019767,
+        "z": 3.270000000298023,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998832,
+        "soleMinusFloor": -1.490112547242184e-10
+      },
+      {
+        "foot": "stone-foot-0.25-0.2",
+        "x": -2.15,
+        "z": 3.6,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.02499999999999876,
+        "soleMinusFloor": -1.490111818658324e-10
+      },
+      {
+        "foot": "stone-foot-0.25-0.2",
+        "x": -2.220000000298023,
+        "z": 3.529999999701977,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998773,
+        "soleMinusFloor": -1.490111957436202e-10
+      },
+      {
+        "foot": "stone-foot-0.25-0.2",
+        "x": -2.220000000298023,
+        "z": 3.6700000002980233,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998742,
+        "soleMinusFloor": -1.4901116451859764e-10
+      },
+      {
+        "foot": "stone-foot-0.25-0.2",
+        "x": -2.0799999997019767,
+        "z": 3.529999999701977,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999998773,
+        "soleMinusFloor": -1.490111957436202e-10
+      },
+      {
+        "foot": "stone-foot-0.25-0.2",
+        "x": -2.0799999997019767,
+        "z": 3.6700000002980233,
+        "soleLocalY": -1.490116086078075e-10,
+        "floorY": 0.024999999999999186,
+        "soleMinusFloor": -1.490116086078075e-10
+      }
+    ],
+    "finiteWalkability": {
+      "samples": 210,
+      "blocked": 0
+    },
+    "roads": [
+      {
+        "name": "layout-plaza-border",
+        "place": null,
+        "triangles": 192,
+        "minimumGap": 0.3417699135930121
+      },
+      {
+        "name": "layout-plaza-floor",
+        "place": null,
+        "triangles": 96,
+        "minimumGap": 0.5591228006006024
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.858290713019668
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.959917650309336
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 5.025681559213064
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 5.057438075956841
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 5.031734974479825
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.980507181250718
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.90895479325368
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.82163179620844
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.7232080500647315
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.618239526010123
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.510907559526465
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.404743257290991
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.30236357567087
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.20525393543525
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.113132518112022
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.003225651904763
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.864947450130083
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.700663891158308
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.513185912231454
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.3106153771241744
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.1030073551146313
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 2.8879918636794844
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 2.6632108212562593
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 2.427084309774932
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 2.1793644930205818
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 1.9219721916405095
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 1.6601034553515903
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 1.3785360947377197
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 1.087749146178819
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 0.8561572307018652
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 0.6733822060035446
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 0.5192103903041905
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 0.3962797061149228
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 0.3411030493710708
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 0.38657381412182606
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 0.7276016182892229
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 1.1580679226498645
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 1.6024516743251522
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 2.005963755523793
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 2.4010336368776946
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 2.7835199358057627
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.147456258170721
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.4879373905628697
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 3.800854321073974
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.082813521169813
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.331127223581172
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.543830096952406
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "place": null,
+        "triangles": 6,
+        "minimumGap": 4.7197025394789485
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "place": "home",
+        "triangles": 192,
+        "minimumGap": 1.466997121582247
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "place": "home",
+        "triangles": 96,
+        "minimumGap": 1.5269949129008227
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "place": "home",
+        "triangles": 2,
+        "minimumGap": 8.506444955118502
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "place": "cafe",
+        "triangles": 192,
+        "minimumGap": 1.8315476418796355
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "place": "cafe",
+        "triangles": 96,
+        "minimumGap": 1.8792794031391813
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "place": "cafe",
+        "triangles": 2,
+        "minimumGap": 10.464228808677552
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "place": "shop",
+        "triangles": 192,
+        "minimumGap": 1.3758099028920545
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "place": "shop",
+        "triangles": 96,
+        "minimumGap": 1.4358088560026303
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "place": "shop",
+        "triangles": 2,
+        "minimumGap": 4.509000207185745
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "place": "playground",
+        "triangles": 192,
+        "minimumGap": 1.8315292060503516
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "place": "playground",
+        "triangles": 96,
+        "minimumGap": 1.8792635032788145
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "place": "flowers",
+        "triangles": 192,
+        "minimumGap": 0.6090000402927398
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "place": "flowers",
+        "triangles": 96,
+        "minimumGap": 0.6689999830722808
+      }
+    ],
+    "minimumRoadGap": 0.3411030493710708,
+    "requiredRoadMargin": 0.2,
+    "originalSpriteEnvelopeClearance": {
+      "checkedCards": 141,
+      "kinds": {
+        "home": 1,
+        "cafe": 1,
+        "shop": 1,
+        "fountain": 1,
+        "tree": 27,
+        "flowers": 106,
+        "lantern": 4
+      },
+      "minimumGap": 0.6374591882616419,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -3.620171337412489,
+            0.026,
+            1.9259135351825603
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 0.9568982394894792,
+          "gap": 0.6374591882616419
+        },
+        {
+          "kind": "tree",
+          "sourceSHA256": "f2f13fd18a0b27cec312c10b2f9dc55694d98072f06b8c52c5a56b25210e03a1",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            -1.4520000000000004
+          ],
+          "fullQuadRadius": 3.540721855111509,
+          "envelopeDistance": 4.3295270113481665,
+          "gap": 0.7888051562366574
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            6.035999999999999
+          ],
+          "fullQuadRadius": 0.9507114619876108,
+          "envelopeDistance": 2.0980273292762273,
+          "gap": 1.1473158672886163
+        },
+        {
+          "kind": "lantern",
+          "sourceSHA256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+          "contact": [
+            -5.472,
+            0.025,
+            4.223999999999998
+          ],
+          "fullQuadRadius": 0.9909739577995439,
+          "envelopeDistance": 2.3720000011920934,
+          "gap": 1.3810260433925494
+        },
+        {
+          "kind": "shop",
+          "sourceSHA256": "25ea663a1132f09b55329ed326f881a601162689d962ff084a6c653359d61e85",
+          "contact": [
+            -8.064,
+            0.025,
+            2.6999999999999997
+          ],
+          "fullQuadRadius": 3.469184978044895,
+          "envelopeDistance": 4.9640851771023735,
+          "gap": 1.4949001990574784
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -3.4762096606368775,
+            0.026,
+            6.079101177556104
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 1.8532254957564438,
+          "gap": 1.5337864445286065
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            1.3751814482148574,
+            0.026,
+            5.10897405510206
+          ],
+          "fullQuadRadius": 0.8081047426894692,
+          "envelopeDistance": 3.189034265926885,
+          "gap": 2.3809295232374157
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -5.696198453616935,
+            0.026,
+            5.1798366606554165
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 2.7528448937121937,
+          "gap": 2.4334058424843565
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -5.646198453616935,
+            0.026,
+            5.199836660655416
+          ],
+          "fullQuadRadius": 0.1314263525051673,
+          "envelopeDistance": 2.712572598514392,
+          "gap": 2.581146246009225
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -3.899535539329861,
+            0.026,
+            -1.6177433432232216
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 4.419743019479025,
+          "gap": 4.100303968251188
+        }
+      ],
+      "method": "sphere enclosing all four full raw Sprite quad corners from actual world scale/center; sphere-to-conservative-3D-pose-envelope distance; includes faint/transparent corners without cropping",
+      "cameraOrientationIndependentGeometryEnvelope": true,
+      "physicalFixtureVolumes": false,
+      "allCameraProjectionOcclusionGuaranteed": false
+    },
+    "buildingProxyClearance": [
+      {
+        "place": "home",
+        "intersects": false,
+        "separation": 8.780745399393874
+      },
+      {
+        "place": "cafe",
+        "intersects": false,
+        "separation": 10.63821379255847
+      },
+      {
+        "place": "shop",
+        "intersects": false,
+        "separation": 4.242520764112473
+      },
+      {
+        "place": "playground",
+        "intersects": false,
+        "separation": 7.296000001192092
+      },
+      {
+        "place": "tree",
+        "intersects": false,
+        "separation": null
+      },
+      {
+        "place": "flowers",
+        "intersects": false,
+        "separation": null
+      }
+    ],
+    "worldUnchanged": true,
+    "walkableSurfacesUnchanged": true,
+    "occludersUnchanged": true,
+    "notRegisteredAsTownSurface": true,
+    "normalPlacement": false,
+    "ownershipUnlockSave": false,
+    "bodyBinding": null,
+    "characterScaleReference": {
+      "frameWorldHeight": 1.65,
+      "mailboxHeight": 2.2480000016093253,
+      "ratio": 1.3624242433995912,
+      "scope": "existing PetFrameFit whole2D source-frame height; no anatomy, contact, body geometry or fitting proof"
+    },
+    "limits": "one unchanged default-world anchor;20 actual sole/floor rays,finite walkability grid and all current authored diagnostic road triangles against the conservative mailbox XZ rectangle; original full-quad sphere envelopes do not guarantee all-camera visibility or physical decoration collision"
+  },
+  "limits": [
+    "Actual component topology and finite mesh pose witnesses only; union manifold/continuous-motion safety is not established.",
+    "Interior, rear structure, dimensions and hinge mounting are authored technical choices inferred for preview, not observed surfaces from source picture.",
+    "No normal-game registration, delivery/reward logic, owner placement/ownership/unlock/save, body contact/fit/rig or character360.",
+    "Conservative original-card envelopes do not certify all camera projections or physical decoration volumes."
+  ]
+}
