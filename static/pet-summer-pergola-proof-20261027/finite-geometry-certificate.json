@@ -1,0 +1,6147 @@
+{
+  "schema_version": 1,
+  "created_at_jst": "2026-10-27T13:09:22.180+09:00",
+  "model_id": "summer-open-pergola-v1",
+  "unit_id": "village:asset-library:summer-open-pergola:v1",
+  "source_recipe": {
+    "path": "pergola.mjs",
+    "sha256": "244a6d9d43b5b08109b9e3aceb87601f25b8e01544c8e526ea8039bbd5564cf1",
+    "bytes": 7719
+  },
+  "geometry": {
+    "parts": 27,
+    "closedComponentGeometry": "actual shared six-face box solid with positive mesh scales",
+    "bounds": {
+      "min": [
+        -1.21,
+        0,
+        -0.98
+      ],
+      "max": [
+        1.21,
+        2.4,
+        0.98
+      ],
+      "size": [
+        2.42,
+        2.4,
+        1.96
+      ]
+    },
+    "budget": {
+      "meshes": 27,
+      "geometries": 1,
+      "materials": 4,
+      "textures": 0,
+      "triangles": 324,
+      "lights": 0
+    },
+    "invalidPositions": 0,
+    "invalidNormals": 0,
+    "bodyBinding": null,
+    "authoredDimensionsNotBodyFit": true
+  },
+  "joints": [
+    {
+      "kind": "post-inside-foot",
+      "a": "stone-foot-west-rear",
+      "b": "cream-post-west-rear",
+      "point": [
+        -0.98,
+        0.13,
+        -0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "post-inside-foot",
+      "a": "stone-foot-west-front",
+      "b": "cream-post-west-front",
+      "point": [
+        -0.98,
+        0.13,
+        0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "post-inside-foot",
+      "a": "stone-foot-east-rear",
+      "b": "cream-post-east-rear",
+      "point": [
+        0.98,
+        0.13,
+        -0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "post-inside-foot",
+      "a": "stone-foot-east-front",
+      "b": "cream-post-east-front",
+      "point": [
+        0.98,
+        0.13,
+        0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "post-to-side-beam",
+      "a": "cream-post-west-rear",
+      "b": "side-roof-beam--1",
+      "point": [
+        -0.98,
+        2.12,
+        -0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "side-to-cross-beam",
+      "a": "side-roof-beam--1",
+      "b": "cross-roof-beam--1",
+      "point": [
+        -0.98,
+        2.21,
+        -0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "post-to-side-beam",
+      "a": "cream-post-west-front",
+      "b": "side-roof-beam--1",
+      "point": [
+        -0.98,
+        2.12,
+        0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "side-to-cross-beam",
+      "a": "side-roof-beam--1",
+      "b": "cross-roof-beam-1",
+      "point": [
+        -0.98,
+        2.21,
+        0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "post-to-side-beam",
+      "a": "cream-post-east-rear",
+      "b": "side-roof-beam-1",
+      "point": [
+        0.98,
+        2.12,
+        -0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "side-to-cross-beam",
+      "a": "side-roof-beam-1",
+      "b": "cross-roof-beam--1",
+      "point": [
+        0.98,
+        2.21,
+        -0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "post-to-side-beam",
+      "a": "cream-post-east-front",
+      "b": "side-roof-beam-1",
+      "point": [
+        0.98,
+        2.12,
+        0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "side-to-cross-beam",
+      "a": "side-roof-beam-1",
+      "b": "cross-roof-beam-1",
+      "point": [
+        0.98,
+        2.21,
+        0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "slat-to-cross-beam",
+      "a": "separate-roof-slat-0",
+      "b": "cross-roof-beam--1",
+      "point": [
+        -0.99,
+        2.315,
+        -0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "slat-to-cross-beam",
+      "a": "separate-roof-slat-0",
+      "b": "cross-roof-beam-1",
+      "point": [
+        -0.99,
+        2.315,
+        0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "slat-to-cross-beam",
+      "a": "separate-roof-slat-1",
+      "b": "cross-roof-beam--1",
+      "point": [
+        -0.66,
+        2.315,
+        -0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "slat-to-cross-beam",
+      "a": "separate-roof-slat-1",
+      "b": "cross-roof-beam-1",
+      "point": [
+        -0.66,
+        2.315,
+        0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "slat-to-cross-beam",
+      "a": "separate-roof-slat-2",
+      "b": "cross-roof-beam--1",
+      "point": [
+        -0.33,
+        2.315,
+        -0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "slat-to-cross-beam",
+      "a": "separate-roof-slat-2",
+      "b": "cross-roof-beam-1",
+      "point": [
+        -0.33,
+        2.315,
+        0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "slat-to-cross-beam",
+      "a": "separate-roof-slat-3",
+      "b": "cross-roof-beam--1",
+      "point": [
+        0,
+        2.315,
+        -0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "slat-to-cross-beam",
+      "a": "separate-roof-slat-3",
+      "b": "cross-roof-beam-1",
+      "point": [
+        0,
+        2.315,
+        0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "slat-to-cross-beam",
+      "a": "separate-roof-slat-4",
+      "b": "cross-roof-beam--1",
+      "point": [
+        0.33,
+        2.315,
+        -0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "slat-to-cross-beam",
+      "a": "separate-roof-slat-4",
+      "b": "cross-roof-beam-1",
+      "point": [
+        0.33,
+        2.315,
+        0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "slat-to-cross-beam",
+      "a": "separate-roof-slat-5",
+      "b": "cross-roof-beam--1",
+      "point": [
+        0.66,
+        2.315,
+        -0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "slat-to-cross-beam",
+      "a": "separate-roof-slat-5",
+      "b": "cross-roof-beam-1",
+      "point": [
+        0.66,
+        2.315,
+        0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "slat-to-cross-beam",
+      "a": "separate-roof-slat-6",
+      "b": "cross-roof-beam--1",
+      "point": [
+        0.99,
+        2.315,
+        -0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "slat-to-cross-beam",
+      "a": "separate-roof-slat-6",
+      "b": "cross-roof-beam-1",
+      "point": [
+        0.99,
+        2.315,
+        0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "brace-to-post",
+      "a": "depth-knee-west-rear",
+      "b": "cream-post-west-rear",
+      "point": [
+        -0.98,
+        1.7976776695296637,
+        -0.6123223304703364
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "brace-to-roof-beam",
+      "a": "depth-knee-west-rear",
+      "b": "side-roof-beam--1",
+      "point": [
+        -0.98,
+        2.1223223304703365,
+        -0.2876776695296637
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "brace-to-post",
+      "a": "width-knee-west-rear",
+      "b": "cream-post-west-rear",
+      "point": [
+        -0.9637302156636007,
+        1.8589814150591324,
+        -0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "brace-to-roof-beam",
+      "a": "width-knee-west-rear",
+      "b": "cross-roof-beam--1",
+      "point": [
+        -0.6362697843363992,
+        2.2410185849408673,
+        -0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "brace-to-post",
+      "a": "depth-knee-west-front",
+      "b": "cream-post-west-front",
+      "point": [
+        -0.98,
+        1.7976776695296637,
+        0.6123223304703364
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "brace-to-roof-beam",
+      "a": "depth-knee-west-front",
+      "b": "side-roof-beam--1",
+      "point": [
+        -0.98,
+        2.1223223304703365,
+        0.2876776695296637
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "brace-to-post",
+      "a": "width-knee-west-front",
+      "b": "cream-post-west-front",
+      "point": [
+        -0.9637302156636007,
+        1.8589814150591324,
+        0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "brace-to-roof-beam",
+      "a": "width-knee-west-front",
+      "b": "cross-roof-beam-1",
+      "point": [
+        -0.6362697843363992,
+        2.2410185849408673,
+        0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "brace-to-post",
+      "a": "depth-knee-east-rear",
+      "b": "cream-post-east-rear",
+      "point": [
+        0.98,
+        1.7976776695296637,
+        -0.6123223304703364
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "brace-to-roof-beam",
+      "a": "depth-knee-east-rear",
+      "b": "side-roof-beam-1",
+      "point": [
+        0.98,
+        2.1223223304703365,
+        -0.2876776695296637
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "brace-to-post",
+      "a": "width-knee-east-rear",
+      "b": "cream-post-east-rear",
+      "point": [
+        0.9637302156636007,
+        1.8589814150591324,
+        -0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "brace-to-roof-beam",
+      "a": "width-knee-east-rear",
+      "b": "cross-roof-beam--1",
+      "point": [
+        0.6362697843363992,
+        2.2410185849408673,
+        -0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "brace-to-post",
+      "a": "depth-knee-east-front",
+      "b": "cream-post-east-front",
+      "point": [
+        0.98,
+        1.7976776695296637,
+        0.6123223304703364
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "brace-to-roof-beam",
+      "a": "depth-knee-east-front",
+      "b": "side-roof-beam-1",
+      "point": [
+        0.98,
+        2.1223223304703365,
+        0.2876776695296637
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "brace-to-post",
+      "a": "width-knee-east-front",
+      "b": "cream-post-east-front",
+      "point": [
+        0.9637302156636007,
+        1.8589814150591324,
+        0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    },
+    {
+      "kind": "brace-to-roof-beam",
+      "a": "width-knee-east-front",
+      "b": "cross-roof-beam-1",
+      "point": [
+        0.6362697843363992,
+        2.2410185849408673,
+        0.63
+      ],
+      "insideA": true,
+      "insideB": true
+    }
+  ],
+  "passages": {
+    "sampleCount": 252,
+    "blocked": 0,
+    "rows": [
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.7,
+          0.08,
+          1.1
+        ],
+        "end": [
+          -0.7,
+          0.08,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.7,
+          0.3833333333333333,
+          1.1
+        ],
+        "end": [
+          -0.7,
+          0.3833333333333333,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.7,
+          0.6866666666666665,
+          1.1
+        ],
+        "end": [
+          -0.7,
+          0.6866666666666665,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.7,
+          0.9899999999999998,
+          1.1
+        ],
+        "end": [
+          -0.7,
+          0.9899999999999998,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.7,
+          1.2933333333333332,
+          1.1
+        ],
+        "end": [
+          -0.7,
+          1.2933333333333332,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.7,
+          1.5966666666666667,
+          1.1
+        ],
+        "end": [
+          -0.7,
+          1.5966666666666667,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.7,
+          1.8999999999999997,
+          1.1
+        ],
+        "end": [
+          -0.7,
+          1.8999999999999997,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.5249999999999999,
+          0.08,
+          1.1
+        ],
+        "end": [
+          -0.5249999999999999,
+          0.08,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.5249999999999999,
+          0.3833333333333333,
+          1.1
+        ],
+        "end": [
+          -0.5249999999999999,
+          0.3833333333333333,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.5249999999999999,
+          0.6866666666666665,
+          1.1
+        ],
+        "end": [
+          -0.5249999999999999,
+          0.6866666666666665,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.5249999999999999,
+          0.9899999999999998,
+          1.1
+        ],
+        "end": [
+          -0.5249999999999999,
+          0.9899999999999998,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.5249999999999999,
+          1.2933333333333332,
+          1.1
+        ],
+        "end": [
+          -0.5249999999999999,
+          1.2933333333333332,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.5249999999999999,
+          1.5966666666666667,
+          1.1
+        ],
+        "end": [
+          -0.5249999999999999,
+          1.5966666666666667,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.5249999999999999,
+          1.8999999999999997,
+          1.1
+        ],
+        "end": [
+          -0.5249999999999999,
+          1.8999999999999997,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.35,
+          0.08,
+          1.1
+        ],
+        "end": [
+          -0.35,
+          0.08,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.35,
+          0.3833333333333333,
+          1.1
+        ],
+        "end": [
+          -0.35,
+          0.3833333333333333,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.35,
+          0.6866666666666665,
+          1.1
+        ],
+        "end": [
+          -0.35,
+          0.6866666666666665,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.35,
+          0.9899999999999998,
+          1.1
+        ],
+        "end": [
+          -0.35,
+          0.9899999999999998,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.35,
+          1.2933333333333332,
+          1.1
+        ],
+        "end": [
+          -0.35,
+          1.2933333333333332,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.35,
+          1.5966666666666667,
+          1.1
+        ],
+        "end": [
+          -0.35,
+          1.5966666666666667,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.35,
+          1.8999999999999997,
+          1.1
+        ],
+        "end": [
+          -0.35,
+          1.8999999999999997,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.17500000000000004,
+          0.08,
+          1.1
+        ],
+        "end": [
+          -0.17500000000000004,
+          0.08,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.17500000000000004,
+          0.3833333333333333,
+          1.1
+        ],
+        "end": [
+          -0.17500000000000004,
+          0.3833333333333333,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.17500000000000004,
+          0.6866666666666665,
+          1.1
+        ],
+        "end": [
+          -0.17500000000000004,
+          0.6866666666666665,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.17500000000000004,
+          0.9899999999999998,
+          1.1
+        ],
+        "end": [
+          -0.17500000000000004,
+          0.9899999999999998,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.17500000000000004,
+          1.2933333333333332,
+          1.1
+        ],
+        "end": [
+          -0.17500000000000004,
+          1.2933333333333332,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.17500000000000004,
+          1.5966666666666667,
+          1.1
+        ],
+        "end": [
+          -0.17500000000000004,
+          1.5966666666666667,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.17500000000000004,
+          1.8999999999999997,
+          1.1
+        ],
+        "end": [
+          -0.17500000000000004,
+          1.8999999999999997,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0,
+          0.08,
+          1.1
+        ],
+        "end": [
+          0,
+          0.08,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0,
+          0.3833333333333333,
+          1.1
+        ],
+        "end": [
+          0,
+          0.3833333333333333,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0,
+          0.6866666666666665,
+          1.1
+        ],
+        "end": [
+          0,
+          0.6866666666666665,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0,
+          0.9899999999999998,
+          1.1
+        ],
+        "end": [
+          0,
+          0.9899999999999998,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0,
+          1.2933333333333332,
+          1.1
+        ],
+        "end": [
+          0,
+          1.2933333333333332,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0,
+          1.5966666666666667,
+          1.1
+        ],
+        "end": [
+          0,
+          1.5966666666666667,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0,
+          1.8999999999999997,
+          1.1
+        ],
+        "end": [
+          0,
+          1.8999999999999997,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.17500000000000004,
+          0.08,
+          1.1
+        ],
+        "end": [
+          0.17500000000000004,
+          0.08,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.17500000000000004,
+          0.3833333333333333,
+          1.1
+        ],
+        "end": [
+          0.17500000000000004,
+          0.3833333333333333,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.17500000000000004,
+          0.6866666666666665,
+          1.1
+        ],
+        "end": [
+          0.17500000000000004,
+          0.6866666666666665,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.17500000000000004,
+          0.9899999999999998,
+          1.1
+        ],
+        "end": [
+          0.17500000000000004,
+          0.9899999999999998,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.17500000000000004,
+          1.2933333333333332,
+          1.1
+        ],
+        "end": [
+          0.17500000000000004,
+          1.2933333333333332,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.17500000000000004,
+          1.5966666666666667,
+          1.1
+        ],
+        "end": [
+          0.17500000000000004,
+          1.5966666666666667,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.17500000000000004,
+          1.8999999999999997,
+          1.1
+        ],
+        "end": [
+          0.17500000000000004,
+          1.8999999999999997,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.34999999999999987,
+          0.08,
+          1.1
+        ],
+        "end": [
+          0.34999999999999987,
+          0.08,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.34999999999999987,
+          0.3833333333333333,
+          1.1
+        ],
+        "end": [
+          0.34999999999999987,
+          0.3833333333333333,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.34999999999999987,
+          0.6866666666666665,
+          1.1
+        ],
+        "end": [
+          0.34999999999999987,
+          0.6866666666666665,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.34999999999999987,
+          0.9899999999999998,
+          1.1
+        ],
+        "end": [
+          0.34999999999999987,
+          0.9899999999999998,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.34999999999999987,
+          1.2933333333333332,
+          1.1
+        ],
+        "end": [
+          0.34999999999999987,
+          1.2933333333333332,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.34999999999999987,
+          1.5966666666666667,
+          1.1
+        ],
+        "end": [
+          0.34999999999999987,
+          1.5966666666666667,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.34999999999999987,
+          1.8999999999999997,
+          1.1
+        ],
+        "end": [
+          0.34999999999999987,
+          1.8999999999999997,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.5249999999999999,
+          0.08,
+          1.1
+        ],
+        "end": [
+          0.5249999999999999,
+          0.08,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.5249999999999999,
+          0.3833333333333333,
+          1.1
+        ],
+        "end": [
+          0.5249999999999999,
+          0.3833333333333333,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.5249999999999999,
+          0.6866666666666665,
+          1.1
+        ],
+        "end": [
+          0.5249999999999999,
+          0.6866666666666665,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.5249999999999999,
+          0.9899999999999998,
+          1.1
+        ],
+        "end": [
+          0.5249999999999999,
+          0.9899999999999998,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.5249999999999999,
+          1.2933333333333332,
+          1.1
+        ],
+        "end": [
+          0.5249999999999999,
+          1.2933333333333332,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.5249999999999999,
+          1.5966666666666667,
+          1.1
+        ],
+        "end": [
+          0.5249999999999999,
+          1.5966666666666667,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.5249999999999999,
+          1.8999999999999997,
+          1.1
+        ],
+        "end": [
+          0.5249999999999999,
+          1.8999999999999997,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.7,
+          0.08,
+          1.1
+        ],
+        "end": [
+          0.7,
+          0.08,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.7,
+          0.3833333333333333,
+          1.1
+        ],
+        "end": [
+          0.7,
+          0.3833333333333333,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.7,
+          0.6866666666666665,
+          1.1
+        ],
+        "end": [
+          0.7,
+          0.6866666666666665,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.7,
+          0.9899999999999998,
+          1.1
+        ],
+        "end": [
+          0.7,
+          0.9899999999999998,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.7,
+          1.2933333333333332,
+          1.1
+        ],
+        "end": [
+          0.7,
+          1.2933333333333332,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.7,
+          1.5966666666666667,
+          1.1
+        ],
+        "end": [
+          0.7,
+          1.5966666666666667,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.7,
+          1.8999999999999997,
+          1.1
+        ],
+        "end": [
+          0.7,
+          1.8999999999999997,
+          -1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.7,
+          0.08,
+          -1.1
+        ],
+        "end": [
+          -0.7,
+          0.08,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.7,
+          0.3833333333333333,
+          -1.1
+        ],
+        "end": [
+          -0.7,
+          0.3833333333333333,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.7,
+          0.6866666666666665,
+          -1.1
+        ],
+        "end": [
+          -0.7,
+          0.6866666666666665,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.7,
+          0.9899999999999998,
+          -1.1
+        ],
+        "end": [
+          -0.7,
+          0.9899999999999998,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.7,
+          1.2933333333333332,
+          -1.1
+        ],
+        "end": [
+          -0.7,
+          1.2933333333333332,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.7,
+          1.5966666666666667,
+          -1.1
+        ],
+        "end": [
+          -0.7,
+          1.5966666666666667,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.7,
+          1.8999999999999997,
+          -1.1
+        ],
+        "end": [
+          -0.7,
+          1.8999999999999997,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.5249999999999999,
+          0.08,
+          -1.1
+        ],
+        "end": [
+          -0.5249999999999999,
+          0.08,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.5249999999999999,
+          0.3833333333333333,
+          -1.1
+        ],
+        "end": [
+          -0.5249999999999999,
+          0.3833333333333333,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.5249999999999999,
+          0.6866666666666665,
+          -1.1
+        ],
+        "end": [
+          -0.5249999999999999,
+          0.6866666666666665,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.5249999999999999,
+          0.9899999999999998,
+          -1.1
+        ],
+        "end": [
+          -0.5249999999999999,
+          0.9899999999999998,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.5249999999999999,
+          1.2933333333333332,
+          -1.1
+        ],
+        "end": [
+          -0.5249999999999999,
+          1.2933333333333332,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.5249999999999999,
+          1.5966666666666667,
+          -1.1
+        ],
+        "end": [
+          -0.5249999999999999,
+          1.5966666666666667,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.5249999999999999,
+          1.8999999999999997,
+          -1.1
+        ],
+        "end": [
+          -0.5249999999999999,
+          1.8999999999999997,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.35,
+          0.08,
+          -1.1
+        ],
+        "end": [
+          -0.35,
+          0.08,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.35,
+          0.3833333333333333,
+          -1.1
+        ],
+        "end": [
+          -0.35,
+          0.3833333333333333,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.35,
+          0.6866666666666665,
+          -1.1
+        ],
+        "end": [
+          -0.35,
+          0.6866666666666665,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.35,
+          0.9899999999999998,
+          -1.1
+        ],
+        "end": [
+          -0.35,
+          0.9899999999999998,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.35,
+          1.2933333333333332,
+          -1.1
+        ],
+        "end": [
+          -0.35,
+          1.2933333333333332,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.35,
+          1.5966666666666667,
+          -1.1
+        ],
+        "end": [
+          -0.35,
+          1.5966666666666667,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.35,
+          1.8999999999999997,
+          -1.1
+        ],
+        "end": [
+          -0.35,
+          1.8999999999999997,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.17500000000000004,
+          0.08,
+          -1.1
+        ],
+        "end": [
+          -0.17500000000000004,
+          0.08,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.17500000000000004,
+          0.3833333333333333,
+          -1.1
+        ],
+        "end": [
+          -0.17500000000000004,
+          0.3833333333333333,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.17500000000000004,
+          0.6866666666666665,
+          -1.1
+        ],
+        "end": [
+          -0.17500000000000004,
+          0.6866666666666665,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.17500000000000004,
+          0.9899999999999998,
+          -1.1
+        ],
+        "end": [
+          -0.17500000000000004,
+          0.9899999999999998,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.17500000000000004,
+          1.2933333333333332,
+          -1.1
+        ],
+        "end": [
+          -0.17500000000000004,
+          1.2933333333333332,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.17500000000000004,
+          1.5966666666666667,
+          -1.1
+        ],
+        "end": [
+          -0.17500000000000004,
+          1.5966666666666667,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          -0.17500000000000004,
+          1.8999999999999997,
+          -1.1
+        ],
+        "end": [
+          -0.17500000000000004,
+          1.8999999999999997,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0,
+          0.08,
+          -1.1
+        ],
+        "end": [
+          0,
+          0.08,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0,
+          0.3833333333333333,
+          -1.1
+        ],
+        "end": [
+          0,
+          0.3833333333333333,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0,
+          0.6866666666666665,
+          -1.1
+        ],
+        "end": [
+          0,
+          0.6866666666666665,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0,
+          0.9899999999999998,
+          -1.1
+        ],
+        "end": [
+          0,
+          0.9899999999999998,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0,
+          1.2933333333333332,
+          -1.1
+        ],
+        "end": [
+          0,
+          1.2933333333333332,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0,
+          1.5966666666666667,
+          -1.1
+        ],
+        "end": [
+          0,
+          1.5966666666666667,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0,
+          1.8999999999999997,
+          -1.1
+        ],
+        "end": [
+          0,
+          1.8999999999999997,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.17500000000000004,
+          0.08,
+          -1.1
+        ],
+        "end": [
+          0.17500000000000004,
+          0.08,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.17500000000000004,
+          0.3833333333333333,
+          -1.1
+        ],
+        "end": [
+          0.17500000000000004,
+          0.3833333333333333,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.17500000000000004,
+          0.6866666666666665,
+          -1.1
+        ],
+        "end": [
+          0.17500000000000004,
+          0.6866666666666665,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.17500000000000004,
+          0.9899999999999998,
+          -1.1
+        ],
+        "end": [
+          0.17500000000000004,
+          0.9899999999999998,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.17500000000000004,
+          1.2933333333333332,
+          -1.1
+        ],
+        "end": [
+          0.17500000000000004,
+          1.2933333333333332,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.17500000000000004,
+          1.5966666666666667,
+          -1.1
+        ],
+        "end": [
+          0.17500000000000004,
+          1.5966666666666667,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.17500000000000004,
+          1.8999999999999997,
+          -1.1
+        ],
+        "end": [
+          0.17500000000000004,
+          1.8999999999999997,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.34999999999999987,
+          0.08,
+          -1.1
+        ],
+        "end": [
+          0.34999999999999987,
+          0.08,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.34999999999999987,
+          0.3833333333333333,
+          -1.1
+        ],
+        "end": [
+          0.34999999999999987,
+          0.3833333333333333,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.34999999999999987,
+          0.6866666666666665,
+          -1.1
+        ],
+        "end": [
+          0.34999999999999987,
+          0.6866666666666665,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.34999999999999987,
+          0.9899999999999998,
+          -1.1
+        ],
+        "end": [
+          0.34999999999999987,
+          0.9899999999999998,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.34999999999999987,
+          1.2933333333333332,
+          -1.1
+        ],
+        "end": [
+          0.34999999999999987,
+          1.2933333333333332,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.34999999999999987,
+          1.5966666666666667,
+          -1.1
+        ],
+        "end": [
+          0.34999999999999987,
+          1.5966666666666667,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.34999999999999987,
+          1.8999999999999997,
+          -1.1
+        ],
+        "end": [
+          0.34999999999999987,
+          1.8999999999999997,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.5249999999999999,
+          0.08,
+          -1.1
+        ],
+        "end": [
+          0.5249999999999999,
+          0.08,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.5249999999999999,
+          0.3833333333333333,
+          -1.1
+        ],
+        "end": [
+          0.5249999999999999,
+          0.3833333333333333,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.5249999999999999,
+          0.6866666666666665,
+          -1.1
+        ],
+        "end": [
+          0.5249999999999999,
+          0.6866666666666665,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.5249999999999999,
+          0.9899999999999998,
+          -1.1
+        ],
+        "end": [
+          0.5249999999999999,
+          0.9899999999999998,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.5249999999999999,
+          1.2933333333333332,
+          -1.1
+        ],
+        "end": [
+          0.5249999999999999,
+          1.2933333333333332,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.5249999999999999,
+          1.5966666666666667,
+          -1.1
+        ],
+        "end": [
+          0.5249999999999999,
+          1.5966666666666667,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.5249999999999999,
+          1.8999999999999997,
+          -1.1
+        ],
+        "end": [
+          0.5249999999999999,
+          1.8999999999999997,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.7,
+          0.08,
+          -1.1
+        ],
+        "end": [
+          0.7,
+          0.08,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.7,
+          0.3833333333333333,
+          -1.1
+        ],
+        "end": [
+          0.7,
+          0.3833333333333333,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.7,
+          0.6866666666666665,
+          -1.1
+        ],
+        "end": [
+          0.7,
+          0.6866666666666665,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.7,
+          0.9899999999999998,
+          -1.1
+        ],
+        "end": [
+          0.7,
+          0.9899999999999998,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.7,
+          1.2933333333333332,
+          -1.1
+        ],
+        "end": [
+          0.7,
+          1.2933333333333332,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.7,
+          1.5966666666666667,
+          -1.1
+        ],
+        "end": [
+          0.7,
+          1.5966666666666667,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "frontBack",
+        "start": [
+          0.7,
+          1.8999999999999997,
+          -1.1
+        ],
+        "end": [
+          0.7,
+          1.8999999999999997,
+          1.1
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.08,
+          -0.38
+        ],
+        "end": [
+          -1.35,
+          0.08,
+          -0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.3833333333333333,
+          -0.38
+        ],
+        "end": [
+          -1.35,
+          0.3833333333333333,
+          -0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.6866666666666665,
+          -0.38
+        ],
+        "end": [
+          -1.35,
+          0.6866666666666665,
+          -0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.9899999999999998,
+          -0.38
+        ],
+        "end": [
+          -1.35,
+          0.9899999999999998,
+          -0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.2933333333333332,
+          -0.38
+        ],
+        "end": [
+          -1.35,
+          1.2933333333333332,
+          -0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.5966666666666667,
+          -0.38
+        ],
+        "end": [
+          -1.35,
+          1.5966666666666667,
+          -0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.8999999999999997,
+          -0.38
+        ],
+        "end": [
+          -1.35,
+          1.8999999999999997,
+          -0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.08,
+          -0.28500000000000003
+        ],
+        "end": [
+          -1.35,
+          0.08,
+          -0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.3833333333333333,
+          -0.28500000000000003
+        ],
+        "end": [
+          -1.35,
+          0.3833333333333333,
+          -0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.6866666666666665,
+          -0.28500000000000003
+        ],
+        "end": [
+          -1.35,
+          0.6866666666666665,
+          -0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.9899999999999998,
+          -0.28500000000000003
+        ],
+        "end": [
+          -1.35,
+          0.9899999999999998,
+          -0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.2933333333333332,
+          -0.28500000000000003
+        ],
+        "end": [
+          -1.35,
+          1.2933333333333332,
+          -0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.5966666666666667,
+          -0.28500000000000003
+        ],
+        "end": [
+          -1.35,
+          1.5966666666666667,
+          -0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.8999999999999997,
+          -0.28500000000000003
+        ],
+        "end": [
+          -1.35,
+          1.8999999999999997,
+          -0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.08,
+          -0.19
+        ],
+        "end": [
+          -1.35,
+          0.08,
+          -0.19
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.3833333333333333,
+          -0.19
+        ],
+        "end": [
+          -1.35,
+          0.3833333333333333,
+          -0.19
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.6866666666666665,
+          -0.19
+        ],
+        "end": [
+          -1.35,
+          0.6866666666666665,
+          -0.19
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.9899999999999998,
+          -0.19
+        ],
+        "end": [
+          -1.35,
+          0.9899999999999998,
+          -0.19
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.2933333333333332,
+          -0.19
+        ],
+        "end": [
+          -1.35,
+          1.2933333333333332,
+          -0.19
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.5966666666666667,
+          -0.19
+        ],
+        "end": [
+          -1.35,
+          1.5966666666666667,
+          -0.19
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.8999999999999997,
+          -0.19
+        ],
+        "end": [
+          -1.35,
+          1.8999999999999997,
+          -0.19
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.08,
+          -0.09499999999999997
+        ],
+        "end": [
+          -1.35,
+          0.08,
+          -0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.3833333333333333,
+          -0.09499999999999997
+        ],
+        "end": [
+          -1.35,
+          0.3833333333333333,
+          -0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.6866666666666665,
+          -0.09499999999999997
+        ],
+        "end": [
+          -1.35,
+          0.6866666666666665,
+          -0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.9899999999999998,
+          -0.09499999999999997
+        ],
+        "end": [
+          -1.35,
+          0.9899999999999998,
+          -0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.2933333333333332,
+          -0.09499999999999997
+        ],
+        "end": [
+          -1.35,
+          1.2933333333333332,
+          -0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.5966666666666667,
+          -0.09499999999999997
+        ],
+        "end": [
+          -1.35,
+          1.5966666666666667,
+          -0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.8999999999999997,
+          -0.09499999999999997
+        ],
+        "end": [
+          -1.35,
+          1.8999999999999997,
+          -0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.08,
+          0
+        ],
+        "end": [
+          -1.35,
+          0.08,
+          0
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.3833333333333333,
+          0
+        ],
+        "end": [
+          -1.35,
+          0.3833333333333333,
+          0
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.6866666666666665,
+          0
+        ],
+        "end": [
+          -1.35,
+          0.6866666666666665,
+          0
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.9899999999999998,
+          0
+        ],
+        "end": [
+          -1.35,
+          0.9899999999999998,
+          0
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.2933333333333332,
+          0
+        ],
+        "end": [
+          -1.35,
+          1.2933333333333332,
+          0
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.5966666666666667,
+          0
+        ],
+        "end": [
+          -1.35,
+          1.5966666666666667,
+          0
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.8999999999999997,
+          0
+        ],
+        "end": [
+          -1.35,
+          1.8999999999999997,
+          0
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.08,
+          0.09499999999999997
+        ],
+        "end": [
+          -1.35,
+          0.08,
+          0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.3833333333333333,
+          0.09499999999999997
+        ],
+        "end": [
+          -1.35,
+          0.3833333333333333,
+          0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.6866666666666665,
+          0.09499999999999997
+        ],
+        "end": [
+          -1.35,
+          0.6866666666666665,
+          0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.9899999999999998,
+          0.09499999999999997
+        ],
+        "end": [
+          -1.35,
+          0.9899999999999998,
+          0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.2933333333333332,
+          0.09499999999999997
+        ],
+        "end": [
+          -1.35,
+          1.2933333333333332,
+          0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.5966666666666667,
+          0.09499999999999997
+        ],
+        "end": [
+          -1.35,
+          1.5966666666666667,
+          0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.8999999999999997,
+          0.09499999999999997
+        ],
+        "end": [
+          -1.35,
+          1.8999999999999997,
+          0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.08,
+          0.19000000000000006
+        ],
+        "end": [
+          -1.35,
+          0.08,
+          0.19000000000000006
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.3833333333333333,
+          0.19000000000000006
+        ],
+        "end": [
+          -1.35,
+          0.3833333333333333,
+          0.19000000000000006
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.6866666666666665,
+          0.19000000000000006
+        ],
+        "end": [
+          -1.35,
+          0.6866666666666665,
+          0.19000000000000006
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.9899999999999998,
+          0.19000000000000006
+        ],
+        "end": [
+          -1.35,
+          0.9899999999999998,
+          0.19000000000000006
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.2933333333333332,
+          0.19000000000000006
+        ],
+        "end": [
+          -1.35,
+          1.2933333333333332,
+          0.19000000000000006
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.5966666666666667,
+          0.19000000000000006
+        ],
+        "end": [
+          -1.35,
+          1.5966666666666667,
+          0.19000000000000006
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.8999999999999997,
+          0.19000000000000006
+        ],
+        "end": [
+          -1.35,
+          1.8999999999999997,
+          0.19000000000000006
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.08,
+          0.28500000000000003
+        ],
+        "end": [
+          -1.35,
+          0.08,
+          0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.3833333333333333,
+          0.28500000000000003
+        ],
+        "end": [
+          -1.35,
+          0.3833333333333333,
+          0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.6866666666666665,
+          0.28500000000000003
+        ],
+        "end": [
+          -1.35,
+          0.6866666666666665,
+          0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.9899999999999998,
+          0.28500000000000003
+        ],
+        "end": [
+          -1.35,
+          0.9899999999999998,
+          0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.2933333333333332,
+          0.28500000000000003
+        ],
+        "end": [
+          -1.35,
+          1.2933333333333332,
+          0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.5966666666666667,
+          0.28500000000000003
+        ],
+        "end": [
+          -1.35,
+          1.5966666666666667,
+          0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.8999999999999997,
+          0.28500000000000003
+        ],
+        "end": [
+          -1.35,
+          1.8999999999999997,
+          0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.08,
+          0.38
+        ],
+        "end": [
+          -1.35,
+          0.08,
+          0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.3833333333333333,
+          0.38
+        ],
+        "end": [
+          -1.35,
+          0.3833333333333333,
+          0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.6866666666666665,
+          0.38
+        ],
+        "end": [
+          -1.35,
+          0.6866666666666665,
+          0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          0.9899999999999998,
+          0.38
+        ],
+        "end": [
+          -1.35,
+          0.9899999999999998,
+          0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.2933333333333332,
+          0.38
+        ],
+        "end": [
+          -1.35,
+          1.2933333333333332,
+          0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.5966666666666667,
+          0.38
+        ],
+        "end": [
+          -1.35,
+          1.5966666666666667,
+          0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          1.35,
+          1.8999999999999997,
+          0.38
+        ],
+        "end": [
+          -1.35,
+          1.8999999999999997,
+          0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.08,
+          -0.38
+        ],
+        "end": [
+          1.35,
+          0.08,
+          -0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.3833333333333333,
+          -0.38
+        ],
+        "end": [
+          1.35,
+          0.3833333333333333,
+          -0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.6866666666666665,
+          -0.38
+        ],
+        "end": [
+          1.35,
+          0.6866666666666665,
+          -0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.9899999999999998,
+          -0.38
+        ],
+        "end": [
+          1.35,
+          0.9899999999999998,
+          -0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.2933333333333332,
+          -0.38
+        ],
+        "end": [
+          1.35,
+          1.2933333333333332,
+          -0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.5966666666666667,
+          -0.38
+        ],
+        "end": [
+          1.35,
+          1.5966666666666667,
+          -0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.8999999999999997,
+          -0.38
+        ],
+        "end": [
+          1.35,
+          1.8999999999999997,
+          -0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.08,
+          -0.28500000000000003
+        ],
+        "end": [
+          1.35,
+          0.08,
+          -0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.3833333333333333,
+          -0.28500000000000003
+        ],
+        "end": [
+          1.35,
+          0.3833333333333333,
+          -0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.6866666666666665,
+          -0.28500000000000003
+        ],
+        "end": [
+          1.35,
+          0.6866666666666665,
+          -0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.9899999999999998,
+          -0.28500000000000003
+        ],
+        "end": [
+          1.35,
+          0.9899999999999998,
+          -0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.2933333333333332,
+          -0.28500000000000003
+        ],
+        "end": [
+          1.35,
+          1.2933333333333332,
+          -0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.5966666666666667,
+          -0.28500000000000003
+        ],
+        "end": [
+          1.35,
+          1.5966666666666667,
+          -0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.8999999999999997,
+          -0.28500000000000003
+        ],
+        "end": [
+          1.35,
+          1.8999999999999997,
+          -0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.08,
+          -0.19
+        ],
+        "end": [
+          1.35,
+          0.08,
+          -0.19
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.3833333333333333,
+          -0.19
+        ],
+        "end": [
+          1.35,
+          0.3833333333333333,
+          -0.19
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.6866666666666665,
+          -0.19
+        ],
+        "end": [
+          1.35,
+          0.6866666666666665,
+          -0.19
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.9899999999999998,
+          -0.19
+        ],
+        "end": [
+          1.35,
+          0.9899999999999998,
+          -0.19
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.2933333333333332,
+          -0.19
+        ],
+        "end": [
+          1.35,
+          1.2933333333333332,
+          -0.19
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.5966666666666667,
+          -0.19
+        ],
+        "end": [
+          1.35,
+          1.5966666666666667,
+          -0.19
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.8999999999999997,
+          -0.19
+        ],
+        "end": [
+          1.35,
+          1.8999999999999997,
+          -0.19
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.08,
+          -0.09499999999999997
+        ],
+        "end": [
+          1.35,
+          0.08,
+          -0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.3833333333333333,
+          -0.09499999999999997
+        ],
+        "end": [
+          1.35,
+          0.3833333333333333,
+          -0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.6866666666666665,
+          -0.09499999999999997
+        ],
+        "end": [
+          1.35,
+          0.6866666666666665,
+          -0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.9899999999999998,
+          -0.09499999999999997
+        ],
+        "end": [
+          1.35,
+          0.9899999999999998,
+          -0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.2933333333333332,
+          -0.09499999999999997
+        ],
+        "end": [
+          1.35,
+          1.2933333333333332,
+          -0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.5966666666666667,
+          -0.09499999999999997
+        ],
+        "end": [
+          1.35,
+          1.5966666666666667,
+          -0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.8999999999999997,
+          -0.09499999999999997
+        ],
+        "end": [
+          1.35,
+          1.8999999999999997,
+          -0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.08,
+          0
+        ],
+        "end": [
+          1.35,
+          0.08,
+          0
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.3833333333333333,
+          0
+        ],
+        "end": [
+          1.35,
+          0.3833333333333333,
+          0
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.6866666666666665,
+          0
+        ],
+        "end": [
+          1.35,
+          0.6866666666666665,
+          0
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.9899999999999998,
+          0
+        ],
+        "end": [
+          1.35,
+          0.9899999999999998,
+          0
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.2933333333333332,
+          0
+        ],
+        "end": [
+          1.35,
+          1.2933333333333332,
+          0
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.5966666666666667,
+          0
+        ],
+        "end": [
+          1.35,
+          1.5966666666666667,
+          0
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.8999999999999997,
+          0
+        ],
+        "end": [
+          1.35,
+          1.8999999999999997,
+          0
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.08,
+          0.09499999999999997
+        ],
+        "end": [
+          1.35,
+          0.08,
+          0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.3833333333333333,
+          0.09499999999999997
+        ],
+        "end": [
+          1.35,
+          0.3833333333333333,
+          0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.6866666666666665,
+          0.09499999999999997
+        ],
+        "end": [
+          1.35,
+          0.6866666666666665,
+          0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.9899999999999998,
+          0.09499999999999997
+        ],
+        "end": [
+          1.35,
+          0.9899999999999998,
+          0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.2933333333333332,
+          0.09499999999999997
+        ],
+        "end": [
+          1.35,
+          1.2933333333333332,
+          0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.5966666666666667,
+          0.09499999999999997
+        ],
+        "end": [
+          1.35,
+          1.5966666666666667,
+          0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.8999999999999997,
+          0.09499999999999997
+        ],
+        "end": [
+          1.35,
+          1.8999999999999997,
+          0.09499999999999997
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.08,
+          0.19000000000000006
+        ],
+        "end": [
+          1.35,
+          0.08,
+          0.19000000000000006
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.3833333333333333,
+          0.19000000000000006
+        ],
+        "end": [
+          1.35,
+          0.3833333333333333,
+          0.19000000000000006
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.6866666666666665,
+          0.19000000000000006
+        ],
+        "end": [
+          1.35,
+          0.6866666666666665,
+          0.19000000000000006
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.9899999999999998,
+          0.19000000000000006
+        ],
+        "end": [
+          1.35,
+          0.9899999999999998,
+          0.19000000000000006
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.2933333333333332,
+          0.19000000000000006
+        ],
+        "end": [
+          1.35,
+          1.2933333333333332,
+          0.19000000000000006
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.5966666666666667,
+          0.19000000000000006
+        ],
+        "end": [
+          1.35,
+          1.5966666666666667,
+          0.19000000000000006
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.8999999999999997,
+          0.19000000000000006
+        ],
+        "end": [
+          1.35,
+          1.8999999999999997,
+          0.19000000000000006
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.08,
+          0.28500000000000003
+        ],
+        "end": [
+          1.35,
+          0.08,
+          0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.3833333333333333,
+          0.28500000000000003
+        ],
+        "end": [
+          1.35,
+          0.3833333333333333,
+          0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.6866666666666665,
+          0.28500000000000003
+        ],
+        "end": [
+          1.35,
+          0.6866666666666665,
+          0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.9899999999999998,
+          0.28500000000000003
+        ],
+        "end": [
+          1.35,
+          0.9899999999999998,
+          0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.2933333333333332,
+          0.28500000000000003
+        ],
+        "end": [
+          1.35,
+          1.2933333333333332,
+          0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.5966666666666667,
+          0.28500000000000003
+        ],
+        "end": [
+          1.35,
+          1.5966666666666667,
+          0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.8999999999999997,
+          0.28500000000000003
+        ],
+        "end": [
+          1.35,
+          1.8999999999999997,
+          0.28500000000000003
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.08,
+          0.38
+        ],
+        "end": [
+          1.35,
+          0.08,
+          0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.3833333333333333,
+          0.38
+        ],
+        "end": [
+          1.35,
+          0.3833333333333333,
+          0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.6866666666666665,
+          0.38
+        ],
+        "end": [
+          1.35,
+          0.6866666666666665,
+          0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          0.9899999999999998,
+          0.38
+        ],
+        "end": [
+          1.35,
+          0.9899999999999998,
+          0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.2933333333333332,
+          0.38
+        ],
+        "end": [
+          1.35,
+          1.2933333333333332,
+          0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.5966666666666667,
+          0.38
+        ],
+        "end": [
+          1.35,
+          1.5966666666666667,
+          0.38
+        ],
+        "hitParts": []
+      },
+      {
+        "axis": "sideSide",
+        "start": [
+          -1.35,
+          1.8999999999999997,
+          0.38
+        ],
+        "end": [
+          1.35,
+          1.8999999999999997,
+          0.38
+        ],
+        "hitParts": []
+      }
+    ],
+    "occupiedWitnesses": [
+      {
+        "start": [
+          0.98,
+          0.7,
+          1.1
+        ],
+        "end": [
+          0.98,
+          0.7,
+          -1.1
+        ],
+        "hitParts": [
+          "cream-post-east-front",
+          "cream-post-east-rear"
+        ]
+      },
+      {
+        "start": [
+          1.4,
+          0.7,
+          0.63
+        ],
+        "end": [
+          -1.4,
+          0.7,
+          0.63
+        ],
+        "hitParts": [
+          "cream-post-east-front",
+          "cream-post-west-front"
+        ]
+      }
+    ],
+    "scope": "finite rays through two authored opening corridors; diagnostic dimensions, no actor traversal or body fit",
+    "bodyFit": false,
+    "continuousCollisionGuarantee": false
+  },
+  "roof": {
+    "occupiedRays": 21,
+    "clearGapRays": 18,
+    "occupied": [
+      {
+        "x": -0.99,
+        "z": -0.24,
+        "hits": [
+          "separate-roof-slat-0"
+        ]
+      },
+      {
+        "x": -0.66,
+        "z": -0.24,
+        "hits": [
+          "separate-roof-slat-1"
+        ]
+      },
+      {
+        "x": -0.33,
+        "z": -0.24,
+        "hits": [
+          "separate-roof-slat-2"
+        ]
+      },
+      {
+        "x": 0,
+        "z": -0.24,
+        "hits": [
+          "separate-roof-slat-3"
+        ]
+      },
+      {
+        "x": 0.33,
+        "z": -0.24,
+        "hits": [
+          "separate-roof-slat-4"
+        ]
+      },
+      {
+        "x": 0.66,
+        "z": -0.24,
+        "hits": [
+          "separate-roof-slat-5"
+        ]
+      },
+      {
+        "x": 0.99,
+        "z": -0.24,
+        "hits": [
+          "separate-roof-slat-6"
+        ]
+      },
+      {
+        "x": -0.99,
+        "z": 0,
+        "hits": [
+          "separate-roof-slat-0",
+          "separate-roof-slat-0"
+        ]
+      },
+      {
+        "x": -0.66,
+        "z": 0,
+        "hits": [
+          "separate-roof-slat-1",
+          "separate-roof-slat-1"
+        ]
+      },
+      {
+        "x": -0.33,
+        "z": 0,
+        "hits": [
+          "separate-roof-slat-2",
+          "separate-roof-slat-2"
+        ]
+      },
+      {
+        "x": 0,
+        "z": 0,
+        "hits": [
+          "separate-roof-slat-3",
+          "separate-roof-slat-3"
+        ]
+      },
+      {
+        "x": 0.33,
+        "z": 0,
+        "hits": [
+          "separate-roof-slat-4",
+          "separate-roof-slat-4"
+        ]
+      },
+      {
+        "x": 0.66,
+        "z": 0,
+        "hits": [
+          "separate-roof-slat-5",
+          "separate-roof-slat-5"
+        ]
+      },
+      {
+        "x": 0.99,
+        "z": 0,
+        "hits": [
+          "separate-roof-slat-6",
+          "separate-roof-slat-6"
+        ]
+      },
+      {
+        "x": -0.99,
+        "z": 0.24,
+        "hits": [
+          "separate-roof-slat-0"
+        ]
+      },
+      {
+        "x": -0.66,
+        "z": 0.24,
+        "hits": [
+          "separate-roof-slat-1"
+        ]
+      },
+      {
+        "x": -0.33,
+        "z": 0.24,
+        "hits": [
+          "separate-roof-slat-2"
+        ]
+      },
+      {
+        "x": 0,
+        "z": 0.24,
+        "hits": [
+          "separate-roof-slat-3"
+        ]
+      },
+      {
+        "x": 0.33,
+        "z": 0.24,
+        "hits": [
+          "separate-roof-slat-4"
+        ]
+      },
+      {
+        "x": 0.66,
+        "z": 0.24,
+        "hits": [
+          "separate-roof-slat-5"
+        ]
+      },
+      {
+        "x": 0.99,
+        "z": 0.24,
+        "hits": [
+          "separate-roof-slat-6"
+        ]
+      }
+    ],
+    "gaps": [
+      {
+        "x": -0.8250000000000001,
+        "z": -0.24,
+        "hits": []
+      },
+      {
+        "x": -0.495,
+        "z": -0.24,
+        "hits": []
+      },
+      {
+        "x": -0.165,
+        "z": -0.24,
+        "hits": []
+      },
+      {
+        "x": 0.165,
+        "z": -0.24,
+        "hits": []
+      },
+      {
+        "x": 0.495,
+        "z": -0.24,
+        "hits": []
+      },
+      {
+        "x": 0.8250000000000001,
+        "z": -0.24,
+        "hits": []
+      },
+      {
+        "x": -0.8250000000000001,
+        "z": 0,
+        "hits": []
+      },
+      {
+        "x": -0.495,
+        "z": 0,
+        "hits": []
+      },
+      {
+        "x": -0.165,
+        "z": 0,
+        "hits": []
+      },
+      {
+        "x": 0.165,
+        "z": 0,
+        "hits": []
+      },
+      {
+        "x": 0.495,
+        "z": 0,
+        "hits": []
+      },
+      {
+        "x": 0.8250000000000001,
+        "z": 0,
+        "hits": []
+      },
+      {
+        "x": -0.8250000000000001,
+        "z": 0.24,
+        "hits": []
+      },
+      {
+        "x": -0.495,
+        "z": 0.24,
+        "hits": []
+      },
+      {
+        "x": -0.165,
+        "z": 0.24,
+        "hits": []
+      },
+      {
+        "x": 0.165,
+        "z": 0.24,
+        "hits": []
+      },
+      {
+        "x": 0.495,
+        "z": 0.24,
+        "hits": []
+      },
+      {
+        "x": 0.8250000000000001,
+        "z": 0.24,
+        "hits": []
+      }
+    ],
+    "scope": "finite actual beam/gap ray occlusion; rendered shadow inspected separately, not thermal shade or continuous sun simulation"
+  },
+  "placement": {
+    "townPoint": {
+      "x": 1150,
+      "y": 1350
+    },
+    "worldPosition": [
+      -2.9,
+      0.02499999999999903,
+      3.9
+    ],
+    "projectedFootprint": {
+      "minX": -4.109999999999999,
+      "maxX": -1.69,
+      "minZ": 2.92,
+      "maxZ": 4.88
+    },
+    "supports": [
+      {
+        "foot": "stone-foot-west-rear",
+        "x": -3.88,
+        "z": 3.27,
+        "soleLocalY": 0,
+        "floorY": 0.024999999999998832,
+        "soleMinusFloor": 1.97758476261356e-16
+      },
+      {
+        "foot": "stone-foot-west-rear",
+        "x": -4.04,
+        "z": 3.11,
+        "soleLocalY": 0,
+        "floorY": 0.024999999999998867,
+        "soleMinusFloor": 1.6306400674181987e-16
+      },
+      {
+        "foot": "stone-foot-west-rear",
+        "x": -4.04,
+        "z": 3.4299999999999997,
+        "soleLocalY": 0,
+        "floorY": 0.024999999999998794,
+        "soleMinusFloor": 2.3592239273284576e-16
+      },
+      {
+        "foot": "stone-foot-west-rear",
+        "x": -3.7199999999999998,
+        "z": 3.11,
+        "soleLocalY": 0,
+        "floorY": 0.024999999999998867,
+        "soleMinusFloor": 1.6306400674181987e-16
+      },
+      {
+        "foot": "stone-foot-west-rear",
+        "x": -3.7199999999999998,
+        "z": 3.4299999999999997,
+        "soleLocalY": 0,
+        "floorY": 0.024999999999998794,
+        "soleMinusFloor": 2.3592239273284576e-16
+      },
+      {
+        "foot": "stone-foot-west-front",
+        "x": -3.88,
+        "z": 4.53,
+        "soleLocalY": 0,
+        "floorY": 0.024999999999998995,
+        "soleMinusFloor": 3.469446951953614e-17
+      },
+      {
+        "foot": "stone-foot-west-front",
+        "x": -4.04,
+        "z": 4.37,
+        "soleLocalY": 0,
+        "floorY": 0.024999999999998586,
+        "soleMinusFloor": 4.440892098500626e-16
+      },
+      {
+        "foot": "stone-foot-west-front",
+        "x": -4.04,
+        "z": 4.6899999999999995,
+        "soleLocalY": 0,
+        "floorY": 0.02499999999999896,
+        "soleMinusFloor": 6.938893903907228e-17
+      },
+      {
+        "foot": "stone-foot-west-front",
+        "x": -3.7199999999999998,
+        "z": 4.37,
+        "soleLocalY": 0,
+        "floorY": 0.024999999999998586,
+        "soleMinusFloor": 4.440892098500626e-16
+      },
+      {
+        "foot": "stone-foot-west-front",
+        "x": -3.7199999999999998,
+        "z": 4.6899999999999995,
+        "soleLocalY": 0,
+        "floorY": 0.02499999999999896,
+        "soleMinusFloor": 6.938893903907228e-17
+      },
+      {
+        "foot": "stone-foot-east-rear",
+        "x": -1.92,
+        "z": 3.27,
+        "soleLocalY": 0,
+        "floorY": 0.024999999999998832,
+        "soleMinusFloor": 1.97758476261356e-16
+      },
+      {
+        "foot": "stone-foot-east-rear",
+        "x": -2.08,
+        "z": 3.11,
+        "soleLocalY": 0,
+        "floorY": 0.024999999999998867,
+        "soleMinusFloor": 1.6306400674181987e-16
+      },
+      {
+        "foot": "stone-foot-east-rear",
+        "x": -2.08,
+        "z": 3.4299999999999997,
+        "soleLocalY": 0,
+        "floorY": 0.024999999999998794,
+        "soleMinusFloor": 2.3592239273284576e-16
+      },
+      {
+        "foot": "stone-foot-east-rear",
+        "x": -1.76,
+        "z": 3.11,
+        "soleLocalY": 0,
+        "floorY": 0.024999999999998867,
+        "soleMinusFloor": 1.6306400674181987e-16
+      },
+      {
+        "foot": "stone-foot-east-rear",
+        "x": -1.76,
+        "z": 3.4299999999999997,
+        "soleLocalY": 0,
+        "floorY": 0.024999999999998794,
+        "soleMinusFloor": 2.3592239273284576e-16
+      },
+      {
+        "foot": "stone-foot-east-front",
+        "x": -1.92,
+        "z": 4.53,
+        "soleLocalY": 0,
+        "floorY": 0.024999999999998995,
+        "soleMinusFloor": 3.469446951953614e-17
+      },
+      {
+        "foot": "stone-foot-east-front",
+        "x": -2.08,
+        "z": 4.37,
+        "soleLocalY": 0,
+        "floorY": 0.02499999999999903,
+        "soleMinusFloor": 0
+      },
+      {
+        "foot": "stone-foot-east-front",
+        "x": -2.08,
+        "z": 4.6899999999999995,
+        "soleLocalY": 0,
+        "floorY": 0.02499999999999896,
+        "soleMinusFloor": 6.938893903907228e-17
+      },
+      {
+        "foot": "stone-foot-east-front",
+        "x": -1.76,
+        "z": 4.37,
+        "soleLocalY": 0,
+        "floorY": 0.02499999999999903,
+        "soleMinusFloor": 0
+      },
+      {
+        "foot": "stone-foot-east-front",
+        "x": -1.76,
+        "z": 4.6899999999999995,
+        "soleLocalY": 0,
+        "floorY": 0.02499999999999896,
+        "soleMinusFloor": 6.938893903907228e-17
+      }
+    ],
+    "finiteWalkability": {
+      "samples": 63,
+      "blocked": 0
+    },
+    "passageFloor": {
+      "samples": 90,
+      "blocked": 0,
+      "rows": [
+        {
+          "axis": "frontBack",
+          "x": -3.5999999999999996,
+          "z": 5,
+          "townPoint": {
+            "x": 1080,
+            "y": 1460
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999889
+        },
+        {
+          "axis": "frontBack",
+          "x": -3.5999999999999996,
+          "z": 4.725,
+          "townPoint": {
+            "x": 1080,
+            "y": 1432.5
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998954
+        },
+        {
+          "axis": "frontBack",
+          "x": -3.5999999999999996,
+          "z": 4.45,
+          "townPoint": {
+            "x": 1080,
+            "y": 1405
+          },
+          "walkable": true,
+          "floorY": 0.024999999999999013
+        },
+        {
+          "axis": "frontBack",
+          "x": -3.5999999999999996,
+          "z": 4.175,
+          "townPoint": {
+            "x": 1080,
+            "y": 1377.5
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999863
+        },
+        {
+          "axis": "frontBack",
+          "x": -3.5999999999999996,
+          "z": 3.9,
+          "townPoint": {
+            "x": 1080,
+            "y": 1350
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999869
+        },
+        {
+          "axis": "frontBack",
+          "x": -3.5999999999999996,
+          "z": 3.625,
+          "townPoint": {
+            "x": 1080,
+            "y": 1322.5
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998752
+        },
+        {
+          "axis": "frontBack",
+          "x": -3.5999999999999996,
+          "z": 3.3499999999999996,
+          "townPoint": {
+            "x": 1080,
+            "y": 1295
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998815
+        },
+        {
+          "axis": "frontBack",
+          "x": -3.5999999999999996,
+          "z": 3.0749999999999997,
+          "townPoint": {
+            "x": 1080,
+            "y": 1267.5
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998874
+        },
+        {
+          "axis": "frontBack",
+          "x": -3.5999999999999996,
+          "z": 2.8,
+          "townPoint": {
+            "x": 1080,
+            "y": 1240
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998936
+        },
+        {
+          "axis": "frontBack",
+          "x": -3.25,
+          "z": 5,
+          "townPoint": {
+            "x": 1115,
+            "y": 1460
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999889
+        },
+        {
+          "axis": "frontBack",
+          "x": -3.25,
+          "z": 4.725,
+          "townPoint": {
+            "x": 1115,
+            "y": 1432.5
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998954
+        },
+        {
+          "axis": "frontBack",
+          "x": -3.25,
+          "z": 4.45,
+          "townPoint": {
+            "x": 1115,
+            "y": 1405
+          },
+          "walkable": true,
+          "floorY": 0.024999999999999013
+        },
+        {
+          "axis": "frontBack",
+          "x": -3.25,
+          "z": 4.175,
+          "townPoint": {
+            "x": 1115,
+            "y": 1377.5
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999863
+        },
+        {
+          "axis": "frontBack",
+          "x": -3.25,
+          "z": 3.9,
+          "townPoint": {
+            "x": 1115,
+            "y": 1350
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999869
+        },
+        {
+          "axis": "frontBack",
+          "x": -3.25,
+          "z": 3.625,
+          "townPoint": {
+            "x": 1115,
+            "y": 1322.5
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998752
+        },
+        {
+          "axis": "frontBack",
+          "x": -3.25,
+          "z": 3.3499999999999996,
+          "townPoint": {
+            "x": 1115,
+            "y": 1295
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998815
+        },
+        {
+          "axis": "frontBack",
+          "x": -3.25,
+          "z": 3.0749999999999997,
+          "townPoint": {
+            "x": 1115,
+            "y": 1267.5
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998874
+        },
+        {
+          "axis": "frontBack",
+          "x": -3.25,
+          "z": 2.8,
+          "townPoint": {
+            "x": 1115,
+            "y": 1240
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998936
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.9,
+          "z": 5,
+          "townPoint": {
+            "x": 1150,
+            "y": 1460
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999889
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.9,
+          "z": 4.725,
+          "townPoint": {
+            "x": 1150,
+            "y": 1432.5
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998954
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.9,
+          "z": 4.45,
+          "townPoint": {
+            "x": 1150,
+            "y": 1405
+          },
+          "walkable": true,
+          "floorY": 0.024999999999999013
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.9,
+          "z": 4.175,
+          "townPoint": {
+            "x": 1150,
+            "y": 1377.5
+          },
+          "walkable": true,
+          "floorY": 0.024999999999999075
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.9,
+          "z": 3.9,
+          "townPoint": {
+            "x": 1150,
+            "y": 1350
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999869
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.9,
+          "z": 3.625,
+          "townPoint": {
+            "x": 1150,
+            "y": 1322.5
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998752
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.9,
+          "z": 3.3499999999999996,
+          "townPoint": {
+            "x": 1150,
+            "y": 1295
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998815
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.9,
+          "z": 3.0749999999999997,
+          "townPoint": {
+            "x": 1150,
+            "y": 1267.5
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998874
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.9,
+          "z": 2.8,
+          "townPoint": {
+            "x": 1150,
+            "y": 1240
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998936
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.55,
+          "z": 5,
+          "townPoint": {
+            "x": 1185,
+            "y": 1460
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999889
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.55,
+          "z": 4.725,
+          "townPoint": {
+            "x": 1185,
+            "y": 1432.5
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998954
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.55,
+          "z": 4.45,
+          "townPoint": {
+            "x": 1185,
+            "y": 1405
+          },
+          "walkable": true,
+          "floorY": 0.024999999999999013
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.55,
+          "z": 4.175,
+          "townPoint": {
+            "x": 1185,
+            "y": 1377.5
+          },
+          "walkable": true,
+          "floorY": 0.024999999999999075
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.55,
+          "z": 3.9,
+          "townPoint": {
+            "x": 1185,
+            "y": 1350
+          },
+          "walkable": true,
+          "floorY": 0.024999999999999134
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.55,
+          "z": 3.625,
+          "townPoint": {
+            "x": 1185,
+            "y": 1322.5
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998752
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.55,
+          "z": 3.3499999999999996,
+          "townPoint": {
+            "x": 1185,
+            "y": 1295
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998815
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.55,
+          "z": 3.0749999999999997,
+          "townPoint": {
+            "x": 1185,
+            "y": 1267.5
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998874
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.55,
+          "z": 2.8,
+          "townPoint": {
+            "x": 1185,
+            "y": 1240
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998936
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.2,
+          "z": 5,
+          "townPoint": {
+            "x": 1220,
+            "y": 1460
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999889
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.2,
+          "z": 4.725,
+          "townPoint": {
+            "x": 1220,
+            "y": 1432.5
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998954
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.2,
+          "z": 4.45,
+          "townPoint": {
+            "x": 1220,
+            "y": 1405
+          },
+          "walkable": true,
+          "floorY": 0.024999999999999013
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.2,
+          "z": 4.175,
+          "townPoint": {
+            "x": 1220,
+            "y": 1377.5
+          },
+          "walkable": true,
+          "floorY": 0.024999999999999075
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.2,
+          "z": 3.9,
+          "townPoint": {
+            "x": 1220,
+            "y": 1350
+          },
+          "walkable": true,
+          "floorY": 0.024999999999999134
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.2,
+          "z": 3.625,
+          "townPoint": {
+            "x": 1220,
+            "y": 1322.5
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998752
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.2,
+          "z": 3.3499999999999996,
+          "townPoint": {
+            "x": 1220,
+            "y": 1295
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998815
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.2,
+          "z": 3.0749999999999997,
+          "townPoint": {
+            "x": 1220,
+            "y": 1267.5
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998874
+        },
+        {
+          "axis": "frontBack",
+          "x": -2.2,
+          "z": 2.8,
+          "townPoint": {
+            "x": 1220,
+            "y": 1240
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998936
+        },
+        {
+          "axis": "sideSide",
+          "x": -1.5499999999999998,
+          "z": 3.52,
+          "townPoint": {
+            "x": 1285,
+            "y": 1312
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999922
+        },
+        {
+          "axis": "sideSide",
+          "x": -1.8874999999999997,
+          "z": 3.52,
+          "townPoint": {
+            "x": 1251.25,
+            "y": 1312
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998777
+        },
+        {
+          "axis": "sideSide",
+          "x": -2.2249999999999996,
+          "z": 3.52,
+          "townPoint": {
+            "x": 1217.5,
+            "y": 1312
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998777
+        },
+        {
+          "axis": "sideSide",
+          "x": -2.5625,
+          "z": 3.52,
+          "townPoint": {
+            "x": 1183.75,
+            "y": 1312
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998777
+        },
+        {
+          "axis": "sideSide",
+          "x": -2.9,
+          "z": 3.52,
+          "townPoint": {
+            "x": 1150,
+            "y": 1312
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998777
+        },
+        {
+          "axis": "sideSide",
+          "x": -3.2375,
+          "z": 3.52,
+          "townPoint": {
+            "x": 1116.25,
+            "y": 1312
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998777
+        },
+        {
+          "axis": "sideSide",
+          "x": -3.575,
+          "z": 3.52,
+          "townPoint": {
+            "x": 1082.5,
+            "y": 1312
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998777
+        },
+        {
+          "axis": "sideSide",
+          "x": -3.9125,
+          "z": 3.52,
+          "townPoint": {
+            "x": 1048.75,
+            "y": 1312
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998777
+        },
+        {
+          "axis": "sideSide",
+          "x": -4.25,
+          "z": 3.52,
+          "townPoint": {
+            "x": 1015,
+            "y": 1312
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998777
+        },
+        {
+          "axis": "sideSide",
+          "x": -1.5499999999999998,
+          "z": 3.71,
+          "townPoint": {
+            "x": 1285,
+            "y": 1331
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999918
+        },
+        {
+          "axis": "sideSide",
+          "x": -1.8874999999999997,
+          "z": 3.71,
+          "townPoint": {
+            "x": 1251.25,
+            "y": 1331
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999918
+        },
+        {
+          "axis": "sideSide",
+          "x": -2.2249999999999996,
+          "z": 3.71,
+          "townPoint": {
+            "x": 1217.5,
+            "y": 1331
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998735
+        },
+        {
+          "axis": "sideSide",
+          "x": -2.5625,
+          "z": 3.71,
+          "townPoint": {
+            "x": 1183.75,
+            "y": 1331
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998735
+        },
+        {
+          "axis": "sideSide",
+          "x": -2.9,
+          "z": 3.71,
+          "townPoint": {
+            "x": 1150,
+            "y": 1331
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998735
+        },
+        {
+          "axis": "sideSide",
+          "x": -3.2375,
+          "z": 3.71,
+          "townPoint": {
+            "x": 1116.25,
+            "y": 1331
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998735
+        },
+        {
+          "axis": "sideSide",
+          "x": -3.575,
+          "z": 3.71,
+          "townPoint": {
+            "x": 1082.5,
+            "y": 1331
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998735
+        },
+        {
+          "axis": "sideSide",
+          "x": -3.9125,
+          "z": 3.71,
+          "townPoint": {
+            "x": 1048.75,
+            "y": 1331
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998735
+        },
+        {
+          "axis": "sideSide",
+          "x": -4.25,
+          "z": 3.71,
+          "townPoint": {
+            "x": 1015,
+            "y": 1331
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998735
+        },
+        {
+          "axis": "sideSide",
+          "x": -1.5499999999999998,
+          "z": 3.9,
+          "townPoint": {
+            "x": 1285,
+            "y": 1350
+          },
+          "walkable": true,
+          "floorY": 0.024999999999999134
+        },
+        {
+          "axis": "sideSide",
+          "x": -1.8874999999999997,
+          "z": 3.9,
+          "townPoint": {
+            "x": 1251.25,
+            "y": 1350
+          },
+          "walkable": true,
+          "floorY": 0.024999999999999134
+        },
+        {
+          "axis": "sideSide",
+          "x": -2.2249999999999996,
+          "z": 3.9,
+          "townPoint": {
+            "x": 1217.5,
+            "y": 1350
+          },
+          "walkable": true,
+          "floorY": 0.024999999999999134
+        },
+        {
+          "axis": "sideSide",
+          "x": -2.5625,
+          "z": 3.9,
+          "townPoint": {
+            "x": 1183.75,
+            "y": 1350
+          },
+          "walkable": true,
+          "floorY": 0.024999999999999134
+        },
+        {
+          "axis": "sideSide",
+          "x": -2.9,
+          "z": 3.9,
+          "townPoint": {
+            "x": 1150,
+            "y": 1350
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999869
+        },
+        {
+          "axis": "sideSide",
+          "x": -3.2375,
+          "z": 3.9,
+          "townPoint": {
+            "x": 1116.25,
+            "y": 1350
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999869
+        },
+        {
+          "axis": "sideSide",
+          "x": -3.575,
+          "z": 3.9,
+          "townPoint": {
+            "x": 1082.5,
+            "y": 1350
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999869
+        },
+        {
+          "axis": "sideSide",
+          "x": -3.9125,
+          "z": 3.9,
+          "townPoint": {
+            "x": 1048.75,
+            "y": 1350
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999869
+        },
+        {
+          "axis": "sideSide",
+          "x": -4.25,
+          "z": 3.9,
+          "townPoint": {
+            "x": 1015,
+            "y": 1350
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999869
+        },
+        {
+          "axis": "sideSide",
+          "x": -1.5499999999999998,
+          "z": 4.09,
+          "townPoint": {
+            "x": 1285,
+            "y": 1369
+          },
+          "walkable": true,
+          "floorY": 0.024999999999999092
+        },
+        {
+          "axis": "sideSide",
+          "x": -1.8874999999999997,
+          "z": 4.09,
+          "townPoint": {
+            "x": 1251.25,
+            "y": 1369
+          },
+          "walkable": true,
+          "floorY": 0.024999999999999092
+        },
+        {
+          "axis": "sideSide",
+          "x": -2.2249999999999996,
+          "z": 4.09,
+          "townPoint": {
+            "x": 1217.5,
+            "y": 1369
+          },
+          "walkable": true,
+          "floorY": 0.024999999999999092
+        },
+        {
+          "axis": "sideSide",
+          "x": -2.5625,
+          "z": 4.09,
+          "townPoint": {
+            "x": 1183.75,
+            "y": 1369
+          },
+          "walkable": true,
+          "floorY": 0.024999999999999092
+        },
+        {
+          "axis": "sideSide",
+          "x": -2.9,
+          "z": 4.09,
+          "townPoint": {
+            "x": 1150,
+            "y": 1369
+          },
+          "walkable": true,
+          "floorY": 0.024999999999999092
+        },
+        {
+          "axis": "sideSide",
+          "x": -3.2375,
+          "z": 4.09,
+          "townPoint": {
+            "x": 1116.25,
+            "y": 1369
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999865
+        },
+        {
+          "axis": "sideSide",
+          "x": -3.575,
+          "z": 4.09,
+          "townPoint": {
+            "x": 1082.5,
+            "y": 1369
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999865
+        },
+        {
+          "axis": "sideSide",
+          "x": -3.9125,
+          "z": 4.09,
+          "townPoint": {
+            "x": 1048.75,
+            "y": 1369
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999865
+        },
+        {
+          "axis": "sideSide",
+          "x": -4.25,
+          "z": 4.09,
+          "townPoint": {
+            "x": 1015,
+            "y": 1369
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999865
+        },
+        {
+          "axis": "sideSide",
+          "x": -1.5499999999999998,
+          "z": 4.28,
+          "townPoint": {
+            "x": 1285,
+            "y": 1388
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999905
+        },
+        {
+          "axis": "sideSide",
+          "x": -1.8874999999999997,
+          "z": 4.28,
+          "townPoint": {
+            "x": 1251.25,
+            "y": 1388
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999905
+        },
+        {
+          "axis": "sideSide",
+          "x": -2.2249999999999996,
+          "z": 4.28,
+          "townPoint": {
+            "x": 1217.5,
+            "y": 1388
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999905
+        },
+        {
+          "axis": "sideSide",
+          "x": -2.5625,
+          "z": 4.28,
+          "townPoint": {
+            "x": 1183.75,
+            "y": 1388
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999905
+        },
+        {
+          "axis": "sideSide",
+          "x": -2.9,
+          "z": 4.28,
+          "townPoint": {
+            "x": 1150,
+            "y": 1388
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999905
+        },
+        {
+          "axis": "sideSide",
+          "x": -3.2375,
+          "z": 4.28,
+          "townPoint": {
+            "x": 1116.25,
+            "y": 1388
+          },
+          "walkable": true,
+          "floorY": 0.02499999999999905
+        },
+        {
+          "axis": "sideSide",
+          "x": -3.575,
+          "z": 4.28,
+          "townPoint": {
+            "x": 1082.5,
+            "y": 1388
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998607
+        },
+        {
+          "axis": "sideSide",
+          "x": -3.9125,
+          "z": 4.28,
+          "townPoint": {
+            "x": 1048.75,
+            "y": 1388
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998607
+        },
+        {
+          "axis": "sideSide",
+          "x": -4.25,
+          "z": 4.28,
+          "townPoint": {
+            "x": 1015,
+            "y": 1388
+          },
+          "walkable": true,
+          "floorY": 0.024999999999998607
+        }
+      ]
+    },
+    "roads": [
+      {
+        "name": "layout-plaza-border",
+        "triangles": 192,
+        "minimumGap": 0.5276690954279742
+      },
+      {
+        "name": "layout-plaza-floor",
+        "triangles": 96,
+        "minimumGap": 0.7445590683777189
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.9449106809892385
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 5.054279285674862
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 5.128121270904673
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 5.168248634333382
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 5.159524067231608
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 5.117140258974537
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 5.05438485017624
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.975657590341912
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.885441419343926
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.788076653088253
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.687510487309476
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.587038647871532
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.489064620176685
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.39490793191205
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.304052736606584
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.194145870399325
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.055867668624645
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 3.89158410965287
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 3.7041061307260157
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 3.496641532042235
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 3.2727400904050605
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 3.036232821558114
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 2.791166430443568
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 2.5417340709586322
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 2.2666117124557488
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 1.9954967434535522
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 1.7336299350266802
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 1.4854919008705112
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 1.2553283515463178
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 1.047077449196427
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 0.8643024244981063
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 0.7101306087987522
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 0.5871999246094846
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 0.5267954899764968
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 0.5450272047327543
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 0.8049082720325262
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 1.201660256321399
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 1.6364515151902694
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 2.0524716760962325
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 2.444775977331305
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 2.8275613552995638
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 3.193757599836866
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 3.5378438443559785
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 3.855348647119636
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.1426557913036826
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.39693584207688
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.616130304908055
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 4.798955603533913
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 1.657372412007949
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 1.7173702079356687
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 8.189152672401319
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 1.9801031889088498
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 2.0299860588154535
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 10.589582649270824
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 1.4807200259618338
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 1.5407182230908203
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 3.499000205993653
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 1.9800862879386003
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 2.0299714703293734
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 0.5990000391006469
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 0.6589999818801879
+      }
+    ],
+    "minimumRoadGap": 0.5267954899764968,
+    "requiredMargin": 0.2,
+    "originalSpriteEnvelopeClearance": {
+      "checkedCards": 141,
+      "kinds": {
+        "home": 1,
+        "cafe": 1,
+        "shop": 1,
+        "fountain": 1,
+        "tree": 27,
+        "flowers": 106,
+        "lantern": 4
+      },
+      "minimumGap": 0.3710260422004571,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "kind": "lantern",
+          "sourceSHA256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+          "contact": [
+            -5.472,
+            0.025,
+            4.223999999999998
+          ],
+          "fullQuadRadius": 0.9909739577995439,
+          "envelopeDistance": 1.362000000000001,
+          "gap": 0.3710260422004571
+        },
+        {
+          "kind": "shop",
+          "sourceSHA256": "25ea663a1132f09b55329ed326f881a601162689d962ff084a6c653359d61e85",
+          "contact": [
+            -8.064,
+            0.025,
+            2.6999999999999997
+          ],
+          "fullQuadRadius": 3.469184978044895,
+          "envelopeDistance": 3.9601156548767618,
+          "gap": 0.49093067683186664
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            6.035999999999999
+          ],
+          "fullQuadRadius": 0.9507114619876108,
+          "envelopeDistance": 1.605407113476203,
+          "gap": 0.6546956514885921
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -3.620171337412489,
+            0.026,
+            1.9259135351825603
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 0.9940864648174397,
+          "gap": 0.6746474135896025
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -3.4762096606368775,
+            0.026,
+            6.079101177556104
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 1.1991011775561038,
+          "gap": 0.8796621263282666
+        },
+        {
+          "kind": "tree",
+          "sourceSHA256": "f2f13fd18a0b27cec312c10b2f9dc55694d98072f06b8c52c5a56b25210e03a1",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            -1.4520000000000004
+          ],
+          "fullQuadRadius": 3.540721855111509,
+          "envelopeDistance": 4.511693695276752,
+          "gap": 0.9709718401652427
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -5.696198453616935,
+            0.026,
+            5.1798366606554165
+          ],
+          "fullQuadRadius": 0.3194390512278372,
+          "envelopeDistance": 1.6142885607380575,
+          "gap": 1.2948495095102204
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -5.646198453616935,
+            0.026,
+            5.199836660655416
+          ],
+          "fullQuadRadius": 0.1314263525051673,
+          "envelopeDistance": 1.5691402672783183,
+          "gap": 1.437713914773151
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            1.3751814482148574,
+            0.026,
+            5.10897405510206
+          ],
+          "fullQuadRadius": 0.8081047426894692,
+          "envelopeDistance": 3.0737219178693462,
+          "gap": 2.265617175179877
+        },
+        {
+          "kind": "flowers",
+          "sourceSHA256": "ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf",
+          "contact": [
+            -8.090402616939109,
+            0.026,
+            6.04046415084556
+          ],
+          "fullQuadRadius": 0.9221901181279824,
+          "envelopeDistance": 4.146116500815362,
+          "gap": 3.223926382687379
+        }
+      ],
+      "method": "sphere enclosing all four full raw Sprite quad corners from actual world scale/center; sphere-to-conservative-3D-pose-envelope distance; includes faint/transparent corners without cropping",
+      "cameraOrientationIndependentGeometryEnvelope": true,
+      "physicalFixtureVolumes": false,
+      "allCameraProjectionOcclusionGuaranteed": false
+    },
+    "buildingProxyClearance": [
+      {
+        "place": "home",
+        "intersects": false,
+        "separation": 8.556316549569024
+      },
+      {
+        "place": "cafe",
+        "intersects": false,
+        "separation": 10.771554791179044
+      },
+      {
+        "place": "shop",
+        "intersects": false,
+        "separation": 3.2325207629203803
+      },
+      {
+        "place": "playground",
+        "intersects": false,
+        "separation": 7.286001715618792
+      },
+      {
+        "place": "tree",
+        "intersects": false,
+        "separation": null
+      },
+      {
+        "place": "flowers",
+        "intersects": false,
+        "separation": null
+      }
+    ],
+    "shoreline": {
+      "segments": 7,
+      "minimumGap": 4.720000381469727,
+      "rows": [
+        {
+          "a": [
+            14.399999618530273,
+            -9.600000381469727
+          ],
+          "b": [
+            -14.399999618530273,
+            -9.600000381469727
+          ],
+          "footprintGap": 12.520000381469726
+        },
+        {
+          "a": [
+            -14.399999618530273,
+            -9.600000381469727
+          ],
+          "b": [
+            -14.399999618530273,
+            9.600000381469727
+          ],
+          "footprintGap": 10.289999618530274
+        },
+        {
+          "a": [
+            -14.399999618530273,
+            9.600000381469727
+          ],
+          "b": [
+            5.5,
+            9.600000381469727
+          ],
+          "footprintGap": 4.720000381469727
+        },
+        {
+          "a": [
+            5.5,
+            9.600000381469727
+          ],
+          "b": [
+            10.699999809265137,
+            4.900000095367432
+          ],
+          "footprintGap": 8.600843191285048
+        },
+        {
+          "a": [
+            10.699999809265137,
+            4.900000095367432
+          ],
+          "b": [
+            12.800000190734863,
+            0.8999999761581421
+          ],
+          "footprintGap": 12.390015951458853
+        },
+        {
+          "a": [
+            12.800000190734863,
+            0.8999999761581421
+          ],
+          "b": [
+            14,
+            -4.099999904632568
+          ],
+          "footprintGap": 14.630123226542471
+        },
+        {
+          "a": [
+            14,
+            -4.099999904632568
+          ],
+          "b": [
+            14.399999618530273,
+            -9.600000381469727
+          ],
+          "footprintGap": 17.188848089998388
+        }
+      ],
+      "method": "every actual dry-land boundary segment against full projected rectangle, including crossing and endpoint/corner distances"
+    },
+    "waterBacking": {
+      "topY": -0.05,
+      "soleAboveWaterBacking": 0.07499999999999904,
+      "scope": "actual wet backing under dry land, no water physics"
+    },
+    "worldUnchanged": true,
+    "walkableSurfacesUnchanged": true,
+    "occludersUnchanged": true,
+    "notRegisteredAsTownSurface": true,
+    "normalPlacement": false,
+    "ownershipUnlockSave": false,
+    "bodyBinding": null,
+    "limits": "one unchanged default-world off-road authored placement,20sole rays,90passage-floor samples,finite walkability,actual road triangles and conservative full-card envelopes; no owner-world placement, anatomical fit or all-camera visibility guarantee"
+  },
+  "worldUnchanged": true,
+  "normalGamePlacement": false,
+  "ownershipUnlockSave": false,
+  "bodyBinding": null,
+  "native_views_verified_by_this_certificate": false,
+  "finite_geometry_witnesses_not_unique_tests_or_continuous_guarantees": true
+}

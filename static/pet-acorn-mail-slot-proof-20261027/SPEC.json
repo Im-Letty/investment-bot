@@ -1,0 +1,39 @@
+{
+  "id": "acorn-mail-slot-clearance-v1",
+  "unit": "wardrobe:item:acorn-mailbox:manual-mail-slot-clearance:v1",
+  "mailboxSourceSHA": "da25e37cc641fbafb01ffe7025e7300e86870e10a7fbb1b0d82026fcddbdd6fb",
+  "originalSHA": "3d7a9773655f9a64536635c319c59b0e00f03dab8a9937af0d6d43daeb69e54a",
+  "dimensions": {
+    "width": 0.44,
+    "thickness": 0.01,
+    "depth": 0.24
+  },
+  "centerX": 0,
+  "centerY": 1.565,
+  "startZ": 0.62,
+  "endZ": -0.05,
+  "finiteProgressSamples": 21,
+  "dimensionsAuthoredNotMeasured": true,
+  "bodyBinding": null,
+  "actualDelivery": false,
+  "physicalPaperSimulation": false,
+  "characterGrip": false,
+  "normalPlacement": false,
+  "ownershipUnlockSave": false,
+  "continuousCollisionCertified": false,
+  "initialBlankCauseEstablished": false,
+  "initializationConsistencyVerified": false,
+  "manual_progress_range": [
+    0,
+    1
+  ],
+  "path": "One fixed local orientation, flat XZ plane, through the unchanged actual slot; hatch remains0degrees. A rigid geometric envelope/probe, not measured paper or body fitting.",
+  "collision_scope": "Actual unchanged mailbox part triangles against the exact axis-aligned rigid-envelope box at requested and finite sampled poses; solid-angle containment detects a box hidden inside a closed solid. Twenty-one poses are witnesses, not twenty-one formal tests or continuous swept-volume certification.",
+  "world_scope": "Same original-art default village and one authored anchor, reused actual20floor rays/all diagnostic road triangles/141conservative original-card envelopes. No normal placement or save registration.",
+  "procedural_marks": "Viewer draws simple envelope-fold markings on a runtime CanvasTexture. No raw PNG is generated or modified.",
+  "native_visual_status": "pending root actual browser observation",
+  "new_original_PNGs": 0,
+  "new_raw_versions": 0,
+  "imagegen_calls": 0,
+  "new_Mesh_library_candidates": 0
+}

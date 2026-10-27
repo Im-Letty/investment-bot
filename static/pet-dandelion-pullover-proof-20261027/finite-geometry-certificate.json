@@ -1,0 +1,2007 @@
+{
+  "schema_version": 1,
+  "scope": "Finite authored garment geometry evidence; counts are witnesses and not unique tests or body fit.",
+  "geometry": {
+    "model_id": "dandelion-pullover-garment-volume-v1",
+    "sourceSHA": "2bb355ebf7def056df8d43808ab5e32955223a8d29e1cb16261b41dc8ce3faa2",
+    "topology": {
+      "triangles": 1960,
+      "vertices": 976,
+      "closedEdges": true,
+      "badEdges": 0,
+      "signedVolume": 0.13052224920051708,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0
+    },
+    "construction": {
+      "outerTriangles": 840,
+      "innerTriangles": 840,
+      "rimWallTriangles": 280,
+      "passageRims": 4,
+      "sleevesShareTorsoBoundaryIndices": true,
+      "bodyBinding": null
+    },
+    "budget": {
+      "meshes": 66,
+      "geometries": 3,
+      "materials": 5,
+      "textures": 0,
+      "lights": 0,
+      "triangles": 4108
+    },
+    "bounds": {
+      "min": [
+        -1.1472411155700684,
+        0,
+        -0.36000001430511475
+      ],
+      "max": [
+        1.1472411155700684,
+        1.3600000143051147,
+        0.3766180132788196
+      ],
+      "size": [
+        2.2944822311401367,
+        1.3600000143051147,
+        0.7366180275839344
+      ]
+    },
+    "garmentRims": {
+      "neck": {
+        "space": "garment_local",
+        "surfaceMesh": "joined-four-opening-material-shell",
+        "outerVertex": 345,
+        "actualSurfacePosition": [
+          -0.3073478937149048,
+          1.3600000143051147,
+          0.03067365474998951
+        ],
+        "actualSurfaceNormal": [
+          -0.7797553968861659,
+          0.6161092388234135,
+          0.11131454021524714
+        ],
+        "localFrame": [
+          0.1413229551088882,
+          0,
+          0.9899635459749473,
+          0,
+          0.609925686773552,
+          0.7876607174643369,
+          -0.08707037830041253,
+          0,
+          -0.7797553968861659,
+          0.6161092388234135,
+          0.11131454021524714,
+          0,
+          -0.3073478937149048,
+          1.3600000143051147,
+          0.03067365474998951,
+          1
+        ],
+        "boundaryOuterVertexIndices": [
+          309,
+          308,
+          355,
+          354,
+          353,
+          352,
+          351,
+          350,
+          349,
+          348,
+          347,
+          346,
+          345,
+          344,
+          343,
+          342,
+          341,
+          340,
+          339,
+          338,
+          337,
+          336,
+          335,
+          334,
+          333,
+          332,
+          331,
+          330,
+          329,
+          328,
+          327,
+          326,
+          325,
+          324,
+          323,
+          322,
+          321,
+          320,
+          319,
+          318,
+          317,
+          316,
+          315,
+          314,
+          313,
+          312,
+          311,
+          310
+        ],
+        "bodyBinding": null,
+        "anatomicalSocket": false
+      },
+      "hem": {
+        "space": "garment_local",
+        "surfaceMesh": "joined-four-opening-material-shell",
+        "outerVertex": 12,
+        "actualSurfacePosition": [
+          0.5,
+          0,
+          2.020667240591078e-17
+        ],
+        "actualSurfaceNormal": [
+          0.9333334058224467,
+          -0.3573959801940162,
+          -0.03401274639058534
+        ],
+        "localFrame": [
+          -0.03641805123084806,
+          0,
+          -0.9993366427508539,
+          0,
+          0.35715889897973874,
+          0.9339529502823781,
+          -0.013015665116404838,
+          0,
+          0.9333334058224467,
+          -0.3573959801940162,
+          -0.03401274639058534,
+          0,
+          0.5,
+          0,
+          2.020667240591078e-17,
+          1
+        ],
+        "boundaryOuterVertexIndices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47
+        ],
+        "bodyBinding": null,
+        "anatomicalSocket": false
+      },
+      "right_cuff": {
+        "space": "garment_local",
+        "surfaceMesh": "joined-four-opening-material-shell",
+        "outerVertex": 405,
+        "actualSurfacePosition": [
+          1.1388565301895142,
+          0.6896122694015503,
+          0.1046951562166214
+        ],
+        "actualSurfaceNormal": [
+          0.5528808906707662,
+          0.7393848399663601,
+          0.3842301122491837
+        ],
+        "localFrame": [
+          0.5706814024373831,
+          2.775557561562892e-17,
+          -0.821171563628516,
+          0,
+          -0.6071618051583959,
+          0.6732830448094769,
+          -0.4219531774129424,
+          0,
+          0.5528808906707662,
+          0.7393848399663601,
+          0.3842301122491837,
+          0,
+          1.1388565301895142,
+          0.6896122694015503,
+          0.1046951562166214,
+          1
+        ],
+        "boundaryOuterVertexIndices": [
+          400,
+          401,
+          402,
+          403,
+          404,
+          405,
+          406,
+          407,
+          408,
+          409,
+          410,
+          411,
+          412,
+          413,
+          414,
+          415,
+          416,
+          417,
+          418,
+          419,
+          420,
+          421
+        ],
+        "bodyBinding": null,
+        "anatomicalSocket": false
+      },
+      "left_cuff": {
+        "space": "garment_local",
+        "surfaceMesh": "joined-four-opening-material-shell",
+        "outerVertex": 471,
+        "actualSurfacePosition": [
+          -1.1388565301895142,
+          0.6896122694015503,
+          -0.1046951562166214
+        ],
+        "actualSurfaceNormal": [
+          -0.5528808906707662,
+          0.7393848399663601,
+          -0.3842301122491837
+        ],
+        "localFrame": [
+          -0.5706814024373831,
+          2.775557561562892e-17,
+          0.821171563628516,
+          0,
+          0.6071618051583959,
+          0.6732830448094769,
+          0.4219531774129424,
+          0,
+          -0.5528808906707662,
+          0.7393848399663601,
+          -0.3842301122491837,
+          0,
+          -1.1388565301895142,
+          0.6896122694015503,
+          -0.1046951562166214,
+          1
+        ],
+        "boundaryOuterVertexIndices": [
+          466,
+          467,
+          468,
+          469,
+          470,
+          471,
+          472,
+          473,
+          474,
+          475,
+          476,
+          477,
+          478,
+          479,
+          480,
+          481,
+          482,
+          483,
+          484,
+          485,
+          486,
+          487
+        ],
+        "bodyBinding": null,
+        "anatomicalSocket": false
+      }
+    },
+    "sharedSleeveJoins": [
+      {
+        "name": "right_cuff",
+        "attachmentVertices": [
+          105,
+          104,
+          152,
+          186,
+          220,
+          221,
+          222,
+          223,
+          224,
+          225,
+          226,
+          227,
+          228,
+          187,
+          153,
+          112,
+          111,
+          110,
+          109,
+          108,
+          107,
+          106
+        ],
+        "attachmentVerticesAreActualShellVertices": true,
+        "loftBoundarySharesExactIndices": true
+      },
+      {
+        "name": "left_cuff",
+        "attachmentVertices": [
+          129,
+          128,
+          169,
+          203,
+          244,
+          245,
+          246,
+          247,
+          248,
+          249,
+          250,
+          251,
+          252,
+          204,
+          170,
+          136,
+          135,
+          134,
+          133,
+          132,
+          131,
+          130
+        ],
+        "attachmentVerticesAreActualShellVertices": true,
+        "loftBoundarySharesExactIndices": true
+      }
+    ],
+    "passages": {
+      "count": 20,
+      "blocked": 0,
+      "segments": [
+        {
+          "opening": "neck",
+          "from": [
+            0,
+            1.5,
+            0
+          ],
+          "to": [
+            0,
+            -0.14,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "neck",
+          "from": [
+            0.06,
+            1.5,
+            0
+          ],
+          "to": [
+            0.06,
+            -0.14,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "neck",
+          "from": [
+            -0.06,
+            1.5,
+            0
+          ],
+          "to": [
+            -0.06,
+            -0.14,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "neck",
+          "from": [
+            0,
+            1.5,
+            0.06
+          ],
+          "to": [
+            0,
+            -0.14,
+            0.06
+          ],
+          "hits": []
+        },
+        {
+          "opening": "neck",
+          "from": [
+            0,
+            1.5,
+            -0.06
+          ],
+          "to": [
+            0,
+            -0.14,
+            -0.06
+          ],
+          "hits": []
+        },
+        {
+          "opening": "hem",
+          "from": [
+            0,
+            -0.14,
+            0
+          ],
+          "to": [
+            0,
+            1.5,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "hem",
+          "from": [
+            0.06,
+            -0.14,
+            0
+          ],
+          "to": [
+            0.06,
+            1.5,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "hem",
+          "from": [
+            -0.06,
+            -0.14,
+            0
+          ],
+          "to": [
+            -0.06,
+            1.5,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "hem",
+          "from": [
+            0,
+            -0.14,
+            0.06
+          ],
+          "to": [
+            0,
+            1.5,
+            0.06
+          ],
+          "hits": []
+        },
+        {
+          "opening": "hem",
+          "from": [
+            0,
+            -0.14,
+            -0.06
+          ],
+          "to": [
+            0,
+            1.5,
+            -0.06
+          ],
+          "hits": []
+        },
+        {
+          "opening": "right_cuff",
+          "from": [
+            1.2150578948289965,
+            0.4344785789132713,
+            0
+          ],
+          "to": [
+            0,
+            0.715,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "right_cuff",
+          "from": [
+            1.2289382501006787,
+            0.4719930526205204,
+            0
+          ],
+          "to": [
+            0,
+            0.755,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "right_cuff",
+          "from": [
+            1.2011775395573143,
+            0.3969641052060222,
+            0
+          ],
+          "to": [
+            0,
+            0.6749999999999999,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "right_cuff",
+          "from": [
+            1.2150578948289965,
+            0.4344785789132713,
+            0.04
+          ],
+          "to": [
+            0,
+            0.715,
+            0.04
+          ],
+          "hits": []
+        },
+        {
+          "opening": "right_cuff",
+          "from": [
+            1.2150578948289965,
+            0.4344785789132713,
+            -0.04
+          ],
+          "to": [
+            0,
+            0.715,
+            -0.04
+          ],
+          "hits": []
+        },
+        {
+          "opening": "left_cuff",
+          "from": [
+            -1.2150578948289965,
+            0.4344785789132713,
+            0
+          ],
+          "to": [
+            0,
+            0.715,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "left_cuff",
+          "from": [
+            -1.2289382501006787,
+            0.4719930526205204,
+            0
+          ],
+          "to": [
+            0,
+            0.755,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "left_cuff",
+          "from": [
+            -1.2011775395573143,
+            0.3969641052060222,
+            0
+          ],
+          "to": [
+            0,
+            0.6749999999999999,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "left_cuff",
+          "from": [
+            -1.2150578948289965,
+            0.4344785789132713,
+            0.04
+          ],
+          "to": [
+            0,
+            0.715,
+            0.04
+          ],
+          "hits": []
+        },
+        {
+          "opening": "left_cuff",
+          "from": [
+            -1.2150578948289965,
+            0.4344785789132713,
+            -0.04
+          ],
+          "to": [
+            0,
+            0.715,
+            -0.04
+          ],
+          "hits": []
+        }
+      ]
+    },
+    "contactWitnesses": [
+      {
+        "part": "cream-cable--1-0",
+        "point": [
+          -0.018884762258125843,
+          0.246,
+          0.3430368429772622
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "cream-cable--1-1",
+        "point": [
+          0.02922088327084412,
+          0.358,
+          0.3469568173113363
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "cream-cable--1-2",
+        "point": [
+          0.002891413681232826,
+          0.47000000000000003,
+          0.3522176988948803
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "cream-cable--1-3",
+        "point": [
+          -0.030803429097927132,
+          0.5820000000000001,
+          0.35523168517581005
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "cream-cable--1-4",
+        "point": [
+          0.013968103341591454,
+          0.694,
+          0.356552913892464
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "cream-cable--1-5",
+        "point": [
+          0.02315832324573559,
+          0.806,
+          0.35133196316100934
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "cream-cable--1-6",
+        "point": [
+          -0.026643255310559104,
+          0.918,
+          0.34127543883298805
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "cream-cable-1-0",
+        "point": [
+          0.018884762258125843,
+          0.246,
+          0.34307254487253547
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "cream-cable-1-1",
+        "point": [
+          -0.02922088327084412,
+          0.358,
+          0.3469459598072492
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "cream-cable-1-2",
+        "point": [
+          -0.002891413681232826,
+          0.47000000000000003,
+          0.35221488873035456
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "cream-cable-1-3",
+        "point": [
+          0.030803429097927132,
+          0.5820000000000001,
+          0.3552495769013909
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "cream-cable-1-4",
+        "point": [
+          -0.013968103341591454,
+          0.694,
+          0.35652834291354296
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "cream-cable-1-5",
+        "point": [
+          -0.02315832324573559,
+          0.806,
+          0.3512912258713138
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "cream-cable-1-6",
+        "point": [
+          0.026643255310559104,
+          0.918,
+          0.3412993437246111
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "hem-rib-0-0",
+        "point": [
+          -0.47317288057540036,
+          0.0615,
+          0.1238183132856675
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "hem-rib-1-0",
+        "point": [
+          -0.4570595456357236,
+          0.0615,
+          0.14627297822850094
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "hem-rib-2-0",
+        "point": [
+          -0.4253815960519256,
+          0.0615,
+          0.1827162745097134
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "hem-rib-3-0",
+        "point": [
+          -0.3792177864035698,
+          0.0615,
+          0.2221091264822307
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "hem-rib-4-0",
+        "point": [
+          -0.320140169860844,
+          0.0615,
+          0.25936252388966985
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "hem-rib-5-0",
+        "point": [
+          -0.2501605637993195,
+          0.0615,
+          0.29082750584553263
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "hem-rib-6-0",
+        "point": [
+          -0.171662039772135,
+          0.0615,
+          0.31385364080564526
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "hem-rib-7-0",
+        "point": [
+          -0.08731777086643429,
+          0.0615,
+          0.3285382281443251
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "hem-rib-8-0",
+        "point": [
+          0,
+          0.0615,
+          0.3341250083399935
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "hem-rib-9-0",
+        "point": [
+          0.08731777086643418,
+          0.0615,
+          0.3285635753789983
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "hem-rib-10-0",
+        "point": [
+          0.17166203977213507,
+          0.0615,
+          0.3139029602657307
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "hem-rib-11-0",
+        "point": [
+          0.2501605637993194,
+          0.0615,
+          0.29084257038895733
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "hem-rib-12-0",
+        "point": [
+          0.32014016986084404,
+          0.0615,
+          0.2594139013652462
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "hem-rib-13-0",
+        "point": [
+          0.3792177864035698,
+          0.0615,
+          0.2222383596171259
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "hem-rib-14-0",
+        "point": [
+          0.4253815960519256,
+          0.0615,
+          0.18286830186483505
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "hem-rib-15-0",
+        "point": [
+          0.4570595456357236,
+          0.0615,
+          0.14644896588794964
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "hem-rib-16-0",
+        "point": [
+          0.4731728805754004,
+          0.0615,
+          0.12385027730240028
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "neck-rib-0-0",
+        "point": [
+          -0.2852778415085274,
+          1.303,
+          0.13248456504333872
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "neck-rib-1-0",
+        "point": [
+          -0.27556304676901267,
+          1.303,
+          0.14214760718857422
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "neck-rib-2-0",
+        "point": [
+          -0.2564642829732253,
+          1.303,
+          0.15901590780944164
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "neck-rib-3-0",
+        "point": [
+          -0.2286319356157886,
+          1.303,
+          0.17853160468398366
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "neck-rib-4-0",
+        "point": [
+          -0.19301380190473863,
+          1.303,
+          0.19814969598842336
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "neck-rib-5-0",
+        "point": [
+          -0.15082281466436248,
+          1.303,
+          0.21545468240049515
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "neck-rib-6-0",
+        "point": [
+          -0.10349573736261929,
+          1.303,
+          0.22866424518649964
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "neck-rib-7-0",
+        "point": [
+          -0.05264423685444744,
+          1.303,
+          0.2370333468372715
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "neck-rib-8-0",
+        "point": [
+          0,
+          1.303,
+          0.240107144660488
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "neck-rib-9-0",
+        "point": [
+          0.05264423685444737,
+          1.303,
+          0.23684873845758292
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "neck-rib-10-0",
+        "point": [
+          0.10349573736261933,
+          1.303,
+          0.2280749947635209
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "neck-rib-11-0",
+        "point": [
+          0.15082281466436237,
+          1.303,
+          0.2143795187838432
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "neck-rib-12-0",
+        "point": [
+          0.19301380190473869,
+          1.303,
+          0.1969351659085138
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "neck-rib-13-0",
+        "point": [
+          0.2286319356157886,
+          1.303,
+          0.17713541876910643
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "neck-rib-14-0",
+        "point": [
+          0.2564642829732253,
+          1.303,
+          0.15718825406314585
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "neck-rib-15-0",
+        "point": [
+          0.27556304676901267,
+          1.303,
+          0.14148499839545636
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "neck-rib-16-0",
+        "point": [
+          0.2852778415085274,
+          1.303,
+          0.13048812538647792
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "petal-0-0",
+        "point": [
+          0.30200000000000005,
+          0.805,
+          0.30351785955659183
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "petal-1-0",
+        "point": [
+          0.2957031939778686,
+          0.8285,
+          0.30500408550687264
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "petal-2-0",
+        "point": [
+          0.2785,
+          0.8457031939778686,
+          0.3095072685173058
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "petal-3-0",
+        "point": [
+          0.255,
+          0.8520000000000001,
+          0.3160446750839371
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "petal-4-0",
+        "point": [
+          0.2315,
+          0.8457031939778686,
+          0.3230276722609099
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "petal-5-0",
+        "point": [
+          0.2142968060221314,
+          0.8285,
+          0.32742080291563835
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "petal-6-0",
+        "point": [
+          0.208,
+          0.805,
+          0.32958800208427663
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "petal-7-0",
+        "point": [
+          0.2142968060221314,
+          0.7815000000000001,
+          0.3291467551214956
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "petal-8-0",
+        "point": [
+          0.23149999999999998,
+          0.7642968060221315,
+          0.3259080152449082
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "petal-9-0",
+        "point": [
+          0.255,
+          0.758,
+          0.31937060867827693
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "petal-10-0",
+        "point": [
+          0.2785,
+          0.7642968060221315,
+          0.3121780473950978
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "petal-11-0",
+        "point": [
+          0.2957031939778686,
+          0.7815000000000001,
+          0.3064663449950519
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "dandelion-center",
+        "point": [
+          0.255,
+          0.805,
+          0.316707641881107
+        ],
+        "scope": "actual shell inset and flower heart"
+      },
+      {
+        "part": "dandelion-stem-0",
+        "point": [
+          0.2485,
+          0.7635000000000001,
+          0.3210458492516598
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "dandelion-stem-1",
+        "point": [
+          0.23249999999999998,
+          0.708,
+          0.3276122559993323
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "leaf-left-0",
+        "point": [
+          0.2155,
+          0.7435,
+          0.3302929948390799
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      },
+      {
+        "part": "leaf-right-0",
+        "point": [
+          0.2545,
+          0.7124999999999999,
+          0.3210111965665502
+        ],
+        "scope": "actual shell surface inset intersects attached relief solid"
+      }
+    ],
+    "bodyBinding": null,
+    "authoredGarmentDepthNotBodyDepth": true,
+    "materialStretchOrFitCalibrated": false,
+    "wearing": false,
+    "rig": false,
+    "normalGamePlacement": false,
+    "ownershipUnlockSave": false
+  },
+  "staticTriangleCrossings": {
+    "triangles": 1960,
+    "candidateNonadjacentAABBPairs": 4855,
+    "strictEdgeInteriorCrossings": 0,
+    "witnesses": [],
+    "scope": "finite actual static triangle edge/interior test; coplanar and adjacent contacts are excluded, no continuous motion or physical claim"
+  },
+  "actualReliefCommonSolidWitnesses": [
+    {
+      "part": "cream-cable--1-0",
+      "point": [
+        -0.018884762258125843,
+        0.246,
+        0.3430368429772622
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "cream-cable--1-1",
+      "point": [
+        0.02922088327084412,
+        0.358,
+        0.3469568173113363
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "cream-cable--1-2",
+      "point": [
+        0.002891413681232826,
+        0.47000000000000003,
+        0.3522176988948803
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "cream-cable--1-3",
+      "point": [
+        -0.030803429097927132,
+        0.5820000000000001,
+        0.35523168517581005
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "cream-cable--1-4",
+      "point": [
+        0.013968103341591454,
+        0.694,
+        0.356552913892464
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "cream-cable--1-5",
+      "point": [
+        0.02315832324573559,
+        0.806,
+        0.35133196316100934
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "cream-cable--1-6",
+      "point": [
+        -0.026643255310559104,
+        0.918,
+        0.34127543883298805
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "cream-cable-1-0",
+      "point": [
+        0.018884762258125843,
+        0.246,
+        0.34307254487253547
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "cream-cable-1-1",
+      "point": [
+        -0.02922088327084412,
+        0.358,
+        0.3469459598072492
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "cream-cable-1-2",
+      "point": [
+        -0.002891413681232826,
+        0.47000000000000003,
+        0.35221488873035456
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "cream-cable-1-3",
+      "point": [
+        0.030803429097927132,
+        0.5820000000000001,
+        0.3552495769013909
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "cream-cable-1-4",
+      "point": [
+        -0.013968103341591454,
+        0.694,
+        0.35652834291354296
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "cream-cable-1-5",
+      "point": [
+        -0.02315832324573559,
+        0.806,
+        0.3512912258713138
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "cream-cable-1-6",
+      "point": [
+        0.026643255310559104,
+        0.918,
+        0.3412993437246111
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "hem-rib-0-0",
+      "point": [
+        -0.47317288057540036,
+        0.0615,
+        0.1238183132856675
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "hem-rib-1-0",
+      "point": [
+        -0.4570595456357236,
+        0.0615,
+        0.14627297822850094
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "hem-rib-2-0",
+      "point": [
+        -0.4253815960519256,
+        0.0615,
+        0.1827162745097134
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "hem-rib-3-0",
+      "point": [
+        -0.3792177864035698,
+        0.0615,
+        0.2221091264822307
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "hem-rib-4-0",
+      "point": [
+        -0.320140169860844,
+        0.0615,
+        0.25936252388966985
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "hem-rib-5-0",
+      "point": [
+        -0.2501605637993195,
+        0.0615,
+        0.29082750584553263
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "hem-rib-6-0",
+      "point": [
+        -0.171662039772135,
+        0.0615,
+        0.31385364080564526
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "hem-rib-7-0",
+      "point": [
+        -0.08731777086643429,
+        0.0615,
+        0.3285382281443251
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "hem-rib-8-0",
+      "point": [
+        0,
+        0.0615,
+        0.3341250083399935
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "hem-rib-9-0",
+      "point": [
+        0.08731777086643418,
+        0.0615,
+        0.3285635753789983
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "hem-rib-10-0",
+      "point": [
+        0.17166203977213507,
+        0.0615,
+        0.3139029602657307
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "hem-rib-11-0",
+      "point": [
+        0.2501605637993194,
+        0.0615,
+        0.29084257038895733
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "hem-rib-12-0",
+      "point": [
+        0.32014016986084404,
+        0.0615,
+        0.2594139013652462
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "hem-rib-13-0",
+      "point": [
+        0.3792177864035698,
+        0.0615,
+        0.2222383596171259
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "hem-rib-14-0",
+      "point": [
+        0.4253815960519256,
+        0.0615,
+        0.18286830186483505
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "hem-rib-15-0",
+      "point": [
+        0.4570595456357236,
+        0.0615,
+        0.14644896588794964
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "hem-rib-16-0",
+      "point": [
+        0.4731728805754004,
+        0.0615,
+        0.12385027730240028
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "neck-rib-0-0",
+      "point": [
+        -0.2852778415085274,
+        1.303,
+        0.13248456504333872
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "neck-rib-1-0",
+      "point": [
+        -0.27556304676901267,
+        1.303,
+        0.14214760718857422
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "neck-rib-2-0",
+      "point": [
+        -0.2564642829732253,
+        1.303,
+        0.15901590780944164
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "neck-rib-3-0",
+      "point": [
+        -0.2286319356157886,
+        1.303,
+        0.17853160468398366
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "neck-rib-4-0",
+      "point": [
+        -0.19301380190473863,
+        1.303,
+        0.19814969598842336
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "neck-rib-5-0",
+      "point": [
+        -0.15082281466436248,
+        1.303,
+        0.21545468240049515
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "neck-rib-6-0",
+      "point": [
+        -0.10349573736261929,
+        1.303,
+        0.22866424518649964
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "neck-rib-7-0",
+      "point": [
+        -0.05264423685444744,
+        1.303,
+        0.2370333468372715
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "neck-rib-8-0",
+      "point": [
+        0,
+        1.303,
+        0.240107144660488
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "neck-rib-9-0",
+      "point": [
+        0.05264423685444737,
+        1.303,
+        0.23684873845758292
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "neck-rib-10-0",
+      "point": [
+        0.10349573736261933,
+        1.303,
+        0.2280749947635209
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "neck-rib-11-0",
+      "point": [
+        0.15082281466436237,
+        1.303,
+        0.2143795187838432
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "neck-rib-12-0",
+      "point": [
+        0.19301380190473869,
+        1.303,
+        0.1969351659085138
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "neck-rib-13-0",
+      "point": [
+        0.2286319356157886,
+        1.303,
+        0.17713541876910643
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "neck-rib-14-0",
+      "point": [
+        0.2564642829732253,
+        1.303,
+        0.15718825406314585
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "neck-rib-15-0",
+      "point": [
+        0.27556304676901267,
+        1.303,
+        0.14148499839545636
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "neck-rib-16-0",
+      "point": [
+        0.2852778415085274,
+        1.303,
+        0.13048812538647792
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "petal-0-0",
+      "point": [
+        0.30200000000000005,
+        0.805,
+        0.30351785955659183
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "petal-1-0",
+      "point": [
+        0.2957031939778686,
+        0.8285,
+        0.30500408550687264
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "petal-2-0",
+      "point": [
+        0.2785,
+        0.8457031939778686,
+        0.3095072685173058
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "petal-3-0",
+      "point": [
+        0.255,
+        0.8520000000000001,
+        0.3160446750839371
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "petal-4-0",
+      "point": [
+        0.2315,
+        0.8457031939778686,
+        0.3230276722609099
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "petal-5-0",
+      "point": [
+        0.2142968060221314,
+        0.8285,
+        0.32742080291563835
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "petal-6-0",
+      "point": [
+        0.208,
+        0.805,
+        0.32958800208427663
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "petal-7-0",
+      "point": [
+        0.2142968060221314,
+        0.7815000000000001,
+        0.3291467551214956
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "petal-8-0",
+      "point": [
+        0.23149999999999998,
+        0.7642968060221315,
+        0.3259080152449082
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "petal-9-0",
+      "point": [
+        0.255,
+        0.758,
+        0.31937060867827693
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "petal-10-0",
+      "point": [
+        0.2785,
+        0.7642968060221315,
+        0.3121780473950978
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "petal-11-0",
+      "point": [
+        0.2957031939778686,
+        0.7815000000000001,
+        0.3064663449950519
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "dandelion-center",
+      "point": [
+        0.255,
+        0.805,
+        0.316707641881107
+      ],
+      "scope": "actual shell inset and flower heart",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "dandelion-stem-0",
+      "point": [
+        0.2485,
+        0.7635000000000001,
+        0.3210458492516598
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "dandelion-stem-1",
+      "point": [
+        0.23249999999999998,
+        0.708,
+        0.3276122559993323
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "leaf-left-0",
+      "point": [
+        0.2155,
+        0.7435,
+        0.3302929948390799
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    },
+    {
+      "part": "leaf-right-0",
+      "point": [
+        0.2545,
+        0.7124999999999999,
+        0.3210111965665502
+      ],
+      "scope": "actual shell surface inset intersects attached relief solid",
+      "shellContains": true,
+      "reliefContains": true
+    }
+  ],
+  "finite_camera_samples": 21,
+  "wearingFit": false,
+  "bodyBinding": null
+}

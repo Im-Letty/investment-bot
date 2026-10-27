@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "model_id": "summer-open-pergola-v1",
+  "unit_id": "village:asset-library:summer-open-pergola:v1",
+  "run_id": "automation360-20261027-125625",
+  "recorded_at_jst": "2026-10-27T13:09:22.180+09:00",
+  "design": "Small open coastal pergola: four stone soles and cream posts, two longitudinal and two crossing roof beams, seven separate wood shade slats and eight actual knee braces.",
+  "authored_dimensions": {
+    "id": "summer-open-pergola-v1",
+    "unit": "village:asset-library:summer-open-pergola:v1",
+    "version": 1,
+    "feet": {
+      "x": 0.98,
+      "z": 0.63,
+      "width": 0.32,
+      "height": 0.14
+    },
+    "post": {
+      "width": 0.14,
+      "bottom": 0.12,
+      "top": 2.14
+    },
+    "longitudinal": {
+      "width": 0.18,
+      "height": 0.16,
+      "length": 1.68,
+      "y": 2.17
+    },
+    "cross": {
+      "length": 2.42,
+      "height": 0.16,
+      "width": 0.18,
+      "y": 2.25
+    },
+    "roof": {
+      "slats": 7,
+      "width": 0.095,
+      "height": 0.1,
+      "length": 1.96,
+      "y": 2.35,
+      "step": 0.33
+    },
+    "passages": {
+      "frontBack": {
+        "halfWidth": 0.7,
+        "height": 1.9,
+        "entry": 1.1,
+        "exit": -1.1
+      },
+      "sideSide": {
+        "halfWidth": 0.38,
+        "height": 1.9,
+        "entry": 1.35,
+        "exit": -1.35
+      }
+    },
+    "passage": {
+      "halfWidth": 0.7,
+      "height": 1.9,
+      "entryZ": 1.1,
+      "exitZ": -1.1
+    },
+    "authoredDimensionsNotBodyFit": true,
+    "bodyBinding": null,
+    "physicalLoadVerified": false,
+    "continuousCollisionGuarantee": false
+  },
+  "geometry": "27 closed box-solid parts; shared geometry/material resources. Actual intersection witnesses accompany intended joints.",
+  "passages": "Two authored empty opening corridors beneath the roof. Finite rays/marker are not anatomical body fit, actor motion or continuous safety.",
+  "roof": "Seven actual shade-beam volumes with six open gaps. Finite vertical rays show beam/gap occlusion; thermal shade or continuous sun behavior is not claimed.",
+  "context": "Same original-art PR96 village and actual floor/light/camera, off-road prototype placement. No ordinary owner-world placement or save.",
+  "preserve": {
+    "normal_game_files": true,
+    "raw_originals": true,
+    "original_art_presentation": true,
+    "manual_player": true,
+    "NPC0": true,
+    "EXP_prices_ownership_equipment_save": true
+  },
+  "normal_game_changes": 0,
+  "new_raw_PNG_designs": 0,
+  "imagegen_calls": 0,
+  "bodyBinding": null,
+  "physical_load_strength": false,
+  "continuous_collision_guarantee": false,
+  "normal_placement_unlock_save": false
+}

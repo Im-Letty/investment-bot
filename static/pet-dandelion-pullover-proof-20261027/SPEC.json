@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "unit_id": "wardrobe:fit-prerequisite:dandelion-knit-pullover:garment-volume-openings:v1",
+  "source_asset": "prepared_clothing_02c_dandelion_knit_pullover_v1",
+  "source_SHA256": "2bb355ebf7def056df8d43808ab5e32955223a8d29e1cb16261b41dc8ce3faa2",
+  "representation": "One shared-index positive material shell with neck/two cuff/hem through-passages, garment-local rim frames, code-native front relief; preserved original separate.",
+  "authored_geometry": {
+    "thickness": 0.026,
+    "sleeve_pose": "one fixed authored pose, no articulation or physical stretch",
+    "unseen_back_inside_and_depth": "authored garment construction; no body measurement or recovered backside",
+    "interior_camera": "one actual interior camera location; no all-interior visibility guarantee"
+  },
+  "not_verified": [
+    "actual wearing or body attachment",
+    "neck/shoulder/wrist/waist/arm/tail anatomical anchors",
+    "material stretch calibration and cloth simulation",
+    "rig, gait, body contact, all growth or character volume360",
+    "ordinary ownership/unlock/save or normal game integration",
+    "continuous collision safety, coplanar or adjacent self-contact certification"
+  ],
+  "model_textures": 0,
+  "original_applied_to_all_faces": false,
+  "new_raw_PNGs": 0,
+  "new_original_designs": 0,
+  "new_body_references": 0,
+  "new_canonical_fit_success": 0,
+  "new_village_library_candidates": 0,
+  "bodyBinding": null
+}
