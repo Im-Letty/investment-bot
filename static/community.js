@@ -26,7 +26,6 @@
     '一致する投稿はありません。':'No posts or replies match your search.',
     'コミュニティ':'Community','みんな':'All topics','経済':'Economy','ニュース':'News','暮らしのお金':'Everyday money','学び':'Learning','雑談':'Conversation',
     '経済やニュース、暮らしのお金を気軽に話そう。':'Share thoughts about the economy, news and everyday money.',
-    '話題は自由。いま気になっていることを、気軽に話そう。':'Share whatever is on your mind.',
     'この会社について、気軽に話そう。':'Share your thoughts about this company.',
     '会社情報に戻る':'Back to company information',
     '気になることを、自由につぶやこう。':'What’s on your mind?',
@@ -345,7 +344,7 @@
     var scroller=el('div','cw-scroll');s.scroller=scroller;var content=el('div','cw-content');scroller.appendChild(content);root.appendChild(scroller);
     content.appendChild(el('h1','cw-context-title',screenLabel));
     if(scope){var company=el('p','cw-company-context');company.textContent=scope.room.name+' '+scope.room.code;content.appendChild(company);}
-    var intro=el('p','cw-intro',config.stock?(scope?'この会社について、気軽に話そう。':'会社名・銘柄コードで選び、その銘柄について話そう。'):'話題は自由。いま気になっていることを、気軽に話そう。');content.appendChild(intro);
+    var intro=el('p','cw-intro',config.stock?(scope?'この会社について、気軽に話そう。':'会社名・銘柄コードで選び、その銘柄について話そう。'):'');intro.hidden=!config.stock;content.appendChild(intro);
     var nav=el('nav','cw-categories');nav.setAttribute('aria-label',config.stock?'銘柄・指数を選ぶ':'話題のジャンル');s.categoryButtons=[];categories.forEach(function(item){var b=button('cw-category',item[1],null,function(){switchCategory(item[0]);});b.setAttribute('aria-pressed',String(item[0]===s.category));nav.appendChild(b);s.categoryButtons.push({code:item[0],button:b});});if(config.stock)content.appendChild(nav);
     if(config.stock){
       var finder=el('form','cw-stock-search cw-search'),query=el('input','cw-input'),find=button('cw-primary','検索','検索');query.type='search';query.placeholder=t('会社名・銘柄コード');query.dataset.cwPlaceholder='会社名・銘柄コード';query.setAttribute('aria-label',t('会社名・銘柄コード'));query.dataset.cwLabel='会社名・銘柄コード';find.type='submit';finder.appendChild(find);finder.appendChild(query);content.insertBefore(finder,intro);
