@@ -9,7 +9,8 @@ body.kn-home-a #knTabWrap .kn-stock-search-open{display:inline-flex;align-items:
 body.kn-home-a #knTabWrap .kn-stock-search-open>span{display:none}
 body.kn-home-a #knTabWrap .kn-stock-shortcut{display:inline-flex!important;align-items:center;justify-content:center;flex:none!important;width:44px;min-height:44px;padding:0!important;margin:0!important;border:1px solid transparent!important;border-radius:6px!important;background:transparent!important;color:var(--kn-a-ink)!important;clip-path:none!important;opacity:1!important;filter:none!important;box-shadow:none!important;animation:none!important;transform:none!important;cursor:pointer}
 #knTabWrap .kn-stock-shortcut svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-body.kn-home-a #knTabWrap .kn-stock-shortcut:hover{background:var(--kn-a-chip)!important}
+body.kn-home-a #knTabWrap .kn-stock-shortcut:hover,
+body.kn-home-a #knTabWrap .kn-stock-search-open:hover{background:var(--kn-a-chip)!important}
 body.kn-home-a #knTabWrap .kn-stock-shortcut[aria-pressed="true"]{background:var(--kn-a-chip)!important;border-color:var(--kn-a-button)!important}
 #knTabWrap .kn-stock-shortcut[aria-pressed="true"] svg{stroke-width:1.8}
 body.kn-home-a #knTabWrap .kn-stock-shortcut[data-kn-tab="div_top"]{flex-direction:column;gap:1px}
@@ -17,7 +18,6 @@ body.kn-home-a #knTabWrap .kn-stock-shortcut-label{font:400 calc(12px * var(--kn
 #knTabWrap .kn-stock-shortcut:focus-visible{outline:2px solid var(--kn-a-ink);outline-offset:3px}
 #knTabWrap .kn-stock-search-open svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round}
 #knTabWrap .kn-stock-search-open:focus-visible{outline:2px solid var(--kn-a-ink);outline-offset:3px}
-#knTabWrap .kn-stock-search-open:hover{background:var(--kn-a-chip)}
 body.kn-home-a #knTabWrap .kn-stock-search-dialog{position:fixed;inset:clamp(16px,12dvh,88px) 0 auto;width:min(620px,calc(100vw - 28px));max-width:none;max-height:calc(100dvh - clamp(16px,12dvh,88px) - 16px);margin:0 auto!important;padding:18px 20px 22px;border:1px solid var(--kn-a-line);border-radius:16px;background:var(--kn-a-paper);color:var(--kn-a-ink);font-family:var(--kn-a-sans,sans-serif);overflow:auto;overscroll-behavior:contain}
 #knTabWrap .kn-stock-search-dialog:not([open]){display:none!important}
 #knTabWrap .kn-stock-search-dialog::backdrop{background:rgba(35,43,33,.28)}
