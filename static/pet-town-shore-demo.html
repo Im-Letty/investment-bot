@@ -1,14 +1,14 @@
 <!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>村の岸辺・砂浜と浅瀬</title>
 <style>body{margin:16px;color:#4d593b;background:#f6f3e8;font:15px/1.6 system-ui}button{font:inherit;background:#fffdf2;border:1px solid #c4c8ae;border-radius:12px;padding:8px 14px;margin:4px;min-height:44px}#view{width:min(960px,100%);height:600px;max-height:76vh;overflow:hidden;border-radius:16px}canvas{display:block;width:100%;height:100%;touch-action:none}p{max-width:70ch}pre{white-space:pre-wrap;font-size:12px}</style>
-<h1>草から砂浜、浅瀬へ</h1><p>通常の村と同じ地形を表示しています。岸辺をドラッグして見渡せます。歩いて確認するには<a href="/static/pet-solid-living-demo.html?shore=south">村の見本へ</a>。</p>
+<h1>草から砂浜、浅瀬へ</h1><p>通常の村と同じ地形を表示しています。岸辺をドラッグして見渡せます。歩いて確認するには<a href="/static/pet-solid-living-demo-game.html?shore=south">村の見本へ</a>。</p>
 <div><button data-site="south">南の砂浜</button><button data-site="west">西の岸辺</button><button data-site="north">北の岸辺</button><button data-site="east">川岸と海</button><button data-site="bridge">橋の近く</button><button id="overhead">上から見る</button><button id="low">低い視点</button><button id="save">いまの景色をPNGで保存</button></div>
 <div><button data-season="spring">春</button><button data-season="summer">夏</button><button data-season="autumn">秋</button><button data-season="winter">冬</button><button data-size="390">390px</button><button data-size="320">320px</button><button data-size="landscape">740px横向き</button><button data-size="wide">広く表示</button></div><p id="status" role="status">読み込み中</p><div id="view"></div><details><summary>確認情報</summary><pre id="proof"></pre></details>
 <script type="module">
 import * as THREE from '/static/vendor/three-0.160.1.module.js';
 import '/static/pet-town-walk.js?v=20261027-solidlife1';import '/static/pet-frame-fit.js?v=20261025-fit1';import '/static/pet-river-fishing.js?v=20261027-solidlife1';
 import '/static/pet-japan-seasons.js?v=20261025-seasons1';import '/static/pet-town-style.js?v=20261027-layout-art3d1';import '/static/pet-town-layout-art.js?v=20261027-layout-art3d1';
-import '/static/pet-town-placement-originals.js?v=20261027-solidlife1';import '/static/pet-town-water-life.js?v=20261027-solidlife1';import '/static/pet-town-ocean-life.js?v=20261027-ocean1';
-import '/static/pet-town-shore-transition.js?v=20261028-shore1';import '/static/pet-town-scene.js?v=20261028-shore-transition1';
+import '/static/pet-town-placement-originals.js?v=20261028-tree1';import '/static/pet-town-water-life.js?v=20261027-solidlife1';import '/static/pet-town-ocean-life.js?v=20261027-ocean1';
+import '/static/pet-town-tree-variety.js?v=20261028-tree1';import '/static/pet-town-shore-transition.js?v=20261028-shore1';import '/static/pet-town-scene.js?v=20261028-tree-variety1';
 try{
 const host=document.getElementById('view'),status=document.getElementById('status'),world=PetTownWalk.createWorld(),before=JSON.stringify(world),model=PetTownScene.buildWorld(THREE,world,{},null,document,'autumn');
 await model.loadOriginalArt();
