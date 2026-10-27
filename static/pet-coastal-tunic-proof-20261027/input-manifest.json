@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "unit_id": "wardrobe:clothing:coastal-sailor-tunic:v1",
+  "representation": "unchanged_standalone_static_PNG",
+  "original": {
+    "file": "coastal-sailor-tunic-v1.png",
+    "sha256": "0a845475fcd03c1c7fae659b99fe557986a87502ef17827bfd3a9dbeb824ff1c",
+    "bytes": 2447382,
+    "dimensions": [
+      1254,
+      1254
+    ]
+  },
+  "quality_review": "static_design_material_and_finite_native_composites_accepted",
+  "bodyBinding": null,
+  "fit_geometry_rig_all_growth_unlock_save_verified": false,
+  "new_imagegen_calls": 1,
+  "runtime_game_files_changed": false,
+  "generation": {
+    "tool": "built-in image_gen.imagegen",
+    "calls": 1,
+    "transparent_background": true,
+    "prompt": "Use case: stylized-concept\nAsset type: One original game wardrobe catalogue PNG, standalone clothing item.\nPrimary request: Design a new soft storybook coastal sailor tunic for the established gentle fantasy-pet wardrobe. The locally inspected wardrobe references establish softly padded cotton, fine woven texture, cream fabric binding, carefully stitched seams, rounded but clearly constructed forms and gentle studio shading. Preserve that material quality while making a structurally distinct design.\nSubject: A single seafoam cotton tunic with a broad square cream sailor collar with two very thin muted-lilac stitched lines, a short V-shaped front yoke and one small sandy-cream neck tie. Straight wide short sleeves with neat cuff hems, a relatively straight tunic body with two small rectangular patch pockets and clear short side vents at the hem. Small neat shell-like wooden toggles, restrained tiny stitched wave motif on just one pocket. Clearly show the neckline opening, sleeve openings, separate collar and tie. No puff sleeves, no rounded jacket lapels, no smock gathers.\nComposition: Single complete garment only, centered front view with a very slight dimensional tilt, full silhouette visible with generous clear margins, square canvas. No person, animal, mannequin, hanger, hands, scenery, accessories, duplicate views or comparison panels.\nLighting/materials: Warm soft light, subtle cloth depth and fine cotton weave, gentle cream and natural wood details; crisp well-defined outer cloth edges without exaggerated contrast or large shiny sparkles. Charming handmade game-prop illustration, not a flat icon or photographic fashion image.\nBackground: Genuine transparent alpha, including all empty areas around the garment and through visible openings. No baked checkerboard, colored matte, backdrop, floor or cast shadow outside the item. Keep cloth opaque. Natural edge antialiasing only; no pale halo, white outline, glow or disconnected translucent specks.\nText: None. No logo, brand, watermark or copyrighted game elements.",
+    "reference_source_SHA256": [
+      "464f4259b93325e3224623325280ca285eeedf657614d681307309c233ecc654",
+      "da52a67002f533630dfc7720eb78258fce056a06a762aa340a3fd8cefbfd4e6a"
+    ],
+    "reference_role": "locally viewed style references, not edited inputs",
+    "source_bytes_unedited": true
+  },
+  "visual_review": {
+    "root_note_sha256": "a648829899a7da630e2ec588fcc393197fd707457c045d7d6564ff1c71f4fe27",
+    "independent_review_sha256": "54b58df7244396984070687a2e6bf801897aa637de6f097cbac10e152651ad1e",
+    "inspected_main_widths": [
+      540,
+      364,
+      294
+    ],
+    "thumbnail_width": 178,
+    "inspected_backgrounds": [
+      "white",
+      "mint",
+      "dark",
+      "checker"
+    ],
+    "actual_native_composite_candidate_pass": true,
+    "raw_edge_display_discrepancy_retained": true,
+    "all_scale_clean_cutout_proven": false,
+    "screenshot_file_SHA_claimed": false
+  },
+  "owner_asset_adoption": false
+}

@@ -1,0 +1,24 @@
+{
+  "unit_id": "wardrobe:item:acorn-mailbox:shell-door-prerequisite:v1",
+  "source_original_SHA256": "3d7a9773655f9a64536635c319c59b0e00f03dab8a9937af0d6d43daeb69e54a",
+  "representation": "Closed solid wall components surrounding an empty authored cavity; actual front hatch and slot openings; real bored knuckles and a through pin. Existing source raster remains unchanged.",
+  "manual_door_angle_degrees": [
+    0,
+    95
+  ],
+  "finite_pose_witnesses": 20,
+  "hidden_back_depth_and_inside": "Authored technical construction, not observed original anatomy or an owner-adopted final back design.",
+  "dimensions": "Fixed authored world units; no body-growth calibration or world/character resize.",
+  "normal_game_placement_ownership_unlock_save": false,
+  "delivery_rewards": false,
+  "body_fit_rig_full_character360": false,
+  "load_friction_seal_or_continuous_collision_guarantee": false,
+  "placement_scope": "One unchanged village point,20 foot sole rays, finite grid, all actual diagnostic road triangles, conservative141 full raw-card quad envelopes; no all-camera nonocclusion guarantee.",
+  "geometry_revision": 2,
+  "same_unit_contact_corrections": [
+    "Mail-slot rim backs into the front wall by authored.0005units",
+    "Retainers are fixed shaft-contact collars with .0105 inner radius on .012 shaft; .90longshaft extends through both collars",
+    "Both envelope-fold rods enter the hatch panel while remaining partly raised and visible"
+  ],
+  "fixed_collar_is_not_friction_or_load_proof": true
+}
