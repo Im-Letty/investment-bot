@@ -26,3 +26,19 @@
 .ipg-river-fishing[data-phase="waiting"] .ipg-fishing-panel>.ipg-small,.ipg-river-fishing[data-phase="bite"] .ipg-fishing-panel>.ipg-small{display:none}
 
 .ipg-river-fishing>.ipg-button[hidden]{display:none!important}
+
+/* Keep the fishing toggle and its scrollable panel inside a short landscape. */
+@media (orientation: landscape) and (max-height: 480px) {
+  .ipg-town .ipg-river-fishing {
+    top: calc(76px + env(safe-area-inset-top, 0px));
+    bottom: auto;
+    right: max(12px, env(safe-area-inset-right, 0px));
+    max-width: min(270px, calc(100% - 24px - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px)));
+  }
+  .ipg-town .ipg-fishing-panel {
+    max-height: calc(100vh - 204px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    max-height: calc(100dvh - 204px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    touch-action: pan-y;
+  }
+}

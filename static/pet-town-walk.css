@@ -341,11 +341,27 @@
   .ipg-town .ipg-town-location { top: calc(174px + env(safe-area-inset-top, 0px)); }
 }
 
-/* The existing compact-landscape tabs move to the first row. */
-@media (min-width: 640px) and (max-height: 480px) {
-  .ipg-town .ipg-town-actions { max-height: calc(100% - 120px - 96px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); }
-  .ipg-town .ipg-town-guide { top: calc(72px + env(safe-area-inset-top, 0px)); }
-  .ipg-town .ipg-town-location { top: calc(112px + env(safe-area-inset-top, 0px)); }
+/* Reserve one compact header in every short landscape, including 568px. */
+@media (orientation: landscape) and (max-height: 480px) {
+  .ipg-town .ipg-town-actions {
+    max-height: calc(100% - 96px - 96px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  }
+  .ipg-town .ipg-town-location {
+    top: calc(96px + env(safe-area-inset-top, 0px));
+    max-width: calc(50% - var(--ipg-town-edge-left) - 12px);
+  }
+  .ipg .ipg-town .ipg-life-title {
+    left: var(--ipg-town-edge-left);
+    top: max(8px, env(safe-area-inset-top, 0px));
+    max-width: 140px;
+    gap: 1px;
+    padding: 6px 8px;
+    border-radius: 14px;
+  }
+  .ipg .ipg-town .ipg-life-title strong { font-size: 14px; line-height: 1.25; }
+  .ipg .ipg-town .ipg-life-title .ipg-small { font-size: 10px; line-height: 1.3; }
+  .ipg .ipg-town .ipg-life-title .ipg-progress { height: 4px; margin: 1px 0 0; }
+  .ipg .ipg-town .ipg-life-hud > .ipg-button { min-height: 44px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

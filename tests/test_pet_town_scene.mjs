@@ -617,3 +617,42 @@ test('actual Three transparent ordering draws the masked sea before foam and ori
   assert.deepEqual(rows.map(r=>r.object),[sea,foam,art[0]]);
  }finally{m.dispose();}
 });
+
+
+test('portrait framing reduces the projected pet and world together; rotation restores the landscape lens without changing the saved orbit',async()=>{
+ const box={left:0,top:0,width:390,height:844};
+ const f=await fixture({reduced:true,configureHost(host){host.getBoundingClientRect=()=>({...box});}});
+ try{
+  f.controller.setFrame(f.source);
+  const renderer=f.renderers[0],first=renderer.calls.at(-1),scene=first.scene,pet=scene.getObjectByName('current-pet-2d-frame');
+  const saved=f.controller.camera(),scale=pet.scale.clone(),position=pet.position.clone(),texture=pet.material.map;
+  const measure=(camera,point,axis)=>point.clone().project(camera)[axis];
+  const legacy=first.camera.clone();legacy.fov=50;legacy.updateProjectionMatrix();
+  const up=new THREE.Vector3(0,1,0).applyQuaternion(first.camera.quaternion),top=pet.position.clone().addScaledVector(up,(1-pet.center.y)*pet.scale.y),bottom=pet.position.clone().addScaledVector(up,-pet.center.y*pet.scale.y);
+  const oldSpan=Math.abs(measure(legacy,top,'y')-measure(legacy,bottom,'y'));
+  const newSpan=Math.abs(measure(first.camera,top,'y')-measure(first.camera,bottom,'y'));
+  assert.ok(newSpan/oldSpan>.77&&newSpan/oldSpan<.79,'narrow portrait subject is about22% smaller through projection');
+  const worldPoint=new THREE.Vector3(2,.025,1),oldX=measure(legacy,worldPoint,'x'),newX=measure(first.camera,worldPoint,'x');
+  assert.ok(Math.abs(newX/oldX-newSpan/oldSpan)<1e-9,'the street uses the same projection rather than a pet-only scale');
+  const sceneIdentity=scene.uuid;let calls=renderer.calls.length;
+  for(const [width,height] of [[844,390],[568,320],[320,568],[390,844]]){
+   box.width=width;box.height=height;f.observers[0].fn();f.frame(40);
+   const draw=renderer.calls.at(-1);
+   assert.ok(renderer.calls.length>calls,'ResizeObserver repaints even with reduced motion');calls=renderer.calls.length;
+   assert.equal(draw.camera.aspect,width/height);
+   if(width>=height)assert.ok(Math.abs(draw.camera.fov-50)<1e-10);
+   else assert.ok(draw.camera.fov>60&&draw.camera.fov<63);
+   assert.equal(draw.scene.uuid,sceneIdentity);assert.deepEqual(pet.scale,scale);assert.deepEqual(pet.position,position);assert.equal(pet.material.map,texture);
+   assert.deepEqual(f.controller.camera(),saved);assert.equal(f.host.dataset.visualMode,'three');
+   assert.deepEqual(f.failures,[]);
+  }
+ }finally{f.controller.destroy();}
+});
+
+test('viewport projection stays finite for invalid dimensions and transitions continuously into landscape',()=>{
+ for(const [width,height]of [[0,0],[-1,700],[390,NaN],[Infinity,844],[undefined,700]])assert.ok(Math.abs(Scene.viewportFov(width,height)-50)<1e-10);
+ const values=[.5,.7,.8,.9,1,1.2].map(a=>Scene.viewportFov(a*700,700));
+ assert.ok(values.every(v=>Number.isFinite(v)&&v>=49.99&&v<63));
+ for(let i=1;i<values.length;i++)assert.ok(values[i]<=values[i-1]);
+ assert.ok(Math.abs(Scene.viewportFov(700,700)-Scene.viewportFov(701,700))<1e-10);
+});
