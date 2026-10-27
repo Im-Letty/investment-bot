@@ -877,17 +877,17 @@
           }
           return fountainFinishes[key];
         }
-        var foot=cylinder(fountain,.40,.12,[fountainFinish('#ad9bb7','glaze',false),fountainFinish('#c6ad76','ceramic',false),fountainFinish('#c6ad76','ceramic',false)],0,.06,0);foot.scale.z*=.78;foot.name='fountain-foot';
+        var foot=cylinder(fountain,.40,.12,[fountainFinish('#9471ae','glaze',false),fountainFinish('#c6ad76','ceramic',false),fountainFinish('#c6ad76','ceramic',false)],0,.06,0);foot.scale.z*=.78;foot.name='fountain-foot';
         function bowl(name,xz,height,y){
-          var m=mesh(bowlGeometry||sphereGeometry,fountainFinish('#d6c4a3','ceramic',false),fountain,0,y,0);m.name=name;m.scale.set(xz,height,xz*.75);return m;
+          var m=mesh(bowlGeometry||sphereGeometry,fountainFinish('#c8b084','ceramic',false),fountain,0,y,0);m.name=name;m.scale.set(xz,height,xz*.75);return m;
         }
         bowl('fountain-lower-bowl',.74,.42,.12);
         bowl('fountain-upper-bowl',.37,.27,.77);
-        [[.74,.42,.12,12,'lower'],[.37,.27,.77,8,'upper']].forEach(function(tier){var tierGroup=new THREE.Group();tierGroup.position.y=tier[2];tierGroup.scale.set(tier[0],tier[1],tier[0]*.75);fountain.add(tierGroup);for(var pi=0;pi<tier[3];pi++){var panel=mesh(panelGeometry,fountainFinish('#e3d4b8','ceramic',false),tierGroup,0,0,0);panel.rotation.y=(pi+.5)*TAU/tier[3];panel.name='fountain-raised-petal-panel';panel.userData.bowlTier=tier[4];}});
+        [[.74,.42,.12,12,'lower'],[.37,.27,.77,8,'upper']].forEach(function(tier){var tierGroup=new THREE.Group();tierGroup.position.y=tier[2];tierGroup.scale.set(tier[0],tier[1],tier[0]*.75);fountain.add(tierGroup);for(var pi=0;pi<tier[3];pi++){var panel=mesh(panelGeometry,fountainFinish('#ddc596','ceramic',false),tierGroup,0,0,0);panel.rotation.y=(pi+.5)*TAU/tier[3];panel.name='fountain-raised-petal-panel';panel.userData.bowlTier=tier[4];}});
 
-        function rim(radius,y){var m=mesh(new THREE.TorusGeometry(radius,.026,6,32),fountainFinish('#ad9bb7','glaze',false),fountain,0,y,0);m.rotation.x=-Math.PI/2;m.scale.y=.75;m.name='lilac-glazed-fountain-rim';return m;}
+        function rim(radius,y){var m=mesh(new THREE.TorusGeometry(radius,.026,6,32),fountainFinish('#9471ae','glaze',false),fountain,0,y,0);m.rotation.x=-Math.PI/2;m.scale.y=.75;m.name='lilac-glazed-fountain-rim';return m;}
         rim(.704,.536);rim(.352,1.038);
-        cylinder(fountain,.105,.43,fountainFinish('#d6c4a3','ceramic',false),0,.66,0);
+        cylinder(fountain,.105,.43,fountainFinish('#c8b084','ceramic',false),0,.66,0);
         var lowerWater=cylinder(fountain,.61,.012,fountainFinish('#dce4df','water',true),0,.469,0);lowerWater.scale.z*=.75;lowerWater.name='fountain-lower-water';
         var upperWater=cylinder(fountain,.28,.012,fountainFinish('#dce4df','water',true),0,.995,0);upperWater.scale.z*=.75;upperWater.name='fountain-upper-water';
         for(var stream=0;stream<8;stream++){
