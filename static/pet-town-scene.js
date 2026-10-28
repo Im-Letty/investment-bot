@@ -1502,7 +1502,7 @@
         playerShadow.position.set(p.x, heightAt(position) + .003, p.z); playerShadow.visible = sprite.visible&&!snorkelingState;
         sprite.updateMatrixWorld(true); playerShadow.updateMatrixWorld(true);
         model.animate(stamp || 0, reduced);
-        if (fishingVisual) fishingVisual.update(fishingState, position, stamp || 0, reduced);
+        if (fishingVisual) { fishingVisual.group.visible = !(snorkelingState && snorkelingState.mode === 'underwater'); if (fishingVisual.group.visible) fishingVisual.update(fishingState, position, stamp || 0, reduced); }
         syncCamera();
         var facing = heading;
         if (fishingState && !motion.walking && Fishing && Fishing.legal(world, position)) { var water = Fishing.site().target; facing = Math.atan2(water.x-position.x, water.y-position.y); }
