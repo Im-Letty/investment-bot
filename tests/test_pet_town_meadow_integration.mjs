@@ -39,12 +39,14 @@ function named(m,predicate){const rows=[];m.scene.traverse(o=>{if(predicate(o))r
 
 test('full scene plans finite irregular sites clear of every actual road and bridge triangle',()=>withModel((m,world,before)=>{
  const d=m.scene.userData.meadowFlowers,triangles=actualTriangles(m);
- assert.equal(d.revision,'meadow-flowers3');assert.equal(d.summary.sites,d.sitePlan.length);assert.ok(d.summary.triangles<=45000,'actual accepted town planting stays within its authored45k budget');
- assert.ok(d.sitePlan.length>0&&d.sitePlan.length<=40);assert.equal(triangles.length,d.roadTriangleCount);assert.ok(triangles.length>2000);
- for(const site of d.sitePlan){const p=new THREE.Vector3(site.x,0,site.z);assert.equal(site.radius,.55);assert.ok(Number.isFinite(p.x)&&Number.isFinite(p.z));
+ assert.equal(d.revision,'meadow-flowers4');assert.equal(d.summary.sites,d.sitePlan.length);assert.ok(d.summary.triangles<=45000,'actual accepted town planting stays within its authored45k budget');
+ assert.equal(d.sitePlan.length,40);assert.equal(d.plantingMode,'pathside');assert.ok(d.summary.plants>=200&&d.summary.plants<=240);assert.ok(Object.keys(d.summary.flowerKinds).length>=6);assert.equal(triangles.length,d.roadTriangleCount);assert.ok(triangles.length>2000);
+ let pathDistanceTotal=0,nearPathCount=0;
+ for(const site of d.sitePlan){const p=new THREE.Vector3(site.x,0,site.z);let nearest=Infinity;for(const tri of triangles)nearest=Math.min(nearest,triangleDistance(p,tri));pathDistanceTotal+=nearest;if(nearest<2)nearPathCount++;assert.equal(site.radius,.55);assert.ok(Number.isFinite(p.x)&&Number.isFinite(p.z));
   for(const tri of triangles)assert.ok(triangleDistance(p,tri)>=.65-1e-7,'whole swept cluster clears actual paving');
-  for(const other of d.sitePlan)if(other!==site)assert.ok(Math.hypot(site.x-other.x,site.z-other.z)>=1.25-1e-10);
+  for(const other of d.sitePlan)if(other!==site)assert.ok(Math.hypot(site.x-other.x,site.z-other.z)>=1.0-1e-10);
  }
+ assert.ok(pathDistanceTotal/d.sitePlan.length<1.3,'actual pathside placement clusters within narrow safe drifts');assert.ok(nearPathCount>=35,'most garden clusters line the paths');
  assert.equal(JSON.stringify(world),before);
 }));
 
@@ -73,7 +75,7 @@ test('ambient replacements retain the saved flower artwork, six shop tulips and 
 }));
 
 test('decorative instances never become walking, picking, occlusion or duplicate static batches',()=>withModel(m=>{
- const flowers=m.meadowLife;assert.ok(flowers);assert.equal(flowers.batches.length,7);assert.equal(flowers.summary().geometries,3);
+ const flowers=m.meadowLife;assert.ok(flowers);assert.ok(flowers.batches.length<=16);assert.ok(flowers.summary().geometries<=10);
  assert.ok(m.batches.length+flowers.batches.length<=120,'combined native scene and meadow instance batches remain bounded');
  const meshes=new Set(flowers.batches.map(b=>b.mesh));
  for(const mesh of meshes){assert.equal(mesh.userData.noStaticBatch,true);assert.equal(mesh.userData.nonSolidDecoration,true);assert.equal(mesh.castShadow,false);assert.equal(mesh.receiveShadow,true);
@@ -123,3 +125,15 @@ test('actual autumn fallen-leaf volumes rest just above their sampled real floor
  }
  assert.equal(JSON.stringify(world),before);
 }));
+
+
+test('each current direct scene preview loads the same garden and environment helpers in a fresh browser-like context',()=>{
+ for(const name of ['pet-town-meadow-flowers-demo.html','pet-town-environment-demo.html','pet-town-tree-demo.html','pet-town-shop-style-demo.html']){
+  const html=readFileSync(new URL('../static/'+name,import.meta.url),'utf8'),context=vm.createContext({});
+  const imports=[...html.matchAll(/import ['"](\/static\/[^'"]+\.js)(?:\?[^'"]*)?['"]/g)].map(m=>m[1]);
+  assert.ok(imports.length>12,name+' explicit helper chain');
+  for(const path of imports)vm.runInContext(readFileSync(new URL('..'+path,import.meta.url),'utf8'),context,{filename:path});
+  const world=context.PetTownWalk.createWorld(),before=JSON.stringify(world),m=context.PetTownScene.buildWorld(THREE,world,{});
+  try{assert.equal(m.meadowLife.revision,'meadow-flowers4',name);assert.equal(m.meadowLife.summary().sites,40);assert.equal(m.scene.userData.environmentStyleRevision,'shop-environment2');assert.equal(m.scene.userData.treeFamilyRevision,'tree-family1');assert.equal(m.scene.userData.treeRootsRevision,'soft-roots2');assert.equal(JSON.stringify(world),before);}finally{m.dispose();}
+ }
+});

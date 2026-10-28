@@ -132,7 +132,7 @@ test('four new rounded wood dimensions cut corners inside the exact previous pos
    for(let i=0;i<p.count;i++){const v=new T.Vector3().fromBufferAttribute(p,i);assert.ok(b.containsPoint(v));nearest=Math.min(nearest,v.distanceTo(corner));assert.ok(Math.abs(new T.Vector3().fromBufferAttribute(n,i).length()-1)<1e-5);}
    assert.ok(nearest>.003,'the old sharp corner is truly removed');
   }
-  assert.equal(m.geometries.size,177);assert.ok(m.materials.size<=148);assert.ok(m.batches.length+m.meadowLife.batches.length<=120);
+  assert.equal(m.geometries.size-m.meadowLife.summary().geometries,174,'unchanged non-flower geometry count');assert.ok(m.meadowLife.summary().geometries<=10);assert.ok(m.materials.size<=148);assert.ok(m.batches.length+m.meadowLife.batches.length<=120);
  }finally{m.dispose();}
 });
 

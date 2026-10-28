@@ -47,18 +47,37 @@
     var count=Math.min(MAX_SITES,integer(options.count,MAX_SITES)),attempts=Math.min(MAX_CANDIDATES,integer(options.maxCandidates,MAX_CANDIDATES));
     var triangles=options.triangles===undefined?[]:options.triangles,boundaries=options.boundaries===undefined?[]:options.boundaries,obstacles=options.obstacles===undefined?[]:options.obstacles;
     if(!Array.isArray(triangles)||!Array.from(triangles).every(triangle)||!Array.isArray(boundaries)||!Array.from(boundaries).every(segment)||!Array.isArray(obstacles)||!Array.from(obstacles).every(box)||options.allowPoint!==undefined&&typeof options.allowPoint!=='function')fail();
-    var seed=seedValue(options.seed===undefined?0:options.seed),next=random(seed),clearance=radius+MARGIN,halfW=options.width/2,halfD=options.depth/2,rows=[];
-    for(var attempt=0;attempt<attempts&&rows.length<count;attempt++){
+    // Pathside is opt-in. It needs actual paving triangles rather than an
+    // invented centerline, and retains the same finite candidate/footprint cap.
+    if(options.pathside!==undefined&&typeof options.pathside!=='boolean')fail();
+    var pathside=options.pathside===true;
+    if(pathside&&triangles.length===0)fail();
+    var seed=seedValue(options.seed===undefined?0:options.seed),next=random(seed),clearance=radius+MARGIN,halfW=options.width/2,halfD=options.depth/2,rows=[],candidates=[];
+    for(var attempt=0;attempt<attempts&&(pathside?count>0:rows.length<count);attempt++){
       var x=(next()/4294967296-.5)*options.width,z=(next()/4294967296-.5)*options.depth,siteSeed=next();
       if(x<-halfW+clearance||x>halfW-clearance||z<-halfD+clearance||z>halfD-clearance)continue;
       if(options.allowPoint){var allowed=options.allowPoint(x,z);if(typeof allowed!=='boolean')fail();if(!allowed)continue;}
-      if(rows.some(function(row){return Math.hypot(x-row.x,z-row.z)<spacing;}))continue;
-      if(triangles.some(function(t){return distanceTriangle(x,z,t)<clearance;})||boundaries.some(function(s){return distanceSegment(x,z,s[0],s[1])<clearance;})||obstacles.some(function(b){return distanceBox(x,z,b)<clearance;}))continue;
-      rows.push(Object.freeze({id:'meadow-'+attempt,x:x,z:z,seed:siteSeed,radius:radius}));
+      // Preserve the historical first-eligible uniform layout when not opted in.
+      if(!pathside&&rows.some(function(row){return Math.hypot(x-row.x,z-row.z)<spacing;}))continue;
+      var roadDistance=Infinity;
+      if(triangles.some(function(t){var d=distanceTriangle(x,z,t);roadDistance=Math.min(roadDistance,d);return d<clearance;})||boundaries.some(function(s){return distanceSegment(x,z,s[0],s[1])<clearance;})||obstacles.some(function(b){return distanceBox(x,z,b)<clearance;}))continue;
+      var site=Object.freeze({id:'meadow-'+attempt,x:x,z:z,seed:siteSeed,radius:radius});
+      if(pathside)candidates.push({site:site,distance:roadDistance,attempt:attempt});
+      else rows.push(site);
+    }
+    if(pathside){
+      // Choose the nearest safe drifts first, then reject neighbours within
+      // the same spacing as uniform mode. Exact ties keep generation order.
+      candidates.sort(function(a,b){return a.distance-b.distance||a.attempt-b.attempt;});
+      for(var i=0;i<candidates.length&&rows.length<count;i++){
+        var candidate=candidates[i].site;
+        if(rows.some(function(row){return Math.hypot(candidate.x-row.x,candidate.z-row.z)<spacing;}))continue;
+        rows.push(candidate);
+      }
     }
     return Object.freeze(rows);
   }
-  return Object.freeze({revision:'meadow-sites1',plan:plan,limits:Object.freeze({sites:MAX_SITES,candidates:MAX_CANDIDATES,clearanceMargin:MARGIN}),
+  return Object.freeze({revision:'meadow-sites2',plan:plan,limits:Object.freeze({sites:MAX_SITES,candidates:MAX_CANDIDATES,clearanceMargin:MARGIN}),
     pointSegmentDistance:function(x,z,s){if(!finite(x)||!finite(z)||!segment(s))fail();return distanceSegment(x,z,s[0],s[1]);},
     pointTriangleDistance:function(x,z,t){if(!finite(x)||!finite(z)||!triangle(t))fail();return distanceTriangle(x,z,t);},
     pointBoxDistance:function(x,z,b){if(!finite(x)||!finite(z)||!box(b))fail();return distanceBox(x,z,b);}});

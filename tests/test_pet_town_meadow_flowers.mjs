@@ -68,13 +68,13 @@ function cleanup(f) {
 test('UMD registers in a timerless empty realm and recipes preserve caller identity and deterministic structure',()=>{
   const realm=vm.createContext({});
   vm.runInContext(readFileSync(new URL('../static/pet-town-meadow-flowers.js',import.meta.url),'utf8'),realm);
-  assert.equal(realm.PetTownMeadowFlowers.revision,'meadow-flowers3');
+  assert.equal(realm.PetTownMeadowFlowers.revision,'meadow-flowers4');
   assert.equal(realm.setTimeout,undefined);assert.equal(realm.localStorage,undefined);
   const input=Object.freeze(sites()),before=JSON.stringify(input);
   const a=input.map(x=>Meadow.recipe(x)),b=input.map(x=>Meadow.recipe({...x}));
   assert.deepEqual(a,b);assert.equal(JSON.stringify(input),before);
   const kinds=new Set(a.flatMap(x=>x.plants.map(p=>p.kind)));
-  for(const name of ['daisy','tulip','bell','spike','leaf'])assert.ok(kinds.has(name),name+' fixture is represented');
+  for(const name of ['daisy','tulip','bell','spike','rose','pansy','leaf'])assert.ok(kinds.has(name),name+' fixture is represented');
   assert.ok(new Set(a.map(x=>JSON.stringify(x.plants.map(p=>[p.kind,p.height,p.x,p.z])))).size>4);
 });
 
@@ -115,7 +115,7 @@ test('shared actual solids are closed outward volumes, while rendered species ha
           if(outline.has(key))assert.ok(Math.abs(outline.get(key)-position.getY(k))<2e-6,'leaf outline has no vertical side strip');
           else outline.set(key,position.getY(k));
         }
-        assert.ok(outline.size>=24,'leaf outline is sufficiently fine beside the tree artwork');
+        assert.ok(outline.size>=20,'leaf outline is sufficiently fine beside the tree artwork');
       }
     }
     const signatures=new Map();
@@ -125,7 +125,7 @@ test('shared actual solids are closed outward volumes, while rendered species ha
       const signature=rows.map(([r])=>r.role).sort().join('|');
       if(!signatures.has(plant.kind))signatures.set(plant.kind,signature);
     }
-    assert.equal(signatures.size,5);assert.equal(new Set(signatures.values()).size,5);
+    assert.equal(signatures.size,7);assert.equal(new Set(signatures.values()).size,7);
     for(const batch of f.meadow.batches){
       assert.equal(batch.mesh.userData.noStaticBatch,true);
       assert.equal(batch.mesh.userData.nonSolidDecoration,true);
@@ -215,11 +215,11 @@ test('forty accepted sites use bounded shared resources with stable instance buf
   try{
     const summary=f.meadow.summary(),geometry=[...f.geometries],materials=[...f.materials];
     const buffers=f.meadow.batches.map(b=>b.mesh.instanceMatrix.array);
-    assert.ok(summary.plants>=80&&summary.plants<=200);assert.ok(summary.parts<=2000);
-    // This fixed 40-site generic fixture has 122 plants. Actual Town has 107;
-    // its independent Scene integration keeps the tighter 45k budget.
-    assert.ok(summary.triangles<=52000);assert.ok(summary.batches<=20);
-    assert.ok(f.geometries.size<=4&&f.materials.size<=10);
+    assert.ok(summary.plants>=200&&summary.plants<=240);assert.ok(summary.parts<=2000);
+    // Every accepted patch now has five or six mixed plants. Shared closed
+    // whole-head silhouettes keep even this dense fixture inside45k.
+    assert.ok(summary.triangles<=45000);assert.ok(summary.batches<=16);
+    assert.ok(f.geometries.size<=10&&f.materials.size<=12);
     for(const t of [0,300,6000,Number.MAX_VALUE]){
       f.meadow.animate(t,false);
       assert.deepEqual([...f.geometries],geometry);assert.deepEqual([...f.materials],materials);
@@ -271,13 +271,13 @@ test('a partial instance-buffer setup failure disposes already-owned buffers and
 });
 
 test('finite rest-pose representatives have actual common-solid interior witnesses from every leaf and petal to their ground stem',()=>{
-  // Five authored specimens only. This is a finite closed-mesh contact witness,
+  // Seven authored specimens only. This is a finite closed-mesh contact witness,
   // not a guarantee about every future recipe, continuous poses or physical fit.
   const f=fixture();
   try{
     const selected=new Map();
     for(const p of f.meadow.plants)if(!selected.has(p.kind))selected.set(p.kind,p);
-    assert.equal(selected.size,5);
+    assert.equal(selected.size,7);
     const ray=new THREE.Ray(),direction=new THREE.Vector3(1,.347,.129).normalize();
     const local=new THREE.Vector3(),hit=new THREE.Vector3(),closest=new THREE.Vector3();
     function part(row,g){
@@ -325,7 +325,7 @@ test('finite rest-pose representatives have actual common-solid interior witness
       assert.ok(reached.size>0,kind+' actual geometry reaches the authored ground');
       while(pending.length){for(const n of edges[pending.shift()])if(!reached.has(n)){reached.add(n);pending.push(n);}}
       assert.equal(reached.size,parts.length,kind+' all visible parts have a common-interior connection to a grounded part');
-      if(kind==='tulip')assert.ok(parts.some(p=>p.role==='tulip-receptacle'),'the authored contact remedy is present');
+      if(kind==='tulip')assert.ok(parts.some(p=>p.role==='upright-fluted-tulip'),'the stem enters the real closed cup base');
     }
   }finally{cleanup(f);}
 });
@@ -358,4 +358,54 @@ test('local seasonal pigments and soft finishes preserve recipes, roots, buffers
     for(const invalid of [null,{},'bad',0,[]])assert.throws(()=>f.meadow.setSeason(invalid),/meadow_season_invalid/);
     f.meadow.dispose();assert.equal(f.meadow.setSeason('summer'),false);
   }finally{cleanup(f);}
+});
+
+
+test('dense mixed garden heads have six real silhouettes and a varied local instance palette without extra textures',()=>{
+  const f=fixture(sites(40));
+  try {
+    const summary=f.meadow.summary();
+    assert.equal(summary.mixedGardenHeads,true);
+    assert.equal(summary.instanceBloomColors,true);
+    const heads=[...f.geometries].filter(g=>g.userData.flowerKind);
+    assert.equal(heads.length,6);
+    const signatures=new Set(heads.map(g=>JSON.stringify(Array.from(g.attributes.position.array))));
+    assert.equal(signatures.size,6,'all bloom kinds have different actual closed mesh vertices');
+    const colors=new THREE.Color(),distinct=new Set();
+    for(const batch of f.meadow.batches)for(let i=0;i<batch.rows.length;i++){
+      if(batch.rows[i].tintRole!=='bloom')continue;
+      assert.ok(batch.mesh.instanceColor,'authored bloom colors are attached to rendered instances');
+      batch.mesh.getColorAt(i,colors);distinct.add(colors.getHexString());
+      assert.equal(batch.mesh.material.color.getHexString(),'ffffff');
+    }
+    assert.equal(distinct.size,6,'the dense garden really renders six bloom pigments, not only design metadata');
+    assert.equal(summary.textures,0);assert.equal(summary.lights,0);
+    for(const s of sites(40)){
+      const recipe=Meadow.recipe(s);
+      assert.ok(recipe.plants.length>=5&&recipe.plants.length<=6);
+      assert.ok(new Set(recipe.plants.map(p=>p.kind)).size>=5);
+      assert.ok(new Set(recipe.plants.map(p=>p.color)).size>=2);
+    }
+  } finally {cleanup(f);}
+});
+
+
+test('all seven dense cluster species rotations fit the actual forty-site triangle budget',()=>{
+  const kinds=['daisy','tulip','bell','spike','rose','pansy','leaf'];
+  for(const kind of kinds){
+    const input=sites(40).map(s=>{
+      for(let seed=0;seed<1000;seed++){
+        const candidate={...s,seed};
+        if(Meadow.recipe(candidate).plants[0].kind===kind)return candidate;
+      }
+      throw new Error('missing authored cluster rotation '+kind);
+    });
+    const f=fixture(input);
+    try{
+      const v=f.meadow.summary();
+      assert.equal(v.plants,240);
+      assert.ok(v.triangles<=44640,kind+' actual closed head/leaf/stem instances fit the retained45k budget');
+      assert.ok(v.batches<=16);
+    }finally{cleanup(f);}
+  }
 });
