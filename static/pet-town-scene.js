@@ -193,15 +193,15 @@
     return treeVarietyLoading;
   }
   function meadowReady(sites, flowers) {
-    return sites && sites.revision === 'meadow-sites1' && typeof sites.plan === 'function' &&
-      flowers && flowers.revision === 'meadow-flowers3' && typeof flowers.create === 'function';
+    return sites && sites.revision === 'meadow-sites2' && typeof sites.plan === 'function' &&
+      flowers && flowers.revision === 'meadow-flowers4' && typeof flowers.create === 'function';
   }
   function loadMeadow() {
     var sites = MeadowSites || globalThis.PetTownMeadowSites, flowers = MeadowFlowers || globalThis.PetTownMeadowFlowers;
     if (meadowReady(sites, flowers)) { MeadowSites = sites; MeadowFlowers = flowers; return Promise.resolve(true); }
     if (!meadowLoading) meadowLoading = Promise.all([
-      import('/static/pet-town-meadow-sites.js?v=20261028-meadowflowers2'),
-      import('/static/pet-town-meadow-flowers.js?v=20261028-tree-family1')
+      import('/static/pet-town-meadow-sites.js?v=20261028-flower-garden4'),
+      import('/static/pet-town-meadow-flowers.js?v=20261028-flower-garden4')
     ]).then(function () {
       MeadowSites = globalThis.PetTownMeadowSites; MeadowFlowers = globalThis.PetTownMeadowFlowers;
       if (!meadowReady(MeadowSites, MeadowFlowers)) throw new Error('town_meadow_unavailable');
@@ -1121,7 +1121,7 @@
         return { minX: lo.x, maxX: hi.x, minZ: lo.z, maxZ: hi.z };
       });
       var meadowSites = meadowSiteAPI.plan({ width: world.width / UNIT, depth: world.height / UNIT,
-        seed: 17371, count: 40, maxCandidates: 500, radius: .55, spacing: 1.25,
+        seed: 17371, count: 40, maxCandidates: 500, radius: .55, spacing: 1.0, pathside: true,
         triangles: roadTriangles, boundaries: bankBounds, obstacles: meadowObstacles,
         allowPoint: function (x, z) {
           var point = townPoint(world, { x: x, z: z });
@@ -1133,7 +1133,7 @@
       scene.userData.meadowFlowersRevision = meadowLife.revision;
       scene.userData.meadowFlowers = { revision: meadowLife.revision, summary: meadowLife.summary(), sitePlan: meadowSites,
         roadTriangleCount: roadTriangles.length, obstacleCount: meadowObstacles.length, bankSegmentCount: bankBounds.length,
-        sweptRadius: .55, spacing: 1.25 };
+        sweptRadius: .55, spacing: 1.0, plantingMode: 'pathside' };
       meadowSites.forEach(function (p, i) { if (i % 4 === 0) seasonalSites.push({ x: p.x, z: p.z }); });
     } else {
     scene.userData.meadowFlowersRevision = null;
@@ -1309,7 +1309,7 @@
       return frame;
     }
     scene.userData.environmentStyleRevision=groundFinish&&waterFinish&&environmentLife&&layoutModel&&layoutModel.environmentRevision==='shop-environment1'?'shop-environment2':null;
-    scene.userData.treeFamilyRevision=scene.userData.environmentStyleRevision&&meadowLife&&meadowLife.revision==='meadow-flowers3'?'tree-family1':null;
+    scene.userData.treeFamilyRevision=scene.userData.environmentStyleRevision&&meadowLife&&meadowLife.revision==='meadow-flowers4'?'tree-family1':null;
     scene.userData.environmentStyle={revision:scene.userData.environmentStyleRevision,ground:groundFinish?groundFinish.summary():null,water:waterFinish?waterFinish.metrics:null,environment:environmentLife?environmentLife.summary():null};
     function dispose() { if (disposed) return; disposed = true; if(environmentLife)environmentLife.dispose(); if(meadowLife)meadowLife.dispose(); if(originalArt)originalArt.dispose(); if(oceanLife&&oceanLife.instanceMeshes)oceanLife.instanceMeshes.forEach(function(m){m.dispose();}); batches.forEach(function (b) { b.mesh.dispose(); }); geometries.forEach(function (g) { g.dispose(); }); materials.forEach(function (m) { m.dispose(); }); textures.forEach(function (t) { t.dispose(); }); sun.shadow.dispose(); scene.clear(); }
     return { scene: scene, surfaces: surfaces, occluders: occluders, pickables: pickables, placeGroups: placeGroups, solidLifeRevision:solidLifeRevision, windowRooms:windowRooms, windowLifeMaterials:windowLifeMaterials, waterLife:waterLife, oceanLife:oceanLife, shoreTransition:shoreTransition, meadowLife:meadowLife, groundFinish:groundFinish, waterFinish:waterFinish, environment:environmentLife, animate: animate, dispose: dispose,
