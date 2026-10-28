@@ -35,7 +35,7 @@ body.kn-home-a #sideDrawer.kn-menu-a .kn-menu-row{background:transparent!importa
 #sideDrawer.kn-menu-a .drawer-color-input::-webkit-color-swatch{border:0;border-radius:50%}
 #sideDrawer.kn-menu-a .drawer-color-reset,#sideDrawer.kn-menu-a .kn-menu-reset{display:block;width:auto;min-height:44px;padding:8px 0;border:0;border-radius:0;background:none;color:var(--kn-a-muted);font:400 calc(13px * var(--kn-a-scale,1))/1.5 var(--kn-a-sans);text-decoration:underline;text-underline-offset:4px;cursor:pointer;margin:0;}
 #sideDrawer.kn-menu-a .kn-menu-palette{padding-top:2px}
-#sideDrawer.kn-menu-a .kn-color-plus{position:relative;isolation:isolate;display:grid;place-items:center;box-sizing:border-box;width:100%;min-width:44px;min-height:44px;padding:0;border:0;background:transparent;color:var(--kn-a-muted);font:400 23px/1 var(--kn-a-sans);cursor:pointer}
+#sideDrawer.kn-menu-a .kn-color-plus{position:relative;isolation:isolate;display:grid;place-items:center;box-sizing:border-box;width:100%;min-width:44px;min-height:44px;padding:0;border:0;background:transparent;color:var(--kn-a-muted);font:300 21px/1 var(--kn-a-sans);cursor:pointer}
 #sideDrawer.kn-menu-a .kn-color-plus:before{content:"";position:absolute;z-index:-1;width:29px;height:29px;border:1px solid var(--kn-a-line);border-radius:50%;background:var(--kn-a-paper)}
 #sideDrawer.kn-menu-a .kn-color-plus:hover:before,#sideDrawer.kn-menu-a .kn-color-plus[aria-expanded=true]:before{background:var(--kn-a-chip)}
 #sideDrawer.kn-menu-a .kn-color-plus:disabled{opacity:.6;cursor:default}
