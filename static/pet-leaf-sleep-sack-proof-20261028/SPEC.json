@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "unit_id": "wardrobe:fit-prerequisite:leaf-sleep-sack:garment-volume-openings:v1",
+  "source_asset": "prepared_clothing_01c_sleep_sack_v1",
+  "source_original_SHA": "5f37214445824793c193eb9ddb4be15be3ff6e24a725f16416671016d41eaa88",
+  "design": "Author a thick cream quilted closed-foot sleeping pouch with sage binding around genuine neck and two arm openings, raised leaf-vein piping, closed decorative overlap and small brass leaf clasp. Preserve original raw PNG; no flat front pasted onto back.",
+  "dimensions_scope": "Authored garment-local prototype units, not body measurements or fitting calibration.",
+  "bodyBinding": null,
+  "new_original_designs": 0,
+  "new_raw_PNGs": 0,
+  "imagegen_calls": 0,
+  "new_canonical_fit_success": 0,
+  "new_body_references": 0,
+  "new_village_library_candidates": 0,
+  "garment_only_prerequisite": true,
+  "real_apertures": [
+    "neck",
+    "left_arm",
+    "right_arm"
+  ],
+  "closed_foot": true,
+  "front_fastening_operable": false,
+  "material_volumes": "One coordinate-welded closed-thickness cloth manifold with sewn seams; rendering vertices split by material/65-degree normal creases without changing any triangle corner or winding. Capped quilt relief and actual common-solid attachments.",
+  "fitting_motion_rig_cloth_physics_all_growth_or_production": false,
+  "ordinary_game_unlock_ownership_save_changes": 0,
+  "limits": [
+    "Back, interior and depth authored for this garment. No recovered backside or anatomical depth is asserted.",
+    "Finite ray and contact witnesses do not prove continuous clearances, physical load/friction or all-camera visibility.",
+    "The front overlap and toggle are fixed decorative geometry. Actual opening/closing and wearing remain unverified."
+  ],
+  "strict_contact_witness_rule": {
+    "minimum_world_triangle_surface_clearance_greater_than": 1e-05,
+    "noncollinear_world_parity_directions": 3,
+    "all_directions_inside_both_actual_parts": true,
+    "finite_points_not_continuous_contact_guarantee": true
+  },
+  "stored_normal_rule": "All actual indexed face normals have positive dot with average stored vertex normal; crease splits preserve welded material geometry."
+}

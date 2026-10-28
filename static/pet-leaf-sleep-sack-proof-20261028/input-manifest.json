@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "model_id": "leaf-sleep-sack-garment-volume-v1",
+  "unit_id": "wardrobe:fit-prerequisite:leaf-sleep-sack:garment-volume-openings:v1",
+  "run_id": "automation360-20261028-175118",
+  "base_main_sha": "8f0cc130f84b25869222b9bdc75d6cee5955beae",
+  "parent_reservation": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/heartbeat-20261028-175118/parent-reservation.json",
+    "sha256": "0de522f7d497b83d0ce862cdfbbf0dc030c0ca4191d7150cb2b523527171dc9d",
+    "bytes": 406
+  },
+  "preproduction_fit_audit": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/heartbeat-20261028-175118/fit-audit-verification.json",
+    "sha256": "a693c36f1c0cf6e3a5c4eb74164e318b249568ebfb152c5c41a1f74963612ca5",
+    "bytes": 3105
+  },
+  "source_original": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/assets/leaf-sleep-sack-v1.png",
+    "sha256": "5f37214445824793c193eb9ddb4be15be3ff6e24a725f16416671016d41eaa88",
+    "bytes": 1493168
+  },
+  "source_original_viewed_before_design": true,
+  "original_copy_unmodified": true,
+  "new_raw_PNGs": 0,
+  "new_original_designs": 0,
+  "imagegen_calls": 0,
+  "new_body_references": 0,
+  "new_canonical_fit_success": 0,
+  "new_village_library_candidates": 0,
+  "bodyBinding": null,
+  "not_a_body_or_fitting_pass": true,
+  "authored_garment_depth_back_and_interior": true,
+  "bitmap_applied_to_all_sides": false,
+  "model_textures": 0,
+  "ordinary_game_changes": 0,
+  "scope": "One connected thick closed-foot cream sleeping pouch, three actual apertures, sage binding, fixed closed overlap, capped leaf-vein quilt relief and brass leaf clasp. Garment dimensions are authored, not calibrated body values.",
+  "finite_passage_segments": 11,
+  "finite_camera_samples": 28,
+  "finite_interior_camera_samples": 4,
+  "finite_witnesses_are_not_unique_tests": true,
+  "crossing_limit": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee",
+  "files": [
+    {
+      "path": "SPEC.json",
+      "sha256": "26229c8e88ef1f7c54e9003aba84cce343df176ba0a64301b8f5601f5821a7d2",
+      "bytes": 2198
+    },
+    {
+      "path": "audit.mjs",
+      "sha256": "25050b90faa681eeb40f800ae4c4923515c91eb26d792b1371c4bb5e4847570d",
+      "bytes": 5412
+    },
+    {
+      "path": "entry.mjs",
+      "sha256": "b0d952e7f8fce3725220de194a2096fd89c256250f8869e6d90f7928b36878e3",
+      "bytes": 1864
+    },
+    {
+      "path": "finite-geometry-certificate.json",
+      "sha256": "3f73cf037542fb91a3e408146cd771a8fb01ce24072716d25866d0e32253a55b",
+      "bytes": 78303
+    },
+    {
+      "path": "index.html",
+      "sha256": "b715804f3eac41a9d9fe787c8eb076e86275355844e137855dcf5d0f5aa4a365",
+      "bytes": 4466
+    },
+    {
+      "path": "interior-camera.mjs",
+      "sha256": "4f4d9a4e5747ab85428447d961f0c81918dbeadf9e3a4691705f1720672cd60c",
+      "bytes": 1097
+    },
+    {
+      "path": "reference.png",
+      "sha256": "5f37214445824793c193eb9ddb4be15be3ff6e24a725f16416671016d41eaa88",
+      "bytes": 1493168
+    },
+    {
+      "path": "modelrecipe.mjs",
+      "sha256": "ea3232a6e3f21fe7358fa2fda0c0fd0f97075cf4b9d8efe9d118653756ed3c64",
+      "bytes": 25228
+    },
+    {
+      "path": "viewer.mjs",
+      "sha256": "f5cbc4c9ca145c1cd507f10f9a252f80457ffea2c64a59aa438bb371a9787e42",
+      "bytes": 7775
+    }
+  ],
+  "inputs": [
+    {
+      "path": "static/vendor/three-0.160.1.module.js",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    {
+      "path": "static/pet-scalloped-path-proof-20261027/framing.mjs",
+      "sha256": "dba92c2f6dec2816ebcf25434ee07c3b699accb61b7e1961a11baf366edad08a",
+      "bytes": 1678
+    },
+    {
+      "path": "tests/test_pet_leaf_sleep_sack_20261028.mjs",
+      "sha256": "35a12a07ee9692a68046ad38aa7bcaf269486c5feb8d8a559bfe59a09acfba72",
+      "bytes": 13437
+    }
+  ]
+}
