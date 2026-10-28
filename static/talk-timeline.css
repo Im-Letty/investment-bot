@@ -6,7 +6,7 @@ body.kn-home-a {
 body.kn-home-a[data-theme="dark"] {
   --kn-talk-bg:var(--kn-sh-bg,var(--kn-a-bg));
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv).cw-screen {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk).cw-screen {
   --cw-stock-accent:var(--kn-sh-button);
   --cw-community-accent:var(--kn-sh-button);
   --cw-reply-accent:var(--kn-sh-button);
@@ -21,39 +21,39 @@ body.kn-home-a :is(#teachOv,#teachOv .to-head,#teachOv .to-body) {
 }
 
 /* Existing header geometry reserves the floating menu and bottom navigation. */
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-header {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-header {
   background:var(--kn-talk-bg);
   justify-content:flex-end;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) :is(.cw-back,.cw-title) {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) :is(.cw-back,.cw-title) {
   display:none;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-view-tabs {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-view-tabs {
   background:var(--kn-talk-bg);
   border-bottom-color:var(--kn-sh-line);
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-view-tab {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-view-tab {
   min-height:54px;
   padding:12px;
   background:transparent;
   font-size:calc(var(--kn-type-control,14px) * var(--kn-type-scale,1));
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-view-tab[aria-pressed="true"] {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-view-tab[aria-pressed="true"] {
   background:var(--kn-sh-chip);
   color:var(--kn-sh-ink);
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-view-tab[aria-pressed="true"]::after {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-view-tab[aria-pressed="true"]::after {
   content:none;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-content {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-content {
   max-width:700px;
   padding:20px 24px 32px;
   overflow-wrap:anywhere;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-intro {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-intro {
   margin-bottom:16px;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-context-title {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-context-title {
   margin:0 0 10px;
   color:var(--kn-sh-ink);
   font:500 calc(24px * var(--kn-type-scale,1))/1.5 var(--kn-a-serif,"Hiragino Mincho ProN","Yu Mincho",serif);
@@ -70,17 +70,17 @@ body.kn-home-a #stockTalkOv .cw-company-context {
 
 /* The existing stock room picker becomes a small, horizontal bookshelf.
    The general conversation remains a single shared feed without topic tabs. */
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-room-picker {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-room-picker {
   margin:0 0 16px;
   border-bottom:1px solid var(--kn-sh-line);
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-room-picker > summary {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-room-picker > summary {
   min-height:44px;
   padding:10px 0;
   color:var(--kn-sh-muted);
   font-size:calc(var(--kn-type-label,13px) * var(--kn-type-scale,1));
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-room-picker .cw-categories {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-room-picker .cw-categories {
   display:flex;
   flex-wrap:nowrap;
   align-items:stretch;
@@ -93,7 +93,7 @@ body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-room-picker .cw-categories {
   scroll-snap-type:x proximity;
   scrollbar-width:thin;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-room-picker .cw-categories > .cw-category {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-room-picker .cw-categories > .cw-category {
   flex:0 0 clamp(144px,40vw,190px);
   width:clamp(144px,40vw,190px);
   min-width:0;
@@ -112,47 +112,47 @@ body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-room-picker .cw-categories > .cw-cate
   overflow-wrap:anywhere;
   scroll-snap-align:start;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-room-picker .cw-categories > .cw-category[aria-pressed="true"] {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-room-picker .cw-categories > .cw-category[aria-pressed="true"] {
   border-color:var(--kn-sh-button);
   background:var(--kn-sh-chip);
   color:var(--kn-sh-ink);
 }
 
 /* Searches and writing areas use neutral paper rather than category tints. */
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-search {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-search {
   min-width:0;
   border:1px solid var(--kn-sh-line);
   border-radius:14px;
   background:var(--kn-sh-paper);
   box-shadow:none;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-search .cw-input {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-search .cw-input {
   border-radius:14px;
   background:transparent;
   font-size:max(16px,calc(var(--kn-type-input,16px) * var(--kn-type-scale,1)));
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-toolbar {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-toolbar {
   flex-wrap:wrap;
   gap:10px 16px;
   margin-bottom:16px;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-toolbar .cw-description {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-toolbar .cw-description {
   flex:1 1 180px;
   min-width:0;
   color:var(--kn-sh-ink);
   font-size:calc(var(--kn-type-body,14px) * var(--kn-type-scale,1));
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-primary {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-primary {
   max-width:100%;
   min-height:44px;
   border-radius:10px;
   white-space:normal;
   overflow-wrap:anywhere;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-toolbar .cw-primary {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-toolbar .cw-primary {
   border-radius:10px;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) :is(.cw-composer,.cw-reply-form) {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) :is(.cw-composer,.cw-reply-form) {
   min-width:0;
   padding:18px;
   border:1px solid var(--kn-sh-line);
@@ -160,53 +160,53 @@ body.kn-home-a :is(#cmOv,#stockTalkOv) :is(.cw-composer,.cw-reply-form) {
   background:var(--kn-sh-paper);
   color:var(--kn-sh-ink);
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-composer-fields {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-composer-fields {
   grid-template-columns:minmax(0,1fr);
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-nickname {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-nickname {
   grid-column:1/-1;
   min-width:0;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-nickname-summary {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-nickname-summary {
   display:flex;
   align-items:center;
   flex-wrap:wrap;
   gap:6px 12px;
   min-height:44px;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-nickname-caption {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-nickname-caption {
   font-size:calc(var(--kn-type-caption,12px) * var(--kn-type-scale,1));
   color:var(--kn-sh-muted);
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-nickname-value {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-nickname-value {
   min-width:0;
   overflow-wrap:anywhere;
   color:var(--kn-sh-ink);
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-nickname-actions {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-nickname-actions {
   display:flex;
   align-items:center;
   flex-wrap:wrap;
   gap:12px;
   margin-top:8px;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) :is(.cw-nickname-summary,.cw-nickname-editor)[hidden],
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-nickname-status:empty {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) :is(.cw-nickname-summary,.cw-nickname-editor)[hidden],
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-nickname-status:empty {
   display:none;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) :is(.cw-composer,.cw-reply-form) :is(.cw-input,.cw-select) {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) :is(.cw-composer,.cw-reply-form) :is(.cw-input,.cw-select) {
   background:var(--kn-sh-paper)!important;
   font-size:max(16px,calc(var(--kn-type-input,16px) * var(--kn-type-scale,1)));
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-form-bottom {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-form-bottom {
   flex-wrap:wrap;
 }
 
 /* A single timeline: round avatars, thin separators and a shared text edge. */
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-feed {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-feed {
   gap:0;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-post {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-post {
   --cw-post-top:20px;
   --cw-avatar-size:36px;
   --cw-avatar-gap:12px;
@@ -219,7 +219,7 @@ body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-post {
   background:transparent;
   box-shadow:none;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-post-head {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-post-head {
   display:flex;
   flex-wrap:wrap;
   align-items:baseline;
@@ -228,7 +228,7 @@ body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-post-head {
   min-height:36px;
   padding-right:44px;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-avatar {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-avatar {
   position:absolute;
   left:0;top:var(--cw-post-top);
   display:flex;
@@ -244,14 +244,14 @@ body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-avatar {
   font-size:calc(var(--kn-type-body,14px) * var(--kn-type-scale,1));
   line-height:1;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-author {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-author {
   flex:0 1 auto;
   min-width:0;
   max-width:100%;
   color:var(--kn-sh-ink);
   overflow-wrap:anywhere;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-post-date {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-post-date {
   flex:0 1 auto;
   min-width:0;
   max-width:100%;
@@ -261,37 +261,37 @@ body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-post-date {
   line-height:1.6;
   overflow-wrap:anywhere;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-post-menu {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-post-menu {
   position:absolute;
   top:calc(var(--cw-post-top) - 4px);
   right:0;
   margin:0;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-menu-trigger {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-menu-trigger {
   width:44px;
   min-height:44px;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-menu-body {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-menu-body {
   width:max-content;
   min-width:min(180px,calc(100vw - 32px));
   max-width:calc(100vw - 32px);
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-menu-item {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-menu-item {
   white-space:normal;
   overflow-wrap:anywhere;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-post-body {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-post-body {
   margin:6px 0 8px;
   color:var(--kn-sh-ink);
   line-height:1.8;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-post-actions {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-post-actions {
   display:flex;
   align-items:center;
   flex-wrap:wrap;
   gap:4px 24px;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) :is(.cw-like,.cw-reply-toggle) {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) :is(.cw-like,.cw-reply-toggle) {
   display:inline-flex;
   align-items:center;
   justify-content:flex-start;
@@ -307,19 +307,19 @@ body.kn-home-a :is(#cmOv,#stockTalkOv) :is(.cw-like,.cw-reply-toggle) {
   white-space:normal;
   overflow-wrap:anywhere;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-like[aria-pressed="true"] {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-like[aria-pressed="true"] {
   color:var(--kn-sh-ink);
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-like::before {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-like::before {
   content:"♡";
   flex:0 0 auto;
   font-size:1.5em;
   line-height:1;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-like[aria-pressed="true"]::before {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-like[aria-pressed="true"]::before {
   content:"♥";
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-reply-toggle::before {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-reply-toggle::before {
   content:"";
   flex:0 0 auto;
   width:1.2em;
@@ -327,14 +327,14 @@ body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-reply-toggle::before {
   border:1.5px solid currentColor;
   border-radius:40% 40% 40% 0;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-action-count {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-action-count {
   margin:0;
   flex:0 0 auto;
   font-variant-numeric:tabular-nums;
 }
 
 /* A quiet connecting rule keeps replies distinct without nested color cards. */
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-reply-preview {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-reply-preview {
   margin:8px 0 0;
   padding:10px 12px;
   border:0;
@@ -344,17 +344,17 @@ body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-reply-preview {
   color:var(--kn-sh-muted);
   font-size:calc(var(--kn-type-label,13px) * var(--kn-type-scale,1));
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-preview-name {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-preview-name {
   color:var(--kn-sh-ink);
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-replies {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-replies {
   margin:12px 0 0 -12px;
   padding:0 0 0 12px;
   border:0;
   border-left:1px solid var(--kn-sh-line);
   background:transparent;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-reply-post {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-reply-post {
   --cw-post-top:14px;
   --cw-avatar-size:30px;
   --cw-avatar-gap:10px;
@@ -365,10 +365,10 @@ body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-reply-post {
   border-bottom:1px solid var(--kn-sh-line);
   background:transparent;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-reply-post + .cw-reply-post {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-reply-post + .cw-reply-post {
   margin-top:0;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-reply-post .cw-avatar {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-reply-post .cw-avatar {
   top:var(--cw-post-top);
   width:var(--cw-avatar-size);
   height:var(--cw-avatar-size);
@@ -378,33 +378,57 @@ body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-reply-post .cw-avatar {
   background:var(--kn-sh-chip);
   font-size:calc(var(--kn-type-label,13px) * var(--kn-type-scale,1));
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-reply-form {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-reply-form {
   margin-top:14px;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-state {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-state {
   border:1px solid var(--kn-sh-line);
   border-radius:12px;
   background:var(--kn-sh-paper);
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-dialog-controls {
+body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-dialog-controls {
   flex-wrap:wrap;
 }
 
 @media(max-width:640px) {
-  body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-content {
+  body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-content {
     padding:16px 16px 28px;
   }
-  body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-post {
+  body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-post {
     --cw-post-top:18px;
     --cw-avatar-gap:8px;
   }
-  body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-composer-fields {
+  body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-composer-fields {
     grid-template-columns:minmax(0,1fr);
   }
-  body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-composer-fields > :first-child {
+  body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) .cw-composer-fields > :first-child {
     grid-column:auto;
   }
-  body.kn-home-a :is(#cmOv,#stockTalkOv) :is(.cw-composer,.cw-reply-form) {
+  body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) :is(.cw-composer,.cw-reply-form) {
     padding:14px;
   }
 }
+
+/* The existing Talk surface stays intact inside the company dialog. */
+body.kn-home-a #cpStockTalk.cw-embedded {
+  position:relative;inset:auto;bottom:auto!important;width:100%;height:100%;
+  min-height:0;overflow:hidden;display:flex;flex-direction:column;
+}
+body.kn-home-a #cpStockTalk.cw-embedded .cw-content {width:100%;max-width:none}
+body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-view-tabs {
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px;
+  width:calc(100% - 48px);max-width:652px;margin:16px auto 0;padding:5px;border:1px solid var(--kn-sh-line);border-radius:12px;
+  background:var(--kn-talk-bg);flex:0 0 auto;
+}
+body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-view-tab {
+  min-width:0;min-height:48px;padding:8px 7px;border:1px solid transparent;
+  border-radius:8px;background:transparent;color:var(--kn-sh-muted);
+  font:inherit;font-weight:400;line-height:1.5;white-space:normal;
+}
+body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-view-tab[aria-pressed="true"] {
+  border-color:var(--kn-sh-line);background:var(--kn-sh-chip);color:var(--kn-sh-ink);font-weight:500;
+}
+body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-view-tab:focus-visible {outline:2px solid var(--kn-sh-button);outline-offset:2px}
+@media(max-width:480px){body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-view-tabs{width:calc(100% - 24px)}}
+
+body.kn-home-a #cpStockTalk.cw-embedded[hidden] {display:none!important}

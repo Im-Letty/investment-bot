@@ -5,7 +5,7 @@
  function companyCode(value){var key=typeof value==='string'?value.normalize('NFKC').trim().toUpperCase():'';return /^[0-9][0-9A-Z]{3}(?:\.(?:T|JP))?$/.test(key)?key.replace(/\.(?:T|JP)$/,''):'';}
  function open(origin){cancelEntry();return conversation.open(origin);}
  function close(){cancelEntry();return conversation.close();}
- async function openForCompany(value,options){
+ async function roomForCompany(value,options,mountHost){
   cancelEntry();var epoch=entryEpoch,code=companyCode(value);options=options||{};if(!code)return false;
   var controller=new w.AbortController(),onAbort,timer;roomRead=controller;
   var cancelled=new Promise(function(resolve){onAbort=function(){resolve(null);};controller.signal.addEventListener('abort',onAbort,{once:true});});
@@ -19,9 +19,12 @@
    // Releasing the company sheet changes its current token; open synchronously next.
    if(typeof options.beforeOpen==='function'&&options.beforeOpen()===false)return false;
    if(epoch!==entryEpoch)return false;
+   if(mountHost)return conversation.mountRoom(mountHost,{code:room.code,category:room.category,name:room.name},{onClose:options.onClose,onAuthRequired:options.onAuthRequired});
    return conversation.openRoom({code:room.code,category:room.category,name:room.name},{onReturn:options.onReturn})===true;
   }catch(_){return false;}finally{w.clearTimeout(timer);controller.signal.removeEventListener('abort',onAbort);if(roomRead===controller)roomRead=null;}
  }
+ function openForCompany(value,options){return roomForCompany(value,options);}
+ function mountForCompany(value,host,options){if(!host||typeof host.appendChild!=='function'||host.isConnected===false)return Promise.resolve(false);return roomForCompany(value,options,host);}
  function setup(){
   if(!w.knCreateConversation){w.setTimeout(setup,100);return;}
   var rooms=[['stock:7203','トヨタ自動車 7203'],['stock:6758','ソニーグループ 6758'],['stock:9984','ソフトバンクグループ 9984'],['stock:8306','三菱UFJ 8306'],['index:N225','日経平均'],['index:SP500','S&P500'],['index:DJI','ダウ平均'],['index:IXIC','ナスダック']];
@@ -35,7 +38,7 @@
     var b=document.createElement('button');b.type='button';b.className='cw-category';b.textContent='♡ '+(item.name||code);b.addEventListener('click',async function(){try{var r=await w.fetch('/api/stock-talk/rooms?q='+encodeURIComponent(code),{cache:'no-store'}),d=await r.json();if(!s.root.isConnected)return;var room=(d.rooms||[]).find(function(v){return v.code===code;});if(room)s.chooseRoom(room);}catch(e){}});links.appendChild(b);});
    if(links.children.length){if(s.roomPicker)s.roomPicker.appendChild(links);else s.categoryNote.parentNode.before(links);}
   }});
-  w.KNStockTalk=Object.assign({},conversation,{open:open,close:close,cancelPending:cancelEntry,openForCompany:openForCompany});w.openStockTalk=open;
+  w.KNStockTalk=Object.assign({},conversation,{open:open,close:close,cancelPending:cancelEntry,openForCompany:openForCompany,mountForCompany:mountForCompany});w.openStockTalk=open;
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup();
 })(window);

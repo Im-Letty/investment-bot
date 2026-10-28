@@ -152,3 +152,27 @@
 @keyframes cpLeave {from{opacity:1;transform:translate(-50%,0)}to{opacity:0;transform:translate(-50%,18px)}}
 @keyframes cpFadeIn {from{opacity:0}to{opacity:1}}
 @keyframes cpFadeOut {from{opacity:1}to{opacity:0}}
+
+/* The shared tab-control proposal retains the current company palette. */
+#knCompanyProfile .cp-view-tabs {
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px;flex:0 0 auto;
+  margin:0 24px 14px;padding:5px;border:1px solid var(--cp-line);border-radius:12px;background:var(--cp-paper);
+}
+#knCompanyProfile .cp-view-tab {
+  min-width:0;min-height:48px;padding:9px 12px;border:1px solid transparent;border-radius:8px;
+  background:transparent;color:var(--cp-muted);font:inherit;font-size:calc(15px * var(--kn-a-scale,1));
+  font-weight:500;line-height:1.5;cursor:pointer;overflow-wrap:anywhere;
+}
+#knCompanyProfile .cp-view-tab[aria-selected="true"] {background:var(--cp-chip);border-color:var(--cp-line);color:var(--cp-ink)}
+#knCompanyProfile .cp-view-tab:focus-visible {outline:2px solid var(--cp-ink);outline-offset:2px}
+#knCompanyProfile .cp-view-tab[aria-busy="true"] {cursor:wait}
+#knCompanyProfile .cp-content[data-view="voices"] {display:flex;flex-direction:column;padding:0;overflow:hidden}
+#knCompanyProfile .cp-voices-panel,#knCompanyProfile .cp-voices-host {display:flex;flex:1;flex-direction:column;min-width:0;min-height:0;overflow:hidden}
+#knCompanyProfile .cp-voices-panel .cp-voice-status {flex:0 0 auto;margin:0;padding:12px 24px}
+#knCompanyProfile :is(.cp-info-panel,.cp-voices-panel):focus-visible {outline:2px solid var(--cp-line);outline-offset:-2px}
+#knCompanyProfile .cp-view-tabs .cp-voice {display:block;width:auto;grid-template-columns:none;text-align:center;box-shadow:none}
+@media(max-width:640px) {
+  #knCompanyProfile .cp-view-tabs {margin:0 16px 10px}
+  #knCompanyProfile .cp-view-tab {padding:9px 8px}
+  #knCompanyProfile .cp-voices-panel .cp-voice-status {padding:12px 16px}
+}

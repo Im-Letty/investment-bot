@@ -4,7 +4,7 @@ const source=fs.readFileSync(path.join(__dirname,'../static/stock-talk.js'),'utf
 const room=(code='1832',name='北海電工')=>({category:'stock:'+code,code,name});
 function harness(){
   const reads=[],opens=[],events=[],timers=new Map();let id=0,config;
-  const conversation={categories:[],open(origin){events.push('open');opens.push({origin});return true;},openRoom(value,options){events.push('room');opens.push({room:value,options});return true;},close(){events.push('close');return {morningTop:177};},send(){},count(){}};
+  const conversation={categories:[],open(origin){events.push('open');opens.push({origin});return true;},openRoom(value,options){events.push('room');opens.push({room:value,options});return true;},mountRoom(host,value,options){events.push('mount');const handle={setVisible(){},destroy(){}};opens.push({host,room:value,options,handle});return handle;},close(){events.push('close');return {morningTop:177};},send(){},count(){}};
   const document={readyState:'complete',createElement(){throw Error('The stock adapter must not create a global Talk card');},addEventListener(){}};
   const window={document,AbortController,setTimeout(fn,ms){const key=++id;timers.set(key,{fn,ms});return key;},clearTimeout(key){timers.delete(key);},knCreateConversation(w,options){assert.equal(w,window);config=options;return conversation;},fetch(url,options){return new Promise((resolve,reject)=>reads.push({url,options,resolve,reject}));}};
   vm.runInNewContext(source,{window,document});
@@ -61,4 +61,18 @@ test('the 12-second deadline settles a fetch or JSON body that ignores abort',as
 });
 test('cancelPending during beforeOpen prevents a stale room from being mounted',async()=>{
   const h=harness(),opening=h.api.openForCompany('1832.JP',{beforeOpen(){h.api.cancelPending();return true;}});await h.response({ok:true,rooms:[room()]});assert.equal(await opening,false);assert.equal(h.opens.length,0);
+});
+
+test('company embedding validates its exact room and forwards host ownership without releasing the sheet',async()=>{
+ const h=harness(),host={appendChild(){},isConnected:true},onClose=()=>{},onAuthRequired=()=>{},opening=h.api.mountForCompany('1832.JP',host,{isCurrent:()=>true,onClose,onAuthRequired});
+ await h.response({ok:true,rooms:[room('7203'),room()]});const handle=await opening;assert.equal(handle,h.opens[0].handle);assert.equal(h.opens[0].host,host);assert.equal(h.opens[0].room.code,'1832');assert.equal(h.opens[0].options.onClose,onClose);assert.equal(h.opens[0].options.onAuthRequired,onAuthRequired);assert.equal(h.events.includes('room'),false);assert.equal(h.timers.size,0);
+});
+test('embedding rejects detached targets or expired owners without mounting a default room',async()=>{
+ const h=harness();assert.equal(await h.api.mountForCompany('1832',{appendChild(){},isConnected:false}),false);assert.equal(h.reads.length,0);
+ const opening=h.api.mountForCompany('1832',{appendChild(){},isConnected:true},{isCurrent:()=>false});await h.response({ok:true,rooms:[room()]});assert.equal(await opening,false);assert.equal(h.opens.length,0);
+});
+test('closing or changing company cancels a pending embedded room lookup even when fetch ignores abort',async()=>{
+ for(const method of ['close','cancelPending']){
+  const h=harness(),opening=h.api.mountForCompany('1832',{appendChild(){},isConnected:true});h.api[method]();assert.equal(h.reads[0].options.signal.aborted,true);assert.equal(await opening,false);await h.response({ok:true,rooms:[room()]});assert.equal(h.opens.length,0);
+ }
 });
