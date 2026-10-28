@@ -26,9 +26,9 @@
     flowers: asset('pet-village-art/flowerbed-v2.webp', 'ac4d6a5aa031054a4d3338ca044718a2d8a82ca83568ea8ae3507e669adebfaf', 512, 341, [37, 55, 476, 293]),
     fountain: asset('pet-items-v1/fountain.webp', 'b7394422852121b2d5b971fb42f82de6b9eb6460cb1b8bff5979b7e39d205006', 384, 384, [40, 40, 344, 342]),
     lantern: asset('pet-items-v1/lantern.webp', 'fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da', 384, 384, [57, 38, 325, 351]),
-    // New grove art and an existing shop tulip; old catalog rows stay untouched.
+    // Rounded-root revision of the grove; the saved v1 PNG remains unchanged.
     // Anchors are authored image baselines, not body/physical contact measurements.
-    treeGrove: asset('pet-village-art/tree-shop-grove-v1.png', 'fbd36580f164bb32409de1678d4eddc7f302b197e7d5b81a60f09643a75721b0', 1254, 1254, [55, 42, 1221, 1214], [610, 1213]),
+    treeGrove: asset('pet-village-art/tree-shop-grove-soft-roots-v2.png', '1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b', 1254, 1254, [53, 41, 1221, 1203], [610, 1202]),
     shopTulip: asset('pet-items-v1/flower.webp', 'f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6', 384, 384, [70, 14, 312, 369], [195.5, 368])
   });
   var aliases = Object.freeze({ garden: 'flowers', playground: 'fountain' }), kinds = Object.freeze(Object.keys(catalog));
@@ -162,6 +162,6 @@
       get state() { return state; }, get ready() { return state === 'ready'; }, get error() { return failure; } });
     return api;
   }
-  return Object.freeze({ revision: REVISION, treeVarietyRevision:'tree-variety1', shopStyleRevision:'shop-style1', catalog: catalog, aliases: aliases, kinds: kinds, alphaTest: ALPHA_TEST,
+  return Object.freeze({ revision: REVISION, treeVarietyRevision:'tree-variety1', shopStyleRevision:'shop-style1', treeRootsRevision:'soft-roots2', catalog: catalog, aliases: aliases, kinds: kinds, alphaTest: ALPHA_TEST,
     resolve: function (kind) { return catalog[canonical(kind)]; }, create: create });
 }));

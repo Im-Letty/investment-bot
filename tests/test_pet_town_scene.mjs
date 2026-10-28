@@ -47,7 +47,7 @@ const originalDimensions=new Map([
  ['/static/pet-village-art/flowerbed-v2.webp',[512,341]],
  ['/static/pet-items-v1/fountain.webp',[384,384]],
  ['/static/pet-items-v1/lantern.webp',[384,384]],
- ['/static/pet-village-art/tree-shop-grove-v1.png',[1254,1254]],
+ ['/static/pet-village-art/tree-shop-grove-soft-roots-v2.png',[1254,1254]],
  ['/static/pet-items-v1/flower.webp',[384,384]]
 ]);
 function textureLoaderFixture(loads=[],settings={}){
@@ -118,7 +118,7 @@ test('browser registration can precede the visual-only helper and mount adopts t
  const painted={tagName:'CANVAS',width:16,height:16,getContext:()=>({RGBA:1,UNSIGNED_BYTE:2,readPixels(x,y,w,h,a,b,p){p[(2*w+8)*4+3]=255;}})};
  assert.equal(context.PetTownScene.alphaAnchor(painted),.125,'the existing public diagnostics work synchronously before any mount or helper import');
  context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;context.PetTownStyle=TownStyle;context.PetTownLayoutArt=LayoutArt;context.PetTownPlacementOriginals=Originals;context.PetTownWaterLife=WaterLife;context.PetTownOceanLife=OceanLife;context.PetTownShoreTransition=ShoreTransition;context.PetTownTreeVariety=TreeVariety;context.PetTownMeadowSites=MeadowSites;context.PetTownMeadowFlowers=MeadowFlowers;context.PetTownGroundFinish=GroundFinish;context.PetTownWaterFinish=WaterFinish;context.PetTownEnvironment=Environment;
- const f=await fixture({sceneAPI:context.PetTownScene});try{assert.ok(f.controller);assert.equal(f.controller.setFrame(f.source,{anchor:.3}),true);const scene=f.renderers[0].calls.at(-1).scene;assert.equal(scene.getObjectByName('current-pet-2d-frame').center.y,.3);assert.equal(f.host.dataset.townLayoutArt,LayoutArt.revision);assert.equal(f.host.dataset.townMeadowFlowers,'meadow-flowers2');assert.equal(f.host.dataset.townEnvironmentStyle,'shop-environment1');assert.equal(scene.userData.environmentStyleRevision,'shop-environment1');assert.equal(scene.userData.meadowFlowersRevision,'meadow-flowers2');assert.equal(scene.userData.layoutArtRevision,LayoutArt.revision);assert.ok(scene.getObjectByName('layout-art-native-landscape'));assert.equal(scene.getObjectByName('bridge-deck').userData.layoutBoardCount,11);assert.deepEqual(f.failures,[]);}finally{f.controller?.destroy();assert.equal(f.host.dataset.townMeadowFlowers,undefined);assert.equal(f.host.dataset.townEnvironmentStyle,undefined);}
+ const f=await fixture({sceneAPI:context.PetTownScene});try{assert.ok(f.controller);assert.equal(f.controller.setFrame(f.source,{anchor:.3}),true);const scene=f.renderers[0].calls.at(-1).scene;assert.equal(scene.getObjectByName('current-pet-2d-frame').center.y,.3);assert.equal(f.host.dataset.townLayoutArt,LayoutArt.revision);assert.equal(f.host.dataset.townTreeRoots,'soft-roots2');assert.equal(scene.userData.treeRootsRevision,'soft-roots2');assert.equal(f.host.dataset.townMeadowFlowers,'meadow-flowers2');assert.equal(f.host.dataset.townEnvironmentStyle,'shop-environment1');assert.equal(scene.userData.environmentStyleRevision,'shop-environment1');assert.equal(scene.userData.meadowFlowersRevision,'meadow-flowers2');assert.equal(scene.userData.layoutArtRevision,LayoutArt.revision);assert.ok(scene.getObjectByName('layout-art-native-landscape'));assert.equal(scene.getObjectByName('bridge-deck').userData.layoutBoardCount,11);assert.deepEqual(f.failures,[]);}finally{f.controller?.destroy();assert.equal(f.host.dataset.townMeadowFlowers,undefined);assert.equal(f.host.dataset.townEnvironmentStyle,undefined);assert.equal(f.host.dataset.townTreeRoots,undefined);}
 });
 
 test('actual geometry uses the six saved facilities and funding/open economy sites, without a terrain painting',()=>{
@@ -515,7 +515,7 @@ test('canonical originals keep their source pixels, shared materials and saved p
   assert.equal(m.scene.userData.originalArtRepresentation,'original-2d-art-in-3d-world');assert.equal(m.scene.userData.originalArtState,'ready');
   assert.deepEqual(loads,[...originalDimensions.keys()]);assert.equal(new Set(loads).size,11);
   assert.equal(art.filter(o=>/^tree/.test(o.userData.originalArtKind||'')).length,27);
-  const expectedBounds={home:[38,51,349,340],cafe:[29,47,362,347],shop:[26,27,366,360],tree:[39,42,475,448],flowers:[37,55,476,293],fountain:[40,40,344,342],lantern:[57,38,325,351],treeApple:[29,42,1236,1183],treeBirch:[212,14,1131,1236],treeGrove:[55,42,1221,1214],shopTulip:[70,14,312,369]},byKind=new Map();
+  const expectedBounds={home:[38,51,349,340],cafe:[29,47,362,347],shop:[26,27,366,360],tree:[39,42,475,448],flowers:[37,55,476,293],fountain:[40,40,344,342],lantern:[57,38,325,351],treeApple:[29,42,1236,1183],treeBirch:[212,14,1131,1236],treeGrove:[53,41,1221,1203],shopTulip:[70,14,312,369]},byKind=new Map();
   for(const sprite of art){
    const kind=sprite.userData.originalArtKind,material=sprite.material,texture=material.map,[width,height]=originalDimensions.get(sprite.userData.sourceUrl),bounds=expectedBounds[kind];
    assert.ok(sprite.visible);assert.ok(material.isSpriteMaterial);assert.equal(material.color.getHexString(),'ffffff');assert.equal(material.opacity,1);assert.equal(material.toneMapped,false);assert.equal(material.fog,false);

@@ -30,7 +30,7 @@ function webpSize(bytes) {
 }
 
 test('immutable catalog binds eleven actual source files while keeping prior originals and authored shop botanicals',async()=>{
-  assert.equal(Originals.revision,'placement-originals1'); assert.equal(Originals.kinds.length,11); assert.equal(Originals.shopStyleRevision,'shop-style1');
+  assert.equal(Originals.revision,'placement-originals1'); assert.equal(Originals.kinds.length,11); assert.equal(Originals.shopStyleRevision,'shop-style1'); assert.equal(Originals.treeRootsRevision,'soft-roots2');
   assert.ok(Object.isFrozen(Originals.catalog)); assert.ok(Object.isFrozen(Originals.kinds));
   for(const [kind,spec] of Object.entries(Originals.catalog)) {
     const bytes=await readFile(new URL('../'+spec.url.slice(1),import.meta.url));
