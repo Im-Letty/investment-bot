@@ -13,7 +13,7 @@ function pageFunctionSource(name){
   throw Error('The actual MyPage '+name+' handler must be complete');
 }
 function fixture(user={id:'account-A'},options={}) {
-  const events={},messages={},mutations=[],navigations=[],views=[],registrations=[],fallbacks=[];let refreshes=0,closes=0,pageAvailable=!options.deferPage;
+  const events={},messages={},mutations=[],navigations=[],views=[],registrations=[],fallbacks=[];let refreshes=0,closes=0,menuOpens=0,morningOpens=0,pageAvailable=!options.deferPage;
   class Element {
     constructor(){this.children=[];this.dataset={};this.style={overflow:''};this.attributes={};this.listeners={};this.captureListeners={};this.listenerCounts={};this.srcChanges=[];this.scrollTop=0;this.hidden=false;this.inert=false;this.tagName='DIV';}
     set className(value){this.classes=new Set(value.split(' '));}
@@ -51,17 +51,20 @@ function fixture(user={id:'account-A'},options={}) {
     body.querySelectorAll('.mo-pane:not(.kb-pane)').forEach((item,i)=>item.classList.toggle('on',i===index));
   };});
   const card=el('');card.tagName='BUTTON';
+  const morning=el(''),drawer=el(''),menuClose=drawer.appendChild(el('kn-menu-close')),morningButton=el('');morning.id='morning-section';morning.style.display='block';drawer.id='sideDrawer';drawer.inert=true;drawer.dataset.menuView='display';menuClose.tagName=morningButton.tagName='BUTTON';
+  morningButton.onclick=()=>{morningOpens++;doc.body.classList.remove('kn-mypage-active');doc.body.classList.add('view-asaletter');morning.style.display='block';};
   function documentInFrame(n){n.contentDocument={readyState:'complete',documentElement:{getAttribute:()=> 'true'}};n.contentWindow={location:{origin:'https://local.test',protocol:'https:',pathname:'/kakeibo'},kkRefreshRecords(){refreshes++;},kkSetMyPageView(view){views.push(view);}};}
-  const doc={readyState:options.readyState||'complete',body:el(''),querySelector:()=>null,getElementById:id=>({myPageOv:pageAvailable?page:null,myPageCard:card}[id]),createElement:tag=>{const n=el('');n.tagName=tag.toUpperCase();if(tag==='iframe')documentInFrame(n);return n;},addEventListener:(name,fn,settings)=>{events[name]=fn;registrations.push({target:'document',name,settings});}};
-  doc.body.appendChild(page);doc.body.appendChild(card);
+  const doc={readyState:options.readyState||'complete',body:el(''),querySelector:selector=>selector==='#knBottomNav [data-act="morning"]'&&!options.noMorningControl?morningButton:null,getElementById:id=>({myPageOv:pageAvailable?page:null,myPageCard:card,'morning-section':morning,sideDrawer:drawer}[id]),createElement:tag=>{const n=el('');n.tagName=tag.toUpperCase();if(tag==='iframe')documentInFrame(n);return n;},addEventListener:(name,fn,settings)=>{events[name]=fn;registrations.push({target:'document',name,settings});}};
+  doc.body.appendChild(morning);doc.body.appendChild(drawer);doc.body.appendChild(morningButton);doc.body.appendChild(page);doc.body.appendChild(card);doc.body.classList.add('view-asaletter');
   const context={document:doc,knUser:user,location:{origin:'https://local.test',search:options.search||''},URLSearchParams,getComputedStyle(node){return {display:node.style.display||((node.classList.contains('mo-pane')&&!node.classList.contains('on'))?'none':'block'),visibility:node.style.visibility||'visible'};},setTimeout(fn,ms){if(!options.deferPage)throw Error('setup should be immediate');fallbacks.push({fn,ms});return fallbacks.length;},MutationObserver:class {constructor(fn){mutations.push(fn);}observe(){}},addEventListener:(name,fn)=>{messages[name]=fn;registrations.push({target:'window',name});}};context.window=context;
   context.knRequireAuth=()=>!!(context.knUser&&(!context.knUser.is_anonymous||options.allowAnonymous));
+  context.KNMenuSheet={openMain(){menuOpens++;drawer.dataset.menuView='main';drawer.classList.add('open');drawer.inert=false;menuClose.focus();}};
   card.listeners.click=()=>context.openMy();
   vm.runInNewContext(pageFunctionSource('openMy')+'\n'+pageFunctionSource('closeMy'),context);
   vm.runInNewContext(read('static/mypage-ledger-loader.js'),context);
   close.onclick=()=>{closes++;context.closeMy();};
   const frame=page.querySelector('.kb-frame');if(frame)documentInFrame(frame);
-  return {context,page,head,title,tabs,body,close,card,noteLibrary,noteHeading,get backdrop(){return doc.body.querySelector('.mp-memo-backdrop');},get frame(){return page.querySelector('.kb-frame');},get personal(){return page.querySelector('.mp-toptabs')?.children[0]||null;},get ledger(){return page.querySelector('.mp-toptabs')?.children[1]||null;},mutations,navigations,views,registrations,fallbacks,refreshes:()=>refreshes,closes:()=>closes,publishPage(){pageAvailable=true;},domReady(){doc.readyState='interactive';const listener=events.DOMContentLoaded;if(listener){const registration=registrations.find(item=>item.target==='document'&&item.name==='DOMContentLoaded');if(registration?.settings?.once)delete events.DOMContentLoaded;listener();}},runFallbacks(){while(fallbacks.length)fallbacks.shift().fn();},auth(user){context.knUser=user;events.knAuthChange();},ready(event={}){messages.message({origin:context.location.origin,source:page.querySelector('.kb-frame').contentWindow,data:{type:'kn-kakeibo-ready'},...event});}};
+  return {context,page,head,title,tabs,body,close,card,noteLibrary,noteHeading,morning,morningButton,drawer,menuClose,menuOpens:()=>menuOpens,morningOpens:()=>morningOpens,get backdrop(){return doc.body.querySelector('.mp-memo-backdrop');},get frame(){return page.querySelector('.kb-frame');},get personal(){return page.querySelector('.mp-toptabs')?.children[0]||null;},get ledger(){return page.querySelector('.mp-toptabs')?.children[1]||null;},mutations,navigations,views,registrations,fallbacks,refreshes:()=>refreshes,closes:()=>closes,publishPage(){pageAvailable=true;},domReady(){doc.readyState='interactive';const listener=events.DOMContentLoaded;if(listener){const registration=registrations.find(item=>item.target==='document'&&item.name==='DOMContentLoaded');if(registration?.settings?.once)delete events.DOMContentLoaded;listener();}},runFallbacks(){while(fallbacks.length)fallbacks.shift().fn();},auth(user){context.knUser=user;events.knAuthChange();},ready(event={}){messages.message({origin:context.location.origin,source:page.querySelector('.kb-frame').contentWindow,data:{type:'kn-kakeibo-ready'},...event});}};
 }
 test('no household ledger request before an authorized MyPage visit',()=>{
   const h=fixture();assert.equal(h.frame.getAttribute('src'),null);h.context.knPrepareLedger();assert.equal(h.frame.getAttribute('src'),null);
@@ -377,24 +380,25 @@ test('only memo entry applies dialog semantics, a sibling backdrop and scroll lo
   h.close.click();assert.equal(h.closes(),1,'ordinary MyPage keeps its original closeMy handler');assert.equal(doc.body.classList.contains('view-asaletter'),true);
 });
 
-test('memo X, backdrop and Escape close only the memo and return focus without invoking ordinary morning navigation',()=>{
+test('memo X, backdrop and Escape close once through ordinary navigation then open the hamburger main menu',()=>{
   for(const mode of ['x','backdrop','escape']){
-    const h=fixture(),doc=h.context.document,opener=doc.createElement('button');doc.body.appendChild(opener);opener.focus();doc.body.style.overflow='scroll';doc.body.classList.add('underlying-screen');h.context.knOpenMemo();const frame=h.frame,privateDoc=frame.contentDocument;
+    const h=fixture(),doc=h.context.document,opener=doc.createElement('button');doc.body.appendChild(opener);opener.focus();doc.body.style.overflow='scroll';doc.body.classList.add('underlying-screen');h.morning.style.display='none';doc.body.classList.remove('view-asaletter');doc.body.classList.add('kn-mypage-active');h.context.knOpenMemo();const frame=h.frame,privateDoc=frame.contentDocument;assert.equal(h.morning.style.display,'none');assert.equal(doc.body.classList.contains('view-asaletter'),false);assert.equal(h.drawer.classList.contains('open'),false);
     if(mode==='x'){h.close.focus();h.close.click();}else if(mode==='backdrop')h.backdrop.click();else{const event=h.page.emit('keydown',{key:'Escape',target:h.noteHeading});assert.equal(event.defaultPrevented,true);assert.equal(event.propagationStopped,true);}
-    assert.equal(h.page.classList.contains('open'),false);assert.equal(h.closes(),0);assert.equal(doc.body.classList.contains('view-asaletter'),false);assert.equal(doc.body.classList.contains('underlying-screen'),true);assert.equal(doc.activeElement,opener);assert.equal(doc.body.style.overflow,'scroll');assert.equal(h.backdrop.hidden,true);assert.equal(h.page.getAttribute('role'),null);assert.equal(h.title.textContent,'マイページ');assert.equal(h.title.getAttribute('id'),null);assert.equal(h.frame,frame);assert.equal(frame.contentDocument,privateDoc);
+    assert.equal(h.page.classList.contains('open'),false);assert.equal(h.closes(),1);assert.equal(h.morningOpens(),1);assert.equal(h.morning.style.display,'block');assert.equal(doc.body.classList.contains('view-asaletter'),true);assert.equal(doc.body.classList.contains('kn-mypage-active'),false);assert.equal(doc.body.classList.contains('underlying-screen'),true);assert.equal(h.drawer.classList.contains('open'),true);assert.equal(h.drawer.dataset.menuView,'main');assert.equal(h.drawer.inert,false);assert.equal(h.menuOpens(),1);assert.equal(doc.activeElement,h.menuClose);assert.equal(doc.body.style.overflow,'scroll');assert.equal(h.backdrop.hidden,true);assert.equal(h.page.getAttribute('role'),null);assert.equal(h.title.textContent,'マイページ');assert.equal(h.title.getAttribute('id'),null);assert.equal(h.frame,frame);assert.equal(frame.contentDocument,privateDoc);
+    h.backdrop.click();h.page.emit('keydown',{key:'Escape',target:h.noteHeading});assert.equal(h.closes(),1,'the detached memo session cannot close the page twice');assert.equal(h.menuOpens(),1);
   }
 });
 
-test('assets to memo to explicit close restores the same open assets view and scroll without creating a later assets intent',()=>{
+test('assets to memo to explicit close preserves assets state and scroll while closing the page and opening the menu',()=>{
   const h=fixture();h.context.knOpenAssets();h.body.scrollTop=418;const frame=h.frame,doc=frame.contentDocument,child=frame.contentWindow;doc.draft='資産の入力途中';h.personal.focus();
-  h.context.knOpenMemo();h.body.scrollTop=827;h.close.focus();h.close.click();assert.equal(h.page.classList.contains('open'),true);assert.equal(h.page.getAttribute('data-mp-view'),'assets');assert.equal(h.body.scrollTop,418);assert.equal(h.frame,frame);assert.equal(frame.contentDocument,doc);assert.equal(frame.contentWindow,child);assert.equal(doc.draft,'資産の入力途中');assert.equal(h.context.document.activeElement,h.personal);assert.equal(h.closes(),0);assert.equal(h.backdrop.hidden,true);
-  h.context.knOpenMemo();h.auth({id:'account-A'});assert.equal(h.page.getAttribute('data-mp-view'),'memo','same-owner refresh must not apply a deferred assets intent');h.backdrop.click();assert.equal(h.page.getAttribute('data-mp-view'),'assets');assert.equal(h.body.scrollTop,418);assert.deepEqual(h.navigations,['/kakeibo']);
+  h.context.knOpenMemo();h.body.scrollTop=827;h.close.focus();h.close.click();assert.equal(h.page.classList.contains('open'),false);assert.equal(h.page.getAttribute('data-mp-view'),'assets');assert.equal(h.body.scrollTop,418);assert.equal(h.frame,frame);assert.equal(frame.contentDocument,doc);assert.equal(frame.contentWindow,child);assert.equal(doc.draft,'資産の入力途中');assert.equal(h.context.document.activeElement,h.menuClose);assert.equal(h.closes(),1);assert.equal(h.menuOpens(),1);assert.equal(h.drawer.classList.contains('open'),true);assert.equal(h.backdrop.hidden,true);
+  h.context.knOpenAssets();h.context.knOpenMemo();h.auth({id:'account-A'});assert.equal(h.page.getAttribute('data-mp-view'),'memo','same-owner refresh must not apply a deferred assets intent');h.backdrop.click();assert.equal(h.page.getAttribute('data-mp-view'),'assets');assert.equal(h.body.scrollTop,418);assert.equal(h.page.classList.contains('open'),false);assert.equal(h.closes(),2);assert.equal(h.menuOpens(),2);assert.deepEqual(h.navigations,['/kakeibo']);
 });
 
-test('ledger to memo to explicit close restores its scroll and context plus the earlier personal scroll history',()=>{
+test('ledger to memo close preserves its context and scroll histories behind the reopened menu',()=>{
   const h=fixture();h.context.knOpenAssets();h.body.scrollTop=760;h.ledger.click();h.body.scrollTop=312;const frame=h.frame,doc=frame.contentDocument,child=frame.contentWindow;doc.draft={amount:'１２３．',memo:'家計簿の入力途中'};h.ledger.focus();
-  h.context.knOpenMemo();h.body.scrollTop=950;h.page.emit('keydown',{key:'Escape',target:h.noteHeading});assert.equal(h.page.classList.contains('open'),true);assert.equal(h.page.getAttribute('data-mp-view'),'ledger');assert.equal(h.body.scrollTop,312);assert.equal(h.ledger.classList.contains('on'),true);assert.equal(h.frame,frame);assert.equal(frame.contentDocument,doc);assert.equal(frame.contentWindow,child);assert.deepEqual(doc.draft,{amount:'１２３．',memo:'家計簿の入力途中'});assert.equal(h.context.document.activeElement,h.ledger);
-  h.personal.click();assert.equal(h.body.scrollTop,760,'memo scroll must not replace the remembered personal-page scroll');assert.equal(h.page.getAttribute('data-mp-view'),'assets');assert.deepEqual(h.navigations,['/kakeibo']);assert.equal(h.closes(),0);
+  h.context.knOpenMemo();h.body.scrollTop=950;h.page.emit('keydown',{key:'Escape',target:h.noteHeading});assert.equal(h.page.classList.contains('open'),false);assert.equal(h.page.getAttribute('data-mp-view'),'ledger');assert.equal(h.body.scrollTop,312);assert.equal(h.ledger.classList.contains('on'),true);assert.equal(h.frame,frame);assert.equal(frame.contentDocument,doc);assert.equal(frame.contentWindow,child);assert.deepEqual(doc.draft,{amount:'１２３．',memo:'家計簿の入力途中'});assert.equal(h.context.document.activeElement,h.menuClose);assert.equal(h.drawer.classList.contains('open'),true);
+  h.personal.click();assert.equal(h.body.scrollTop,760,'memo scroll must not replace the remembered personal-page scroll');assert.equal(h.page.getAttribute('data-mp-view'),'assets');assert.deepEqual(h.navigations,['/kakeibo']);assert.equal(h.closes(),1);assert.equal(h.menuOpens(),1);
 });
 
 test('memo opened over a closed page stays closed on local close and external close or auth loss never restores a former open view',()=>{
@@ -422,7 +426,7 @@ test('memo tab order retains rendered note controls below the scroll fold while 
   const forward=h.page.emit('keydown',{key:'Tab',target:before});assert.notEqual(forward.defaultPrevented,true,'browser traversal must reach and scroll to the next real note instead of wrapping at the current viewport fold');assert.equal(doc.activeElement,before);
   last.focus();const end=h.page.emit('keydown',{key:'Tab',target:last});assert.equal(end.defaultPrevented,true);assert.equal(doc.activeElement,h.close);
   const reverse=h.page.emit('keydown',{key:'Tab',shiftKey:true,target:h.close});assert.equal(reverse.defaultPrevented,true);assert.equal(doc.activeElement,last,'the true last rendered control remains the reverse boundary even below the fold');
-  h.close.focus();h.close.click();assert.equal(doc.activeElement,h.card,'an opener outside the viewport must still yield to a visible fallback');
+  h.close.focus();h.close.click();assert.equal(doc.activeElement,h.menuClose,'closing memo focuses the visible menu instead of restoring an offscreen opener');assert.equal(h.menuOpens(),1);
 });
 
 test('memo Tab boundaries include the rich editing host but never its inherited editable paragraphs or spans',()=>{
@@ -446,7 +450,7 @@ test('closing and reopening memo during pending sync preserves exact editor, sel
 test('auth loss and externally changed views restore memo presentation without stealing an external modal focus',()=>{
   for(const reason of ['signout','owner','view','closed']){const h=fixture(),doc=h.context.document,auth=doc.createElement('input');doc.body.appendChild(auth);doc.body.style.overflow='auto';h.context.knOpenMemo();auth.focus();
     if(reason==='signout')h.auth(null);else if(reason==='owner')h.auth({id:'account-B'});else{if(reason==='view')h.page.setAttribute('data-mp-view','assets');else h.page.classList.remove('open');h.mutations.forEach(fn=>fn());}
-    assert.equal(doc.activeElement,auth);assert.equal(h.backdrop.hidden,true);assert.equal(h.backdrop.inert,true);assert.equal(doc.body.style.overflow,'auto');assert.equal(doc.body.classList.contains('kn-memo-dialog-active'),false);assert.equal(h.page.getAttribute('role'),null);assert.equal(h.title.textContent,'マイページ');
+    assert.equal(doc.activeElement,auth);assert.equal(h.backdrop.hidden,true);assert.equal(h.backdrop.inert,true);assert.equal(doc.body.style.overflow,'auto');assert.equal(doc.body.classList.contains('kn-memo-dialog-active'),false);assert.equal(h.page.getAttribute('role'),null);assert.equal(h.title.textContent,'マイページ');assert.equal(h.menuOpens(),0,'auth loss or external navigation must never reopen the hamburger');assert.equal(h.drawer.classList.contains('open'),false);
   }
 });
 
@@ -454,4 +458,10 @@ test('denied memo entry and repeated setup create no modal lock or extra backdro
   const h=fixture(),doc=h.context.document;doc.body.style.overflow='auto';h.context.knRequireAuth=()=>false;h.card.focus();assert.equal(h.context.knOpenMemo(),false);assert.equal(h.backdrop.hidden,true);assert.equal(doc.body.style.overflow,'auto');assert.equal(h.page.getAttribute('role'),null);assert.equal(doc.activeElement,h.card);
   h.context.knRequireAuth=()=>true;h.context.knOpenMemo();const backdrop=h.backdrop,frame=h.frame;h.auth({id:'account-A'});h.context.knOpenMemo();h.domReady();h.runFallbacks();
   assert.equal(h.backdrop,backdrop);assert.equal(h.frame,frame);assert.equal(doc.body.querySelectorAll('.mp-memo-backdrop').length,1);assert.equal(h.page.getAttribute('role'),'dialog');assert.equal(h.title.textContent,'自由メモ');assert.equal(doc.body.style.overflow,'hidden');
+});
+
+
+test('memo close without an ordinary close control restores the hidden background and opens the menu once',()=>{
+  const h=fixture(undefined,{noMorningControl:true}),doc=h.context.document;h.morning.style.display='none';doc.body.classList.remove('view-asaletter');doc.body.classList.add('kn-mypage-active');h.context.knOpenMemo();const frame=h.frame;assert.equal(h.morning.style.display,'none');h.head.removeChild(h.close);
+  h.backdrop.click();assert.equal(h.page.classList.contains('open'),false);assert.equal(h.morning.style.display,'block');assert.equal(doc.body.classList.contains('view-asaletter'),true);assert.equal(doc.body.classList.contains('kn-mypage-active'),false);assert.equal(h.closes(),0);assert.equal(h.menuOpens(),1);assert.equal(h.drawer.classList.contains('open'),true);assert.equal(doc.activeElement,h.menuClose);assert.equal(h.frame,frame);assert.equal(h.backdrop.hidden,true);
 });

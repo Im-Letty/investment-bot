@@ -48,7 +48,19 @@
   function closeMemo() {
     if(!memoSession||group!==2||!page.classList.contains('open'))return;
     var sameOwner=memoSession.owner===account(),returnView=sameOwner&&memoSession.returnView;
-    if(!returnView)page.classList.remove('open');endMemo(sameOwner,returnView);
+    // End the memo first so the existing close button can restore navigation
+    // without its memo capture handler intercepting the same click again.
+    endMemo(false,returnView);
+    if(!sameOwner){page.classList.remove('open');return;}
+    var close=page.querySelector('.mo-x');
+    if(close)close.click();
+    else{
+      page.classList.remove('open');document.body.classList.remove('kn-mypage-active');
+      document.body.classList.add('view-asaletter');
+      var morning=document.getElementById('morning-section');if(morning)morning.style.display='block';
+      if(window.knNavScreenSync)window.knNavScreenSync();
+    }
+    if(window.KNMenuSheet&&typeof window.KNMenuSheet.openMain==='function')window.KNMenuSheet.openMain();
   }
   function beginMemo(origin,returnView) {
     if(memoSession)return;
