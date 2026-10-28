@@ -40,7 +40,7 @@ test('portable UMD exposes the finish without clocks, storage, browser APIs or r
   const realm=vm.createContext({});
   const source=readFileSync(new URL('../static/pet-town-water-finish.js',import.meta.url),'utf8');
   vm.runInContext(source,realm);
-  assert.equal(realm.PetTownWaterFinish.revision,'water-finish1');
+  assert.equal(realm.PetTownWaterFinish.revision,'water-finish2');
   assert.equal(typeof realm.PetTownWaterFinish.create,'function');
   assert.doesNotMatch(source,/Math\.random|Date\.|fetch\(|localStorage|setTimeout|setInterval|requestAnimationFrame/);
   assert.equal(Object.isFrozen(Finish.colors),true);
@@ -61,7 +61,7 @@ test('invalid contexts or target materials fail before allocating a texture or m
   }finally{f.cleanup();}
 });
 
-test('one deterministic periodic128-square low-contrast linear texture is shared by color modulation and height',()=>{
+test('one deterministic periodic128-square soft-depth linear texture is shared by color modulation and height',()=>{
   let allocations=0;
   function Counted(...args){allocations++;return new T.DataTexture(...args);}
   const f=fixture(true,{...T,DataTexture:Counted}),g=fixture();
@@ -70,17 +70,19 @@ test('one deterministic periodic128-square low-contrast linear texture is shared
     assert.equal(allocations,1);assert.equal(texture.image.width,128);assert.equal(texture.image.height,128);
     assert.equal(p.length,128*128*4);assert.ok(p instanceof Uint8Array);
     assert.deepEqual(p,g.finish.texture.image.data);assert.notEqual(p,g.finish.texture.image.data);
-    let low=255,high=0,seam=0;
+    let low=255,high=0,seam=0,interiorSlope=0;
     for(let y=0;y<128;y++)for(let x=0;x<128;x++){
       const i=(y*128+x)*4;assert.equal(p[i+3],255);
-      for(let c=0;c<3;c++){low=Math.min(low,p[i+c]);high=Math.max(high,p[i+c]);}
+      for(let c=0;c<3;c++){low=Math.min(low,p[i+c]);high=Math.max(high,p[i+c]);
+        if(x)interiorSlope=Math.max(interiorSlope,Math.abs(p[i+c]-p[i-4+c]));
+        if(y)interiorSlope=Math.max(interiorSlope,Math.abs(p[i+c]-p[i-128*4+c]));}
     }
     for(let i=0;i<128;i++)for(let c=0;c<3;c++){
       seam=Math.max(seam,Math.abs(p[(i*128)*4+c]-p[(i*128+127)*4+c]),
         Math.abs(p[i*4+c]-p[((127*128)+i)*4+c]));
     }
-    assert.ok(high>low+4&&high-low<=24,'subtle non-flat modulation instead of a flat or high-contrast image');
-    assert.ok(low>=224&&high<=252);assert.ok(seam<=4,'opposite repeat samples meet with only the normal one-pixel slope');
+    assert.ok(high>low+24&&high-low<=48,'soft trough-to-crest pigment has depth without harsh high contrast');
+    assert.ok(low>=207&&high<=252);assert.ok(seam<=10&&seam<=interiorSlope+1,'repeat seam never exceeds a normal local texture slope');
     assert.equal(texture.colorSpace,T.NoColorSpace,'near-white multiplier/height bytes remain linear');
     assert.equal(texture.wrapS,T.RepeatWrapping);assert.equal(texture.wrapT,T.RepeatWrapping);
     assert.equal(texture.minFilter,T.LinearFilter);assert.equal(texture.magFilter,T.LinearFilter);
@@ -118,7 +120,7 @@ test('sea is gently turquoise and only actual foam, glint and shallow materials 
   const f=fixture();
   try{
     assert.equal(f.ctx.sea.material.color.getHexString(),new T.Color(Finish.colors.sea).getHexString());
-    assert.equal(f.ctx.sea.material.roughness,.30);assert.equal(f.ctx.sea.material.metalness,0);assert.equal(f.ctx.sea.material.bumpScale,.006);
+    assert.equal(f.ctx.sea.material.roughness,.27);assert.equal(f.ctx.sea.material.metalness,0);assert.equal(f.ctx.sea.material.bumpScale,.009);
     const sea=f.ctx.sea.material.color;assert.ok(sea.g>sea.r&&sea.b>sea.r,'natural turquoise remains distinct from warm sand');
     for(const m of f.ctx.oceanLife.group.children){
       assert.equal(m.material.color.getHexString(),new T.Color(m.name.startsWith('incoming-shore-foam-')?Finish.colors.foam:Finish.colors.glint).getHexString());

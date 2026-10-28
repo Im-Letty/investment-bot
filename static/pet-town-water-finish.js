@@ -8,10 +8,10 @@
   else root.PetTownWaterFinish = api;
 }(typeof globalThis !== 'undefined' ? globalThis : this, function () {
   'use strict';
-  var REVISION = 'water-finish1', SIZE = 128, TAU = Math.PI * 2;
+  var REVISION = 'water-finish2', SIZE = 128, TAU = Math.PI * 2;
   var entries = new WeakMap();
   var PALETTE = Object.freeze({
-    sea: '#8fc9c0', foam: '#f1ecdf', glint: '#dbeade', shallowTint: '#eef5eb'
+    sea: '#79bdb2', foam: '#f4edda', glint: '#deeee0', shallowTint: '#edf3df'
   });
   function finite(n) { return typeof n === 'number' && Number.isFinite(n); }
   function material(value) {
@@ -131,7 +131,7 @@
     }
     var far = farFinish(T, ctx, sea);
     // Each term is periodic in u/v: repeats have no random boundary or shared
-    // wood/stone texture. Contrast is deliberately small beside the old foam.
+    // wood/stone texture. Soft depth troughs remain distinct from the actual foam.
     var pixels = new Uint8Array(SIZE * SIZE * 4), low = 255, high = 0;
     for (var y = 0; y < SIZE; y++) for (var x = 0; x < SIZE; x++) {
       var u = x / SIZE, v = y / SIZE;
@@ -140,16 +140,17 @@
         .20 * Math.sin(TAU * (5 * u + 2 * v));
       var crest = Math.pow(Math.max(0, 1 - Math.abs(wave)), 8);
       var grain = (Math.sin(TAU * (29 * u + 37 * v)) + Math.cos(TAU * (43 * u - 31 * v))) * .25;
-      var tone = Math.max(0, Math.min(1, .5 + .32 * wave + .10 * crest + .05 * grain));
+      var broad = Math.sin(TAU * (u + v)) * Math.cos(TAU * (u - v));
+      var tone = Math.max(0, Math.min(1, .5 + .31 * wave + .13 * crest + .06 * grain + .05 * broad));
       var i = (y * SIZE + x) * 4;
-      pixels[i] = 235 + Math.round(12 * tone);
-      pixels[i + 1] = 237 + Math.round(11 * tone);
-      pixels[i + 2] = 232 + Math.round(12 * tone); pixels[i + 3] = 255;
+      pixels[i] = 207 + Math.round(43 * tone);
+      pixels[i + 1] = 216 + Math.round(35 * tone);
+      pixels[i + 2] = 212 + Math.round(39 * tone); pixels[i + 3] = 255;
       low = Math.min(low, pixels[i], pixels[i + 1], pixels[i + 2]);
       high = Math.max(high, pixels[i], pixels[i + 1], pixels[i + 2]);
     }
     var texture = new T.DataTexture(pixels, SIZE, SIZE, T.RGBAFormat);
-    texture.name = 'shop-family-water-grain';
+    texture.name = 'tree-family-water-soft-depth';
     // Linear near-white modulation also supplies height. It is not source art;
     // NoColorSpace keeps these multiplier/height bytes linear so the material
     // tint is not unintentionally darkened by an sRGB image conversion.
@@ -161,11 +162,11 @@
     texture.userData.waterFinishRevision = REVISION;
     texture.userData.codeAuthored = true;
     texture.userData.disposalOwner = 'scene-texture-set';
-    texture.userData.encoding = 'linear-near-white-modulation-and-height';
+    texture.userData.encoding = 'linear-soft-depth-modulation-and-height';
     texture.needsUpdate = true;
     textures.add(texture);
     sea.material.map = texture; sea.material.bumpMap = texture;
-    sea.material.bumpScale = .006; sea.material.roughness = .30; sea.material.metalness = 0;
+    sea.material.bumpScale = .009; sea.material.roughness = .27; sea.material.metalness = 0;
     sea.material.color.set(PALETTE.sea);
     sea.material.userData.waterFinishRevision = REVISION;
     sea.material.userData.waterFinishColor = PALETTE.sea;
@@ -207,7 +208,7 @@
         foamMaterials: foams.length, glintMaterials: glints.length, shallowMaterials: shallows.length,
         geometriesAdded: 0, lightsAdded: 0, clocksAdded: 0, repeat: 12,
         farFadeEnabled: !!far, farFadeStart: far ? far.start : null, farFadeEnd: far ? far.end : null,
-        seaRoughness: .30, bumpScale: .006, maxOffsetX: .014, maxOffsetY: .020,
+        seaRoughness: .27, bumpScale: .009, maxOffsetX: .014, maxOffsetY: .020,
         phaseSource: 'existing-ocean-diagnostics', alphaMapPreserved: true,
         waterGeometryAndDepthOrderPreserved: true })
     });

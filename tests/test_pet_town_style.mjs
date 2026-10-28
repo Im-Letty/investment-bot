@@ -60,12 +60,17 @@ test('six neutral microtextures are bounded, deterministic, grayscale and opaque
  }}finally{textures.forEach(t=>t.dispose());}
  assert.equal(Style.surfaceTexture(THREE,doc,'water'),null);assert.equal(Style.surfaceTexture(THREE,null,'wood'),null);assert.equal(Object.isFrozen(Style.limits),true);
 });
-test('a real Town shares at most six surface maps and releases them once while season changes only replace grass',()=>{
+test('a real Town shares bounded surface maps and releases them once while seasons replace grass and sky',()=>{
  const doc=document(),world=Town.createWorld(),saved=JSON.stringify(world),m=Scene.buildWorld(THREE,world,{},null,doc,'spring'),maps=[...m.textures].filter(t=>t.userData.styleRole),disposed=new Map();
  for(const t of maps){disposed.set(t,0);t.addEventListener('dispose',()=>disposed.set(t,disposed.get(t)+1));}
  assert.equal(maps.length,5);assert.deepEqual(maps.map(t=>t.userData.styleRole).sort(),['ceramic','foliage','plaster','stone','wood']);
- const materialMaps=[...m.materials].filter(m=>m.bumpMap).map(m=>m.bumpMap),geo=[...m.geometries];assert.ok(materialMaps.length>6);
- for(const key of ['summer','autumn','winter','spring']){m.setSeason(key);assert.deepEqual([...m.materials].filter(m=>m.bumpMap).map(m=>m.bumpMap),materialMaps);assert.deepEqual([...m.geometries],geo);}
+ const land=m.scene.getObjectByName('dry-land'),nonGroundMaps=()=>[...m.materials].filter(value=>value!==land.material&&value.bumpMap).map(value=>value.bumpMap);
+ const materialMaps=nonGroundMaps(),geo=[...m.geometries];assert.ok(materialMaps.length>6);
+ for(const key of ['summer','autumn','winter','spring']){
+  const previousGrass=land.material.map;let grassDisposals=0;previousGrass.addEventListener('dispose',()=>grassDisposals++);
+  m.setSeason(key);assert.notEqual(land.material.map,previousGrass);assert.equal(land.material.bumpMap,land.material.map);assert.equal(land.material.bumpScale,.012);assert.equal(grassDisposals,1);
+  assert.deepEqual(nonGroundMaps(),materialMaps);assert.deepEqual([...m.geometries],geo);
+ }
  m.dispose();m.dispose();assert.ok([...disposed.values()].every(n=>n===1));assert.equal(JSON.stringify(world),saved);
 });
 

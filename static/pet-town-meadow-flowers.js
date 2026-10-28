@@ -8,9 +8,59 @@
   else root.PetTownMeadowFlowers = api;
 }(typeof window !== 'undefined' ? window : globalThis, function () {
   'use strict';
-  var REVISION = 'meadow-flowers2', MAX_SWAY = .025, MAX_SITES = 45;
+  var REVISION = 'meadow-flowers3', MAX_SWAY = .025, MAX_SITES = 45;
   var KINDS = ['daisy', 'tulip', 'bell', 'spike'];
   var COLORS = ['#fff1d9', '#edc0c1', '#c4afd9'];
+  // Local olive greens and cream/pink/lilac pigments sit beside the tree
+  // originals. They do not recolor any other material in the enclosing Scene.
+  var SEASON_COLORS = {
+    spring: { stem: '#70874f', leaves: ['#a3b86b', '#809652'], blooms: ['#f6e8cc', '#e6a9a9', '#b49acb'], pollen: '#d2a247' },
+    summer: { stem: '#647f46', leaves: ['#95ac58', '#738f49'], blooms: ['#f5e5c7', '#df9f9e', '#ac90c5'], pollen: '#d1a04b' },
+    autumn: { stem: '#6b7847', leaves: ['#a6b364', '#7f914e'], blooms: ['#f3e3c5', '#dca29c', '#b09ac2'], pollen: '#ca9b4a' },
+    winter: { stem: '#6c8266', leaves: ['#a4b698', '#7e9874'], blooms: ['#f0e8d9', '#d5b0b2', '#b5acc7'], pollen: '#c0a46a' }
+  };
+  Object.keys(SEASON_COLORS).forEach(function (key) {
+    Object.freeze(SEASON_COLORS[key].leaves); Object.freeze(SEASON_COLORS[key].blooms);
+    Object.freeze(SEASON_COLORS[key]);
+  });
+  Object.freeze(SEASON_COLORS);
+  function seasonKey(value) {
+    var key = typeof value === 'string' ? value : value && value.key;
+    if (!Object.prototype.hasOwnProperty.call(SEASON_COLORS, key)) throw new Error('meadow_season_invalid');
+    return key;
+  }
+  function roundedGeometry(T, kind) {
+    // A fine single equator rounds the leaf silhouette without the former
+    // two-ring vertical side strip. Padded poles keep a closed curved blade.
+    // Blossoms keep three latitude bands and48 shared triangles.
+    var g = new T.SphereGeometry(1, kind === 'leaf' ? 32 : 12, kind === 'leaf' ? 2 : 3);
+    var p = g.attributes.position, n = g.attributes.normal;
+    var radial = kind === 'leaf' ? 1 : 2 / Math.sqrt(3), radialSquared = radial * radial;
+    for (var i = 0; i < p.count; i++) {
+      var x = p.getX(i) * radial, y = p.getY(i), z = p.getZ(i) * radial;
+      var nx = x / radialSquared, ny = y, nz = z / radialSquared;
+      if (kind === 'leaf') {
+        // A continuous bend and low midrib keep a broad leaf softly padded.
+        // This invertible deformation preserves one closed outward shell.
+        var width = 1 - .12 * z * z, ridge = .035;
+        var dxDz = -.24 * x * z;
+        var dyDx = -2 * ridge * x * (1 - z * z);
+        var dyDz = .16 * z - 2 * ridge * z * (1 - x * x);
+        var normalY = ny / .32, normalX = (nx - dyDx * normalY) / width;
+        var normalZ = nz - dxDz * normalX - dyDz * normalY;
+        p.setXYZ(i, x * width, y * .32 + .08 * z * z + ridge * (1 - x * x) * (1 - z * z), z);
+        nx = normalX; ny = normalY; nz = normalZ;
+      } else p.setXYZ(i, x, y, z);
+      var length = Math.hypot(nx, ny, nz);
+      n.setXYZ(i, nx / length, ny / length, nz / length);
+    }
+    // UV seams and poles contain duplicate vertices. Their analytic normals
+    // are finite and equal at the same position, including unused pole rows.
+    g.userData.botanicalRole = kind === 'leaf' ? 'closed-padded-midrib-leaf' : 'closed-rounded-blossom';
+    g.userData.normalPolicy = 'analytic-inverse-transpose';
+    g.userData.radialSides = kind === 'leaf' ? 32 : 12;
+    return g;
+  }
   function finite(n) { return typeof n === 'number' && Number.isFinite(n); }
   function hash(text) {
     var value = 2166136261;
@@ -70,24 +120,40 @@
       ctx.geometries.add(geometry); geometries.push(geometry); return geometry;
     }
     try {
-    var stemGeometry = ownedGeometry(new T.CylinderGeometry(1, 1, 1, 5, 1, false));
-    var petalGeometry = ownedGeometry(new T.SphereGeometry(1, 8, 5));
-    var leafGeometry = ownedGeometry(new T.SphereGeometry(1, 6, 4));
-    var lp = leafGeometry.attributes.position;
-    for (i = 0; i < lp.count; i++) lp.setY(i, lp.getY(i) * .25 + lp.getZ(i) * lp.getZ(i) * .12);
-    leafGeometry.computeVertexNormals();
+    var stemGeometry = ownedGeometry(new T.CylinderGeometry(1, 1, 1, 8, 1, false));
+    stemGeometry.userData.botanicalRole = 'closed-rounded-stem';
+    stemGeometry.userData.radialSides = 8;
+    var petalGeometry = ownedGeometry(roundedGeometry(T, 'petal'));
+    var leafGeometry = ownedGeometry(roundedGeometry(T, 'leaf'));
     for (i = 0; i < geometries.length; i++) {
       geometries[i].computeBoundingBox(); geometries[i].computeBoundingSphere();
     }
     function material(color, role) {
+      // Distinct local roles make the caller's role-keyed cache return meadow
+      // resources directly, rather than cloning and retaining source materials.
       var value = ctx.mat(color, false, role);
-      if (!value || !value.isMaterial) throw new Error('meadow_material_invalid');
+      if (!value || !value.isMaterial || !value.color || typeof value.color.set !== 'function') throw new Error('meadow_material_invalid');
+      value.roughness = role === 'meadow-stem' ? .83 : role === 'meadow-leaf' ? .72 : .68;
+      value.metalness = 0; value.bumpScale = 0; value.flatShading = false;
+      value.userData.meadowRevision = REVISION; value.userData.meadowSurfaceRole = role;
       ctx.materials.add(value); materialSet.add(value); return value;
     }
-    var stemMaterial = material('#80ab6b', 'foliage');
-    var leafMaterials = [material('#9bc67e', 'foliage'), material('#80ab6b', 'foliage')];
-    var bloomMaterials = COLORS.map(function (color) { return material(color, 'display-flower'); });
-    var pollen = material('#dfb666', 'display-flower');
+    var activeSeason = 'summer', initialColors = SEASON_COLORS[activeSeason];
+    var stemMaterial = material(initialColors.stem, 'meadow-stem');
+    var leafMaterials = initialColors.leaves.map(function (color) { return material(color, 'meadow-leaf'); });
+    var bloomMaterials = initialColors.blooms.map(function (color) { return material(color, 'meadow-bloom'); });
+    var pollen = material(initialColors.pollen, 'meadow-bloom');
+    function setSeason(value) {
+      var key = seasonKey(value);
+      if (disposed) return false;
+      var colors = SEASON_COLORS[key];
+      stemMaterial.color.set(colors.stem);
+      leafMaterials.forEach(function (m, i) { m.color.set(colors.leaves[i]); });
+      bloomMaterials.forEach(function (m, i) { m.color.set(colors.blooms[i]); });
+      pollen.color.set(colors.pollen);
+      materialSet.forEach(function (m) { m.userData.meadowSeason = key; });
+      activeSeason = key; return true;
+    }
     var tempObject = new T.Object3D(), direction = new T.Vector3(), midpoint = new T.Vector3();
     var yAxis = new T.Vector3(0, 1, 0), flowerCounts = { daisy: 0, tulip: 0, bell: 0, spike: 0, leaf: 0 };
     function part(plant, geometry, mat, x, y, z, sx, sy, sz, rx, ry, rz, role) {
@@ -176,7 +242,7 @@
       batches.push({ mesh: mesh, rows: bucket.rows, count: bucket.rows.length });
       mesh.name = 'meadow-' + bucket.rows[0].role + '-instances';
       mesh.userData.noStaticBatch = true; mesh.userData.nonSolidDecoration = true;
-      mesh.userData.revision = REVISION; mesh.castShadow = false; mesh.receiveShadow = false;
+      mesh.userData.revision = REVISION; mesh.castShadow = false; mesh.receiveShadow = true;
       mesh.instanceMatrix.setUsage(T.DynamicDrawUsage);
       for (var k = 0; k < bucket.rows.length; k++) {
         var row = bucket.rows[k]; fullMatrix.multiplyMatrices(row.plant.restMatrix, row.localMatrix);
@@ -216,12 +282,13 @@
       return true;
     }
     function summary() {
-      return { revision: REVISION, sites: sites.length, plants: plants.length, parts: partCount,
+      return { revision: REVISION, season: activeSeason, sites: sites.length, plants: plants.length, parts: partCount,
         triangles: triangleCount, batches: batches.length, geometries: geometries.length, materials: materialSet.size,
         flowerKinds: Object.assign({}, flowerCounts), maxSwayRadians: MAX_SWAY,
         clusterRadiusLimit: .48, heightLimit: .50, fixedAnimationBounds: bounds.isEmpty() ? null :
           { min: bounds.min.toArray(), max: bounds.max.toArray() },
         textures: 0, lights: 0, placementMutation: false, newOriginalArtwork: false,
+        roundedBotanicalSurfaces: true, receivedShadows: true, localSeasonPalette: true,
         geometryMaterialDisposalOwner: 'scene', instanceBufferDisposalOwner: 'meadow-helper', disposed: disposed };
     }
     function dispose() {
@@ -231,11 +298,12 @@
       group.removeFromParent(); group.clear(); return true;
     }
     group.userData.meadow = { revision: REVISION, plants: plants.length, parts: partCount };
+    setSeason(activeSeason);
     animate(0, true);
     // Commit to the visible scene only once every buffer is ready.
     ctx.group.add(group);
     return { revision: REVISION, group: group, plants: plants, batches: batches,
-      animate: animate, dispose: dispose, summary: summary };
+      animate: animate, setSeason: setSeason, dispose: dispose, summary: summary };
     } catch (error) {
       for (var failed = 0; failed < batches.length; failed++) batches[failed].mesh.dispose();
       group.removeFromParent(); group.clear();

@@ -39,7 +39,7 @@ function named(m,predicate){const rows=[];m.scene.traverse(o=>{if(predicate(o))r
 
 test('full scene plans finite irregular sites clear of every actual road and bridge triangle',()=>withModel((m,world,before)=>{
  const d=m.scene.userData.meadowFlowers,triangles=actualTriangles(m);
- assert.equal(d.revision,'meadow-flowers2');assert.equal(d.summary.sites,d.sitePlan.length);assert.ok(d.summary.triangles<=45000,'actual accepted town planting stays within its authored45k budget');
+ assert.equal(d.revision,'meadow-flowers3');assert.equal(d.summary.sites,d.sitePlan.length);assert.ok(d.summary.triangles<=45000,'actual accepted town planting stays within its authored45k budget');
  assert.ok(d.sitePlan.length>0&&d.sitePlan.length<=40);assert.equal(triangles.length,d.roadTriangleCount);assert.ok(triangles.length>2000);
  for(const site of d.sitePlan){const p=new THREE.Vector3(site.x,0,site.z);assert.equal(site.radius,.55);assert.ok(Number.isFinite(p.x)&&Number.isFinite(p.z));
   for(const tri of triangles)assert.ok(triangleDistance(p,tri)>=.65-1e-7,'whole swept cluster clears actual paving');
@@ -76,7 +76,7 @@ test('decorative instances never become walking, picking, occlusion or duplicate
  const flowers=m.meadowLife;assert.ok(flowers);assert.equal(flowers.batches.length,7);assert.equal(flowers.summary().geometries,3);
  assert.ok(m.batches.length+flowers.batches.length<=120,'combined native scene and meadow instance batches remain bounded');
  const meshes=new Set(flowers.batches.map(b=>b.mesh));
- for(const mesh of meshes){assert.equal(mesh.userData.noStaticBatch,true);assert.equal(mesh.userData.nonSolidDecoration,true);assert.equal(mesh.castShadow,false);assert.equal(mesh.receiveShadow,false);
+ for(const mesh of meshes){assert.equal(mesh.userData.noStaticBatch,true);assert.equal(mesh.userData.nonSolidDecoration,true);assert.equal(mesh.castShadow,false);assert.equal(mesh.receiveShadow,true);
   for(const rows of [m.surfaces,m.pickables,m.occluders])assert.equal(rows.includes(mesh),false);
   assert.equal(m.batches.some(b=>b.mesh===mesh||b.rows?.includes(mesh)),false);
  }
@@ -110,3 +110,16 @@ test('historical synchronous previews without meadow helpers keep their original
   assert.equal(m.scene.userData.shopStyleRevision,'shop-style1');assert.equal(m.scene.userData.fountainReferenceRevision,'fountain-reference1');
  }finally{m.dispose();}
 });
+
+
+test('actual autumn fallen-leaf volumes rest just above their sampled real floor',()=>withModel((m,world,before)=>{
+ m.setSeason('autumn');m.scene.updateMatrixWorld(true);
+ const leaves=named(m,o=>o.name==='autumn-fallen-leaf');assert.ok(leaves.length>0);
+ for(const leaf of leaves){
+  const bounds=new THREE.Box3().setFromObject(leaf),center=bounds.getCenter(new THREE.Vector3());
+  const hits=new THREE.Raycaster(new THREE.Vector3(center.x,bounds.min.y+.1,center.z),new THREE.Vector3(0,-1,0),0,1).intersectObjects(m.surfaces,false);
+  assert.ok(hits.length,'real floor ray below each fallen leaf');
+  const gap=bounds.min.y-hits[0].point.y;assert.ok(gap>.001&&gap<.003,'no visible hover or floor penetration');
+ }
+ assert.equal(JSON.stringify(world),before);
+}));
