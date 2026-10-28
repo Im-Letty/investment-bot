@@ -115,7 +115,7 @@ test('logout exists once directly after inline language and colors, without the 
   const h=fixture({user:{id:'synthetic-member',is_anonymous:false}}),group=h.group();
   assert.ok(group);assert.equal(group.parentElement.className,'knAccPanel kn-menu-content');const order=group.parentElement.children;assert.equal(order.at(-3),h.languageGrid.parentElement);assert.equal(order.at(-2),h.colors);assert.equal(order.at(-1),group);
   assert.equal(h.nav.querySelectorAll('[data-menu-page="logout"]').length,1);assert.equal(h.button('logout').textContent,'ログアウト');assert.equal(group.hidden,false);
-  const html=read('index.html');assert.doesNotMatch(html,/ensureLogout|knLogoutBtn/);assert.match(html,/menu-a\.js\?v=20261028-memo-return-menu1/);assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
+  const html=read('index.html');assert.equal(/ensureLogout|knLogoutBtn/.test(html),false);const menuLoader=html.match(/menu-a\.js\?v=[a-zA-Z0-9_-]+/)?.[0];assert.equal(menuLoader,'menu-a.js?v=20261028-single-color-panel1');assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
 });
 test('signed-out and guest users cannot invoke logout even through a programmatic menu click',()=>{
   for(const user of [null,undefined,{id:'synthetic-guest',is_anonymous:true}]){
@@ -367,14 +367,14 @@ test('focus trap follows the reordered guest and member controls and excludes ne
   const h=fixture({user}),plus=h.document.getElementById('knMenuColorPlus');plus.click();const field=h.document.getElementById('knMenuColorSpectrum');assert.equal(h.document.activeElement,field);
   const excluded=h.node('button');excluded.tabIndex=-2;h.drawer.appendChild(excluded);
   const controls=h.drawer.querySelectorAll('button,select,input,textarea,summary,a[href],[tabindex]').filter(n=>!n.disabled&&n.tabIndex>=0&&n.getClientRects().length);
-  assert.ok(controls.includes(field));assert.ok(!controls.includes(excluded));assert.ok(!controls.includes(h.custom));assert.ok(!controls.includes(h.document.getElementById('knMenuColorTone')));
+  assert.ok(controls.includes(field));assert.ok(!controls.includes(excluded));assert.ok(!controls.includes(h.custom));assert.equal(h.document.getElementById('knMenuColorTone'),null);assert.equal(h.document.getElementById('knMenuColorToneButton'),null);
   const last=controls.at(-1);if(user)assert.equal(last,h.button('logout'));else assert.ok(!controls.includes(h.button('logout')));
   last.focus();last.fire('keydown',{key:'Tab'});assert.equal(h.document.activeElement,controls[0]);assert.ok(!h.calls.some(call=>call[0]==='logout'));
  }
 });
 
 test('language changes translate the inline caption, preset names and color plane controls',()=>{
-  const h=fixture();h.storage.set('app_lang','en');h.document.dispatch('langChanged');assert.equal(h.document.getElementById('knMenuColorTitle').textContent,'Display color');assert.equal(h.colors.querySelector('.drawer-color-preset').getAttribute('aria-label'),'Green');assert.equal(h.document.getElementById('knMenuColorPlus').getAttribute('aria-label'),'Choose a color');assert.equal(h.document.getElementById('knMenuColorToneButton').textContent,'Adjust shade');
+  const h=fixture();h.storage.set('app_lang','en');h.document.dispatch('langChanged');assert.equal(h.document.getElementById('knMenuColorTitle').textContent,'Display color');assert.equal(h.colors.querySelector('.drawer-color-preset').getAttribute('aria-label'),'Green');assert.equal(h.document.getElementById('knMenuColorPlus').getAttribute('aria-label'),'Choose a color');assert.equal(h.document.getElementById('knMenuColorToneButton'),null);assert.equal(h.document.getElementById('knMenuColorTone'),null);assert.match(h.document.getElementById('knMenuColorSpectrum').getAttribute('aria-label'),/^Color and brightness: /);
 });
 
 test('missing color module retains presets and reset while exposing an unavailable custom selector without a native popup',()=>{
@@ -394,4 +394,9 @@ test('openMain opens a closed hamburger once with immediate main view, inert, ar
 
 test('openMain keeps an already open hamburger open without toggling, route changes, logout or preference writes',()=>{
   const h=fixture({user:{id:'synthetic-member'}}),profile=h.document.getElementById('knProfile'),memoClose=h.document.createElement('button');h.document.body.appendChild(memoClose);h.activate('display');memoClose.focus();h.w.KNMenuSheet.openMain();assert.equal(h.document.activeElement,h.drawer.querySelector('.kn-menu-close'),'already-open menu takes focus back from the memo close button');h.w.KNMenuSheet.openMain();assert.equal(h.drawer.classList.contains('open'),true);assert.equal(h.drawer.inert,false);assert.equal(h.drawer.dataset.menuView,'main');assert.equal(h.mounted[0].hidden,false);assert.equal(h.document.getElementById('knProfile'),profile);assert.deepEqual(h.calls,[]);assert.deepEqual(h.themeWrites,[]);
+});
+
+
+test('the single color plane keeps its current color while Japanese and English accessible labels change',()=>{
+  const h=fixture({brandColor:'#0c1d2e',customColor:true});h.document.getElementById('knMenuColorPlus').click();const field=h.document.getElementById('knMenuColorSpectrum'),preview=h.colors.querySelector('.kn-color-sample');assert.match(field.getAttribute('aria-label'),/^色と明るさ: #0c1d2e$/);assert.equal(preview.style.backgroundColor,'#0c1d2e');const beforeCalls=h.calls.slice();h.storage.set('app_lang','en');h.document.dispatch('langChanged');assert.match(field.getAttribute('aria-label'),/^Color and brightness: #0c1d2e$/);assert.equal(preview.style.backgroundColor,'#0c1d2e');assert.deepEqual(h.themeWrites,[]);assert.deepEqual(h.calls,beforeCalls);assert.equal(h.document.getElementById('knMenuColorTone'),null);assert.equal(h.document.getElementById('knMenuColorToneButton'),null);
 });

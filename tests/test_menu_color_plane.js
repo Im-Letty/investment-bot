@@ -97,12 +97,12 @@ function fixture({ color = '#3da060', custom = true, commitThrows = false } = {}
   };
   const controller = mount(colors, options);
   const get = id => colors.querySelector('#' + id);
-  const plus = get('knMenuColorPlus'), panel = get('knMenuColorPanel'), spectrum = get('knMenuColorSpectrum'), tone = get('knMenuColorTone');
+  const plus = get('knMenuColorPlus'), panel = get('knMenuColorPanel'), spectrum = get('knMenuColorSpectrum');
   function pointer(type, target = spectrum, x = 10, y = 20, extra = {}) {
     const values = { target, pointerId: 7, isPrimary: true, button: 0, clientX: x, clientY: y, ...extra };
     return type === 'pointerdown' ? target.fire(type, values) : document.emit(type, values);
   }
-  return { colors, presets, input, nativeWrap, reset, controller, options, document, window, outside, plus, panel, spectrum, tone, commits, get,
+  return { colors, presets, input, nativeWrap, reset, controller, options, document, window, outside, plus, panel, spectrum, commits, get,
     open() { plus.click(); }, pointer, raw: () => raw, isCustom: () => customFlag, resets: () => resets,
     allowed(value) { allowed = value; }, external(value, customValue = true) { raw = value; customFlag = customValue; input.value = value; },
     language(value) { language = value; }, sample: () => colors.querySelector('.kn-color-sample'), value: () => colors.querySelector('.kn-color-value')
@@ -131,6 +131,8 @@ test('mount and opening preserve exact legacy/raw values and never persist or ro
     assert.equal(f.raw(), color); assert.equal(f.sample().style.backgroundColor, color); assert.equal(f.value().textContent, color);
     assert.deepEqual(f.commits, []); assert.equal(f.panel.hidden, false); assert.equal(f.plus.getAttribute('aria-expanded'), 'true');
     assert.equal(f.document.activeElement, f.spectrum);
+    f.controller.sync(); f.language('en'); f.controller.translate(); assert.equal(f.raw(), color); assert.equal(f.sample().style.backgroundColor, color); assert.equal(f.value().textContent, color);
+    f.pointer('pointerdown', f.spectrum, 130, 95); f.pointer('pointercancel'); assert.equal(f.raw(), color); assert.equal(f.sample().style.backgroundColor, color);
     f.controller.close(false); assert.equal(f.raw(), color); assert.deepEqual(f.commits, []);
   }
 });
@@ -143,21 +145,18 @@ test('three preserved presets, native input and existing reset keep their identi
 });
 test('spectrum tap and drag preview locally and commit exactly once on matching pointerup', () => {
   const f = fixture({ color: '#ff0000' }); f.open();
-  f.pointer('pointerdown', f.spectrum, 10, 20); f.pointer('pointermove', f.spectrum, 130, 20);
+  f.pointer('pointerdown', f.spectrum, 10, 70); f.pointer('pointermove', f.spectrum, 130, 70);
   assert.equal(f.sample().style.backgroundColor, '#00ff00'); assert.equal(f.raw(), '#ff0000'); assert.deepEqual(f.commits, []);
   f.controller.sync(); assert.equal(f.sample().style.backgroundColor, '#00ff00', 'same-value outer preference sync retains local preview');
-  f.pointer('pointerup', f.spectrum, 250, 20); assert.deepEqual(f.commits, ['#0000ff']); assert.equal(f.raw(), '#0000ff');
-  f.pointer('pointerup', f.spectrum, 250, 20); assert.equal(f.commits.length, 1); assert.equal(f.spectrum.captures.size, 0);
+  f.pointer('pointerup', f.spectrum, 250, 70); assert.deepEqual(f.commits, ['#0000ff']); assert.equal(f.raw(), '#0000ff');
+  f.pointer('pointerup', f.spectrum, 250, 70); assert.equal(f.commits.length, 1); assert.equal(f.spectrum.captures.size, 0);
 });
-test('spectrum geometry clamps at all edges and the tone plane reaches dark and neutral colors', () => {
+test('one spectrum clamps all edges and selects white, pure colors, dark colors and black directly', () => {
   const f = fixture({ color: '#ff0000' }); f.open();
-  f.pointer('pointerdown', f.spectrum, -100, -100); f.pointer('pointerup', f.spectrum, -100, -100);
-  assert.equal(f.raw(), '#ff0000');
-  f.pointer('pointerdown', f.spectrum, 900, 500); f.pointer('pointerup', f.spectrum, 900, 500); assert.equal(f.raw(), '#ffffff');
-  f.external('#ff0000'); f.controller.sync(); f.get('knMenuColorToneButton').click();
-  assert.equal(f.tone.hidden, false); assert.equal(f.document.activeElement, f.tone);
-  f.pointer('pointerdown', f.tone, 190, 70); f.pointer('pointerup', f.tone, 190, 70); assert.equal(f.raw(), '#804040');
-  f.pointer('pointerdown', f.tone, 1000, 1000); f.pointer('pointerup', f.tone, 1000, 1000); assert.equal(f.raw(), '#000000');
+  assert.equal(f.panel.querySelectorAll('.kn-color-field').length, 1); assert.equal(f.get('knMenuColorTone'), null); assert.equal(f.get('knMenuColorToneButton'), null);
+  for (const [x, y, expected] of [[-100, -100, '#ffffff'], [10, 70, '#ff0000'], [130, 70, '#00ff00'], [250, 70, '#0000ff'], [10, 95, '#800000'], [900, 500, '#000000']]) {
+    const before = f.commits.length; f.pointer('pointerdown', f.spectrum, x, y); assert.equal(f.sample().style.backgroundColor, expected); assert.equal(f.commits.length, before); f.pointer('pointerup', f.spectrum, x, y); assert.equal(f.raw(), expected); assert.equal(f.commits.length, before + 1);
+  }
 });
 test('invalid geometry and nonprimary or unrelated pointers cannot save', () => {
   const f = fixture(); f.open();
@@ -196,12 +195,11 @@ test('external confirmed color changes cancel pending preview, including before 
     assert.equal(f.raw(), '#654321'); assert.equal(f.sample().style.backgroundColor, '#654321');
   }
 });
-test('keyboard arrows commit one operation, use coarse Shift steps, and guard modified or hidden input', () => {
+test('one spectrum keyboard commits one hue or lightness step and guards modified or hidden input', () => {
   const f = fixture({ color: '#ff0000' }); f.open();
   f.spectrum.fire('keydown', { key: 'ArrowRight', shiftKey: true }); assert.deepEqual(f.commits, ['#ff2b00']);
-  f.external('#ff0000'); f.controller.sync(); f.get('knMenuColorToneButton').click();
-  f.tone.fire('keydown', { key: 'ArrowDown', shiftKey: true }); assert.equal(f.commits.at(-1), '#e60000'); assert.equal(f.commits.length, 2);
-  f.tone.fire('keydown', { key: 'ArrowLeft', ctrlKey: true }); assert.equal(f.commits.length, 2);
+  f.external('#ff0000'); f.controller.sync(); f.spectrum.fire('keydown', { key: 'ArrowDown', shiftKey: true }); assert.equal(f.commits.at(-1), '#cc0000'); assert.equal(f.commits.length, 2);
+  for (const modified of [{ ctrlKey: true }, { altKey: true }, { metaKey: true }]) f.spectrum.fire('keydown', { key: 'ArrowLeft', ...modified }); assert.equal(f.commits.length, 2);
   f.controller.close(false); f.spectrum.fire('keydown', { key: 'ArrowRight' }); assert.equal(f.commits.length, 2);
   f.allowed(false); f.plus.click(); assert.equal(f.panel.hidden, true);
 });
@@ -249,11 +247,11 @@ test('abandoned outside presses cannot defer a later keyboard focus or survive c
     assert.equal(f.raw(), '#2196f3'); assert.deepEqual(f.commits, [], reason);
   }
 });
-test('a preset keeps its own handler and closes the panel; translation does not write', () => {
+test('a preset keeps its own handler and closes the single plane; translation does not write', () => {
   const f = fixture(); f.open(); f.presets.children[1].click();
   assert.equal(f.raw(), '#e91e63'); assert.equal(f.panel.hidden, true); assert.deepEqual(f.commits, []);
   f.language('en'); f.controller.translate(); assert.equal(f.plus.getAttribute('aria-label'), 'en:chooseColor');
-  f.open(); assert.equal(f.get('knMenuColorToneButton').textContent, 'en:adjustTone'); assert.deepEqual(f.commits, []);
+  f.open(); assert.equal(f.spectrum.getAttribute('aria-label'), 'en:colorSpectrum: #e91e63'); assert.equal(f.get('knMenuColorKeyboardHint').textContent, 'en:colorKeyboardHint'); assert.equal(f.get('knMenuColorToneButton'), null); assert.equal(f.get('knMenuColorTone'), null); assert.deepEqual(f.commits, []);
 });
 test('commit failure restores the confirmed color without a success claim or losing the open editor', () => {
   const f = fixture({ color: '#2196f3', commitThrows: true }); f.open();
@@ -262,12 +260,37 @@ test('commit failure restores the confirmed color without a success claim or los
   assert.equal(f.panel.hidden, false); assert.equal(f.colors.querySelector('.kn-color-status').hidden, false);
 });
 
-test('opening and explicit close bring fields into the drawer scroll view without shifting pointer selection', () => {
+test('opening and explicit close bring the single plane into the drawer scroll view without shifting pointer selection', () => {
   const f = fixture(); f.open();
   assert.deepEqual(f.spectrum.scrolls, [{ block: 'nearest', inline: 'nearest' }]);
   f.pointer('pointerdown', f.spectrum, 100, 50); assert.equal(f.spectrum.scrolls.length, 1);
-  f.pointer('pointercancel'); f.get('knMenuColorToneButton').click();
-  assert.deepEqual(f.tone.scrolls, [{ block: 'nearest', inline: 'nearest' }]);
+  f.pointer('pointercancel'); assert.equal(f.get('knMenuColorToneButton'), null);
   f.controller.close(true); assert.deepEqual(f.plus.scrolls, [{ block: 'nearest', inline: 'nearest' }]);
   assert.deepEqual(f.commits, []);
+});
+
+
+test('vertical keys preserve interior HSL saturation for gray and muted colors with small and coarse lightness steps', () => {
+  for (const [color, key, shiftKey, expected] of [['#808080', 'ArrowUp', false, '#838383'], ['#808080', 'ArrowDown', false, '#7d7d7d'], ['#408080', 'ArrowUp', false, '#428383'], ['#ff0000', 'ArrowUp', false, '#ff0505'], ['#ff0000', 'ArrowDown', true, '#cc0000']]) {
+    const f = fixture({ color }); f.open(); const event = f.spectrum.fire('keydown', { key, shiftKey }); assert.equal(event.defaultPrevented, true); assert.deepEqual(f.commits, [expected]); assert.equal(f.raw(), expected);
+  }
+});
+
+test('horizontal hue keys retain dark and unsaturated saved values instead of promoting brightness', () => {
+  for (const [color, key, shiftKey, expected] of [['#400000', 'ArrowRight', true, '#400b00'], ['#400000', 'ArrowLeft', true, '#40000b'], ['#808080', 'ArrowRight', true, '#808080'], ['#000000', 'ArrowRight', true, '#000000']]) {
+    const f = fixture({ color }); f.open(); f.spectrum.fire('keydown', { key, shiftKey }); assert.deepEqual(f.commits, [expected]); assert.equal(f.raw(), expected); assert.equal(hexToHsv(f.raw()).v, hexToHsv(color).v); assert.equal(hexToHsv(f.raw()).s, hexToHsv(color).s);
+  }
+});
+
+test('black and white endpoints can move back into a colored lightness range and clamp without nonfinite values', () => {
+  for (const [color, key, expected] of [['#000000', 'ArrowUp', '#050000'], ['#ffffff', 'ArrowDown', '#fffafa'], ['#000000', 'ArrowDown', '#000000'], ['#ffffff', 'ArrowUp', '#ffffff']]) {
+    const f = fixture({ color }); f.open(); f.spectrum.fire('keydown', { key }); assert.deepEqual(f.commits, [expected]); assert.equal(f.raw(), expected); assert.ok(Object.values(hexToHsv(f.raw())).every(Number.isFinite));
+  }
+});
+
+test('legacy gray and dark colors keep exact raw values while the single marker projects their lightness', () => {
+  const percent = value => Number(String(value).match(/(-?[0-9]+(?:\.[0-9]+)?)%/)[1]);
+  for (const [color, x, y] of [['#ffffff', 0, 0], ['#ff0000', 0, 50], ['#800000', 0, 74.90196078431373], ['#808080', 0, 49.80392156862745], ['#408080', 50, 62.35294117647059], ['#000000', 0, 100]]) {
+    const f = fixture({ color }); f.open(); const marker = f.spectrum.querySelector('.kn-color-marker'); assert.ok(Math.abs(percent(marker.style.left) - x) < 1e-8); assert.ok(Math.abs(percent(marker.style.top) - y) < 1e-8); f.controller.sync(); f.controller.translate(); assert.equal(f.raw(), color); assert.equal(f.sample().style.backgroundColor, color); assert.deepEqual(f.commits, []);
+  }
 });
