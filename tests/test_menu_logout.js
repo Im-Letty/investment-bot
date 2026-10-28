@@ -80,6 +80,7 @@ function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true,col
   w.document=document;document.defaultView=w;w.addEventListener=(type,fn)=>{if(!windowListeners.has(type))windowListeners.set(type,[]);windowListeners.get(type).push(fn);};
   w.applyBrandColor=(hex,customSelection)=>{themeWrites.push([hex,customSelection]);custom.value=hex;root.toggleAttribute('data-custom-brand-color',customSelection);};
   w.knOpenMemo=()=>{calls.push(['open','memo']);if(mypageAllowed)mypage.classList.add('open');return mypageAllowed;};
+  w.toggleDrawer=()=>{calls.push(['toggle']);drawer.classList.toggle('open');};
   for(const [key,name]of Object.entries({openSimulatorSection:'sim',openSaved:'saved',openAlertSection:'alert',openBeginnerGuide:'guide'}))w[key]=()=>calls.push(['open',name]);
   if(logoutFlow)w.knLogoutFlow=()=>calls.push(['logout-flow']);
   const context={window:w,document,localStorage:{getItem:key=>storage.get(key)||null,setItem(key,value){if(blockedColorStorage&&key.startsWith('userBrandColor'))throw Error('blocked');storage.set(key,String(value));}},setTimeout:(fn,delay=0)=>{timers.push({fn,at:clock+delay,delay});return timers.length;},MutationObserver:class{constructor(fn){this.fn=fn;observers.push(this);}observe(target,options){this.target=target;this.options=options;}},console};
@@ -114,7 +115,7 @@ test('logout exists once directly after inline language and colors, without the 
   const h=fixture({user:{id:'synthetic-member',is_anonymous:false}}),group=h.group();
   assert.ok(group);assert.equal(group.parentElement.className,'knAccPanel kn-menu-content');const order=group.parentElement.children;assert.equal(order.at(-3),h.languageGrid.parentElement);assert.equal(order.at(-2),h.colors);assert.equal(order.at(-1),group);
   assert.equal(h.nav.querySelectorAll('[data-menu-page="logout"]').length,1);assert.equal(h.button('logout').textContent,'ログアウト');assert.equal(group.hidden,false);
-  const html=read('index.html');assert.doesNotMatch(html,/ensureLogout|knLogoutBtn/);assert.match(html,/menu-a\.js\?v=20261026-logout-after-color1/);assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
+  const html=read('index.html');assert.doesNotMatch(html,/ensureLogout|knLogoutBtn/);assert.match(html,/menu-a\.js\?v=20261028-memo-return-menu1/);assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
 });
 test('signed-out and guest users cannot invoke logout even through a programmatic menu click',()=>{
   for(const user of [null,undefined,{id:'synthetic-guest',is_anonymous:true}]){
@@ -382,4 +383,15 @@ test('missing color module retains presets and reset while exposing an unavailab
 
 test('blocked color storage does not erase the saved value or produce a persistence-success claim',()=>{
   const h=fixture({realColors:true,blockedColorStorage:true,brandColor:'#2196f3',customColor:true});h.document.getElementById('knMenuColorPlus').click();h.document.getElementById('knMenuColorSpectrum').fire('keydown',{key:'ArrowRight'});assert.equal(h.storage.get('userBrandColor'),'#2196f3');assert.equal(h.themeWrites.length,1);assert.equal(h.colors.textContent.includes('保存しました'),false);
+});
+
+
+test('openMain opens a closed hamburger once with immediate main view, inert, aria and focus synchronization',()=>{
+  const h=fixture(),opener=h.document.getElementById('knFloatHam'),profile=h.document.getElementById('knProfile');h.activate('display');h.drawer.classList.remove('open');h.notifyDrawerState();opener.focus();assert.equal(h.drawer.inert,true);h.w.KNMenuSheet.openMain();
+  assert.equal(h.drawer.classList.contains('open'),true);assert.equal(h.drawer.inert,false);assert.equal(h.drawer.getAttribute('aria-hidden'),'false');assert.equal(h.drawer.dataset.menuView,'main');assert.equal(h.mounted[0].hidden,false);assert.equal(h.document.getElementById('knMenuView-display').hidden,true);assert.equal(h.document.getElementById('knProfile'),profile);assert.equal(h.document.activeElement,h.drawer.querySelector('.kn-menu-close'));for(const id of ['knHomeAMenu','knFloatHam','hamburgerBtn'])assert.equal(h.document.getElementById(id).getAttribute('aria-expanded'),'true');assert.deepEqual(h.calls,[['toggle']]);assert.deepEqual(h.themeWrites,[]);
+  h.notifyDrawerState();assert.deepEqual(h.calls,[['toggle']]);assert.equal(h.document.activeElement,h.drawer.querySelector('.kn-menu-close'));
+});
+
+test('openMain keeps an already open hamburger open without toggling, route changes, logout or preference writes',()=>{
+  const h=fixture({user:{id:'synthetic-member'}}),profile=h.document.getElementById('knProfile'),memoClose=h.document.createElement('button');h.document.body.appendChild(memoClose);h.activate('display');memoClose.focus();h.w.KNMenuSheet.openMain();assert.equal(h.document.activeElement,h.drawer.querySelector('.kn-menu-close'),'already-open menu takes focus back from the memo close button');h.w.KNMenuSheet.openMain();assert.equal(h.drawer.classList.contains('open'),true);assert.equal(h.drawer.inert,false);assert.equal(h.drawer.dataset.menuView,'main');assert.equal(h.mounted[0].hidden,false);assert.equal(h.document.getElementById('knProfile'),profile);assert.deepEqual(h.calls,[]);assert.deepEqual(h.themeWrites,[]);
 });

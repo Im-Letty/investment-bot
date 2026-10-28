@@ -119,7 +119,17 @@
     backButton=header.querySelector('.kn-menu-back');backButton.onclick=function(){showView('main');};
     nav.replaceChildren();
     var panel=document.createElement('div');panel.className='knAccPanel kn-menu-content';mainPanel=panel;nav.appendChild(panel);
-    window.KNMenuSheet={showMain:function(){showView('main',false);}};
+    window.KNMenuSheet={
+      showMain:function(){showView('main',false);},
+      openMain:function(){
+        showView('main',false);
+        if(!drawer.classList.contains('open')&&typeof window.toggleDrawer==='function')window.toggleDrawer();
+        if(syncDrawerState)syncDrawerState();
+        var open=drawer.classList.contains('open'),closeButton=header.querySelector('.kn-menu-close');
+        if(open&&document.activeElement!==closeButton)closeButton.focus({preventScroll:true});
+        return open;
+      }
+    };
     if(window.KNUserProfile&&typeof window.KNUserProfile.mount==='function')window.KNUserProfile.mount(panel);
     panel.appendChild(group(['memo','guide']));
     var colors=drawer.querySelector('.drawer-color-wrap:has(.drawer-color-presets)');
