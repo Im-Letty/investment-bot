@@ -9,8 +9,8 @@
   var mounted = new WeakMap();
   var defaults = {
     chooseColor: '自由に色を選ぶ', closeColor: '色選びを閉じる',
-    colorSpectrum: '色合いと鮮やかさ', colorTone: '鮮やかさと明るさ',
-    adjustTone: '濃淡も選ぶ', colorKeyboardHint: '矢印キーでも選べます。Shiftで大きく調整できます。',
+    colorSpectrum: '色と明るさ',
+    colorKeyboardHint: '左右で色、上下で明るさを選べます。Shiftで大きく調整できます。',
     standardColor: '標準の色', selectedColor: '選んだ色', colorUnavailable: '色を変更できませんでした。'
   };
   function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
@@ -45,7 +45,7 @@
     var presets = colors.querySelector('.drawer-color-presets');
     if (!doc || !presets) return null;
     var input = colors.querySelector('#drawerColorInput'), reset = colors.querySelector('#drawerColorReset');
-    var opened = false, toneOpen = false, drag = null, outsidePointer = null, committedRaw = '', committedCustom = false;
+    var opened = false, drag = null, outsidePointer = null, committedRaw = '', committedCustom = false;
     var hsv = { h: 0, s: 0, v: 1 }, previewRaw = '', previewCustom = false;
     function label(key) {
       var value;
@@ -74,10 +74,6 @@
       return { element: element, marker: marker };
     }
     var spectrum = field('kn-color-spectrum', 'knMenuColorSpectrum');
-    var toneButton = node('button', 'kn-color-tone-button', panel);
-    toneButton.type = 'button'; toneButton.id = 'knMenuColorToneButton';
-    toneButton.setAttribute('aria-controls', 'knMenuColorTone'); toneButton.setAttribute('aria-expanded', 'false');
-    var tone = field('kn-color-tone', 'knMenuColorTone'); tone.element.hidden = true;
     var selection = node('div', 'kn-color-selection', panel);
     var sample = node('span', 'kn-color-sample', selection); sample.setAttribute('aria-hidden', 'true');
     var value = node('output', 'kn-color-value', selection);
@@ -102,16 +98,15 @@
       return { raw: raw, custom: custom };
     }
     function render() {
-      spectrum.marker.style.left = String(hsv.h / 360 * 100) + '%';
-      spectrum.marker.style.top = String((1 - hsv.s) * 100) + '%';
-      tone.marker.style.left = String(hsv.s * 100) + '%';
-      tone.marker.style.top = String((1 - hsv.v) * 100) + '%';
-      tone.element.style.setProperty('--kn-color-hue', hsvToHex(hsv.h, 1, 1));
+      // Preserve arbitrary saved colors; the marker projects their lightness.
+      var lightness = hsv.v * (1 - hsv.s / 2);
+      spectrum.marker.style.left = 'clamp(14px, ' + String(hsv.h / 360 * 100) + '%, calc(100% - 14px))';
+      spectrum.marker.style.top = 'clamp(14px, ' + String((1 - lightness) * 100) + '%, calc(100% - 14px))';
+      spectrum.marker.style.backgroundColor = previewRaw;
       sample.style.backgroundColor = previewRaw;
       value.textContent = previewCustom ? previewRaw : label('standardColor');
       value.setAttribute('aria-label', label('selectedColor') + ': ' + value.textContent);
       spectrum.element.setAttribute('aria-label', label('colorSpectrum') + ': ' + previewRaw);
-      tone.element.setAttribute('aria-label', label('colorTone') + ': ' + previewRaw);
       plus.setAttribute('data-custom-color', String(committedCustom));
     }
     function restorePreview() {
@@ -128,8 +123,8 @@
     }
     function close(focus) {
       var wasOpened = opened;
-      opened = false; outsidePointer = null; releaseDrag(); panel.hidden = true; tone.element.hidden = true; toneOpen = false;
-      plus.setAttribute('aria-expanded', 'false'); toneButton.setAttribute('aria-expanded', 'false');
+      opened = false; outsidePointer = null; releaseDrag(); panel.hidden = true;
+      plus.setAttribute('aria-expanded', 'false');
       restorePreview();
       if (wasOpened && focus && available()) {
         plus.focus({ preventScroll: true });
@@ -179,7 +174,7 @@
     }
     function updatePointer(element, event) {
       var position = point(element, event); if (!position) return false;
-      showPreview(element === spectrum.element ? { h: position.x * 360, s: 1 - position.y, v: 1 } : { h: hsv.h, s: position.x, v: 1 - position.y });
+      showPreview({ h: position.x * 360, s: Math.min(1, position.y * 2), v: Math.min(1, (1 - position.y) * 2) });
       return true;
     }
     function begin(element, event) {
@@ -223,27 +218,22 @@
       releaseDrag();
       var next = { h: hsv.h, s: hsv.s, v: hsv.v }, direction = event.key === 'ArrowLeft' || event.key === 'ArrowDown' ? -1 : 1;
       var step = event.shiftKey ? 0.1 : 0.01;
-      if (element === spectrum.element) {
-        if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') next.h = ((next.h + direction * (event.shiftKey ? 10 : 1)) % 360 + 360) % 360;
-        else next.s = clamp(next.s + direction * step, 0, 1);
-        next.v = 1;
-      } else if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') next.s = clamp(next.s + direction * step, 0, 1);
-      else next.v = clamp(next.v + direction * step, 0, 1);
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+        next.h = ((next.h + direction * (event.shiftKey ? 10 : 1)) % 360 + 360) % 360;
+      } else {
+        // Lightness changes stay gradual for muted saved colors as well.
+        var lightness = hsv.v * (1 - hsv.s / 2);
+        var saturation = lightness > 0 && lightness < 1 ? clamp((hsv.v - lightness) / Math.min(lightness, 1 - lightness), 0, 1) : 1;
+        var nextLightness = clamp(lightness + direction * step, 0, 1);
+        next.v = nextLightness + saturation * Math.min(nextLightness, 1 - nextLightness);
+        next.s = next.v ? 2 * (1 - nextLightness / next.v) : 0;
+      }
       if (event.preventDefault) event.preventDefault();
       showPreview(next); commit();
     }
     plus.addEventListener('click', function () { if (opened) close(false); else open(); });
     closeButton.addEventListener('click', function () { close(true); });
-    toneButton.addEventListener('click', function () {
-      if (!usable()) return;
-      releaseDrag(); restorePreview(); toneOpen = !toneOpen; tone.element.hidden = !toneOpen;
-      toneButton.setAttribute('aria-expanded', String(toneOpen));
-      if (toneOpen) {
-        tone.element.focus({ preventScroll: true });
-        if (typeof tone.element.scrollIntoView === 'function') tone.element.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-      }
-    });
-    [spectrum.element, tone.element].forEach(function (element) {
+    [spectrum.element].forEach(function (element) {
       element.addEventListener('pointerdown', function (event) { begin(element, event); });
       element.addEventListener('keydown', function (event) { keyboard(element, event); });
       element.addEventListener('lostpointercapture', function (event) { cancel(event); });
@@ -286,7 +276,7 @@
     function translate() {
       plus.setAttribute('aria-label', label('chooseColor')); panel.setAttribute('aria-label', label('chooseColor'));
       closeButton.setAttribute('aria-label', label('closeColor')); title.textContent = label('chooseColor');
-      toneButton.textContent = label('adjustTone'); hint.textContent = label('colorKeyboardHint'); render();
+      hint.textContent = label('colorKeyboardHint'); render();
       if (!status.hidden) status.textContent = label('colorUnavailable');
     }
     var controller = { close: close, sync: sync, translate: translate };
