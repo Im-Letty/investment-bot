@@ -1,0 +1,1094 @@
+{
+  "model_id": "autumn-glass-garden-panel-v1",
+  "unit_id": "village:asset-library:autumn-glass-garden-panel:v1",
+  "geometry": {
+    "bounds": {
+      "min": [
+        -0.8600000000000001,
+        0,
+        -0.25
+      ],
+      "max": [
+        0.8600000000000001,
+        2.12,
+        0.25
+      ],
+      "size": [
+        1.7200000000000002,
+        2.12,
+        0.5
+      ]
+    },
+    "budget": {
+      "meshes": 26,
+      "geometries": 5,
+      "materials": 7,
+      "textures": 0,
+      "lights": 0,
+      "triangles": 564
+    },
+    "invalidPositions": 0,
+    "invalidNormals": 0,
+    "bodyBinding": null,
+    "authoredDimensionsNotBodyFit": true,
+    "joinery": "two real front-half post notches per side occupied by lower/upper front rails; rear halves remain continuous",
+    "glass": "thick clear pane with leaf-shaped cutout and matching thick amber inset, both have side walls",
+    "windLoadOrFrictionVerified": false
+  },
+  "panel": {
+    "leafHole": [
+      "closed-leaf-face-stem-1",
+      "matching-thick-amber-leaf-inset"
+    ],
+    "leafHoleReverse": [
+      "matching-thick-amber-leaf-inset"
+    ],
+    "clear": [
+      "thick-clear-pane-with-real-leaf-void"
+    ],
+    "clearReverse": [
+      "thick-clear-pane-with-real-leaf-void"
+    ],
+    "lap": [
+      {
+        "sign": -1,
+        "y": 0.35,
+        "front": [
+          "lower-front-lap-rail"
+        ],
+        "rear": [
+          "post-rear-half--1"
+        ]
+      },
+      {
+        "sign": -1,
+        "y": 2.04,
+        "front": [
+          "upper-front-lap-rail"
+        ],
+        "rear": [
+          "post-rear-half--1"
+        ]
+      },
+      {
+        "sign": 1,
+        "y": 0.35,
+        "front": [
+          "lower-front-lap-rail"
+        ],
+        "rear": [
+          "post-rear-half-1"
+        ]
+      },
+      {
+        "sign": 1,
+        "y": 2.04,
+        "front": [
+          "upper-front-lap-rail"
+        ],
+        "rear": [
+          "post-rear-half-1"
+        ]
+      }
+    ],
+    "footContact": [
+      {
+        "id": "stone-foot--1",
+        "minY": 0,
+        "maxY": 0.16
+      },
+      {
+        "id": "stone-foot-1",
+        "minY": 0,
+        "maxY": 0.16
+      }
+    ],
+    "scope": "finite real triangle rays through clear pane, matching leaf inset, and both halves of four lap joints; not wind/strength/continuous traversal proof",
+    "bodyBinding": null
+  },
+  "placement": {
+    "meadowEnvelopeClearance": {
+      "sites": 40,
+      "clusterRadius": 0.52,
+      "minimumGap": 1.1979786886470423,
+      "requiredMargin": 0.2,
+      "rows": [
+        {
+          "id": "meadow-0",
+          "x": 1.734470334649086,
+          "z": 7.060823415219784,
+          "envelopeRadius": 0.52,
+          "gap": 13.49251062695506
+        },
+        {
+          "id": "meadow-1",
+          "x": -3.1143160589039325,
+          "z": -5.229255098104477,
+          "envelopeRadius": 0.52,
+          "gap": 10.834958057906578
+        },
+        {
+          "id": "meadow-3",
+          "x": -2.2171060256659985,
+          "z": -4.216961176693439,
+          "envelopeRadius": 0.52,
+          "gap": 9.998309912107555
+        },
+        {
+          "id": "meadow-4",
+          "x": 1.3548462823033334,
+          "z": -5.974445790052414,
+          "envelopeRadius": 0.52,
+          "gap": 6.366278274291128
+        },
+        {
+          "id": "meadow-6",
+          "x": -3.0788057506084443,
+          "z": -8.857669579982757,
+          "envelopeRadius": 0.52,
+          "gap": 11.191594251952228
+        },
+        {
+          "id": "meadow-8",
+          "x": -7.812816283106804,
+          "z": 7.084447833895683,
+          "envelopeRadius": 0.52,
+          "gap": 19.785378685290553
+        },
+        {
+          "id": "meadow-9",
+          "x": 9.925844331085683,
+          "z": -0.1950238063931465,
+          "envelopeRadius": 0.52,
+          "gap": 4.634976193606853
+        },
+        {
+          "id": "meadow-12",
+          "x": -11.727412109076978,
+          "z": 4.911106306314468,
+          "envelopeRadius": 0.52,
+          "gap": 21.929673693913696
+        },
+        {
+          "id": "meadow-13",
+          "x": -9.871636390686035,
+          "z": 0.5568099707365036,
+          "envelopeRadius": 0.52,
+          "gap": 18.53050594548121
+        },
+        {
+          "id": "meadow-15",
+          "x": -11.288279917091131,
+          "z": -8.943065647780895,
+          "envelopeRadius": 0.52,
+          "gap": 19.251716456133675
+        },
+        {
+          "id": "meadow-16",
+          "x": -10.949356918036939,
+          "z": 8.201848438382148,
+          "envelopeRadius": 0.52,
+          "gap": 22.972211795075676
+        },
+        {
+          "id": "meadow-18",
+          "x": 8.160340536385775,
+          "z": -7.566130864620209,
+          "envelopeRadius": 0.52,
+          "gap": 1.1979786886470423
+        },
+        {
+          "id": "meadow-19",
+          "x": -13.150953391939401,
+          "z": -0.43000622391700744,
+          "envelopeRadius": 0.52,
+          "gap": 21.42946982896897
+        },
+        {
+          "id": "meadow-20",
+          "x": -4.392268183082343,
+          "z": -4.746660254895687,
+          "envelopeRadius": 0.52,
+          "gap": 12.126668268652303
+        },
+        {
+          "id": "meadow-22",
+          "x": -9.082585651427507,
+          "z": 4.743022602796555,
+          "envelopeRadius": 0.52,
+          "gap": 19.52846824352435
+        },
+        {
+          "id": "meadow-23",
+          "x": 5.455513224005699,
+          "z": 6.696250386536121,
+          "envelopeRadius": 0.52,
+          "gap": 11.843879447034768
+        },
+        {
+          "id": "meadow-28",
+          "x": 7.858497595041991,
+          "z": 2.0740261673927307,
+          "envelopeRadius": 0.52,
+          "gap": 6.913821938889896
+        },
+        {
+          "id": "meadow-32",
+          "x": -11.623571104556323,
+          "z": 1.87281626611948,
+          "envelopeRadius": 0.52,
+          "gap": 20.616000847839807
+        },
+        {
+          "id": "meadow-33",
+          "x": 4.229234104603529,
+          "z": -8.481553061306476,
+          "envelopeRadius": 0.52,
+          "gap": 4.27701100500582
+        },
+        {
+          "id": "meadow-35",
+          "x": -2.6012140944600106,
+          "z": 3.1413744762539864,
+          "envelopeRadius": 0.52,
+          "gap": 13.250815645338372
+        },
+        {
+          "id": "meadow-37",
+          "x": -13.100976146757603,
+          "z": 8.487275093793869,
+          "envelopeRadius": 0.52,
+          "gap": 24.91437526100858
+        },
+        {
+          "id": "meadow-39",
+          "x": 3.3129185356199744,
+          "z": 4.696684509515762,
+          "envelopeRadius": 0.52,
+          "gap": 10.669816861342333
+        },
+        {
+          "id": "meadow-40",
+          "x": -0.17796356901526453,
+          "z": -3.8332146048545837,
+          "envelopeRadius": 0.52,
+          "gap": 8.033522583368486
+        },
+        {
+          "id": "meadow-43",
+          "x": 12.179453410953284,
+          "z": 0.17379956245422362,
+          "envelopeRadius": 0.52,
+          "gap": 5.433010587052708
+        },
+        {
+          "id": "meadow-44",
+          "x": -1.2824119605123998,
+          "z": -5.718302688002586,
+          "envelopeRadius": 0.52,
+          "gap": 9.0024119605124
+        },
+        {
+          "id": "meadow-45",
+          "x": 3.285531686246395,
+          "z": -6.342537121474742,
+          "envelopeRadius": 0.52,
+          "gap": 4.458890347057174
+        },
+        {
+          "id": "meadow-46",
+          "x": 7.427632695436478,
+          "z": -0.1507602408528328,
+          "envelopeRadius": 0.52,
+          "gap": 4.742322178527317
+        },
+        {
+          "id": "meadow-51",
+          "x": -4.763967896997928,
+          "z": 8.810571625828743,
+          "envelopeRadius": 0.52,
+          "gap": 18.705633145266734
+        },
+        {
+          "id": "meadow-53",
+          "x": -13.647779926657677,
+          "z": 4.520407390594483,
+          "envelopeRadius": 0.52,
+          "gap": 23.490411328715318
+        },
+        {
+          "id": "meadow-54",
+          "x": -3.3226604662835597,
+          "z": 4.390673924982548,
+          "envelopeRadius": 0.52,
+          "gap": 14.59872499820642
+        },
+        {
+          "id": "meadow-56",
+          "x": 2.397667407989502,
+          "z": -3.4586302667856215,
+          "envelopeRadius": 0.52,
+          "gap": 5.620857398066457
+        },
+        {
+          "id": "meadow-57",
+          "x": 0.2178523287177086,
+          "z": -8.743251626193523,
+          "envelopeRadius": 0.52,
+          "gap": 8.007939858625376
+        },
+        {
+          "id": "meadow-58",
+          "x": -2.31141759082675,
+          "z": 8.867783010005951,
+          "envelopeRadius": 0.52,
+          "gap": 17.18530335508607
+        },
+        {
+          "id": "meadow-60",
+          "x": 11.523187883198261,
+          "z": -6.919210848212242,
+          "envelopeRadius": 0.52,
+          "gap": 1.3738764996991242
+        },
+        {
+          "id": "meadow-63",
+          "x": -5.403488729149103,
+          "z": 3.5937201127409932,
+          "envelopeRadius": 0.52,
+          "gap": 15.79364196485464
+        },
+        {
+          "id": "meadow-64",
+          "x": -6.272739066928625,
+          "z": -7.209053501486778,
+          "envelopeRadius": 0.52,
+          "gap": 14.056234824009245
+        },
+        {
+          "id": "meadow-67",
+          "x": 5.212599105387926,
+          "z": -7.331613081693649,
+          "envelopeRadius": 0.52,
+          "gap": 2.8505093829484798
+        },
+        {
+          "id": "meadow-68",
+          "x": 9.204722687602043,
+          "z": -1.5235160261392593,
+          "envelopeRadius": 0.52,
+          "gap": 3.30648397386074
+        },
+        {
+          "id": "meadow-69",
+          "x": 10.626415640115738,
+          "z": -1.8041678130626677,
+          "envelopeRadius": 0.52,
+          "gap": 3.087912929009188
+        },
+        {
+          "id": "meadow-71",
+          "x": 0.6771361850202083,
+          "z": 5.224737650156021,
+          "envelopeRadius": 0.52,
+          "gap": 12.480845566868256
+        }
+      ],
+      "scope": "all actual current meadow site centers against complete rectangle with conservative .52 radius; .48 cluster limit plus .018 sway rounded up, not physical plant/actor contact or all scene meshes"
+    },
+    "townPoint": {
+      "x": 2350,
+      "y": 400
+    },
+    "worldPosition": [
+      9.1,
+      0.025000000000001743,
+      -5.6
+    ],
+    "projectedFootprint": {
+      "minX": 8.24,
+      "maxX": 9.959999999999999,
+      "minZ": -5.85,
+      "maxZ": -5.35
+    },
+    "supports": [
+      {
+        "foot": "stone-foot--1",
+        "x": 8.44,
+        "z": -5.6,
+        "soleLocalY": 0,
+        "floorY": 0.025000000000001243,
+        "soleMinusFloor": 4.996003610813204e-16
+      },
+      {
+        "foot": "stone-foot--1",
+        "x": 8.24,
+        "z": -5.85,
+        "soleLocalY": 0,
+        "floorY": 0.025000000000001743,
+        "soleMinusFloor": 0
+      },
+      {
+        "foot": "stone-foot--1",
+        "x": 8.24,
+        "z": -5.35,
+        "soleLocalY": 0,
+        "floorY": 0.025000000000001188,
+        "soleMinusFloor": 5.551115123125783e-16
+      },
+      {
+        "foot": "stone-foot--1",
+        "x": 8.639999999999999,
+        "z": -5.85,
+        "soleLocalY": 0,
+        "floorY": 0.025000000000001743,
+        "soleMinusFloor": 0
+      },
+      {
+        "foot": "stone-foot--1",
+        "x": 8.639999999999999,
+        "z": -5.35,
+        "soleLocalY": 0,
+        "floorY": 0.025000000000001188,
+        "soleMinusFloor": 5.551115123125783e-16
+      },
+      {
+        "foot": "stone-foot-1",
+        "x": 9.76,
+        "z": -5.6,
+        "soleLocalY": 0,
+        "floorY": 0.025000000000001243,
+        "soleMinusFloor": 4.996003610813204e-16
+      },
+      {
+        "foot": "stone-foot-1",
+        "x": 9.56,
+        "z": -5.85,
+        "soleLocalY": 0,
+        "floorY": 0.0250000000000013,
+        "soleMinusFloor": 4.440892098500626e-16
+      },
+      {
+        "foot": "stone-foot-1",
+        "x": 9.56,
+        "z": -5.35,
+        "soleLocalY": 0,
+        "floorY": 0.025000000000001188,
+        "soleMinusFloor": 5.551115123125783e-16
+      },
+      {
+        "foot": "stone-foot-1",
+        "x": 9.959999999999999,
+        "z": -5.85,
+        "soleLocalY": 0,
+        "floorY": 0.0250000000000013,
+        "soleMinusFloor": 4.440892098500626e-16
+      },
+      {
+        "foot": "stone-foot-1",
+        "x": 9.959999999999999,
+        "z": -5.35,
+        "soleLocalY": 0,
+        "floorY": 0.025000000000001188,
+        "soleMinusFloor": 5.551115123125783e-16
+      }
+    ],
+    "finiteWalkability": {
+      "samples": 63,
+      "blocked": 0
+    },
+    "roads": [
+      {
+        "name": "layout-plaza-border",
+        "triangles": 192,
+        "minimumGap": 7.464330227119711
+      },
+      {
+        "name": "layout-plaza-floor",
+        "triangles": 96,
+        "minimumGap": 7.762825610201718
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.674307151349634
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.546458827799588
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.476327534476054
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.4641609259373585
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.469972833947673
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.530943394646018
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.657920243354388
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.848749031059982
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.098840672333933
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.401578420528244
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.748866081622829
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.131693874284865
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.540635418909183
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.966237478767964
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.389954145797345
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.77940289874239
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.161050664258374
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.5280487189379
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.874165329592856
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.193835852662504
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.482199586757561
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.735126383688948
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.949234342156343
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.121898870532739
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.251252853554414
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.336177449779916
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.373043896932387
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.327069695736029
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.239057225952344
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.111120715778467
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.945866804033956
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.74632373543433
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.515866962467864
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.258143970247074
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.977001646696468
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.676419955950434
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.360455972360732
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.033202407336688
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.69876449702408
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.3612583742943
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.0060907537455
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.64360870967226
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.290811554887588
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.952466456104336
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.633716449311814
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.340178208377868
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.077986170304978
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.853739537463776
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 10.445819547871883
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 10.478126876297804
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 15.86619645961527
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 1.6328943280487653
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 1.684227936144786
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 1.6263406427056066
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 10.445842939552461
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 10.478147487780907
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 18.12939093368624
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 6.97952990910619
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 7.039519385444955
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 10.311960293419675
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 10.360320703082522
+      }
+    ],
+    "minimumRoadGap": 1.6263406427056066,
+    "requiredMargin": 0.2,
+    "originalSpriteEnvelopeClearance": {
+      "checkedCards": 38,
+      "kinds": {
+        "shopTulip": 6,
+        "treeGrove": 12,
+        "flowers": 1,
+        "lantern": 4,
+        "treeApple": 5,
+        "treeBirch": 5,
+        "tree": 5
+      },
+      "minimumGap": 1.0041352366814977,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "kind": "shopTulip",
+          "sourceSHA256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+          "contact": [
+            6.8759999999999994,
+            0.025,
+            -4.894
+          ],
+          "fullQuadRadius": 0.43406919941234284,
+          "envelopeDistance": 1.4382044360938406,
+          "gap": 1.0041352366814977
+        },
+        {
+          "kind": "shopTulip",
+          "sourceSHA256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+          "contact": [
+            5.795999999999999,
+            0.025,
+            -4.894
+          ],
+          "fullQuadRadius": 0.43406919941234284,
+          "envelopeDistance": 2.486176180402347,
+          "gap": 2.052106980990004
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "fbd36580f164bb32409de1678d4eddc7f302b197e7d5b81a60f09643a75721b0",
+          "contact": [
+            3.800391407986147,
+            0.025,
+            -10.014646520277676
+          ],
+          "fullQuadRadius": 3.4525540954611675,
+          "envelopeDistance": 6.087232958343567,
+          "gap": 2.6346788628824
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "fbd36580f164bb32409de1678d4eddc7f302b197e7d5b81a60f09643a75721b0",
+          "contact": [
+            3.018835793838979,
+            0.025,
+            -10.44966867454055
+          ],
+          "fullQuadRadius": 3.844080848554702,
+          "envelopeDistance": 6.958269007680478,
+          "gap": 3.114188159125776
+        },
+        {
+          "kind": "lantern",
+          "sourceSHA256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+          "contact": [
+            4.032,
+            0.025,
+            -3.4560000000000004
+          ],
+          "fullQuadRadius": 0.9909739577995439,
+          "envelopeDistance": 4.614596407054467,
+          "gap": 3.623622449254923
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            0.8327002596367137,
+            0.025,
+            -9.982363263208441
+          ],
+          "fullQuadRadius": 4.385813983669816,
+          "envelopeDistance": 8.482011293478731,
+          "gap": 4.0961973098089155
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "fbd36580f164bb32409de1678d4eddc7f302b197e7d5b81a60f09643a75721b0",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            -1.4520000000000004
+          ],
+          "fullQuadRadius": 3.844080848554702,
+          "envelopeDistance": 9.639308066453735,
+          "gap": 5.795227217899033
+        },
+        {
+          "kind": "treeApple",
+          "sourceSHA256": "ce7ef7adda439841a3fc36de04d5250eb01249ce653337f19b6d9520b028c45b",
+          "contact": [
+            -0.3355192961773006,
+            0.025,
+            -9.667760567754863
+          ],
+          "fullQuadRadius": 2.824426245157773,
+          "envelopeDistance": 9.386949821524198,
+          "gap": 6.5625235763664245
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            -1.9396978898859323,
+            0.025,
+            -10.216135629486423
+          ],
+          "fullQuadRadius": 3.3722855420654474,
+          "envelopeDistance": 11.076524250161642,
+          "gap": 7.704238708096194
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            -3.7735156195406474,
+            0.025,
+            -10.38942810991384
+          ],
+          "fullQuadRadius": 3.777696918707195,
+          "envelopeDistance": 12.842545117928264,
+          "gap": 9.06484819922107
+        }
+      ],
+      "method": "sphere enclosing all four full raw Sprite quad corners from actual world scale/center; sphere-to-conservative-3D-pose-envelope distance; includes faint/transparent corners without cropping",
+      "cameraOrientationIndependentGeometryEnvelope": true,
+      "physicalFixtureVolumes": false,
+      "allCameraProjectionOcclusionGuaranteed": false
+    },
+    "buildingProxyClearance": [
+      {
+        "place": "home",
+        "intersects": false,
+        "separation": 15.071882726144231
+      },
+      {
+        "place": "cafe",
+        "intersects": false,
+        "separation": 0.6718827261442337
+      },
+      {
+        "place": "shop",
+        "intersects": false,
+        "separation": 16.542890592608625
+      },
+      {
+        "place": "playground",
+        "intersects": false,
+        "separation": 7.056170759769029
+      },
+      {
+        "place": "tree",
+        "intersects": false,
+        "separation": null
+      },
+      {
+        "place": "flowers",
+        "intersects": false,
+        "separation": null
+      }
+    ],
+    "shoreline": {
+      "segments": 7,
+      "minimumGap": 3.750000381469727,
+      "rows": [
+        {
+          "a": [
+            14.399999618530273,
+            -9.600000381469727
+          ],
+          "b": [
+            -14.399999618530273,
+            -9.600000381469727
+          ],
+          "footprintGap": 3.750000381469727
+        },
+        {
+          "a": [
+            -14.399999618530273,
+            -9.600000381469727
+          ],
+          "b": [
+            -14.399999618530273,
+            9.600000381469727
+          ],
+          "footprintGap": 22.639999618530275
+        },
+        {
+          "a": [
+            -14.399999618530273,
+            9.600000381469727
+          ],
+          "b": [
+            5.5,
+            9.600000381469727
+          ],
+          "footprintGap": 15.199016790764622
+        },
+        {
+          "a": [
+            5.5,
+            9.600000381469727
+          ],
+          "b": [
+            10.699999809265137,
+            4.900000095367432
+          ],
+          "footprintGap": 10.276677560026139
+        },
+        {
+          "a": [
+            10.699999809265137,
+            4.900000095367432
+          ],
+          "b": [
+            12.800000190734863,
+            0.8999999761581421
+          ],
+          "footprintGap": 6.864990953042169
+        },
+        {
+          "a": [
+            12.800000190734863,
+            0.8999999761581421
+          ],
+          "b": [
+            14,
+            -4.099999904632568
+          ],
+          "footprintGap": 4.2289597111368415
+        },
+        {
+          "a": [
+            14,
+            -4.099999904632568
+          ],
+          "b": [
+            14.399999618530273,
+            -9.600000381469727
+          ],
+          "footprintGap": 4.12002745537683
+        }
+      ],
+      "method": "every actual dry-land boundary segment against full projected rectangle, including crossing and endpoint/corner distances"
+    },
+    "waterBacking": {
+      "topY": -0.05,
+      "soleAboveWaterBacking": 0.07500000000000175,
+      "scope": "actual wet backing under dry land, no water physics"
+    },
+    "worldUnchanged": true,
+    "walkableSurfacesUnchanged": true,
+    "occludersUnchanged": true,
+    "notRegisteredAsTownSurface": true,
+    "normalPlacement": false,
+    "ownershipUnlockSave": false,
+    "bodyBinding": null,
+    "limits": "one unchanged default-world off-road authored placement,10sole rays,finite walkability,actual road triangles and conservative full-card envelopes; no owner-world placement, anatomical fit or all-camera visibility guarantee"
+  },
+  "bodyBinding": null,
+  "normalGamePlacement": false,
+  "ownershipUnlockSave": false,
+  "native_views_verified_by_this_certificate": false,
+  "scope": "finite geometry/triangle/support witness only; native review separately"
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "id": "bud-watering-can-hollow-v1",
+  "unit_id": "wardrobe:fit-prerequisite:bud-watering-can:hollow-vessel-spout-grip-geometry:v1",
+  "source_original_sha256": "09b7bc6adeb8ff993f9e00480b188c6450d6e125505ace75a0aab5228a52eed3",
+  "scope": "Authored hollow can shell, shared uncapped side port, curved hollow spout, nine true pierced rose pores, separate solid loop handle and support base. New back/inside prototype design, not source-derived anatomical data.",
+  "bodyBinding": null,
+  "body_fit_verified": false,
+  "grip_carrying_pouring_verified": false,
+  "liquid_simulation": false,
+  "normal_game_integration": false,
+  "ownership_unlock_save": false,
+  "original_png_unchanged": true,
+  "new_original_pngs": 0,
+  "new_distinct_designs": 0,
+  "village_library_mesh_increment": 0,
+  "dimensions_are_authored_prototype_values": true
+}

@@ -1,0 +1,126 @@
+{
+  "schema_version": 1,
+  "unit_id": "wardrobe:fit-prerequisite:bud-watering-can:hollow-vessel-spout-grip-geometry:v1",
+  "source_base": "633010a49deac4ca6c9305d0266f74f0d0e568c0",
+  "source_original_unmodified": true,
+  "inputs": [
+    {
+      "role": "unmodified-original-design-reference",
+      "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/assets/bud-watering-can-v1.png",
+      "sha256": "09b7bc6adeb8ff993f9e00480b188c6450d6e125505ace75a0aab5228a52eed3",
+      "bytes": 1042945,
+      "viewed_before_authoring": true
+    },
+    {
+      "role": "authored-prototype-source",
+      "path": "./can.mjs",
+      "sha256": "6bf69795d39198dbc64bcdd0e6fc0896845d3af00e781153cd380da2680ddcee",
+      "bytes": 12883
+    },
+    {
+      "role": "authored-prototype-source",
+      "path": "./placement.mjs",
+      "sha256": "d584c4e307c700f2471af1ebce9035b167c877642e5cca5dcfb49a44ca8cbed8",
+      "bytes": 8008
+    },
+    {
+      "role": "authored-prototype-source",
+      "path": "./SPEC.json",
+      "sha256": "3c7ef1ee3612cefaccdfcaac88aa7341f5203dc948202261b7ddcd261f054419",
+      "bytes": 866
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-walk.js",
+      "sha256": "634dacef24a34f811cba3d8f44e9a8b178ec5ea6e462553cd35c0c98eaf62f4f",
+      "bytes": 28728
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-scene.js",
+      "sha256": "95132e97e9eb330e7f3a07d1818f1cb5cbc480185254c51db30cd71d7b6433fe",
+      "bytes": 135792
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-style.js",
+      "sha256": "7985e1f983329bcef7567c634543a74b442de56b8757858693ae54ef64b68e2a",
+      "bytes": 13719
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-japan-seasons.js",
+      "sha256": "944ff98aa81f7975b4daf4dc3ca59887f042e2c8be9eb1e5b6ea29637f46225a",
+      "bytes": 5025
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-layout-art.js",
+      "sha256": "66b5969fbe9f7ecdaf78c30553453dc25badd69ea6b416a71a3bca285abeaa27",
+      "bytes": 14751
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-placement-originals.js",
+      "sha256": "f3746f188309f4ddabc0b8a336f5c2372a9d60da099da3f325ff69f84cc03487",
+      "bytes": 12342
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-water-life.js",
+      "sha256": "948078e9fcb8b6897bcf1ec7653106545b72401b76b17881111fe4b816f3c28d",
+      "bytes": 6154
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-ocean-life.js",
+      "sha256": "91107133ee5c315b110226b7fc0be81376fc5d1cf5b937108b29e64813329a2d",
+      "bytes": 8545
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-shore-transition.js",
+      "sha256": "14949767cb6b42c491c91702b2bf0cd98d1fb7fe1534b292b0d94c79a292d3fd",
+      "bytes": 10284
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-tree-variety.js",
+      "sha256": "8333b6fb83d13ff3c24d6fc9a83c2439f55cd957153d71607c991a2023ab374e",
+      "bytes": 3137
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-meadow-sites.js",
+      "sha256": "4dc48dd3dc0839c58189311ff705c30aa87a286a3ddf80e9119a8bcf348c31ac",
+      "bytes": 5269
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-meadow-flowers.js",
+      "sha256": "a65de1a2a0e81580a32db3420eab454e56f9ad5625d61300f42474344cb0b274",
+      "bytes": 14185
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-ground-finish.js",
+      "sha256": "7d52bb26af12af7cf27e311b8a2e3c58eff4ac95651dd1f774f5658fd2c89622",
+      "bytes": 5502
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-water-finish.js",
+      "sha256": "d9e294433755ec95fc3d69e3975e36ca9117be80757b8c7d6f0f0d9bd5e2575e",
+      "bytes": 13616
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-environment.js",
+      "sha256": "0f8a7f4cb6e4dbcabb4277805af191c42185643afd58c655f86394e1be34576b",
+      "bytes": 6550
+    }
+  ],
+  "bodyBinding": null,
+  "normal_game_change": false,
+  "creation_unit_cost": 1
+}

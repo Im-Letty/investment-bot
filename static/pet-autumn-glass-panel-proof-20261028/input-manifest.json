@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "model_id": "autumn-glass-garden-panel-v1",
+  "unit_id": "village:asset-library:autumn-glass-garden-panel:v1",
+  "run_id": "automation360-20261028-123343",
+  "base_main_sha": "633010a49deac4ca6c9305d0266f74f0d0e568c0",
+  "created_at": "2026-10-28T03:59:23.164Z",
+  "inputs": [
+    {
+      "path": "static/vendor/three-0.160.1.module.js",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    {
+      "path": "static/pet-town-walk.js",
+      "sha256": "634dacef24a34f811cba3d8f44e9a8b178ec5ea6e462553cd35c0c98eaf62f4f",
+      "bytes": 28728
+    },
+    {
+      "path": "static/pet-frame-fit.js",
+      "sha256": "7b3b730dc7834e1c56f455161d59005f8352a3cd918e52be1893bc4b7706dc13",
+      "bytes": 2434
+    },
+    {
+      "path": "static/pet-river-fishing.js",
+      "sha256": "8b4e1d2d9f2b9fda72f66e79b2105dccdadd2e6de5230c24e920cbdcf561aedb",
+      "bytes": 8325
+    },
+    {
+      "path": "static/pet-japan-seasons.js",
+      "sha256": "944ff98aa81f7975b4daf4dc3ca59887f042e2c8be9eb1e5b6ea29637f46225a",
+      "bytes": 5025
+    },
+    {
+      "path": "static/pet-town-style.js",
+      "sha256": "7985e1f983329bcef7567c634543a74b442de56b8757858693ae54ef64b68e2a",
+      "bytes": 13719
+    },
+    {
+      "path": "static/pet-town-layout-art.js",
+      "sha256": "66b5969fbe9f7ecdaf78c30553453dc25badd69ea6b416a71a3bca285abeaa27",
+      "bytes": 14751
+    },
+    {
+      "path": "static/pet-town-placement-originals.js",
+      "sha256": "f3746f188309f4ddabc0b8a336f5c2372a9d60da099da3f325ff69f84cc03487",
+      "bytes": 12342
+    },
+    {
+      "path": "static/pet-town-water-life.js",
+      "sha256": "948078e9fcb8b6897bcf1ec7653106545b72401b76b17881111fe4b816f3c28d",
+      "bytes": 6154
+    },
+    {
+      "path": "static/pet-town-ocean-life.js",
+      "sha256": "91107133ee5c315b110226b7fc0be81376fc5d1cf5b937108b29e64813329a2d",
+      "bytes": 8545
+    },
+    {
+      "path": "static/pet-town-shore-transition.js",
+      "sha256": "14949767cb6b42c491c91702b2bf0cd98d1fb7fe1534b292b0d94c79a292d3fd",
+      "bytes": 10284
+    },
+    {
+      "path": "static/pet-town-tree-variety.js",
+      "sha256": "8333b6fb83d13ff3c24d6fc9a83c2439f55cd957153d71607c991a2023ab374e",
+      "bytes": 3137
+    },
+    {
+      "path": "static/pet-town-meadow-sites.js",
+      "sha256": "4dc48dd3dc0839c58189311ff705c30aa87a286a3ddf80e9119a8bcf348c31ac",
+      "bytes": 5269
+    },
+    {
+      "path": "static/pet-town-meadow-flowers.js",
+      "sha256": "a65de1a2a0e81580a32db3420eab454e56f9ad5625d61300f42474344cb0b274",
+      "bytes": 14185
+    },
+    {
+      "path": "static/pet-town-ground-finish.js",
+      "sha256": "7d52bb26af12af7cf27e311b8a2e3c58eff4ac95651dd1f774f5658fd2c89622",
+      "bytes": 5502
+    },
+    {
+      "path": "static/pet-town-water-finish.js",
+      "sha256": "d9e294433755ec95fc3d69e3975e36ca9117be80757b8c7d6f0f0d9bd5e2575e",
+      "bytes": 13616
+    },
+    {
+      "path": "static/pet-town-environment.js",
+      "sha256": "0f8a7f4cb6e4dbcabb4277805af191c42185643afd58c655f86394e1be34576b",
+      "bytes": 6550
+    },
+    {
+      "path": "static/pet-town-scene.js",
+      "sha256": "95132e97e9eb330e7f3a07d1818f1cb5cbc480185254c51db30cd71d7b6433fe",
+      "bytes": 135792
+    },
+    {
+      "path": "static/pet-scalloped-path-proof-20261027/framing.mjs",
+      "sha256": "dba92c2f6dec2816ebcf25434ee07c3b699accb61b7e1961a11baf366edad08a",
+      "bytes": 1678
+    },
+    {
+      "path": "static/pet-toolbox-integral-link-proof-20261027/placement.mjs",
+      "sha256": "b56467e091b3d0408d2f1d52d83a48cdd88f837304fa3b1fb71717b5b3dce961",
+      "bytes": 2718
+    },
+    {
+      "path": "static/pet-toolbox-joint-proof-20261026/placement.mjs",
+      "sha256": "1419d42a6fd4f3e83547ec105506c38a32058a9e2ac05321a324340c1ae62fc1",
+      "bytes": 1577
+    },
+    {
+      "path": "static/pet-snow-glass-lamp-proof-20261027/placement.mjs",
+      "sha256": "eb6d92d6dd9e06d4c0391d39ea9b3c6df4e86dcd28e243b74b15097cec5c214e",
+      "bytes": 5943
+    }
+  ],
+  "files": [
+    {
+      "path": "panel.mjs",
+      "sha256": "87204506cdf06e864c3bf0aaeaa97d1fdac8f8c0b53540eeac2ada4a21a5694d",
+      "bytes": 6988
+    },
+    {
+      "path": "placement.mjs",
+      "sha256": "fd5a27595a1529d3834fd9ef9c84bdf6080100fbaf37ad57e98ec72736b718c1",
+      "bytes": 7639
+    },
+    {
+      "path": "viewer.mjs",
+      "sha256": "6854e00fd81ae8806ee5c497bb580fe2797f71403fa724d169fac08cea3224ae",
+      "bytes": 10081
+    },
+    {
+      "path": "entry.mjs",
+      "sha256": "32be1ca135cafafd7b65dcb03f815ae46b0b29ede0e952ead3cee7138f089611",
+      "bytes": 3251
+    },
+    {
+      "path": "index.html",
+      "sha256": "01ac21e5eeb162d2f1cc85c2d487e623a16341e37c718cbf32c354a3b5e26a9b",
+      "bytes": 3453
+    },
+    {
+      "path": "SPEC.json",
+      "sha256": "2830dce342c89c2050834c84ff8ea0e18d68457289d6a251f62e9594c0951e6a",
+      "bytes": 717
+    },
+    {
+      "path": "finite-geometry-certificate.json",
+      "sha256": "11efed3d77ab9a96cc51892e0416a2d088c3bbd04f30dda2c28edf5eb2b6c069",
+      "bytes": 28943
+    }
+  ],
+  "new_mesh_candidate": 1,
+  "normal_game_changes": 0,
+  "new_raw_PNGs": 0,
+  "new_original_PNG_designs": 0,
+  "imagegen_calls": 0,
+  "bodyBinding": null,
+  "native_review_separate": true
+}
