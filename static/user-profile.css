@@ -1,5 +1,5 @@
 /* Profile shares the drawer's palette; name edits stay in its header. */
-#sideDrawer.kn-menu-a .kn-profile{--kn-profile-head-height:max(62px,calc(36px * var(--kn-a-scale,1) + 18px));position:relative;border-bottom:1px solid var(--kn-a-line);margin:0;padding:0 0 8px}
+#sideDrawer.kn-menu-a .kn-profile{--kn-profile-head-height:max(62px,calc(36px * var(--kn-a-scale,1) + 18px));position:relative;border-bottom:0;margin:0;padding:0 0 8px}
 #sideDrawer.kn-menu-a .kn-profile-summary{justify-content:flex-start;gap:10px;color:var(--kn-a-ink);font-size:calc(16px * var(--kn-a-scale,1));min-height:var(--kn-profile-head-height)}
 #sideDrawer.kn-menu-a .kn-profile-summary:after{margin-left:auto}
 #sideDrawer.kn-menu-a .kn-profile-avatar{align-self:flex-start;margin-top:calc((var(--kn-profile-head-height) - 38px) / 2);width:38px;height:38px;display:grid;place-items:center;border-radius:50%;background:var(--kn-a-chip);font-size:22px;flex:none}
