@@ -86,9 +86,9 @@ function ready(h,id='cmOv',navigationTabs=2){
   return screen;
 }
 
-test('the real upper Talk click opens the general feed with an inline composer before observers or timers',async()=>{
+test('the real upper Talk click opens the general feed with a plus composer control before observers or timers',async()=>{
   const h=harness();assert.equal(h.document.getElementById('knMyTalkHub'),null);
-  h.entrance.click();const screen=ready(h);assert.equal(screen.querySelector('.cw-title').textContent,'みんなのトーク');assert.equal(screen.querySelector('.cw-composer').hidden,false);assert.equal(screen.querySelectorAll('.cw-compose-toggle').length,0);assert.equal(screen.querySelectorAll('.cw-categories').length,0);assert.equal(screen.querySelector('.cw-intro').textContent,'');assert.equal(h.document.activeElement,null,'initial entry leaves the keyboard closed');assert.equal(screen.querySelector('.cw-stock-talk-link'),null);await h.settle();assert.equal(h.requests.length,1);assert.ok(h.requests.every(request=>!request.options.method||request.options.method==='GET'),'opening never sends a comment');assert.equal(h.closeSaved(),1);
+  h.entrance.click();const screen=ready(h);assert.equal(screen.querySelector('.cw-title').textContent,'みんなのトーク');assert.equal(screen.querySelector('.cw-composer').hidden,true);assert.equal(screen.querySelectorAll('.cw-compose-add').length,1);assert.equal(screen.querySelectorAll('.cw-categories').length,0);assert.equal(screen.querySelector('.cw-intro').textContent,'');assert.equal(h.document.activeElement,null,'initial entry leaves the keyboard closed');assert.equal(screen.querySelector('.cw-stock-talk-link'),null);await h.settle();assert.equal(h.requests.length,1);assert.ok(h.requests.every(request=>!request.options.method||request.options.method==='GET'),'opening never sends a comment');assert.equal(h.closeSaved(),1);
 });
 test('repeated upper and real legacy bottom clicks preserve the active root, composer and single loading request',async()=>{
   const h=harness();h.entrance.click();const root=ready(h),input=root.querySelector('#cmInput');input.value='保存前の架空下書き';input.dispatch('input');await h.settle();

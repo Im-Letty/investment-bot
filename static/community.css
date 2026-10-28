@@ -229,3 +229,17 @@ body.kn-home-a:not([data-theme="dark"]) :is(#cmOv,#stockTalkOv,#cpStockTalk).cw-
 }
 body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) :is(.cw-view-tab[aria-pressed="true"],.cw-avatar,.cw-reply-preview,.cw-preview-name,.cw-composer,.cw-reply-form) {color:var(--cw-surface-ink)}
 body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk) :is(.cw-composer,.cw-reply-form) :is(.cw-field-label,.cw-description,.cw-small) {color:var(--cw-surface-ink)}
+
+
+/* General Talk keeps its existing form and opens it from the heading's plus. */
+body.kn-home-a #cmOv .cw-context-heading {
+  display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 12px;
+}
+body.kn-home-a #cmOv .cw-context-heading .cw-context-title {margin:0;min-width:0}
+body.kn-home-a #cmOv .cw-context-heading .cw-compose-add {
+  display:inline-flex;align-items:center;justify-content:center;flex:0 0 48px;
+  width:48px;min-width:48px;height:48px;min-height:48px;padding:0;border-radius:50%;
+  font:400 28px/1 system-ui,sans-serif;
+}
+body.kn-home-a #cmOv .cw-compose-add .cw-button-copy {display:block}
+body.kn-home-a #cmOv .cw-compose-add[aria-expanded=true] .cw-button-copy {transform:rotate(45deg)}
