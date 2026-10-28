@@ -1,3 +1,4 @@
+import {assertDerivedWorld} from './helpers/pet-town-derived-world.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -47,7 +48,7 @@ test('full scene plans finite irregular sites clear of every actual road and bri
   for(const other of d.sitePlan)if(other!==site)assert.ok(Math.hypot(site.x-other.x,site.z-other.z)>=1.0-1e-10);
  }
  assert.ok(pathDistanceTotal/d.sitePlan.length<1.3,'actual pathside placement clusters within narrow safe drifts');assert.ok(nearPathCount>=35,'most garden clusters line the paths');
- assert.equal(JSON.stringify(world),before);
+ assertDerivedWorld(world,before,m);
 }));
 
 test('full cluster discs avoid current solid building unions, round fountain, river bank and map edges',()=>withModel((m,world)=>{
@@ -71,7 +72,7 @@ test('ambient replacements retain the saved flower artwork, six shop tulips and 
  assert.equal(m.scene.userData.shopStyleRevision,'shop-style1');assert.equal(m.scene.userData.fountainReferenceRevision,'fountain-reference1');
  assert.equal(m.scene.userData.shoreTransitionRevision,'shore-transition1');assert.equal(m.treeVarietyKinds.length,27);
  assert.equal(named(m,o=>/^placement-original-meadow-flowers$|^clustered-meadow-flowerbed$/.test(o.name)).length,0);
- assert.equal(m.people.length,0);assert.equal(JSON.stringify(world),before);
+ assert.equal(m.people.length,0);assertDerivedWorld(world,before,m);
 }));
 
 test('decorative instances never become walking, picking, occlusion or duplicate static batches',()=>withModel(m=>{
@@ -92,7 +93,7 @@ test('scene animation and all four seasons keep site roots, resources, original 
   assert.deepEqual(flowers.plants.map(p=>p.base),roots);assert.deepEqual([...m.geometries],geometries);assert.deepEqual([...m.materials],materials);
   assert.deepEqual(art.map(o=>o.getWorldPosition(new THREE.Vector3()).toArray()),positions);assert.equal(JSON.stringify(m.scene.userData.meadowFlowers.sitePlan),sites);
  }
- assert.equal(JSON.stringify(world),before);
+ assertDerivedWorld(world,before,m);
 }));
 
 test('scene destruction releases flower instance buffers and scene-owned resources once',()=>{
@@ -123,7 +124,7 @@ test('actual autumn fallen-leaf volumes rest just above their sampled real floor
   assert.ok(hits.length,'real floor ray below each fallen leaf');
   const gap=bounds.min.y-hits[0].point.y;assert.ok(gap>.001&&gap<.003,'no visible hover or floor penetration');
  }
- assert.equal(JSON.stringify(world),before);
+ assertDerivedWorld(world,before,m);
 }));
 
 
@@ -134,6 +135,6 @@ test('each current direct scene preview loads the same garden and environment he
   assert.ok(imports.length>12,name+' explicit helper chain');
   for(const path of imports)vm.runInContext(readFileSync(new URL('..'+path,import.meta.url),'utf8'),context,{filename:path});
   const world=context.PetTownWalk.createWorld(),before=JSON.stringify(world),m=context.PetTownScene.buildWorld(THREE,world,{});
-  try{assert.equal(m.meadowLife.revision,'meadow-flowers4',name);assert.equal(m.meadowLife.summary().sites,40);assert.equal(m.scene.userData.environmentStyleRevision,'shop-environment2');assert.equal(m.scene.userData.treeFamilyRevision,'tree-family1');assert.equal(m.scene.userData.treeRootsRevision,'soft-roots2');assert.equal(JSON.stringify(world),before);}finally{m.dispose();}
+  try{assert.equal(m.meadowLife.revision,'meadow-flowers4',name);assert.equal(m.meadowLife.summary().sites,40);assert.equal(m.scene.userData.environmentStyleRevision,'shop-environment2');assert.equal(m.scene.userData.treeFamilyRevision,'tree-family1');assert.equal(m.scene.userData.treeRootsRevision,'soft-roots2');assertDerivedWorld(world,before,m);}finally{m.dispose();}
  }
 });

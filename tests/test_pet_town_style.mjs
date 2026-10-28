@@ -1,3 +1,4 @@
+import {assertDerivedWorld} from './helpers/pet-town-derived-world.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from '../static/vendor/three-0.160.1.module.js';
@@ -71,10 +72,10 @@ test('a real Town shares bounded surface maps and releases them once while seaso
   m.setSeason(key);assert.notEqual(land.material.map,previousGrass);assert.equal(land.material.bumpMap,land.material.map);assert.equal(land.material.bumpScale,.012);assert.equal(grassDisposals,1);
   assert.deepEqual(nonGroundMaps(),materialMaps);assert.deepEqual([...m.geometries],geo);
  }
- m.dispose();m.dispose();assert.ok([...disposed.values()].every(n=>n===1));assert.equal(JSON.stringify(world),saved);
+ m.dispose();m.dispose();assert.ok([...disposed.values()].every(n=>n===1));assertDerivedWorld(world,saved,typeof m!=='undefined'?m:now);
 });
 
-test('original 2D tree artwork preserves saved roots, doors, camera clearance and exact terrain/bridge transforms',()=>{
+test('original 2D tree artwork keeps border roots and derived saved-tree clearance, doors and exact terrain/bridge transforms',()=>{
  const context=vm.createContext({PetTownWalk:Town,PetJapanSeasons:Seasons});vm.runInContext(readFileSync(new URL('../static/pet-town-scene.js',import.meta.url),'utf8'),context);
  const world=Town.createWorld(),saved=JSON.stringify(world),old=context.PetTownScene.buildWorld(THREE,world,{}),now=Scene.buildWorld(THREE,world,{});
  function oldTrees(m){const rows=[];m.scene.traverse(o=>{if(o.name==='rounded-tree-trunk')rows.push(o.parent);});return rows;}
@@ -83,11 +84,13 @@ test('original 2D tree artwork preserves saved roots, doors, camera clearance an
   const a=oldTrees(old),b=originalTrees(now);assert.equal(a.length,27);assert.equal(b.length,a.length);
   for(let i=0;i<b.length;i++){
    const root=b[i],scale=i===0?1.08:.75+((i-1)*7%9)*.055;
-   // Artwork width is independent of the unchanged world/collision placement.
-   // These camera-facing sprites are explicitly not closed volume tree models.
-   assert.deepEqual(root.matrixWorld.elements,a[i].matrixWorld.elements,'tree '+i+' saved root matrix');
-   assert.deepEqual(root.parent.matrixWorld.elements,a[i].matrixWorld.elements,'tree '+i+' outer placement matrix');
-   assert.ok(root.getWorldPosition(new THREE.Vector3()).distanceTo(a[i].getWorldPosition(new THREE.Vector3()))<1e-12,'tree '+i+' footpoint');
+   // Only the saved tree moves off real paving; all 26 border matrices remain
+   // exact. Camera-facing originals are not closed-volume tree models.
+   const expected=a[i].matrixWorld.clone(),point=a[i].getWorldPosition(new THREE.Vector3());
+   if(i===0){point.x=now.treeRoadClearance.to.x;point.z=now.treeRoadClearance.to.z;expected.setPosition(point);}
+   assert.deepEqual(root.matrixWorld.elements,expected.elements,'tree '+i+' derived root matrix');
+   assert.deepEqual(root.parent.matrixWorld.elements,expected.elements,'tree '+i+' outer placement matrix');
+   assert.ok(root.getWorldPosition(new THREE.Vector3()).distanceTo(point)<1e-12,'tree '+i+' footpoint');
    assert.equal(root.children.length,1);const sprite=root.children[0],spec=Originals.resolve(sprite.userData.originalArtKind);assert.ok(sprite.isSprite);assert.equal(sprite.isMesh,undefined);
    assert.equal(sprite.userData.originalArt,true);assert.equal(sprite.userData.collisionIndependent,true);
    assert.equal(sprite.userData.artRepresentation,'original-2d-in-world-space');
@@ -100,7 +103,7 @@ test('original 2D tree artwork preserves saved roots, doors, camera clearance an
    assert.equal(root.getObjectByName('overlapping-leaf-crown'),undefined);
    assert.equal(root.getObjectByName('rounded-tree-trunk'),undefined);
   }
-  assert.deepEqual(Array.from(now.placeGroups,g=>[g.userData.placeId,g.matrixWorld.elements]),Array.from(old.placeGroups,g=>[g.userData.placeId,g.matrixWorld.elements]));
+  assert.deepEqual(Array.from(now.placeGroups.filter(g=>g.userData.placeId!=='tree'),g=>[g.userData.placeId,g.matrixWorld.elements]),Array.from(old.placeGroups.filter(g=>g.userData.placeId!=='tree'),g=>[g.userData.placeId,g.matrixWorld.elements]));
   function doors(model){
    const rows=new Map(),counts=new Map();model.scene.traverse(o=>{if(!o.userData.door||o.userData.originalArt)return;const label=o.userData.placeId+':'+o.name,n=counts.get(label)||0;counts.set(label,n+1);rows.set(label+':'+n,Array.from(o.matrixWorld.elements));});return rows;
   }
@@ -156,7 +159,7 @@ test('original 2D tree artwork preserves saved roots, doors, camera clearance an
   const before=cost(old),after=cost(now);assert.ok(after.draws<=before.draws*1.1,`draw budget: ${after.draws} <= ${before.draws} * 1.1`);assert.ok(after.triangles<=before.triangles*1.1,`triangle budget: ${after.triangles} <= ${before.triangles} * 1.1`);
   const windUploads=now.batches.filter(b=>b.dynamic).reduce((n,b)=>n+b.rows.length,0);
   assert.ok(windUploads<=4500,`default wind upload count ${windUploads} stays <= 4500; lower triangles do not prove lower CPU cost`);
-  assert.equal(JSON.stringify(world),saved);
+  assertDerivedWorld(world,saved,typeof m!=='undefined'?m:now);
  }finally{old.dispose();now.dispose();}
 });
 

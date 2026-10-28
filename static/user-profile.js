@@ -411,7 +411,7 @@
       photoReset=make('button','kn-profile-photo-reset','初期アイコンに戻す');photoReset.type='button';iconActions.appendChild(photoReset);
       photoInput=make('input','kn-profile-photo-input');photoInput.id='knProfilePhoto';photoInput.type='file';photoInput.hidden=true;photoInput.tabIndex=-1;photoInput.accept='image/jpeg,image/png,image/webp,image/gif,image/avif,image/heic,image/heif,image/bmp,.heic,.heif';iconActions.appendChild(photoInput);iconChoices.appendChild(iconActions);iconEditor.appendChild(iconChoices);section.insertBefore(iconEditor,form);
       var bio=field('自己紹介','bio','textarea');bio.maxLength=320;bio.rows=3;bio.placeholder='好きなことや興味のあること';bio.setAttribute('aria-describedby','knProfileBioLimit');
-      var bioLimit=make('p','kn-profile-bio-limit','160文字まで');bioLimit.id='knProfileBioLimit';form.appendChild(bioLimit);
+      var bioLimit=make('span','kn-profile-bio-limit','（160文字まで）');bioLimit.id='knProfileBioLimit';bio.parentNode.firstChild.appendChild(bioLimit);
       emailWrap=make('div','kn-profile-private');var emailLabel=make('label','kn-profile-field'),emailTitle=make('span','','ログイン用メールアドレス（非公開）');emailInput=make('input');emailInput.type='email';emailInput.readOnly=true;emailInput.tabIndex=0;emailLabel.appendChild(emailTitle);emailLabel.appendChild(emailInput);emailWrap.appendChild(emailLabel);form.appendChild(emailWrap);
       retry=make('button','kn-profile-retry','もう一度試す');retry.type='button';retry.hidden=true;form.appendChild(retry);
       status=make('p','kn-profile-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');form.appendChild(status);

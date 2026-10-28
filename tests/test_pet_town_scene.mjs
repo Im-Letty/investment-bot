@@ -1,3 +1,4 @@
+import {assertDerivedWorld} from './helpers/pet-town-derived-world.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from '../static/vendor/three-0.160.1.module.js';
@@ -126,7 +127,7 @@ test('actual geometry uses the six saved facilities and funding/open economy sit
  world.places.push({id:'economy-tea',shopId:'tea',status:'funding',label:'お茶のお店',x:1400,y:500,entrance:{x:1400,y:590},footprint:{x:1400,y:452,rx:94,ry:66}});
  const before=JSON.stringify(world),m=Scene.buildWorld(THREE,world,{});m.scene.updateMatrixWorld(true);
  assert.equal(m.placeGroups.length,7);assert.deepEqual(m.placeGroups.map(g=>g.userData.placeId),world.places.map(p=>p.id));
- assert.equal(JSON.stringify(world),before);assert.notEqual(before,snapshot);assert.equal(m.surfaces.length,2);assert.ok(m.occluders.length>30);
+ assertDerivedWorld(world,before,m);assert.notEqual(before,snapshot);assert.equal(m.surfaces.length,2);assert.ok(m.occluders.length>30);
  assert.ok([...m.materials].every(x=>!x.map||x.map.userData.fountainWaterReflection||x.map===m.waterFinish.texture),'only the two bounded procedural water textures are mapped without a document; terrain is still native geometry');
  assert.equal(new Set([...m.materials].map(x=>x.map).filter(Boolean)).size,2);assert.equal(m.waterFinish.texture.image.width,128);assert.equal(m.waterFinish.texture.image.height,128);
  const ray=new THREE.Raycaster();for(const p of [{x:500,y:1100},{x:2200,y:1500},{x:2770,y:1160}]){const q=Scene.groundPoint(world,p);ray.set(new THREE.Vector3(q.x,5,q.z),new THREE.Vector3(0,-1,0));const hits=ray.intersectObjects(m.surfaces);assert.ok(hits.length);assert.ok(Math.abs(hits[0].point.y-Scene.heightAt(p))<1e-6);}
@@ -468,7 +469,7 @@ test('four seasons share exact facility, surface and collision geometry while ch
   assert.deepEqual(Object.entries(m.seasonGroups).filter(([,g])=>g.visible).map(([k])=>k),[key]);
   const count=doc.canvases.length,tex=land.material.map;assert.equal(m.setSeason(key),true);assert.equal(doc.canvases.length,count);assert.equal(land.material.map,tex);
  }
- assert.equal(m.setSeason('rainy'),false);assert.equal(JSON.stringify(world),before);assert.ok(m.seasonGroups.spring.children.length>0);assert.ok(m.seasonGroups.spring.children.filter(o=>o.visible&&o.isMesh).length<=3,'spring accents have a three-draw-call budget rather than 48 individual meshes');assert.ok(m.seasonGroups.winter.children.every(o=>o.isMesh&&o.geometry.attributes.position));
+ assert.equal(m.setSeason('rainy'),false);assertDerivedWorld(world,before,m);assert.ok(m.seasonGroups.spring.children.length>0);assert.ok(m.seasonGroups.spring.children.filter(o=>o.visible&&o.isMesh).length<=3,'spring accents have a three-draw-call budget rather than 48 individual meshes');assert.ok(m.seasonGroups.winter.children.every(o=>o.isMesh&&o.geometry.attributes.position));
  assert.equal(m.seasonGroups.summer.children.length,0,'existing summer flowers are retained without extra weather particles');
  for(const key of ['spring','autumn','winter'])assert.ok(new THREE.Box3().setFromObject(m.seasonGroups[key]).min.y>=.0249,key+' decorative stem/leaf/snow base meets the .025 floor instead of floating or sinking');
  const current=land.material.map;current.addEventListener('dispose',()=>disposed.push(current));m.dispose();m.dispose();assert.equal(new Set(disposed).size,disposed.length);assert.ok(textureHistory.every(t=>disposed.includes(t)));assert.ok(disposed.includes(current));
@@ -536,7 +537,7 @@ test('canonical originals keep their source pixels, shared materials and saved p
   }
   const positions=art.map(o=>o.getWorldPosition(new THREE.Vector3()).toArray()),maps=[...byKind.values()].map(o=>o.map);
   for(const season of ['winter','spring','summer','autumn']){m.setSeason(season);for(const material of byKind.values())assert.equal(material.color.getHexString(),'ffffff','seasonal ground/accents never tint the original art');assert.deepEqual([...byKind.values()].map(o=>o.map),maps);assert.deepEqual(art.map(o=>o.getWorldPosition(new THREE.Vector3()).toArray()),positions);}
-  assert.equal(JSON.stringify(world),before,'original artwork cannot rewrite placement, ownership, entrances or collisions');
+  assertDerivedWorld(world,before,m);
   assert.equal(m.styleLimits.surfaceTextures,6);assert.equal(m.styleLimits.surfaceTextureSize,128);
  }finally{m.dispose();}
 });
@@ -598,7 +599,7 @@ test('ocean presentation moves actual unbatched roots without changing the saved
   const snap=()=>roots.map(o=>({matrix:o.matrixWorld.toArray(),opacity:o.material.opacity,instances:o.isInstancedMesh?Array.from(o.instanceMatrix.array):null}));
   m.animate(0,false);const a=snap();m.animate(1700,false);assert.notDeepEqual(snap(),a);
   m.animate(0,true);const still=snap();m.animate(99999,true);assert.deepEqual(snap(),still);
-  assert.deepEqual([...m.geometries],geometries);assert.deepEqual([...m.materials],materials);assert.equal(JSON.stringify(world),before);
+  assert.deepEqual([...m.geometries],geometries);assert.deepEqual([...m.materials],materials);assertDerivedWorld(world,before,m);
   assert.equal(m.waterLife.revision,'fountain-water-life1');
  }finally{m.dispose();}
 });
@@ -680,7 +681,7 @@ test('shore bands follow the real ground aprons without becoming walkable, picka
    assert.ok(m.geometries.has(mesh.geometry));assert.ok(m.materials.has(mesh.material));assert.equal(mesh.visible,true);
   }
   assert.deepEqual(m.surfaces.map(s=>s.name),['dry-land','bridge-deck']);
-  assert.equal(JSON.stringify(world),before);
+  assertDerivedWorld(world,before,m);
   const far=Scene.groundPoint(world,{x:1300,y:1950}),ray=new THREE.Raycaster(new THREE.Vector3(far.x,5,far.z),new THREE.Vector3(0,-1,0));
   assert.equal(ray.intersectObjects(m.surfaces).length,0);assert.equal(Town.isWalkable(world,1300,1950),false);
  }finally{m.dispose();}

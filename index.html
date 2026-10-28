@@ -137,8 +137,8 @@
 <link rel="stylesheet" href="/static/watchlist-interactions.css?v=20261023-watch-heart-sort1">
 <link rel="stylesheet" href="/static/site-typography.css?v=20261012-section-mincho1">
 <link rel="stylesheet" href="/static/community.css?v=20261028-talk-plus1">
-<link rel="stylesheet" href="/static/user-profile.css?v=20261026-profile-autosave1">
-<script defer src="/static/user-profile.js?v=20261026-profile-autosave1"></script>
+<link rel="stylesheet" href="/static/user-profile.css?v=20261028-intro-limit-inline1">
+<script defer src="/static/user-profile.js?v=20261028-intro-limit-inline1"></script>
 <script defer src="/static/community.js?v=20261028-talk-plus1"></script>
 <link rel="stylesheet" href="/static/guide-hub.css?v=20261023-flat-selection1">
 <link rel="stylesheet" href="/static/guide-concern.css?v=20261024-concern1">
@@ -4480,7 +4480,7 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
       loadRequired(shopEntryStyle,function(){return !!styleLoads[shopEntryStyle];},true),
       // UI registration has no eager core access. Fetch it in parallel while
       // retaining economy/layout -> core and walking engine -> scene execution order.
-      loadRequired('/static/pet-game.js?v=20261028-flower-garden4',uiReady)
+      loadRequired('/static/pet-game.js?v=20261028-tree-road-clearance1',uiReady)
     ]).then(function(){if(!apiReady())throw assetFailure('invalid');});
     loadScript('/static/pet-lilac-motion.js?v=20261028-gentle-walk1',function(){return !!window.PetLilacMotion;},5000,enhanceOptional).catch(function(){});
     loadScript('/static/pet-room-behavior.js?v=4306c88f116b',function(){return !!window.PetRoomBehavior;},5000,enhanceOptional).catch(function(){});

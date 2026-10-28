@@ -1,3 +1,4 @@
+import {assertDerivedWorld} from './helpers/pet-town-derived-world.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
@@ -124,6 +125,6 @@ test('the actual six entrance tulips keep world height, pot colliders, door acce
    model.setSeason(season);model.animate(1900,false);model.animate(8000,true);
    assert.deepEqual(all.map(p=>p.matrixWorld.toArray()),poses);
   }
-  assert.equal(JSON.stringify(world),before);assert.equal(model.people.length,0);
+  assertDerivedWorld(world,before,model);assert.equal(model.people.length,0);
  }finally{model.dispose();}
 });

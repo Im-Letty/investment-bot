@@ -21,7 +21,7 @@
   else root.PetTownScene = api;
 }(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit, Fishing, Seasons, Style, LayoutArt, Originals, WaterLife, OceanLife, ShoreTransition, TreeVariety, MeadowSites, MeadowFlowers, GroundFinish, WaterFinish, Environment) {
   'use strict';
-  var threeLoading = null, frameFitLoading = null, seasonsLoading = null, styleLoading = null, layoutLoading = null, originalsLoading = null, waterLifeLoading = null, oceanLifeLoading = null, shoreTransitionLoading = null, treeVarietyLoading = null, meadowLoading = null, environmentLoading = null, UNIT = 100, TAU = Math.PI * 2;
+  var threeLoading = null, frameFitLoading = null, seasonsLoading = null, styleLoading = null, layoutLoading = null, originalsLoading = null, waterLifeLoading = null, oceanLifeLoading = null, shoreTransitionLoading = null, treeVarietyLoading = null, meadowLoading = null, environmentLoading = null, UNIT = 100, TAU = Math.PI * 2, TREE_CARD_WIDTH = 3.25, SAVED_TREE_SCALE = 1.08;
   var shoreline = [[0, 2880], [550, 2840], [1050, 2720], [1450, 2510], [1920, 1990]];
   function finite(n) { return typeof n === 'number' && Number.isFinite(n); }
   function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
@@ -579,7 +579,7 @@
       tree.userData.leafCount=leaves;tree.userData.twigCount=style.limits.treeTwigs;trees.push(crown);return crown;
     }
     function softTree(parent, seed, scale, treeIndex) {
-      if(originalArt){var kind=treeKinds[treeIndex],root=new THREE.Group();root.name='placement-original-tree';root.userData.treeVarietyIndex=treeIndex;root.userData.treeKind=kind;parent.add(root);var picture=originalSprite(kind,root,3.25*(scale||1),0,0,0);picture.userData.treeVarietyIndex=treeIndex;return root;}
+      if(originalArt){var kind=treeKinds[treeIndex],root=new THREE.Group();root.name='placement-original-tree';root.userData.treeVarietyIndex=treeIndex;root.userData.treeKind=kind;parent.add(root);var picture=originalSprite(kind,root,TREE_CARD_WIDTH*(scale||1),0,0,0);picture.userData.treeVarietyIndex=treeIndex;return root;}
       if (!style || typeof style.roundedLeafGeometry !== 'function') return pointedTree(parent, seed, scale);
       var tree = new THREE.Group(); tree.name = 'market-style-branching-tree'; tree.userData.styleRole = 'botanical';
       tree.userData.artDirection = 'rounded-layout-reference'; tree.scale.setScalar(scale); parent.add(tree);
@@ -964,6 +964,90 @@
         }
       }
     }
+    // Use the actual generated paving, including its border and porch strips.
+    // The same projected triangles serve both tree clearance and meadow sites.
+    var roadTriangles = [], roadMeshes = layoutModel ? layoutModel.decorativeFloors.concat([layoutModel.bridgeDeck]) :
+      surfaces.filter(function (m) { return m.name === 'bridge-deck'; });
+    roadMeshes.filter(Boolean).forEach(function (m) {
+      m.updateWorldMatrix(true, false);
+      var attr = m.geometry.attributes.position, index = m.geometry.index;
+      for (var t = 0; t < (index ? index.count : attr.count); t += 3) {
+        var triangle = [];
+        for (var corner = 0; corner < 3; corner++) {
+          var vertex = new THREE.Vector3().fromBufferAttribute(attr, index ? index.getX(t + corner) : t + corner).applyMatrix4(m.matrixWorld);
+          triangle.push([vertex.x, vertex.z]);
+        }
+        roadTriangles.push(triangle);
+      }
+    });
+    var bankBounds = [];
+    for (var bank = 1; bank < shoreline.length; bank++) {
+      var ba = groundPoint(world, { x: shoreline[bank - 1][1], y: shoreline[bank - 1][0] });
+      var bb = groundPoint(world, { x: shoreline[bank][1], y: shoreline[bank][0] });
+      bankBounds.push([[ba.x, ba.z], [bb.x, bb.z]]);
+    }
+    function placeTreeOffPaving() {
+      var details = { revision: 'tree-road-clearance1', status: 'unavailable', applied: false,
+        criterion: 'conservative-original-horizontal-envelope-not-measured-root-depth', roadTriangleCount: roadTriangles.length,
+        margin: .30, candidatesChecked: 0, candidateLimit: 2048, sampleStep: .25, samplesPerRing: 32 };
+      var tree = world.places.filter(function (p) { return p.id === 'tree'; })[0];
+      if (!originalArt || !layoutModel || !tree || !meadowSiteAPI ||
+          ['pointTriangleDistance','pointBoxDistance','pointSegmentDistance'].some(function (key) { return typeof meadowSiteAPI[key] !== 'function'; })) return details;
+      var spec = originalAPI.resolve(treeKinds[0]), anchor = spec.groundAnchor ||
+        [(spec.alphaBounds[0] + spec.alphaBounds[2]) / (2 * spec.width), spec.alphaBounds[3] / spec.height];
+      var radius = TREE_CARD_WIDTH * SAVED_TREE_SCALE * Math.max(Math.abs(spec.alphaBounds[0] / spec.width - anchor[0]),
+        Math.abs(spec.alphaBounds[2] / spec.width - anchor[0])), clearance = radius + details.margin;
+      var from = groundPoint(world, tree.footprint), others = world.places.filter(function (p) { return p !== tree; });
+      function roadDistance(p) {
+        var nearest = Infinity;
+        for (var i = 0; i < roadTriangles.length; i++) nearest = Math.min(nearest, meadowSiteAPI.pointTriangleDistance(p.x, p.z, roadTriangles[i]));
+        return nearest;
+      }
+      details.radius = radius; details.originalArtKind = treeKinds[0]; details.sourceSHA256 = spec.sha256;
+      details.from = { x: from.x, z: from.z }; details.to = { x: from.x, z: from.z };
+      details.beforePavingDistance = roadDistance(from); details.afterPavingDistance = details.beforePavingDistance;
+      details.actorPointMargin = .50; // Authored point clearance; no body dimensions are inferred.
+      if (details.beforePavingDistance >= clearance) { details.status = 'already-clear'; return details; }
+      var obstacles = others.map(function (place) {
+        var b = Town.collisionBounds(place), lo = groundPoint(world, { x: b.minX, y: b.minY }), hi = groundPoint(world, { x: b.maxX, y: b.maxY });
+        return { minX: lo.x, maxX: hi.x, minZ: lo.z, maxZ: hi.z };
+      });
+      details.obstacleCount = obstacles.length;
+      var points = others.filter(function (p) { return p.entrance; }).map(function (p) { return groundPoint(world, p.entrance); });
+      [avoid, world.spawn].forEach(function (p) { if (p && finite(p.x) && finite(p.y)) points.push(groundPoint(world, p)); });
+      details.avoidPointCount = points.length;
+      var withoutTree = { width: world.width, height: world.height, places: others };
+      function allowed(p) {
+        if (Math.abs(p.x) > world.width / UNIT / 2 - clearance || Math.abs(p.z) > world.height / UNIT / 2 - clearance) return false;
+        var town = townPoint(world, p);
+        if (!Town.isWalkable(withoutTree, town.x, town.y) || heightAt(town) !== .025) return false;
+        if (obstacles.some(function (b) { return meadowSiteAPI.pointBoxDistance(p.x, p.z, b) < clearance; }) ||
+            bankBounds.some(function (b) { return meadowSiteAPI.pointSegmentDistance(p.x, p.z, b) < clearance; }) ||
+            points.some(function (v) { return Math.hypot(p.x - v.x, p.z - v.z) < radius + details.actorPointMargin; })) return false;
+        return roadTriangles.every(function (triangle) { return meadowSiteAPI.pointTriangleDistance(p.x, p.z, triangle) >= clearance; });
+      }
+      // Increasing finite rings preserve the nearest eligible sampled offset.
+      // This is not a claim of an optimal continuous location or a 3D root fit.
+      var selected = null;
+      for (var ring = 1; ring <= 64 && !selected; ring++) for (var step = 0; step < details.samplesPerRing; step++) {
+        var angle = -Math.PI / 2 + step * TAU / details.samplesPerRing;
+        var candidate = { x: from.x + Math.cos(angle) * ring * details.sampleStep, z: from.z + Math.sin(angle) * ring * details.sampleStep };
+        details.candidatesChecked++;
+        if (allowed(candidate)) { selected = candidate; break; }
+      }
+      if (!selected) { details.status = 'no-safe-sampled-site'; return details; }
+      var at = townPoint(world, selected), dx = at.x - tree.footprint.x, dy = at.y - tree.footprint.y;
+      // This world is derived from the saved layout. Keep its shared object and
+      // every tree reference coherent for the pre-mounted walking controller.
+      tree.x += dx; tree.y += dy; tree.footprint.x += dx; tree.footprint.y += dy;
+      tree.entrance.x += dx; tree.entrance.y += dy;
+      details.status = 'relocated'; details.applied = true; details.to = groundPoint(world, tree.footprint);
+      details.afterPavingDistance = roadDistance(details.to);
+      return details;
+    }
+    var treeRoadClearance = placeTreeOffPaving();
+    ['from','to'].forEach(function (key) { if (treeRoadClearance[key]) Object.freeze(treeRoadClearance[key]); }); Object.freeze(treeRoadClearance);
+    scene.userData.treeRoadClearance = treeRoadClearance;
     var junction = layoutModel ? layoutModel.junction : { x: world.width * .48, y: world.height * .64 };
     world.places.forEach(function (p, index) {
       buildingGeometry=['home','cafe','shop'].indexOf(p.id)>=0;
@@ -971,7 +1055,7 @@
       g.position.set(ground.x, .025, ground.z); group.add(g); placeGroups.push(g);
       var rx = p.footprint.rx / UNIT, rz = p.footprint.ry / UNIT;
       if (p.id === 'tree') {
-        softTree(g, .4, 1.08, 0);
+        softTree(g, .4, SAVED_TREE_SCALE, 0);
       } else if (p.id === 'flowers') {
         flowerBed(g, .4);
       } else if (p.id === 'playground') {
@@ -1093,26 +1177,6 @@
     // Saved flowerbeds and the six original tulip pots remain unchanged. Only
     // unsaved ambient repeats become bounded, irregular small meadow plants.
     if (meadowEnabled) {
-      var roadTriangles = [], roadMeshes = layoutModel ? layoutModel.decorativeFloors.concat([layoutModel.bridgeDeck]) :
-        surfaces.filter(function (m) { return m.name === 'bridge-deck'; });
-      roadMeshes.filter(Boolean).forEach(function (m) {
-        m.updateWorldMatrix(true, false);
-        var attr = m.geometry.attributes.position, index = m.geometry.index;
-        for (var t = 0; t < (index ? index.count : attr.count); t += 3) {
-          var triangle = [];
-          for (var corner = 0; corner < 3; corner++) {
-            var vertex = new THREE.Vector3().fromBufferAttribute(attr, index ? index.getX(t + corner) : t + corner).applyMatrix4(m.matrixWorld);
-            triangle.push([vertex.x, vertex.z]);
-          }
-          roadTriangles.push(triangle);
-        }
-      });
-      var bankBounds = [];
-      for (var bank = 1; bank < shoreline.length; bank++) {
-        var ba = groundPoint(world, { x: shoreline[bank - 1][1], y: shoreline[bank - 1][0] });
-        var bb = groundPoint(world, { x: shoreline[bank][1], y: shoreline[bank][0] });
-        bankBounds.push([[ba.x, ba.z], [bb.x, bb.z]]);
-      }
       // The current body/step/pot union and circular fountain bounds are
       // deliberately conservative. A flower cluster never expands collisions.
       var meadowObstacles = world.places.map(function (place) {
@@ -1314,7 +1378,7 @@
     function dispose() { if (disposed) return; disposed = true; if(environmentLife)environmentLife.dispose(); if(meadowLife)meadowLife.dispose(); if(originalArt)originalArt.dispose(); if(oceanLife&&oceanLife.instanceMeshes)oceanLife.instanceMeshes.forEach(function(m){m.dispose();}); batches.forEach(function (b) { b.mesh.dispose(); }); geometries.forEach(function (g) { g.dispose(); }); materials.forEach(function (m) { m.dispose(); }); textures.forEach(function (t) { t.dispose(); }); sun.shadow.dispose(); scene.clear(); }
     return { scene: scene, surfaces: surfaces, occluders: occluders, pickables: pickables, placeGroups: placeGroups, solidLifeRevision:solidLifeRevision, windowRooms:windowRooms, windowLifeMaterials:windowLifeMaterials, waterLife:waterLife, oceanLife:oceanLife, shoreTransition:shoreTransition, meadowLife:meadowLife, groundFinish:groundFinish, waterFinish:waterFinish, environment:environmentLife, animate: animate, dispose: dispose,
       loadOriginalArt:loadOriginalArt, originalHit:originalHit, originalDoorHit:originalDoorHit, originalArt:originalArt, setSeason: setSeason, seasonGroups: seasonGroups, styleLimits: style ? style.limits : null, layoutArtRevision: scene.userData.layoutArtRevision,
-      treeVarietyRevision: treeAPI ? treeAPI.revision : null, treeVarietyKinds: treeKinds,
+      treeVarietyRevision: treeAPI ? treeAPI.revision : null, treeVarietyKinds: treeKinds, treeRoadClearance: treeRoadClearance,
       geometries: geometries, materials: materials, textures: textures, batches: batches, people: people(world, view, avoid) };
   }
   async function mount(options) {

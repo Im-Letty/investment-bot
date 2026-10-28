@@ -1,0 +1,37 @@
+<!doctype html><html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>道と木の間隔</title>
+<style>*{box-sizing:border-box}body{margin:16px;background:#f6f3e8;color:#535b3d;font:15px/1.6 system-ui}h1{font-size:24px}button{font:inherit;min-height:44px;padding:8px 12px;margin:3px;border:1px solid #c8c4ad;border-radius:12px;background:#fffdf3;color:inherit}#view{width:min(960px,100%);height:600px;max-width:100%;overflow:hidden;border-radius:16px}canvas{display:block;touch-action:none}pre{white-space:pre-wrap;font-size:12px}</style>
+<h1>道と木の間隔</h1><p>木の根元を草地に寄せ、道と広場を空けました。ドラッグで見渡せます。<a href="/static/pet-solid-living-demo-game.html?clearance=1">村を歩いて確かめる</a></p>
+<div><button data-angle="front">正面</button><button data-angle="left">斜め</button><button data-angle="back">反対側</button><button data-angle="top">上から</button><button id="save">景色をPNGで保存</button></div>
+<div><button data-size="390">390px</button><button data-size="320">320px</button><button data-size="wide">広く表示</button></div>
+<p id="status" role="status">読み込み中</p><div id="view"></div><details><summary>確認情報</summary><pre id="proof"></pre></details>
+<script type="module">
+import * as THREE from '/static/vendor/three-0.160.1.module.js';
+import '/static/pet-town-walk.js?v=20261028-fountain-reference1';import '/static/pet-frame-fit.js?v=20261025-fit1';import '/static/pet-river-fishing.js?v=20261027-solidlife1';
+import '/static/pet-japan-seasons.js?v=20261025-seasons1';import '/static/pet-town-style.js?v=20261027-layout-art3d1';import '/static/pet-town-layout-art.js?v=20261028-environment1';
+import '/static/pet-town-placement-originals.js?v=20261028-soft-roots2';import '/static/pet-town-water-life.js?v=20261028-fountain-reference1';import '/static/pet-town-ocean-life.js?v=20261027-ocean1';
+import '/static/pet-town-tree-variety.js?v=20261028-shop-style1';import '/static/pet-town-shore-transition.js?v=20261028-shore1';import '/static/pet-town-meadow-sites.js?v=20261028-flower-garden4';import '/static/pet-town-meadow-flowers.js?v=20261028-flower-garden4';import '/static/pet-town-ground-finish.js?v=20261028-tree-family1';import '/static/pet-town-water-finish.js?v=20261028-tree-family1';import '/static/pet-town-environment.js?v=20261028-tree-family1';import '/static/pet-town-scene.js?v=20261028-tree-road-clearance1';
+
+try {
+ const host=document.querySelector('#view'),layout={items:[{id:'tree',x:48,y:44}]},raw=JSON.stringify(layout),world=PetTownWalk.createWorld(layout),other=JSON.stringify(world.places.filter(p=>p.id!=='tree')),model=PetTownScene.buildWorld(THREE,world,{},world.spawn,document,'autumn');
+ await model.loadOriginalArt();
+ const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false,preserveDrawingBuffer:false});renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5));renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.shadowMap.autoUpdate=false;renderer.shadowMap.needsUpdate=true;host.appendChild(renderer.domElement);
+ const tree=model.placeGroups.find(g=>g.userData.placeId==='tree'),target=new THREE.Vector3(tree.position.x,.65,tree.position.z+1.0),camera=new THREE.PerspectiveCamera(50,1,.05,80);
+ let yaw=0,pitch=.58,distance=8.2,angle='front',drag=null,save=false,dead=false,raf=0;
+ function size(){renderer.setSize(host.clientWidth,host.clientHeight);camera.aspect=host.clientWidth/host.clientHeight;camera.fov=PetTownScene.viewportFov(host.clientWidth,host.clientHeight);camera.updateProjectionMatrix();}
+ const observer=new ResizeObserver(size);observer.observe(host);
+ document.querySelectorAll('[data-angle]').forEach(b=>b.onclick=()=>{angle=b.dataset.angle;yaw=angle==='left'?-.65:angle==='back'?Math.PI:0;pitch=angle==='top'?1.30:.58;distance=angle==='top'?11:8.2;});
+ document.querySelectorAll('[data-size]').forEach(b=>b.onclick=()=>{host.style.width=b.dataset.size==='wide'?'min(960px,100%)':b.dataset.size+'px';size();});
+ document.querySelector('#save').onclick=()=>save=true;
+ renderer.domElement.addEventListener('pointerdown',e=>{if(e.button!==0)return;drag={id:e.pointerId,x:e.clientX,y:e.clientY};renderer.domElement.setPointerCapture(e.pointerId);});
+ renderer.domElement.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;yaw-=(e.clientX-drag.x)*.008;pitch=Math.max(.18,Math.min(1.35,pitch+(e.clientY-drag.y)*.006));drag.x=e.clientX;drag.y=e.clientY;});
+ for(const n of ['pointerup','pointercancel','lostpointercapture'])renderer.domElement.addEventListener(n,()=>drag=null);
+ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ function render(ms){if(dead)return;camera.position.set(target.x+Math.sin(yaw)*Math.cos(pitch)*distance,target.y+Math.sin(pitch)*distance,target.z+Math.cos(yaw)*Math.cos(pitch)*distance);camera.lookAt(target);model.animate(ms,reduced);renderer.render(model.scene,camera);
+  if(save){save=false;renderer.domElement.toBlob(blob=>{if(!blob)return;const a=document.createElement('a'),u=URL.createObjectURL(blob);a.href=u;a.download='village-tree-road-clearance-'+angle+'.png';a.click();setTimeout(()=>URL.revokeObjectURL(u),1000);},'image/png');}
+  raf=requestAnimationFrame(render);
+ }
+ document.querySelector('#proof').textContent=JSON.stringify({treeRoadClearance:model.treeRoadClearance||model.scene.userData.treeRoadClearance,rawLayoutUnchanged:raw===JSON.stringify(layout),otherPlacesUnchanged:other===JSON.stringify(world.places.filter(p=>p.id!=='tree')),scope:'same scene and actual paving; original-art trees remain2D; synthetic saved coordinates only; no game storage'},null,2);
+ document.querySelector('#status').textContent='表示できました。根元と道の間隔を見渡せます。';size();raf=requestAnimationFrame(render);
+ addEventListener('pagehide',()=>{dead=true;cancelAnimationFrame(raf);observer.disconnect();model.dispose();renderer.dispose();},{once:true});
+}catch(e){document.querySelector('#status').textContent='表示を準備できませんでした。';document.querySelector('#proof').textContent=JSON.stringify({errorType:e.name});}
+</script></html>

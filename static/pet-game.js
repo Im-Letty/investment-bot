@@ -1987,7 +1987,7 @@
     if (townSceneLoading) return townSceneLoading;
     if (!d.head) return Promise.resolve(null);
     townSceneLoading = new Promise(function (resolve) {
-      var script = d.createElement('script'); script.src = '/static/pet-town-scene.js?v=20261028-flower-garden4'; script.async = true;
+      var script = d.createElement('script'); script.src = '/static/pet-town-scene.js?v=20261028-tree-road-clearance1'; script.async = true;
       script.onload = function () { resolve(w.PetTownScene && typeof w.PetTownScene.mount === 'function' ? w.PetTownScene : null); };
       script.onerror = function () { townSceneLoading = null; script.remove(); resolve(null); };
       d.head.appendChild(script);
@@ -2108,7 +2108,7 @@
     var images = { home: 'pet-items-v1/house.webp', cafe: 'pet-village-art/cafe.webp', shop: 'pet-village-art/shop.webp', playground: 'pet-items-v1/fountain.webp', tree: 'pet-village-art/tree-v2.webp', flowers: 'pet-village-art/flowerbed-v2.webp' };
     var mountedStore = store, epoch = lifecycleEpoch;
     function active() { return village.isConnected && store === mountedStore && epoch === lifecycleEpoch && tab === 'village' && motionsVisible() && !busy && !villageEdit && !roomEdit; }
-    var sceneState = 'loading', walkingMounted = false, loadTimer = null;
+    var sceneState = 'loading', walkingMounted = false, loadTimer = null, flatTreePlace = null;
     // Initial layout draw is needed by the walking engine; later input waits.
     function canWalk() { return active() && (!walkingMounted || sceneState !== 'loading' && !lifePanelOpen && !currentWorldReaction()); }
     world.places.forEach(function (p) {
@@ -2117,6 +2117,7 @@
       // Keyboard travel uses the viewport and nearby entry. An offscreen
       // landmark must not scroll the clipped world as focus advances.
       place.tabIndex = -1;
+      if (p.id === 'tree') flatTreePlace = place;
       place.dataset.layoutX = String(p.x / world.width * 100); place.dataset.layoutY = String(p.y / world.height * 100);
       place.style.left = p.x + 'px'; place.style.top = p.y + 'px'; place.style.zIndex = String(Math.round(p.y));
       place.setAttribute('aria-label', p.label + 'の近くまで歩く');
@@ -2175,6 +2176,13 @@
     var visualStarting = false, visualAttempted = false;
     function clearLoadingWait() { if (loadTimer != null) w.clearTimeout(loadTimer); loadTimer = null; }
     function reveal(mode) {
+      // Native paving may project the derived tree onto nearby grass. Keep
+      // fallback paint at that same collision location without editing its save.
+      var tree = world.places.filter(function (p) { return p.id === 'tree'; })[0];
+      if (tree && flatTreePlace) {
+        flatTreePlace.dataset.layoutX = String(tree.x / world.width * 100); flatTreePlace.dataset.layoutY = String(tree.y / world.height * 100);
+        flatTreePlace.style.left = tree.x + 'px'; flatTreePlace.style.top = tree.y + 'px'; flatTreePlace.style.zIndex = String(Math.round(tree.y));
+      }
       sceneState = mode; viewport.dataset.sceneState = mode; viewport.setAttribute('aria-busy', 'false');
       loadingView.hidden = true; guide.hidden = false; clearLoadingWait();
       scene.style.opacity = mode === 'fallback' ? '1' : '0';
