@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "unit_id": "wardrobe:fit-prerequisite:petal-washstand:bowl-drain-tap-geometry:v1",
+  "name": "花びらの洗面台・鉢と排水穴と蛇口の立体前提",
+  "source_original_sha256": "00d6374594ed051e76422fa6d38b1a64f3ec7b8b22029d1aecb1575178f3fb2d",
+  "authored_hidden_surfaces_not_measured_body": true,
+  "bodyBinding": null,
+  "body_fit_verified": false,
+  "hand_contact_verified": false,
+  "liquid_simulation": false,
+  "plumbing_verified": false,
+  "normal_game_integration": false,
+  "ownership_unlock_save": false,
+  "physical_load_or_pressure_verified": false,
+  "continuous_safety_verified": false,
+  "new_png_designs": 0,
+  "new_mesh_library_designs": 0,
+  "bounded_checks": [
+    "closed positive material topology and outward surface winding",
+    "39 finite clear interior/drain/tap rays plus3 occupied controls",
+    "12 actual surface-triangle material contact witnesses for13 parts",
+    "15 conservative floor probes at three rounded leaf soles",
+    "currentScene4 full roads/card/individual meadow instance/shore envelopes",
+    "continuous manual camera controls and actual source PNG comparison; native visual confirmation remains separate"
+  ],
+  "limitations": [
+    "Tap base and bowl openings are authored geometry; no verified supply plumbing or water transport.",
+    "Finite passage/contact probes are neither hand access, watertightness nor load guarantees.",
+    "Ordinary ownership/price/unlock/placement/save and body wearing are untouched."
+  ]
+}

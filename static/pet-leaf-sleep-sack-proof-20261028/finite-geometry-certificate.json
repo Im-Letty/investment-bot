@@ -1,0 +1,3103 @@
+{
+  "schema_version": 1,
+  "unit_id": "wardrobe:fit-prerequisite:leaf-sleep-sack:garment-volume-openings:v1",
+  "audit": "closed material topology, fixed-shell nonadjacent strict crossings, eleven finite aperture segments, closed-foot controls in test and every attachment common-solid witness",
+  "geometry": {
+    "model_id": "leaf-sleep-sack-garment-volume-v1",
+    "sourceSHA": "5f37214445824793c193eb9ddb4be15be3ff6e24a725f16416671016d41eaa88",
+    "topology": {
+      "vertices": 783,
+      "triangles": 1060,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.2140685604681272
+    },
+    "construction": {
+      "pattern": "rounded closed-foot front/back pouch, matching rounded front/back neck seams; coordinate-welded sewn shoulders, flanks and base; render-only normal creases",
+      "outerTriangles": 504,
+      "innerTriangles": 504,
+      "rimWallTriangles": 52,
+      "passageRims": 3,
+      "closedFoot": true,
+      "frontFasteningOperable": false,
+      "centroidRefinementLevels": 2,
+      "bodyBinding": null,
+      "normalConstruction": {
+        "maxSharedFaceAngleDegrees": 65,
+        "materialGroupsSeparated": true,
+        "originalWeldedPositionCount": 528,
+        "renderVertexCount": 783,
+        "actualTriangleCornersAndWindingUnchanged": true,
+        "agreement": {
+          "triangles": 1060,
+          "minimumFaceAverageNormalDot": 0.7448471416964784,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        }
+      }
+    },
+    "budget": {
+      "meshes": 53,
+      "geometries": 28,
+      "materials": 7,
+      "textures": 0,
+      "lights": 0,
+      "triangles": 9048
+    },
+    "bounds": {
+      "min": [
+        -0.75,
+        0,
+        -0.33422186970710754
+      ],
+      "max": [
+        0.75,
+        1.836505045413971,
+        0.4048960506916046
+      ],
+      "size": [
+        1.5,
+        1.836505045413971,
+        0.7391179203987122
+      ]
+    },
+    "garmentRims": {
+      "neck": {
+        "space": "garment_local",
+        "surfaceMesh": "joined-closed-foot-sleep-sack-material-shell",
+        "outerVertex": 78,
+        "actualSurfacePosition": [
+          -0.26499998569488525,
+          1.7000000476837158,
+          0.31776168942451477
+        ],
+        "actualSurfaceNormal": [
+          -0.033078394435514254,
+          0.16878701545056268,
+          0.9850973369352188
+        ],
+        "localFrame": [
+          0.9994367081276491,
+          8.673617379884035e-19,
+          0.033559893429041275,
+          0,
+          0.005664474250726826,
+          0.9856525470039084,
+          -0.16869193909660102,
+          0,
+          -0.033078394435514254,
+          0.16878701545056268,
+          0.9850973369352188,
+          0,
+          -0.26499998569488525,
+          1.7000000476837158,
+          0.31776168942451477,
+          1
+        ],
+        "boundaryOuterVertexIndices": [
+          78,
+          0,
+          195,
+          271,
+          269,
+          267,
+          264,
+          261,
+          258,
+          64,
+          67,
+          70,
+          73,
+          76
+        ],
+        "bodyBinding": null,
+        "anatomicalSocket": false
+      },
+      "left_arm": {
+        "space": "garment_local",
+        "surfaceMesh": "joined-closed-foot-sleep-sack-material-shell",
+        "outerVertex": 6,
+        "actualSurfacePosition": [
+          -0.6200000047683716,
+          1.6299999952316284,
+          0.3048650622367859
+        ],
+        "actualSurfaceNormal": [
+          -0.1284352061016487,
+          0.14823796965220798,
+          0.980576311251204
+        ],
+        "localFrame": [
+          0.9915310236986768,
+          0,
+          0.12987004675079736,
+          0,
+          0.019251672048975526,
+          0.9889517199304478,
+          -0.14698254580026715,
+          0,
+          -0.1284352061016487,
+          0.14823796965220798,
+          0.980576311251204,
+          0,
+          -0.6200000047683716,
+          1.6299999952316284,
+          0.3048650622367859,
+          1
+        ],
+        "boundaryOuterVertexIndices": [
+          6,
+          10,
+          12,
+          206,
+          204,
+          200
+        ],
+        "bodyBinding": null,
+        "anatomicalSocket": false
+      },
+      "right_arm": {
+        "space": "garment_local",
+        "surfaceMesh": "joined-closed-foot-sleep-sack-material-shell",
+        "outerVertex": 50,
+        "actualSurfacePosition": [
+          0.5799999833106995,
+          1.0800000429153442,
+          0.35733601450920105
+        ],
+        "actualSurfaceNormal": [
+          0.000191273805678022,
+          0.026105753758659724,
+          0.9996591684344336
+        ],
+        "localFrame": [
+          0.9999999816946904,
+          8.470329472543005e-22,
+          -0.00019133901655326156,
+          0,
+          -0.000004995049250563564,
+          0.9996591867335048,
+          -0.02610575328078582,
+          0,
+          0.000191273805678022,
+          0.026105753758659724,
+          0.9996591684344336,
+          0,
+          0.5799999833106995,
+          1.0800000429153442,
+          0.35733601450920105,
+          1
+        ],
+        "boundaryOuterVertexIndices": [
+          50,
+          56,
+          58,
+          252,
+          250,
+          244
+        ],
+        "bodyBinding": null,
+        "anatomicalSocket": false
+      }
+    },
+    "passages": {
+      "count": 11,
+      "blocked": 0,
+      "segments": [
+        {
+          "opening": "neck",
+          "from": [
+            0,
+            2,
+            0
+          ],
+          "to": [
+            0,
+            1.4,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "neck",
+          "from": [
+            0.05,
+            2,
+            0
+          ],
+          "to": [
+            0.05,
+            1.4,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "neck",
+          "from": [
+            -0.05,
+            2,
+            0
+          ],
+          "to": [
+            -0.05,
+            1.4,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "neck",
+          "from": [
+            0,
+            2,
+            0.05
+          ],
+          "to": [
+            0,
+            1.4,
+            0.05
+          ],
+          "hits": []
+        },
+        {
+          "opening": "neck",
+          "from": [
+            0,
+            2,
+            -0.05
+          ],
+          "to": [
+            0,
+            1.4,
+            -0.05
+          ],
+          "hits": []
+        },
+        {
+          "opening": "left_arm",
+          "from": [
+            -0.95,
+            1.27,
+            0
+          ],
+          "to": [
+            -0.37,
+            1.27,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "left_arm",
+          "from": [
+            -0.95,
+            1.35,
+            0
+          ],
+          "to": [
+            -0.37,
+            1.35,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "left_arm",
+          "from": [
+            -0.95,
+            1.4300000000000002,
+            0
+          ],
+          "to": [
+            -0.37,
+            1.4300000000000002,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "right_arm",
+          "from": [
+            0.95,
+            1.27,
+            0
+          ],
+          "to": [
+            0.37,
+            1.27,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "right_arm",
+          "from": [
+            0.95,
+            1.35,
+            0
+          ],
+          "to": [
+            0.37,
+            1.35,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "right_arm",
+          "from": [
+            0.95,
+            1.4300000000000002,
+            0
+          ],
+          "to": [
+            0.37,
+            1.4300000000000002,
+            0
+          ],
+          "hits": []
+        }
+      ]
+    },
+    "contactWitnesses": [
+      {
+        "part": "sage-neck-rim-0",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          -0.27614570619748263,
+          1.751843264082211,
+          0.29106048705266147
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.024347963433233574,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.00030651343438370214,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-neck-rim-1",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          -0.269625658413631,
+          1.8083503448755918,
+          0.013235991576450765
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0240656379216154,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.00008470966017425445,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-neck-rim-2",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          -0.2749910056591034,
+          1.7529979646205902,
+          -0.2563220262527466
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.025678526010704833,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0006028134423106729,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              3
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-neck-rim-3",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          -0.2469809150903049,
+          1.6349464559347806,
+          -0.27109568031714587
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.023834855216815127,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0015400127331778191,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              3,
+              3,
+              3
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-neck-rim-4",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          -0.1062253883688274,
+          1.553542574623364,
+          -0.28065790446684985
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.02389230273295618,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.001697068090819444,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              3,
+              1,
+              3
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-neck-rim-5",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.10507068783044815,
+          1.5546972751617432,
+          -0.2795032039284706
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.025678526010704788,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0000981431967921644,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              3,
+              1,
+              3
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-neck-rim-6",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.24582621455192566,
+          1.6361011564731598,
+          -0.26994097977876663
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.025678526010704836,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.00038519027072432847,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              3,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-neck-rim-7",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.2749910056591034,
+          1.751583751058217,
+          -0.25773623981511967
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.024456508979697422,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.00011991376665505304,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              3,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-neck-rim-8",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.26847095787525177,
+          1.810919258976344,
+          0.012976478552456922
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.02433352898307175,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0009467797840124328,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              3
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-neck-rim-9",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.2749910056591034,
+          1.7529979646205902,
+          0.2899057865142822
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.025678526010704857,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0009594725377930269,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-neck-rim-10",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.24582621455192566,
+          1.6341011564731598,
+          0.31102800369262695
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.024669831260754425,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.00007164286253466148,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-neck-rim-11",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.10365647426807506,
+          1.55328306159937,
+          0.3244287520647049
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.024567336590680774,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0006098657750715127,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-neck-rim-12",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          -0.10507068783044815,
+          1.5546972751617432,
+          0.3244287520647049
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.02567852601070478,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.00013567093673826848,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-neck-rim-13",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          -0.24582621455192566,
+          1.6361011564731598,
+          0.31102800369262695
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.025678526010704833,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0005458429967493138,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-left_arm-rim-0",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          -0.6242651790380478,
+          1.4618462026119232,
+          0.30526822805404663
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.025678526010704746,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0003457301200771499,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-left_arm-rim-1",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          -0.6048256794456282,
+          1.191200315952301,
+          0.3329179177526273
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.02371324064407701,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.000027208263485246843,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-left_arm-rim-2",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          -0.5643217063157383,
+          1.0793733799250302,
+          0.020992716530102193
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.024065637921615354,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.001117928569719026,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              3,
+              1,
+              3
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-left_arm-rim-3",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          -0.603411465883255,
+          1.191200315952301,
+          -0.28929902613162994
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.025678526010704812,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.00003278037542207195,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              3,
+              1,
+              3
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-left_arm-rim-4",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          -0.6242651790380478,
+          1.46043198904955,
+          -0.2697717437986173
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.02439327370229923,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0007608631812179092,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              3
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-left_arm-rim-5",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          -0.6060291326253239,
+          1.622974554321033,
+          0.015698736289280354
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.024065637921615313,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0004663850684757573,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              3,
+              1,
+              3
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-right_arm-rim-0",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.603411465883255,
+          1.191200315952301,
+          0.3315037041902542
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0256785260107048,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.000041511262441264104,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-right_arm-rim-1",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.6228509654756746,
+          1.46043198904955,
+          0.30526822805404663
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.024105210311771593,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0006752464964608016,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-right_arm-rim-2",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.6034602185245714,
+          1.6218198537826538,
+          0.015439223265286512
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.024264313017960615,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.000672747147738025,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-right_arm-rim-3",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.6242651790380478,
+          1.4618462026119232,
+          -0.2683575302362442
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.025678526010704746,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.00027948768569287637,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              3,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-right_arm-rim-4",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.6022567653448757,
+          1.1900456154139218,
+          -0.2904537266700092
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.02441751601163729,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0011996247727303305,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              3,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-right_arm-rim-5",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.5620123052389797,
+          1.0793733799250302,
+          0.020992716530102193
+        ],
+        "scope": "strict actual common-solid attachment witness, not load/friction",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.024065637921615445,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0011903370865734935,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              3,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "closed-overlap-binding",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.07935,
+          0.9238,
+          0.3781086560191822
+        ],
+        "scope": "finite strict cloth-following capped relief / material witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.022516650354582224,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.001996972059563779,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "front-lower-sage-band",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.013200000000000012,
+          0.20120000000000002,
+          0.3135792354487945
+        ],
+        "scope": "finite strict cloth-following capped relief / material witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.01991857756732958,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.001983738381996822,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "back-lower-sage-band",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.013200000000000012,
+          0.20120000000000002,
+          -0.28073704626554985
+        ],
+        "scope": "finite strict cloth-following capped relief / material witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.019918577886138412,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.001992245097395001,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              3,
+              3,
+              3
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "front-warm-gold-leaf-quilt-0",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.1,
+          0.56,
+          0.36093182390943235
+        ],
+        "scope": "finite strict cloth-following capped relief / material witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.003947102645919871,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0019837383819967633,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "front-warm-gold-leaf-quilt-1",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          -0.3696,
+          0.47159999999999996,
+          0.3479112858066036
+        ],
+        "scope": "finite strict cloth-following capped relief / material witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.004296635573690044,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.001975664724844108,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "front-warm-gold-leaf-quilt-2",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          -0.32,
+          0.7624000000000001,
+          0.36423811409741447
+        ],
+        "scope": "finite strict cloth-following capped relief / material witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0036392097981296804,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0019979100449024493,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "front-warm-gold-leaf-quilt-3",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          -0.2684,
+          1.0232,
+          0.3683841289658687
+        ],
+        "scope": "finite strict cloth-following capped relief / material witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.004763131321901878,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0019492294633763631,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "front-warm-gold-leaf-quilt-4",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          -0.28840000000000005,
+          1.254,
+          0.3523114321336991
+        ],
+        "scope": "finite strict cloth-following capped relief / material witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.00458792718783195,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0018974412132990804,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "front-warm-gold-leaf-quilt-5",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.42839999999999995,
+          0.4616,
+          0.34451005883670205
+        ],
+        "scope": "finite strict cloth-following capped relief / material witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.004128544887069226,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0019905109519707895,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "front-warm-gold-leaf-quilt-6",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.4368,
+          0.732,
+          0.3555209333325071
+        ],
+        "scope": "finite strict cloth-following capped relief / material witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0033164463417348854,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0019923497973385563,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "front-warm-gold-leaf-quilt-7",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.3548,
+          0.9423999999999999,
+          0.3642710170842436
+        ],
+        "scope": "finite strict cloth-following capped relief / material witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0047631388206897185,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0019969720595637806,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "front-warm-gold-leaf-quilt-8",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.3501,
+          1.1777,
+          0.3621509420594191
+        ],
+        "scope": "finite strict cloth-following capped relief / material witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.004763096725365719,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0019979053259922747,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "back-soft-quilt--1-0",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          -0.276,
+          0.4736,
+          -0.2919872521570115
+        ],
+        "scope": "finite strict cloth-following capped relief / material witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.004763123843075887,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0018595250544385278,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              3,
+              3,
+              3
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "back-soft-quilt--1-1",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          -0.276,
+          0.7836000000000001,
+          -0.3174863839455697
+        ],
+        "scope": "finite strict cloth-following capped relief / material witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.004763127715545547,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0019987637066467617,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              3,
+              1,
+              3
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "back-soft-quilt--1-2",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          -0.276,
+          1.0936,
+          -0.3146156201336132
+        ],
+        "scope": "finite strict cloth-following capped relief / material witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.004721797085507378,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0019343063733137018,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              3,
+              3,
+              3
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "back-soft-quilt-1-0",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.276,
+          0.4736,
+          -0.2919872521570115
+        ],
+        "scope": "finite strict cloth-following capped relief / material witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.004763123843075839,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.00185952505443852,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              3,
+              3,
+              3
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "back-soft-quilt-1-1",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.276,
+          0.7836000000000001,
+          -0.3174863839455697
+        ],
+        "scope": "finite strict cloth-following capped relief / material witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.004763128312578129,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0019987637066467617,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              3,
+              1,
+              3
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "back-soft-quilt-1-2",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.276,
+          1.0936,
+          -0.3146156201336132
+        ],
+        "scope": "finite strict cloth-following capped relief / material witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.004732859948131943,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0019343063733137018,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              3
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "warm-brass-leaf-clasp",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.137,
+          1.342,
+          0.3579184617618537
+        ],
+        "scope": "strict embroidery / actual shell common-solid witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0071372764159486676,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.004973023120753372,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "sage-leaf-clasp-inlay",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.1436,
+          1.3456000000000001,
+          0.3574261405244502
+        ],
+        "scope": "strict embroidery / actual shell common-solid witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0069622340102637945,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.004973023120753427,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "leaf-clasp-vein",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.14683999999999997,
+          1.3550399999999998,
+          0.3593970321027744
+        ],
+        "scope": "finite strict cloth-following capped relief / material witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0043301006824807,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.001989209248301364,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "round-brass-closed-overlap-button",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          -0.002,
+          1.345,
+          0.3590791031203432
+        ],
+        "scope": "strict brass button / cloth common-solid witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.01062778476011055,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.004971582686389651,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "small-sage-embroidered-leaf-a",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.31500000000000006,
+          0.99525,
+          0.3643495922626704
+        ],
+        "scope": "strict embroidery / actual shell common-solid witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.01026555490161823,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.004992430148909447,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "small-sage-embroidered-leaf-b",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.4125,
+          1.01,
+          0.359610215234781
+        ],
+        "scope": "strict embroidery / actual shell common-solid witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.006973733627930694,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.004992430148909113,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "small-muted-peach-embroidered-bud",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.296,
+          1.103,
+          0.3616774941528059
+        ],
+        "scope": "strict embroidery / actual shell common-solid witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.010791473754680916,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0046324910984321815,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      },
+      {
+        "part": "small-bud-stem",
+        "target": "joined-closed-foot-sleep-sack-material-shell",
+        "point": [
+          0.359,
+          0.9817999999999999,
+          0.36482010394370046
+        ],
+        "scope": "finite strict cloth-following capped relief / material witness",
+        "strictValidation": {
+          "part": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.004316371047059996,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "target": {
+            "inside": true,
+            "minimumSurfaceClearance": 0.0019969720595638357,
+            "requiredSurfaceClearance": 0.00001,
+            "uniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directionCount": 3
+          },
+          "probeDirections": [
+            [
+              0.731,
+              0.239,
+              0.641
+            ],
+            [
+              -0.371,
+              0.817,
+              0.439
+            ],
+            [
+              0.553,
+              -0.389,
+              0.737
+            ]
+          ],
+          "finitePointOnly": true
+        }
+      }
+    ],
+    "closedFoot": true,
+    "frontSeamIsNotOpening": true,
+    "bodyBinding": null,
+    "authoredGarmentDepthNotBodyDepth": true,
+    "wearing": false,
+    "rig": false,
+    "clothPhysics": false,
+    "normalGamePlacement": false,
+    "ownershipUnlockSave": false
+  },
+  "strictCrossings": {
+    "triangles": 1060,
+    "candidateNonadjacentAABBPairs": 13569,
+    "strictEdgeInteriorCrossings": 0,
+    "witnesses": [],
+    "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+  },
+  "allDisplayedSolidsClosed": true,
+  "allContactWitnessesStrictlyContained": true,
+  "allStoredNormalsAgreeWithActualFaces": true,
+  "strictContactValidation": {
+    "minimumRequiredWorldSurfaceClearance": 0.00001,
+    "noncollinearParityDirections": 3,
+    "minimumActualWorldSurfaceClearance": 0.000027208263485246843,
+    "scope": "finite strictly interior point witnesses only, no continuous contact or load proof"
+  },
+  "unique_test_suite": "tests/test_pet_leaf_sleep_sack_20261028.mjs",
+  "unique_tests": 10,
+  "finite_camera_samples": 28,
+  "finite_interior_camera_samples": 4,
+  "finite_samples_are_not_unique_tests": true,
+  "scope": "authored garment only; no body, wearing/calibration/rig, cloth physics, continuous or coplanar safety, all-growth fit, normal game unlock/ownership/save"
+}

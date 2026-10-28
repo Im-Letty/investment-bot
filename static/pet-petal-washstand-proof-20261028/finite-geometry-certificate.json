@@ -1,0 +1,1965 @@
+{
+  "schema_version": 1,
+  "unit_id": "wardrobe:fit-prerequisite:petal-washstand:bowl-drain-tap-geometry:v1",
+  "source_base": "8f0cc130f84b25869222b9bdc75d6cee5955beae",
+  "scope": "finite authored geometry prerequisite; empty/occupied rays and contact points do not certify water flow, strength, hands, whole world or all-growth fit",
+  "geometry": {
+    "bounds": {
+      "min": [
+        -0.7267870306968689,
+        0,
+        -0.7715989947319031
+      ],
+      "max": [
+        0.7870000004768372,
+        1.6816996335983276,
+        0.7715989947319031
+      ],
+      "size": [
+        1.513787031173706,
+        1.6816996335983276,
+        1.5431979894638062
+      ]
+    },
+    "budget": {
+      "meshes": 13,
+      "geometries": 13,
+      "materials": 4,
+      "textures": 0,
+      "triangles": 11608
+    },
+    "petals": 7,
+    "drainRadius": 0.055,
+    "tapInnerRadius": 0.025,
+    "tapWallThickness": 0.021,
+    "tapCenterlineSamples": 25,
+    "soleFootCount": 3,
+    "bodyBinding": null,
+    "hiddenSurfacesAuthored": true,
+    "waterOrPlumbingVerified": false,
+    "handContactVerified": false
+  },
+  "components": [
+    {
+      "id": "seven-petal-concave-basin-with-through-drain",
+      "vertices": 1080,
+      "triangles": 2160,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.12041211965141405
+    },
+    {
+      "id": "hollow-sage-pedestal-with-open-drain-channel",
+      "vertices": 648,
+      "triangles": 1296,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.07094430466148621
+    },
+    {
+      "id": "rounded-leaf-support-0",
+      "vertices": 162,
+      "triangles": 320,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.011528769233957242
+    },
+    {
+      "id": "rounded-leaf-support-1",
+      "vertices": 162,
+      "triangles": 320,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.011528769233957242
+    },
+    {
+      "id": "rounded-leaf-support-2",
+      "vertices": 162,
+      "triangles": 320,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.011528769233957242
+    },
+    {
+      "id": "open-bore-curved-gold-tap",
+      "vertices": 1960,
+      "triangles": 3920,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.004565349537412501
+    },
+    {
+      "id": "annular-tap-mount",
+      "vertices": 240,
+      "triangles": 480,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.0007664550267093548
+    },
+    {
+      "id": "gold-handle-spindle",
+      "vertices": 158,
+      "triangles": 312,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.0001978287264285758
+    },
+    {
+      "id": "cream-petal-tap-handle",
+      "vertices": 362,
+      "triangles": 720,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 4.10131950804027
+    },
+    {
+      "id": "blush-handle-bud",
+      "vertices": 222,
+      "triangles": 440,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 4.050029863525642
+    },
+    {
+      "id": "pedestal-blush-bud-0",
+      "vertices": 222,
+      "triangles": 440,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 4.050029863525642
+    },
+    {
+      "id": "pedestal-blush-bud-1",
+      "vertices": 222,
+      "triangles": 440,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 4.050029863525642
+    },
+    {
+      "id": "pedestal-blush-bud-2",
+      "vertices": 222,
+      "triangles": 440,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 4.050029863525642
+    }
+  ],
+  "passages": {
+    "finiteClearRays": 39,
+    "blockedClearRays": 0,
+    "rows": [
+      {
+        "name": "central-basin-and-pedestal-drain",
+        "start": [
+          0,
+          1.35,
+          0
+        ],
+        "end": [
+          0,
+          0.025,
+          0
+        ],
+        "hits": []
+      },
+      {
+        "name": "drain-offset-0",
+        "start": [
+          0.025,
+          1.35,
+          0
+        ],
+        "end": [
+          0.025,
+          0.025,
+          0
+        ],
+        "hits": []
+      },
+      {
+        "name": "drain-offset-1",
+        "start": [
+          0.01767766952966369,
+          1.35,
+          0.017677669529663688
+        ],
+        "end": [
+          0.01767766952966369,
+          0.025,
+          0.017677669529663688
+        ],
+        "hits": []
+      },
+      {
+        "name": "drain-offset-2",
+        "start": [
+          1.5308084989341916e-18,
+          1.35,
+          0.025
+        ],
+        "end": [
+          1.5308084989341916e-18,
+          0.025,
+          0.025
+        ],
+        "hits": []
+      },
+      {
+        "name": "drain-offset-3",
+        "start": [
+          -0.017677669529663688,
+          1.35,
+          0.01767766952966369
+        ],
+        "end": [
+          -0.017677669529663688,
+          0.025,
+          0.01767766952966369
+        ],
+        "hits": []
+      },
+      {
+        "name": "drain-offset-4",
+        "start": [
+          -0.025,
+          1.35,
+          3.061616997868383e-18
+        ],
+        "end": [
+          -0.025,
+          0.025,
+          3.061616997868383e-18
+        ],
+        "hits": []
+      },
+      {
+        "name": "drain-offset-5",
+        "start": [
+          -0.01767766952966369,
+          1.35,
+          -0.017677669529663688
+        ],
+        "end": [
+          -0.01767766952966369,
+          0.025,
+          -0.017677669529663688
+        ],
+        "hits": []
+      },
+      {
+        "name": "drain-offset-6",
+        "start": [
+          -4.592425496802574e-18,
+          1.35,
+          -0.025
+        ],
+        "end": [
+          -4.592425496802574e-18,
+          0.025,
+          -0.025
+        ],
+        "hits": []
+      },
+      {
+        "name": "drain-offset-7",
+        "start": [
+          0.017677669529663684,
+          1.35,
+          -0.01767766952966369
+        ],
+        "end": [
+          0.017677669529663684,
+          0.025,
+          -0.01767766952966369
+        ],
+        "hits": []
+      },
+      {
+        "name": "open-basin-cavity-0",
+        "start": [
+          0.3,
+          1.44,
+          0
+        ],
+        "end": [
+          0.3,
+          0.965,
+          0
+        ],
+        "hits": []
+      },
+      {
+        "name": "open-basin-cavity-1",
+        "start": [
+          0.21213203435596426,
+          1.44,
+          0.21213203435596423
+        ],
+        "end": [
+          0.21213203435596426,
+          0.965,
+          0.21213203435596423
+        ],
+        "hits": []
+      },
+      {
+        "name": "open-basin-cavity-2",
+        "start": [
+          1.8369701987210297e-17,
+          1.44,
+          0.3
+        ],
+        "end": [
+          1.8369701987210297e-17,
+          0.965,
+          0.3
+        ],
+        "hits": []
+      },
+      {
+        "name": "open-basin-cavity-3",
+        "start": [
+          -0.21213203435596423,
+          1.44,
+          0.21213203435596426
+        ],
+        "end": [
+          -0.21213203435596423,
+          0.965,
+          0.21213203435596426
+        ],
+        "hits": []
+      },
+      {
+        "name": "open-basin-cavity-4",
+        "start": [
+          -0.3,
+          1.44,
+          3.6739403974420595e-17
+        ],
+        "end": [
+          -0.3,
+          0.965,
+          3.6739403974420595e-17
+        ],
+        "hits": []
+      },
+      {
+        "name": "open-basin-cavity-5",
+        "start": [
+          -0.2121320343559643,
+          1.44,
+          -0.21213203435596423
+        ],
+        "end": [
+          -0.2121320343559643,
+          0.965,
+          -0.21213203435596423
+        ],
+        "hits": []
+      },
+      {
+        "name": "open-basin-cavity-6",
+        "start": [
+          -5.510910596163089e-17,
+          1.44,
+          -0.3
+        ],
+        "end": [
+          -5.510910596163089e-17,
+          0.965,
+          -0.3
+        ],
+        "hits": []
+      },
+      {
+        "name": "open-basin-cavity-7",
+        "start": [
+          0.2121320343559642,
+          1.44,
+          -0.2121320343559643
+        ],
+        "end": [
+          0.2121320343559642,
+          0.965,
+          -0.2121320343559643
+        ],
+        "hits": []
+      },
+      {
+        "name": "tap-bore-centerline-2",
+        "start": [
+          0,
+          1.2396620980560904,
+          -0.652078002138226
+        ],
+        "end": [
+          0,
+          1.2809943694169759,
+          -0.6517119789455179
+        ],
+        "hits": []
+      },
+      {
+        "name": "tap-bore-centerline-3",
+        "start": [
+          0,
+          1.2809943694169759,
+          -0.6517119789455179
+        ],
+        "end": [
+          0,
+          1.3223016474053364,
+          -0.6506077730368628
+        ],
+        "hits": []
+      },
+      {
+        "name": "tap-bore-centerline-4",
+        "start": [
+          0,
+          1.3223016474053364,
+          -0.6506077730368628
+        ],
+        "end": [
+          0,
+          1.3636284180832676,
+          -0.6516403783252764
+        ],
+        "hits": []
+      },
+      {
+        "name": "tap-bore-centerline-5",
+        "start": [
+          0,
+          1.3636284180832676,
+          -0.6516403783252764
+        ],
+        "end": [
+          0,
+          1.4049590209345038,
+          -0.6525195559500186
+        ],
+        "hits": []
+      },
+      {
+        "name": "tap-bore-centerline-6",
+        "start": [
+          0,
+          1.4049590209345038,
+          -0.6525195559500186
+        ],
+        "end": [
+          0,
+          1.4462573331622093,
+          -0.6509669396332824
+        ],
+        "hits": []
+      },
+      {
+        "name": "tap-bore-centerline-7",
+        "start": [
+          0,
+          1.4462573331622093,
+          -0.6509669396332824
+        ],
+        "end": [
+          0,
+          1.486950341833116,
+          -0.6440546252191212
+        ],
+        "hits": []
+      },
+      {
+        "name": "tap-bore-centerline-8",
+        "start": [
+          0,
+          1.486950341833116,
+          -0.6440546252191212
+        ],
+        "end": [
+          0,
+          1.5244295371221541,
+          -0.6271029007831492
+        ],
+        "hits": []
+      },
+      {
+        "name": "tap-bore-centerline-9",
+        "start": [
+          0,
+          1.5244295371221541,
+          -0.6271029007831492
+        ],
+        "end": [
+          0,
+          1.5556907421787094,
+          -0.6001782142753297
+        ],
+        "hits": []
+      },
+      {
+        "name": "tap-bore-centerline-10",
+        "start": [
+          0,
+          1.5556907421787094,
+          -0.6001782142753297
+        ],
+        "end": [
+          0,
+          1.5819075258674558,
+          -0.5682602756274365
+        ],
+        "hits": []
+      },
+      {
+        "name": "tap-bore-centerline-11",
+        "start": [
+          0,
+          1.5819075258674558,
+          -0.5682602756274365
+        ],
+        "end": [
+          0,
+          1.603706001735328,
+          -0.5331653712962895
+        ],
+        "hits": []
+      },
+      {
+        "name": "tap-bore-centerline-12",
+        "start": [
+          0,
+          1.603706001735328,
+          -0.5331653712962895
+        ],
+        "end": [
+          0,
+          1.6209598324492975,
+          -0.4956283992892761
+        ],
+        "hits": []
+      },
+      {
+        "name": "tap-bore-centerline-13",
+        "start": [
+          0,
+          1.6209598324492975,
+          -0.4956283992892761
+        ],
+        "end": [
+          0,
+          1.6325603632895416,
+          -0.4560058515678094
+        ],
+        "hits": []
+      },
+      {
+        "name": "tap-bore-centerline-14",
+        "start": [
+          0,
+          1.6325603632895416,
+          -0.4560058515678094
+        ],
+        "end": [
+          0,
+          1.6357306807925451,
+          -0.41490581766514717
+        ],
+        "hits": []
+      },
+      {
+        "name": "tap-bore-centerline-15",
+        "start": [
+          0,
+          1.6357306807925451,
+          -0.41490581766514717
+        ],
+        "end": [
+          0,
+          1.6308331265420688,
+          -0.37389601224266705
+        ],
+        "hits": []
+      },
+      {
+        "name": "tap-bore-centerline-16",
+        "start": [
+          0,
+          1.6308331265420688,
+          -0.37389601224266705
+        ],
+        "end": [
+          0,
+          1.6205913489294779,
+          -0.33386611678562145
+        ],
+        "hits": []
+      },
+      {
+        "name": "tap-bore-centerline-17",
+        "start": [
+          0,
+          1.6205913489294779,
+          -0.33386611678562145
+        ],
+        "end": [
+          0,
+          1.6059237731385252,
+          -0.29523770739868127
+        ],
+        "hits": []
+      },
+      {
+        "name": "tap-bore-centerline-18",
+        "start": [
+          0,
+          1.6059237731385252,
+          -0.29523770739868127
+        ],
+        "end": [
+          0,
+          1.586649625479919,
+          -0.25869972402231645
+        ],
+        "hits": []
+      },
+      {
+        "name": "tap-bore-centerline-19",
+        "start": [
+          0,
+          1.586649625479919,
+          -0.25869972402231645
+        ],
+        "end": [
+          0,
+          1.5612483457314803,
+          -0.22620175353368194
+        ],
+        "hits": []
+      },
+      {
+        "name": "tap-bore-centerline-20",
+        "start": [
+          0,
+          1.5612483457314803,
+          -0.22620175353368194
+        ],
+        "end": [
+          0,
+          1.5263278850432034,
+          -0.2046924043563486
+        ],
+        "hits": []
+      },
+      {
+        "name": "tap-bore-centerline-21",
+        "start": [
+          0,
+          1.5263278850432034,
+          -0.2046924043563486
+        ],
+        "end": [
+          0,
+          1.4863356628381206,
+          -0.194480015549095
+        ],
+        "hits": []
+      },
+      {
+        "name": "tap-bore-centerline-22",
+        "start": [
+          0,
+          1.4863356628381206,
+          -0.194480015549095
+        ],
+        "end": [
+          0,
+          1.445463905484286,
+          -0.18829715850723466
+        ],
+        "hits": []
+      },
+      {
+        "name": "tap-bore-centerline-23",
+        "start": [
+          0,
+          1.445463905484286,
+          -0.18829715850723466
+        ],
+        "end": [
+          0,
+          1.4050000000000005,
+          -0.18000000000000002
+        ],
+        "hits": []
+      }
+    ],
+    "occupiedControls": [
+      {
+        "name": "basin-material-between-center-and-rim",
+        "start": [
+          0.2,
+          1.12,
+          0
+        ],
+        "end": [
+          0.2,
+          0.78,
+          0
+        ],
+        "hits": [
+          {
+            "part": "seven-petal-concave-basin-with-through-drain",
+            "distance": 0.2457142840447485
+          },
+          {
+            "part": "seven-petal-concave-basin-with-through-drain",
+            "distance": 0.2457142840447485
+          },
+          {
+            "part": "hollow-sage-pedestal-with-open-drain-channel",
+            "distance": 0.26399999380111705
+          },
+          {
+            "part": "hollow-sage-pedestal-with-open-drain-channel",
+            "distance": 0.26399999380111705
+          }
+        ]
+      },
+      {
+        "name": "outside-basin-wall",
+        "start": [
+          0,
+          0.99,
+          0.2
+        ],
+        "end": [
+          0,
+          0.99,
+          0.79
+        ],
+        "hits": [
+          {
+            "part": "seven-petal-concave-basin-with-through-drain",
+            "distance": 0.27388231594256945
+          }
+        ]
+      },
+      {
+        "name": "pedestal-annular-wall",
+        "start": [
+          0,
+          0.47,
+          0
+        ],
+        "end": [
+          0.25,
+          0.47,
+          0
+        ],
+        "hits": [
+          {
+            "part": "hollow-sage-pedestal-with-open-drain-channel",
+            "distance": 0.054999999701976776
+          },
+          {
+            "part": "hollow-sage-pedestal-with-open-drain-channel",
+            "distance": 0.054999999701976776
+          }
+        ]
+      }
+    ],
+    "drainAndBowlAreActualOpenings": true,
+    "tapBottomConnectionToWaterSupplyVerified": false,
+    "liquidFlowVerified": false,
+    "continuousClearanceGuaranteed": false,
+    "scope": "finite empty-space and occupied-material rays on the authored basin/drain/tap only; not water transport or hand use"
+  },
+  "attachments": {
+    "rows": [
+      {
+        "child": "hollow-sage-pedestal-with-open-drain-channel",
+        "parent": "seven-petal-concave-basin-with-through-drain",
+        "witness": {
+          "surfacePart": "hollow-sage-pedestal-with-open-drain-channel",
+          "materialPart": "seven-petal-concave-basin-with-through-drain",
+          "surfaceTriangle": 1008,
+          "point": [
+            0.2460200289885203,
+            0.8483333388964335,
+            0.007175823052724202
+          ],
+          "method": "actual surface triangle centroid is inside closed parent material by odd/even double-sided ray intersections; finite overlap witness"
+        }
+      },
+      {
+        "child": "rounded-leaf-support-0",
+        "parent": "hollow-sage-pedestal-with-open-drain-channel",
+        "witness": {
+          "surfacePart": "rounded-leaf-support-0",
+          "materialPart": "hollow-sage-pedestal-with-open-drain-channel",
+          "surfaceTriangle": 151,
+          "point": [
+            -0.08222260574499766,
+            0.07833333065112431,
+            0.1719866748650869
+          ],
+          "method": "actual surface triangle centroid is inside closed parent material by odd/even double-sided ray intersections; finite overlap witness"
+        }
+      },
+      {
+        "child": "rounded-leaf-support-1",
+        "parent": "hollow-sage-pedestal-with-open-drain-channel",
+        "witness": {
+          "surfacePart": "rounded-leaf-support-1",
+          "materialPart": "hollow-sage-pedestal-with-open-drain-channel",
+          "surfaceTriangle": 151,
+          "point": [
+            -0.10783352667308105,
+            0.07833333065112431,
+            -0.15720020277306368
+          ],
+          "method": "actual surface triangle centroid is inside closed parent material by odd/even double-sided ray intersections; finite overlap witness"
+        }
+      },
+      {
+        "child": "rounded-leaf-support-2",
+        "parent": "hollow-sage-pedestal-with-open-drain-channel",
+        "witness": {
+          "surfacePart": "rounded-leaf-support-2",
+          "materialPart": "hollow-sage-pedestal-with-open-drain-channel",
+          "surfaceTriangle": 151,
+          "point": [
+            0.19005613241807864,
+            0.07833333065112431,
+            -0.014786472092023245
+          ],
+          "method": "actual surface triangle centroid is inside closed parent material by odd/even double-sided ray intersections; finite overlap witness"
+        }
+      },
+      {
+        "child": "open-bore-curved-gold-tap",
+        "parent": "seven-petal-concave-basin-with-through-drain",
+        "witness": {
+          "surfacePart": "open-bore-curved-gold-tap",
+          "materialPart": "seven-petal-concave-basin-with-through-drain",
+          "surfaceTriangle": 0,
+          "point": [
+            0.04524953290820122,
+            1.1707201798756917,
+            -0.6558298269907633
+          ],
+          "method": "actual surface triangle centroid is inside closed parent material by odd/even double-sided ray intersections; finite overlap witness"
+        }
+      },
+      {
+        "child": "annular-tap-mount",
+        "parent": "seven-petal-concave-basin-with-through-drain",
+        "witness": {
+          "surfacePart": "annular-tap-mount",
+          "materialPart": "seven-petal-concave-basin-with-through-drain",
+          "surfaceTriangle": 0,
+          "point": [
+            0.07407668108741441,
+            1.145,
+            -0.6470842141881585
+          ],
+          "method": "actual surface triangle centroid is inside closed parent material by odd/even double-sided ray intersections; finite overlap witness"
+        }
+      },
+      {
+        "child": "gold-handle-spindle",
+        "parent": "open-bore-curved-gold-tap",
+        "witness": {
+          "surfacePart": "gold-handle-spindle",
+          "materialPart": "open-bore-curved-gold-tap",
+          "surfaceTriangle": 0,
+          "point": [
+            0.03827812025944392,
+            1.285927653312683,
+            -0.6270717978477478
+          ],
+          "method": "actual surface triangle centroid is inside closed parent material by odd/even double-sided ray intersections; finite overlap witness"
+        }
+      },
+      {
+        "child": "cream-petal-tap-handle",
+        "parent": "gold-handle-spindle",
+        "witness": {
+          "surfacePart": "cream-petal-tap-handle",
+          "materialPart": "gold-handle-spindle",
+          "surfaceTriangle": 313,
+          "point": [
+            0.11079933404922485,
+            1.3053324688474337,
+            -0.643529523909092
+          ],
+          "method": "actual surface triangle centroid is inside closed parent material by odd/even double-sided ray intersections; finite overlap witness"
+        }
+      },
+      {
+        "child": "blush-handle-bud",
+        "parent": "cream-petal-tap-handle",
+        "witness": {
+          "surfacePart": "blush-handle-bud",
+          "materialPart": "cream-petal-tap-handle",
+          "surfaceTriangle": 20,
+          "point": [
+            0.18742433869838715,
+            1.3501029038627943,
+            -0.6474987947940827
+          ],
+          "method": "actual surface triangle centroid is inside closed parent material by odd/even double-sided ray intersections; finite overlap witness"
+        }
+      },
+      {
+        "child": "pedestal-blush-bud-0",
+        "parent": "hollow-sage-pedestal-with-open-drain-channel",
+        "witness": {
+          "surfacePart": "pedestal-blush-bud-0",
+          "materialPart": "hollow-sage-pedestal-with-open-drain-channel",
+          "surfaceTriangle": 13,
+          "point": [
+            0.002707944276432206,
+            0.5911145616372426,
+            0.15020382885138195
+          ],
+          "method": "actual surface triangle centroid is inside closed parent material by odd/even double-sided ray intersections; finite overlap witness"
+        }
+      },
+      {
+        "child": "pedestal-blush-bud-1",
+        "parent": "hollow-sage-pedestal-with-open-drain-channel",
+        "witness": {
+          "surfacePart": "pedestal-blush-bud-1",
+          "materialPart": "hollow-sage-pedestal-with-open-drain-channel",
+          "surfaceTriangle": 13,
+          "point": [
+            -0.1314343036692029,
+            0.5911145616372426,
+            -0.07275676589026797
+          ],
+          "method": "actual surface triangle centroid is inside closed parent material by odd/even double-sided ray intersections; finite overlap witness"
+        }
+      },
+      {
+        "child": "pedestal-blush-bud-2",
+        "parent": "hollow-sage-pedestal-with-open-drain-channel",
+        "witness": {
+          "surfacePart": "pedestal-blush-bud-2",
+          "materialPart": "hollow-sage-pedestal-with-open-drain-channel",
+          "surfaceTriangle": 13,
+          "point": [
+            0.1287263593927706,
+            0.5911145616372426,
+            -0.07744706296111399
+          ],
+          "method": "actual surface triangle centroid is inside closed parent material by odd/even double-sided ray intersections; finite overlap witness"
+        }
+      }
+    ],
+    "connectedToBasinCount": 13,
+    "partCount": 13,
+    "missing": [],
+    "allPartsHaveFiniteMaterialContact": true,
+    "structuralLoadOrWatertightnessVerified": false,
+    "scope": "finite actual triangle-centroid material containment witnesses for explicit joins, not strength/friction/pressure or watertight welding"
+  },
+  "placement": {
+    "townPoint": {
+      "x": 2400,
+      "y": 400
+    },
+    "worldPosition": [
+      9.6,
+      0.0250000000000013,
+      -5.6
+    ],
+    "projectedFootprint": {
+      "minX": 8.87321296930313,
+      "maxX": 10.387000000476837,
+      "minZ": -6.371598994731903,
+      "maxZ": -4.828401005268097
+    },
+    "supports": [
+      {
+        "foot": "rounded-leaf-support-0",
+        "x": 9.6,
+        "z": -5.239999999999999,
+        "soleLocalY": -5.551115123125783e-17,
+        "actualFootSoleTriangle": 1,
+        "floorY": 0.025000000000001164,
+        "soleMinusFloor": 7.979727989493313e-17
+      },
+      {
+        "foot": "rounded-leaf-support-0",
+        "x": 9.6,
+        "z": -5.119999999999999,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 0,
+        "floorY": 0.02500000000000114,
+        "soleMinusFloor": 1.5959455978986625e-16
+      },
+      {
+        "foot": "rounded-leaf-support-0",
+        "x": 9.6,
+        "z": -5.359999999999999,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 20,
+        "floorY": 0.02500000000000119,
+        "soleMinusFloor": 1.0755285551056204e-16
+      },
+      {
+        "foot": "rounded-leaf-support-0",
+        "x": 9.549999999999999,
+        "z": -5.239999999999999,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 10,
+        "floorY": 0.025000000000001164,
+        "soleMinusFloor": 1.3530843112619095e-16
+      },
+      {
+        "foot": "rounded-leaf-support-0",
+        "x": 9.65,
+        "z": -5.239999999999999,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 30,
+        "floorY": 0.025000000000001164,
+        "soleMinusFloor": 1.3530843112619095e-16
+      },
+      {
+        "foot": "rounded-leaf-support-1",
+        "x": 9.288230854637602,
+        "z": -5.779999999999999,
+        "soleLocalY": -5.551115123125783e-17,
+        "actualFootSoleTriangle": 1,
+        "floorY": 0.025000000000001285,
+        "soleMinusFloor": -4.163336342344337e-17
+      },
+      {
+        "foot": "rounded-leaf-support-1",
+        "x": 9.184307806183469,
+        "z": -5.84,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 0,
+        "floorY": 0.0250000000000013,
+        "soleMinusFloor": 0
+      },
+      {
+        "foot": "rounded-leaf-support-1",
+        "x": 9.392153903091735,
+        "z": -5.72,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 19,
+        "floorY": 0.02500000000000127,
+        "soleMinusFloor": 2.7755575615628914e-17
+      },
+      {
+        "foot": "rounded-leaf-support-1",
+        "x": 9.313230854637602,
+        "z": -5.823301270189221,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 10,
+        "floorY": 0.025000000000001295,
+        "soleMinusFloor": 3.469446951953614e-18
+      },
+      {
+        "foot": "rounded-leaf-support-1",
+        "x": 9.263230854637602,
+        "z": -5.736698729810778,
+        "soleLocalY": 5.551115123125783e-17,
+        "actualFootSoleTriangle": 29,
+        "floorY": 0.025000000000001275,
+        "soleMinusFloor": 7.979727989493313e-17
+      },
+      {
+        "foot": "rounded-leaf-support-2",
+        "x": 9.911769145362397,
+        "z": -5.779999999999999,
+        "soleLocalY": -5.551115123125783e-17,
+        "actualFootSoleTriangle": 1,
+        "floorY": 0.025000000000001285,
+        "soleMinusFloor": -4.163336342344337e-17
+      },
+      {
+        "foot": "rounded-leaf-support-2",
+        "x": 10.01569219381653,
+        "z": -5.84,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 0,
+        "floorY": 0.0250000000000013,
+        "soleMinusFloor": 0
+      },
+      {
+        "foot": "rounded-leaf-support-2",
+        "x": 9.807846096908264,
+        "z": -5.72,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 19,
+        "floorY": 0.02500000000000127,
+        "soleMinusFloor": 2.7755575615628914e-17
+      },
+      {
+        "foot": "rounded-leaf-support-2",
+        "x": 9.936769145362398,
+        "z": -5.736698729810778,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 10,
+        "floorY": 0.025000000000001275,
+        "soleMinusFloor": 2.42861286636753e-17
+      },
+      {
+        "foot": "rounded-leaf-support-2",
+        "x": 9.886769145362397,
+        "z": -5.823301270189222,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 30,
+        "floorY": 0.025000000000001295,
+        "soleMinusFloor": 3.469446951953614e-18
+      }
+    ],
+    "finiteWalkability": {
+      "samples": 63,
+      "blocked": 0
+    },
+    "roads": [
+      {
+        "name": "layout-plaza-border",
+        "triangles": 192,
+        "minimumGap": 7.651003347368682
+      },
+      {
+        "name": "layout-plaza-floor",
+        "triangles": 96,
+        "minimumGap": 7.959486068351439
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.790451535839904
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.6901247181222585
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.651145622728876
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.650895085365405
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.679854048573394
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.775179314746004
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.9358002131078855
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.158246117662607
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.436925281188095
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.764583439439347
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.132828405475687
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.532625387905478
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.954708271211059
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.389891164297316
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.805941093511546
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.19903061596277
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.581871701024275
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.947844597712985
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.290925334281722
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.605733534187632
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.887569752265732
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.132444159210115
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.337097150567146
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.499011725721154
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.616417135604813
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.688283219122487
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.696748621375896
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.634932235406106
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.530313079301347
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.385109766144405
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.202047971041859
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.984293726217404
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.735383152981516
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.459151341022523
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.159663541916004
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.841152223299277
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.507963765836111
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.1645185835534
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.815288085262784
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.458607306366078
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.078296114814028
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.706039075408368
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.346899001959798
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.00620049344717
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.689613935782836
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.403206165365837
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.153421135237299
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.9469493988153985
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 10.72883591300446
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 10.757384794520537
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 16.483640292565337
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 2.0500849558594054
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 2.1092922188280734
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 2.0934797464951362
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 10.728860323432942
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 10.757406312934242
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 18.44550553257837
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 6.795057466219317
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 6.855057315748857
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 10.542289394604856
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 10.593185130633387
+      }
+    ],
+    "minimumRoadGap": 2.0500849558594054,
+    "requiredMargin": 0.2,
+    "originalSpriteEnvelopeClearance": {
+      "checkedCards": 38,
+      "kinds": {
+        "shopTulip": 6,
+        "treeGrove": 12,
+        "flowers": 1,
+        "lantern": 4,
+        "treeApple": 5,
+        "treeBirch": 5,
+        "tree": 5
+      },
+      "minimumGap": 1.5631437698907884,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "kind": "shopTulip",
+          "sourceSHA256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+          "contact": [
+            6.8759999999999994,
+            0.025,
+            -4.894
+          ],
+          "fullQuadRadius": 0.43406919941234284,
+          "envelopeDistance": 1.9972129693031313,
+          "gap": 1.5631437698907884
+        },
+        {
+          "kind": "shopTulip",
+          "sourceSHA256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+          "contact": [
+            5.795999999999999,
+            0.025,
+            -4.894
+          ],
+          "fullQuadRadius": 0.43406919941234284,
+          "envelopeDistance": 3.0772129693031314,
+          "gap": 2.6431437698907887
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            3.800391407986147,
+            0.025,
+            -10.014646520277676
+          ],
+          "fullQuadRadius": 3.428153984302411,
+          "envelopeDistance": 6.2454234337110925,
+          "gap": 2.8172694494086814
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            3.018835793838979,
+            0.025,
+            -10.44966867454055
+          ],
+          "fullQuadRadius": 3.816913714481035,
+          "envelopeDistance": 7.134730858691883,
+          "gap": 3.3178171442108484
+        },
+        {
+          "kind": "lantern",
+          "sourceSHA256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+          "contact": [
+            4.032,
+            0.025,
+            -3.4560000000000004
+          ],
+          "fullQuadRadius": 0.9909739577995439,
+          "envelopeDistance": 5.0319804782421125,
+          "gap": 4.0410065204425685
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            0.8327002596367137,
+            0.025,
+            -9.982363263208441
+          ],
+          "fullQuadRadius": 4.385813983669816,
+          "envelopeDistance": 8.814049196414445,
+          "gap": 4.428235212744629
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            -1.4520000000000004
+          ],
+          "fullQuadRadius": 3.816913714481035,
+          "envelopeDistance": 10.034326558749319,
+          "gap": 6.217412844268284
+        },
+        {
+          "kind": "treeApple",
+          "sourceSHA256": "ce7ef7adda439841a3fc36de04d5250eb01249ce653337f19b6d9520b028c45b",
+          "contact": [
+            -0.3355192961773006,
+            0.025,
+            -9.667760567754863
+          ],
+          "fullQuadRadius": 2.824426245157773,
+          "envelopeDistance": 9.780870669463612,
+          "gap": 6.956444424305839
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            -1.9396978898859323,
+            0.025,
+            -10.216135629486423
+          ],
+          "fullQuadRadius": 3.3722855420654474,
+          "envelopeDistance": 11.476040396614957,
+          "gap": 8.10375485454951
+        },
+        {
+          "kind": "lantern",
+          "sourceSHA256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+          "contact": [
+            4.032,
+            0.025,
+            4.223999999999998
+          ],
+          "fullQuadRadius": 0.9909739577995439,
+          "envelopeDistance": 10.265637192806283,
+          "gap": 9.27466323500674
+        }
+      ],
+      "method": "sphere enclosing all four full raw Sprite quad corners from actual world scale/center; sphere-to-conservative-3D-pose-envelope distance; includes faint/transparent corners without cropping",
+      "cameraOrientationIndependentGeometryEnvelope": true,
+      "physicalFixtureVolumes": false,
+      "allCameraProjectionOcclusionGuaranteed": false
+    },
+    "buildingProxyClearance": [
+      {
+        "place": "home",
+        "intersects": false,
+        "separation": 15.705095695447362
+      },
+      {
+        "place": "cafe",
+        "intersects": false,
+        "separation": 1.3050956954473643
+      },
+      {
+        "place": "shop",
+        "intersects": false,
+        "separation": 16.92080340509323
+      },
+      {
+        "place": "playground",
+        "intersects": false,
+        "separation": 6.68308242642399
+      },
+      {
+        "place": "tree",
+        "intersects": false,
+        "separation": null
+      },
+      {
+        "place": "flowers",
+        "intersects": false,
+        "separation": null
+      }
+    ],
+    "meadowInstances": {
+      "instanceCount": 1102,
+      "batchCount": 10,
+      "siteCount": 40,
+      "animationPadding": 0.018,
+      "minimumGap": 0.7691937839994316,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "batch": "meadow-daisy-lobed-head-instances",
+          "instance": 19,
+          "bounds": {
+            "min": [
+              7.958820739835853,
+              0.26966038848726037,
+              -4.399957903835882
+            ],
+            "max": [
+              8.234389373794551,
+              0.48924224177269227,
+              -4.1378291572550845
+            ]
+          },
+          "minimumGap": 0.7691937839994316
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 135,
+          "bounds": {
+            "min": [
+              7.977578815044441,
+              0.07105114515847945,
+              -4.3950632941515035
+            ],
+            "max": [
+              8.21403826324015,
+              0.22419910853424715,
+              -4.18908480159886
+            ]
+          },
+          "minimumGap": 0.7888554145019129
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 135,
+          "bounds": {
+            "min": [
+              7.985089577379973,
+              0.12565921738691058,
+              -4.33268680280395
+            ],
+            "max": [
+              8.19508846259249,
+              0.2939266082809292,
+              -4.162581188564673
+            ]
+          },
+          "minimumGap": 0.8399913196731342
+        },
+        {
+          "batch": "meadow-daisy-heart-instances",
+          "instance": 19,
+          "bounds": {
+            "min": [
+              8.064667348143331,
+              0.3707389938978198,
+              -4.31753558400345
+            ],
+            "max": [
+              8.167966242554911,
+              0.4668721449228284,
+              -4.218473250835417
+            ]
+          },
+          "minimumGap": 0.8708366231578587
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 133,
+          "bounds": {
+            "min": [
+              8.110396255521929,
+              0.062432864866922136,
+              -4.15085454583853
+            ],
+            "max": [
+              8.303385749492183,
+              0.21558082824268984,
+              -3.9123348705861134
+            ]
+          },
+          "minimumGap": 0.8853091353437038
+        },
+        {
+          "batch": "meadow-pansy-lobed-head-instances",
+          "instance": 17,
+          "bounds": {
+            "min": [
+              8.074392434718781,
+              0.24648008531446056,
+              -4.147406772627841
+            ],
+            "max": [
+              8.294425435225413,
+              0.4569575053289031,
+              -3.907472393100149
+            ]
+          },
+          "minimumGap": 0.8937271141086945
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 133,
+          "bounds": {
+            "min": [
+              8.069273578978953,
+              0.11260869100637162,
+              -4.150892292711159
+            ],
+            "max": [
+              8.257900287576387,
+              0.28087608190039026,
+              -3.935303830406008
+            ]
+          },
+          "minimumGap": 0.9152200565352115
+        },
+        {
+          "batch": "meadow-stem-instances",
+          "instance": 192,
+          "bounds": {
+            "min": [
+              8.067568068700785,
+              0.007000005960464479,
+              -4.295128576088361
+            ],
+            "max": [
+              8.118887038740318,
+              0.40940555262565614,
+              -4.243320091918379
+            ]
+          },
+          "minimumGap": 0.9237895286496317
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 132,
+          "bounds": {
+            "min": [
+              7.901148489831921,
+              0.041575798950860735,
+              -4.264367702750147
+            ],
+            "max": [
+              8.09452233541299,
+              0.19472376232662844,
+              -4.025857540398
+            ]
+          },
+          "minimumGap": 0.9615054184233883
+        },
+        {
+          "batch": "meadow-rose-outer-rosette-instances",
+          "instance": 42,
+          "bounds": {
+            "min": [
+              7.872678861722074,
+              0.23156414085790836,
+              -4.255414189465224
+            ],
+            "max": [
+              8.078212702953188,
+              0.34142650297063937,
+              -4.046932128716306
+            ]
+          },
+          "minimumGap": 0.9799690375621034
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 132,
+          "bounds": {
+            "min": [
+              7.860408253295483,
+              0.08102512851304734,
+              -4.264202428528577
+            ],
+            "max": [
+              8.04857208160829,
+              0.24929251940706595,
+              -4.048723461221426
+            ]
+          },
+          "minimumGap": 0.9991759743173544
+        },
+        {
+          "batch": "meadow-stem-instances",
+          "instance": 188,
+          "bounds": {
+            "min": [
+              8.159356548521327,
+              0.007000005960464479,
+              -4.062079127713013
+            ],
+            "max": [
+              8.209798639043047,
+              0.38478192019462587,
+              -4.012224822029702
+            ]
+          },
+          "minimumGap": 1.0135915319367972
+        }
+      ],
+      "scope": "every actual current meadow instance geometry AABB transformed by its actual instance and world matrix, expanded .018 in all axes; current finite matrices and authored animation allowance, no all-frame proof"
+    },
+    "shoreline": {
+      "segments": 7,
+      "minimumGap": 3.228401386737824,
+      "rows": [
+        {
+          "a": [
+            14.399999618530273,
+            -9.600000381469727
+          ],
+          "b": [
+            -14.399999618530273,
+            -9.600000381469727
+          ],
+          "footprintGap": 3.228401386737824
+        },
+        {
+          "a": [
+            -14.399999618530273,
+            -9.600000381469727
+          ],
+          "b": [
+            -14.399999618530273,
+            9.600000381469727
+          ],
+          "footprintGap": 23.273212587833406
+        },
+        {
+          "a": [
+            -14.399999618530273,
+            9.600000381469727
+          ],
+          "b": [
+            5.5,
+            9.600000381469727
+          ],
+          "footprintGap": 14.81746713554961
+        },
+        {
+          "a": [
+            5.5,
+            9.600000381469727
+          ],
+          "b": [
+            10.699999809265137,
+            4.900000095367432
+          ],
+          "footprintGap": 9.733434997735797
+        },
+        {
+          "a": [
+            10.699999809265137,
+            4.900000095367432
+          ],
+          "b": [
+            12.800000190734863,
+            0.8999999761581421
+          ],
+          "footprintGap": 6.215878676598376
+        },
+        {
+          "a": [
+            12.800000190734863,
+            0.8999999761581421
+          ],
+          "b": [
+            14,
+            -4.099999904632568
+          ],
+          "footprintGap": 3.683224441169069
+        },
+        {
+          "a": [
+            14,
+            -4.099999904632568
+          ],
+          "b": [
+            14.399999618530273,
+            -9.600000381469727
+          ],
+          "footprintGap": 3.656317741883157
+        }
+      ],
+      "method": "every actual dry-land boundary segment against full projected rectangle, including crossing and endpoint/corner distances"
+    },
+    "waterBacking": {
+      "topY": -0.05,
+      "soleAboveWaterBacking": 0.0750000000000013,
+      "scope": "actual wet backing under dry land, no water physics"
+    },
+    "worldUnchanged": true,
+    "walkableSurfacesUnchanged": true,
+    "occludersUnchanged": true,
+    "notRegisteredAsTownSurface": true,
+    "normalPlacement": false,
+    "ownershipUnlockSave": false,
+    "bodyBinding": null,
+    "limits": "one unchanged current default-world off-road authored placement,15 finite low leaf-foot floor probes,finite footprint walkability,actual road triangles and conservative full-card envelopes; whole static model placement envelope; no owner-world placement, anatomical fit or all-camera visibility guarantee"
+  },
+  "test_count_is_not_ray_count": true,
+  "bodyBinding": null,
+  "normalGameIntegration": false,
+  "newLibraryAssets": 0,
+  "waterOrPlumbingVerified": false,
+  "handOrBodyFitVerified": false,
+  "continuousSafetyVerified": false,
+  "originalReferenceUnmodified": true
+}

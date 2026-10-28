@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "model_id": "natural-garden-split-stone-path-v1",
+  "unit_id": "village:asset-library:natural-garden-split-stone-path:v1",
+  "new_mesh_library_candidate": true,
+  "category": "paving_and_tiles",
+  "style": "natural_garden",
+  "season": "all_season",
+  "new_PNG_designs": 0,
+  "new_raw_versions": 0,
+  "imagegen_calls": 0,
+  "bodyBinding": null,
+  "authored_dimensions_not_body_fit": true,
+  "construction": "Nine Voronoi-cut irregular creamy flagstones, each a closed beveled solid with four perimeter rings, underside and raised triangulated crown; fine real gaps expose one continuous sage grout/subgrade solid. No old path geometry or raster art changed.",
+  "materials": "Locally varied cream, warm sandstone and pale sage with subtle per-vertex pigment;10opaque standard materials; no textures/lights.",
+  "normalPlacement": false,
+  "ownershipUnlockSave": false,
+  "walkingTraversalVerified": false,
+  "physicalLoadFrictionVerified": false,
+  "placement_scope": "One unchanged current Scene4 off-road placement; nine actual sole rays, all road triangles, original-card envelopes, shoreline segments,40meadow clusters and1102instances.",
+  "gaps": [
+    "actual walking traversal, friction or load",
+    "ordinary placement/acquisition/unlock/save",
+    "owner phone",
+    "future scene layouts and camera occlusion",
+    "body fit"
+  ]
+}
