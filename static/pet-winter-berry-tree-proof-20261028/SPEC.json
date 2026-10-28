@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "model_id": "winter-berry-garden-tree-v1",
+  "unit_id": "village:asset-library:winter-berry-garden-tree:v1",
+  "new_mesh_library_candidate": true,
+  "new_PNG_designs": 0,
+  "new_raw_versions": 0,
+  "imagegen_calls": 0,
+  "bodyBinding": null,
+  "authored_dimensions_not_body_fit": true,
+  "construction": "One closed low rounded mound, curved tapered trunk, seven closed curved branch shells,49 closed padded evergreen leaves on real petioles,18 red/cream closed berries on real stems. Components have finite actual triangle contact witnesses; they are intersecting authored shells, not a boolean-unioned botanical mesh.",
+  "root_policy": "soft low rounded collar on flat sole; no fingerlike exposed or pointed roots",
+  "materials": "warm wood,olive/sage/light leaf pigments,muted coral red and pearl cream berries; local vertex tonal detail only",
+  "static": true,
+  "normalPlacement": false,
+  "ownershipUnlockSave": false,
+  "harvestOrEdibility": false,
+  "physicalWindLoadFrictionVerified": false,
+  "originals_unchanged": true,
+  "all_hidden_surfaces_authored": true,
+  "placement_scope": "one current unchanged default Scene4 winter/autumn off-road meadow location; full canopy rectangle against roads/shore/building/card envelopes; all40 meadow clusters and all1102 individual current mesh instances enlarged .018 for sway",
+  "gaps": [
+    "real wind/load/friction",
+    "ordinary game placement acquisition unlock save",
+    "harvest or food rules",
+    "owner phone",
+    "all future scene layouts/camera occlusions",
+    "body fit"
+  ]
+}

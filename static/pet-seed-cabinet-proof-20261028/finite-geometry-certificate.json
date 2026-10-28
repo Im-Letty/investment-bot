@@ -1,0 +1,4169 @@
+{
+  "schema_version": 1,
+  "unit_id": "wardrobe:fit-prerequisite:seed-sorting-cabinet:closed-drawer-shell-guide:v1",
+  "source_base": "5c417df513fd68dab30b254c52161593c70b4581",
+  "scope": "finite authored geometric prerequisite; five poses are not five unique tests or continuous-motion certification",
+  "geometry": {
+    "bounds": {
+      "min": [
+        -0.8899999856948853,
+        0,
+        -0.49000000953674316
+      ],
+      "max": [
+        0.8899999856948853,
+        1.4100000007450584,
+        0.78
+      ],
+      "size": [
+        1.7799999713897705,
+        1.4100000007450584,
+        1.2700000095367432
+      ],
+      "scope": "conservative union of both endpoint bounds for pure tray translation; framing/placement envelope only"
+    },
+    "closedBounds": {
+      "min": [
+        -0.8899999856948853,
+        0,
+        -0.49000000953674316
+      ],
+      "max": [
+        0.8899999856948853,
+        1.4100000007450584,
+        0.54
+      ]
+    },
+    "budget": {
+      "meshes": 89,
+      "geometries": 32,
+      "materials": 6,
+      "textures": 0,
+      "lights": 0,
+      "triangles": 11732
+    },
+    "invalidPositions": 0,
+    "invalidNormals": 0,
+    "drawerUnit": 0,
+    "manualTravel": 0,
+    "fixedClosedFronts": 5,
+    "manualDrawer": "top-left",
+    "bodyBinding": null,
+    "authoredDimensionsNotBodyMeasurement": true,
+    "physicalLoadOrFrictionVerified": false,
+    "allSixFunctional": false
+  },
+  "components": [
+    {
+      "geometry": 0,
+      "vertices": 8,
+      "triangles": 12,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 1
+    },
+    {
+      "geometry": 1,
+      "vertices": 222,
+      "triangles": 440,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 4.050029863525642
+    },
+    {
+      "geometry": 2,
+      "vertices": 72,
+      "triangles": 140,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.17309250353720051
+    },
+    {
+      "geometry": 3,
+      "vertices": 72,
+      "triangles": 140,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.1310216644486861
+    },
+    {
+      "geometry": 4,
+      "vertices": 72,
+      "triangles": 140,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.028692561874279723
+    },
+    {
+      "geometry": 5,
+      "vertices": 24,
+      "triangles": 44,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.06149999376386175
+    },
+    {
+      "geometry": 6,
+      "vertices": 24,
+      "triangles": 44,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.06149999376386167
+    },
+    {
+      "geometry": 7,
+      "vertices": 40,
+      "triangles": 76,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.00032431580409735125
+    },
+    {
+      "geometry": 8,
+      "vertices": 72,
+      "triangles": 140,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.014372820289230655
+    },
+    {
+      "geometry": 9,
+      "vertices": 72,
+      "triangles": 140,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.001437194592122133
+    },
+    {
+      "geometry": 10,
+      "vertices": 72,
+      "triangles": 140,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.0015018912931228899
+    },
+    {
+      "geometry": 11,
+      "vertices": 72,
+      "triangles": 140,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.025428837290348262
+    },
+    {
+      "geometry": 12,
+      "vertices": 72,
+      "triangles": 140,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.001437194592122133
+    },
+    {
+      "geometry": 13,
+      "vertices": 72,
+      "triangles": 140,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.0015018912931228899
+    },
+    {
+      "geometry": 14,
+      "vertices": 72,
+      "triangles": 140,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.025428837290348262
+    },
+    {
+      "geometry": 15,
+      "vertices": 72,
+      "triangles": 140,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.001437194592122133
+    },
+    {
+      "geometry": 16,
+      "vertices": 72,
+      "triangles": 140,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.0015018912931228899
+    },
+    {
+      "geometry": 17,
+      "vertices": 72,
+      "triangles": 140,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.025428837290348262
+    },
+    {
+      "geometry": 18,
+      "vertices": 72,
+      "triangles": 140,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.001437194592122133
+    },
+    {
+      "geometry": 19,
+      "vertices": 72,
+      "triangles": 140,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.0015018912931228899
+    },
+    {
+      "geometry": 20,
+      "vertices": 72,
+      "triangles": 140,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.025428837290348262
+    },
+    {
+      "geometry": 21,
+      "vertices": 72,
+      "triangles": 140,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.001437194592122133
+    },
+    {
+      "geometry": 22,
+      "vertices": 72,
+      "triangles": 140,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.0015018912931228899
+    },
+    {
+      "geometry": 23,
+      "vertices": 72,
+      "triangles": 140,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.025428837290348262
+    },
+    {
+      "geometry": 24,
+      "vertices": 72,
+      "triangles": 140,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.001437194592122133
+    },
+    {
+      "geometry": 25,
+      "vertices": 72,
+      "triangles": 140,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.0015018912931228899
+    },
+    {
+      "geometry": 26,
+      "vertices": 40,
+      "triangles": 76,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.0003243155584264649
+    },
+    {
+      "geometry": 27,
+      "vertices": 40,
+      "triangles": 76,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.00016016336437392123
+    },
+    {
+      "geometry": 28,
+      "vertices": 40,
+      "triangles": 76,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.0003243158451756388
+    },
+    {
+      "geometry": 29,
+      "vertices": 40,
+      "triangles": 76,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.00016016344020811655
+    },
+    {
+      "geometry": 30,
+      "vertices": 40,
+      "triangles": 76,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.00032431595679118896
+    },
+    {
+      "geometry": 31,
+      "vertices": 40,
+      "triangles": 76,
+      "boundaryEdges": 0,
+      "nonmanifoldEdges": 0,
+      "inconsistentEdges": 0,
+      "degenerateTriangles": 0,
+      "signedVolume": 0.0001601632207745508
+    }
+  ],
+  "drawer": {
+    "finitePoseCount": 5,
+    "rows": [
+      {
+        "unit": 0,
+        "travel": 0,
+        "minimumFrameGap": 0.022499999999999964,
+        "maxUnintendedIntersectionVolume": 0,
+        "support": [
+          {
+            "runner": "moving-guide-runner--0.723",
+            "guide": "fixed-guide-contact-rail--0.723-1.04",
+            "engagement": 0.59,
+            "supportGap": 0
+          },
+          {
+            "runner": "moving-guide-runner--0.047",
+            "guide": "fixed-guide-contact-rail--0.047-1.04",
+            "engagement": 0.59,
+            "supportGap": 0
+          }
+        ],
+        "rearStopGaps": [
+          5.551115123125783e-17,
+          5.551115123125783e-17
+        ],
+        "forwardStopGaps": [
+          0.23999999999999996,
+          0.23999999999999996
+        ],
+        "rootFloor": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "unit": 0.25,
+        "travel": 0.06,
+        "minimumFrameGap": 0.022499999999999964,
+        "maxUnintendedIntersectionVolume": 0,
+        "support": [
+          {
+            "runner": "moving-guide-runner--0.723",
+            "guide": "fixed-guide-contact-rail--0.723-1.04",
+            "engagement": 0.5700000000000001,
+            "supportGap": 0
+          },
+          {
+            "runner": "moving-guide-runner--0.047",
+            "guide": "fixed-guide-contact-rail--0.047-1.04",
+            "engagement": 0.5700000000000001,
+            "supportGap": 0
+          }
+        ],
+        "rearStopGaps": [
+          0.060000000000000026,
+          0.060000000000000026
+        ],
+        "forwardStopGaps": [
+          0.17999999999999997,
+          0.17999999999999997
+        ],
+        "rootFloor": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "unit": 0.5,
+        "travel": 0.12,
+        "minimumFrameGap": 0.022499999999999964,
+        "maxUnintendedIntersectionVolume": 0,
+        "support": [
+          {
+            "runner": "moving-guide-runner--0.723",
+            "guide": "fixed-guide-contact-rail--0.723-1.04",
+            "engagement": 0.51,
+            "supportGap": 0
+          },
+          {
+            "runner": "moving-guide-runner--0.047",
+            "guide": "fixed-guide-contact-rail--0.047-1.04",
+            "engagement": 0.51,
+            "supportGap": 0
+          }
+        ],
+        "rearStopGaps": [
+          0.12000000000000002,
+          0.12000000000000002
+        ],
+        "forwardStopGaps": [
+          0.11999999999999997,
+          0.11999999999999997
+        ],
+        "rootFloor": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "unit": 0.75,
+        "travel": 0.18,
+        "minimumFrameGap": 0.022499999999999964,
+        "maxUnintendedIntersectionVolume": 0,
+        "support": [
+          {
+            "runner": "moving-guide-runner--0.723",
+            "guide": "fixed-guide-contact-rail--0.723-1.04",
+            "engagement": 0.45000000000000007,
+            "supportGap": 0
+          },
+          {
+            "runner": "moving-guide-runner--0.047",
+            "guide": "fixed-guide-contact-rail--0.047-1.04",
+            "engagement": 0.45000000000000007,
+            "supportGap": 0
+          }
+        ],
+        "rearStopGaps": [
+          0.18000000000000002,
+          0.18000000000000002
+        ],
+        "forwardStopGaps": [
+          0.06,
+          0.06
+        ],
+        "rootFloor": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "unit": 1,
+        "travel": 0.24,
+        "minimumFrameGap": 0.022499999999999964,
+        "maxUnintendedIntersectionVolume": 0,
+        "support": [
+          {
+            "runner": "moving-guide-runner--0.723",
+            "guide": "fixed-guide-contact-rail--0.723-1.04",
+            "engagement": 0.39,
+            "supportGap": 0
+          },
+          {
+            "runner": "moving-guide-runner--0.047",
+            "guide": "fixed-guide-contact-rail--0.047-1.04",
+            "engagement": 0.39,
+            "supportGap": 0
+          }
+        ],
+        "rearStopGaps": [
+          0.24000000000000005,
+          0.24000000000000005
+        ],
+        "forwardStopGaps": [
+          -5.551115123125783e-17,
+          -5.551115123125783e-17
+        ],
+        "rootFloor": [
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "openTrayWitness": {
+      "clearInterior": [],
+      "bottom": [
+        "manual-tray-bottom"
+      ],
+      "front": [
+        "top-left-green-leaf-1",
+        "top-left-gold-leaf-1",
+        "top-left-cream-face-inset",
+        "top-left-gold-face-border",
+        "top-left-closed-front"
+      ],
+      "back": [
+        "manual-tray-back"
+      ],
+      "rays": {
+        "clearRay": {
+          "start": [
+            -0.385,
+            1.45,
+            0.54
+          ],
+          "end": [
+            -0.385,
+            1.06,
+            0.54
+          ]
+        },
+        "bottomRay": {
+          "start": [
+            -0.385,
+            1.45,
+            0.54
+          ],
+          "end": [
+            -0.385,
+            0.96,
+            0.54
+          ]
+        },
+        "frontRay": {
+          "start": [
+            -0.385,
+            1.13,
+            0.85
+          ],
+          "end": [
+            -0.385,
+            1.13,
+            0.62
+          ]
+        },
+        "backRay": {
+          "start": [
+            -0.385,
+            1.13,
+            0.02
+          ],
+          "end": [
+            -0.385,
+            1.13,
+            -0.1
+          ]
+        }
+      }
+    },
+    "scope": "five finite pure-translation poses; actual bounds, guide engagement, support contact, stop gaps, root soles and triangle rays; no continuous safety, real player motion, hand fit, load or friction proof",
+    "bodyBinding": null,
+    "allSixFunctional": false
+  },
+  "attachments": {
+    "epsilon": 1e-7,
+    "finitePoseCount": 2,
+    "poses": [
+      {
+        "unit": 0,
+        "partCount": 89,
+        "connectedToTopCount": 89,
+        "allPartsConnected": true,
+        "unattached": [],
+        "edges": [
+          {
+            "a": "rounded-warm-wood-top",
+            "b": "curved-cream-side--1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "curved-cream-side--1",
+            "solid": "rounded-warm-wood-top"
+          },
+          {
+            "a": "rounded-warm-wood-top",
+            "b": "curved-cream-side-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "curved-cream-side-1",
+            "solid": "rounded-warm-wood-top"
+          },
+          {
+            "a": "rounded-warm-wood-top",
+            "b": "actual-back-wall",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "actual-back-wall",
+            "solid": "rounded-warm-wood-top"
+          },
+          {
+            "a": "rounded-warm-wood-top",
+            "b": "center-divider",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "center-divider",
+            "solid": "rounded-warm-wood-top"
+          },
+          {
+            "a": "cream-rounded-lower-plinth",
+            "b": "lower-gold-trim",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "cream-rounded-lower-plinth",
+            "solid": "lower-gold-trim"
+          },
+          {
+            "a": "cream-rounded-lower-plinth",
+            "b": "round-foot--0.68--0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "round-foot--0.68--0.32",
+            "solid": "cream-rounded-lower-plinth"
+          },
+          {
+            "a": "cream-rounded-lower-plinth",
+            "b": "foot-gold-collar--0.68--0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "foot-gold-collar--0.68--0.32",
+            "solid": "cream-rounded-lower-plinth"
+          },
+          {
+            "a": "cream-rounded-lower-plinth",
+            "b": "round-foot--0.68-0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "round-foot--0.68-0.32",
+            "solid": "cream-rounded-lower-plinth"
+          },
+          {
+            "a": "cream-rounded-lower-plinth",
+            "b": "foot-gold-collar--0.68-0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "foot-gold-collar--0.68-0.32",
+            "solid": "cream-rounded-lower-plinth"
+          },
+          {
+            "a": "cream-rounded-lower-plinth",
+            "b": "round-foot-0.68--0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "round-foot-0.68--0.32",
+            "solid": "cream-rounded-lower-plinth"
+          },
+          {
+            "a": "cream-rounded-lower-plinth",
+            "b": "foot-gold-collar-0.68--0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "foot-gold-collar-0.68--0.32",
+            "solid": "cream-rounded-lower-plinth"
+          },
+          {
+            "a": "cream-rounded-lower-plinth",
+            "b": "round-foot-0.68-0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "round-foot-0.68-0.32",
+            "solid": "cream-rounded-lower-plinth"
+          },
+          {
+            "a": "cream-rounded-lower-plinth",
+            "b": "foot-gold-collar-0.68-0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "foot-gold-collar-0.68-0.32",
+            "solid": "cream-rounded-lower-plinth"
+          },
+          {
+            "a": "cream-rounded-lower-plinth",
+            "b": "bottom-left-closed-front",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-closed-front",
+            "solid": "cream-rounded-lower-plinth"
+          },
+          {
+            "a": "cream-rounded-lower-plinth",
+            "b": "bottom-right-closed-front",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-closed-front",
+            "solid": "cream-rounded-lower-plinth"
+          },
+          {
+            "a": "lower-gold-trim",
+            "b": "curved-cream-side--1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "lower-gold-trim",
+            "solid": "curved-cream-side--1"
+          },
+          {
+            "a": "lower-gold-trim",
+            "b": "curved-cream-side-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "lower-gold-trim",
+            "solid": "curved-cream-side-1"
+          },
+          {
+            "a": "lower-gold-trim",
+            "b": "actual-back-wall",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "actual-back-wall",
+            "solid": "lower-gold-trim"
+          },
+          {
+            "a": "lower-gold-trim",
+            "b": "center-divider",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "center-divider",
+            "solid": "lower-gold-trim"
+          },
+          {
+            "a": "lower-gold-trim",
+            "b": "bottom-left-closed-front",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-closed-front",
+            "solid": "lower-gold-trim"
+          },
+          {
+            "a": "lower-gold-trim",
+            "b": "bottom-right-closed-front",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-closed-front",
+            "solid": "lower-gold-trim"
+          },
+          {
+            "a": "curved-cream-side--1",
+            "b": "actual-back-wall",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "curved-cream-side--1",
+            "solid": "actual-back-wall"
+          },
+          {
+            "a": "curved-cream-side--1",
+            "b": "actual-horizontal-bay-divider-0.595",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "actual-horizontal-bay-divider-0.595",
+            "solid": "curved-cream-side--1"
+          },
+          {
+            "a": "curved-cream-side--1",
+            "b": "actual-horizontal-bay-divider-0.955",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "curved-cream-side--1",
+            "solid": "actual-horizontal-bay-divider-0.955"
+          },
+          {
+            "a": "curved-cream-side--1",
+            "b": "middle-left-closed-front",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "curved-cream-side--1",
+            "solid": "middle-left-closed-front"
+          },
+          {
+            "a": "curved-cream-side--1",
+            "b": "fixed-guide-side-web--0.723",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "fixed-guide-side-web--0.723",
+            "solid": "curved-cream-side--1"
+          },
+          {
+            "a": "curved-cream-side-1",
+            "b": "actual-back-wall",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "curved-cream-side-1",
+            "solid": "actual-back-wall"
+          },
+          {
+            "a": "curved-cream-side-1",
+            "b": "actual-horizontal-bay-divider-0.595",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "actual-horizontal-bay-divider-0.595",
+            "solid": "curved-cream-side-1"
+          },
+          {
+            "a": "curved-cream-side-1",
+            "b": "actual-horizontal-bay-divider-0.955",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "curved-cream-side-1",
+            "solid": "actual-horizontal-bay-divider-0.955"
+          },
+          {
+            "a": "curved-cream-side-1",
+            "b": "middle-right-closed-front",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "curved-cream-side-1",
+            "solid": "middle-right-closed-front"
+          },
+          {
+            "a": "curved-cream-side-1",
+            "b": "right-side-gold-leaf-0",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "right-side-gold-leaf-0",
+            "solid": "curved-cream-side-1"
+          },
+          {
+            "a": "curved-cream-side-1",
+            "b": "right-side-gold-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "right-side-gold-leaf-1",
+            "solid": "curved-cream-side-1"
+          },
+          {
+            "a": "curved-cream-side-1",
+            "b": "right-side-gold-leaf-2",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "right-side-gold-leaf-2",
+            "solid": "curved-cream-side-1"
+          },
+          {
+            "a": "actual-back-wall",
+            "b": "center-divider",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "center-divider",
+            "solid": "actual-back-wall"
+          },
+          {
+            "a": "actual-back-wall",
+            "b": "actual-horizontal-bay-divider-0.595",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "actual-horizontal-bay-divider-0.595",
+            "solid": "actual-back-wall"
+          },
+          {
+            "a": "actual-back-wall",
+            "b": "actual-horizontal-bay-divider-0.955",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "actual-horizontal-bay-divider-0.955",
+            "solid": "actual-back-wall"
+          },
+          {
+            "a": "center-divider",
+            "b": "actual-horizontal-bay-divider-0.595",
+            "method": "actual-triangle-edge-face"
+          },
+          {
+            "a": "center-divider",
+            "b": "actual-horizontal-bay-divider-0.955",
+            "method": "actual-triangle-edge-face"
+          },
+          {
+            "a": "center-divider",
+            "b": "top-right-closed-front",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "top-right-closed-front",
+            "solid": "center-divider"
+          },
+          {
+            "a": "center-divider",
+            "b": "middle-left-closed-front",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "middle-left-closed-front",
+            "solid": "center-divider"
+          },
+          {
+            "a": "center-divider",
+            "b": "middle-right-closed-front",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "middle-right-closed-front",
+            "solid": "center-divider"
+          },
+          {
+            "a": "center-divider",
+            "b": "bottom-left-closed-front",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "bottom-left-closed-front",
+            "solid": "center-divider"
+          },
+          {
+            "a": "center-divider",
+            "b": "bottom-right-closed-front",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "bottom-right-closed-front",
+            "solid": "center-divider"
+          },
+          {
+            "a": "center-divider",
+            "b": "fixed-guide-side-web--0.047",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "fixed-guide-side-web--0.047",
+            "solid": "center-divider"
+          },
+          {
+            "a": "actual-horizontal-bay-divider-0.595",
+            "b": "bottom-left-closed-front",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-closed-front",
+            "solid": "actual-horizontal-bay-divider-0.595"
+          },
+          {
+            "a": "actual-horizontal-bay-divider-0.595",
+            "b": "bottom-right-closed-front",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-closed-front",
+            "solid": "actual-horizontal-bay-divider-0.595"
+          },
+          {
+            "a": "actual-horizontal-bay-divider-0.955",
+            "b": "top-right-closed-front",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "top-right-closed-front",
+            "solid": "actual-horizontal-bay-divider-0.955"
+          },
+          {
+            "a": "actual-horizontal-bay-divider-0.955",
+            "b": "middle-left-closed-front",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "middle-left-closed-front",
+            "solid": "actual-horizontal-bay-divider-0.955"
+          },
+          {
+            "a": "actual-horizontal-bay-divider-0.955",
+            "b": "middle-right-closed-front",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "middle-right-closed-front",
+            "solid": "actual-horizontal-bay-divider-0.955"
+          },
+          {
+            "a": "actual-horizontal-bay-divider-0.955",
+            "b": "fixed-forward-travel-stop--0.69",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "fixed-forward-travel-stop--0.69",
+            "solid": "actual-horizontal-bay-divider-0.955"
+          },
+          {
+            "a": "actual-horizontal-bay-divider-0.955",
+            "b": "fixed-forward-travel-stop--0.08",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "fixed-forward-travel-stop--0.08",
+            "solid": "actual-horizontal-bay-divider-0.955"
+          },
+          {
+            "a": "round-foot--0.68--0.32",
+            "b": "foot-gold-collar--0.68--0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "round-foot--0.68--0.32",
+            "solid": "foot-gold-collar--0.68--0.32"
+          },
+          {
+            "a": "round-foot--0.68-0.32",
+            "b": "foot-gold-collar--0.68-0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "round-foot--0.68-0.32",
+            "solid": "foot-gold-collar--0.68-0.32"
+          },
+          {
+            "a": "round-foot-0.68--0.32",
+            "b": "foot-gold-collar-0.68--0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "round-foot-0.68--0.32",
+            "solid": "foot-gold-collar-0.68--0.32"
+          },
+          {
+            "a": "round-foot-0.68-0.32",
+            "b": "foot-gold-collar-0.68-0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "round-foot-0.68-0.32",
+            "solid": "foot-gold-collar-0.68-0.32"
+          },
+          {
+            "a": "top-left-closed-front",
+            "b": "top-left-gold-face-border",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "top-left-gold-face-border",
+            "solid": "top-left-closed-front"
+          },
+          {
+            "a": "top-left-closed-front",
+            "b": "manual-tray-bottom",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-bottom",
+            "solid": "top-left-closed-front"
+          },
+          {
+            "a": "top-left-closed-front",
+            "b": "manual-tray-side--0.703",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-side--0.703",
+            "solid": "top-left-closed-front"
+          },
+          {
+            "a": "top-left-closed-front",
+            "b": "manual-tray-side--0.067",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-side--0.067",
+            "solid": "top-left-closed-front"
+          },
+          {
+            "a": "top-left-gold-face-border",
+            "b": "top-left-cream-face-inset",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-left-cream-face-inset",
+            "solid": "top-left-gold-face-border"
+          },
+          {
+            "a": "top-left-cream-face-inset",
+            "b": "top-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-left-round-gold-pull",
+            "solid": "top-left-cream-face-inset"
+          },
+          {
+            "a": "top-left-gold-leaf--1",
+            "b": "top-left-green-leaf--1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-left-green-leaf--1",
+            "solid": "top-left-gold-leaf--1"
+          },
+          {
+            "a": "top-left-gold-leaf--1",
+            "b": "top-left-gold-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "top-left-gold-leaf--1",
+            "solid": "top-left-gold-leaf-1"
+          },
+          {
+            "a": "top-left-gold-leaf--1",
+            "b": "top-left-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-left-gold-leaf--1",
+            "solid": "top-left-green-leaf-1"
+          },
+          {
+            "a": "top-left-gold-leaf--1",
+            "b": "top-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-left-gold-leaf--1",
+            "solid": "top-left-round-gold-pull"
+          },
+          {
+            "a": "top-left-green-leaf--1",
+            "b": "top-left-gold-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-left-green-leaf--1",
+            "solid": "top-left-gold-leaf-1"
+          },
+          {
+            "a": "top-left-green-leaf--1",
+            "b": "top-left-green-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "top-left-green-leaf--1",
+            "solid": "top-left-green-leaf-1"
+          },
+          {
+            "a": "top-left-green-leaf--1",
+            "b": "top-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-left-green-leaf--1",
+            "solid": "top-left-round-gold-pull"
+          },
+          {
+            "a": "top-left-gold-leaf-1",
+            "b": "top-left-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-left-green-leaf-1",
+            "solid": "top-left-gold-leaf-1"
+          },
+          {
+            "a": "top-left-gold-leaf-1",
+            "b": "top-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-left-gold-leaf-1",
+            "solid": "top-left-round-gold-pull"
+          },
+          {
+            "a": "top-left-green-leaf-1",
+            "b": "top-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-left-green-leaf-1",
+            "solid": "top-left-round-gold-pull"
+          },
+          {
+            "a": "top-right-closed-front",
+            "b": "top-right-gold-face-border",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "top-right-gold-face-border",
+            "solid": "top-right-closed-front"
+          },
+          {
+            "a": "top-right-gold-face-border",
+            "b": "top-right-cream-face-inset",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-right-cream-face-inset",
+            "solid": "top-right-gold-face-border"
+          },
+          {
+            "a": "top-right-cream-face-inset",
+            "b": "top-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-right-round-gold-pull",
+            "solid": "top-right-cream-face-inset"
+          },
+          {
+            "a": "top-right-gold-leaf--1",
+            "b": "top-right-green-leaf--1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-right-green-leaf--1",
+            "solid": "top-right-gold-leaf--1"
+          },
+          {
+            "a": "top-right-gold-leaf--1",
+            "b": "top-right-gold-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "top-right-gold-leaf--1",
+            "solid": "top-right-gold-leaf-1"
+          },
+          {
+            "a": "top-right-gold-leaf--1",
+            "b": "top-right-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-right-gold-leaf--1",
+            "solid": "top-right-green-leaf-1"
+          },
+          {
+            "a": "top-right-gold-leaf--1",
+            "b": "top-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-right-gold-leaf--1",
+            "solid": "top-right-round-gold-pull"
+          },
+          {
+            "a": "top-right-green-leaf--1",
+            "b": "top-right-gold-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-right-green-leaf--1",
+            "solid": "top-right-gold-leaf-1"
+          },
+          {
+            "a": "top-right-green-leaf--1",
+            "b": "top-right-green-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "top-right-green-leaf--1",
+            "solid": "top-right-green-leaf-1"
+          },
+          {
+            "a": "top-right-green-leaf--1",
+            "b": "top-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-right-green-leaf--1",
+            "solid": "top-right-round-gold-pull"
+          },
+          {
+            "a": "top-right-gold-leaf-1",
+            "b": "top-right-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-right-green-leaf-1",
+            "solid": "top-right-gold-leaf-1"
+          },
+          {
+            "a": "top-right-gold-leaf-1",
+            "b": "top-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-right-gold-leaf-1",
+            "solid": "top-right-round-gold-pull"
+          },
+          {
+            "a": "top-right-green-leaf-1",
+            "b": "top-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-right-green-leaf-1",
+            "solid": "top-right-round-gold-pull"
+          },
+          {
+            "a": "middle-left-closed-front",
+            "b": "middle-left-gold-face-border",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "middle-left-gold-face-border",
+            "solid": "middle-left-closed-front"
+          },
+          {
+            "a": "middle-left-gold-face-border",
+            "b": "middle-left-cream-face-inset",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-left-cream-face-inset",
+            "solid": "middle-left-gold-face-border"
+          },
+          {
+            "a": "middle-left-cream-face-inset",
+            "b": "middle-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-left-round-gold-pull",
+            "solid": "middle-left-cream-face-inset"
+          },
+          {
+            "a": "middle-left-gold-leaf--1",
+            "b": "middle-left-green-leaf--1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-left-green-leaf--1",
+            "solid": "middle-left-gold-leaf--1"
+          },
+          {
+            "a": "middle-left-gold-leaf--1",
+            "b": "middle-left-gold-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "middle-left-gold-leaf--1",
+            "solid": "middle-left-gold-leaf-1"
+          },
+          {
+            "a": "middle-left-gold-leaf--1",
+            "b": "middle-left-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-left-gold-leaf--1",
+            "solid": "middle-left-green-leaf-1"
+          },
+          {
+            "a": "middle-left-gold-leaf--1",
+            "b": "middle-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-left-gold-leaf--1",
+            "solid": "middle-left-round-gold-pull"
+          },
+          {
+            "a": "middle-left-green-leaf--1",
+            "b": "middle-left-gold-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-left-green-leaf--1",
+            "solid": "middle-left-gold-leaf-1"
+          },
+          {
+            "a": "middle-left-green-leaf--1",
+            "b": "middle-left-green-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "middle-left-green-leaf--1",
+            "solid": "middle-left-green-leaf-1"
+          },
+          {
+            "a": "middle-left-green-leaf--1",
+            "b": "middle-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-left-green-leaf--1",
+            "solid": "middle-left-round-gold-pull"
+          },
+          {
+            "a": "middle-left-gold-leaf-1",
+            "b": "middle-left-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-left-green-leaf-1",
+            "solid": "middle-left-gold-leaf-1"
+          },
+          {
+            "a": "middle-left-gold-leaf-1",
+            "b": "middle-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-left-gold-leaf-1",
+            "solid": "middle-left-round-gold-pull"
+          },
+          {
+            "a": "middle-left-green-leaf-1",
+            "b": "middle-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-left-green-leaf-1",
+            "solid": "middle-left-round-gold-pull"
+          },
+          {
+            "a": "middle-right-closed-front",
+            "b": "middle-right-gold-face-border",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "middle-right-gold-face-border",
+            "solid": "middle-right-closed-front"
+          },
+          {
+            "a": "middle-right-gold-face-border",
+            "b": "middle-right-cream-face-inset",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-right-cream-face-inset",
+            "solid": "middle-right-gold-face-border"
+          },
+          {
+            "a": "middle-right-cream-face-inset",
+            "b": "middle-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-right-round-gold-pull",
+            "solid": "middle-right-cream-face-inset"
+          },
+          {
+            "a": "middle-right-gold-leaf--1",
+            "b": "middle-right-green-leaf--1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-right-green-leaf--1",
+            "solid": "middle-right-gold-leaf--1"
+          },
+          {
+            "a": "middle-right-gold-leaf--1",
+            "b": "middle-right-gold-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "middle-right-gold-leaf--1",
+            "solid": "middle-right-gold-leaf-1"
+          },
+          {
+            "a": "middle-right-gold-leaf--1",
+            "b": "middle-right-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-right-gold-leaf--1",
+            "solid": "middle-right-green-leaf-1"
+          },
+          {
+            "a": "middle-right-gold-leaf--1",
+            "b": "middle-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-right-gold-leaf--1",
+            "solid": "middle-right-round-gold-pull"
+          },
+          {
+            "a": "middle-right-green-leaf--1",
+            "b": "middle-right-gold-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-right-green-leaf--1",
+            "solid": "middle-right-gold-leaf-1"
+          },
+          {
+            "a": "middle-right-green-leaf--1",
+            "b": "middle-right-green-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "middle-right-green-leaf--1",
+            "solid": "middle-right-green-leaf-1"
+          },
+          {
+            "a": "middle-right-green-leaf--1",
+            "b": "middle-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-right-green-leaf--1",
+            "solid": "middle-right-round-gold-pull"
+          },
+          {
+            "a": "middle-right-gold-leaf-1",
+            "b": "middle-right-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-right-green-leaf-1",
+            "solid": "middle-right-gold-leaf-1"
+          },
+          {
+            "a": "middle-right-gold-leaf-1",
+            "b": "middle-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-right-gold-leaf-1",
+            "solid": "middle-right-round-gold-pull"
+          },
+          {
+            "a": "middle-right-green-leaf-1",
+            "b": "middle-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-right-green-leaf-1",
+            "solid": "middle-right-round-gold-pull"
+          },
+          {
+            "a": "bottom-left-closed-front",
+            "b": "bottom-left-gold-face-border",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "bottom-left-gold-face-border",
+            "solid": "bottom-left-closed-front"
+          },
+          {
+            "a": "bottom-left-gold-face-border",
+            "b": "bottom-left-cream-face-inset",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-cream-face-inset",
+            "solid": "bottom-left-gold-face-border"
+          },
+          {
+            "a": "bottom-left-cream-face-inset",
+            "b": "bottom-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-round-gold-pull",
+            "solid": "bottom-left-cream-face-inset"
+          },
+          {
+            "a": "bottom-left-gold-leaf--1",
+            "b": "bottom-left-green-leaf--1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-green-leaf--1",
+            "solid": "bottom-left-gold-leaf--1"
+          },
+          {
+            "a": "bottom-left-gold-leaf--1",
+            "b": "bottom-left-gold-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "bottom-left-gold-leaf--1",
+            "solid": "bottom-left-gold-leaf-1"
+          },
+          {
+            "a": "bottom-left-gold-leaf--1",
+            "b": "bottom-left-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-gold-leaf--1",
+            "solid": "bottom-left-green-leaf-1"
+          },
+          {
+            "a": "bottom-left-gold-leaf--1",
+            "b": "bottom-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-gold-leaf--1",
+            "solid": "bottom-left-round-gold-pull"
+          },
+          {
+            "a": "bottom-left-green-leaf--1",
+            "b": "bottom-left-gold-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-green-leaf--1",
+            "solid": "bottom-left-gold-leaf-1"
+          },
+          {
+            "a": "bottom-left-green-leaf--1",
+            "b": "bottom-left-green-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "bottom-left-green-leaf--1",
+            "solid": "bottom-left-green-leaf-1"
+          },
+          {
+            "a": "bottom-left-green-leaf--1",
+            "b": "bottom-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-green-leaf--1",
+            "solid": "bottom-left-round-gold-pull"
+          },
+          {
+            "a": "bottom-left-gold-leaf-1",
+            "b": "bottom-left-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-green-leaf-1",
+            "solid": "bottom-left-gold-leaf-1"
+          },
+          {
+            "a": "bottom-left-gold-leaf-1",
+            "b": "bottom-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-gold-leaf-1",
+            "solid": "bottom-left-round-gold-pull"
+          },
+          {
+            "a": "bottom-left-green-leaf-1",
+            "b": "bottom-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-green-leaf-1",
+            "solid": "bottom-left-round-gold-pull"
+          },
+          {
+            "a": "bottom-right-closed-front",
+            "b": "bottom-right-gold-face-border",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "bottom-right-gold-face-border",
+            "solid": "bottom-right-closed-front"
+          },
+          {
+            "a": "bottom-right-gold-face-border",
+            "b": "bottom-right-cream-face-inset",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-cream-face-inset",
+            "solid": "bottom-right-gold-face-border"
+          },
+          {
+            "a": "bottom-right-cream-face-inset",
+            "b": "bottom-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-round-gold-pull",
+            "solid": "bottom-right-cream-face-inset"
+          },
+          {
+            "a": "bottom-right-gold-leaf--1",
+            "b": "bottom-right-green-leaf--1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-green-leaf--1",
+            "solid": "bottom-right-gold-leaf--1"
+          },
+          {
+            "a": "bottom-right-gold-leaf--1",
+            "b": "bottom-right-gold-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "bottom-right-gold-leaf--1",
+            "solid": "bottom-right-gold-leaf-1"
+          },
+          {
+            "a": "bottom-right-gold-leaf--1",
+            "b": "bottom-right-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-gold-leaf--1",
+            "solid": "bottom-right-green-leaf-1"
+          },
+          {
+            "a": "bottom-right-gold-leaf--1",
+            "b": "bottom-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-gold-leaf--1",
+            "solid": "bottom-right-round-gold-pull"
+          },
+          {
+            "a": "bottom-right-green-leaf--1",
+            "b": "bottom-right-gold-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-green-leaf--1",
+            "solid": "bottom-right-gold-leaf-1"
+          },
+          {
+            "a": "bottom-right-green-leaf--1",
+            "b": "bottom-right-green-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "bottom-right-green-leaf--1",
+            "solid": "bottom-right-green-leaf-1"
+          },
+          {
+            "a": "bottom-right-green-leaf--1",
+            "b": "bottom-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-green-leaf--1",
+            "solid": "bottom-right-round-gold-pull"
+          },
+          {
+            "a": "bottom-right-gold-leaf-1",
+            "b": "bottom-right-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-green-leaf-1",
+            "solid": "bottom-right-gold-leaf-1"
+          },
+          {
+            "a": "bottom-right-gold-leaf-1",
+            "b": "bottom-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-gold-leaf-1",
+            "solid": "bottom-right-round-gold-pull"
+          },
+          {
+            "a": "bottom-right-green-leaf-1",
+            "b": "bottom-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-green-leaf-1",
+            "solid": "bottom-right-round-gold-pull"
+          },
+          {
+            "a": "manual-tray-bottom",
+            "b": "manual-tray-side--0.703",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-bottom",
+            "solid": "manual-tray-side--0.703"
+          },
+          {
+            "a": "manual-tray-bottom",
+            "b": "manual-tray-side--0.067",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-bottom",
+            "solid": "manual-tray-side--0.067"
+          },
+          {
+            "a": "manual-tray-bottom",
+            "b": "manual-tray-back",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-back",
+            "solid": "manual-tray-bottom"
+          },
+          {
+            "a": "manual-tray-bottom",
+            "b": "fixed-guide-contact-rail--0.723-1.04",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-bottom",
+            "solid": "fixed-guide-contact-rail--0.723-1.04"
+          },
+          {
+            "a": "manual-tray-bottom",
+            "b": "fixed-guide-contact-rail--0.047-1.04",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-bottom",
+            "solid": "fixed-guide-contact-rail--0.047-1.04"
+          },
+          {
+            "a": "manual-tray-bottom",
+            "b": "moving-undertray-travel-tab--0.69",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-undertray-travel-tab--0.69",
+            "solid": "manual-tray-bottom"
+          },
+          {
+            "a": "manual-tray-bottom",
+            "b": "fixed-forward-travel-stop--0.69",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "fixed-forward-travel-stop--0.69",
+            "solid": "manual-tray-bottom"
+          },
+          {
+            "a": "manual-tray-bottom",
+            "b": "moving-undertray-travel-tab--0.08",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-undertray-travel-tab--0.08",
+            "solid": "manual-tray-bottom"
+          },
+          {
+            "a": "manual-tray-bottom",
+            "b": "fixed-forward-travel-stop--0.08",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "fixed-forward-travel-stop--0.08",
+            "solid": "manual-tray-bottom"
+          },
+          {
+            "a": "manual-tray-side--0.703",
+            "b": "manual-tray-back",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-side--0.703",
+            "solid": "manual-tray-back"
+          },
+          {
+            "a": "manual-tray-side--0.703",
+            "b": "moving-guide-runner--0.723",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-guide-runner--0.723",
+            "solid": "manual-tray-side--0.703"
+          },
+          {
+            "a": "manual-tray-side--0.703",
+            "b": "fixed-guide-contact-rail--0.723-1.04",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-side--0.703",
+            "solid": "fixed-guide-contact-rail--0.723-1.04"
+          },
+          {
+            "a": "manual-tray-side--0.703",
+            "b": "fixed-guide-contact-rail--0.723-1.09",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "fixed-guide-contact-rail--0.723-1.09",
+            "solid": "manual-tray-side--0.703"
+          },
+          {
+            "a": "manual-tray-side--0.703",
+            "b": "closed-rear-guide-stop--0.723",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "closed-rear-guide-stop--0.723",
+            "solid": "manual-tray-side--0.703"
+          },
+          {
+            "a": "manual-tray-side--0.067",
+            "b": "manual-tray-back",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-side--0.067",
+            "solid": "manual-tray-back"
+          },
+          {
+            "a": "manual-tray-side--0.067",
+            "b": "moving-guide-runner--0.047",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-guide-runner--0.047",
+            "solid": "manual-tray-side--0.067"
+          },
+          {
+            "a": "manual-tray-side--0.067",
+            "b": "fixed-guide-contact-rail--0.047-1.04",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-side--0.067",
+            "solid": "fixed-guide-contact-rail--0.047-1.04"
+          },
+          {
+            "a": "manual-tray-side--0.067",
+            "b": "fixed-guide-contact-rail--0.047-1.09",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "fixed-guide-contact-rail--0.047-1.09",
+            "solid": "manual-tray-side--0.067"
+          },
+          {
+            "a": "manual-tray-side--0.067",
+            "b": "closed-rear-guide-stop--0.047",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "closed-rear-guide-stop--0.047",
+            "solid": "manual-tray-side--0.067"
+          },
+          {
+            "a": "moving-guide-runner--0.723",
+            "b": "fixed-guide-contact-rail--0.723-1.04",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-guide-runner--0.723",
+            "solid": "fixed-guide-contact-rail--0.723-1.04"
+          },
+          {
+            "a": "moving-guide-runner--0.723",
+            "b": "fixed-guide-contact-rail--0.723-1.09",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-guide-runner--0.723",
+            "solid": "fixed-guide-contact-rail--0.723-1.09"
+          },
+          {
+            "a": "moving-guide-runner--0.723",
+            "b": "fixed-guide-side-web--0.723",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-guide-runner--0.723",
+            "solid": "fixed-guide-side-web--0.723"
+          },
+          {
+            "a": "moving-guide-runner--0.723",
+            "b": "closed-rear-guide-stop--0.723",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-guide-runner--0.723",
+            "solid": "closed-rear-guide-stop--0.723"
+          },
+          {
+            "a": "fixed-guide-contact-rail--0.723-1.04",
+            "b": "fixed-guide-side-web--0.723",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "fixed-guide-contact-rail--0.723-1.04",
+            "solid": "fixed-guide-side-web--0.723"
+          },
+          {
+            "a": "fixed-guide-contact-rail--0.723-1.04",
+            "b": "closed-rear-guide-stop--0.723",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "closed-rear-guide-stop--0.723",
+            "solid": "fixed-guide-contact-rail--0.723-1.04"
+          },
+          {
+            "a": "fixed-guide-contact-rail--0.723-1.09",
+            "b": "fixed-guide-side-web--0.723",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "fixed-guide-contact-rail--0.723-1.09",
+            "solid": "fixed-guide-side-web--0.723"
+          },
+          {
+            "a": "fixed-guide-contact-rail--0.723-1.09",
+            "b": "closed-rear-guide-stop--0.723",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "closed-rear-guide-stop--0.723",
+            "solid": "fixed-guide-contact-rail--0.723-1.09"
+          },
+          {
+            "a": "fixed-guide-side-web--0.723",
+            "b": "closed-rear-guide-stop--0.723",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "closed-rear-guide-stop--0.723",
+            "solid": "fixed-guide-side-web--0.723"
+          },
+          {
+            "a": "moving-guide-runner--0.047",
+            "b": "fixed-guide-contact-rail--0.047-1.04",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-guide-runner--0.047",
+            "solid": "fixed-guide-contact-rail--0.047-1.04"
+          },
+          {
+            "a": "moving-guide-runner--0.047",
+            "b": "fixed-guide-contact-rail--0.047-1.09",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-guide-runner--0.047",
+            "solid": "fixed-guide-contact-rail--0.047-1.09"
+          },
+          {
+            "a": "moving-guide-runner--0.047",
+            "b": "fixed-guide-side-web--0.047",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-guide-runner--0.047",
+            "solid": "fixed-guide-side-web--0.047"
+          },
+          {
+            "a": "moving-guide-runner--0.047",
+            "b": "closed-rear-guide-stop--0.047",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-guide-runner--0.047",
+            "solid": "closed-rear-guide-stop--0.047"
+          },
+          {
+            "a": "fixed-guide-contact-rail--0.047-1.04",
+            "b": "fixed-guide-side-web--0.047",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "fixed-guide-contact-rail--0.047-1.04",
+            "solid": "fixed-guide-side-web--0.047"
+          },
+          {
+            "a": "fixed-guide-contact-rail--0.047-1.04",
+            "b": "closed-rear-guide-stop--0.047",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "closed-rear-guide-stop--0.047",
+            "solid": "fixed-guide-contact-rail--0.047-1.04"
+          },
+          {
+            "a": "fixed-guide-contact-rail--0.047-1.09",
+            "b": "fixed-guide-side-web--0.047",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "fixed-guide-contact-rail--0.047-1.09",
+            "solid": "fixed-guide-side-web--0.047"
+          },
+          {
+            "a": "fixed-guide-contact-rail--0.047-1.09",
+            "b": "closed-rear-guide-stop--0.047",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "closed-rear-guide-stop--0.047",
+            "solid": "fixed-guide-contact-rail--0.047-1.09"
+          },
+          {
+            "a": "fixed-guide-side-web--0.047",
+            "b": "closed-rear-guide-stop--0.047",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "closed-rear-guide-stop--0.047",
+            "solid": "fixed-guide-side-web--0.047"
+          },
+          {
+            "a": "right-side-gold-leaf-0",
+            "b": "right-side-green-leaf-0",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "right-side-green-leaf-0",
+            "solid": "right-side-gold-leaf-0"
+          },
+          {
+            "a": "right-side-gold-leaf-1",
+            "b": "right-side-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "right-side-green-leaf-1",
+            "solid": "right-side-gold-leaf-1"
+          },
+          {
+            "a": "right-side-gold-leaf-2",
+            "b": "right-side-green-leaf-2",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "right-side-green-leaf-2",
+            "solid": "right-side-gold-leaf-2"
+          }
+        ],
+        "flourishes": [
+          {
+            "gold": "right-side-gold-leaf-0",
+            "green": "right-side-green-leaf-0",
+            "goldTouchesActualSide": true,
+            "greenTouchesGold": true,
+            "goldContacts": [
+              "curved-cream-side-1",
+              "right-side-green-leaf-0"
+            ],
+            "greenContacts": [
+              "right-side-gold-leaf-0"
+            ]
+          },
+          {
+            "gold": "right-side-gold-leaf-1",
+            "green": "right-side-green-leaf-1",
+            "goldTouchesActualSide": true,
+            "greenTouchesGold": true,
+            "goldContacts": [
+              "curved-cream-side-1",
+              "right-side-green-leaf-1"
+            ],
+            "greenContacts": [
+              "right-side-gold-leaf-1"
+            ]
+          },
+          {
+            "gold": "right-side-gold-leaf-2",
+            "green": "right-side-green-leaf-2",
+            "goldTouchesActualSide": true,
+            "greenTouchesGold": true,
+            "goldContacts": [
+              "curved-cream-side-1",
+              "right-side-green-leaf-2"
+            ],
+            "greenContacts": [
+              "right-side-gold-leaf-2"
+            ]
+          }
+        ]
+      },
+      {
+        "unit": 1,
+        "partCount": 89,
+        "connectedToTopCount": 89,
+        "allPartsConnected": true,
+        "unattached": [],
+        "edges": [
+          {
+            "a": "rounded-warm-wood-top",
+            "b": "curved-cream-side--1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "curved-cream-side--1",
+            "solid": "rounded-warm-wood-top"
+          },
+          {
+            "a": "rounded-warm-wood-top",
+            "b": "curved-cream-side-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "curved-cream-side-1",
+            "solid": "rounded-warm-wood-top"
+          },
+          {
+            "a": "rounded-warm-wood-top",
+            "b": "actual-back-wall",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "actual-back-wall",
+            "solid": "rounded-warm-wood-top"
+          },
+          {
+            "a": "rounded-warm-wood-top",
+            "b": "center-divider",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "center-divider",
+            "solid": "rounded-warm-wood-top"
+          },
+          {
+            "a": "cream-rounded-lower-plinth",
+            "b": "lower-gold-trim",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "cream-rounded-lower-plinth",
+            "solid": "lower-gold-trim"
+          },
+          {
+            "a": "cream-rounded-lower-plinth",
+            "b": "round-foot--0.68--0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "round-foot--0.68--0.32",
+            "solid": "cream-rounded-lower-plinth"
+          },
+          {
+            "a": "cream-rounded-lower-plinth",
+            "b": "foot-gold-collar--0.68--0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "foot-gold-collar--0.68--0.32",
+            "solid": "cream-rounded-lower-plinth"
+          },
+          {
+            "a": "cream-rounded-lower-plinth",
+            "b": "round-foot--0.68-0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "round-foot--0.68-0.32",
+            "solid": "cream-rounded-lower-plinth"
+          },
+          {
+            "a": "cream-rounded-lower-plinth",
+            "b": "foot-gold-collar--0.68-0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "foot-gold-collar--0.68-0.32",
+            "solid": "cream-rounded-lower-plinth"
+          },
+          {
+            "a": "cream-rounded-lower-plinth",
+            "b": "round-foot-0.68--0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "round-foot-0.68--0.32",
+            "solid": "cream-rounded-lower-plinth"
+          },
+          {
+            "a": "cream-rounded-lower-plinth",
+            "b": "foot-gold-collar-0.68--0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "foot-gold-collar-0.68--0.32",
+            "solid": "cream-rounded-lower-plinth"
+          },
+          {
+            "a": "cream-rounded-lower-plinth",
+            "b": "round-foot-0.68-0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "round-foot-0.68-0.32",
+            "solid": "cream-rounded-lower-plinth"
+          },
+          {
+            "a": "cream-rounded-lower-plinth",
+            "b": "foot-gold-collar-0.68-0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "foot-gold-collar-0.68-0.32",
+            "solid": "cream-rounded-lower-plinth"
+          },
+          {
+            "a": "cream-rounded-lower-plinth",
+            "b": "bottom-left-closed-front",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-closed-front",
+            "solid": "cream-rounded-lower-plinth"
+          },
+          {
+            "a": "cream-rounded-lower-plinth",
+            "b": "bottom-right-closed-front",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-closed-front",
+            "solid": "cream-rounded-lower-plinth"
+          },
+          {
+            "a": "lower-gold-trim",
+            "b": "curved-cream-side--1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "lower-gold-trim",
+            "solid": "curved-cream-side--1"
+          },
+          {
+            "a": "lower-gold-trim",
+            "b": "curved-cream-side-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "lower-gold-trim",
+            "solid": "curved-cream-side-1"
+          },
+          {
+            "a": "lower-gold-trim",
+            "b": "actual-back-wall",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "actual-back-wall",
+            "solid": "lower-gold-trim"
+          },
+          {
+            "a": "lower-gold-trim",
+            "b": "center-divider",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "center-divider",
+            "solid": "lower-gold-trim"
+          },
+          {
+            "a": "lower-gold-trim",
+            "b": "bottom-left-closed-front",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-closed-front",
+            "solid": "lower-gold-trim"
+          },
+          {
+            "a": "lower-gold-trim",
+            "b": "bottom-right-closed-front",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-closed-front",
+            "solid": "lower-gold-trim"
+          },
+          {
+            "a": "curved-cream-side--1",
+            "b": "actual-back-wall",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "curved-cream-side--1",
+            "solid": "actual-back-wall"
+          },
+          {
+            "a": "curved-cream-side--1",
+            "b": "actual-horizontal-bay-divider-0.595",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "actual-horizontal-bay-divider-0.595",
+            "solid": "curved-cream-side--1"
+          },
+          {
+            "a": "curved-cream-side--1",
+            "b": "actual-horizontal-bay-divider-0.955",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "curved-cream-side--1",
+            "solid": "actual-horizontal-bay-divider-0.955"
+          },
+          {
+            "a": "curved-cream-side--1",
+            "b": "middle-left-closed-front",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "curved-cream-side--1",
+            "solid": "middle-left-closed-front"
+          },
+          {
+            "a": "curved-cream-side--1",
+            "b": "fixed-guide-side-web--0.723",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "fixed-guide-side-web--0.723",
+            "solid": "curved-cream-side--1"
+          },
+          {
+            "a": "curved-cream-side-1",
+            "b": "actual-back-wall",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "curved-cream-side-1",
+            "solid": "actual-back-wall"
+          },
+          {
+            "a": "curved-cream-side-1",
+            "b": "actual-horizontal-bay-divider-0.595",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "actual-horizontal-bay-divider-0.595",
+            "solid": "curved-cream-side-1"
+          },
+          {
+            "a": "curved-cream-side-1",
+            "b": "actual-horizontal-bay-divider-0.955",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "curved-cream-side-1",
+            "solid": "actual-horizontal-bay-divider-0.955"
+          },
+          {
+            "a": "curved-cream-side-1",
+            "b": "middle-right-closed-front",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "curved-cream-side-1",
+            "solid": "middle-right-closed-front"
+          },
+          {
+            "a": "curved-cream-side-1",
+            "b": "right-side-gold-leaf-0",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "right-side-gold-leaf-0",
+            "solid": "curved-cream-side-1"
+          },
+          {
+            "a": "curved-cream-side-1",
+            "b": "right-side-gold-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "right-side-gold-leaf-1",
+            "solid": "curved-cream-side-1"
+          },
+          {
+            "a": "curved-cream-side-1",
+            "b": "right-side-gold-leaf-2",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "right-side-gold-leaf-2",
+            "solid": "curved-cream-side-1"
+          },
+          {
+            "a": "actual-back-wall",
+            "b": "center-divider",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "center-divider",
+            "solid": "actual-back-wall"
+          },
+          {
+            "a": "actual-back-wall",
+            "b": "actual-horizontal-bay-divider-0.595",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "actual-horizontal-bay-divider-0.595",
+            "solid": "actual-back-wall"
+          },
+          {
+            "a": "actual-back-wall",
+            "b": "actual-horizontal-bay-divider-0.955",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "actual-horizontal-bay-divider-0.955",
+            "solid": "actual-back-wall"
+          },
+          {
+            "a": "center-divider",
+            "b": "actual-horizontal-bay-divider-0.595",
+            "method": "actual-triangle-edge-face"
+          },
+          {
+            "a": "center-divider",
+            "b": "actual-horizontal-bay-divider-0.955",
+            "method": "actual-triangle-edge-face"
+          },
+          {
+            "a": "center-divider",
+            "b": "top-right-closed-front",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "top-right-closed-front",
+            "solid": "center-divider"
+          },
+          {
+            "a": "center-divider",
+            "b": "middle-left-closed-front",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "middle-left-closed-front",
+            "solid": "center-divider"
+          },
+          {
+            "a": "center-divider",
+            "b": "middle-right-closed-front",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "middle-right-closed-front",
+            "solid": "center-divider"
+          },
+          {
+            "a": "center-divider",
+            "b": "bottom-left-closed-front",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "bottom-left-closed-front",
+            "solid": "center-divider"
+          },
+          {
+            "a": "center-divider",
+            "b": "bottom-right-closed-front",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "bottom-right-closed-front",
+            "solid": "center-divider"
+          },
+          {
+            "a": "center-divider",
+            "b": "fixed-guide-side-web--0.047",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "fixed-guide-side-web--0.047",
+            "solid": "center-divider"
+          },
+          {
+            "a": "actual-horizontal-bay-divider-0.595",
+            "b": "bottom-left-closed-front",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-closed-front",
+            "solid": "actual-horizontal-bay-divider-0.595"
+          },
+          {
+            "a": "actual-horizontal-bay-divider-0.595",
+            "b": "bottom-right-closed-front",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-closed-front",
+            "solid": "actual-horizontal-bay-divider-0.595"
+          },
+          {
+            "a": "actual-horizontal-bay-divider-0.955",
+            "b": "top-right-closed-front",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "top-right-closed-front",
+            "solid": "actual-horizontal-bay-divider-0.955"
+          },
+          {
+            "a": "actual-horizontal-bay-divider-0.955",
+            "b": "middle-left-closed-front",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "middle-left-closed-front",
+            "solid": "actual-horizontal-bay-divider-0.955"
+          },
+          {
+            "a": "actual-horizontal-bay-divider-0.955",
+            "b": "middle-right-closed-front",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "middle-right-closed-front",
+            "solid": "actual-horizontal-bay-divider-0.955"
+          },
+          {
+            "a": "actual-horizontal-bay-divider-0.955",
+            "b": "fixed-forward-travel-stop--0.69",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "fixed-forward-travel-stop--0.69",
+            "solid": "actual-horizontal-bay-divider-0.955"
+          },
+          {
+            "a": "actual-horizontal-bay-divider-0.955",
+            "b": "fixed-forward-travel-stop--0.08",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "fixed-forward-travel-stop--0.08",
+            "solid": "actual-horizontal-bay-divider-0.955"
+          },
+          {
+            "a": "round-foot--0.68--0.32",
+            "b": "foot-gold-collar--0.68--0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "round-foot--0.68--0.32",
+            "solid": "foot-gold-collar--0.68--0.32"
+          },
+          {
+            "a": "round-foot--0.68-0.32",
+            "b": "foot-gold-collar--0.68-0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "round-foot--0.68-0.32",
+            "solid": "foot-gold-collar--0.68-0.32"
+          },
+          {
+            "a": "round-foot-0.68--0.32",
+            "b": "foot-gold-collar-0.68--0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "round-foot-0.68--0.32",
+            "solid": "foot-gold-collar-0.68--0.32"
+          },
+          {
+            "a": "round-foot-0.68-0.32",
+            "b": "foot-gold-collar-0.68-0.32",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "round-foot-0.68-0.32",
+            "solid": "foot-gold-collar-0.68-0.32"
+          },
+          {
+            "a": "top-left-closed-front",
+            "b": "top-left-gold-face-border",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "top-left-gold-face-border",
+            "solid": "top-left-closed-front"
+          },
+          {
+            "a": "top-left-closed-front",
+            "b": "manual-tray-bottom",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-bottom",
+            "solid": "top-left-closed-front"
+          },
+          {
+            "a": "top-left-closed-front",
+            "b": "manual-tray-side--0.703",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-side--0.703",
+            "solid": "top-left-closed-front"
+          },
+          {
+            "a": "top-left-closed-front",
+            "b": "manual-tray-side--0.067",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-side--0.067",
+            "solid": "top-left-closed-front"
+          },
+          {
+            "a": "top-left-gold-face-border",
+            "b": "top-left-cream-face-inset",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-left-cream-face-inset",
+            "solid": "top-left-gold-face-border"
+          },
+          {
+            "a": "top-left-cream-face-inset",
+            "b": "top-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-left-round-gold-pull",
+            "solid": "top-left-cream-face-inset"
+          },
+          {
+            "a": "top-left-gold-leaf--1",
+            "b": "top-left-green-leaf--1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-left-green-leaf--1",
+            "solid": "top-left-gold-leaf--1"
+          },
+          {
+            "a": "top-left-gold-leaf--1",
+            "b": "top-left-gold-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "top-left-gold-leaf--1",
+            "solid": "top-left-gold-leaf-1"
+          },
+          {
+            "a": "top-left-gold-leaf--1",
+            "b": "top-left-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-left-gold-leaf--1",
+            "solid": "top-left-green-leaf-1"
+          },
+          {
+            "a": "top-left-gold-leaf--1",
+            "b": "top-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-left-gold-leaf--1",
+            "solid": "top-left-round-gold-pull"
+          },
+          {
+            "a": "top-left-green-leaf--1",
+            "b": "top-left-gold-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-left-green-leaf--1",
+            "solid": "top-left-gold-leaf-1"
+          },
+          {
+            "a": "top-left-green-leaf--1",
+            "b": "top-left-green-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "top-left-green-leaf--1",
+            "solid": "top-left-green-leaf-1"
+          },
+          {
+            "a": "top-left-green-leaf--1",
+            "b": "top-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-left-green-leaf--1",
+            "solid": "top-left-round-gold-pull"
+          },
+          {
+            "a": "top-left-gold-leaf-1",
+            "b": "top-left-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-left-green-leaf-1",
+            "solid": "top-left-gold-leaf-1"
+          },
+          {
+            "a": "top-left-gold-leaf-1",
+            "b": "top-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-left-gold-leaf-1",
+            "solid": "top-left-round-gold-pull"
+          },
+          {
+            "a": "top-left-green-leaf-1",
+            "b": "top-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-left-green-leaf-1",
+            "solid": "top-left-round-gold-pull"
+          },
+          {
+            "a": "top-right-closed-front",
+            "b": "top-right-gold-face-border",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "top-right-gold-face-border",
+            "solid": "top-right-closed-front"
+          },
+          {
+            "a": "top-right-gold-face-border",
+            "b": "top-right-cream-face-inset",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-right-cream-face-inset",
+            "solid": "top-right-gold-face-border"
+          },
+          {
+            "a": "top-right-cream-face-inset",
+            "b": "top-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-right-round-gold-pull",
+            "solid": "top-right-cream-face-inset"
+          },
+          {
+            "a": "top-right-gold-leaf--1",
+            "b": "top-right-green-leaf--1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-right-green-leaf--1",
+            "solid": "top-right-gold-leaf--1"
+          },
+          {
+            "a": "top-right-gold-leaf--1",
+            "b": "top-right-gold-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "top-right-gold-leaf--1",
+            "solid": "top-right-gold-leaf-1"
+          },
+          {
+            "a": "top-right-gold-leaf--1",
+            "b": "top-right-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-right-gold-leaf--1",
+            "solid": "top-right-green-leaf-1"
+          },
+          {
+            "a": "top-right-gold-leaf--1",
+            "b": "top-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-right-gold-leaf--1",
+            "solid": "top-right-round-gold-pull"
+          },
+          {
+            "a": "top-right-green-leaf--1",
+            "b": "top-right-gold-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-right-green-leaf--1",
+            "solid": "top-right-gold-leaf-1"
+          },
+          {
+            "a": "top-right-green-leaf--1",
+            "b": "top-right-green-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "top-right-green-leaf--1",
+            "solid": "top-right-green-leaf-1"
+          },
+          {
+            "a": "top-right-green-leaf--1",
+            "b": "top-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-right-green-leaf--1",
+            "solid": "top-right-round-gold-pull"
+          },
+          {
+            "a": "top-right-gold-leaf-1",
+            "b": "top-right-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-right-green-leaf-1",
+            "solid": "top-right-gold-leaf-1"
+          },
+          {
+            "a": "top-right-gold-leaf-1",
+            "b": "top-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-right-gold-leaf-1",
+            "solid": "top-right-round-gold-pull"
+          },
+          {
+            "a": "top-right-green-leaf-1",
+            "b": "top-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "top-right-green-leaf-1",
+            "solid": "top-right-round-gold-pull"
+          },
+          {
+            "a": "middle-left-closed-front",
+            "b": "middle-left-gold-face-border",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "middle-left-gold-face-border",
+            "solid": "middle-left-closed-front"
+          },
+          {
+            "a": "middle-left-gold-face-border",
+            "b": "middle-left-cream-face-inset",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-left-cream-face-inset",
+            "solid": "middle-left-gold-face-border"
+          },
+          {
+            "a": "middle-left-cream-face-inset",
+            "b": "middle-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-left-round-gold-pull",
+            "solid": "middle-left-cream-face-inset"
+          },
+          {
+            "a": "middle-left-gold-leaf--1",
+            "b": "middle-left-green-leaf--1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-left-green-leaf--1",
+            "solid": "middle-left-gold-leaf--1"
+          },
+          {
+            "a": "middle-left-gold-leaf--1",
+            "b": "middle-left-gold-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "middle-left-gold-leaf--1",
+            "solid": "middle-left-gold-leaf-1"
+          },
+          {
+            "a": "middle-left-gold-leaf--1",
+            "b": "middle-left-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-left-gold-leaf--1",
+            "solid": "middle-left-green-leaf-1"
+          },
+          {
+            "a": "middle-left-gold-leaf--1",
+            "b": "middle-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-left-gold-leaf--1",
+            "solid": "middle-left-round-gold-pull"
+          },
+          {
+            "a": "middle-left-green-leaf--1",
+            "b": "middle-left-gold-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-left-green-leaf--1",
+            "solid": "middle-left-gold-leaf-1"
+          },
+          {
+            "a": "middle-left-green-leaf--1",
+            "b": "middle-left-green-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "middle-left-green-leaf--1",
+            "solid": "middle-left-green-leaf-1"
+          },
+          {
+            "a": "middle-left-green-leaf--1",
+            "b": "middle-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-left-green-leaf--1",
+            "solid": "middle-left-round-gold-pull"
+          },
+          {
+            "a": "middle-left-gold-leaf-1",
+            "b": "middle-left-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-left-green-leaf-1",
+            "solid": "middle-left-gold-leaf-1"
+          },
+          {
+            "a": "middle-left-gold-leaf-1",
+            "b": "middle-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-left-gold-leaf-1",
+            "solid": "middle-left-round-gold-pull"
+          },
+          {
+            "a": "middle-left-green-leaf-1",
+            "b": "middle-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-left-green-leaf-1",
+            "solid": "middle-left-round-gold-pull"
+          },
+          {
+            "a": "middle-right-closed-front",
+            "b": "middle-right-gold-face-border",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "middle-right-gold-face-border",
+            "solid": "middle-right-closed-front"
+          },
+          {
+            "a": "middle-right-gold-face-border",
+            "b": "middle-right-cream-face-inset",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-right-cream-face-inset",
+            "solid": "middle-right-gold-face-border"
+          },
+          {
+            "a": "middle-right-cream-face-inset",
+            "b": "middle-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-right-round-gold-pull",
+            "solid": "middle-right-cream-face-inset"
+          },
+          {
+            "a": "middle-right-gold-leaf--1",
+            "b": "middle-right-green-leaf--1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-right-green-leaf--1",
+            "solid": "middle-right-gold-leaf--1"
+          },
+          {
+            "a": "middle-right-gold-leaf--1",
+            "b": "middle-right-gold-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "middle-right-gold-leaf--1",
+            "solid": "middle-right-gold-leaf-1"
+          },
+          {
+            "a": "middle-right-gold-leaf--1",
+            "b": "middle-right-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-right-gold-leaf--1",
+            "solid": "middle-right-green-leaf-1"
+          },
+          {
+            "a": "middle-right-gold-leaf--1",
+            "b": "middle-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-right-gold-leaf--1",
+            "solid": "middle-right-round-gold-pull"
+          },
+          {
+            "a": "middle-right-green-leaf--1",
+            "b": "middle-right-gold-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-right-green-leaf--1",
+            "solid": "middle-right-gold-leaf-1"
+          },
+          {
+            "a": "middle-right-green-leaf--1",
+            "b": "middle-right-green-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "middle-right-green-leaf--1",
+            "solid": "middle-right-green-leaf-1"
+          },
+          {
+            "a": "middle-right-green-leaf--1",
+            "b": "middle-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-right-green-leaf--1",
+            "solid": "middle-right-round-gold-pull"
+          },
+          {
+            "a": "middle-right-gold-leaf-1",
+            "b": "middle-right-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-right-green-leaf-1",
+            "solid": "middle-right-gold-leaf-1"
+          },
+          {
+            "a": "middle-right-gold-leaf-1",
+            "b": "middle-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-right-gold-leaf-1",
+            "solid": "middle-right-round-gold-pull"
+          },
+          {
+            "a": "middle-right-green-leaf-1",
+            "b": "middle-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "middle-right-green-leaf-1",
+            "solid": "middle-right-round-gold-pull"
+          },
+          {
+            "a": "bottom-left-closed-front",
+            "b": "bottom-left-gold-face-border",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "bottom-left-gold-face-border",
+            "solid": "bottom-left-closed-front"
+          },
+          {
+            "a": "bottom-left-gold-face-border",
+            "b": "bottom-left-cream-face-inset",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-cream-face-inset",
+            "solid": "bottom-left-gold-face-border"
+          },
+          {
+            "a": "bottom-left-cream-face-inset",
+            "b": "bottom-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-round-gold-pull",
+            "solid": "bottom-left-cream-face-inset"
+          },
+          {
+            "a": "bottom-left-gold-leaf--1",
+            "b": "bottom-left-green-leaf--1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-green-leaf--1",
+            "solid": "bottom-left-gold-leaf--1"
+          },
+          {
+            "a": "bottom-left-gold-leaf--1",
+            "b": "bottom-left-gold-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "bottom-left-gold-leaf--1",
+            "solid": "bottom-left-gold-leaf-1"
+          },
+          {
+            "a": "bottom-left-gold-leaf--1",
+            "b": "bottom-left-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-gold-leaf--1",
+            "solid": "bottom-left-green-leaf-1"
+          },
+          {
+            "a": "bottom-left-gold-leaf--1",
+            "b": "bottom-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-gold-leaf--1",
+            "solid": "bottom-left-round-gold-pull"
+          },
+          {
+            "a": "bottom-left-green-leaf--1",
+            "b": "bottom-left-gold-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-green-leaf--1",
+            "solid": "bottom-left-gold-leaf-1"
+          },
+          {
+            "a": "bottom-left-green-leaf--1",
+            "b": "bottom-left-green-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "bottom-left-green-leaf--1",
+            "solid": "bottom-left-green-leaf-1"
+          },
+          {
+            "a": "bottom-left-green-leaf--1",
+            "b": "bottom-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-green-leaf--1",
+            "solid": "bottom-left-round-gold-pull"
+          },
+          {
+            "a": "bottom-left-gold-leaf-1",
+            "b": "bottom-left-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-green-leaf-1",
+            "solid": "bottom-left-gold-leaf-1"
+          },
+          {
+            "a": "bottom-left-gold-leaf-1",
+            "b": "bottom-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-gold-leaf-1",
+            "solid": "bottom-left-round-gold-pull"
+          },
+          {
+            "a": "bottom-left-green-leaf-1",
+            "b": "bottom-left-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-left-green-leaf-1",
+            "solid": "bottom-left-round-gold-pull"
+          },
+          {
+            "a": "bottom-right-closed-front",
+            "b": "bottom-right-gold-face-border",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "bottom-right-gold-face-border",
+            "solid": "bottom-right-closed-front"
+          },
+          {
+            "a": "bottom-right-gold-face-border",
+            "b": "bottom-right-cream-face-inset",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-cream-face-inset",
+            "solid": "bottom-right-gold-face-border"
+          },
+          {
+            "a": "bottom-right-cream-face-inset",
+            "b": "bottom-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-round-gold-pull",
+            "solid": "bottom-right-cream-face-inset"
+          },
+          {
+            "a": "bottom-right-gold-leaf--1",
+            "b": "bottom-right-green-leaf--1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-green-leaf--1",
+            "solid": "bottom-right-gold-leaf--1"
+          },
+          {
+            "a": "bottom-right-gold-leaf--1",
+            "b": "bottom-right-gold-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "bottom-right-gold-leaf--1",
+            "solid": "bottom-right-gold-leaf-1"
+          },
+          {
+            "a": "bottom-right-gold-leaf--1",
+            "b": "bottom-right-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-gold-leaf--1",
+            "solid": "bottom-right-green-leaf-1"
+          },
+          {
+            "a": "bottom-right-gold-leaf--1",
+            "b": "bottom-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-gold-leaf--1",
+            "solid": "bottom-right-round-gold-pull"
+          },
+          {
+            "a": "bottom-right-green-leaf--1",
+            "b": "bottom-right-gold-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-green-leaf--1",
+            "solid": "bottom-right-gold-leaf-1"
+          },
+          {
+            "a": "bottom-right-green-leaf--1",
+            "b": "bottom-right-green-leaf-1",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "bottom-right-green-leaf--1",
+            "solid": "bottom-right-green-leaf-1"
+          },
+          {
+            "a": "bottom-right-green-leaf--1",
+            "b": "bottom-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-green-leaf--1",
+            "solid": "bottom-right-round-gold-pull"
+          },
+          {
+            "a": "bottom-right-gold-leaf-1",
+            "b": "bottom-right-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-green-leaf-1",
+            "solid": "bottom-right-gold-leaf-1"
+          },
+          {
+            "a": "bottom-right-gold-leaf-1",
+            "b": "bottom-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-gold-leaf-1",
+            "solid": "bottom-right-round-gold-pull"
+          },
+          {
+            "a": "bottom-right-green-leaf-1",
+            "b": "bottom-right-round-gold-pull",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "bottom-right-green-leaf-1",
+            "solid": "bottom-right-round-gold-pull"
+          },
+          {
+            "a": "manual-tray-bottom",
+            "b": "manual-tray-side--0.703",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-bottom",
+            "solid": "manual-tray-side--0.703"
+          },
+          {
+            "a": "manual-tray-bottom",
+            "b": "manual-tray-side--0.067",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-bottom",
+            "solid": "manual-tray-side--0.067"
+          },
+          {
+            "a": "manual-tray-bottom",
+            "b": "manual-tray-back",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-back",
+            "solid": "manual-tray-bottom"
+          },
+          {
+            "a": "manual-tray-bottom",
+            "b": "fixed-guide-contact-rail--0.723-1.04",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-bottom",
+            "solid": "fixed-guide-contact-rail--0.723-1.04"
+          },
+          {
+            "a": "manual-tray-bottom",
+            "b": "fixed-guide-contact-rail--0.047-1.04",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-bottom",
+            "solid": "fixed-guide-contact-rail--0.047-1.04"
+          },
+          {
+            "a": "manual-tray-bottom",
+            "b": "moving-undertray-travel-tab--0.69",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-undertray-travel-tab--0.69",
+            "solid": "manual-tray-bottom"
+          },
+          {
+            "a": "manual-tray-bottom",
+            "b": "fixed-forward-travel-stop--0.69",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "fixed-forward-travel-stop--0.69",
+            "solid": "manual-tray-bottom"
+          },
+          {
+            "a": "manual-tray-bottom",
+            "b": "moving-undertray-travel-tab--0.08",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-undertray-travel-tab--0.08",
+            "solid": "manual-tray-bottom"
+          },
+          {
+            "a": "manual-tray-bottom",
+            "b": "fixed-forward-travel-stop--0.08",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "fixed-forward-travel-stop--0.08",
+            "solid": "manual-tray-bottom"
+          },
+          {
+            "a": "manual-tray-side--0.703",
+            "b": "manual-tray-back",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-side--0.703",
+            "solid": "manual-tray-back"
+          },
+          {
+            "a": "manual-tray-side--0.703",
+            "b": "moving-guide-runner--0.723",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-guide-runner--0.723",
+            "solid": "manual-tray-side--0.703"
+          },
+          {
+            "a": "manual-tray-side--0.703",
+            "b": "fixed-guide-contact-rail--0.723-1.04",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-side--0.703",
+            "solid": "fixed-guide-contact-rail--0.723-1.04"
+          },
+          {
+            "a": "manual-tray-side--0.703",
+            "b": "fixed-guide-contact-rail--0.723-1.09",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "fixed-guide-contact-rail--0.723-1.09",
+            "solid": "manual-tray-side--0.703"
+          },
+          {
+            "a": "manual-tray-side--0.067",
+            "b": "manual-tray-back",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-side--0.067",
+            "solid": "manual-tray-back"
+          },
+          {
+            "a": "manual-tray-side--0.067",
+            "b": "moving-guide-runner--0.047",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-guide-runner--0.047",
+            "solid": "manual-tray-side--0.067"
+          },
+          {
+            "a": "manual-tray-side--0.067",
+            "b": "fixed-guide-contact-rail--0.047-1.04",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "manual-tray-side--0.067",
+            "solid": "fixed-guide-contact-rail--0.047-1.04"
+          },
+          {
+            "a": "manual-tray-side--0.067",
+            "b": "fixed-guide-contact-rail--0.047-1.09",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "fixed-guide-contact-rail--0.047-1.09",
+            "solid": "manual-tray-side--0.067"
+          },
+          {
+            "a": "moving-guide-runner--0.723",
+            "b": "fixed-guide-contact-rail--0.723-1.04",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-guide-runner--0.723",
+            "solid": "fixed-guide-contact-rail--0.723-1.04"
+          },
+          {
+            "a": "moving-guide-runner--0.723",
+            "b": "fixed-guide-contact-rail--0.723-1.09",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-guide-runner--0.723",
+            "solid": "fixed-guide-contact-rail--0.723-1.09"
+          },
+          {
+            "a": "moving-guide-runner--0.723",
+            "b": "fixed-guide-side-web--0.723",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-guide-runner--0.723",
+            "solid": "fixed-guide-side-web--0.723"
+          },
+          {
+            "a": "fixed-guide-contact-rail--0.723-1.04",
+            "b": "fixed-guide-side-web--0.723",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "fixed-guide-contact-rail--0.723-1.04",
+            "solid": "fixed-guide-side-web--0.723"
+          },
+          {
+            "a": "fixed-guide-contact-rail--0.723-1.04",
+            "b": "closed-rear-guide-stop--0.723",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "closed-rear-guide-stop--0.723",
+            "solid": "fixed-guide-contact-rail--0.723-1.04"
+          },
+          {
+            "a": "fixed-guide-contact-rail--0.723-1.09",
+            "b": "fixed-guide-side-web--0.723",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "fixed-guide-contact-rail--0.723-1.09",
+            "solid": "fixed-guide-side-web--0.723"
+          },
+          {
+            "a": "fixed-guide-contact-rail--0.723-1.09",
+            "b": "closed-rear-guide-stop--0.723",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "closed-rear-guide-stop--0.723",
+            "solid": "fixed-guide-contact-rail--0.723-1.09"
+          },
+          {
+            "a": "fixed-guide-side-web--0.723",
+            "b": "closed-rear-guide-stop--0.723",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "closed-rear-guide-stop--0.723",
+            "solid": "fixed-guide-side-web--0.723"
+          },
+          {
+            "a": "moving-guide-runner--0.047",
+            "b": "fixed-guide-contact-rail--0.047-1.04",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-guide-runner--0.047",
+            "solid": "fixed-guide-contact-rail--0.047-1.04"
+          },
+          {
+            "a": "moving-guide-runner--0.047",
+            "b": "fixed-guide-contact-rail--0.047-1.09",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-guide-runner--0.047",
+            "solid": "fixed-guide-contact-rail--0.047-1.09"
+          },
+          {
+            "a": "moving-guide-runner--0.047",
+            "b": "fixed-guide-side-web--0.047",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-guide-runner--0.047",
+            "solid": "fixed-guide-side-web--0.047"
+          },
+          {
+            "a": "fixed-guide-contact-rail--0.047-1.04",
+            "b": "fixed-guide-side-web--0.047",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "fixed-guide-contact-rail--0.047-1.04",
+            "solid": "fixed-guide-side-web--0.047"
+          },
+          {
+            "a": "fixed-guide-contact-rail--0.047-1.04",
+            "b": "closed-rear-guide-stop--0.047",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "closed-rear-guide-stop--0.047",
+            "solid": "fixed-guide-contact-rail--0.047-1.04"
+          },
+          {
+            "a": "fixed-guide-contact-rail--0.047-1.09",
+            "b": "fixed-guide-side-web--0.047",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "fixed-guide-contact-rail--0.047-1.09",
+            "solid": "fixed-guide-side-web--0.047"
+          },
+          {
+            "a": "fixed-guide-contact-rail--0.047-1.09",
+            "b": "closed-rear-guide-stop--0.047",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "closed-rear-guide-stop--0.047",
+            "solid": "fixed-guide-contact-rail--0.047-1.09"
+          },
+          {
+            "a": "fixed-guide-side-web--0.047",
+            "b": "closed-rear-guide-stop--0.047",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "closed-rear-guide-stop--0.047",
+            "solid": "fixed-guide-side-web--0.047"
+          },
+          {
+            "a": "moving-undertray-travel-tab--0.69",
+            "b": "fixed-forward-travel-stop--0.69",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-undertray-travel-tab--0.69",
+            "solid": "fixed-forward-travel-stop--0.69"
+          },
+          {
+            "a": "moving-undertray-travel-tab--0.08",
+            "b": "fixed-forward-travel-stop--0.08",
+            "method": "actual-vertex-surface",
+            "vertexOwner": "moving-undertray-travel-tab--0.08",
+            "solid": "fixed-forward-travel-stop--0.08"
+          },
+          {
+            "a": "right-side-gold-leaf-0",
+            "b": "right-side-green-leaf-0",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "right-side-green-leaf-0",
+            "solid": "right-side-gold-leaf-0"
+          },
+          {
+            "a": "right-side-gold-leaf-1",
+            "b": "right-side-green-leaf-1",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "right-side-green-leaf-1",
+            "solid": "right-side-gold-leaf-1"
+          },
+          {
+            "a": "right-side-gold-leaf-2",
+            "b": "right-side-green-leaf-2",
+            "method": "actual-vertex-contained",
+            "vertexOwner": "right-side-green-leaf-2",
+            "solid": "right-side-gold-leaf-2"
+          }
+        ],
+        "flourishes": [
+          {
+            "gold": "right-side-gold-leaf-0",
+            "green": "right-side-green-leaf-0",
+            "goldTouchesActualSide": true,
+            "greenTouchesGold": true,
+            "goldContacts": [
+              "curved-cream-side-1",
+              "right-side-green-leaf-0"
+            ],
+            "greenContacts": [
+              "right-side-gold-leaf-0"
+            ]
+          },
+          {
+            "gold": "right-side-gold-leaf-1",
+            "green": "right-side-green-leaf-1",
+            "goldTouchesActualSide": true,
+            "greenTouchesGold": true,
+            "goldContacts": [
+              "curved-cream-side-1",
+              "right-side-green-leaf-1"
+            ],
+            "greenContacts": [
+              "right-side-gold-leaf-1"
+            ]
+          },
+          {
+            "gold": "right-side-gold-leaf-2",
+            "green": "right-side-green-leaf-2",
+            "goldTouchesActualSide": true,
+            "greenTouchesGold": true,
+            "goldContacts": [
+              "curved-cream-side-1",
+              "right-side-green-leaf-2"
+            ],
+            "greenContacts": [
+              "right-side-gold-leaf-2"
+            ]
+          }
+        ]
+      }
+    ],
+    "method": "actual transformed closed-solid vertex parity/point-to-triangle contact, then segment-to-triangle and edge-pair contact; all mesh pairs have a full-bounds broad phase only",
+    "scope": "spatial contact graph at closed/open endpoints, including all named parts; no fastener strength, load, friction or continuous motion claim",
+    "physicalLoadVerified": false,
+    "bodyBinding": null
+  },
+  "placement": {
+    "townPoint": {
+      "x": 2400,
+      "y": 400
+    },
+    "worldPosition": [
+      9.6,
+      0.025000000000001785,
+      -5.6
+    ],
+    "projectedFootprint": {
+      "minX": 8.710000014305114,
+      "maxX": 10.489999985694885,
+      "minZ": -6.090000009536743,
+      "maxZ": -4.819999999999999
+    },
+    "supports": [
+      {
+        "foot": "round-foot--0.68--0.32",
+        "x": 8.92,
+        "z": -5.92,
+        "soleLocalY": 0,
+        "floorY": 0.025000000000001316,
+        "soleMinusFloor": 4.683753385137379e-16
+      },
+      {
+        "foot": "round-foot--0.68--0.32",
+        "x": 8.809999999999999,
+        "z": -6.029999999999999,
+        "soleLocalY": 0,
+        "floorY": 0.025000000000001785,
+        "soleMinusFloor": 0
+      },
+      {
+        "foot": "round-foot--0.68--0.32",
+        "x": 8.809999999999999,
+        "z": -5.81,
+        "soleLocalY": 0,
+        "floorY": 0.025000000000001292,
+        "soleMinusFloor": 4.926614671774132e-16
+      },
+      {
+        "foot": "round-foot--0.68--0.32",
+        "x": 9.03,
+        "z": -6.029999999999999,
+        "soleLocalY": 0,
+        "floorY": 0.025000000000001785,
+        "soleMinusFloor": 0
+      },
+      {
+        "foot": "round-foot--0.68--0.32",
+        "x": 9.03,
+        "z": -5.81,
+        "soleLocalY": 0,
+        "floorY": 0.025000000000001292,
+        "soleMinusFloor": 4.926614671774132e-16
+      },
+      {
+        "foot": "round-foot--0.68-0.32",
+        "x": 8.92,
+        "z": -5.279999999999999,
+        "soleLocalY": 0,
+        "floorY": 0.025000000000001174,
+        "soleMinusFloor": 6.106226635438361e-16
+      },
+      {
+        "foot": "round-foot--0.68-0.32",
+        "x": 8.809999999999999,
+        "z": -5.39,
+        "soleLocalY": 0,
+        "floorY": 0.0250000000000012,
+        "soleMinusFloor": 5.863365348801608e-16
+      },
+      {
+        "foot": "round-foot--0.68-0.32",
+        "x": 8.809999999999999,
+        "z": -5.17,
+        "soleLocalY": 0,
+        "floorY": 0.02500000000000115,
+        "soleMinusFloor": 6.349087922075114e-16
+      },
+      {
+        "foot": "round-foot--0.68-0.32",
+        "x": 9.03,
+        "z": -5.39,
+        "soleLocalY": 0,
+        "floorY": 0.0250000000000012,
+        "soleMinusFloor": 5.863365348801608e-16
+      },
+      {
+        "foot": "round-foot--0.68-0.32",
+        "x": 9.03,
+        "z": -5.17,
+        "soleLocalY": 0,
+        "floorY": 0.02500000000000115,
+        "soleMinusFloor": 6.349087922075114e-16
+      },
+      {
+        "foot": "round-foot-0.68--0.32",
+        "x": 10.28,
+        "z": -5.92,
+        "soleLocalY": 0,
+        "floorY": 0.025000000000001316,
+        "soleMinusFloor": 4.683753385137379e-16
+      },
+      {
+        "foot": "round-foot-0.68--0.32",
+        "x": 10.17,
+        "z": -6.029999999999999,
+        "soleLocalY": 0,
+        "floorY": 0.02500000000000134,
+        "soleMinusFloor": 4.440892098500626e-16
+      },
+      {
+        "foot": "round-foot-0.68--0.32",
+        "x": 10.17,
+        "z": -5.81,
+        "soleLocalY": 0,
+        "floorY": 0.025000000000001292,
+        "soleMinusFloor": 4.926614671774132e-16
+      },
+      {
+        "foot": "round-foot-0.68--0.32",
+        "x": 10.39,
+        "z": -6.029999999999999,
+        "soleLocalY": 0,
+        "floorY": 0.02500000000000134,
+        "soleMinusFloor": 4.440892098500626e-16
+      },
+      {
+        "foot": "round-foot-0.68--0.32",
+        "x": 10.39,
+        "z": -5.81,
+        "soleLocalY": 0,
+        "floorY": 0.025000000000001292,
+        "soleMinusFloor": 4.926614671774132e-16
+      },
+      {
+        "foot": "round-foot-0.68-0.32",
+        "x": 10.28,
+        "z": -5.279999999999999,
+        "soleLocalY": 0,
+        "floorY": 0.025000000000001174,
+        "soleMinusFloor": 6.106226635438361e-16
+      },
+      {
+        "foot": "round-foot-0.68-0.32",
+        "x": 10.17,
+        "z": -5.39,
+        "soleLocalY": 0,
+        "floorY": 0.0250000000000012,
+        "soleMinusFloor": 5.863365348801608e-16
+      },
+      {
+        "foot": "round-foot-0.68-0.32",
+        "x": 10.17,
+        "z": -5.17,
+        "soleLocalY": 0,
+        "floorY": 0.02500000000000115,
+        "soleMinusFloor": 6.349087922075114e-16
+      },
+      {
+        "foot": "round-foot-0.68-0.32",
+        "x": 10.39,
+        "z": -5.39,
+        "soleLocalY": 0,
+        "floorY": 0.0250000000000012,
+        "soleMinusFloor": 5.863365348801608e-16
+      },
+      {
+        "foot": "round-foot-0.68-0.32",
+        "x": 10.39,
+        "z": -5.17,
+        "soleLocalY": 0,
+        "floorY": 0.02500000000000115,
+        "soleMinusFloor": 6.349087922075114e-16
+      }
+    ],
+    "finiteWalkability": {
+      "samples": 63,
+      "blocked": 0
+    },
+    "roads": [
+      {
+        "name": "layout-plaza-border",
+        "triangles": 192,
+        "minimumGap": 7.513211606219663
+      },
+      {
+        "name": "layout-plaza-floor",
+        "triangles": 96,
+        "minimumGap": 7.8203792438969115
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.6595846514459485
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.555946065338238
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.513435819280522
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.513021399273232
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.538431298011272
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.630380215460172
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.7879435663592655
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.007742016357932
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.284219076987808
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.610110195543028
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.976983440953413
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.375750595693892
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.797090402786472
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.231767388288409
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.64832477095118
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.041243195686011
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.42405576477284
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.790128358699295
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.13342741643169
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.448566756770255
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.730844007719028
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.976268514683944
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.181581302740428
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.34426691644044
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.462556605938676
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.53542224837474
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.546179401861764
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.485709637555395
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.382552860730305
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.238923603529045
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.057540647289079
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.841559636980076
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.594502071194837
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.320183399009053
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.022643427491275
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.706082643386404
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.374808312929993
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.033194251662925
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.685657827085763
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.332834790453791
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.954022806789197
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.582901417204907
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.224447745727284
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.883904852672758
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.566873931838124
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.279375338384908
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.027840991573076
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.818995039187103
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 10.581341564368126
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 10.610239774358641
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 16.320332120676714
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 1.887801364657593
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 1.9469139155723214
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 1.9302937130310855
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 10.581365887545479
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 10.610261214359252
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 18.296011209434447
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 6.710665397909879
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 6.770654217402967
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 10.399816601150828
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 10.450469143329626
+      }
+    ],
+    "minimumRoadGap": 1.887801364657593,
+    "requiredMargin": 0.2,
+    "originalSpriteEnvelopeClearance": {
+      "checkedCards": 38,
+      "kinds": {
+        "shopTulip": 6,
+        "treeGrove": 12,
+        "flowers": 1,
+        "lantern": 4,
+        "treeApple": 5,
+        "treeBirch": 5,
+        "tree": 5
+      },
+      "minimumGap": 1.399930814892772,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "kind": "shopTulip",
+          "sourceSHA256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+          "contact": [
+            6.8759999999999994,
+            0.025,
+            -4.894
+          ],
+          "fullQuadRadius": 0.43406919941234284,
+          "envelopeDistance": 1.834000014305115,
+          "gap": 1.399930814892772
+        },
+        {
+          "kind": "shopTulip",
+          "sourceSHA256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+          "contact": [
+            5.795999999999999,
+            0.025,
+            -4.894
+          ],
+          "fullQuadRadius": 0.43406919941234284,
+          "envelopeDistance": 2.914000014305115,
+          "gap": 2.4799308148927723
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            3.800391407986147,
+            0.025,
+            -10.014646520277676
+          ],
+          "fullQuadRadius": 3.428153984302411,
+          "envelopeDistance": 6.285467914285479,
+          "gap": 2.857313929983068
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            3.018835793838979,
+            0.025,
+            -10.44966867454055
+          ],
+          "fullQuadRadius": 3.816913714481035,
+          "envelopeDistance": 7.169104620029616,
+          "gap": 3.3521909055485812
+        },
+        {
+          "kind": "lantern",
+          "sourceSHA256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+          "contact": [
+            4.032,
+            0.025,
+            -3.4560000000000004
+          ],
+          "fullQuadRadius": 0.9909739577995439,
+          "envelopeDistance": 4.872800030150904,
+          "gap": 3.88182607235136
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            0.8327002596367137,
+            0.025,
+            -9.982363263208441
+          ],
+          "fullQuadRadius": 4.385813983669816,
+          "envelopeDistance": 8.786486392377363,
+          "gap": 4.400672408707547
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            -1.4520000000000004
+          ],
+          "fullQuadRadius": 3.816913714481035,
+          "envelopeDistance": 9.877915785512378,
+          "gap": 6.061002071031344
+        },
+        {
+          "kind": "treeApple",
+          "sourceSHA256": "ce7ef7adda439841a3fc36de04d5250eb01249ce653337f19b6d9520b028c45b",
+          "contact": [
+            -0.3355192961773006,
+            0.025,
+            -9.667760567754863
+          ],
+          "fullQuadRadius": 2.824426245157773,
+          "envelopeDistance": 9.727373242980425,
+          "gap": 6.902946997822652
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            -1.9396978898859323,
+            0.025,
+            -10.216135629486423
+          ],
+          "fullQuadRadius": 3.3722855420654474,
+          "envelopeDistance": 11.421079660205015,
+          "gap": 8.048794118139568
+        },
+        {
+          "kind": "lantern",
+          "sourceSHA256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+          "contact": [
+            4.032,
+            0.025,
+            4.223999999999998
+          ],
+          "fullQuadRadius": 0.9909739577995439,
+          "envelopeDistance": 10.182220785950312,
+          "gap": 9.191246828150769
+        }
+      ],
+      "method": "sphere enclosing all four full raw Sprite quad corners from actual world scale/center; sphere-to-conservative-3D-pose-envelope distance; includes faint/transparent corners without cropping",
+      "cameraOrientationIndependentGeometryEnvelope": true,
+      "physicalFixtureVolumes": false,
+      "allCameraProjectionOcclusionGuaranteed": false
+    },
+    "buildingProxyClearance": [
+      {
+        "place": "home",
+        "intersects": false,
+        "separation": 15.541882740449346
+      },
+      {
+        "place": "cafe",
+        "intersects": false,
+        "separation": 1.141882740449348
+      },
+      {
+        "place": "shop",
+        "intersects": false,
+        "separation": 16.7662735682792
+      },
+      {
+        "place": "playground",
+        "intersects": false,
+        "separation": 6.633127907635735
+      },
+      {
+        "place": "tree",
+        "intersects": false,
+        "separation": null
+      },
+      {
+        "place": "flowers",
+        "intersects": false,
+        "separation": null
+      }
+    ],
+    "meadowInstances": {
+      "instanceCount": 1102,
+      "batchCount": 10,
+      "siteCount": 40,
+      "animationPadding": 0.018,
+      "minimumGap": 0.6345398678702653,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "batch": "meadow-daisy-lobed-head-instances",
+          "instance": 19,
+          "bounds": {
+            "min": [
+              7.958820739835853,
+              0.26966038848726037,
+              -4.399957903835882
+            ],
+            "max": [
+              8.234389373794551,
+              0.48924224177269227,
+              -4.1378291572550845
+            ]
+          },
+          "minimumGap": 0.6345398678702653
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 135,
+          "bounds": {
+            "min": [
+              7.977578815044441,
+              0.07105114515847945,
+              -4.3950632941515035
+            ],
+            "max": [
+              8.21403826324015,
+              0.22419910853424715,
+              -4.18908480159886
+            ]
+          },
+          "minimumGap": 0.6531073897122867
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 135,
+          "bounds": {
+            "min": [
+              7.985089577379973,
+              0.12565921738691058,
+              -4.33268680280395
+            ],
+            "max": [
+              8.19508846259249,
+              0.2939266082809292,
+              -4.162581188564673
+            ]
+          },
+          "minimumGap": 0.7089485582526686
+        },
+        {
+          "batch": "meadow-daisy-heart-instances",
+          "instance": 19,
+          "bounds": {
+            "min": [
+              8.064667348143331,
+              0.3707389938978198,
+              -4.31753558400345
+            ],
+            "max": [
+              8.167966242554911,
+              0.4668721449228284,
+              -4.218473250835417
+            ]
+          },
+          "minimumGap": 0.7391015485442474
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 133,
+          "bounds": {
+            "min": [
+              8.110396255521929,
+              0.062432864866922136,
+              -4.15085454583853
+            ],
+            "max": [
+              8.303385749492183,
+              0.21558082824268984,
+              -3.9123348705861134
+            ]
+          },
+          "minimumGap": 0.7830011488971906
+        },
+        {
+          "batch": "meadow-stem-instances",
+          "instance": 192,
+          "bounds": {
+            "min": [
+              8.067568068700785,
+              0.007000005960464479,
+              -4.295128576088361
+            ],
+            "max": [
+              8.118887038740318,
+              0.40940555262565614,
+              -4.243320091918379
+            ]
+          },
+          "minimumGap": 0.7905090521430465
+        },
+        {
+          "batch": "meadow-pansy-lobed-head-instances",
+          "instance": 17,
+          "bounds": {
+            "min": [
+              8.074392434718781,
+              0.24648008531446056,
+              -4.147406772627841
+            ],
+            "max": [
+              8.294425435225413,
+              0.4569575053289031,
+              -3.907472393100149
+            ]
+          },
+          "minimumGap": 0.790622463812006
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 133,
+          "bounds": {
+            "min": [
+              8.069273578978953,
+              0.11260869100637162,
+              -4.150892292711159
+            ],
+            "max": [
+              8.257900287576387,
+              0.28087608190039026,
+              -3.935303830406008
+            ]
+          },
+          "minimumGap": 0.8075266477717737
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 132,
+          "bounds": {
+            "min": [
+              7.901148489831921,
+              0.041575798950860735,
+              -4.264367702750147
+            ],
+            "max": [
+              8.09452233541299,
+              0.19472376232662844,
+              -4.025857540398
+            ]
+          },
+          "minimumGap": 0.8291803319915314
+        },
+        {
+          "batch": "meadow-rose-outer-rosette-instances",
+          "instance": 42,
+          "bounds": {
+            "min": [
+              7.872678861722074,
+              0.23156414085790836,
+              -4.255414189465224
+            ],
+            "max": [
+              8.078212702953188,
+              0.34142650297063937,
+              -4.046932128716306
+            ]
+          },
+          "minimumGap": 0.8472970814552033
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 132,
+          "bounds": {
+            "min": [
+              7.860408253295483,
+              0.08102512851304734,
+              -4.264202428528577
+            ],
+            "max": [
+              8.04857208160829,
+              0.24929251940706595,
+              -4.048723461221426
+            ]
+          },
+          "minimumGap": 0.8639431987145484
+        },
+        {
+          "batch": "meadow-rose-outer-rosette-instances",
+          "instance": 43,
+          "bounds": {
+            "min": [
+              7.897852390299883,
+              0.2736531604253287,
+              -4.230364211487056
+            ],
+            "max": [
+              8.05303405705311,
+              0.36177435561321625,
+              -4.072034530926201
+            ]
+          },
+          "minimumGap": 0.8827653323977578
+        }
+      ],
+      "scope": "every actual current meadow instance geometry AABB transformed by its actual instance and world matrix, expanded .018 in all axes; current finite matrices and authored animation allowance, no all-frame proof"
+    },
+    "shoreline": {
+      "segments": 7,
+      "minimumGap": 3.5100003719329838,
+      "rows": [
+        {
+          "a": [
+            14.399999618530273,
+            -9.600000381469727
+          ],
+          "b": [
+            -14.399999618530273,
+            -9.600000381469727
+          ],
+          "footprintGap": 3.5100003719329838
+        },
+        {
+          "a": [
+            -14.399999618530273,
+            -9.600000381469727
+          ],
+          "b": [
+            -14.399999618530273,
+            9.600000381469727
+          ],
+          "footprintGap": 23.10999963283539
+        },
+        {
+          "a": [
+            -14.399999618530273,
+            9.600000381469727
+          ],
+          "b": [
+            5.5,
+            9.600000381469727
+          ],
+          "footprintGap": 14.77296554837335
+        },
+        {
+          "a": [
+            5.5,
+            9.600000381469727
+          ],
+          "b": [
+            10.699999809265137,
+            4.900000095367432
+          ],
+          "footprintGap": 9.7222683453936
+        },
+        {
+          "a": [
+            10.699999809265137,
+            4.900000095367432
+          ],
+          "b": [
+            12.800000190734863,
+            0.8999999761581421
+          ],
+          "footprintGap": 6.168833007509109
+        },
+        {
+          "a": [
+            12.800000190734863,
+            0.8999999761581421
+          ],
+          "b": [
+            14,
+            -4.099999904632568
+          ],
+          "footprintGap": 3.581107995549173
+        },
+        {
+          "a": [
+            14,
+            -4.099999904632568
+          ],
+          "b": [
+            14.399999618530273,
+            -9.600000381469727
+          ],
+          "footprintGap": 3.5529797047853706
+        }
+      ],
+      "method": "every actual dry-land boundary segment against full projected rectangle, including crossing and endpoint/corner distances"
+    },
+    "waterBacking": {
+      "topY": -0.05,
+      "soleAboveWaterBacking": 0.07500000000000179,
+      "scope": "actual wet backing under dry land, no water physics"
+    },
+    "worldUnchanged": true,
+    "walkableSurfacesUnchanged": true,
+    "occludersUnchanged": true,
+    "notRegisteredAsTownSurface": true,
+    "normalPlacement": false,
+    "ownershipUnlockSave": false,
+    "bodyBinding": null,
+    "limits": "one unchanged current default-world off-road authored placement,20 round-foot support rays,finite footprint walkability,actual road triangles and conservative full-card envelopes; whole bounded drawer-sweep placement envelope; no owner-world placement, anatomical fit or all-camera visibility guarantee"
+  },
+  "test_count_is_not_pose_count": true,
+  "bodyBinding": null,
+  "normalGameIntegration": false,
+  "newLibraryAssets": 0,
+  "physicalLoadVerified": false,
+  "frictionVerified": false,
+  "handOrBodyFitVerified": false,
+  "continuousSafetyVerified": false,
+  "originalReferenceUnmodified": true
+}

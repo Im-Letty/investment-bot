@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "unit_id": "wardrobe:fit-prerequisite:seed-sorting-cabinet:closed-drawer-shell-guide:v1",
+  "model_id": "seed-sorting-cabinet-shell-guide-v1",
+  "source_base": "5c417df513fd68dab30b254c52161593c70b4581",
+  "prototype_world_dimensions": [
+    1.78,
+    1.41,
+    1.27
+  ],
+  "dimensions_scope": "authored world-unit prototype and closed/open union, never body measurements",
+  "bodyBinding": null,
+  "manual_drawer": "top-left",
+  "maximum_stroke": 0.24,
+  "other_five": "fixed closed front panels, not functional drawers",
+  "finite_poses": [
+    0,
+    0.25,
+    0.5,
+    0.75,
+    1
+  ],
+  "new_designs": 0,
+  "new_png_designs": 0,
+  "new_library_assets": 0,
+  "normal_game_integration": false,
+  "ownership_unlock_save": false,
+  "body_fit_verified": false,
+  "hand_anatomy_verified": false,
+  "physical_load_verified": false,
+  "friction_verified": false,
+  "continuous_motion_safety_verified": false,
+  "back_and_inside_authored": true,
+  "attachment_scope": "actual transformed solid/triangle contact graph over all89parts at closed/open endpoints; every side gold leaf embeds the actual side profile and every green leaf contacts its gold backing; finite spatial joins only"
+}
