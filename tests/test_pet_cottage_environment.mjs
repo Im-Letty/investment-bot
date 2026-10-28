@@ -4,6 +4,7 @@ import * as THREE from '../static/vendor/three-0.160.1.module.js';
 import Scene from '../static/pet-town-scene.js';
 import Town from '../static/pet-town-walk.js';
 import Seasons from '../static/pet-japan-seasons.js';
+import Environment from '../static/pet-town-environment.js';
 function document(){
  const canvases=[];
  return {canvases,createElement(){const c={width:0,height:0,stops:[]},ctx={
@@ -13,13 +14,13 @@ function document(){
  };c.getContext=()=>ctx;canvases.push(c);return c;}};
 }
 test('sky uses a bounded world background gradient and safe non-canvas fallback',()=>{
- const doc=document(),t=Scene.skyTexture(THREE,doc,Seasons.profile('autumn'));
+ const doc=document(),t=Scene.skyTexture(THREE,doc,Seasons.profile('autumn')),expected=Environment.profile(Seasons.profile('autumn'));
  try{
   assert.deepEqual([t.image.width,t.image.height],[256,128]);assert.equal(t.colorSpace,THREE.SRGBColorSpace);
   assert.equal(t.mapping,THREE.EquirectangularReflectionMapping);
-  assert.ok(t.image.stops.some(([at,c])=>at===0&&c===Seasons.profile('autumn').sky));
-  assert.ok(t.image.stops.some(([at,c])=>at===.65&&c===Seasons.profile('autumn').horizon));
-  assert.notEqual(Seasons.profile('autumn').sky,Seasons.profile('autumn').horizon);
+  assert.ok(t.image.stops.some(([at,c])=>at===0&&c===expected.sky));
+  assert.ok(t.image.stops.some(([at,c])=>at===.70&&c===expected.horizon));
+  assert.notEqual(expected.sky,expected.horizon);
   assert.equal(Scene.skyTexture(THREE,null,Seasons.profile('autumn')),null);
   assert.equal(Scene.skyTexture(THREE,{createElement(){return {getContext(){return {};}};}},Seasons.profile('autumn')),null);
  }finally{t.dispose();}

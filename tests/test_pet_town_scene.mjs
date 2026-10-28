@@ -15,6 +15,9 @@ import ShoreTransition from '../static/pet-town-shore-transition.js';
 import TreeVariety from '../static/pet-town-tree-variety.js';
 import MeadowSites from '../static/pet-town-meadow-sites.js';
 import MeadowFlowers from '../static/pet-town-meadow-flowers.js';
+import GroundFinish from '../static/pet-town-ground-finish.js';
+import WaterFinish from '../static/pet-town-water-finish.js';
+import Environment from '../static/pet-town-environment.js';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
@@ -114,8 +117,8 @@ test('browser registration can precede the visual-only helper and mount adopts t
  assert.equal(context.PetTownScene.alphaAnchor({tagName:'CANVAS',width:16,height:16,getContext:()=>null}),null);
  const painted={tagName:'CANVAS',width:16,height:16,getContext:()=>({RGBA:1,UNSIGNED_BYTE:2,readPixels(x,y,w,h,a,b,p){p[(2*w+8)*4+3]=255;}})};
  assert.equal(context.PetTownScene.alphaAnchor(painted),.125,'the existing public diagnostics work synchronously before any mount or helper import');
- context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;context.PetTownStyle=TownStyle;context.PetTownLayoutArt=LayoutArt;context.PetTownPlacementOriginals=Originals;context.PetTownWaterLife=WaterLife;context.PetTownOceanLife=OceanLife;context.PetTownShoreTransition=ShoreTransition;context.PetTownTreeVariety=TreeVariety;context.PetTownMeadowSites=MeadowSites;context.PetTownMeadowFlowers=MeadowFlowers;
- const f=await fixture({sceneAPI:context.PetTownScene});try{assert.ok(f.controller);assert.equal(f.controller.setFrame(f.source,{anchor:.3}),true);const scene=f.renderers[0].calls.at(-1).scene;assert.equal(scene.getObjectByName('current-pet-2d-frame').center.y,.3);assert.equal(f.host.dataset.townLayoutArt,LayoutArt.revision);assert.equal(f.host.dataset.townMeadowFlowers,'meadow-flowers2');assert.equal(scene.userData.meadowFlowersRevision,'meadow-flowers2');assert.equal(scene.userData.layoutArtRevision,LayoutArt.revision);assert.ok(scene.getObjectByName('layout-art-native-landscape'));assert.equal(scene.getObjectByName('bridge-deck').userData.layoutBoardCount,11);assert.deepEqual(f.failures,[]);}finally{f.controller?.destroy();assert.equal(f.host.dataset.townMeadowFlowers,undefined);}
+ context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;context.PetTownStyle=TownStyle;context.PetTownLayoutArt=LayoutArt;context.PetTownPlacementOriginals=Originals;context.PetTownWaterLife=WaterLife;context.PetTownOceanLife=OceanLife;context.PetTownShoreTransition=ShoreTransition;context.PetTownTreeVariety=TreeVariety;context.PetTownMeadowSites=MeadowSites;context.PetTownMeadowFlowers=MeadowFlowers;context.PetTownGroundFinish=GroundFinish;context.PetTownWaterFinish=WaterFinish;context.PetTownEnvironment=Environment;
+ const f=await fixture({sceneAPI:context.PetTownScene});try{assert.ok(f.controller);assert.equal(f.controller.setFrame(f.source,{anchor:.3}),true);const scene=f.renderers[0].calls.at(-1).scene;assert.equal(scene.getObjectByName('current-pet-2d-frame').center.y,.3);assert.equal(f.host.dataset.townLayoutArt,LayoutArt.revision);assert.equal(f.host.dataset.townMeadowFlowers,'meadow-flowers2');assert.equal(f.host.dataset.townEnvironmentStyle,'shop-environment1');assert.equal(scene.userData.environmentStyleRevision,'shop-environment1');assert.equal(scene.userData.meadowFlowersRevision,'meadow-flowers2');assert.equal(scene.userData.layoutArtRevision,LayoutArt.revision);assert.ok(scene.getObjectByName('layout-art-native-landscape'));assert.equal(scene.getObjectByName('bridge-deck').userData.layoutBoardCount,11);assert.deepEqual(f.failures,[]);}finally{f.controller?.destroy();assert.equal(f.host.dataset.townMeadowFlowers,undefined);assert.equal(f.host.dataset.townEnvironmentStyle,undefined);}
 });
 
 test('actual geometry uses the six saved facilities and funding/open economy sites, without a terrain painting',()=>{
@@ -124,7 +127,8 @@ test('actual geometry uses the six saved facilities and funding/open economy sit
  const before=JSON.stringify(world),m=Scene.buildWorld(THREE,world,{});m.scene.updateMatrixWorld(true);
  assert.equal(m.placeGroups.length,7);assert.deepEqual(m.placeGroups.map(g=>g.userData.placeId),world.places.map(p=>p.id));
  assert.equal(JSON.stringify(world),before);assert.notEqual(before,snapshot);assert.equal(m.surfaces.length,2);assert.ok(m.occluders.length>30);
- assert.ok([...m.materials].every(x=>!x.map||x.map.userData.fountainWaterReflection),'only the bounded procedural fountain reflection is mapped without a document; terrain is still native geometry');
+ assert.ok([...m.materials].every(x=>!x.map||x.map.userData.fountainWaterReflection||x.map===m.waterFinish.texture),'only the two bounded procedural water textures are mapped without a document; terrain is still native geometry');
+ assert.equal(new Set([...m.materials].map(x=>x.map).filter(Boolean)).size,2);assert.equal(m.waterFinish.texture.image.width,128);assert.equal(m.waterFinish.texture.image.height,128);
  const ray=new THREE.Raycaster();for(const p of [{x:500,y:1100},{x:2200,y:1500},{x:2770,y:1160}]){const q=Scene.groundPoint(world,p);ray.set(new THREE.Vector3(q.x,5,q.z),new THREE.Vector3(0,-1,0));const hits=ray.intersectObjects(m.surfaces);assert.ok(hits.length);assert.ok(Math.abs(hits[0].point.y-Scene.heightAt(p))<1e-6);}
  const wet=Scene.groundPoint(world,{x:2750,y:1550});ray.set(new THREE.Vector3(wet.x,5,wet.z),new THREE.Vector3(0,-1,0));assert.equal(ray.intersectObjects(m.surfaces).length,0,'water has no tap-walkable floor');
  let disposed=0;for(const g of m.geometries)g.addEventListener('dispose',()=>disposed++);const n=m.geometries.size;m.dispose();m.dispose();assert.equal(disposed,n);
