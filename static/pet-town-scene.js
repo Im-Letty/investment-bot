@@ -11,12 +11,14 @@
     typeof module === 'object' && module.exports ? require('./pet-town-water-life.js') : root.PetTownWaterLife,
     typeof module === 'object' && module.exports ? require('./pet-town-ocean-life.js') : root.PetTownOceanLife,
     typeof module === 'object' && module.exports ? require('./pet-town-shore-transition.js') : root.PetTownShoreTransition,
-    typeof module === 'object' && module.exports ? require('./pet-town-tree-variety.js') : root.PetTownTreeVariety);
+    typeof module === 'object' && module.exports ? require('./pet-town-tree-variety.js') : root.PetTownTreeVariety,
+    typeof module === 'object' && module.exports ? require('./pet-town-meadow-sites.js') : root.PetTownMeadowSites,
+    typeof module === 'object' && module.exports ? require('./pet-town-meadow-flowers.js') : root.PetTownMeadowFlowers);
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.PetTownScene = api;
-}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit, Fishing, Seasons, Style, LayoutArt, Originals, WaterLife, OceanLife, ShoreTransition, TreeVariety) {
+}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit, Fishing, Seasons, Style, LayoutArt, Originals, WaterLife, OceanLife, ShoreTransition, TreeVariety, MeadowSites, MeadowFlowers) {
   'use strict';
-  var threeLoading = null, frameFitLoading = null, seasonsLoading = null, styleLoading = null, layoutLoading = null, originalsLoading = null, waterLifeLoading = null, oceanLifeLoading = null, shoreTransitionLoading = null, treeVarietyLoading = null, UNIT = 100, TAU = Math.PI * 2;
+  var threeLoading = null, frameFitLoading = null, seasonsLoading = null, styleLoading = null, layoutLoading = null, originalsLoading = null, waterLifeLoading = null, oceanLifeLoading = null, shoreTransitionLoading = null, treeVarietyLoading = null, meadowLoading = null, UNIT = 100, TAU = Math.PI * 2;
   var shoreline = [[0, 2880], [550, 2840], [1050, 2720], [1450, 2510], [1920, 1990]];
   function finite(n) { return typeof n === 'number' && Number.isFinite(n); }
   function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
@@ -187,6 +189,23 @@
     }).catch(function (error) { treeVarietyLoading = null; throw error; });
     return treeVarietyLoading;
   }
+  function meadowReady(sites, flowers) {
+    return sites && sites.revision === 'meadow-sites1' && typeof sites.plan === 'function' &&
+      flowers && flowers.revision === 'meadow-flowers2' && typeof flowers.create === 'function';
+  }
+  function loadMeadow() {
+    var sites = MeadowSites || globalThis.PetTownMeadowSites, flowers = MeadowFlowers || globalThis.PetTownMeadowFlowers;
+    if (meadowReady(sites, flowers)) { MeadowSites = sites; MeadowFlowers = flowers; return Promise.resolve(true); }
+    if (!meadowLoading) meadowLoading = Promise.all([
+      import('/static/pet-town-meadow-sites.js?v=20261028-meadowflowers2'),
+      import('/static/pet-town-meadow-flowers.js?v=20261028-meadowflowers2')
+    ]).then(function () {
+      MeadowSites = globalThis.PetTownMeadowSites; MeadowFlowers = globalThis.PetTownMeadowFlowers;
+      if (!meadowReady(MeadowSites, MeadowFlowers)) throw new Error('town_meadow_unavailable');
+      return true;
+    }).catch(function (error) { meadowLoading = null; throw error; });
+    return meadowLoading;
+  }
   function groundTexture(THREE, doc, season) {
     if (!doc || !doc.createElement) return null;
     var canvas = doc.createElement('canvas'); canvas.width = canvas.height = 512;
@@ -256,6 +275,10 @@
     // Older isolated synchronous previews can still show their saved original.
     // Normal mount requires the new helper before reaching this builder.
     var treeKinds = treeAPI ? treeAPI.plan({ count: 27, seed: treeAPI.seed }) : Object.freeze(Array(27).fill('tree'));
+    var meadowSiteAPI = MeadowSites || globalThis.PetTownMeadowSites, meadowFlowerAPI = MeadowFlowers || globalThis.PetTownMeadowFlowers;
+    // Isolated historical synchronous previews retain their original ambient
+    // planting until both helpers are ready. Normal mount awaits loadMeadow.
+    var meadowEnabled = meadowReady(meadowSiteAPI, meadowFlowerAPI), meadowLife = null;
     var scene = new THREE.Scene(), group = new THREE.Group(), geometries = new Set(), materials = new Set(), textures = new Set();
     var surfaces = [], occluders = [], pickables = [], trees = [], droplets = [], placeGroups = [], seasonalSites = [], seasonGroups = {}, seasonBatches = [], activeSeason = null, disposed = false, fountainWaterTexture = null;
     scene.add(group); group.name = 'saved-town-geometry';
@@ -1032,6 +1055,53 @@
       box(head,.23,.03,.21,mat('#a8754d',false,'wood'),0,-.13,0);box(head,.23,.025,.21,mat('#a8754d',false,'wood'),0,.125,0);
       var cap=mesh(lanternCapGeometry,mat('#a8754d',false,'wood'),head,0,.14,0);cap.rotation.y=Math.PI/4;cap.name='flared-wood-lantern-cap';ball(head,mat('#825b3e',false,'wood'),0,.26,0,.025,.025,.025);
     });
+    // Saved flowerbeds and the six original tulip pots remain unchanged. Only
+    // unsaved ambient repeats become bounded, irregular small meadow plants.
+    if (meadowEnabled) {
+      var roadTriangles = [], roadMeshes = layoutModel ? layoutModel.decorativeFloors.concat([layoutModel.bridgeDeck]) :
+        surfaces.filter(function (m) { return m.name === 'bridge-deck'; });
+      roadMeshes.filter(Boolean).forEach(function (m) {
+        m.updateWorldMatrix(true, false);
+        var attr = m.geometry.attributes.position, index = m.geometry.index;
+        for (var t = 0; t < (index ? index.count : attr.count); t += 3) {
+          var triangle = [];
+          for (var corner = 0; corner < 3; corner++) {
+            var vertex = new THREE.Vector3().fromBufferAttribute(attr, index ? index.getX(t + corner) : t + corner).applyMatrix4(m.matrixWorld);
+            triangle.push([vertex.x, vertex.z]);
+          }
+          roadTriangles.push(triangle);
+        }
+      });
+      var bankBounds = [];
+      for (var bank = 1; bank < shoreline.length; bank++) {
+        var ba = groundPoint(world, { x: shoreline[bank - 1][1], y: shoreline[bank - 1][0] });
+        var bb = groundPoint(world, { x: shoreline[bank][1], y: shoreline[bank][0] });
+        bankBounds.push([[ba.x, ba.z], [bb.x, bb.z]]);
+      }
+      // The current body/step/pot union and circular fountain bounds are
+      // deliberately conservative. A flower cluster never expands collisions.
+      var meadowObstacles = world.places.map(function (place) {
+        var b = Town.collisionBounds(place), lo = groundPoint(world, { x: b.minX, y: b.minY });
+        var hi = groundPoint(world, { x: b.maxX, y: b.maxY });
+        return { minX: lo.x, maxX: hi.x, minZ: lo.z, maxZ: hi.z };
+      });
+      var meadowSites = meadowSiteAPI.plan({ width: world.width / UNIT, depth: world.height / UNIT,
+        seed: 17371, count: 40, maxCandidates: 500, radius: .55, spacing: 1.25,
+        triangles: roadTriangles, boundaries: bankBounds, obstacles: meadowObstacles,
+        allowPoint: function (x, z) {
+          var point = townPoint(world, { x: x, z: z });
+          return Town.isWalkable(world, point.x, point.y) && heightAt(point) === .025;
+        } });
+      meadowLife = meadowFlowerAPI.create(THREE, { group: group,
+        sites: meadowSites.map(function (p) { return { id: p.id, x: p.x, y: .025, z: p.z, seed: p.seed }; }),
+        geometries: geometries, materials: materials, mat: mat });
+      scene.userData.meadowFlowersRevision = meadowLife.revision;
+      scene.userData.meadowFlowers = { revision: meadowLife.revision, summary: meadowLife.summary(), sitePlan: meadowSites,
+        roadTriangleCount: roadTriangles.length, obstacleCount: meadowObstacles.length, bankSegmentCount: bankBounds.length,
+        sweptRadius: .55, spacing: 1.25 };
+      meadowSites.forEach(function (p, i) { if (i % 4 === 0) seasonalSites.push({ x: p.x, z: p.z }); });
+    } else {
+    scene.userData.meadowFlowersRevision = null;
     for (var flower = 0; flower < 65; flower++) {
       var fp = { x: 80 + flower % 13 * 193 + Math.sin(flower * 7.3) * 48, y: 110 + Math.floor(flower / 13) * 353 + Math.cos(flower * 3.1) * 64 };
       // The new paved oval is a clear walking surface; keep old meadow scatter
@@ -1052,12 +1122,16 @@
         if (flower % 7 === 0) daisy(clump, .05, 0, .02, .48, false);
       }
     }
+    }
     // Unreachable border planting and low distant hills avoid a bare horizon.
     for (var edgeTree = 0; edgeTree < 26; edgeTree++) {
       var ex = edgeTree < 13 ? -world.width / 200 - .45 : -world.width / 200 + (edgeTree - 13) * 1.55, ez = edgeTree < 13 ? -world.height / 200 + edgeTree * 1.55 : -world.height / 200 - .45;
       var edgeGroup = new THREE.Group(); edgeGroup.position.set(ex + Math.sin(edgeTree * 2.7) * .4, .025, ez + Math.cos(edgeTree * 1.7) * .4); group.add(edgeGroup);
       var treeScale = .75 + (edgeTree * 7 % 9) * .055; softTree(edgeGroup, edgeTree * 2.4, treeScale, edgeTree + 1);
-      if (edgeTree % 2) { leafBush(group, ex + .5, .025, ez + .5, .6, edgeTree); for (var edgeFlower = 0; edgeFlower < 3; edgeFlower++) daisy(group, ex + .25 + edgeFlower * .2, .026, ez + .85, .85, false); }
+      if (edgeTree % 2 && !meadowEnabled) {
+        leafBush(group, ex + .5, .025, ez + .5, .6, edgeTree, meadowEnabled);
+        if (!meadowEnabled) for (var edgeFlower = 0; edgeFlower < 3; edgeFlower++) daisy(group, ex + .25 + edgeFlower * .2, .026, ez + .85, .85, false);
+      }
     }
     // Low smoothly rounded distant mounds leave a real view of the sky.
     // They stay outside the saved walkable map and never enter the collision set.
@@ -1165,14 +1239,14 @@
     function animate(ms, reduced) {
       var frame = natureFrame(ms, reduced);
       if(fountainWaterTexture)fountainWaterTexture.offset.set(reduced?0:(frame.time*.008)%1,reduced?0:Math.sin(frame.time*.12)*.016);
-      animateWindowRooms(frame,reduced);if(waterLife)waterLife.animate(ms,reduced);if(oceanLife)oceanLife.animate(ms,reduced);
+      animateWindowRooms(frame,reduced);if(waterLife)waterLife.animate(ms,reduced);if(oceanLife)oceanLife.animate(ms,reduced);if(meadowLife)meadowLife.animate(ms,reduced);
       trees.forEach(function (g, i) { g.rotation.z = frame.wind * Math.cos(i * 1.7); g.updateMatrixWorld(true); });
       droplets.forEach(function (m) { var a = reduced ? m.userData.phase : (frame.fountain + m.userData.phase) % 1; if(m.userData.cascade&&m.userData.cascade.curve)m.userData.cascade.curve.getPointAt(a,m.position);else if(m.userData.cascade)m.position.lerpVectors(m.userData.cascade.start,m.userData.cascade.end,a);else m.position.set(Math.sin(a * TAU) * .2, .48 + Math.sin(a * Math.PI) * .65, Math.cos(a * TAU) * .15); m.updateMatrixWorld(true); });
       batches.forEach(function (b) { if (b.dynamic) { b.rows.forEach(function (m, i) { b.mesh.setMatrixAt(i, m.matrixWorld); }); b.mesh.instanceMatrix.needsUpdate = true; } });
       return frame;
     }
-    function dispose() { if (disposed) return; disposed = true; if(originalArt)originalArt.dispose(); if(oceanLife&&oceanLife.instanceMeshes)oceanLife.instanceMeshes.forEach(function(m){m.dispose();}); batches.forEach(function (b) { b.mesh.dispose(); }); geometries.forEach(function (g) { g.dispose(); }); materials.forEach(function (m) { m.dispose(); }); textures.forEach(function (t) { t.dispose(); }); sun.shadow.dispose(); scene.clear(); }
-    return { scene: scene, surfaces: surfaces, occluders: occluders, pickables: pickables, placeGroups: placeGroups, solidLifeRevision:solidLifeRevision, windowRooms:windowRooms, windowLifeMaterials:windowLifeMaterials, waterLife:waterLife, oceanLife:oceanLife, shoreTransition:shoreTransition, animate: animate, dispose: dispose,
+    function dispose() { if (disposed) return; disposed = true; if(meadowLife)meadowLife.dispose(); if(originalArt)originalArt.dispose(); if(oceanLife&&oceanLife.instanceMeshes)oceanLife.instanceMeshes.forEach(function(m){m.dispose();}); batches.forEach(function (b) { b.mesh.dispose(); }); geometries.forEach(function (g) { g.dispose(); }); materials.forEach(function (m) { m.dispose(); }); textures.forEach(function (t) { t.dispose(); }); sun.shadow.dispose(); scene.clear(); }
+    return { scene: scene, surfaces: surfaces, occluders: occluders, pickables: pickables, placeGroups: placeGroups, solidLifeRevision:solidLifeRevision, windowRooms:windowRooms, windowLifeMaterials:windowLifeMaterials, waterLife:waterLife, oceanLife:oceanLife, shoreTransition:shoreTransition, meadowLife:meadowLife, animate: animate, dispose: dispose,
       loadOriginalArt:loadOriginalArt, originalHit:originalHit, originalDoorHit:originalDoorHit, originalArt:originalArt, setSeason: setSeason, seasonGroups: seasonGroups, styleLimits: style ? style.limits : null, layoutArtRevision: scene.userData.layoutArtRevision,
       treeVarietyRevision: treeAPI ? treeAPI.revision : null, treeVarietyKinds: treeKinds,
       geometries: geometries, materials: materials, textures: textures, batches: batches, people: people(world, view, avoid) };
@@ -1196,11 +1270,11 @@
       if (fishingVisual) release(function () { fishingVisual.dispose(); });
       if (model) release(function () { model.dispose(); }); if (texture) release(function () { texture.dispose(); });
       if (renderer) { release(function () { renderer.renderLists.dispose(); }); release(function () { renderer.dispose(); }); release(function () { renderer.forceContextLoss(); }); release(function () { renderer.domElement.remove(); }); }
-      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; delete host.dataset.townOriginalArt; delete host.dataset.townSolidLife; delete host.dataset.townShoreTransition; delete host.dataset.townTreeVariety; delete host.dataset.townTreeKinds; delete host.dataset.townFountainReference; delete host.dataset.townShopStyle; }
+      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; delete host.dataset.townOriginalArt; delete host.dataset.townSolidLife; delete host.dataset.townShoreTransition; delete host.dataset.townTreeVariety; delete host.dataset.townTreeKinds; delete host.dataset.townFountainReference; delete host.dataset.townShopStyle; delete host.dataset.townMeadowFlowers; }
     }
     function fail(code) { if (dead || failed) return; failed = true; destroy(); report('onFailure', code); }
     var THREE;
-    try { var dependencies = await Promise.all([options.three || loadThree(), loadFrameFit(), loadSeasons(), loadStyle(), loadLayoutArt(), loadOriginals(), loadWaterLife(), loadOceanLife(), loadShoreTransition(), loadTreeVariety()]); THREE = dependencies[0]; } catch (_) { fail('town_module_unavailable'); return null; }
+    try { var dependencies = await Promise.all([options.three || loadThree(), loadFrameFit(), loadSeasons(), loadStyle(), loadLayoutArt(), loadOriginals(), loadWaterLife(), loadOceanLife(), loadShoreTransition(), loadTreeVariety(), loadMeadow()]); THREE = dependencies[0]; } catch (_) { fail('town_module_unavailable'); return null; }
     if (!active()) { destroy(); return null; }
     var sprite, playerShadow, camera, ray, pointer, direction, target, desired, contactMap = null, fishingVisual = null, fishingState = null;
     function contactShadow(radius) {
@@ -1323,7 +1397,7 @@
       model = buildWorld(THREE, world, options.view, position, doc, firstSeason ? firstSeason.key : 'summer');
       await model.loadOriginalArt();
       if(!active()){destroy();return null;}
-      host.dataset.townOriginalArt=model.scene.userData.originalArtRevision;host.dataset.townSolidLife=model.solidLifeRevision;host.dataset.townOceanMotion=model.scene.userData.oceanMotionRevision;host.dataset.townShoreTransition=model.scene.userData.shoreTransitionRevision;host.dataset.townTreeVariety=model.treeVarietyRevision;host.dataset.townTreeKinds=JSON.stringify(model.treeVarietyKinds);host.dataset.townFountainReference=model.scene.userData.fountainReferenceRevision;host.dataset.townShopStyle=model.scene.userData.shopStyleRevision;
+      host.dataset.townOriginalArt=model.scene.userData.originalArtRevision;host.dataset.townSolidLife=model.solidLifeRevision;host.dataset.townOceanMotion=model.scene.userData.oceanMotionRevision;host.dataset.townShoreTransition=model.scene.userData.shoreTransitionRevision;host.dataset.townTreeVariety=model.treeVarietyRevision;host.dataset.townTreeKinds=JSON.stringify(model.treeVarietyKinds);host.dataset.townFountainReference=model.scene.userData.fountainReferenceRevision;host.dataset.townShopStyle=model.scene.userData.shopStyleRevision;host.dataset.townMeadowFlowers=model.scene.userData.meadowFlowersRevision;
       host.dataset.townStyle = model.styleLimits ? 'shop-cottage-match2' : 'legacy';
       host.dataset.townLayoutArt = model.layoutArtRevision;
       if (Fishing && typeof Fishing.createVisual === 'function') { fishingVisual = Fishing.createVisual(THREE, world); model.scene.add(fishingVisual.group); }
