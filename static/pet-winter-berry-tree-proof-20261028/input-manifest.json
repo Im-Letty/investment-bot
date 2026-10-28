@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "base_main_sha": "5c417df513fd68dab30b254c52161593c70b4581",
+  "model_id": "winter-berry-garden-tree-v1",
+  "unit_id": "village:asset-library:winter-berry-garden-tree:v1",
+  "bodyBinding": null,
+  "reference_images_visually_inspected": true,
+  "no_original_raster_changes": true,
+  "inputs": [
+    {
+      "path": "static/vendor/three-0.160.1.module.js",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    {
+      "path": "static/pet-town-scene.js",
+      "sha256": "ea679b2123ec4890b43df6921b89f5f7a750ec0247e037f9c08d0f1ca4a701d7",
+      "bytes": 137276
+    },
+    {
+      "path": "static/pet-town-walk.js",
+      "sha256": "634dacef24a34f811cba3d8f44e9a8b178ec5ea6e462553cd35c0c98eaf62f4f",
+      "bytes": 28728
+    },
+    {
+      "path": "static/pet-town-layout-art.js",
+      "sha256": "66b5969fbe9f7ecdaf78c30553453dc25badd69ea6b416a71a3bca285abeaa27",
+      "bytes": 14751
+    },
+    {
+      "path": "static/pet-town-placement-originals.js",
+      "sha256": "cd1cc166950eb94c4989e91e765e70a4ff2b861bc431d1dcf734a95edb06ab8b",
+      "bytes": 12383
+    },
+    {
+      "path": "static/pet-town-tree-variety.js",
+      "sha256": "8333b6fb83d13ff3c24d6fc9a83c2439f55cd957153d71607c991a2023ab374e",
+      "bytes": 3137
+    },
+    {
+      "path": "static/pet-town-meadow-sites.js",
+      "sha256": "8dc614aa334fc3351cf893451b8624ef00cbe1b2bba6f29501d6359d62d9b870",
+      "bytes": 6433
+    },
+    {
+      "path": "static/pet-town-meadow-flowers.js",
+      "sha256": "c66181a2d15f03f67e1c34e238fef661b82796b12a179cf62b95c11d686f1652",
+      "bytes": 23214
+    },
+    {
+      "path": "static/pet-town-ground-finish.js",
+      "sha256": "a167074f886714701dad8bd2d72c659f2c05ef9f8af45526bc05823d7356b6e6",
+      "bytes": 10682
+    },
+    {
+      "path": "static/pet-town-water-finish.js",
+      "sha256": "055ea1ff65df676b5bb998407f5d0dfb67047465741ff675e9532c5384aa5460",
+      "bytes": 13709
+    },
+    {
+      "path": "static/pet-town-environment.js",
+      "sha256": "32e7680cc2770f0d6ba3d561456fe3980f2147d5d790e91081ab5f005f412439",
+      "bytes": 10394
+    },
+    {
+      "path": "static/pet-town-style.js",
+      "sha256": "7985e1f983329bcef7567c634543a74b442de56b8757858693ae54ef64b68e2a",
+      "bytes": 13719
+    },
+    {
+      "path": "static/pet-town-shore-transition.js",
+      "sha256": "14949767cb6b42c491c91702b2bf0cd98d1fb7fe1534b292b0d94c79a292d3fd",
+      "bytes": 10284
+    },
+    {
+      "path": "static/pet-town-water-life.js",
+      "sha256": "948078e9fcb8b6897bcf1ec7653106545b72401b76b17881111fe4b816f3c28d",
+      "bytes": 6154
+    },
+    {
+      "path": "static/pet-town-ocean-life.js",
+      "sha256": "91107133ee5c315b110226b7fc0be81376fc5d1cf5b937108b29e64813329a2d",
+      "bytes": 8545
+    },
+    {
+      "path": "static/pet-frame-fit.js",
+      "sha256": "7b3b730dc7834e1c56f455161d59005f8352a3cd918e52be1893bc4b7706dc13",
+      "bytes": 2434
+    },
+    {
+      "path": "static/pet-river-fishing.js",
+      "sha256": "8b4e1d2d9f2b9fda72f66e79b2105dccdadd2e6de5230c24e920cbdcf561aedb",
+      "bytes": 8325
+    },
+    {
+      "path": "static/pet-japan-seasons.js",
+      "sha256": "944ff98aa81f7975b4daf4dc3ca59887f042e2c8be9eb1e5b6ea29637f46225a",
+      "bytes": 5025
+    },
+    {
+      "path": "static/pet-toolbox-integral-link-proof-20261027/placement.mjs",
+      "sha256": "b56467e091b3d0408d2f1d52d83a48cdd88f837304fa3b1fb71717b5b3dce961",
+      "bytes": 2718
+    },
+    {
+      "path": "static/pet-snow-glass-lamp-proof-20261027/placement.mjs",
+      "sha256": "eb6d92d6dd9e06d4c0391d39ea9b3c6df4e86dcd28e243b74b15097cec5c214e",
+      "bytes": 5943
+    },
+    {
+      "path": "static/pet-scalloped-path-proof-20261027/framing.mjs",
+      "sha256": "dba92c2f6dec2816ebcf25434ee07c3b699accb61b7e1961a11baf366edad08a",
+      "bytes": 1678
+    },
+    {
+      "path": "static/pet-village-art/tree-shop-grove-soft-roots-v2.png",
+      "sha256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+      "bytes": 1730812
+    },
+    {
+      "path": "static/pet-village-art/tree-orchard-apple-v1.png",
+      "sha256": "ce7ef7adda439841a3fc36de04d5250eb01249ce653337f19b6d9520b028c45b",
+      "bytes": 1467980
+    },
+    {
+      "path": "static/pet-village-art/tree-silver-birch-v1.png",
+      "sha256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+      "bytes": 1282087
+    }
+  ],
+  "files": [
+    {
+      "path": "tree.mjs",
+      "sha256": "b15b2f6003d84d8d05b8e5f551652f09771de2ae3e0c084f29eca428e4722b18",
+      "bytes": 9015
+    },
+    {
+      "path": "placement.mjs",
+      "sha256": "b21faf747ef98560838c03e4b7ec78c146135f1cf924bb764d8fab974a232de9",
+      "bytes": 8804
+    },
+    {
+      "path": "viewer.mjs",
+      "sha256": "77d41b0edd07935f1bd40de79feb852bca2bb096c5438fde52e764c252f94f09",
+      "bytes": 10025
+    },
+    {
+      "path": "entry.mjs",
+      "sha256": "c34b0834b3994c5953baf9ea62b4df9966df7297a874cbbd5cf566a7fac5e4a9",
+      "bytes": 3249
+    },
+    {
+      "path": "index.html",
+      "sha256": "0a763cba884253467491d1c4164a7725cf4fbc8d9beae7811bff9c36adc4323d",
+      "bytes": 3426
+    },
+    {
+      "path": "SPEC.json",
+      "sha256": "debf90c69b6913276a570bcf09655a880440a0ddd8a5a97deaa3ca4d6ab36e4f",
+      "bytes": 1578
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "unit_id": "wardrobe:fit-prerequisite:morning-garden-smock:garment-volume-openings:v1",
+  "source_asset": "prepared_clothing_02a_garden_smock_v1",
+  "source_SHA256": "da52a67002f533630dfc7720eb78258fce056a06a762aa340a3fd8cefbfd4e6a",
+  "representation": "New flared smock paired front-U/high-back panels with shared-index shoulder/underarm/side seams; closed inner/outer/rim material has four actual open passages. Cream piping, two decorative pocket patches, leaf embroidery, wooden toggles and authored crossed back ribbons.",
+  "authored_geometry": {
+    "unit_scale": "garment-local prototype dimensions only, not measured or calibrated to any body",
+    "nominal_pattern_inset_and_face_depth": 0.026,
+    "back_depth_and_inside": "authored new garment construction, not measurements, reconstructed anatomy or recovered original back",
+    "fixed_sleeves": true,
+    "pockets": "closed decorative patch solids with overlapping attached layers; no storage/fastener function",
+    "crossing_straps": "two new attached closed back cloth ribbons; source cue interpreted, no original backside claim",
+    "interior_camera": "one authored below-hem angle showing inner walls and opening edges; no all-interior visibility guarantee"
+  },
+  "palette_reuse": [
+    "sage and lining from dandelion pullover",
+    "leaf from vest",
+    "cream/wood and unchanged three studio lights from coastal tunic"
+  ],
+  "finite_passages": 16,
+  "finite_camera_samples": 28,
+  "finite_passages_are_not_unique_tests": true,
+  "bodyBinding": null,
+  "not_verified": [
+    "actual wearing and body attachment or anatomy",
+    "numerical size calibration and stretch",
+    "rig, cloth physics, all-growth or full-character volume360",
+    "normal game ownership/unlock/save/integration",
+    "continuous collision, coplanar contact or physical safety"
+  ],
+  "new_raw_PNGs": 0,
+  "new_original_designs": 0,
+  "imagegen_calls": 0,
+  "new_body_references": 0,
+  "new_canonical_fit_success": 0,
+  "new_village_library_candidates": 0,
+  "model_textures": 0,
+  "original_applied_to_all_faces": false,
+  "finite_interior_camera_samples": 4
+}

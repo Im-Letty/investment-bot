@@ -1,0 +1,1175 @@
+{
+  "schema_version": 1,
+  "unit_id": "wardrobe:fit-prerequisite:morning-garden-smock:garment-volume-openings:v1",
+  "audit": "actual closed material topology, strict fixed-shell crossings, every displayed-solid opening segment, and every part contact witness",
+  "geometry": {
+    "model_id": "morning-garden-smock-garment-volume-v1",
+    "sourceSHA": "da52a67002f533630dfc7720eb78258fce056a06a762aa340a3fd8cefbfd4e6a",
+    "topology": {
+      "vertices": 128,
+      "triangles": 264,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.16800697146067325
+    },
+    "construction": {
+      "pattern": "new rounded-U-front / high-back flared smock panels with shared-index shoulder, underarm and side seams",
+      "outerTriangles": 84,
+      "innerTriangles": 84,
+      "rimWallTriangles": 96,
+      "passageRims": 4,
+      "sleevesShareTorsoBoundaryIndices": true,
+      "authoredBackCrossStraps": true,
+      "bodyBinding": null
+    },
+    "budget": {
+      "meshes": 68,
+      "geometries": 15,
+      "materials": 5,
+      "textures": 0,
+      "lights": 0,
+      "triangles": 2800
+    },
+    "bounds": {
+      "min": [
+        -1.0266345422267913,
+        -0.008115203471832047,
+        -0.2899979072399194
+      ],
+      "max": [
+        1.0266345422267913,
+        1.6696717779326604,
+        0.4006464595254978
+      ],
+      "size": [
+        2.0532690844535826,
+        1.6777869814044926,
+        0.6906443667654172
+      ]
+    },
+    "garmentRims": {
+      "neck": {
+        "space": "garment_local",
+        "surfaceMesh": "joined-smock-material-shell",
+        "outerVertex": 31,
+        "actualSurfacePosition": [
+          -0.2800000011920929,
+          1.4700000286102295,
+          0.27376288175582886
+        ],
+        "actualSurfaceNormal": [
+          0.19190751267652945,
+          0.11167884019351532,
+          0.975038123988667
+        ],
+        "localFrame": [
+          0.9811760160072568,
+          0,
+          -0.19311557578850927,
+          0,
+          -0.021566923527363623,
+          0.9937443517590585,
+          -0.10957659949338446,
+          0,
+          0.19190751267652945,
+          0.11167884019351532,
+          0.975038123988667,
+          0,
+          -0.2800000011920929,
+          1.4700000286102295,
+          0.27376288175582886,
+          1
+        ],
+        "boundaryOuterVertexIndices": [
+          31,
+          0,
+          32,
+          63,
+          62,
+          61,
+          60,
+          59,
+          58,
+          26,
+          27,
+          28,
+          29,
+          30
+        ],
+        "bodyBinding": null,
+        "anatomicalSocket": false
+      },
+      "left_cuff": {
+        "space": "garment_local",
+        "surfaceMesh": "joined-smock-material-shell",
+        "outerVertex": 3,
+        "actualSurfacePosition": [
+          -1.0199999809265137,
+          1.1799999475479126,
+          0.2584478259086609
+        ],
+        "actualSurfaceNormal": [
+          -0.3127869625262236,
+          0.10471536829058578,
+          0.9440333721417827
+        ],
+        "localFrame": [
+          0.9492521391306751,
+          -3.469446951953615e-18,
+          0.3145160987228438,
+          0,
+          0.032934669111080825,
+          0.9945022331014481,
+          -0.09940128734969501,
+          0,
+          -0.3127869625262236,
+          0.10471536829058578,
+          0.9440333721417827,
+          0,
+          -1.0199999809265137,
+          1.1799999475479126,
+          0.2584478259086609,
+          1
+        ],
+        "boundaryOuterVertexIndices": [
+          3,
+          4,
+          36,
+          35
+        ],
+        "bodyBinding": null,
+        "anatomicalSocket": false
+      },
+      "right_cuff": {
+        "space": "garment_local",
+        "surfaceMesh": "joined-smock-material-shell",
+        "outerVertex": 22,
+        "actualSurfacePosition": [
+          0.8199999928474426,
+          0.9599999785423279,
+          0.2742743492126465
+        ],
+        "actualSurfaceNormal": [
+          -0.31929060650463487,
+          -0.7928633648584372,
+          0.5190579864169889
+        ],
+        "localFrame": [
+          0.8517532956547453,
+          0,
+          0.5239430535289881,
+          0,
+          -0.4154152524151978,
+          0.6093994459017473,
+          0.6753239840220847,
+          0,
+          -0.31929060650463487,
+          -0.7928633648584372,
+          0.5190579864169889,
+          0,
+          0.8199999928474426,
+          0.9599999785423279,
+          0.2742743492126465,
+          1
+        ],
+        "boundaryOuterVertexIndices": [
+          22,
+          23,
+          55,
+          54
+        ],
+        "bodyBinding": null,
+        "anatomicalSocket": false
+      },
+      "hem": {
+        "space": "garment_local",
+        "surfaceMesh": "joined-smock-material-shell",
+        "outerVertex": 7,
+        "actualSurfacePosition": [
+          -0.7799999713897705,
+          0.18000000715255737,
+          0.29936832189559937
+        ],
+        "actualSurfaceNormal": [
+          -0.9740717560821337,
+          0.2199449274981615,
+          0.0529947438044243
+        ],
+        "localFrame": [
+          0.054325039593933346,
+          1.734723475976807e-18,
+          0.9985233047220868,
+          0,
+          0.21962013586232407,
+          0.9755122904750245,
+          -0.011948516894822427,
+          0,
+          -0.9740717560821337,
+          0.2199449274981615,
+          0.0529947438044243,
+          0,
+          -0.7799999713897705,
+          0.18000000715255737,
+          0.29936832189559937,
+          1
+        ],
+        "boundaryOuterVertexIndices": [
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          51,
+          50,
+          49,
+          48,
+          47,
+          46,
+          45,
+          44,
+          43,
+          42,
+          41,
+          40,
+          39
+        ],
+        "bodyBinding": null,
+        "anatomicalSocket": false
+      }
+    },
+    "passages": {
+      "count": 16,
+      "blocked": 0,
+      "segments": [
+        {
+          "opening": "neck",
+          "from": [
+            0,
+            1.8,
+            0
+          ],
+          "to": [
+            0,
+            -0.15,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "neck",
+          "from": [
+            0.07,
+            1.8,
+            0
+          ],
+          "to": [
+            0.07,
+            -0.15,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "neck",
+          "from": [
+            -0.07,
+            1.8,
+            0
+          ],
+          "to": [
+            -0.07,
+            -0.15,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "neck",
+          "from": [
+            0,
+            1.8,
+            0.07
+          ],
+          "to": [
+            0,
+            -0.15,
+            0.07
+          ],
+          "hits": []
+        },
+        {
+          "opening": "neck",
+          "from": [
+            0,
+            1.8,
+            -0.07
+          ],
+          "to": [
+            0,
+            -0.15,
+            -0.07
+          ],
+          "hits": []
+        },
+        {
+          "opening": "hem",
+          "from": [
+            0,
+            -0.15,
+            0
+          ],
+          "to": [
+            0,
+            1.8,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "hem",
+          "from": [
+            0.18,
+            -0.15,
+            0
+          ],
+          "to": [
+            0.18,
+            1.8,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "hem",
+          "from": [
+            -0.18,
+            -0.15,
+            0
+          ],
+          "to": [
+            -0.18,
+            1.8,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "hem",
+          "from": [
+            0,
+            -0.15,
+            0.1
+          ],
+          "to": [
+            0,
+            1.8,
+            0.1
+          ],
+          "hits": []
+        },
+        {
+          "opening": "hem",
+          "from": [
+            0,
+            -0.15,
+            -0.1
+          ],
+          "to": [
+            0,
+            1.8,
+            -0.1
+          ],
+          "hits": []
+        },
+        {
+          "opening": "left_cuff",
+          "from": [
+            -1.14,
+            0.975,
+            0
+          ],
+          "to": [
+            -0.61,
+            1.3150000000000002,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "left_cuff",
+          "from": [
+            -1.14,
+            1.01,
+            0
+          ],
+          "to": [
+            -0.61,
+            1.35,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "left_cuff",
+          "from": [
+            -1.14,
+            1.045,
+            0
+          ],
+          "to": [
+            -0.61,
+            1.385,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "right_cuff",
+          "from": [
+            1.14,
+            0.975,
+            0
+          ],
+          "to": [
+            0.61,
+            1.3150000000000002,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "right_cuff",
+          "from": [
+            1.14,
+            1.01,
+            0
+          ],
+          "to": [
+            0.61,
+            1.35,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "opening": "right_cuff",
+          "from": [
+            1.14,
+            1.045,
+            0
+          ],
+          "to": [
+            0.61,
+            1.385,
+            0
+          ],
+          "hits": []
+        }
+      ]
+    },
+    "contactWitnesses": [
+      {
+        "part": "cream-neck-edge-0",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.3059649865917654,
+          1.5554179647567068,
+          0.2576576086529863
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-neck-edge-1",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.31117950472976275,
+          1.64521923661232,
+          0.011618143878921773
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-neck-edge-2",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.2950120107603513,
+          1.6440619857573278,
+          -0.22281187772959798
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-neck-edge-3",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.24150061608872933,
+          1.633643600552575,
+          -0.22803981262364523
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-neck-edge-4",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.0990599939493071,
+          1.6031265947483142,
+          -0.23185959828419034
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-neck-edge-5",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.09789896220543676,
+          1.6023424667143658,
+          -0.23192190472510374
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-neck-edge-6",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.24150061608872933,
+          1.633643600552575,
+          -0.22803981262364523
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-neck-edge-7",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.2950120107603513,
+          1.6440619857573278,
+          -0.22281187772959798
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-neck-edge-8",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.3082674273616464,
+          1.6445330430736487,
+          0.020102601052968717
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-neck-edge-9",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.3059649865917654,
+          1.5554179647567068,
+          0.2576576086529863
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-neck-edge-10",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.24897809208842034,
+          1.3847467584674393,
+          0.2635697347990043
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-neck-edge-11",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.10134432708922765,
+          1.2667553796720232,
+          0.26798163574377987
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-neck-edge-12",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.10320198387890846,
+          1.2691104779814988,
+          0.26789289107767406
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-neck-edge-13",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.24897809208842034,
+          1.3847467584674393,
+          0.2635697347990043
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-left_cuff-edge-0",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.9069586555538731,
+          1.0801240108836108,
+          0.25348189194565574
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-left_cuff-edge-1",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.8155272133219756,
+          0.9790436791574079,
+          0.014400500277702613
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-left_cuff-edge-2",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.9069579544892328,
+          1.0801241624651898,
+          -0.22096009168534006
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-left_cuff-edge-3",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -1.0021074639958054,
+          1.18367323768856,
+          0.01847646086235659
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-right_cuff-edge-0",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.9069586555538731,
+          1.0801240108836108,
+          0.25348189194565574
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-right_cuff-edge-1",
+        "target": "joined-smock-material-shell",
+        "point": [
+          1.0021054172344637,
+          1.1836763865530289,
+          0.012771009252106941
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-right_cuff-edge-2",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.9069579544892328,
+          1.0801241624651898,
+          -0.22096009168534006
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-right_cuff-edge-3",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.8155320449746546,
+          0.9790402791053252,
+          0.019353437291218828
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-0",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.7612941059533237,
+          0.14755771364941017,
+          0.28768669947967856
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-1",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.6987970604440494,
+          0.08076383783566629,
+          0.29232341951328905
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-2",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.5622551518436799,
+          0.06418726744975778,
+          0.29729804959649536
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-3",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.37522956120577033,
+          0.05074581049374328,
+          0.3021099318474279
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-4",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.20805534411481447,
+          0.04126107316880847,
+          0.30486149679482044
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-5",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.05543812149819697,
+          0.033949464901391044,
+          0.30620030831178696
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-6",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.05543812149819697,
+          0.033949464901391044,
+          0.30620030831178696
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-7",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.20805534411481447,
+          0.04126107316880847,
+          0.30486149679482044
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-8",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.37522956120577033,
+          0.05074581049374328,
+          0.3021099318474279
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-9",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.5622551518436799,
+          0.06418726744975778,
+          0.29729804959649536
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-10",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.6987970604440494,
+          0.08076383783566629,
+          0.29232341951328905
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-11",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.7612941059533237,
+          0.14755771364941017,
+          0.28768669947967856
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-12",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.7656810395555804,
+          0.1824885286516318,
+          0.016831410078395226
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-13",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.7612940829159974,
+          0.14755779680854467,
+          -0.2511160652602913
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-14",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.6987963778417606,
+          0.0807638093938972,
+          -0.2550484147329335
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-15",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.5622560977609105,
+          0.06418749266816477,
+          -0.2590850245429963
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-16",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.3752294385654323,
+          0.05074581167297729,
+          -0.2629748786729814
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-17",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.20805559920211608,
+          0.04126110445309897,
+          -0.2652048933048736
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-18",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.055438112933864435,
+          0.03394946585298354,
+          -0.2662986811562498
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-19",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.055438112933864435,
+          0.03394946585298354,
+          -0.2662986811562498
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-20",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.20805559920211608,
+          0.04126110445309897,
+          -0.2652048933048736
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-21",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.3752294385654323,
+          0.05074581167297729,
+          -0.2629748786729814
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-22",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.5622560977609105,
+          0.06418749266816477,
+          -0.2590850245429963
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-23",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.6987963778417606,
+          0.0807638093938972,
+          -0.2550484147329335
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-24",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.7612940829159974,
+          0.14755779680854467,
+          -0.2511160652602913
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "cream-hem-edge-25",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.7656807101646883,
+          0.18248962662136556,
+          0.019581288502244887
+        ],
+        "scope": "strict rim piping / actual cloth common-solid witness"
+      },
+      {
+        "part": "left-pocket-cream-edge",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.365,
+          0.4671428571428571,
+          0.2946438336169426
+        ],
+        "scope": "strict common-solid witness with authored smock material"
+      },
+      {
+        "part": "left-pocket-sage-patch",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.365,
+          0.4828571428571428,
+          0.2941325415819904
+        ],
+        "scope": "strict common-solid witness with authored smock material"
+      },
+      {
+        "part": "left-pocket-cream-flap",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.365,
+          0.6549999999999999,
+          0.2885315697445592
+        ],
+        "scope": "strict common-solid witness with authored smock material"
+      },
+      {
+        "part": "left-pocket-wood-toggle",
+        "target": "left-pocket-sage-patch",
+        "point": [
+          -0.365,
+          0.59,
+          0.32464645952549787
+        ],
+        "scope": "strict pocket toggle / patch common-solid witness"
+      },
+      {
+        "part": "right-pocket-cream-edge",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.36499999999999994,
+          0.4671428571428571,
+          0.2902123395917522
+        ],
+        "scope": "strict common-solid witness with authored smock material"
+      },
+      {
+        "part": "right-pocket-sage-patch",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.365,
+          0.4828571428571428,
+          0.290045699469508
+        ],
+        "scope": "strict common-solid witness with authored smock material"
+      },
+      {
+        "part": "right-pocket-cream-flap",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.36499999999999994,
+          0.6549999999999999,
+          0.2882202326758321
+        ],
+        "scope": "strict common-solid witness with authored smock material"
+      },
+      {
+        "part": "right-pocket-wood-toggle",
+        "target": "right-pocket-sage-patch",
+        "point": [
+          0.365,
+          0.59,
+          0.32290951681784263
+        ],
+        "scope": "strict pocket toggle / patch common-solid witness"
+      },
+      {
+        "part": "back-cross-strap-left",
+        "target": "joined-smock-material-shell",
+        "point": [
+          1.3877787807814457e-17,
+          1.3125,
+          -0.24399914005603485
+        ],
+        "scope": "strict common-solid witness with authored smock material"
+      },
+      {
+        "part": "back-cross-strap-right",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -1.3877787807814457e-17,
+          1.3125,
+          -0.24399914005603485
+        ],
+        "scope": "strict common-solid witness with authored smock material"
+      },
+      {
+        "part": "left-shoulder-tab",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.4300000000000001,
+          1.4170000000000003,
+          0.26801873103125073
+        ],
+        "scope": "strict common-solid witness with authored smock material"
+      },
+      {
+        "part": "left-shoulder-wood-toggle",
+        "target": "left-shoulder-tab",
+        "point": [
+          -0.43,
+          1.41,
+          0.28822819993566573
+        ],
+        "scope": "strict shoulder toggle / tab common-solid witness"
+      },
+      {
+        "part": "right-shoulder-tab",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.43,
+          1.4170000000000003,
+          0.26801873103125073
+        ],
+        "scope": "strict common-solid witness with authored smock material"
+      },
+      {
+        "part": "right-shoulder-wood-toggle",
+        "target": "right-shoulder-tab",
+        "point": [
+          0.43,
+          1.41,
+          0.28822819993566573
+        ],
+        "scope": "strict shoulder toggle / tab common-solid witness"
+      },
+      {
+        "part": "leaf-embroidery-left",
+        "target": "joined-smock-material-shell",
+        "point": [
+          -0.063,
+          1.083,
+          0.2793912156700402
+        ],
+        "scope": "strict common-solid witness with authored smock material"
+      },
+      {
+        "part": "leaf-embroidery-right",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.078,
+          1.0950000000000002,
+          0.28067737160471595
+        ],
+        "scope": "strict common-solid witness with authored smock material"
+      },
+      {
+        "part": "embroidery-stem-0",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.005,
+          0.96,
+          0.28437719711750675
+        ],
+        "scope": "strict embroidery stem / cloth common-solid witness"
+      },
+      {
+        "part": "embroidery-stem-1",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.0125,
+          1.0225,
+          0.28378960520146423
+        ],
+        "scope": "strict embroidery stem / cloth common-solid witness"
+      },
+      {
+        "part": "embroidery-stem-2",
+        "target": "joined-smock-material-shell",
+        "point": [
+          0.03,
+          1.0825,
+          0.2833287659438656
+        ],
+        "scope": "strict embroidery stem / cloth common-solid witness"
+      }
+    ],
+    "bodyBinding": null,
+    "authoredGarmentDepthNotBodyDepth": true,
+    "wearing": false,
+    "rig": false,
+    "clothPhysics": false,
+    "normalGamePlacement": false,
+    "ownershipUnlockSave": false
+  },
+  "strictCrossings": {
+    "triangles": 264,
+    "candidateNonadjacentAABBPairs": 732,
+    "strictEdgeInteriorCrossings": 0,
+    "witnesses": [],
+    "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+  },
+  "allDisplayedSolidsClosed": true,
+  "allContactWitnessesStrictlyContained": true,
+  "unique_test_suite": "tests/test_pet_garden_smock_volume_20261028.mjs",
+  "unique_tests": 10,
+  "finite_camera_samples": 28,
+  "finite_interior_camera_samples": 4,
+  "finite_samples_are_not_unique_tests": true,
+  "scope": "garment-only authored prototype; no body, wearing, calibration, rig, cloth physics, continuous/coplanar guarantee, all-growth or normal game claims"
+}

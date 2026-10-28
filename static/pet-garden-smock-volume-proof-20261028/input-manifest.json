@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "model_id": "morning-garden-smock-garment-volume-v1",
+  "unit_id": "wardrobe:fit-prerequisite:morning-garden-smock:garment-volume-openings:v1",
+  "run_id": "automation360-20261028-155217",
+  "base_main_sha": "5c417df513fd68dab30b254c52161593c70b4581",
+  "parent_reservation": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/heartbeat-20261028-155217/parent-reservation.json",
+    "sha256": "a58bbde75ffb6521c7ddfbe965d1af5fc229d73618a868266b359ad091f88afc",
+    "bytes": 410
+  },
+  "preproduction_fit_audit": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/heartbeat-20261028-155217/fit-audit-verification.json",
+    "sha256": "d7cb2b708b4515f853221a144d6211cf323bad830f3fe4070b118baa3113fa95",
+    "bytes": 7567
+  },
+  "source_original": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/assets/morning-garden-smock-v1.png",
+    "sha256": "da52a67002f533630dfc7720eb78258fce056a06a762aa340a3fd8cefbfd4e6a",
+    "bytes": 1879695
+  },
+  "source_original_viewed_before_design": true,
+  "original_copy_unmodified": true,
+  "new_raw_PNGs": 0,
+  "new_original_designs": 0,
+  "imagegen_calls": 0,
+  "new_body_references": 0,
+  "new_canonical_fit_success": 0,
+  "new_village_library_candidates": 0,
+  "bodyBinding": null,
+  "not_a_body_or_fitting_pass": true,
+  "authored_garment_depth_back_and_interior": true,
+  "bitmap_applied_to_all_sides": false,
+  "model_textures": 0,
+  "ordinary_game_changes": 0,
+  "scope": "One new flared rounded-neck smock material shell with shared-index seams, actual neck/cuffs/hem passages, two decorative pockets, leaf embroidery, wooden toggles and authored back crossing ribbons.",
+  "finite_passage_segments": 16,
+  "finite_camera_samples": 28,
+  "finite_interior_camera_samples": 4,
+  "finite_witnesses_are_not_unique_tests": true,
+  "crossing_limit": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee",
+  "files": [
+    {
+      "path": "SPEC.json",
+      "sha256": "237667da8c4935198070662fdb078691dfe57d84c28627946aa459f8f84ef435",
+      "bytes": 2140
+    },
+    {
+      "path": "audit.mjs",
+      "sha256": "c26a7609ce44992dd77d8f80362bde8ea6d0044860e9aca7f93ee9d070cfe086",
+      "bytes": 4188
+    },
+    {
+      "path": "entry.mjs",
+      "sha256": "e3474408ccc0dccbd172be1eb258909adb4c71d5a7c11b0cc2dd8f9b166285c1",
+      "bytes": 1815
+    },
+    {
+      "path": "finite-geometry-certificate.json",
+      "sha256": "fcda59f224834291c3548b9237413f5ca7a22744eb48b31bd860a09cf0a05faf",
+      "bytes": 30716
+    },
+    {
+      "path": "index.html",
+      "sha256": "4fb6a607c1fd8fa63bdb5c5561a0ca21475c99cd6b2afcd6dfede481985b7387",
+      "bytes": 4424
+    },
+    {
+      "path": "interior-camera.mjs",
+      "sha256": "5859cfbf6eeb8b9826b177848dfee2359a70e9fd37319363d560a607b4973528",
+      "bytes": 1049
+    },
+    {
+      "path": "reference.png",
+      "sha256": "da52a67002f533630dfc7720eb78258fce056a06a762aa340a3fd8cefbfd4e6a",
+      "bytes": 1879695
+    },
+    {
+      "path": "smock.mjs",
+      "sha256": "9d22aa652e6dee7b91f694faa408abf5cd03c5d8f22629a512d0511c3ae94917",
+      "bytes": 17378
+    },
+    {
+      "path": "viewer.mjs",
+      "sha256": "2962815caefbc8165167de91309ff0a8c51be4e2a003c2eec8c9e09d8706a2c8",
+      "bytes": 7763
+    }
+  ],
+  "inputs": [
+    {
+      "path": "static/vendor/three-0.160.1.module.js",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    {
+      "path": "static/pet-scalloped-path-proof-20261027/framing.mjs",
+      "sha256": "dba92c2f6dec2816ebcf25434ee07c3b699accb61b7e1961a11baf366edad08a",
+      "bytes": 1678
+    },
+    {
+      "path": "tests/test_pet_garden_smock_volume_20261028.mjs",
+      "sha256": "78aff737bdcc316cfa06a939311872fae7fd7bb21570f6a34fec15f9e5ae4838",
+      "bytes": 11986
+    }
+  ]
+}

@@ -1,0 +1,201 @@
+{
+  "schema_version": 1,
+  "unit_id": "wardrobe:fit-prerequisite:seed-sorting-cabinet:closed-drawer-shell-guide:v1",
+  "source_base": "5c417df513fd68dab30b254c52161593c70b4581",
+  "reference_source": "work/wardrobe-living-village-continuation-20261024/assets/seed-sorting-cabinet-v1.png",
+  "reference_viewed_before_authoring": true,
+  "source_original_unmodified": true,
+  "normal_game_change": false,
+  "new_designs": 0,
+  "new_png_designs": 0,
+  "new_library_assets": 0,
+  "bodyBinding": null,
+  "inputs": [
+    {
+      "role": "exact-unmodified-reference-copy",
+      "path": "./reference.png",
+      "sha256": "efcb64b9da0f3572b18f9aebad1b311dd85c5a9bc01da18a10237eac8255e61b",
+      "bytes": 1625486
+    },
+    {
+      "role": "authored-prerequisite-source",
+      "path": "./cabinet.mjs",
+      "sha256": "f9ecbd5bb1b445f6781443280fe2326ab1ec382587579b9c7e7ef9146f97260b",
+      "bytes": 13528
+    },
+    {
+      "role": "authored-prerequisite-source",
+      "path": "./placement.mjs",
+      "sha256": "473586801917eb12815afd3f899a6b2e38d2b32a9be98fc068065ef42a98e5b9",
+      "bytes": 8738
+    },
+    {
+      "role": "authored-prerequisite-source",
+      "path": "./SPEC.json",
+      "sha256": "30b0f7177d510520521cb6d00dd75b3694f2fd1ce7cea2b08c8752310b3113b0",
+      "bytes": 1211
+    },
+    {
+      "role": "authored-prerequisite-source",
+      "path": "./viewer.mjs",
+      "sha256": "532a988ba20271a0e1d788127052f2e64f92286bc14241e4a3249a09dc8984e0",
+      "bytes": 11530
+    },
+    {
+      "role": "authored-prerequisite-source",
+      "path": "./entry.mjs",
+      "sha256": "a3ed8a7e4bd2f22b6e6b8b2622cafdb20c9c942028d8f5786db8ca78b7aa8693",
+      "bytes": 3265
+    },
+    {
+      "role": "authored-prerequisite-source",
+      "path": "./index.html",
+      "sha256": "59c145d8661c507f220eae9a7aa80b8af55564733ad02305f6cab6b1ac9f31e5",
+      "bytes": 4724
+    },
+    {
+      "role": "authored-prerequisite-source",
+      "path": "./audit.mjs",
+      "sha256": "065db20744c101d9eaa5c800339aa6f0f3bfea245f3b1bb5746e16c5299caac8",
+      "bytes": 1535
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/vendor/three-0.160.1.module.js",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-walk.js",
+      "sha256": "634dacef24a34f811cba3d8f44e9a8b178ec5ea6e462553cd35c0c98eaf62f4f",
+      "bytes": 28728
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-frame-fit.js",
+      "sha256": "7b3b730dc7834e1c56f455161d59005f8352a3cd918e52be1893bc4b7706dc13",
+      "bytes": 2434
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-river-fishing.js",
+      "sha256": "8b4e1d2d9f2b9fda72f66e79b2105dccdadd2e6de5230c24e920cbdcf561aedb",
+      "bytes": 8325
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-japan-seasons.js",
+      "sha256": "944ff98aa81f7975b4daf4dc3ca59887f042e2c8be9eb1e5b6ea29637f46225a",
+      "bytes": 5025
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-style.js",
+      "sha256": "7985e1f983329bcef7567c634543a74b442de56b8757858693ae54ef64b68e2a",
+      "bytes": 13719
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-layout-art.js",
+      "sha256": "66b5969fbe9f7ecdaf78c30553453dc25badd69ea6b416a71a3bca285abeaa27",
+      "bytes": 14751
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-placement-originals.js",
+      "sha256": "cd1cc166950eb94c4989e91e765e70a4ff2b861bc431d1dcf734a95edb06ab8b",
+      "bytes": 12383
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-water-life.js",
+      "sha256": "948078e9fcb8b6897bcf1ec7653106545b72401b76b17881111fe4b816f3c28d",
+      "bytes": 6154
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-ocean-life.js",
+      "sha256": "91107133ee5c315b110226b7fc0be81376fc5d1cf5b937108b29e64813329a2d",
+      "bytes": 8545
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-shore-transition.js",
+      "sha256": "14949767cb6b42c491c91702b2bf0cd98d1fb7fe1534b292b0d94c79a292d3fd",
+      "bytes": 10284
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-tree-variety.js",
+      "sha256": "8333b6fb83d13ff3c24d6fc9a83c2439f55cd957153d71607c991a2023ab374e",
+      "bytes": 3137
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-meadow-sites.js",
+      "sha256": "8dc614aa334fc3351cf893451b8624ef00cbe1b2bba6f29501d6359d62d9b870",
+      "bytes": 6433
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-meadow-flowers.js",
+      "sha256": "c66181a2d15f03f67e1c34e238fef661b82796b12a179cf62b95c11d686f1652",
+      "bytes": 23214
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-ground-finish.js",
+      "sha256": "a167074f886714701dad8bd2d72c659f2c05ef9f8af45526bc05823d7356b6e6",
+      "bytes": 10682
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-water-finish.js",
+      "sha256": "055ea1ff65df676b5bb998407f5d0dfb67047465741ff675e9532c5384aa5460",
+      "bytes": 13709
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-environment.js",
+      "sha256": "32e7680cc2770f0d6ba3d561456fe3980f2147d5d790e91081ab5f005f412439",
+      "bytes": 10394
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-town-scene.js",
+      "sha256": "ea679b2123ec4890b43df6921b89f5f7a750ec0247e037f9c08d0f1ca4a701d7",
+      "bytes": 137276
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-toolbox-integral-link-proof-20261027/placement.mjs",
+      "sha256": "b56467e091b3d0408d2f1d52d83a48cdd88f837304fa3b1fb71717b5b3dce961",
+      "bytes": 2718
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-toolbox-joint-proof-20261026/placement.mjs",
+      "sha256": "1419d42a6fd4f3e83547ec105506c38a32058a9e2ac05321a324340c1ae62fc1",
+      "bytes": 1577
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-snow-glass-lamp-proof-20261027/placement.mjs",
+      "sha256": "eb6d92d6dd9e06d4c0391d39ea9b3c6df4e86dcd28e243b74b15097cec5c214e",
+      "bytes": 5943
+    },
+    {
+      "role": "unchanged-current-world-dependency",
+      "path": "/static/pet-scalloped-path-proof-20261027/framing.mjs",
+      "sha256": "dba92c2f6dec2816ebcf25434ee07c3b699accb61b7e1961a11baf366edad08a",
+      "bytes": 1678
+    },
+    {
+      "role": "authored-prerequisite-source",
+      "path": "./attachments.mjs",
+      "sha256": "bc49153ccb29ae4baede947a3c7ff51815cca053970cc3a042370a6f7e3900c9",
+      "bytes": 4635
+    }
+  ]
+}
