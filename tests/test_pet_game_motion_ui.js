@@ -4446,3 +4446,20 @@ test('closing fishing instructions and responsive roundtrip clear camera DOM scr
   assert.equal(f.host.querySelector('.ipg-town-world').style.opacity, '0');
   assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); f.ui.close();
 });
+
+
+test('native derived tree placement stays aligned in flat fallback without changing a saved layout', async () => {
+  const f = await villageFixture({ rendererMode:'ready', townScene:true, scenePending:true });
+  const saved = f.saved(), writes = f.writes.length, native = f.townScenes[0], tree = native.options.world.places.find(p => p.id === 'tree');
+  const old = { x:tree.x, y:tree.y }, dx = 180, dy = -240;
+  tree.x += dx; tree.y += dy; tree.footprint.x += dx; tree.footprint.y += dy; tree.entrance.x += dx; tree.entrance.y += dy;
+  f.townSceneControl.pending.resolve(); await flush(); townPresentationState(f,'ready');
+  const paint = f.focusButton('village-place-tree');
+  assert.equal(paint.style.left,tree.x+'px'); assert.equal(paint.style.top,tree.y+'px');
+  assert.notEqual(paint.style.left,old.x+'px'); assert.notEqual(paint.style.top,old.y+'px');
+  assert.equal(Number(paint.dataset.layoutX),tree.x/native.options.world.width*100);
+  assert.equal(Number(paint.dataset.layoutY),tree.y/native.options.world.height*100);
+  native.fail(); await flush(); townPresentationState(f,'fallback');
+  assert.equal(paint.style.left,tree.x+'px'); assert.equal(paint.style.top,tree.y+'px');
+  assert.deepEqual(f.saved(),saved); assert.equal(f.writes.length,writes); f.ui.close();
+});

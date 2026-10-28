@@ -1,3 +1,4 @@
+import {assertDerivedWorld} from './helpers/pet-town-derived-world.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as T from '../static/vendor/three-0.160.1.module.js';
@@ -120,7 +121,7 @@ test('actual ribbons have finite world-scale UVs while the 2154 paving triangles
    if(/^layout-curved|^layout-porch/.test(o.name))for(let i=0;i<p.count;i++){assert.ok(Math.abs(uv.getX(i)-p.getX(i)*.75)<1e-6);assert.ok(Math.abs(uv.getY(i)-p.getZ(i)*.75)<1e-6);}
   }
   assert.equal(triangles,2154);const deck=m.scene.getObjectByName('bridge-deck');assert.equal(deck.userData.layoutBoardCount,11);assert.equal(deck.userData.walkTop,.19);assert.equal(deck.geometry.groups.length,11);
-  assert.equal(JSON.stringify(world),saved);assert.equal(m.scene.userData.environmentStyleRevision,'shop-environment2');
+  assertDerivedWorld(world,saved,m);assert.equal(m.scene.userData.environmentStyleRevision,'shop-environment2');
  }finally{m.dispose();}
 });
 
@@ -142,6 +143,6 @@ test('all three finishes preserve completed buildings, rooted flowers and curren
  try{for(const key of ['spring','summer','autumn','winter']){m.setSeason(key);m.animate(1000,false);m.animate(2000,true);
   assert.deepEqual([...m.geometries],geo);assert.deepEqual([...m.materials],materials);assert.deepEqual(m.placeGroups.map(g=>g.matrixWorld.toArray()),poses);assert.equal(JSON.stringify(m.scene.userData.meadowFlowers.sitePlan),sites);assert.deepEqual(world.places.map(p=>Town.collisionBounds(p)),collisions);
  }
- assert.equal(m.scene.userData.shopStyleRevision,'shop-style1');assert.equal(m.scene.userData.fountainReferenceRevision,'fountain-reference1');assert.equal(m.meadowLife.summary().triangles,meadowTriangles);assert.ok(meadowTriangles<=45000);assert.equal(JSON.stringify(world),before);
+ assert.equal(m.scene.userData.shopStyleRevision,'shop-style1');assert.equal(m.scene.userData.fountainReferenceRevision,'fountain-reference1');assert.equal(m.meadowLife.summary().triangles,meadowTriangles);assert.ok(meadowTriangles<=45000);assertDerivedWorld(world,before,m);
  }finally{m.dispose();}
 });

@@ -1,3 +1,4 @@
+import {assertDerivedWorld} from './helpers/pet-town-derived-world.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as T from '../static/vendor/three-0.160.1.module.js';
@@ -43,7 +44,7 @@ test('reference fountain has circular layered bowls, broader lower petals and un
  assert.ok(lower.max.y-lower.min.y>.34);
  for(const m of solids)for(let i=0;i<m.geometry.attributes.position.count;i++){const p=localVertex(m,i);assert.ok(Math.hypot(p.x,p.z)<=.760001,'real solid inside circular blocker');}
  const p=fountain.getWorldPosition(new T.Vector3()),target=Scene.groundPoint(world,place.footprint);near(p.x,target.x);near(p.z,target.z);near(p.y,.025);
- assert.equal(JSON.stringify(world),before);
+ assertDerivedWorld(world,before,model);
 });
 test('closed bowls, turned pedestal, broad panels and every band have nondegenerate outward manifold surfaces',()=>{
  const checked=new Set();for(const m of solids)if(m.userData.referenceFormPart&&!checked.has(m.geometry)){checked.add(m.geometry);geometryFacts(m.geometry);}
@@ -90,7 +91,7 @@ test('circle perimeter and the existing facility approaches stay manually reacha
  const isolated={width:world.width,height:world.height,places:[place]},c=place.footprint;
  for(let i=0;i<72;i++){const a=i/72*Math.PI*2;assert.equal(Town.isWalkable(isolated,c.x+Math.cos(a)*93.99,c.y+Math.sin(a)*93.99),false);assert.equal(Town.isWalkable(isolated,c.x+Math.cos(a)*94.01,c.y+Math.sin(a)*94.01),true);}
  for(const p of world.places){assert.equal(Town.isWalkable(world,p.entrance.x,p.entrance.y),true);assert.ok(Town.route(world,world.spawn,p.entrance));}
- assert.equal(JSON.stringify(world),before);
+ assertDerivedWorld(world,before,model);
 });
 test('motion reuses fixed resources, reduced motion is stable, and scene disposal owns every new resource once',()=>{
  const geometries=[...model.geometries],materials=[...model.materials],drops=fountain.children.filter(m=>m.name==='fountain-falling-drop'),snap=()=>drops.map(m=>m.position.toArray()).concat(model.waterLife.group.children.map(m=>m.matrixWorld.toArray()));

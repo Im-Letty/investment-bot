@@ -214,7 +214,7 @@
 /* Planner: soft serif month, binding holes, margins and quiet ruled rows. */
 #tab-calendar[data-calendar-design="planner"] > .month-nav {
   padding:0 0 13px;
-  border-bottom:1px dashed var(--kk-cal-line);
+  border-bottom:0;
 }
 #tab-calendar[data-calendar-design="planner"] .mnav-lbl {
   font-family:var(--kn-ledger-serif,inherit);

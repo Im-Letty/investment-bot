@@ -1,3 +1,4 @@
+import {assertDerivedWorld} from './helpers/pet-town-derived-world.mjs';
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -50,7 +51,7 @@ test('body width/depth comes from the same world-space navigation dimensions',()
     assert.equal(walls.length,4);
     for(const wall of walls){assert.ok((wall.geometry.index?wall.geometry.index.count:wall.geometry.attributes.position.count)>0);assert.ok(wall.geometry.boundingBox);}
   }
-  assert.equal(JSON.stringify(world),worldBefore);
+  assertDerivedWorld(world,worldBefore,model);
   assert.deepEqual(model.people,[]);
   facts.tests.push('shared dimensions and no world/NPC mutation');
 });
@@ -147,7 +148,7 @@ test('reduced-motion window pose and warm values are exactly stable at different
   const snapshot=()=>model.windowRooms.map(r=>[r.curtains.map(p=>p.matrixWorld.toArray()),r.lamp.matrixWorld.toArray(),r.backMaterial.emissiveIntensity,r.glassMaterial.emissiveIntensity,r.glowMaterial.emissiveIntensity]);
   const first=snapshot();model.animate(60000,true);assert.deepEqual(snapshot(),first);
   assert.ok(model.windowRooms.every(r=>r.glowMaterial.emissiveIntensity>0));
-  assert.equal(JSON.stringify(world),worldBefore);
+  assertDerivedWorld(world,worldBefore,model);
   facts.tests.push('exact reduced-motion stability');
 });
 

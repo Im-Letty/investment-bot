@@ -1,3 +1,4 @@
+import {assertDerivedWorld} from './helpers/pet-town-derived-world.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -67,7 +68,7 @@ test('analytic collision includes clearance, rejects malformed coordinates and d
 });
 
 test('two candidate props can be placed on real existing town geometry with clear ground/navigation envelopes without mutating layout or saves',()=>{
- const world=Town.createWorld(),before=JSON.stringify(world),model=TownScene.buildWorld(THREE,world,{}),placements=[{id:ids[0],x:1100,y:1100},{id:ids[1],x:1550,y:1100}],built=[];try{for(const placement of placements){const asset=Assets.build(THREE,placement.id);built.push(asset);const p=TownScene.groundPoint(world,placement),ground=TownScene.heightAt(placement);asset.group.position.set(p.x,ground,p.z);model.scene.add(asset.group);const r=(asset.footprint.radius+asset.footprint.clearance+.18)*100;for(let n=0;n<24;n++){const angle=n*Math.PI/12;assert.equal(Town.isWalkable(world,placement.x+Math.cos(angle)*r,placement.y+Math.sin(angle)*r),true);}const ray=new THREE.Raycaster(new THREE.Vector3(p.x,5,p.z),new THREE.Vector3(0,-1,0)),hits=ray.intersectObjects(model.surfaces);assert.ok(hits.length&&Math.abs(hits[0].point.y-ground)<1e-6);}assert.equal(JSON.stringify(world),before);assert.equal(world.places.length,6);}finally{built.forEach(a=>a.dispose());model.dispose();}
+ const world=Town.createWorld(),before=JSON.stringify(world),model=TownScene.buildWorld(THREE,world,{}),placements=[{id:ids[0],x:1100,y:1100},{id:ids[1],x:1550,y:1100}],built=[];try{for(const placement of placements){const asset=Assets.build(THREE,placement.id);built.push(asset);const p=TownScene.groundPoint(world,placement),ground=TownScene.heightAt(placement);asset.group.position.set(p.x,ground,p.z);model.scene.add(asset.group);const r=(asset.footprint.radius+asset.footprint.clearance+.18)*100;for(let n=0;n<24;n++){const angle=n*Math.PI/12;assert.equal(Town.isWalkable(world,placement.x+Math.cos(angle)*r,placement.y+Math.sin(angle)*r),true);}const ray=new THREE.Raycaster(new THREE.Vector3(p.x,5,p.z),new THREE.Vector3(0,-1,0)),hits=ray.intersectObjects(model.surfaces);assert.ok(hits.length&&Math.abs(hits[0].point.y-ground)<1e-6);}assertDerivedWorld(world,before,model);assert.equal(world.places.length,6);}finally{built.forEach(a=>a.dispose());model.dispose();}
 });
 
 test('disposal releases each owned geometry/material/instance once and never releases a different build',()=>{

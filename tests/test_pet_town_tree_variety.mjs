@@ -1,3 +1,4 @@
+import {assertDerivedWorld} from './helpers/pet-town-derived-world.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
@@ -77,7 +78,7 @@ test('invalid count/seed inputs fail explicitly before constructing a plan',()=>
   assert.equal(Trees.plan({seed:0,count:1})[0],'treeGrove');
 });
 
-test('actual Three tree cards keep all 27 existing centers, widths, contact heights and original source bindings',async()=>{
+test('actual Three tree cards keep 26 border centers and the coherent derived saved tree, widths, heights and originals',async()=>{
   const f=fixture();try{
     const rows=treePictures(f.model);assert.equal(rows.length,27);
     assert.ok(rows.every(o=>!o.visible));await f.model.loadOriginalArt(f.loader);f.model.scene.updateMatrixWorld(true);
@@ -99,7 +100,7 @@ test('actual Three tree cards keep all 27 existing centers, widths, contact heig
       assert.equal(picture.material.color.getHex(),0xffffff);assert.equal(picture.material.toneMapped,false);
       assert.ok(picture.scale.x>0&&picture.scale.y>0,'no mirror or negative scale');
     }
-    assert.equal(rows[0].userData.originalArtKind,'treeGrove');assert.equal(JSON.stringify(f.world),f.before);
+    assert.equal(rows[0].userData.originalArtKind,'treeGrove');assertDerivedWorld(f.world,f.before,f.model);
   }finally{f.model.dispose();}
 });
 
@@ -114,7 +115,7 @@ test('season and ambient updates preserve tree pictures, saved layouts and every
       for(const picture of rows)assert.equal(picture.material.color.getHex(),0xffffff);
       for(const [x,y,walkable] of samples)assert.equal(Town.isWalkable(f.world,x,y),walkable);
     }
-    assert.equal(JSON.stringify(f.world),f.before);
+    assertDerivedWorld(f.world,f.before,f.model);
   }finally{f.model.dispose();}
 });
 
@@ -141,7 +142,7 @@ test('a missing new tree picture keeps the whole original set hidden and release
     const loader={loadAsync(url){if(url===missing)return Promise.reject(Error('synthetic missing image'));return f.loader.loadAsync(url).then(texture=>{counts.set(texture,0);texture.addEventListener('dispose',()=>counts.set(texture,counts.get(texture)+1));return texture;});}};
     await assert.rejects(f.model.loadOriginalArt(loader),/placement_originals_load_failed:treeBirch/);
     assert.equal(f.model.originalArt.state,'failed');assert.ok(treePictures(f.model).every(o=>!o.visible));
-    f.model.dispose();for(const count of counts.values())assert.equal(count,1);assert.equal(JSON.stringify(f.world),f.before);
+    f.model.dispose();for(const count of counts.values())assert.equal(count,1);assertDerivedWorld(f.world,f.before,f.model);
   }finally{f.model.dispose();}
 });
 
@@ -154,6 +155,6 @@ test('an older isolated synchronous preview retains its original tree when the n
     assert.equal(model.treeVarietyRevision,null);assert.equal(model.scene.userData.treeVarietyRevision,null);
     assert.ok(Object.isFrozen(model.treeVarietyKinds));assert.deepEqual(Array.from(model.treeVarietyKinds),Array(27).fill('tree'));
     const rows=treePictures(model);assert.equal(rows.length,27);assert.ok(rows.every(o=>o.userData.originalArtKind==='tree'));
-    assert.equal(JSON.stringify(world),before);
+    assertDerivedWorld(world,before,model);
   }finally{model.dispose();}
 });
