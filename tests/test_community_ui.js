@@ -101,7 +101,7 @@ test('invalid scoped room data cannot close an existing conversation or fetch a 
 
 test('public entrance is prepared before loading; guest GET never prompts login',async()=>{
   const h=harness({logged:false});h.ui.open();assert.equal(h.prepared(),1);assert.equal(h.authPrompts(),0);await h.settle();assert.equal(h.calls.length,1);assert.equal(h.calls[0].options.headers,undefined);assert.equal(h.node('.cw-context-title').textContent,'みんなのトーク');assert.equal(h.node('#cmOv').getAttribute('aria-label'),'みんなのトーク');
-  assert.equal(h.node('.cw-composer').hidden,false);assert.equal(h.document.activeElement,null,'opening does not focus a field or summon the mobile keyboard');assert.equal(h.nodes('.cw-compose-toggle').length,0);assert.equal(h.nodes('.cw-view-tabs').length,1);assert.equal(h.nodes('.cw-view-tab').length,2);assert.equal(h.nodes('.cw-back').length,0);assert.equal(h.nodes('.cw-stock-talk-link').length,0);assert.equal(h.nodes('.cw-categories').length,0);assert.equal(h.node('.cw-intro').textContent,'');assert.equal(h.node('.cw-intro').hidden,true);
+  assert.equal(h.node('.cw-composer').hidden,true);assert.equal(h.document.activeElement,null,'opening does not focus a field or summon the mobile keyboard');assert.equal(h.nodes('.cw-compose-toggle').length,1);assert.equal(h.nodes('.cw-view-tabs').length,1);assert.equal(h.nodes('.cw-view-tab').length,2);assert.equal(h.nodes('.cw-back').length,0);assert.equal(h.nodes('.cw-stock-talk-link').length,0);assert.equal(h.nodes('.cw-categories').length,0);assert.equal(h.node('.cw-intro').textContent,'');assert.equal(h.node('.cw-intro').hidden,true);
 });
 test('empty, loading and unavailable are different states',async()=>{
   const h=harness();h.ui.open();assert.equal(h.node('.cw-state').hidden,false);assert.equal(h.nodes('.cw-state')[1].hidden,true);await h.response({ok:false,reason:'storage_unavailable'},503);
@@ -206,7 +206,7 @@ test('delayed language events preserve composer, stored language metadata and re
     assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'入力中の返信');assert.equal(h.nodes('label[data-cw-copy]').length,0);
     assert.equal(h.node('.cw-community-search').querySelector('input'),search);assert.equal(search.value,'表示用');
     assert.equal(search.placeholder,language==='ja'?'投稿・返信を検索':'Search posts and replies');
-    assert.equal(h.nodes('.cw-view-tab').length,2);assert.equal(h.nodes('.cw-stock-talk-link').length,0);assert.equal(h.node('.cw-context-title').textContent,language==='ja'?'みんなのトーク':'Everyone’s Talk');assert.equal(h.node('.cw-composer').hidden,false);
+    assert.equal(h.nodes('.cw-view-tab').length,2);assert.equal(h.nodes('.cw-stock-talk-link').length,0);assert.equal(h.node('.cw-context-title').textContent,language==='ja'?'みんなのトーク':'Everyone’s Talk');assert.equal(h.node('.cw-composer').hidden,true);
   }
   h.node('.cw-composer').emit('submit');await h.settle();let payload=JSON.parse(h.calls.at(-1).options.body);assert.equal(payload.body,'入力中の投稿');assert.equal(payload.name,'表示名');assert.equal(payload.category,'news');assert.equal(payload.language,'en');
   await h.response({ok:true,post:post(21,{body:payload.body,category:'news',is_mine:true})});
@@ -287,7 +287,7 @@ test('separate conversation APIs clean up reads and retain drafts without cross-
  for(const event of ['visibilitychange','langChanged','knAuthChange'])assert.equal(h.events.get(event).length,1);
  await h.response({ok:true,posts:[post(999,{body:'古い銘柄の返答'})],has_more:false},200,0);assert.equal(h.nodes('.cw-post').length,0);
  await h.response({ok:true,posts:[post(9)],has_more:false});assert.equal(h.node('.cw-post').dataset.postId,'9');assert.equal(h.nodes('.cw-view-tabs').length,1);assert.equal(h.nodes('.cw-categories').length,0);
- const before=h.calls.length,root=h.node('#cmOv');h.ui.open();await h.settle();assert.equal(h.calls.length,before);assert.equal(h.node('#cmOv'),root);assert.equal(h.node('.cw-composer').hidden,false);assert.equal(h.timers.size,1);
+ const before=h.calls.length,root=h.node('#cmOv');h.ui.open();await h.settle();assert.equal(h.calls.length,before);assert.equal(h.node('#cmOv'),root);assert.equal(h.node('.cw-composer').hidden,true);assert.equal(h.timers.size,1);
  stock.open();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('#cmInput').value,'銘柄の下書き');assert.equal(h.window.knTalkLastView,'stock');assert.equal(h.nodes('.cw-screen').length,1);h.node('.cw-close').click();assert.equal(h.morning.scrollTop,177,'both view transitions retain the original morning reading position');assert.equal(h.timers.size,0);
  for(const event of ['visibilitychange','langChanged','knAuthChange'])assert.equal(h.events.get(event).length,0);
 });
@@ -575,4 +575,45 @@ test('paused optional-auth archive resumes only the open incomplete archive and 
  const archive=h.node('.cw-archive');archive.open=true;archive.emit('toggle');await h.settle();handle.setVisible(false);release({data:{session:null}});await h.settle();assert.equal(h.calls.length,1);
  handle.setVisible(true);await h.settle();assert.equal(h.calls.filter(x=>/\/api\/stock-comments/.test(x.url)).length,1);await h.response({ok:true,comments:[{id:7,name:'過去の表示例',body:'保存済みの過去の会話',created_at:'2026-10-12T00:00:00Z'}]});await h.response({ok:true,posts:[],has_more:false});
  assert.equal(h.node('.cw-legacy-post').querySelector('.cw-post-body').textContent,'保存済みの過去の会話');assert.doesNotMatch(h.node('.cw-archive-body').textContent,/読み込み中/);handle.destroy();
+});
+
+
+test('general Talk plus opens the existing composer and closing preserves the draft without requests',async()=>{
+ const h=harness();h.ui.open();await h.response({ok:true,posts:[post(4)],has_more:false});
+ const toggle=h.node('.cw-compose-add'),form=h.node('.cw-composer'),input=h.node('#cmInput'),calls=h.calls.length;
+ assert.equal(form.hidden,true);assert.equal(toggle.getAttribute('aria-controls'),form.id);assert.equal(toggle.getAttribute('aria-expanded'),'false');
+ assert.equal(toggle.getAttribute('aria-label'),'投稿する');assert.equal(toggle.textContent,'＋');
+ toggle.click();assert.equal(form.hidden,false);assert.equal(h.document.activeElement,input);assert.equal(toggle.getAttribute('aria-expanded'),'true');assert.equal(toggle.getAttribute('aria-label'),'投稿欄を閉じる');
+ input.value='プラスから書いた下書き';input.emit('input');toggle.click();
+ assert.equal(form.hidden,true);assert.equal(h.document.activeElement,toggle);assert.equal(toggle.getAttribute('aria-expanded'),'false');assert.equal(toggle.getAttribute('aria-label'),'投稿する');
+ assert.equal(JSON.parse(h.storage.get('kn_community_drafts_v1')).all.body,input.value);
+ toggle.click();assert.equal(h.node('.cw-composer'),form);assert.equal(h.node('#cmInput'),input);assert.equal(input.value,'プラスから書いた下書き');assert.equal(h.calls.length,calls);
+});
+
+test('general Talk plus remains collapsed on re-entry and preserves drafts across existing view tabs',async()=>{
+ const h=harness(),stock=paired(h);h.ui.open();await h.response({ok:true,posts:[],has_more:false});
+ h.node('.cw-compose-add').click();h.node('#cmInput').value='切替後も残す';h.node('#cmInput').emit('input');
+ h.nodes('.cw-view-tab')[0].click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.nodes('.cw-compose-add').length,0);
+ assert.equal(h.node('.cw-compose-toggle').textContent,'つぶやく');assert.equal(h.node('.cw-composer').hidden,true);
+ h.nodes('.cw-view-tab')[1].click();await h.response({ok:true,posts:[],has_more:false});
+ assert.equal(h.node('.cw-composer').hidden,true);assert.equal(h.node('#cmInput').value,'切替後も残す');
+ h.node('.cw-compose-add').click();assert.equal(h.node('#cmInput').value,'切替後も残す');stock.close();
+});
+
+test('hiding general composer never cancels an in-flight post or discards a later draft',async()=>{
+ const h=harness();h.ui.open();await h.response({ok:true,posts:[],has_more:false});
+ const toggle=h.node('.cw-compose-add');toggle.click();h.node('#cmInput').value='送信する本文';h.node('#cmInput').emit('input');
+ h.node('.cw-composer').emit('submit');await h.settle();const pending=h.calls.at(-1);assert.equal(pending.options.method,'POST');
+ h.node('#cmInput').value='次の下書き';h.node('#cmInput').emit('input');toggle.click();assert.equal(pending.options.signal.aborted,false);
+ h.node('.cw-composer').emit('submit');await h.settle();assert.equal(h.calls.filter(c=>c.options.method==='POST').length,1);
+ await h.response({ok:true,post:post(12,{body:'送信する本文',is_mine:true})});
+ assert.equal(h.node('.cw-composer').hidden,true);assert.equal(h.node('#cmInput').value,'次の下書き');
+ toggle.click();assert.equal(h.node('#cmInput').value,'次の下書き');assert.equal(h.nodes('.cw-post').length,1);
+});
+
+test('general Talk plus keeps its icon and accessible action in sync when language changes',async()=>{
+ const h=harness();h.ui.open();await h.response({ok:true,posts:[],has_more:false});const toggle=h.node('.cw-compose-add');
+ toggle.click();h.document.documentElement.lang='en';h.document.emit('langChanged');
+ assert.equal(toggle.textContent,'＋');assert.equal(toggle.getAttribute('aria-label'),'Close post composer');assert.equal(toggle.getAttribute('aria-expanded'),'true');
+ toggle.click();assert.equal(toggle.getAttribute('aria-label'),'Post');assert.equal(toggle.textContent,'＋');assert.equal(h.node('.cw-composer').hidden,true);
 });

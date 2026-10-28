@@ -37,7 +37,7 @@
     '変更':'Change','保存':'Save','ニックネーム（20文字まで）':'Display name (up to 20 characters)',
     'ユーザー名を確認できませんでした。メニューのプロフィールを確認してください。':'Could not verify your username. Check Profile in the menu.',
     '前回と同じニックネームで再送します。':'Retrying with the same display name as the previous attempt.',
-    '投稿する':'Post','投稿を読み込み中…':'Loading posts…','まだ投稿はありません。':'No posts yet.','最初のひとことを、気軽にどうぞ。':'You can start the conversation.',
+    '投稿欄を閉じる':'Close post composer','投稿する':'Post','投稿を読み込み中…':'Loading posts…','まだ投稿はありません。':'No posts yet.','最初のひとことを、気軽にどうぞ。':'You can start the conversation.',
     'もっと見る':'Show more','読み込み中…':'Loading…','新しい投稿があります':'New posts are available','新しい投稿を表示しました。':'New posts are now displayed.',
     'いいね':'Like','いいね済み':'Liked','返信':'Reply','返信する':'Reply','投稿':'Posted','通報':'Report','削除':'Delete','投稿の操作':'Post options',
     '朝レターに戻る':'Back to the morning letter','コミュニティを閉じて朝レターへ戻る':'Close community and return to the morning letter',
@@ -379,7 +379,9 @@
       });root.appendChild(views);
     }
     var scroller=el('div','cw-scroll');s.scroller=scroller;var content=el('div','cw-content');scroller.appendChild(content);root.appendChild(scroller);
-    content.appendChild(el('h1','cw-context-title',screenLabel));
+    var contextTitle=el('h1','cw-context-title',screenLabel),contextHeading;
+    if(config.stock)content.appendChild(contextTitle);
+    else{contextHeading=el('div','cw-context-heading');contextHeading.appendChild(contextTitle);content.appendChild(contextHeading);}
     if(scope){var company=el('p','cw-company-context');company.textContent=scope.room.name+' '+scope.room.code;content.appendChild(company);}
     var intro=el('p','cw-intro',config.stock?(scope?'この会社について、気軽に話そう。':'会社名・銘柄コードで選び、その銘柄について話そう。'):'');intro.hidden=!config.stock;content.appendChild(intro);
     var nav=el('nav','cw-categories');nav.setAttribute('aria-label',config.stock?'銘柄・指数を選ぶ':'話題のジャンル');s.categoryButtons=[];categories.forEach(function(item){var b=button('cw-category',item[1],null,function(){switchCategory(item[0]);});b.setAttribute('aria-pressed',String(item[0]===s.category));nav.appendChild(b);s.categoryButtons.push({code:item[0],button:b});});if(config.stock)content.appendChild(nav);
@@ -397,8 +399,12 @@
     postQuery.addEventListener('input',queueSearch);postQuery.addEventListener('search',function(){searchNow(s);});search.addEventListener('submit',function(event){event.preventDefault();searchNow(s);});
 
 
-    var toolbar=el('div','cw-toolbar');s.categoryToolbar=toolbar;toolbar.hidden=!config.stock;s.categoryNote=el('p','cw-description');toolbar.appendChild(s.categoryNote);var composeToggle=button('cw-primary cw-compose-toggle','つぶやく',null,function(){s.composer.hidden=!s.composer.hidden;composeToggle.setAttribute('aria-expanded',String(!s.composer.hidden));if(!s.composer.hidden)s.input.focus({preventScroll:true});});composeToggle.setAttribute('aria-expanded','false');composeToggle.setAttribute('aria-controls',root.id+'Composer');if(config.stock)toolbar.appendChild(composeToggle);content.appendChild(toolbar);
-    var composer=el('form','cw-composer');composer.id=root.id+'Composer';composer.hidden=!!config.stock;if(!config.stock)composer.classList.add('cw-composer-inline');s.composer=composer;if(config.stock){s.destination=el('p','cw-description','投稿先：'+title(s.category));composer.appendChild(s.destination);}
+    var toolbar=el('div','cw-toolbar');s.categoryToolbar=toolbar;toolbar.hidden=!config.stock;s.categoryNote=el('p','cw-description');toolbar.appendChild(s.categoryNote);var composeToggle=button('cw-primary cw-compose-toggle'+(config.stock?'':' cw-compose-add'),config.stock?'つぶやく':'＋',config.stock?null:'投稿する',function(){
+      s.composer.hidden=!s.composer.hidden;composeToggle.setAttribute('aria-expanded',String(!s.composer.hidden));
+      if(!config.stock){var label=s.composer.hidden?'投稿する':'投稿欄を閉じる';composeToggle.dataset.cwLabel=label;composeToggle.setAttribute('aria-label',t(label));}
+      if(!s.composer.hidden)s.input.focus({preventScroll:true});else{persist();composeToggle.focus({preventScroll:true});}
+    });composeToggle.setAttribute('aria-expanded','false');composeToggle.setAttribute('aria-controls',root.id+'Composer');if(config.stock)toolbar.appendChild(composeToggle);else contextHeading.appendChild(composeToggle);content.appendChild(toolbar);
+    var composer=el('form','cw-composer');composer.id=root.id+'Composer';composer.hidden=true;if(!config.stock)composer.classList.add('cw-composer-inline');s.composer=composer;if(config.stock){s.destination=el('p','cw-description','投稿先：'+title(s.category));composer.appendChild(s.destination);}
     var fields=el('div','cw-composer-fields');fields.hidden=true;
     s.committedNickname=savedNickname('');
     s.syncNickname=function(){s.committedNickname=savedNickname(s.committedNickname);};
