@@ -1,0 +1,2166 @@
+{
+  "schema_version": 1,
+  "unit_id": "wardrobe:fit-prerequisite:bud-watering-can:hollow-vessel-spout-grip-geometry:v1",
+  "recorded_at": "2026-10-28T03:59:42.405Z",
+  "role": "Finite authored geometry and unchanged-default-world placement witnesses; native screenshots/review are separate",
+  "shellTopology": {
+    "vertices": 2576,
+    "triangles": 5184,
+    "edges": 7776,
+    "boundaryEdges": 0,
+    "nonmanifoldEdges": 0,
+    "inconsistentEdges": 0,
+    "invalidPositions": 0,
+    "degenerateTriangles": 0,
+    "signedVolume": 0.22935392372691604
+  },
+  "handleTopology": {
+    "vertices": 982,
+    "triangles": 1960,
+    "edges": 2940,
+    "boundaryEdges": 0,
+    "nonmanifoldEdges": 0,
+    "inconsistentEdges": 0,
+    "invalidPositions": 0,
+    "degenerateTriangles": 0,
+    "signedVolume": 0.05108748189133942
+  },
+  "openings": {
+    "finiteClearRays": 16,
+    "blockedClearRays": 0,
+    "rows": [
+      {
+        "name": "open-top-center",
+        "start": [
+          0,
+          1.5,
+          0
+        ],
+        "end": [
+          0,
+          0.3,
+          0
+        ],
+        "hits": []
+      },
+      {
+        "name": "body-to-spout-port",
+        "start": [
+          0,
+          0.7,
+          0
+        ],
+        "end": [
+          -0.77,
+          0.7,
+          0
+        ],
+        "hits": []
+      },
+      {
+        "name": "spout-center-0",
+        "start": [
+          -0.77,
+          0.7,
+          0
+        ],
+        "end": [
+          -0.98,
+          0.86,
+          0
+        ],
+        "hits": []
+      },
+      {
+        "name": "spout-center-1",
+        "start": [
+          -0.98,
+          0.86,
+          0
+        ],
+        "end": [
+          -1.1,
+          1.06,
+          0
+        ],
+        "hits": []
+      },
+      {
+        "name": "spout-center-2",
+        "start": [
+          -1.1,
+          1.06,
+          0
+        ],
+        "end": [
+          -1.2,
+          1.25,
+          0
+        ],
+        "hits": []
+      },
+      {
+        "name": "spout-center-3",
+        "start": [
+          -1.2,
+          1.25,
+          0
+        ],
+        "end": [
+          -1.25,
+          1.36,
+          0.13
+        ],
+        "hits": []
+      },
+      {
+        "name": "rose-through-hole-0",
+        "start": [
+          -1.2373226861790723,
+          1.332109909593959,
+          0.09703898406558788
+        ],
+        "end": [
+          -1.273946037217308,
+          1.4126812818780776,
+          0.1922596967650007
+        ],
+        "hits": []
+      },
+      {
+        "name": "rose-through-hole-1",
+        "start": [
+          -1.1933736197586589,
+          1.2354219634690493,
+          0.19575534864067062
+        ],
+        "end": [
+          -1.2299969707968945,
+          1.315993335753168,
+          0.29097606134008347
+        ],
+        "hits": []
+      },
+      {
+        "name": "rose-through-hole-2",
+        "start": [
+          -1.112905688397466,
+          1.3061686230886331,
+          0.16684199487071238
+        ],
+        "end": [
+          -1.1495290394357016,
+          1.3867399953727517,
+          0.2620627075701252
+        ],
+        "hits": []
+      },
+      {
+        "name": "rose-through-hole-3",
+        "start": [
+          -1.1053195469469945,
+          1.3921113365176307,
+          0.09703898406558788
+        ],
+        "end": [
+          -1.1419428979852302,
+          1.4726827088017493,
+          0.1922596967650007
+        ],
+        "hits": []
+      },
+      {
+        "name": "rose-through-hole-4",
+        "start": [
+          -1.1750590541828505,
+          1.4429060278164796,
+          0.027235973260463398
+        ],
+        "end": [
+          -1.2116824052210862,
+          1.5234774001005982,
+          0.12245668595987622
+        ],
+        "hits": []
+      },
+      {
+        "name": "rose-through-hole-5",
+        "start": [
+          -1.2812717525994857,
+          1.4287978557188687,
+          -0.001677380509494869
+        ],
+        "end": [
+          -1.3178951036377213,
+          1.5093692280029873,
+          0.09354333218991795
+        ],
+        "hits": []
+      },
+      {
+        "name": "rose-through-hole-6",
+        "start": [
+          -1.3617396839606786,
+          1.358051196099285,
+          0.027235973260463384
+        ],
+        "end": [
+          -1.3983630349989142,
+          1.4386225683834035,
+          0.1224566859598762
+        ],
+        "hits": []
+      },
+      {
+        "name": "rose-through-hole-7",
+        "start": [
+          -1.36932582541115,
+          1.2721084826702873,
+          0.09703898406558785
+        ],
+        "end": [
+          -1.4059491764493857,
+          1.352679854954406,
+          0.19225969676500065
+        ],
+        "hits": []
+      },
+      {
+        "name": "rose-through-hole-8",
+        "start": [
+          -1.299586318175294,
+          1.2213137913714385,
+          0.16684199487071233
+        ],
+        "end": [
+          -1.3362096692135297,
+          1.301885163655557,
+          0.2620627075701252
+        ],
+        "hits": []
+      },
+      {
+        "name": "handle-aperture",
+        "start": [
+          0.84,
+          0.9,
+          -0.35
+        ],
+        "end": [
+          0.84,
+          0.9,
+          0.35
+        ],
+        "hits": []
+      }
+    ],
+    "occupiedControls": [
+      {
+        "name": "rose-solid-between-holes",
+        "start": [
+          -1.2177282751667675,
+          1.2890022053668884,
+          0.1342247998204192
+        ],
+        "end": [
+          -1.2571688070540983,
+          1.3757713755190162,
+          0.23677018272747916
+        ],
+        "hits": [
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.05000001335359342
+          }
+        ]
+      },
+      {
+        "name": "body-wall",
+        "start": [
+          0,
+          0.7,
+          0.2
+        ],
+        "end": [
+          0,
+          0.7,
+          0.9
+        ],
+        "hits": [
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.27432001093228636
+          }
+        ]
+      },
+      {
+        "name": "body-floor",
+        "start": [
+          0,
+          0.4,
+          0
+        ],
+        "end": [
+          0,
+          -0.1,
+          0
+        ],
+        "hits": [
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "continuous-hollow-body-spout-perforated-rose",
+            "distance": 0.2599999994039536
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406966
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406977
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406977
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406977
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406977
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406977
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406977
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406977
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406977
+          },
+          {
+            "part": "mint-ground-ring",
+            "distance": 0.32000000089406977
+          }
+        ]
+      }
+    ],
+    "bodyBinding": null,
+    "liquidFlowVerified": false,
+    "continuousClearanceGuaranteed": false,
+    "scope": "finite centerline/port/pore/aperture witnesses on authored geometry only; no fluid connectivity simulation or body grip"
+  },
+  "placement": {
+    "townPoint": {
+      "x": 2400,
+      "y": 400
+    },
+    "worldPosition": [
+      9.6,
+      0.02500000000000133,
+      -5.6
+    ],
+    "projectedFootprint": {
+      "minX": 8.079028940200805,
+      "maxX": 10.814883208274841,
+      "minZ": -6.136800026893615,
+      "maxZ": -5.022716089439537
+    },
+    "supports": [
+      {
+        "foot": "mint-ground-ring",
+        "x": 9.6,
+        "z": -5.6,
+        "soleLocalY": 8.940696724635266e-10,
+        "floorY": 0.025000000000001243,
+        "soleMinusFloor": 8.940697591997004e-10
+      },
+      {
+        "foot": "mint-ground-ring",
+        "x": 9.210000014305114,
+        "z": -5.989999985694885,
+        "soleLocalY": 8.940696724635266e-10,
+        "floorY": 0.02500000000000133,
+        "soleMinusFloor": 8.940696724635266e-10
+      },
+      {
+        "foot": "mint-ground-ring",
+        "x": 9.210000014305114,
+        "z": -5.210000014305114,
+        "soleLocalY": 8.940696724635266e-10,
+        "floorY": 0.025000000000001157,
+        "soleMinusFloor": 8.940698459358742e-10
+      },
+      {
+        "foot": "mint-ground-ring",
+        "x": 9.989999985694885,
+        "z": -5.989999985694885,
+        "soleLocalY": 8.940696724635266e-10,
+        "floorY": 0.02500000000000133,
+        "soleMinusFloor": 8.940696724635266e-10
+      },
+      {
+        "foot": "mint-ground-ring",
+        "x": 9.989999985694885,
+        "z": -5.210000014305114,
+        "soleLocalY": 8.940696724635266e-10,
+        "floorY": 0.025000000000001157,
+        "soleMinusFloor": 8.940698459358742e-10
+      }
+    ],
+    "finiteWalkability": {
+      "samples": 63,
+      "blocked": 0
+    },
+    "roads": [
+      {
+        "name": "layout-plaza-border",
+        "triangles": 192,
+        "minimumGap": 7.132113898045538
+      },
+      {
+        "name": "layout-plaza-floor",
+        "triangles": 96,
+        "minimumGap": 7.433125273469631
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.329144556237309
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.205547079079943
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.140825054912357
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.132758955575325
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.141336953862449
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.209864263524894
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.345072306133137
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.544423067380881
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.802912187391713
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.113538624167855
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.46789846260138
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.856771358122865
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.270615955331444
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.699944265749071
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.12109763302826
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.51205651440717
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.89431414008967
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.2610972682782
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.606255538253539
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.924306551176036
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.210469619375052
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.460690683920758
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.671659294923233
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.840817606342204
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.966360873061976
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.047228800472125
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.07566630058114
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.025223236326832
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.93270241217873
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.800266572899876
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.630569992606679
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.426687661405708
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.192040667212087
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.930320592009096
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.645416272193199
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.34134674224759
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.022204524625838
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.692113555703962
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.355205828036524
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.015620130781237
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.656020522050856
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.29217959212274
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.938483061400442
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.599722700732855
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.281083235438613
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.988248148595007
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.727449084889013
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.505411191361719
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 10.136192237072335
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 10.167552071837449
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 15.693417643704997
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 1.338000795689461
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 1.393272936228971
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 1.3520790227197625
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 10.136215903135739
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 10.167572925071203
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 17.830971595308895
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 6.614916090984399
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 6.67490701002256
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 9.989617813724117
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 10.038568997381368
+      }
+    ],
+    "minimumRoadGap": 1.338000795689461,
+    "requiredMargin": 0.2,
+    "originalSpriteEnvelopeClearance": {
+      "checkedCards": 38,
+      "kinds": {
+        "shopTulip": 6,
+        "treeGrove": 12,
+        "flowers": 1,
+        "lantern": 4,
+        "treeApple": 5,
+        "treeBirch": 5,
+        "tree": 5
+      },
+      "minimumGap": 0.7758260285480294,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "kind": "shopTulip",
+          "sourceSHA256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+          "contact": [
+            6.8759999999999994,
+            0.025,
+            -4.894
+          ],
+          "fullQuadRadius": 0.43406919941234284,
+          "envelopeDistance": 1.2098952279603723,
+          "gap": 0.7758260285480294
+        },
+        {
+          "kind": "shopTulip",
+          "sourceSHA256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+          "contact": [
+            5.795999999999999,
+            0.025,
+            -4.894
+          ],
+          "fullQuadRadius": 0.43406919941234284,
+          "envelopeDistance": 2.2866545374137783,
+          "gap": 1.8525853380014354
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "fbd36580f164bb32409de1678d4eddc7f302b197e7d5b81a60f09643a75721b0",
+          "contact": [
+            3.800391407986147,
+            0.025,
+            -10.014646520277676
+          ],
+          "fullQuadRadius": 3.4525540954611675,
+          "envelopeDistance": 5.774463832974192,
+          "gap": 2.321909737513024
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "fbd36580f164bb32409de1678d4eddc7f302b197e7d5b81a60f09643a75721b0",
+          "contact": [
+            3.018835793838979,
+            0.025,
+            -10.44966867454055
+          ],
+          "fullQuadRadius": 3.844080848554702,
+          "envelopeDistance": 6.648788660375896,
+          "gap": 2.804707811821194
+        },
+        {
+          "kind": "lantern",
+          "sourceSHA256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+          "contact": [
+            4.032,
+            0.025,
+            -3.4560000000000004
+          ],
+          "fullQuadRadius": 0.9909739577995439,
+          "envelopeDistance": 4.339705352639919,
+          "gap": 3.3487313948403754
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            0.8327002596367137,
+            0.025,
+            -9.982363263208441
+          ],
+          "fullQuadRadius": 4.385813983669816,
+          "envelopeDistance": 8.203513634489912,
+          "gap": 3.8176996508200967
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "fbd36580f164bb32409de1678d4eddc7f302b197e7d5b81a60f09643a75721b0",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            -1.4520000000000004
+          ],
+          "fullQuadRadius": 3.844080848554702,
+          "envelopeDistance": 9.362667320112143,
+          "gap": 5.518586471557441
+        },
+        {
+          "kind": "treeApple",
+          "sourceSHA256": "ce7ef7adda439841a3fc36de04d5250eb01249ce653337f19b6d9520b028c45b",
+          "contact": [
+            -0.3355192961773006,
+            0.025,
+            -9.667760567754863
+          ],
+          "fullQuadRadius": 2.824426245157773,
+          "envelopeDistance": 9.125365985178515,
+          "gap": 6.300939740020742
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            -1.9396978898859323,
+            0.025,
+            -10.216135629486423
+          ],
+          "fullQuadRadius": 3.3722855420654474,
+          "envelopeDistance": 10.81738721940197,
+          "gap": 7.445101677336523
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            -3.7735156195406474,
+            0.025,
+            -10.38942810991384
+          ],
+          "fullQuadRadius": 3.777696918707195,
+          "envelopeDistance": 12.592365073851257,
+          "gap": 8.814668155144062
+        }
+      ],
+      "method": "sphere enclosing all four full raw Sprite quad corners from actual world scale/center; sphere-to-conservative-3D-pose-envelope distance; includes faint/transparent corners without cropping",
+      "cameraOrientationIndependentGeometryEnvelope": true,
+      "physicalFixtureVolumes": false,
+      "allCameraProjectionOcclusionGuaranteed": false
+    },
+    "buildingProxyClearance": [
+      {
+        "place": "home",
+        "intersects": false,
+        "separation": 14.910911666345037
+      },
+      {
+        "place": "cafe",
+        "intersects": false,
+        "separation": 0.5109116663450388
+      },
+      {
+        "place": "shop",
+        "intersects": false,
+        "separation": 16.262968870165565
+      },
+      {
+        "place": "playground",
+        "intersects": false,
+        "separation": 6.707777761139478
+      },
+      {
+        "place": "tree",
+        "intersects": false,
+        "separation": null
+      },
+      {
+        "place": "flowers",
+        "intersects": false,
+        "separation": null
+      }
+    ],
+    "meadowClusters": {
+      "siteCount": 40,
+      "envelopeRadius": 0.52,
+      "requiredMargin": 0.2,
+      "minimumGap": 0.5353967054311191,
+      "rows": [
+        {
+          "id": "meadow-0",
+          "x": 1.734470334649086,
+          "z": 7.060823415219784,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 13.647906464360855,
+          "minimumGap": 13.127906464360855
+        },
+        {
+          "id": "meadow-1",
+          "x": -3.1143160589039325,
+          "z": -5.229255098104477,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 11.193344999104738,
+          "minimumGap": 10.673344999104739
+        },
+        {
+          "id": "meadow-3",
+          "x": -2.2171060256659985,
+          "z": -4.216961176693439,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 10.327615223988522,
+          "minimumGap": 9.807615223988522
+        },
+        {
+          "id": "meadow-4",
+          "x": 1.3548462823033334,
+          "z": -5.974445790052414,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 6.724182657897472,
+          "minimumGap": 6.204182657897473
+        },
+        {
+          "id": "meadow-6",
+          "x": -3.0788057506084443,
+          "z": -8.857669579982757,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 11.484790207589942,
+          "minimumGap": 10.964790207589942
+        },
+        {
+          "id": "meadow-8",
+          "x": -7.812816283106804,
+          "z": 7.084447833895683,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 19.97834234535175,
+          "minimumGap": 19.45834234535175
+        },
+        {
+          "id": "meadow-9",
+          "x": 9.925844331085683,
+          "z": -0.1950238063931465,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 4.82769228304639,
+          "minimumGap": 4.307692283046389
+        },
+        {
+          "id": "meadow-12",
+          "x": -11.727412109076978,
+          "z": 4.911106306314468,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 22.157976767496166,
+          "minimumGap": 21.637976767496166
+        },
+        {
+          "id": "meadow-13",
+          "x": -9.871636390686035,
+          "z": 0.5568099707365036,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 18.79780563995932,
+          "minimumGap": 18.277805639959322
+        },
+        {
+          "id": "meadow-15",
+          "x": -11.288279917091131,
+          "z": -8.943065647780895,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 19.569562568149358,
+          "minimumGap": 19.04956256814936
+        },
+        {
+          "id": "meadow-16",
+          "x": -10.949356918036939,
+          "z": 8.201848438382148,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 23.172582405086008,
+          "minimumGap": 22.652582405086008
+        },
+        {
+          "id": "meadow-18",
+          "x": 8.160340536385775,
+          "z": -7.566130864620209,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 1.4293308377265932,
+          "minimumGap": 0.9093308377265932
+        },
+        {
+          "id": "meadow-19",
+          "x": -13.150953391939401,
+          "z": -0.43000622391700744,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 21.721075795914285,
+          "minimumGap": 21.201075795914285
+        },
+        {
+          "id": "meadow-20",
+          "x": -4.392268183082343,
+          "z": -4.746660254895687,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 12.474352037721085,
+          "minimumGap": 11.954352037721085
+        },
+        {
+          "id": "meadow-22",
+          "x": -9.082585651427507,
+          "z": 4.743022602796555,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 19.745649333375365,
+          "minimumGap": 19.225649333375365
+        },
+        {
+          "id": "meadow-23",
+          "x": 5.455513224005699,
+          "z": 6.696250386536121,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 12.009038678352404,
+          "minimumGap": 11.489038678352404
+        },
+        {
+          "id": "meadow-28",
+          "x": 7.858497595041991,
+          "z": 2.0740261673927307,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 7.1001679370354545,
+          "minimumGap": 6.580167937035455
+        },
+        {
+          "id": "meadow-32",
+          "x": -11.623571104556323,
+          "z": 1.87281626611948,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 20.87440573981029,
+          "minimumGap": 20.35440573981029
+        },
+        {
+          "id": "meadow-33",
+          "x": 4.229234104603529,
+          "z": -8.481553061306476,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 4.507636528002205,
+          "minimumGap": 3.9876365280022052
+        },
+        {
+          "id": "meadow-35",
+          "x": -2.6012140944600106,
+          "z": 3.1413744762539864,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 13.443212638512673,
+          "minimumGap": 12.923212638512673
+        },
+        {
+          "id": "meadow-37",
+          "x": -13.100976146757603,
+          "z": 8.487275093793869,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 25.121952098804513,
+          "minimumGap": 24.601952098804514
+        },
+        {
+          "id": "meadow-39",
+          "x": 3.3129185356199744,
+          "z": 4.696684509515762,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 10.825089209407295,
+          "minimumGap": 10.305089209407296
+        },
+        {
+          "id": "meadow-40",
+          "x": -0.17796356901526453,
+          "z": -3.8332146048545837,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 8.34223225995777,
+          "minimumGap": 7.8222322599577705
+        },
+        {
+          "id": "meadow-43",
+          "x": 12.179453410953284,
+          "z": 0.17379956245422362,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 5.37269269160397,
+          "minimumGap": 4.85269269160397
+        },
+        {
+          "id": "meadow-44",
+          "x": -1.2824119605123998,
+          "z": -5.718302688002586,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 9.361440900713205,
+          "minimumGap": 8.841440900713206
+        },
+        {
+          "id": "meadow-45",
+          "x": 3.285531686246395,
+          "z": -6.342537121474742,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 4.797910344697486,
+          "minimumGap": 4.277910344697485
+        },
+        {
+          "id": "meadow-46",
+          "x": 7.427632695436478,
+          "z": -0.1507602408528328,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 4.915309843567469,
+          "minimumGap": 4.395309843567469
+        },
+        {
+          "id": "meadow-51",
+          "x": -4.763967896997928,
+          "z": 8.810571625828743,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 18.875974591360546,
+          "minimumGap": 18.355974591360546
+        },
+        {
+          "id": "meadow-53",
+          "x": -13.647779926657677,
+          "z": 4.520407390594483,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 23.730263995416845,
+          "minimumGap": 23.210263995416845
+        },
+        {
+          "id": "meadow-54",
+          "x": -3.3226604662835597,
+          "z": 4.390673924982548,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 14.785480475302764,
+          "minimumGap": 14.265480475302764
+        },
+        {
+          "id": "meadow-56",
+          "x": 2.397667407989502,
+          "z": -3.4586302667856215,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 5.892727154749093,
+          "minimumGap": 5.372727154749093
+        },
+        {
+          "id": "meadow-57",
+          "x": 0.2178523287177086,
+          "z": -8.743251626193523,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 8.282009880241747,
+          "minimumGap": 7.762009880241747
+        },
+        {
+          "id": "meadow-58",
+          "x": -2.31141759082675,
+          "z": 8.867783010005951,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 17.34668107580924,
+          "minimumGap": 16.82668107580924
+        },
+        {
+          "id": "meadow-60",
+          "x": 11.523187883198261,
+          "z": -6.919210848212242,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 1.055396705431119,
+          "minimumGap": 0.5353967054311191
+        },
+        {
+          "id": "meadow-63",
+          "x": -5.403488729149103,
+          "z": 3.5937201127409932,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 16.00066422154342,
+          "minimumGap": 15.480664221543421
+        },
+        {
+          "id": "meadow-64",
+          "x": -6.272739066928625,
+          "z": -7.209053501486778,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 14.391767523283614,
+          "minimumGap": 13.871767523283614
+        },
+        {
+          "id": "meadow-67",
+          "x": 5.212599105387926,
+          "z": -7.331613081693649,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 3.1054787447068413,
+          "minimumGap": 2.5854787447068412
+        },
+        {
+          "id": "meadow-68",
+          "x": 9.204722687602043,
+          "z": -1.5235160261392593,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 3.499200063300277,
+          "minimumGap": 2.979200063300277
+        },
+        {
+          "id": "meadow-69",
+          "x": 10.626415640115738,
+          "z": -1.8041678130626677,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 3.218548276376869,
+          "minimumGap": 2.698548276376869
+        },
+        {
+          "id": "meadow-71",
+          "x": 0.6771361850202083,
+          "z": 5.224737650156021,
+          "envelopeRadius": 0.52,
+          "centerToRectangle": 12.641136203061256,
+          "minimumGap": 12.121136203061257
+        }
+      ],
+      "scope": "finite current sitePlan cluster circular XZ envelopes (.48 cluster + .018 animation rounded to .52), not all geometry or all frames"
+    },
+    "shoreline": {
+      "segments": 7,
+      "minimumGap": 3.2436564196827935,
+      "rows": [
+        {
+          "a": [
+            14.399999618530273,
+            -9.600000381469727
+          ],
+          "b": [
+            -14.399999618530273,
+            -9.600000381469727
+          ],
+          "footprintGap": 3.463200354576111
+        },
+        {
+          "a": [
+            -14.399999618530273,
+            -9.600000381469727
+          ],
+          "b": [
+            -14.399999618530273,
+            9.600000381469727
+          ],
+          "footprintGap": 22.47902855873108
+        },
+        {
+          "a": [
+            -14.399999618530273,
+            9.600000381469727
+          ],
+          "b": [
+            5.5,
+            9.600000381469727
+          ],
+          "footprintGap": 14.848408240043591
+        },
+        {
+          "a": [
+            5.5,
+            9.600000381469727
+          ],
+          "b": [
+            10.699999809265137,
+            4.900000095367432
+          ],
+          "footprintGap": 9.92271618480697
+        },
+        {
+          "a": [
+            10.699999809265137,
+            4.900000095367432
+          ],
+          "b": [
+            12.800000190734863,
+            0.8999999761581421
+          ],
+          "footprintGap": 6.246539444183477
+        },
+        {
+          "a": [
+            12.800000190734863,
+            0.8999999761581421
+          ],
+          "b": [
+            14,
+            -4.099999904632568
+          ],
+          "footprintGap": 3.316078125532373
+        },
+        {
+          "a": [
+            14,
+            -4.099999904632568
+          ],
+          "b": [
+            14.399999618530273,
+            -9.600000381469727
+          ],
+          "footprintGap": 3.2436564196827935
+        }
+      ],
+      "method": "every actual dry-land boundary segment against full projected rectangle, including crossing and endpoint/corner distances"
+    },
+    "waterBacking": {
+      "topY": -0.05,
+      "soleAboveWaterBacking": 0.07500000000000133,
+      "scope": "actual wet backing under dry land, no water physics"
+    },
+    "worldUnchanged": true,
+    "walkableSurfacesUnchanged": true,
+    "occludersUnchanged": true,
+    "notRegisteredAsTownSurface": true,
+    "normalPlacement": false,
+    "ownershipUnlockSave": false,
+    "bodyBinding": null,
+    "limits": "one unchanged default-world off-road authored placement,five base-support rays,finite footprint walkability,actual road triangles and conservative full-card envelopes; no owner-world placement, anatomical fit or all-camera visibility guarantee"
+  },
+  "geometry": {
+    "bounds": {
+      "min": [
+        -1.5209710597991943,
+        8.940696724635266e-10,
+        -0.5368000268936157
+      ],
+      "max": [
+        1.2148832082748413,
+        1.6219793558120728,
+        0.577283910560463
+      ],
+      "size": [
+        2.7358542680740356,
+        1.621979354918003,
+        1.1140839374540787
+      ]
+    },
+    "budget": {
+      "meshes": 10,
+      "geometries": 10,
+      "materials": 4,
+      "textures": 0,
+      "triangles": 14000
+    },
+    "removedBodyCellsEachWall": 18,
+    "bodyPortBoundaryVertices": 18,
+    "portOuterPoints": [
+      [
+        -0.5741642014393252,
+        0.47,
+        0.15327030959035615
+      ],
+      [
+        -0.5884711682419382,
+        0.47,
+        0.10300769002451592
+      ],
+      [
+        -0.597110836003318,
+        0.47,
+        0.051753050094008116
+      ],
+      [
+        -0.6,
+        0.47,
+        6.466135099498025e-17
+      ],
+      [
+        -0.5971108360033182,
+        0.47,
+        -0.05175305009400799
+      ],
+      [
+        -0.5884711682419382,
+        0.47,
+        -0.10300769002451578
+      ],
+      [
+        -0.5741642014393253,
+        0.47,
+        -0.153270309590356
+      ],
+      [
+        -0.5837336047966475,
+        0.62,
+        -0.15582481475019525
+      ],
+      [
+        -0.5550253947246812,
+        0.77,
+        -0.14816129927067745
+      ],
+      [
+        -0.5167477812953929,
+        0.91,
+        -0.1379432786313204
+      ],
+      [
+        -0.5296240514177445,
+        0.91,
+        -0.0927069210220642
+      ],
+      [
+        -0.5373997524029864,
+        0.91,
+        -0.04657774508460719
+      ],
+      [
+        -0.54,
+        0.91,
+        5.819521589548222e-17
+      ],
+      [
+        -0.5373997524029863,
+        0.91,
+        0.046577745084607304
+      ],
+      [
+        -0.5296240514177445,
+        0.91,
+        0.09270692102206432
+      ],
+      [
+        -0.5167477812953928,
+        0.91,
+        0.13794327863132053
+      ],
+      [
+        -0.555025394724681,
+        0.77,
+        0.1481612992706776
+      ],
+      [
+        -0.5837336047966474,
+        0.62,
+        0.15582481475019538
+      ]
+    ],
+    "portInnerPoints": [
+      [
+        -0.5215324829740537,
+        0.47,
+        0.13922053121124014
+      ],
+      [
+        -0.5345279778197605,
+        0.47,
+        0.09356531843893526
+      ],
+      [
+        -0.5423756760363472,
+        0.47,
+        0.047009020502057366
+      ],
+      [
+        -0.5449999999999999,
+        0.47,
+        5.873406048710706e-17
+      ],
+      [
+        -0.5423756760363473,
+        0.47,
+        -0.04700902050205725
+      ],
+      [
+        -0.5345279778197605,
+        0.47,
+        -0.09356531843893515
+      ],
+      [
+        -0.5215324829740539,
+        0.47,
+        -0.13922053121124
+      ],
+      [
+        -0.5311018863313759,
+        0.62,
+        -0.14177503637107927
+      ],
+      [
+        -0.5023936762594096,
+        0.77,
+        -0.13411152089156148
+      ],
+      [
+        -0.46411606283012136,
+        0.91,
+        -0.12389350025220443
+      ],
+      [
+        -0.4756808609955668,
+        0.91,
+        -0.08326454943648359
+      ],
+      [
+        -0.48266459243601556,
+        0.91,
+        -0.04183371549265646
+      ],
+      [
+        -0.48500000000000004,
+        0.91,
+        5.226792538760904e-17
+      ],
+      [
+        -0.4826645924360155,
+        0.91,
+        0.04183371549265656
+      ],
+      [
+        -0.4756808609955668,
+        0.91,
+        0.08326454943648369
+      ],
+      [
+        -0.4641160628301213,
+        0.91,
+        0.12389350025220455
+      ],
+      [
+        -0.5023936762594096,
+        0.77,
+        0.1341115208915616
+      ],
+      [
+        -0.5311018863313758,
+        0.62,
+        0.1417750363710794
+      ]
+    ],
+    "spoutCenters": [
+      [
+        -0.78,
+        0.7,
+        0
+      ],
+      [
+        -0.98,
+        0.86,
+        0
+      ],
+      [
+        -1.1,
+        1.06,
+        0
+      ],
+      [
+        -1.2,
+        1.25,
+        0
+      ],
+      [
+        -1.25,
+        1.36,
+        0.13
+      ]
+    ],
+    "spoutInnerRadii": [
+      0.115,
+      0.085,
+      0.075,
+      0.11,
+      0.235
+    ],
+    "roseHoleCenters": [
+      [
+        -1.25,
+        1.36,
+        0.13
+      ],
+      [
+        -1.2060509335795866,
+        1.2633120538750904,
+        0.22871636457508276
+      ],
+      [
+        -1.1255830022183937,
+        1.3340587134946742,
+        0.1998030108051245
+      ],
+      [
+        -1.1179968607679223,
+        1.4200014269236718,
+        0.13
+      ],
+      [
+        -1.1877363680037782,
+        1.4707961182225207,
+        0.060196989194875525
+      ],
+      [
+        -1.2939490664204134,
+        1.4566879461249098,
+        0.03128363542491726
+      ],
+      [
+        -1.3744169977816063,
+        1.385941286505326,
+        0.06019698919487551
+      ],
+      [
+        -1.3820031392320777,
+        1.2999985730763284,
+        0.12999999999999998
+      ],
+      [
+        -1.3122636319962218,
+        1.2492038817774795,
+        0.19980301080512447
+      ]
+    ],
+    "roseAxis": [
+      -0.2817180849095056,
+      0.6197797868009124,
+      0.7324670207647139
+    ],
+    "roseThickness": 0.035,
+    "roseHoleRadius": 0.023,
+    "bodyPortOpen": true,
+    "roseTrueThroughHoles": 9,
+    "bodyBinding": null,
+    "authoredHiddenSurfaces": true,
+    "gripFit": false,
+    "liquidSimulation": false
+  },
+  "bodyBinding": null,
+  "new_designs": 0,
+  "new_raw_PNG_versions": 0,
+  "new_library_mesh_candidates": 0,
+  "fit_verified": false,
+  "grip_carrying_pouring_verified": false,
+  "liquid_flow_verified": false,
+  "normal_game_integration": false,
+  "ownership_unlock_save": false,
+  "native_views_verified_by_this_certificate": false,
+  "tests": {
+    "file": "tests/test-pet-bud-watering-can-proof-20261028.mjs",
+    "unique_tests": 13
+  },
+  "source_files": [
+    {
+      "path": "can.mjs",
+      "sha256": "6bf69795d39198dbc64bcdd0e6fc0896845d3af00e781153cd380da2680ddcee",
+      "bytes": 12883
+    },
+    {
+      "path": "placement.mjs",
+      "sha256": "d584c4e307c700f2471af1ebce9035b167c877642e5cca5dcfb49a44ca8cbed8",
+      "bytes": 8008
+    },
+    {
+      "path": "viewer.mjs",
+      "sha256": "80d7ff036046329e27353eb4f96020075a159c8f1330404945a635a4be62126e",
+      "bytes": 12440
+    },
+    {
+      "path": "entry.mjs",
+      "sha256": "5754965b58c4c191d1ae55dc54f394a114b2315eb1ea391f72bf41b9792c52f4",
+      "bytes": 3265
+    },
+    {
+      "path": "index.html",
+      "sha256": "bc87ff083f8b6baccb62565c645444e2234e6625e4f82e1f87c773af9e83a2f5",
+      "bytes": 3851
+    },
+    {
+      "path": "SPEC.json",
+      "sha256": "3c7ef1ee3612cefaccdfcaac88aa7341f5203dc948202261b7ddcd261f054419",
+      "bytes": 866
+    },
+    {
+      "path": "input-manifest.json",
+      "sha256": "725495de77191ffd9eacf648789ad5ded9ab283165ed6d85743ee9afcbe7aa7e",
+      "bytes": 4556
+    }
+  ]
+}

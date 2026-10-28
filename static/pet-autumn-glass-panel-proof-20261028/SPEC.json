@@ -1,0 +1,20 @@
+{
+  "model_id": "autumn-glass-garden-panel-v1",
+  "unit_id": "village:asset-library:autumn-glass-garden-panel:v1",
+  "new_mesh_library_candidate": true,
+  "new_PNG_designs": 0,
+  "new_raw_versions": 0,
+  "imagegen_calls": 0,
+  "bodyBinding": null,
+  "prototype_dimensions_only": true,
+  "description": "Freestanding two-stone-foot notched wood frame, transparent thick glass with actual leaf cutout and matching thick amber leaf insert; finite structure/placement probes only.",
+  "category_index": 2,
+  "style_index": 5,
+  "season_index": 3,
+  "not_established": [
+    "physical wind/load/friction",
+    "character fit",
+    "ordinary placement/ownership/unlock/save",
+    "all continuous poses or all worlds"
+  ]
+}
