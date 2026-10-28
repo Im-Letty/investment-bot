@@ -19,6 +19,9 @@ import MeadowFlowers from '../static/pet-town-meadow-flowers.js';
 import GroundFinish from '../static/pet-town-ground-finish.js';
 import WaterFinish from '../static/pet-town-water-finish.js';
 import Environment from '../static/pet-town-environment.js';
+import SnorkelingWorld from '../static/pet-ocean-snorkeling-world.js';
+import OceanDiscoveries from '../static/pet-ocean-discoveries.js';
+import Snorkeling from '../static/pet-ocean-snorkeling.js';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
@@ -118,7 +121,7 @@ test('browser registration can precede the visual-only helper and mount adopts t
  assert.equal(context.PetTownScene.alphaAnchor({tagName:'CANVAS',width:16,height:16,getContext:()=>null}),null);
  const painted={tagName:'CANVAS',width:16,height:16,getContext:()=>({RGBA:1,UNSIGNED_BYTE:2,readPixels(x,y,w,h,a,b,p){p[(2*w+8)*4+3]=255;}})};
  assert.equal(context.PetTownScene.alphaAnchor(painted),.125,'the existing public diagnostics work synchronously before any mount or helper import');
- context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;context.PetTownStyle=TownStyle;context.PetTownLayoutArt=LayoutArt;context.PetTownPlacementOriginals=Originals;context.PetTownWaterLife=WaterLife;context.PetTownOceanLife=OceanLife;context.PetTownShoreTransition=ShoreTransition;context.PetTownTreeVariety=TreeVariety;context.PetTownMeadowSites=MeadowSites;context.PetTownMeadowFlowers=MeadowFlowers;context.PetTownGroundFinish=GroundFinish;context.PetTownWaterFinish=WaterFinish;context.PetTownEnvironment=Environment;
+ context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;context.PetTownStyle=TownStyle;context.PetTownLayoutArt=LayoutArt;context.PetTownPlacementOriginals=Originals;context.PetTownWaterLife=WaterLife;context.PetTownOceanLife=OceanLife;context.PetTownShoreTransition=ShoreTransition;context.PetTownTreeVariety=TreeVariety;context.PetTownMeadowSites=MeadowSites;context.PetTownMeadowFlowers=MeadowFlowers;context.PetTownGroundFinish=GroundFinish;context.PetTownWaterFinish=WaterFinish;context.PetTownEnvironment=Environment;context.PetOceanSnorkelingWorld=SnorkelingWorld;
  const f=await fixture({sceneAPI:context.PetTownScene});try{assert.ok(f.controller);assert.equal(f.controller.setFrame(f.source,{anchor:.3}),true);const scene=f.renderers[0].calls.at(-1).scene;assert.equal(scene.getObjectByName('current-pet-2d-frame').center.y,.3);assert.equal(f.host.dataset.townLayoutArt,LayoutArt.revision);assert.equal(f.host.dataset.townTreeRoots,'soft-roots2');assert.equal(scene.userData.treeRootsRevision,'soft-roots2');assert.equal(f.host.dataset.townArtFamily,'tree-family1');assert.equal(scene.userData.treeFamilyRevision,'tree-family1');assert.equal(f.host.dataset.townMeadowFlowers,'meadow-flowers4');assert.equal(f.host.dataset.townEnvironmentStyle,'shop-environment2');assert.equal(scene.userData.environmentStyleRevision,'shop-environment2');assert.equal(scene.userData.meadowFlowersRevision,'meadow-flowers4');assert.equal(scene.userData.layoutArtRevision,LayoutArt.revision);assert.ok(scene.getObjectByName('layout-art-native-landscape'));assert.equal(scene.getObjectByName('bridge-deck').userData.layoutBoardCount,11);assert.deepEqual(f.failures,[]);}finally{f.controller?.destroy();assert.equal(f.host.dataset.townMeadowFlowers,undefined);assert.equal(f.host.dataset.townEnvironmentStyle,undefined);assert.equal(f.host.dataset.townTreeRoots,undefined);assert.equal(f.host.dataset.townArtFamily,undefined);}
 });
 
@@ -697,4 +700,82 @@ test('shore season changes only color buffers while native scene owns and releas
  assert.deepEqual(meshes.map(o=>Array.from(o.geometry.attributes.position.array)),positions);assert.deepEqual([...m.geometries],geometries);assert.deepEqual([...m.materials],materials);
  m.animate(0,true);m.animate(5000,false);assert.deepEqual(meshes.map(o=>Array.from(o.geometry.attributes.position.array)),positions);
  m.dispose();m.dispose();for(const r of new Set(meshes.flatMap(o=>[o.geometry,o.material])))assert.equal(counts.get(r),1);
+});
+
+
+test('manual ocean view keeps the dry position/camera and original sprite size, with actual submerged camera and habitat',async()=>{
+ const facing=[],f=await fixture({onFacing:v=>facing.push(v)});
+ try{
+  assert.equal(f.controller.setFrame(f.source),true);const r=f.renderers[0],scene=r.calls.at(-1).scene,pet=scene.getObjectByName('current-pet-2d-frame'),beforePosition=pet.position.clone(),beforeScale=pet.scale.clone(),savedCamera=f.controller.camera(),sea=scene.getObjectByName('water'),beforeSea={opacity:sea.material.opacity,side:sea.material.side,depthWrite:sea.material.depthWrite},sky=scene.background;
+  const c=OceanDiscoveries.encounters.find(c=>c.id==='shell'),snapshot={mode:'surface',phase:'surface',position:c.position,depth:0,moving:true,dx:1,dy:0};
+  assert.equal(f.controller.setSnorkeling(snapshot),true);f.frame(40);
+  assert.equal(f.host.dataset.townSnorkeling,'surface');assert.deepEqual({opacity:sea.material.opacity,side:sea.material.side,depthWrite:sea.material.depthWrite},beforeSea,'surface swimming retains the original continuous opaque sea over the hidden bed patch');assert.equal(pet.material.clippingPlanes.length,1);assert.ok(pet.material.clippingPlanes[0].distanceToPoint(new THREE.Vector3(0,-.2,0))<0,'surface view discards the lower body below the real sea plane');assert.deepEqual(pet.scale,beforeScale);
+  assert.equal(f.controller.setSnorkeling({...snapshot,mode:'underwater',phase:'underwater',depth:.2}),true);f.frame(40);assert.ok(pet.material.clippingPlanes[0].distanceToPoint(new THREE.Vector3(0,.1,0))<0,'while descending, above-water sprite fragments remain outside the underwater view');
+  assert.equal(f.controller.setSnorkeling({...snapshot,mode:'underwater',phase:'underwater',depth:1.15}),true);f.frame(40);
+  const camera=r.calls.at(-1).camera;assert.ok(camera.position.y<-.05,'the actual camera is below the sea');assert.equal(pet.material.clippingPlanes,null);assert.equal(pet.material.color.getHexString(),'ffffff','source artwork retains its own colors');assert.deepEqual(pet.scale,beforeScale);assert.equal(scene.getObjectByName('southeast-snorkeling-habitat').visible,true);assert.equal(scene.getObjectByName('saved-town-geometry').visible,false,'island underside and above-water art are hidden only in underwater presentation');assert.equal(scene.getObjectByName('underwater-surface-ceiling').visible,true);assert.ok(camera.position.y>-2.35);assert.ok(scene.getObjectByName('closed-sandy-seabed'));assert.ok(scene.getObjectByName('marine-encounter-starfish'));assert.ok(facing.at(-1).walking===false,'swimming never sends a walking gait packet');
+  const up=new THREE.Vector3(0,1,0).applyQuaternion(camera.quaternion),top=pet.position.clone().addScaledVector(up,(1-pet.center.y)*pet.scale.y),bottom=pet.position.clone().addScaledVector(up,-pet.center.y*pet.scale.y);
+  assert.ok(top.y<-.05,'full source art fits under the surface at dive depth');assert.ok(bottom.y>SnorkelingWorld.floorAt(c.position)+.1,'unscaled source art remains above the seabed');
+  const p={x:OceanDiscoveries.coastX(1660)+520,y:1660},bed=scene.getObjectByName('closed-sandy-seabed'),floorRay=new THREE.Raycaster(new THREE.Vector3((p.x-f.world.width/2)/100,0,(p.y-f.world.height/2)/100),new THREE.Vector3(0,-1,0)),actualFloor=floorRay.intersectObject(bed)[0];assert.ok(actualFloor);
+  const v=actualFloor.point.clone().project(camera),hit=f.controller.resolveWaterTap({clientX:(v.x+1)*195,clientY:(1-v.y)*350});
+  assert.ok(hit&&Math.hypot(hit.x-p.x,hit.y-p.y)<1e-6,'a tap on the visible actual seabed maps to that seabed point rather than a shallower swimmer plane');assert.equal(f.controller.resolveTap({clientX:195,clientY:350}),null,'ordinary dry tap cannot walk on the ocean');
+  assert.equal(f.controller.setSnorkeling({mode:'underwater',position:{x:100,y:1600},depth:1.15}),false);assert.equal(f.controller.setSnorkeling({...snapshot,depth:Infinity}),false);
+  f.controller.setPosition(c.position);assert.equal(f.controller.setSnorkeling(null),true);f.frame(40);
+  assert.deepEqual(pet.position,beforePosition,'water position was never written into the dry controller position');assert.deepEqual(f.controller.camera(),savedCamera);assert.equal(scene.background,sky);assert.deepEqual({opacity:sea.material.opacity,side:sea.material.side,depthWrite:sea.material.depthWrite},beforeSea);assert.equal(scene.getObjectByName('southeast-snorkeling-habitat').visible,false);assert.equal(scene.getObjectByName('saved-town-geometry').visible,true);assert.equal(pet.material.clippingPlanes,null);assert.deepEqual(f.failures,[]);
+ }finally{f.controller.destroy();}
+});
+
+test('ocean transition accepts only the validated actual entry corridor; reduced motion remains event-driven and resources release',async()=>{
+ const f=await fixture({reduced:true});f.controller.setFrame(f.source);const scene=f.renderers[0].calls.at(-1).scene,h=Snorkeling.createHabitat(f.world,Town),e=h.entry;
+ const corridor={mode:'surface',phase:'entering',position:{x:(e.dry.x+e.water.x)/2,y:e.dry.y},depth:0,moving:true,dx:1,dy:0,entry:e};
+ assert.equal(f.controller.setSnorkeling(corridor),true);f.frame(40);assert.equal(f.frames.size,0);
+ assert.equal(f.controller.setSnorkeling({...corridor,phase:'surface'}),false);assert.equal(f.controller.setSnorkeling({...corridor,position:{x:e.dry.x-40,y:e.dry.y}}),false);
+ const c=OceanDiscoveries.encounters[0];assert.equal(f.controller.setSnorkeling({mode:'underwater',phase:'underwater',position:c.position,depth:1.15,moving:false}),true);f.frame(40);assert.equal(f.frames.size,0);
+ let disposed=0;const bed=scene.getObjectByName('closed-sandy-seabed');bed.geometry.addEventListener('dispose',()=>disposed++);const bubble=scene.getObjectByName('snorkeling-small-bubbles');let buffers=0;bubble.addEventListener('dispose',()=>buffers++);
+ f.doc.hidden=true;f.doc.emit('visibilitychange');assert.equal(f.frames.size,0);assert.equal(f.controller.resolveWaterTap({clientX:195,clientY:350}),null);f.controller.destroy();f.controller.destroy();assert.equal(disposed,1);assert.equal(buffers,1);assert.equal(f.host.dataset.townSnorkeling,undefined);assert.equal(f.host.dataset.townSnorkelingRevision,undefined);
+});
+
+
+test('explicit PNG capture draws the current canvas synchronously and cannot capture a hidden or destroyed scene',async()=>{
+ const f=await fixture({reduced:true});assert.equal(f.controller.capturePNG(),null);f.controller.setFrame(f.source);const r=f.renderers[0];let calls=0;r.domElement.toDataURL=type=>{assert.equal(type,'image/png');calls++;return 'data:image/png;base64,c3ludGhldGlj';};
+ const before=r.calls.length;assert.equal(f.controller.capturePNG(),'data:image/png;base64,c3ludGhldGlj');assert.equal(r.calls.length,before+1);assert.equal(calls,1);f.doc.hidden=true;assert.equal(f.controller.capturePNG(),null);f.doc.hidden=false;f.controller.destroy();assert.equal(f.controller.capturePNG(),null);assert.equal(calls,1);
+});
+
+
+test('an underwater season edge keeps all island roots hidden and returns to the latest seasonal sky/accents',async()=>{
+ let now=Date.parse('2026-11-30T14:59:59Z'),notify;const f=await fixture({reduced:true,seasonNow:()=>now,seasonSubscribe:fn=>{notify=fn;return()=>{};}});
+ try{
+  f.controller.setFrame(f.source);const scene=f.renderers[0].calls.at(-1).scene,c=OceanDiscoveries.encounters[0];f.controller.setSnorkeling({mode:'underwater',phase:'underwater',position:c.position,depth:1.15,moving:false});f.frame(40);const underwater=scene.background;
+  now=Date.parse('2026-11-30T15:00:00Z');notify();f.frame(40);assert.equal(f.host.dataset.townSeason,'winter');assert.equal(scene.background,underwater);assert.equal(scene.getObjectByName('saved-town-geometry').visible,false);for(const key of ['spring','summer','autumn','winter'])assert.equal(scene.getObjectByName('season-'+key+'-accents').visible,false);
+  f.controller.setSnorkeling(null);f.frame(40);assert.notEqual(scene.background,underwater);assert.equal(scene.background.userData.environmentSeason,'winter');assert.equal(scene.getObjectByName('season-winter-accents').visible,true);assert.equal(scene.getObjectByName('season-autumn-accents').visible,false);assert.equal(scene.getObjectByName('saved-town-geometry').visible,true);assert.deepEqual(f.failures,[]);
+ }finally{f.controller.destroy();}
+});
+
+
+test('ocean visual loading reuses validated classic activity globals and loads missing dependencies in one pinned order',async()=>{
+ const source=readFileSync(new URL('../static/pet-town-scene.js',import.meta.url),'utf8'),start=source.indexOf('  function loadSnorkelingWorld('),end=source.indexOf('  function groundTexture(',start),controller=Object.assign({revision:'ocean-snorkeling1'},Snorkeling);
+ assert.ok(start>=0&&end>start);
+ async function run(warm){const imports=[],ctx=vm.createContext({SnorkelingWorld:null,snorkelingWorldLoading:null});if(warm){ctx.PetOceanDiscoveries=OceanDiscoveries;ctx.PetOceanSnorkeling=controller;}
+  ctx.importer=async url=>{imports.push(url);if(url.includes('pet-ocean-discoveries.js'))ctx.PetOceanDiscoveries=OceanDiscoveries;else if(url.includes('pet-ocean-snorkeling.js'))ctx.PetOceanSnorkeling=controller;else if(url.includes('pet-ocean-snorkeling-world.js'))ctx.PetOceanSnorkelingWorld=SnorkelingWorld;else assert.fail(url);};
+  vm.runInContext(source.slice(start,end).replace(/import\(/g,'importer(')+';globalThis.loadUnderTest=loadSnorkelingWorld;',ctx);const first=ctx.loadUnderTest(),second=ctx.loadUnderTest();assert.equal(first,second);assert.equal(await first,SnorkelingWorld);assert.equal(ctx.PetOceanDiscoveries,OceanDiscoveries);assert.equal(ctx.PetOceanSnorkeling,controller);assert.equal(await ctx.loadUnderTest(),SnorkelingWorld);return imports;}
+ assert.deepEqual(await run(true),['/static/pet-ocean-snorkeling-world.js?v=20261029-snorkeling1']);assert.deepEqual(await run(false),['/static/pet-ocean-discoveries.js?v=20261029-snorkeling1','/static/pet-ocean-snorkeling.js?v=20261029-snorkeling1','/static/pet-ocean-snorkeling-world.js?v=20261029-snorkeling1']);
+});
+
+
+test('the south-west ocean corner always replaces an old dry camera when every relative yaw candidate is blocked',async()=>{
+ const position={x:2191.1702127659573,y:1815},f=await fixture({camera:{yaw:-1.8325957145940475,pitch:22*Math.PI/180,distance:8},reduced:true});
+ try{f.controller.setFrame(f.source);const renderer=f.renderers[0],before=renderer.calls.at(-1).camera.position.clone();assert.equal(f.controller.setSnorkeling({mode:'underwater',phase:'underwater',position,depth:1.15,moving:false}),true);f.frame(40);const camera=renderer.calls.at(-1).camera,info=JSON.parse(f.host.dataset.townCamera),townX=camera.position.x*100+1440,townY=camera.position.z*100+960;
+  assert.notDeepEqual(camera.position,before);assert.ok(camera.position.y<-.05);assert.ok(townX>=OceanDiscoveries.coastX(townY)+35);assert.ok(townY>=1320&&townY<=1910);assert.ok([camera.position.x,camera.position.y,camera.position.z,info.actualYaw].every(Number.isFinite));assert.equal(info.actualYaw,Math.PI/2,'absolute seaward fallback is actually exercised');assert.deepEqual(f.failures,[]);
+ }finally{f.controller.destroy();}
+});
+
+
+test('water mode changes invalidate cached island shadows once and restore normal shadows without per-frame updates',async()=>{
+ const f=await fixture({reduced:true});try{
+  f.controller.setFrame(f.source);const shadowMap=f.renderers[0].shadowMap,c=OceanDiscoveries.encounters[0],surface={mode:'surface',phase:'surface',position:c.position,depth:0,moving:false},underwater={...surface,mode:'underwater',phase:'underwater',depth:1.15};
+  shadowMap.needsUpdate=false;assert.equal(f.controller.setSnorkeling(surface),true);assert.equal(shadowMap.needsUpdate,true);
+  shadowMap.needsUpdate=false;assert.equal(f.controller.setSnorkeling(underwater),true);assert.equal(shadowMap.needsUpdate,true,'hidden island casters cannot leave their old map on the marine floor');
+  shadowMap.needsUpdate=false;assert.equal(f.controller.setSnorkeling({...underwater,position:{x:c.position.x+10,y:c.position.y}}),true);f.frame(40);assert.equal(shadowMap.needsUpdate,false,'ordinary marine movement keeps the cached-map policy');
+  assert.equal(f.controller.setSnorkeling(surface),true);assert.equal(shadowMap.needsUpdate,true,'visible island casters get their normal shadow map back');
+  shadowMap.needsUpdate=false;assert.equal(f.controller.setSnorkeling(null),true);assert.equal(shadowMap.needsUpdate,true);shadowMap.needsUpdate=false;f.frame(40);assert.equal(shadowMap.needsUpdate,false);assert.deepEqual(f.failures,[]);
+ }finally{f.controller.destroy();}
 });

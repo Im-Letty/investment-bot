@@ -1,8 +1,8 @@
 (function (root, factory) {
   'use strict';
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./pet-village-economy.js'), require('./pet-shop-layout.js'), require('./pet-river-fishing.js'));
-  else root.PetGameCore = factory(root.PetVillageEconomy, root.PetShopLayout, root.PetRiverFishing);
-}(typeof globalThis !== 'undefined' ? globalThis : this, function (VillageEconomy, ShopLayout, RiverFishing) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./pet-village-economy.js'), require('./pet-shop-layout.js'), require('./pet-river-fishing.js'), require('./pet-ocean-discoveries.js'));
+  else root.PetGameCore = factory(root.PetVillageEconomy, root.PetShopLayout, root.PetRiverFishing, root.PetOceanDiscoveries);
+}(typeof globalThis !== 'undefined' ? globalThis : this, function (VillageEconomy, ShopLayout, RiverFishing, OceanDiscoveries) {
   'use strict';
 
   // One record contains the entire economy. A rejected write never publishes a
@@ -154,6 +154,7 @@
     stale_state:'別の画面で記録が変わりました。再読み込みしてから操作してください。',storage_full:'保存できる容量を超えました。',
     daily_limit:'今日の回数を使い切りました。また明日あそぼう。',clock_moved_back:'日付が以前に戻っています。端末の日付を確認してください。',
     invalid_clock:'端末の日時を確認してください。',invalid_random:'値動きを作成できませんでした。',invalid_action:'この操作には対応していません。',
+    invalid_ocean_discovery:'海の中で、近くの生きものを見つけてから記録してください。',ocean_already_discovered:'この生きものは記録済みです。',
     invalid_fishing:'川岸の釣り場を確認してください。',fishing_active:'前の釣りを続けるか、やめてから始めてください。',
     fishing_wait:'浮きが沈んでから引き上げよう。',fishing_escaped:'魚が離れました。もう一度投げてみよう。',
     fishing_cooldown:'少し待ってから、もう一度投げよう。',
@@ -236,6 +237,10 @@
     check(RiverFishing.valid(fishing),'corrupt_data');
     var result=RiverFishing.view(fishing,ms,RiverFishing.createWorld(getVillageLayout(s)),position);
     if(s&&ms<s.updatedAt){result.phase='clock_moved_back';result.canCast=false;result.canReel=false;}return result;
+  }
+  function getOceanDiscoveryView(s) {
+    check(OceanDiscoveries&&typeof OceanDiscoveries.view==='function','invalid_ocean_discovery');
+    return OceanDiscoveries.view(s&&own(s,'oceanDiscoveries')?s.oceanDiscoveries:OceanDiscoveries.empty());
   }
   function validDay(v, empty) { if (empty && v === '') return true; if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return false; var d=new Date(v+'T12:00:00');return Number.isFinite(d.getTime()) && dayKey(d.getTime())===v; }
   function sameLegacyDay(a,b) { return typeof a==='string' && a.split('-').map(Number).join('-')===b.split('-').map(Number).join('-'); }
@@ -380,6 +385,10 @@
     if(own(s,'roomLayout'))validateRoomLayout(s.roomLayout,s,'corrupt_data');
     if(own(s,'villageLife'))validateVillageLife(s.villageLife,'corrupt_data');
     if(own(s,'riverFishing'))check(!!RiverFishing&&RiverFishing.valid(s.riverFishing),'corrupt_data');
+    if(own(s,'oceanDiscoveries')){
+      check(!!OceanDiscoveries&&OceanDiscoveries.valid(s.oceanDiscoveries),'corrupt_data');
+      check(s.oceanDiscoveries.entries.every(function(row){return row.discoveredAt>=s.createdAt&&row.discoveredAt<=s.updatedAt;}),'corrupt_data');
+    }
     if(own(s,'cozyRoomLayout'))validateCozyRoomLayout(s.cozyRoomLayout,s,'corrupt_data');
     if(own(s,'villageLayout'))validateVillageLayout(s.villageLayout,'corrupt_data');
     if(own(s,'shopInteriorLayouts'))validateShopInteriorLayouts(s.shopInteriorLayouts,'corrupt_data');
@@ -663,6 +672,15 @@
       check(!needsEggChoice(next),'egg_required');
       if((a.type==='care'||a.type==='useItem')&&own(a,'expectedRevision'))
         check(integer(a.expectedRevision)&&a.expectedRevision===next.revision,'stale_state');
+      if(a.type==='recordOceanDiscovery') {
+        check(integer(a.expectedRevision)&&a.expectedRevision===next.revision,'stale_state');
+        check(ms>=next.updatedAt,'clock_moved_back');
+        check(!!OceanDiscoveries&&typeof OceanDiscoveries.record==='function','invalid_ocean_discovery');
+        var discoveries=own(next,'oceanDiscoveries')?next.oceanDiscoveries:OceanDiscoveries.empty();
+        next.oceanDiscoveries=OceanDiscoveries.record(discoveries,{creatureId:a.creatureId,position:a.position,mode:a.mode,depth:a.depth,at:ms});
+        // Observation is its own collection: no EXP, inventory, coins or achievements.
+        return null;
+      }
       if(['startRiverFishing','reelRiverFishing','cancelRiverFishing'].indexOf(a.type)>=0) {
         check(integer(a.expectedRevision)&&a.expectedRevision===next.revision,'stale_state');
         check(ms>=next.updatedAt,'clock_moved_back');
@@ -843,7 +861,7 @@
         catch(e){return failure(e);}
       });
     }
-    api={ready:ready,getState:visible,dispatch:dispatch,getStage:getStage,getLilacGrowth:getLilacGrowth,getLilacAppearance:getLilacAppearance,getLilacEvolution:getLilacEvolution,getEggOrigin:getEggOrigin,needsEggChoice:needsEggChoice,getVillageLayout:function(){return getVillageLayout(state);},getCozyRoomLayout:function(){return getCozyRoomLayout(state);},getHomeFurnishingsView:function(){return getHomeFurnishingsView(state);},getCozyRoomFurniture:function(){return getCozyRoomFurniture(state);},getVillageHarvestView:function(ms){return getVillageHarvestView(state,ms===undefined?Number(clock()):ms);},getRiverFishingView:function(ms,position){return getRiverFishingView(state,ms===undefined?Number(clock()):ms,position);},getVillageEconomyView:function(ms){return VillageEconomy.view(state,ms===undefined?Number(clock()):ms);},
+    api={ready:ready,getState:visible,dispatch:dispatch,getStage:getStage,getLilacGrowth:getLilacGrowth,getLilacAppearance:getLilacAppearance,getLilacEvolution:getLilacEvolution,getEggOrigin:getEggOrigin,needsEggChoice:needsEggChoice,getVillageLayout:function(){return getVillageLayout(state);},getCozyRoomLayout:function(){return getCozyRoomLayout(state);},getHomeFurnishingsView:function(){return getHomeFurnishingsView(state);},getCozyRoomFurniture:function(){return getCozyRoomFurniture(state);},getVillageHarvestView:function(ms){return getVillageHarvestView(state,ms===undefined?Number(clock()):ms);},getRiverFishingView:function(ms,position){return getRiverFishingView(state,ms===undefined?Number(clock()):ms,position);},getOceanDiscoveryView:function(){return getOceanDiscoveryView(state);},getVillageEconomyView:function(ms){return VillageEconomy.view(state,ms===undefined?Number(clock()):ms);},
       subscribe:function(fn){check(typeof fn==='function','invalid_listener');listeners.push(fn);return function(){listeners=listeners.filter(function(x){return x!==fn;});};},
       exportBackup:function(){check(!loading&&!blocked,'read_only');return JSON.stringify({format:'PetGameBackup',version:3,exportedAt:time(),state:clone(state)});},
       importBackup:importBackup};return api;
@@ -851,7 +869,7 @@
   return {create:create,getStage:getStage,getLilacGrowth:getLilacGrowth,lilacGrowthStages:lilacGrowthStages,getLilacAppearance:getLilacAppearance,lilacAppearanceStages:lilacAppearanceStages,getLilacEvolution:getLilacEvolution,lilacEvolutionPaths:lilacEvolutionPaths,getMarketSummary:summary,eggCatalogue:eggCatalogue,eggProfile:eggProfile,getEggOrigin:getEggOrigin,needsEggChoice:needsEggChoice,KEY:KEY,STORAGE_KEY:KEY,
     roomFurniture:clone(ROOM_FURNITURE),defaultRoomLayout:defaultRoomLayout,getRoomLayout:getRoomLayout,
     cozyRoomFurniture:clone(COZY_ROOM_FURNITURE),cozyRoomTypes:clone(COZY_ROOM_TYPES),defaultCozyRoomLayout:defaultCozyRoomLayout,getCozyRoomLayout:getCozyRoomLayout,
-    getHomeFurnishingsView:getHomeFurnishingsView,getCozyRoomFurniture:getCozyRoomFurniture,getVillageHarvestView:getVillageHarvestView,getRiverFishingView:getRiverFishingView,
+    getHomeFurnishingsView:getHomeFurnishingsView,getCozyRoomFurniture:getCozyRoomFurniture,getVillageHarvestView:getVillageHarvestView,getRiverFishingView:getRiverFishingView,getOceanDiscoveryView:getOceanDiscoveryView,
     getShopInteriorLayout:getShopInteriorLayout,
     villagePlaces:VILLAGE_PLACES,defaultVillageLayout:defaultVillageLayout,getVillageLayout:getVillageLayout,
     getVillageEconomyView:function(s,ms){return VillageEconomy.view(s,ms===undefined?Date.now():ms);},

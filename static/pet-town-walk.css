@@ -368,3 +368,23 @@
   .ipg-town .ipg-town-avatar[data-walking="true"] > .ipg-town-pet { animation: none; }
   .ipg-town .ipg-town-world { will-change: auto; }
 }
+
+/* Ocean controls stay outside the scene so a small phone keeps the full view. */
+#sect-pet .ipg-ocean-controls{margin:12px 0 0;padding:0 4px}
+#sect-pet .ipg-ocean-controls>button{border-radius:999px;padding:9px 18px;min-height:44px;background:#e5eeeb;border:1px solid #bacfc6;color:#345d59}
+#sect-pet .ipg-ocean-panel{margin-top:10px;padding:16px;border-radius:18px;background:#f1f6f1;border:1px solid #cad9cf}
+#sect-pet .ipg-ocean-panel[hidden],#sect-pet .ipg-ocean-panel [hidden]{display:none!important}
+#sect-pet .ipg-ocean-status{margin:0 0 8px;font-weight:600;color:#315951}
+#sect-pet .ipg-ocean-buttons,#sect-pet .ipg-ocean-sites{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+#sect-pet .ipg-ocean-panel button{min-height:44px;padding:8px 14px;border-radius:12px}
+#sect-pet .ipg-ocean-sites button{font-size:13px;border-color:#bdd4c9;background:transparent}
+#sect-pet .ipg-ocean-collection{font-size:13px;line-height:1.7;margin:10px 0;color:#496a60}
+@media(max-width:420px){#sect-pet .ipg-ocean-panel{padding:12px}#sect-pet .ipg-ocean-buttons button{flex:1 1 44%;font-size:13px}#sect-pet .ipg-ocean-sites{gap:6px}}
+@media(orientation:landscape) and (max-height:540px){#sect-pet .ipg-ocean-panel{padding:10px}#sect-pet .ipg-ocean-panel .ipg-small{margin:5px 0}#sect-pet .ipg-ocean-buttons{margin:6px 0}}
+
+/* The village itself fills the viewport; anchor only the small sea toggle. */
+#sect-pet .ipg-town>.ipg-ocean-controls{position:absolute;left:var(--ipg-town-edge-left,12px);bottom:calc(154px + env(safe-area-inset-bottom,0px));margin:0;padding:0;z-index:5;max-width:calc(100% - 24px)}
+#sect-pet .ipg-town .ipg-ocean-panel{position:absolute;left:0;bottom:54px;width:min(360px,calc(100vw - 24px));max-height:min(48dvh,420px);overflow:auto;overscroll-behavior:contain;box-shadow:0 12px 35px #234d4930;background:#f1f6f1}
+@media(orientation:landscape) and (max-height:540px){#sect-pet .ipg-town>.ipg-ocean-controls{bottom:70px;left:max(12px,env(safe-area-inset-left,0px))}#sect-pet .ipg-town .ipg-ocean-panel{max-height:calc(100dvh - 130px);width:min(340px,calc(100vw - 24px));bottom:48px}}
+
+#sect-pet .ipg-town-viewport[data-ocean-mode="surface"] .ipg-life-hud>.ipg-button,#sect-pet .ipg-town-viewport[data-ocean-mode="underwater"] .ipg-life-hud>.ipg-button,#sect-pet .ipg-town-viewport[data-ocean-mode="surface"] .ipg-river-fishing,#sect-pet .ipg-town-viewport[data-ocean-mode="underwater"] .ipg-river-fishing{display:none}

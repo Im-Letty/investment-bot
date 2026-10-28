@@ -16,12 +16,13 @@
     typeof module === 'object' && module.exports ? require('./pet-town-meadow-flowers.js') : root.PetTownMeadowFlowers,
     typeof module === 'object' && module.exports ? require('./pet-town-ground-finish.js') : root.PetTownGroundFinish,
     typeof module === 'object' && module.exports ? require('./pet-town-water-finish.js') : root.PetTownWaterFinish,
-    typeof module === 'object' && module.exports ? require('./pet-town-environment.js') : root.PetTownEnvironment);
+    typeof module === 'object' && module.exports ? require('./pet-town-environment.js') : root.PetTownEnvironment,
+    typeof module === 'object' && module.exports ? require('./pet-ocean-snorkeling-world.js') : root.PetOceanSnorkelingWorld);
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.PetTownScene = api;
-}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit, Fishing, Seasons, Style, LayoutArt, Originals, WaterLife, OceanLife, ShoreTransition, TreeVariety, MeadowSites, MeadowFlowers, GroundFinish, WaterFinish, Environment) {
+}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit, Fishing, Seasons, Style, LayoutArt, Originals, WaterLife, OceanLife, ShoreTransition, TreeVariety, MeadowSites, MeadowFlowers, GroundFinish, WaterFinish, Environment, SnorkelingWorld) {
   'use strict';
-  var threeLoading = null, frameFitLoading = null, seasonsLoading = null, styleLoading = null, layoutLoading = null, originalsLoading = null, waterLifeLoading = null, oceanLifeLoading = null, shoreTransitionLoading = null, treeVarietyLoading = null, meadowLoading = null, environmentLoading = null, UNIT = 100, TAU = Math.PI * 2, TREE_CARD_WIDTH = 3.25, SAVED_TREE_SCALE = 1.08;
+  var threeLoading = null, frameFitLoading = null, seasonsLoading = null, styleLoading = null, layoutLoading = null, originalsLoading = null, waterLifeLoading = null, oceanLifeLoading = null, shoreTransitionLoading = null, treeVarietyLoading = null, meadowLoading = null, environmentLoading = null, snorkelingWorldLoading = null, UNIT = 100, TAU = Math.PI * 2, TREE_CARD_WIDTH = 3.25, SAVED_TREE_SCALE = 1.08;
   var shoreline = [[0, 2880], [550, 2840], [1050, 2720], [1450, 2510], [1920, 1990]];
   function finite(n) { return typeof n === 'number' && Number.isFinite(n); }
   function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
@@ -227,6 +228,19 @@
       return true;
     }).catch(function (error) { environmentLoading = null; throw error; });
     return environmentLoading;
+  }
+  function loadSnorkelingWorld() {
+    var current = SnorkelingWorld || globalThis.PetOceanSnorkelingWorld;
+    if (current && current.revision === 'ocean-snorkeling-world1' && typeof current.create === 'function') { SnorkelingWorld = current; return Promise.resolve(current); }
+    if (!snorkelingWorldLoading) snorkelingWorldLoading = Promise.resolve().then(function () {
+        var discoveries=globalThis.PetOceanDiscoveries;
+        return discoveries&&discoveries.revision==='ocean-discoveries1'&&typeof discoveries.coastX==='function'?discoveries:import('/static/pet-ocean-discoveries.js?v=20261029-snorkeling1');
+      })
+      .then(function () { var controller=globalThis.PetOceanSnorkeling;return controller&&controller.revision==='ocean-snorkeling1'&&typeof controller.createHabitat==='function'&&typeof controller.isWater==='function'?controller:import('/static/pet-ocean-snorkeling.js?v=20261029-snorkeling1'); })
+      .then(function () { return import('/static/pet-ocean-snorkeling-world.js?v=20261029-snorkeling1'); })
+      .then(function () { SnorkelingWorld = globalThis.PetOceanSnorkelingWorld; if (!SnorkelingWorld || SnorkelingWorld.revision !== 'ocean-snorkeling-world1' || typeof SnorkelingWorld.create !== 'function') throw new Error('town_snorkeling_world_unavailable'); return SnorkelingWorld; })
+      .catch(function (error) { snorkelingWorldLoading = null; throw error; });
+    return snorkelingWorldLoading;
   }
   function groundTexture(THREE, doc, season) {
     var finish = GroundFinish || globalThis.PetTownGroundFinish;
@@ -937,6 +951,21 @@
     scene.userData.shoreTransitionRevision=shoreTransition?shoreTransition.revision:null;
     var waterFinishAPI=WaterFinish||globalThis.PetTownWaterFinish;
     var waterFinish=waterFinishAPI&&waterFinishAPI.revision==='water-finish2'&&oceanLife&&shoreTransition?waterFinishAPI.create(THREE,{sea:sea,oceanLife:oceanLife,shoreTransition:shoreTransition,world:world,textures:textures}):null;
+    var snorkelingAPI=SnorkelingWorld||globalThis.PetOceanSnorkelingWorld;
+    var snorkelingWorld=snorkelingAPI&&snorkelingAPI.revision==='ocean-snorkeling-world1'?snorkelingAPI.create(THREE,{group:scene,world:world,geometries:geometries,materials:materials}):null;
+    var seaBeforeSnorkeling={opacity:sea.material.opacity,side:sea.material.side,depthWrite:sea.material.depthWrite},snorkelingWorldMode=null,aboveWaterRoots=[],aboveWaterVisibility=[];
+    function setSnorkelingWorld(value) {
+      if(snorkelingWorld)snorkelingWorld.setActive(value);
+      var nextMode=value?value.mode:null;if(nextMode===snorkelingWorldMode)return;
+      if(nextMode==='underwater'&&snorkelingWorldMode!=='underwater'){for(var i=0;i<aboveWaterRoots.length;i++){aboveWaterVisibility[i]=aboveWaterRoots[i].visible;aboveWaterRoots[i].visible=false;}}
+      else if(snorkelingWorldMode==='underwater'&&nextMode!=='underwater'){for(var i=0;i<aboveWaterRoots.length;i++)aboveWaterRoots[i].visible=aboveWaterVisibility[i];}
+      snorkelingWorldMode=nextMode;
+      var submerged=value&&value.mode==='underwater';
+      sea.material.opacity=submerged?.22:seaBeforeSnorkeling.opacity;
+      sea.material.side=submerged?THREE.DoubleSide:seaBeforeSnorkeling.side;
+      sea.material.depthWrite=submerged?false:seaBeforeSnorkeling.depthWrite;
+      sea.material.needsUpdate=true;
+    }
     // Synchronous historical previews may call the builder before lazy dependencies.
     // Normal mounts await the complete native layout module.
     if (!layoutModel) {
@@ -1321,7 +1350,10 @@
         } else if(role==='accent'&&palette.accents){m.color.set(palette.accents[m.userData.seasonIndex||0]);} else if (role === 'flower' && palette.flowers) m.color.set(palette.flowers[base === '#edc0c1' ? 0 : 1]);
       });
       if(meadowLife&&typeof meadowLife.setSeason==='function')meadowLife.setSeason(palette);
-      Object.keys(seasonGroups).forEach(function (k) { seasonGroups[k].visible = k === key; });
+      Object.keys(seasonGroups).forEach(function (k) {
+        var accent=seasonGroups[k],visible=k===key,index=aboveWaterRoots.indexOf(accent);
+        if(snorkelingWorldMode==='underwater'&&index>=0){aboveWaterVisibility[index]=visible;accent.visible=false;}else accent.visible=visible;
+      });
       var nextSky = skyTexture(THREE, doc, palette);
       if (nextSky) {
         textures.add(nextSky);
@@ -1362,11 +1394,12 @@
       batch.name = 'town-detail-batch'; batch.castShadow = rows.some(function (m) { return m.castShadow; }); batch.receiveShadow = rows.some(function (m) { return m.receiveShadow; });
       rows.forEach(function (m, i) { batch.setMatrixAt(i, m.matrixWorld); m.visible = false; originals.push(m); }); batch.computeBoundingSphere(); if (dynamic) batch.boundingSphere.radius += .75; scene.add(batch); batches.push({ mesh: batch, rows: rows, dynamic: dynamic });
     });
+    if(snorkelingWorld)aboveWaterRoots=scene.children.filter(function(o){return o!==snorkelingWorld.group&&!o.isLight;});
     scene.updateMatrixWorld(true); scene.matrixWorldAutoUpdate = false;
     function animate(ms, reduced) {
       var frame = natureFrame(ms, reduced);
       if(fountainWaterTexture)fountainWaterTexture.offset.set(reduced?0:(frame.time*.008)%1,reduced?0:Math.sin(frame.time*.12)*.016);
-      animateWindowRooms(frame,reduced);if(waterLife)waterLife.animate(ms,reduced);if(oceanLife)oceanLife.animate(ms,reduced);if(waterFinish)waterFinish.animate(oceanLife.diagnostics.phase,reduced);if(meadowLife)meadowLife.animate(ms,reduced);
+      animateWindowRooms(frame,reduced);if(waterLife)waterLife.animate(ms,reduced);if(oceanLife)oceanLife.animate(ms,reduced);if(waterFinish)waterFinish.animate(oceanLife.diagnostics.phase,reduced);if(meadowLife)meadowLife.animate(ms,reduced);if(snorkelingWorld)snorkelingWorld.animate(ms,reduced);
       trees.forEach(function (g, i) { g.rotation.z = frame.wind * Math.cos(i * 1.7); g.updateMatrixWorld(true); });
       droplets.forEach(function (m) { var a = reduced ? m.userData.phase : (frame.fountain + m.userData.phase) % 1; if(m.userData.cascade&&m.userData.cascade.curve)m.userData.cascade.curve.getPointAt(a,m.position);else if(m.userData.cascade)m.position.lerpVectors(m.userData.cascade.start,m.userData.cascade.end,a);else m.position.set(Math.sin(a * TAU) * .2, .48 + Math.sin(a * Math.PI) * .65, Math.cos(a * TAU) * .15); m.updateMatrixWorld(true); });
       batches.forEach(function (b) { if (b.dynamic) { b.rows.forEach(function (m, i) { b.mesh.setMatrixAt(i, m.matrixWorld); }); b.mesh.instanceMatrix.needsUpdate = true; } });
@@ -1375,8 +1408,8 @@
     scene.userData.environmentStyleRevision=groundFinish&&waterFinish&&environmentLife&&layoutModel&&layoutModel.environmentRevision==='shop-environment1'?'shop-environment2':null;
     scene.userData.treeFamilyRevision=scene.userData.environmentStyleRevision&&meadowLife&&meadowLife.revision==='meadow-flowers4'?'tree-family1':null;
     scene.userData.environmentStyle={revision:scene.userData.environmentStyleRevision,ground:groundFinish?groundFinish.summary():null,water:waterFinish?waterFinish.metrics:null,environment:environmentLife?environmentLife.summary():null};
-    function dispose() { if (disposed) return; disposed = true; if(environmentLife)environmentLife.dispose(); if(meadowLife)meadowLife.dispose(); if(originalArt)originalArt.dispose(); if(oceanLife&&oceanLife.instanceMeshes)oceanLife.instanceMeshes.forEach(function(m){m.dispose();}); batches.forEach(function (b) { b.mesh.dispose(); }); geometries.forEach(function (g) { g.dispose(); }); materials.forEach(function (m) { m.dispose(); }); textures.forEach(function (t) { t.dispose(); }); sun.shadow.dispose(); scene.clear(); }
-    return { scene: scene, surfaces: surfaces, occluders: occluders, pickables: pickables, placeGroups: placeGroups, solidLifeRevision:solidLifeRevision, windowRooms:windowRooms, windowLifeMaterials:windowLifeMaterials, waterLife:waterLife, oceanLife:oceanLife, shoreTransition:shoreTransition, meadowLife:meadowLife, groundFinish:groundFinish, waterFinish:waterFinish, environment:environmentLife, animate: animate, dispose: dispose,
+    function dispose() { if (disposed) return; disposed = true; if(snorkelingWorld)snorkelingWorld.dispose(); if(environmentLife)environmentLife.dispose(); if(meadowLife)meadowLife.dispose(); if(originalArt)originalArt.dispose(); if(oceanLife&&oceanLife.instanceMeshes)oceanLife.instanceMeshes.forEach(function(m){m.dispose();}); batches.forEach(function (b) { b.mesh.dispose(); }); geometries.forEach(function (g) { g.dispose(); }); materials.forEach(function (m) { m.dispose(); }); textures.forEach(function (t) { t.dispose(); }); sun.shadow.dispose(); scene.clear(); }
+    return { scene: scene, surfaces: surfaces, occluders: occluders, pickables: pickables, placeGroups: placeGroups, solidLifeRevision:solidLifeRevision, windowRooms:windowRooms, windowLifeMaterials:windowLifeMaterials, waterLife:waterLife, oceanLife:oceanLife, snorkelingWorld:snorkelingWorld, setSnorkelingWorld:setSnorkelingWorld, shoreTransition:shoreTransition, meadowLife:meadowLife, groundFinish:groundFinish, waterFinish:waterFinish, environment:environmentLife, animate: animate, dispose: dispose,
       loadOriginalArt:loadOriginalArt, originalHit:originalHit, originalDoorHit:originalDoorHit, originalArt:originalArt, setSeason: setSeason, seasonGroups: seasonGroups, styleLimits: style ? style.limits : null, layoutArtRevision: scene.userData.layoutArtRevision,
       treeVarietyRevision: treeAPI ? treeAPI.revision : null, treeVarietyKinds: treeKinds, treeRoadClearance: treeRoadClearance,
       geometries: geometries, materials: materials, textures: textures, batches: batches, people: people(world, view, avoid) };
@@ -1386,7 +1419,7 @@
     var host = options.viewport, doc = host && host.ownerDocument, win = doc && doc.defaultView;
     var dead = false, failed = false, ready = false, dirty = false, rendering = false, renderer = null, observer = null, raf = null, lastPaint = -Infinity, lastSourceUpload = -Infinity;
     var removers = [], seasonWatch = null, texture = null, source = null, sourceCoverage = null, sourceFrame = null, cameraView = cameraState(options.camera), actualYaw = cameraView.yaw, drag = null, intervals = [];
-    var world = options.world, position = Town.spawn(world, options.position), model = null, motion = { walking: false, dx: 0, dy: 0 }, heading = cameraView.yaw, travelled = 0;
+    var world = options.world, position = Town.spawn(world, options.position), model = null, motion = { walking: false, dx: 0, dy: 0 }, heading = cameraView.yaw, travelled = 0, snorkelingState = null;
     var media = win && win.matchMedia ? win.matchMedia('(prefers-reduced-motion: reduce)') : null, reduced = !!(media && media.matches);
     function active() { if (dead || failed || !host || host.isConnected === false || !doc || doc.hidden) return false; try { return !options.canRun || !!options.canRun(); } catch (_) { return false; } }
     function listen(target, name, fn) { if (!target || !target.addEventListener) return; target.addEventListener(name, fn); removers.push(function () { target.removeEventListener(name, fn); }); }
@@ -1400,13 +1433,14 @@
       if (fishingVisual) release(function () { fishingVisual.dispose(); });
       if (model) release(function () { model.dispose(); }); if (texture) release(function () { texture.dispose(); });
       if (renderer) { release(function () { renderer.renderLists.dispose(); }); release(function () { renderer.dispose(); }); release(function () { renderer.forceContextLoss(); }); release(function () { renderer.domElement.remove(); }); }
-      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; delete host.dataset.townOriginalArt; delete host.dataset.townSolidLife; delete host.dataset.townShoreTransition; delete host.dataset.townTreeVariety; delete host.dataset.townTreeKinds; delete host.dataset.townTreeRoots; delete host.dataset.townFountainReference; delete host.dataset.townShopStyle; delete host.dataset.townMeadowFlowers; delete host.dataset.townEnvironmentStyle; delete host.dataset.townArtFamily; }
+      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; delete host.dataset.townOriginalArt; delete host.dataset.townSolidLife; delete host.dataset.townShoreTransition; delete host.dataset.townTreeVariety; delete host.dataset.townTreeKinds; delete host.dataset.townTreeRoots; delete host.dataset.townFountainReference; delete host.dataset.townShopStyle; delete host.dataset.townMeadowFlowers; delete host.dataset.townEnvironmentStyle; delete host.dataset.townArtFamily; delete host.dataset.townSnorkeling; delete host.dataset.townSnorkelingDepth; delete host.dataset.townSnorkelingRevision; }
     }
     function fail(code) { if (dead || failed) return; failed = true; destroy(); report('onFailure', code); }
     var THREE;
-    try { var dependencies = await Promise.all([options.three || loadThree(), loadFrameFit(), loadSeasons(), loadStyle(), loadLayoutArt(), loadOriginals(), loadWaterLife(), loadOceanLife(), loadShoreTransition(), loadTreeVariety(), loadMeadow(), loadEnvironment()]); THREE = dependencies[0]; } catch (_) { fail('town_module_unavailable'); return null; }
+    try { var dependencies = await Promise.all([options.three || loadThree(), loadFrameFit(), loadSeasons(), loadStyle(), loadLayoutArt(), loadOriginals(), loadWaterLife(), loadOceanLife(), loadShoreTransition(), loadTreeVariety(), loadMeadow(), loadEnvironment(), loadSnorkelingWorld()]); THREE = dependencies[0]; } catch (_) { fail('town_module_unavailable'); return null; }
     if (!active()) { destroy(); return null; }
-    var sprite, playerShadow, camera, ray, pointer, direction, target, desired, contactMap = null, fishingVisual = null, fishingState = null;
+    var underwaterYawOffsets=[0,.45,-.45,.9,-.9,1.4,-1.4,2,-2,Math.PI];
+    var sprite, playerShadow, camera, ray, pointer, direction, target, desired, waterPlane, waterHit, surfaceClip, surfaceClipPlanes, underwaterClipPlanes, underwaterBackground, normalBackground, contactMap = null, fishingVisual = null, fishingState = null;
     function contactShadow(radius) {
       if (!contactMap && doc.createElement) {
         var pad = doc.createElement('canvas'); pad.width = pad.height = 64; var ctx = pad.getContext && pad.getContext('2d');
@@ -1415,9 +1449,37 @@
       var geometry = new THREE.CircleGeometry(radius, 24), material = new THREE.MeshBasicMaterial({ color: '#64764d', map: contactMap, transparent: true, opacity: .3, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
       model.geometries.add(geometry); model.materials.add(material); var shadow = new THREE.Mesh(geometry, material); shadow.rotation.x = -Math.PI / 2; shadow.scale.y = .58; model.scene.add(shadow); return shadow;
     }
+    function viewPosition() { return snorkelingState ? snorkelingState.position : position; }
+    function normalizeSnorkeling(value) {
+      if (!model.snorkelingWorld || !value || ['surface','underwater'].indexOf(value.mode)<0 || !value.position || !finite(value.position.x) || !finite(value.position.y) || !finite(value.depth) || value.depth<0 || value.depth>1.15) return null;
+      var habitat=model.snorkelingWorld.habitat, p=value.position;
+      var wet=model.snorkelingWorld.isWater(p);
+      if (!wet) {
+        var e=value.entry, canonical=habitat.entry;
+        if (!e || !e.dry || !e.water || !finite(e.dry.x) || !finite(e.dry.y) || !Town.isWalkable(world,e.dry.x,e.dry.y) || Math.hypot(e.dry.x-canonical.dry.x,e.dry.y-canonical.dry.y)>canonical.reach+.01 || Math.hypot(e.water.x-canonical.water.x,e.water.y-canonical.water.y)>.01 || ['entering','exiting'].indexOf(value.phase)<0) return null;
+        var dx=e.water.x-e.dry.x,dy=e.water.y-e.dry.y,length=dx*dx+dy*dy,t=length?((p.x-e.dry.x)*dx+(p.y-e.dry.y)*dy)/length:-1;
+        if(t<0 || t>1 || Math.hypot(p.x-e.dry.x-dx*t,p.y-e.dry.y-dy*t)>1) return null;
+      }
+      return {mode:value.mode,phase:value.phase,position:{x:p.x,y:p.y},depth:value.depth,moving:value.moving===true,dx:finite(value.dx)?value.dx:0,dy:finite(value.dy)?value.dy:0};
+    }
     function syncCamera() {
-      var p = groundPoint(world, position); target.set(p.x, heightAt(position) + .8, p.z);
-      var requested = cameraView, activityFraming = !!(fishingState && Fishing && Fishing.legal(world, position));
+      var current=viewPosition(),p = groundPoint(world, current);
+      if(snorkelingState&&snorkelingState.mode==='underwater'){
+        var depth=snorkelingState.depth,centerY=-.05-depth,pitch=.34+(cameraView.pitch-22*Math.PI/180)/(34*Math.PI/180)*.15,distance=4.2;
+        target.set(p.x,centerY-.35,p.z);actualYaw=cameraView.yaw;var cameraSet=false;
+        for(var oi=0;oi<underwaterYawOffsets.length;oi++){
+          var yaw=cameraView.yaw+underwaterYawOffsets[oi],cx=p.x+Math.sin(yaw)*Math.cos(pitch)*distance,cz=p.z+Math.cos(yaw)*Math.cos(pitch)*distance;
+          if(model.snorkelingWorld.cameraClear(cx,cz)){actualYaw=yaw;desired.set(cx,Math.min(-.12,target.y+Math.sin(pitch)*distance),cz);cameraSet=true;break;}
+        }
+        // At the narrow south-west water corner no relative orbit sample may
+        // fit. An absolute seaward view is inside this authored sea for every
+        // permitted swimmer point; never retain an earlier dry camera vector.
+        if(!cameraSet){actualYaw=Math.PI/2;desired.set(p.x+Math.cos(pitch)*distance,Math.min(-.12,target.y+Math.sin(pitch)*distance),p.z);if(!model.snorkelingWorld.cameraClear(desired.x,desired.z))throw new Error('snorkeling_camera_unavailable');}
+        camera.position.copy(desired);camera.lookAt(target);camera.updateMatrixWorld(true);
+        host.dataset.townCamera=JSON.stringify({yaw:cameraView.yaw,pitch:cameraView.pitch,actualYaw:actualYaw,actualPitch:Math.atan2(camera.position.y-target.y,Math.hypot(camera.position.x-target.x,camera.position.z-target.z)),distance:distance,desiredDistance:cameraView.distance,activityFraming:true,underwater:true});return;
+      }
+      target.set(p.x, snorkelingState ? .45 : heightAt(position) + .8, p.z);
+      var requested = cameraView, activityFraming = !snorkelingState && !!(fishingState && Fishing && Fishing.legal(world, position));
       if (activityFraming) {
         var water = groundPoint(world, Fishing.site().target), span = Math.hypot(water.x-p.x, water.z-p.z);
         target.set((p.x+water.x)/2, .65, (p.z+water.z)/2);
@@ -1433,15 +1495,18 @@
       if (!active() || !renderer) return false;
       try {
         rendering = true;
-        var p = groundPoint(world, position); sprite.position.set(p.x, heightAt(position), p.z);
-        playerShadow.position.set(p.x, heightAt(position) + .003, p.z); playerShadow.visible = sprite.visible;
+        var current=viewPosition(),p = groundPoint(world, current),underwater=!!snorkelingState&&snorkelingState.mode==='underwater';
+        var spriteY=heightAt(position);
+        if(snorkelingState)spriteY=(underwater?-.05-snorkelingState.depth:.28)-(.5-sprite.center.y)*sprite.scale.y;
+        sprite.position.set(p.x,spriteY,p.z);
+        playerShadow.position.set(p.x, heightAt(position) + .003, p.z); playerShadow.visible = sprite.visible&&!snorkelingState;
         sprite.updateMatrixWorld(true); playerShadow.updateMatrixWorld(true);
         model.animate(stamp || 0, reduced);
         if (fishingVisual) fishingVisual.update(fishingState, position, stamp || 0, reduced);
         syncCamera();
         var facing = heading;
         if (fishingState && !motion.walking && Fishing && Fishing.legal(world, position)) { var water = Fishing.site().target; facing = Math.atan2(water.x-position.x, water.y-position.y); }
-        if (ready) report('onFacing', facingFrame(facing, actualYaw, motion.walking, travelled));
+        if (ready) report('onFacing', facingFrame(facing, actualYaw, !snorkelingState&&motion.walking, travelled));
         renderer.render(model.scene, camera);
         if (renderer.info) { host.dataset.townRenderCalls = String(renderer.info.render.calls); host.dataset.townTriangles = String(renderer.info.render.triangles); }
         var interval = stamp - lastPaint; if (finite(interval) && interval > 0 && interval < 1000) { intervals.push(interval); if (intervals.length > 30) intervals.shift(); host.dataset.townFrameMs = (intervals.reduce(function (sum, n) { return sum + n; }, 0) / intervals.length).toFixed(2); }
@@ -1492,6 +1557,44 @@
       } catch (_) { fail('town_frame_unavailable'); return false; }
     }
     var controller = { destroy: destroy, setFrame: setFrame,
+      capturePNG: function () {
+        if(!active()||!ready||!renderer||!renderer.domElement||typeof renderer.domElement.toDataURL!=='function')return null;
+        var stamp=win.performance?win.performance.now():Date.now();if(!render(stamp))return null;
+        try{return renderer.domElement.toDataURL('image/png');}catch(_){return null;}
+      },
+      setSnorkeling: function (value) {
+        if(!active()||!model.snorkelingWorld)return false;
+        var next=value&&value.mode!=='dry'?normalizeSnorkeling(value):null;
+        if(value&&value.mode!=='dry'&&!next)return false;
+        if(!snorkelingState&&next)normalBackground=model.scene.background;
+        var previousMode=snorkelingState?snorkelingState.mode:null;
+        snorkelingState=next;model.setSnorkelingWorld(next);
+        // Town shadows are normally cached. A water-mode transition changes
+        // which roots can cast them; refresh once, including the return ashore.
+        if(previousMode!==(next?next.mode:null))renderer.shadowMap.needsUpdate=true;
+        var clip=next?(next.mode==='underwater'?(next.depth<.85?underwaterClipPlanes:null):surfaceClipPlanes):null;
+        if(sprite.material.clippingPlanes!==clip){sprite.material.clippingPlanes=clip;sprite.material.needsUpdate=true;}
+        model.scene.background=next&&next.mode==='underwater'?underwaterBackground:normalBackground;
+        if(next&&next.moving&&Math.hypot(next.dx,next.dy)>.001)heading=Math.atan2(next.dx,next.dy);
+        host.dataset.townSnorkeling=next?next.mode:'dry';host.dataset.townSnorkelingDepth=next?String(next.depth):'0';host.dataset.townSnorkelingRevision='ocean-snorkeling-world1';
+        requestRender();return true;
+      },
+      resolveWaterTap: function (event) {
+        if(!active()||!ready||!snorkelingState||drag&&drag.moved||!event||!finite(event.clientX)||!finite(event.clientY))return null;
+        var box=host.getBoundingClientRect();if(!(box.width>0&&box.height>0))return null;
+        pointer.set((event.clientX-box.left)/box.width*2-1,-((event.clientY-box.top)/box.height)*2+1);ray.setFromCamera(pointer,camera);
+        if(snorkelingState.mode==='underwater'){
+          var marine=model.snorkelingWorld,targets=marine.creatureRoots.concat(marine.tapSurfaces),hits=ray.intersectObjects(targets,true);
+          if(!hits.length)return null;
+          var hit=hits[0],owner=hit.object;
+          while(owner&&owner!==marine.group&&!owner.userData.creatureId)owner=owner.parent;
+          if(owner&&owner.userData.creatureId){var creature=marine.habitat.creatures.find(function(c){return c.id===owner.userData.creatureId;});return creature&&marine.isWater(creature.position)?{x:creature.position.x,y:creature.position.y}:null;}
+          var floorPoint=townPoint(world,hit.point);return marine.isWater(floorPoint)?floorPoint:null;
+        }
+        waterPlane.constant=.05;if(!ray.ray.intersectPlane(waterPlane,waterHit))return null;
+        var p=townPoint(world,waterHit);
+        return model.snorkelingWorld.isWater(p)?p:null;
+      },
       setFishing: function (value) { if (!active()) return false; fishingState = value && ['waiting','bite','caught'].indexOf(value.phase) >= 0 ? { phase: value.phase } : null; host.dataset.fishingPhase = fishingState ? fishingState.phase : 'idle'; requestRender(); return true; },
       setPosition: function (p) { if (active() && p && Town.isWalkable(world, p.x, p.y)) { travelled += Math.hypot(p.x-position.x,p.y-position.y)/UNIT; position = { x: p.x, y: p.y }; requestRender(); } },
       setMotion: function (m) { if (active()) {
@@ -1532,9 +1635,9 @@
       host.dataset.townLayoutArt = model.layoutArtRevision;
       if (Fishing && typeof Fishing.createVisual === 'function') { fishingVisual = Fishing.createVisual(THREE, world); model.scene.add(fishingVisual.group); }
       renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false, preserveDrawingBuffer: false }); renderer.setPixelRatio(Math.min(win.devicePixelRatio || 1, 1.5));
-      renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true; renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.localClippingEnabled=true; renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap; renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true; renderer.outputColorSpace = THREE.SRGBColorSpace;
       var canvas = renderer.domElement; canvas.className = 'ipg-town-canvas'; canvas.setAttribute('aria-hidden', 'true'); host.appendChild(canvas);
-      camera = new THREE.PerspectiveCamera(50, 1, .05, 80); ray = new THREE.Raycaster(); pointer = new THREE.Vector2(); direction = new THREE.Vector3(); target = new THREE.Vector3(); desired = new THREE.Vector3();
+      camera = new THREE.PerspectiveCamera(50, 1, .05, 80); ray = new THREE.Raycaster(); pointer = new THREE.Vector2(); direction = new THREE.Vector3(); target = new THREE.Vector3(); desired = new THREE.Vector3(); waterPlane=new THREE.Plane(new THREE.Vector3(0,1,0),.05);waterHit=new THREE.Vector3();surfaceClip=new THREE.Plane(new THREE.Vector3(0,1,0),.05);surfaceClipPlanes=[surfaceClip];underwaterClipPlanes=[new THREE.Plane(new THREE.Vector3(0,-1,0),-.05)];underwaterBackground=new THREE.Color('#579d9c');normalBackground=model.scene.background;
       var spriteMaterial = new THREE.SpriteMaterial({ transparent: true, alphaTest: .12, depthTest: true, depthWrite: true }); model.materials.add(spriteMaterial);
       sprite = new THREE.Sprite(spriteMaterial); sprite.name = 'current-pet-2d-frame'; sprite.visible = false; model.scene.add(sprite);
       playerShadow = contactShadow(.35); playerShadow.name = 'pet-contact-shadow'; playerShadow.visible = false;
@@ -1554,7 +1657,7 @@
           if (!active()) return;
           try {
             var changed = model.scene.userData.season !== value.key;
-            model.setSeason(value.key); host.dataset.townSeason = value.key; host.dataset.townSeasonDate = value.dateJst;
+            model.setSeason(value.key);normalBackground=model.scene.background;if(snorkelingState&&snorkelingState.mode==='underwater')model.scene.background=underwaterBackground; host.dataset.townSeason = value.key; host.dataset.townSeasonDate = value.dateJst;
             if (changed) { renderer.shadowMap.needsUpdate = true; requestRender(); }
           } catch (_) { fail('town_season_unavailable'); }
         }
