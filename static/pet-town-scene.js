@@ -13,12 +13,15 @@
     typeof module === 'object' && module.exports ? require('./pet-town-shore-transition.js') : root.PetTownShoreTransition,
     typeof module === 'object' && module.exports ? require('./pet-town-tree-variety.js') : root.PetTownTreeVariety,
     typeof module === 'object' && module.exports ? require('./pet-town-meadow-sites.js') : root.PetTownMeadowSites,
-    typeof module === 'object' && module.exports ? require('./pet-town-meadow-flowers.js') : root.PetTownMeadowFlowers);
+    typeof module === 'object' && module.exports ? require('./pet-town-meadow-flowers.js') : root.PetTownMeadowFlowers,
+    typeof module === 'object' && module.exports ? require('./pet-town-ground-finish.js') : root.PetTownGroundFinish,
+    typeof module === 'object' && module.exports ? require('./pet-town-water-finish.js') : root.PetTownWaterFinish,
+    typeof module === 'object' && module.exports ? require('./pet-town-environment.js') : root.PetTownEnvironment);
   if (typeof module === 'object' && module.exports) module.exports = api;
   else root.PetTownScene = api;
-}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit, Fishing, Seasons, Style, LayoutArt, Originals, WaterLife, OceanLife, ShoreTransition, TreeVariety, MeadowSites, MeadowFlowers) {
+}(typeof window !== 'undefined' ? window : globalThis, function (Town, FrameFit, Fishing, Seasons, Style, LayoutArt, Originals, WaterLife, OceanLife, ShoreTransition, TreeVariety, MeadowSites, MeadowFlowers, GroundFinish, WaterFinish, Environment) {
   'use strict';
-  var threeLoading = null, frameFitLoading = null, seasonsLoading = null, styleLoading = null, layoutLoading = null, originalsLoading = null, waterLifeLoading = null, oceanLifeLoading = null, shoreTransitionLoading = null, treeVarietyLoading = null, meadowLoading = null, UNIT = 100, TAU = Math.PI * 2;
+  var threeLoading = null, frameFitLoading = null, seasonsLoading = null, styleLoading = null, layoutLoading = null, originalsLoading = null, waterLifeLoading = null, oceanLifeLoading = null, shoreTransitionLoading = null, treeVarietyLoading = null, meadowLoading = null, environmentLoading = null, UNIT = 100, TAU = Math.PI * 2;
   var shoreline = [[0, 2880], [550, 2840], [1050, 2720], [1450, 2510], [1920, 1990]];
   function finite(n) { return typeof n === 'number' && Number.isFinite(n); }
   function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
@@ -131,10 +134,10 @@
   }
   function loadLayoutArt() {
     var current = LayoutArt || globalThis.PetTownLayoutArt;
-    if (current && current.revision === 'layout-art-3d1' && typeof current.build === 'function') { LayoutArt = current; return Promise.resolve(current); }
-    if (!layoutLoading) layoutLoading = import('/static/pet-town-layout-art.js?v=20261027-solidlife1').then(function () {
+    if (current && current.revision === 'layout-art-3d1' && current.environmentRevision === 'shop-environment1' && typeof current.build === 'function') { LayoutArt = current; return Promise.resolve(current); }
+    if (!layoutLoading) layoutLoading = import('/static/pet-town-layout-art.js?v=20261028-environment1').then(function () {
       var api = globalThis.PetTownLayoutArt;
-      if (!api || api.revision !== 'layout-art-3d1' || typeof api.build !== 'function') throw new Error('layout_art_unavailable');
+      if (!api || api.revision !== 'layout-art-3d1' || api.environmentRevision !== 'shop-environment1' || typeof api.build !== 'function') throw new Error('layout_art_unavailable');
       LayoutArt = api; return api;
     }).catch(function (error) { layoutLoading = null; throw error; });
     return layoutLoading;
@@ -206,7 +209,28 @@
     }).catch(function (error) { meadowLoading = null; throw error; });
     return meadowLoading;
   }
+  function environmentReady(ground, water, environment) {
+    return ground && ground.revision === 'ground-finish1' && typeof ground.create === 'function' && typeof ground.groundTexture === 'function' &&
+      water && water.revision === 'water-finish1' && typeof water.create === 'function' &&
+      environment && environment.revision === 'shop-environment1' && typeof environment.create === 'function' && typeof environment.skyTexture === 'function' && typeof environment.profile === 'function';
+  }
+  function loadEnvironment() {
+    var ground = GroundFinish || globalThis.PetTownGroundFinish, water = WaterFinish || globalThis.PetTownWaterFinish, environment = Environment || globalThis.PetTownEnvironment;
+    if (environmentReady(ground, water, environment)) { GroundFinish = ground; WaterFinish = water; Environment = environment; return Promise.resolve(true); }
+    if (!environmentLoading) environmentLoading = Promise.all([
+      import('/static/pet-town-ground-finish.js?v=20261028-environment1'),
+      import('/static/pet-town-water-finish.js?v=20261028-environment1'),
+      import('/static/pet-town-environment.js?v=20261028-environment1')
+    ]).then(function () {
+      GroundFinish = globalThis.PetTownGroundFinish; WaterFinish = globalThis.PetTownWaterFinish; Environment = globalThis.PetTownEnvironment;
+      if (!environmentReady(GroundFinish, WaterFinish, Environment)) throw new Error('town_environment_unavailable');
+      return true;
+    }).catch(function (error) { environmentLoading = null; throw error; });
+    return environmentLoading;
+  }
   function groundTexture(THREE, doc, season) {
+    var finish = GroundFinish || globalThis.PetTownGroundFinish;
+    if (finish && finish.revision === 'ground-finish1' && typeof finish.groundTexture === 'function') return finish.groundTexture(THREE, doc, season);
     if (!doc || !doc.createElement) return null;
     var canvas = doc.createElement('canvas'); canvas.width = canvas.height = 512;
     var ctx = canvas.getContext && canvas.getContext('2d'); if (!ctx) return null;
@@ -238,6 +262,8 @@
   // A small equirectangular sky is a world background only: never a screen wash.
   // It has no game clock, reflection/environment role, or effect on sprite colors.
   function skyTexture(THREE, doc, palette) {
+    var environment = Environment || globalThis.PetTownEnvironment;
+    if (environment && environment.revision === 'shop-environment1' && typeof environment.skyTexture === 'function') return environment.skyTexture(THREE, doc, palette);
     if (!doc || !doc.createElement || !palette || !palette.sky) return null;
     var canvas = doc.createElement('canvas'); canvas.width = 256; canvas.height = 128;
     var ctx = canvas.getContext && canvas.getContext('2d');
@@ -875,6 +901,8 @@
     landShape.lineTo(-world.width / 200, -world.height / 200); landShape.closePath();
     // ShapeGeometry is XY; rotate it into XZ. The shoreline shares the collision model's coordinates.
     var land = mesh(new THREE.ShapeGeometry(landShape), '#b1cf83', group, 0, .025, 0); land.rotation.x = -Math.PI / 2; land.name = 'dry-land'; surfaces.push(land);
+    var groundAPI=GroundFinish||globalThis.PetTownGroundFinish;
+    var groundFinish=groundAPI&&groundAPI.revision==='ground-finish1'?groundAPI.create(THREE,{doc:doc,materials:materials,textures:textures,surfaceMap:surfaceMap}):null;
     var grassTexture = null, skyMap = null; land.material = mat('#ffffff', false, 'grass'); land.material.userData.seasonRole = 'ground';
     var landVertices = land.geometry.attributes.position, uv = land.geometry.attributes.uv;
     for (var li = 0; li < uv.count; li++) uv.setXY(li, (landVertices.getX(li) + world.width / 200) / (world.width / UNIT), (landVertices.getY(li) + world.height / 200) / (world.height / UNIT));
@@ -893,7 +921,8 @@
     var landscape = LayoutArt || globalThis.PetTownLayoutArt;
     var layoutModel = landscape && landscape.revision === 'layout-art-3d1' && typeof landscape.build === 'function' ?
       landscape.build(THREE, world, { group: group, groundPoint: groundPoint, townPoint: townPoint, doorContact: Town.doorContact,
-        mesh: mesh, box: box, ball: ball, mat: mat, groundMaterial: land.material, surfaces: surfaces, occluders: occluders }) : null;
+        mesh: mesh, box: box, ball: ball, mat: mat, sceneryMaterial:groundFinish?groundFinish.material:null, roundedBox:groundFinish?cottageRoundedBox:null,
+        groundMaterial: land.material, surfaces: surfaces, occluders: occluders }) : null;
     scene.userData.layoutArtRevision = layoutModel ? layoutModel.layoutArtRevision : 'legacy';
     // A visual shoreline follows the actual dry land and its support aprons.
     // It never expands the saved map, walkable surfaces or collision boundaries.
@@ -902,6 +931,8 @@
       shoreAPI.create(THREE,{group:group,world:world,shoreline:shoreline,groundAprons:layoutModel?layoutModel.groundAprons:[],
         geometries:geometries,materials:materials,groundColor:'#b1cf83'}):null;
     scene.userData.shoreTransitionRevision=shoreTransition?shoreTransition.revision:null;
+    var waterFinishAPI=WaterFinish||globalThis.PetTownWaterFinish;
+    var waterFinish=waterFinishAPI&&waterFinishAPI.revision==='water-finish1'&&oceanLife&&shoreTransition?waterFinishAPI.create(THREE,{sea:sea,oceanLife:oceanLife,shoreTransition:shoreTransition,world:world,textures:textures}):null;
     // Synchronous historical previews may call the builder before lazy dependencies.
     // Normal mounts await the complete native layout module.
     if (!layoutModel) {
@@ -1135,6 +1166,12 @@
     }
     // Low smoothly rounded distant mounds leave a real view of the sky.
     // They stay outside the saved walkable map and never enter the collision set.
+    var environmentAPI=Environment||globalThis.PetTownEnvironment, environmentLife=null;
+    if(environmentAPI&&environmentAPI.revision==='shop-environment1'){
+      var environmentSeason=Seasons||globalThis.PetJapanSeasons;
+      environmentLife=environmentAPI.create(THREE,{group:group,doc:doc,geometries:geometries,materials:materials,textures:textures,
+        seasonProfile:environmentSeason?environmentSeason.profile(seasonKey||'summer'):{key:'summer',sky:'#cbe7e8',horizon:'#f0ecdf',hills:['#b0ceac','#c4dbb9','#bad4b1']}});
+    } else {
     var hillGeometry = finishGeometry(new THREE.SphereGeometry(1, 32, 16));
     function distantHill(color,x,y,z,sx,sy,sz) {
       var m=mesh(hillGeometry,mat(color,false,'foliage'),group,x,y,z);
@@ -1143,6 +1180,7 @@
     for (var hill = 0; hill < 7; hill++) {
       distantHill(hill % 2 ? '#b0ceac' : '#c4dbb9', -16 + hill * 5, -.6, -14.5, 3.2, 1.4, 3.2);
       if (hill < 5) distantHill('#bad4b1', -16 + hill * 4.5, -.7, 14.5, 3, 1.3, 3);
+    }
     }
     // Small, solid seasonal accents share this village's positions. They are
     // decorative only: never added to walking surfaces, saved layouts or doors.
@@ -1186,6 +1224,12 @@
       if (disposed || !palette) return false;
       if (activeSeason === key) return true;
       if(shoreTransition)shoreTransition.setGroundColor(palette.ground);
+      if(environmentLife)environmentLife.setSeason(palette);
+      if(waterFinish&&typeof waterFinish.setSeason==='function')waterFinish.setSeason(key);
+      if(waterFinish&&typeof waterFinish.setHorizonColor==='function'){
+        var actualEnvironmentProfile=environmentAPI&&typeof environmentAPI.profile==='function'?environmentAPI.profile(palette):palette;
+        waterFinish.setHorizonColor(actualEnvironmentProfile.horizon);
+      }
       // Texture hues are authored for each season; a green bitmap tinted white
       // would leave winter muddy. One replacement happens only at a season edge.
       var nextTexture = groundTexture(THREE, doc, key);
@@ -1207,9 +1251,15 @@
         // Retain the older isolated previews' background.set(color) operation.
         // That explicit request selects their flat background; the game itself
         // keeps the authored gradient until its next actual season transition.
-        nextSky.set = function (color) { scene.background = new THREE.Color(color); return scene.background; };
+        nextSky.set = function (color) {
+          scene.background = new THREE.Color(color);
+          if(waterFinish&&typeof waterFinish.setSkyTexture==='function')waterFinish.setSkyTexture(null);
+          if(waterFinish&&typeof waterFinish.setHorizonColor==='function')waterFinish.setHorizonColor('#'+scene.background.getHexString());
+          return scene.background;
+        };
       }
       scene.background = nextSky || new THREE.Color(palette.sky);
+      if(waterFinish&&typeof waterFinish.setSkyTexture==='function')waterFinish.setSkyTexture(nextSky);
       if (skyMap) { textures.delete(skyMap); skyMap.dispose(); }
       skyMap = nextSky;
       activeSeason = key; scene.userData.season = key;
@@ -1239,14 +1289,16 @@
     function animate(ms, reduced) {
       var frame = natureFrame(ms, reduced);
       if(fountainWaterTexture)fountainWaterTexture.offset.set(reduced?0:(frame.time*.008)%1,reduced?0:Math.sin(frame.time*.12)*.016);
-      animateWindowRooms(frame,reduced);if(waterLife)waterLife.animate(ms,reduced);if(oceanLife)oceanLife.animate(ms,reduced);if(meadowLife)meadowLife.animate(ms,reduced);
+      animateWindowRooms(frame,reduced);if(waterLife)waterLife.animate(ms,reduced);if(oceanLife)oceanLife.animate(ms,reduced);if(waterFinish)waterFinish.animate(oceanLife.diagnostics.phase,reduced);if(meadowLife)meadowLife.animate(ms,reduced);
       trees.forEach(function (g, i) { g.rotation.z = frame.wind * Math.cos(i * 1.7); g.updateMatrixWorld(true); });
       droplets.forEach(function (m) { var a = reduced ? m.userData.phase : (frame.fountain + m.userData.phase) % 1; if(m.userData.cascade&&m.userData.cascade.curve)m.userData.cascade.curve.getPointAt(a,m.position);else if(m.userData.cascade)m.position.lerpVectors(m.userData.cascade.start,m.userData.cascade.end,a);else m.position.set(Math.sin(a * TAU) * .2, .48 + Math.sin(a * Math.PI) * .65, Math.cos(a * TAU) * .15); m.updateMatrixWorld(true); });
       batches.forEach(function (b) { if (b.dynamic) { b.rows.forEach(function (m, i) { b.mesh.setMatrixAt(i, m.matrixWorld); }); b.mesh.instanceMatrix.needsUpdate = true; } });
       return frame;
     }
-    function dispose() { if (disposed) return; disposed = true; if(meadowLife)meadowLife.dispose(); if(originalArt)originalArt.dispose(); if(oceanLife&&oceanLife.instanceMeshes)oceanLife.instanceMeshes.forEach(function(m){m.dispose();}); batches.forEach(function (b) { b.mesh.dispose(); }); geometries.forEach(function (g) { g.dispose(); }); materials.forEach(function (m) { m.dispose(); }); textures.forEach(function (t) { t.dispose(); }); sun.shadow.dispose(); scene.clear(); }
-    return { scene: scene, surfaces: surfaces, occluders: occluders, pickables: pickables, placeGroups: placeGroups, solidLifeRevision:solidLifeRevision, windowRooms:windowRooms, windowLifeMaterials:windowLifeMaterials, waterLife:waterLife, oceanLife:oceanLife, shoreTransition:shoreTransition, meadowLife:meadowLife, animate: animate, dispose: dispose,
+    scene.userData.environmentStyleRevision=groundFinish&&waterFinish&&environmentLife&&layoutModel&&layoutModel.environmentRevision==='shop-environment1'?'shop-environment1':null;
+    scene.userData.environmentStyle={revision:scene.userData.environmentStyleRevision,ground:groundFinish?groundFinish.summary():null,water:waterFinish?waterFinish.metrics:null,environment:environmentLife?environmentLife.summary():null};
+    function dispose() { if (disposed) return; disposed = true; if(environmentLife)environmentLife.dispose(); if(meadowLife)meadowLife.dispose(); if(originalArt)originalArt.dispose(); if(oceanLife&&oceanLife.instanceMeshes)oceanLife.instanceMeshes.forEach(function(m){m.dispose();}); batches.forEach(function (b) { b.mesh.dispose(); }); geometries.forEach(function (g) { g.dispose(); }); materials.forEach(function (m) { m.dispose(); }); textures.forEach(function (t) { t.dispose(); }); sun.shadow.dispose(); scene.clear(); }
+    return { scene: scene, surfaces: surfaces, occluders: occluders, pickables: pickables, placeGroups: placeGroups, solidLifeRevision:solidLifeRevision, windowRooms:windowRooms, windowLifeMaterials:windowLifeMaterials, waterLife:waterLife, oceanLife:oceanLife, shoreTransition:shoreTransition, meadowLife:meadowLife, groundFinish:groundFinish, waterFinish:waterFinish, environment:environmentLife, animate: animate, dispose: dispose,
       loadOriginalArt:loadOriginalArt, originalHit:originalHit, originalDoorHit:originalDoorHit, originalArt:originalArt, setSeason: setSeason, seasonGroups: seasonGroups, styleLimits: style ? style.limits : null, layoutArtRevision: scene.userData.layoutArtRevision,
       treeVarietyRevision: treeAPI ? treeAPI.revision : null, treeVarietyKinds: treeKinds,
       geometries: geometries, materials: materials, textures: textures, batches: batches, people: people(world, view, avoid) };
@@ -1270,11 +1322,11 @@
       if (fishingVisual) release(function () { fishingVisual.dispose(); });
       if (model) release(function () { model.dispose(); }); if (texture) release(function () { texture.dispose(); });
       if (renderer) { release(function () { renderer.renderLists.dispose(); }); release(function () { renderer.dispose(); }); release(function () { renderer.forceContextLoss(); }); release(function () { renderer.domElement.remove(); }); }
-      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; delete host.dataset.townOriginalArt; delete host.dataset.townSolidLife; delete host.dataset.townShoreTransition; delete host.dataset.townTreeVariety; delete host.dataset.townTreeKinds; delete host.dataset.townFountainReference; delete host.dataset.townShopStyle; delete host.dataset.townMeadowFlowers; }
+      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; delete host.dataset.townOriginalArt; delete host.dataset.townSolidLife; delete host.dataset.townShoreTransition; delete host.dataset.townTreeVariety; delete host.dataset.townTreeKinds; delete host.dataset.townFountainReference; delete host.dataset.townShopStyle; delete host.dataset.townMeadowFlowers; delete host.dataset.townEnvironmentStyle; }
     }
     function fail(code) { if (dead || failed) return; failed = true; destroy(); report('onFailure', code); }
     var THREE;
-    try { var dependencies = await Promise.all([options.three || loadThree(), loadFrameFit(), loadSeasons(), loadStyle(), loadLayoutArt(), loadOriginals(), loadWaterLife(), loadOceanLife(), loadShoreTransition(), loadTreeVariety(), loadMeadow()]); THREE = dependencies[0]; } catch (_) { fail('town_module_unavailable'); return null; }
+    try { var dependencies = await Promise.all([options.three || loadThree(), loadFrameFit(), loadSeasons(), loadStyle(), loadLayoutArt(), loadOriginals(), loadWaterLife(), loadOceanLife(), loadShoreTransition(), loadTreeVariety(), loadMeadow(), loadEnvironment()]); THREE = dependencies[0]; } catch (_) { fail('town_module_unavailable'); return null; }
     if (!active()) { destroy(); return null; }
     var sprite, playerShadow, camera, ray, pointer, direction, target, desired, contactMap = null, fishingVisual = null, fishingState = null;
     function contactShadow(radius) {
@@ -1397,7 +1449,7 @@
       model = buildWorld(THREE, world, options.view, position, doc, firstSeason ? firstSeason.key : 'summer');
       await model.loadOriginalArt();
       if(!active()){destroy();return null;}
-      host.dataset.townOriginalArt=model.scene.userData.originalArtRevision;host.dataset.townSolidLife=model.solidLifeRevision;host.dataset.townOceanMotion=model.scene.userData.oceanMotionRevision;host.dataset.townShoreTransition=model.scene.userData.shoreTransitionRevision;host.dataset.townTreeVariety=model.treeVarietyRevision;host.dataset.townTreeKinds=JSON.stringify(model.treeVarietyKinds);host.dataset.townFountainReference=model.scene.userData.fountainReferenceRevision;host.dataset.townShopStyle=model.scene.userData.shopStyleRevision;host.dataset.townMeadowFlowers=model.scene.userData.meadowFlowersRevision;
+      host.dataset.townOriginalArt=model.scene.userData.originalArtRevision;host.dataset.townSolidLife=model.solidLifeRevision;host.dataset.townOceanMotion=model.scene.userData.oceanMotionRevision;host.dataset.townShoreTransition=model.scene.userData.shoreTransitionRevision;host.dataset.townTreeVariety=model.treeVarietyRevision;host.dataset.townTreeKinds=JSON.stringify(model.treeVarietyKinds);host.dataset.townFountainReference=model.scene.userData.fountainReferenceRevision;host.dataset.townShopStyle=model.scene.userData.shopStyleRevision;host.dataset.townMeadowFlowers=model.scene.userData.meadowFlowersRevision;host.dataset.townEnvironmentStyle=model.scene.userData.environmentStyleRevision;
       host.dataset.townStyle = model.styleLimits ? 'shop-cottage-match2' : 'legacy';
       host.dataset.townLayoutArt = model.layoutArtRevision;
       if (Fishing && typeof Fishing.createVisual === 'function') { fishingVisual = Fishing.createVisual(THREE, world); model.scene.add(fishingVisual.group); }

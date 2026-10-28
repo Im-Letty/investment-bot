@@ -23,7 +23,8 @@
     root.userData.layoutArtRevision=REVISION;
     var paths=[],bankStones=[],fences=[],bridgeDetails=[],decorativeFloors=[],groundAprons=[],porchConnectors=[];
     function gp(p){return ctx.groundPoint(world,p);}
-    function material(color,role){return ctx.mat(color,false,role);}
+    function material(color,role){return typeof ctx.sceneryMaterial==='function'?ctx.sceneryMaterial(color,role):ctx.mat(color,false,role);}
+    function woodBox(parent,w,h,d,mat,x,y,z){return typeof ctx.roundedBox==='function'?ctx.roundedBox(parent,w,h,d,mat,x,y,z):ctx.box(parent,w,h,d,mat,x,y,z);}
     function mesh(geo,mat,parent,x,y,z,name){
       var m=ctx.mesh(geo,mat,parent,x,y,z);if(name)m.name=name;return m;
     }
@@ -57,7 +58,7 @@
     var junction={x:world.width*.48,y:world.height*.54},join=gp(junction);
     function ribbon(curve,bands,y,mat,name,segments){
       segments=segments||48;
-      var positions=[],indices=[],points=curve.getPoints(segments);
+      var positions=[],indices=[],uvs=[],points=curve.getPoints(segments);
       // Bands partition each road laterally. All dark bands also stay below
       // every cream branch, so intersecting roads cannot produce depth zebra.
       bands.forEach(function(band){
@@ -65,10 +66,12 @@
         points.forEach(function(p,i){
           var tangent=curve.getTangent(i/segments),n=new THREE.Vector3(-tangent.z,0,tangent.x).normalize();
           positions.push(p.x+n.x*band[1],y,p.z+n.z*band[1],p.x+n.x*band[0],y,p.z+n.z*band[0]);
+          uvs.push((p.x+n.x*band[1])*.75,(p.z+n.z*band[1])*.75,(p.x+n.x*band[0])*.75,(p.z+n.z*band[0])*.75);
           if(i<segments){var k=start+i*2;indices.push(k,k+2,k+1,k+1,k+2,k+3);}
         });
       });
       var geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+      geo.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));
       geo.setIndex(indices);geo.computeVertexNormals();geo.computeBoundingBox();geo.computeBoundingSphere();
       var m=mesh(geo,mat,root,0,0,0,name);decorativeFloors.push(m);return m;
     }
@@ -126,7 +129,7 @@
       solid(mesh(sideBeam,wood[1],bridge,0,0,side*1.045,'layout-bridge-arched-side-beam'));
       solid(mesh(topRail,wood[0],bridge,0,0,side*1.045,'layout-bridge-curved-top-rail'));
       [-1.54,0,1.54].forEach(function(x){
-        var post=ctx.box(bridge,.17,.90,.17,wood[0],x,.49,side*1.045);post.name='layout-bridge-rounded-post';solid(post);
+        var post=woodBox(bridge,.17,.90,.17,wood[0],x,.49,side*1.045);post.name='layout-bridge-rounded-post';solid(post);
         var cap=ctx.ball(bridge,wood[2],x,.96,side*1.045,.115,.07,.115);cap.name='layout-bridge-post-cap';solid(cap);
       });
     }
@@ -144,11 +147,11 @@
     function fence(startX,startZ,length,west){
       var g=new THREE.Group();g.name='layout-outside-boundary-fence';g.position.set(startX,0,startZ);if(west)g.rotation.y=Math.PI/2;root.add(g);fences.push(g);
       for(var i=0;i<3;i++){
-        var post=ctx.box(g,.16,.86,.16,wood[0],i*length/2,.43,0);post.name='layout-fence-rounded-post';post.castShadow=true;
+        var post=woodBox(g,.16,.86,.16,wood[0],i*length/2,.43,0);post.name='layout-fence-rounded-post';post.castShadow=true;
         var cap=ctx.ball(g,wood[2],i*length/2,.88,0,.09,.055,.09);cap.name='layout-fence-post-cap';cap.castShadow=true;
       }
       for(var i=0;i<2;i++)[.31,.64].forEach(function(y){
-        var rail=ctx.box(g,length/2,.09,.10,wood[1],(i+.5)*length/2,y,0);rail.name='layout-fence-horizontal-rail';rail.castShadow=true;
+        var rail=woodBox(g,length/2,.09,.10,wood[1],(i+.5)*length/2,y,0);rail.name='layout-fence-horizontal-rail';rail.castShadow=true;
       });
       g.userData.outsideSavedBounds=true;
     }
@@ -197,10 +200,10 @@
     combine(decorativeFloors.filter(function(m){return paving.indexOf(m.material)>=0;}),paving,'layout-static-plaza-pavers');
     stones.forEach(function(material,i){combine(bankStones.filter(function(m){return m.material===material;}),[material],'layout-static-bank-stones-'+i);});
     root.updateMatrixWorld(true);
-    return {layoutArtRevision:REVISION,group:root,junction:junction,plaza:plaza,plazaPoint:plazaPoint,
+    return {layoutArtRevision:REVISION,environmentRevision:'shop-environment1',group:root,junction:junction,plaza:plaza,plazaPoint:plazaPoint,
       plazaRadii:{x:rx,z:rz},paths:paths,porchConnectors:porchConnectors,bridge:bridge,bridgeDeck:deck,bridgeDetails:bridgeDetails,
       bankStones:bankStones,fences:fences,groundAprons:groundAprons,decorativeFloors:decorativeFloors,renderBatches:renderBatches,
       walkSurfacePolicy:'existing-ground-plus-exact-bridge',resourceOwnership:'scene-context'};
   }
-  return Object.freeze({revision:REVISION,build:build});
+  return Object.freeze({revision:REVISION,environmentRevision:'shop-environment1',build:build});
 }));
