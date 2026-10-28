@@ -144,10 +144,10 @@
   }
   function loadOriginals() {
     var current = Originals || globalThis.PetTownPlacementOriginals;
-    if (current && current.revision === 'placement-originals1' && current.treeVarietyRevision === 'tree-variety1' && current.shopStyleRevision === 'shop-style1') { Originals=current; return Promise.resolve(current); }
-    if (!originalsLoading) originalsLoading=import('/static/pet-town-placement-originals.js?v=20261028-shop-style1').then(function () {
+    if (current && current.revision === 'placement-originals1' && current.treeVarietyRevision === 'tree-variety1' && current.shopStyleRevision === 'shop-style1' && current.treeRootsRevision === 'soft-roots2') { Originals=current; return Promise.resolve(current); }
+    if (!originalsLoading) originalsLoading=import('/static/pet-town-placement-originals.js?v=20261028-soft-roots2').then(function () {
       Originals=globalThis.PetTownPlacementOriginals;
-      if (!Originals || Originals.revision !== 'placement-originals1' || Originals.treeVarietyRevision !== 'tree-variety1' || Originals.shopStyleRevision !== 'shop-style1') throw new Error('town_originals_unavailable');
+      if (!Originals || Originals.revision !== 'placement-originals1' || Originals.treeVarietyRevision !== 'tree-variety1' || Originals.shopStyleRevision !== 'shop-style1' || Originals.treeRootsRevision !== 'soft-roots2') throw new Error('town_originals_unavailable');
       return Originals;
     }).catch(function(error){ originalsLoading=null; throw error; });
     return originalsLoading;
@@ -350,6 +350,7 @@
       return x>=bounds[0]&&x<bounds[2]&&y>=bounds[1]&&y<bounds[3];
     }
     scene.userData.originalArtRevision=originalArt?'placement-originals1':'unavailable';
+    scene.userData.treeRootsRevision=originalArt?originalAPI.treeRootsRevision:null;
     scene.userData.originalArtRepresentation='original-2d-art-in-3d-world';scene.userData.originalArtState='pending';
     var style = Style || globalThis.PetTownStyle, surfaceMaps = {}, cache = {}, boxGeometry = new THREE.BoxGeometry(1, 1, 1, 4, 4, 4), sphereGeometry = new THREE.SphereGeometry(1, 16, 10), leafGeometry = style ? style.leafGeometry(THREE) : new THREE.SphereGeometry(1, 10, 6), cylinderGeometry = new THREE.CylinderGeometry(1, 1, 1, 16);
     var trunkGeometry = style ? style.branchGeometry(THREE, 'trunk') : null, branchGeometry = style ? style.branchGeometry(THREE, 'branch') : null, roofTileGeometry = style ? style.tileGeometry(THREE) : null;
@@ -1322,7 +1323,7 @@
       if (fishingVisual) release(function () { fishingVisual.dispose(); });
       if (model) release(function () { model.dispose(); }); if (texture) release(function () { texture.dispose(); });
       if (renderer) { release(function () { renderer.renderLists.dispose(); }); release(function () { renderer.dispose(); }); release(function () { renderer.forceContextLoss(); }); release(function () { renderer.domElement.remove(); }); }
-      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; delete host.dataset.townOriginalArt; delete host.dataset.townSolidLife; delete host.dataset.townShoreTransition; delete host.dataset.townTreeVariety; delete host.dataset.townTreeKinds; delete host.dataset.townFountainReference; delete host.dataset.townShopStyle; delete host.dataset.townMeadowFlowers; delete host.dataset.townEnvironmentStyle; }
+      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; delete host.dataset.townOriginalArt; delete host.dataset.townSolidLife; delete host.dataset.townShoreTransition; delete host.dataset.townTreeVariety; delete host.dataset.townTreeKinds; delete host.dataset.townTreeRoots; delete host.dataset.townFountainReference; delete host.dataset.townShopStyle; delete host.dataset.townMeadowFlowers; delete host.dataset.townEnvironmentStyle; }
     }
     function fail(code) { if (dead || failed) return; failed = true; destroy(); report('onFailure', code); }
     var THREE;
@@ -1449,7 +1450,7 @@
       model = buildWorld(THREE, world, options.view, position, doc, firstSeason ? firstSeason.key : 'summer');
       await model.loadOriginalArt();
       if(!active()){destroy();return null;}
-      host.dataset.townOriginalArt=model.scene.userData.originalArtRevision;host.dataset.townSolidLife=model.solidLifeRevision;host.dataset.townOceanMotion=model.scene.userData.oceanMotionRevision;host.dataset.townShoreTransition=model.scene.userData.shoreTransitionRevision;host.dataset.townTreeVariety=model.treeVarietyRevision;host.dataset.townTreeKinds=JSON.stringify(model.treeVarietyKinds);host.dataset.townFountainReference=model.scene.userData.fountainReferenceRevision;host.dataset.townShopStyle=model.scene.userData.shopStyleRevision;host.dataset.townMeadowFlowers=model.scene.userData.meadowFlowersRevision;host.dataset.townEnvironmentStyle=model.scene.userData.environmentStyleRevision;
+      host.dataset.townOriginalArt=model.scene.userData.originalArtRevision;host.dataset.townSolidLife=model.solidLifeRevision;host.dataset.townOceanMotion=model.scene.userData.oceanMotionRevision;host.dataset.townShoreTransition=model.scene.userData.shoreTransitionRevision;host.dataset.townTreeVariety=model.treeVarietyRevision;host.dataset.townTreeKinds=JSON.stringify(model.treeVarietyKinds);host.dataset.townTreeRoots=model.scene.userData.treeRootsRevision;host.dataset.townFountainReference=model.scene.userData.fountainReferenceRevision;host.dataset.townShopStyle=model.scene.userData.shopStyleRevision;host.dataset.townMeadowFlowers=model.scene.userData.meadowFlowersRevision;host.dataset.townEnvironmentStyle=model.scene.userData.environmentStyleRevision;
       host.dataset.townStyle = model.styleLimits ? 'shop-cottage-match2' : 'legacy';
       host.dataset.townLayoutArt = model.layoutArtRevision;
       if (Fishing && typeof Fishing.createVisual === 'function') { fishingVisual = Fishing.createVisual(THREE, world); model.scene.add(fishingVisual.group); }

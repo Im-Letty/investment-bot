@@ -30,17 +30,20 @@ test('shop family readiness adds a grove while retaining all three original tree
  assert.equal(plan[0],'treeGrove');assert.deepEqual(counts,{treeGrove:12,tree:5,treeApple:5,treeBirch:5});
 });
 
-test('new grounded grove binds a real RGBA PNG and an authored trunk-centred image baseline',async()=>{
+test('rounded-root grove binds its new raw PNG while preserving v1 and the authored trunk-centred image baseline',async()=>{
+ const originalV1=await readFile(new URL('../static/pet-village-art/tree-shop-grove-v1.png',import.meta.url));
+ assert.equal(createHash('sha256').update(originalV1).digest('hex'),'fbd36580f164bb32409de1678d4eddc7f302b197e7d5b81a60f09643a75721b0');
+ assert.equal(Originals.treeRootsRevision,'soft-roots2');
  const spec=Originals.resolve('treeGrove'),bytes=await bytesFor(spec);
- assert.equal(spec.url,'/static/pet-village-art/tree-shop-grove-v1.png');
- assert.equal(createHash('sha256').update(bytes).digest('hex'),'fbd36580f164bb32409de1678d4eddc7f302b197e7d5b81a60f09643a75721b0');
- assert.equal(spec.sha256,'fbd36580f164bb32409de1678d4eddc7f302b197e7d5b81a60f09643a75721b0');
+ assert.equal(spec.url,'/static/pet-village-art/tree-shop-grove-soft-roots-v2.png');
+ assert.equal(createHash('sha256').update(bytes).digest('hex'),'1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b');
+ assert.equal(spec.sha256,'1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b');
  assert.equal(bytes.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
  assert.equal(bytes[24],8);assert.equal(bytes[25],6,'actual PNG has an alpha channel');
  assert.deepEqual([bytes.readUInt32BE(16),bytes.readUInt32BE(20)],[1254,1254]);
- assert.deepEqual(spec.alphaBounds,[55,42,1221,1214]);
- assert.deepEqual(spec.groundAnchor,[610/1254,1213/1254]);
- assert.notEqual(spec.groundAnchor[0],501/1254,'a single lowest left root is not the whole trunk layout anchor');
+ assert.deepEqual(spec.alphaBounds,[53,41,1221,1203]);
+ assert.deepEqual(spec.groundAnchor,[610/1254,1202/1254]);
+ assert.equal(spec.groundAnchor[0],610/1254,'horizontal trunk anchor is retained; the authored baseline is image-space only');
  assert.ok(Object.isFrozen(spec.groundAnchor));
 });
 
