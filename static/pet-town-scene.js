@@ -194,14 +194,14 @@
   }
   function meadowReady(sites, flowers) {
     return sites && sites.revision === 'meadow-sites1' && typeof sites.plan === 'function' &&
-      flowers && flowers.revision === 'meadow-flowers2' && typeof flowers.create === 'function';
+      flowers && flowers.revision === 'meadow-flowers3' && typeof flowers.create === 'function';
   }
   function loadMeadow() {
     var sites = MeadowSites || globalThis.PetTownMeadowSites, flowers = MeadowFlowers || globalThis.PetTownMeadowFlowers;
     if (meadowReady(sites, flowers)) { MeadowSites = sites; MeadowFlowers = flowers; return Promise.resolve(true); }
     if (!meadowLoading) meadowLoading = Promise.all([
       import('/static/pet-town-meadow-sites.js?v=20261028-meadowflowers2'),
-      import('/static/pet-town-meadow-flowers.js?v=20261028-meadowflowers2')
+      import('/static/pet-town-meadow-flowers.js?v=20261028-tree-family1')
     ]).then(function () {
       MeadowSites = globalThis.PetTownMeadowSites; MeadowFlowers = globalThis.PetTownMeadowFlowers;
       if (!meadowReady(MeadowSites, MeadowFlowers)) throw new Error('town_meadow_unavailable');
@@ -210,17 +210,17 @@
     return meadowLoading;
   }
   function environmentReady(ground, water, environment) {
-    return ground && ground.revision === 'ground-finish1' && typeof ground.create === 'function' && typeof ground.groundTexture === 'function' &&
-      water && water.revision === 'water-finish1' && typeof water.create === 'function' &&
-      environment && environment.revision === 'shop-environment1' && typeof environment.create === 'function' && typeof environment.skyTexture === 'function' && typeof environment.profile === 'function';
+    return ground && ground.revision === 'ground-finish2' && typeof ground.create === 'function' && typeof ground.groundTexture === 'function' &&
+      water && water.revision === 'water-finish2' && typeof water.create === 'function' &&
+      environment && environment.revision === 'shop-environment2' && typeof environment.create === 'function' && typeof environment.skyTexture === 'function' && typeof environment.profile === 'function';
   }
   function loadEnvironment() {
     var ground = GroundFinish || globalThis.PetTownGroundFinish, water = WaterFinish || globalThis.PetTownWaterFinish, environment = Environment || globalThis.PetTownEnvironment;
     if (environmentReady(ground, water, environment)) { GroundFinish = ground; WaterFinish = water; Environment = environment; return Promise.resolve(true); }
     if (!environmentLoading) environmentLoading = Promise.all([
-      import('/static/pet-town-ground-finish.js?v=20261028-environment1'),
-      import('/static/pet-town-water-finish.js?v=20261028-environment1'),
-      import('/static/pet-town-environment.js?v=20261028-environment1')
+      import('/static/pet-town-ground-finish.js?v=20261028-tree-family1'),
+      import('/static/pet-town-water-finish.js?v=20261028-tree-family1'),
+      import('/static/pet-town-environment.js?v=20261028-tree-family1')
     ]).then(function () {
       GroundFinish = globalThis.PetTownGroundFinish; WaterFinish = globalThis.PetTownWaterFinish; Environment = globalThis.PetTownEnvironment;
       if (!environmentReady(GroundFinish, WaterFinish, Environment)) throw new Error('town_environment_unavailable');
@@ -230,7 +230,7 @@
   }
   function groundTexture(THREE, doc, season) {
     var finish = GroundFinish || globalThis.PetTownGroundFinish;
-    if (finish && finish.revision === 'ground-finish1' && typeof finish.groundTexture === 'function') return finish.groundTexture(THREE, doc, season);
+    if (finish && finish.revision === 'ground-finish2' && typeof finish.groundTexture === 'function') return finish.groundTexture(THREE, doc, season);
     if (!doc || !doc.createElement) return null;
     var canvas = doc.createElement('canvas'); canvas.width = canvas.height = 512;
     var ctx = canvas.getContext && canvas.getContext('2d'); if (!ctx) return null;
@@ -263,7 +263,7 @@
   // It has no game clock, reflection/environment role, or effect on sprite colors.
   function skyTexture(THREE, doc, palette) {
     var environment = Environment || globalThis.PetTownEnvironment;
-    if (environment && environment.revision === 'shop-environment1' && typeof environment.skyTexture === 'function') return environment.skyTexture(THREE, doc, palette);
+    if (environment && environment.revision === 'shop-environment2' && typeof environment.skyTexture === 'function') return environment.skyTexture(THREE, doc, palette);
     if (!doc || !doc.createElement || !palette || !palette.sky) return null;
     var canvas = doc.createElement('canvas'); canvas.width = 256; canvas.height = 128;
     var ctx = canvas.getContext && canvas.getContext('2d');
@@ -415,7 +415,9 @@
       if (!cache[key]) { cache[key] = new THREE.MeshStandardMaterial({ color: resolvedColor, roughness: finish.roughness, metalness: finish.metalness, transparent: !!transparent, opacity: transparent ? .72 : 1 }); var bump = surfaceMap(finish.textureRole||role); if (bump) { cache[key].bumpMap = bump;
           if (role !== 'foliage') cache[key].map = bump;
           cache[key].bumpScale = finish.bumpScale === undefined ? .018 : finish.bumpScale; }
-        cache[key].userData.surfaceRole = role; cache[key].userData.paletteRole = paletteRole || 'identity'; cache[key].userData.baseColor = originalColor; cache[key].userData.paletteColor = resolvedColor; if (role === 'foliage' || role === 'flower') cache[key].userData.seasonRole = role; materials.add(cache[key]); }
+        cache[key].userData.surfaceRole = role; cache[key].userData.paletteRole = paletteRole || 'identity'; cache[key].userData.baseColor = originalColor; cache[key].userData.paletteColor = resolvedColor; if (role === 'foliage' || role === 'flower') cache[key].userData.seasonRole = role;
+        if(groundFinish&&['wood','stone','plaster','ceramic','glaze'].indexOf(role)>=0)groundFinish.applyTo(cache[key],role);
+        materials.add(cache[key]); }
       return cache[key];
     }
     function mesh(geo, material, parent, x, y, z) {
@@ -645,6 +647,7 @@
       if(role==='plaster'){m.roughness=.79;m.bumpScale=.005;if(color==='#f0e4cf'){m.color.set('#f3ead9');m.userData.baseColor='#f3ead9';m.userData.paletteRole='identity';m.userData.paletteColor='#f3ead9';}}
       else if(role==='wood'){m.roughness=.72;m.bumpScale=.012;}
       else if(role==='ceramic'){m.roughness=.46;m.bumpScale=.003;}
+      if(groundFinish&&['wood','plaster','ceramic','glaze'].indexOf(role)>=0)groundFinish.applyTo(m,role);
       materials.add(m);cottageFinishCache[key]=m;return m;
     }
     function cottageRoundedBox(parent,w,h,d,material,x,y,z){
@@ -903,7 +906,7 @@
     // ShapeGeometry is XY; rotate it into XZ. The shoreline shares the collision model's coordinates.
     var land = mesh(new THREE.ShapeGeometry(landShape), '#b1cf83', group, 0, .025, 0); land.rotation.x = -Math.PI / 2; land.name = 'dry-land'; surfaces.push(land);
     var groundAPI=GroundFinish||globalThis.PetTownGroundFinish;
-    var groundFinish=groundAPI&&groundAPI.revision==='ground-finish1'?groundAPI.create(THREE,{doc:doc,materials:materials,textures:textures,surfaceMap:surfaceMap}):null;
+    var groundFinish=groundAPI&&groundAPI.revision==='ground-finish2'?groundAPI.create(THREE,{doc:doc,materials:materials,textures:textures,surfaceMap:surfaceMap,localSurfaces:true}):null;
     var grassTexture = null, skyMap = null; land.material = mat('#ffffff', false, 'grass'); land.material.userData.seasonRole = 'ground';
     var landVertices = land.geometry.attributes.position, uv = land.geometry.attributes.uv;
     for (var li = 0; li < uv.count; li++) uv.setXY(li, (landVertices.getX(li) + world.width / 200) / (world.width / UNIT), (landVertices.getY(li) + world.height / 200) / (world.height / UNIT));
@@ -933,7 +936,7 @@
         geometries:geometries,materials:materials,groundColor:'#b1cf83'}):null;
     scene.userData.shoreTransitionRevision=shoreTransition?shoreTransition.revision:null;
     var waterFinishAPI=WaterFinish||globalThis.PetTownWaterFinish;
-    var waterFinish=waterFinishAPI&&waterFinishAPI.revision==='water-finish1'&&oceanLife&&shoreTransition?waterFinishAPI.create(THREE,{sea:sea,oceanLife:oceanLife,shoreTransition:shoreTransition,world:world,textures:textures}):null;
+    var waterFinish=waterFinishAPI&&waterFinishAPI.revision==='water-finish2'&&oceanLife&&shoreTransition?waterFinishAPI.create(THREE,{sea:sea,oceanLife:oceanLife,shoreTransition:shoreTransition,world:world,textures:textures}):null;
     // Synchronous historical previews may call the builder before lazy dependencies.
     // Normal mounts await the complete native layout module.
     if (!layoutModel) {
@@ -1168,7 +1171,7 @@
     // Low smoothly rounded distant mounds leave a real view of the sky.
     // They stay outside the saved walkable map and never enter the collision set.
     var environmentAPI=Environment||globalThis.PetTownEnvironment, environmentLife=null;
-    if(environmentAPI&&environmentAPI.revision==='shop-environment1'){
+    if(environmentAPI&&environmentAPI.revision==='shop-environment2'){
       var environmentSeason=Seasons||globalThis.PetJapanSeasons;
       environmentLife=environmentAPI.create(THREE,{group:group,doc:doc,geometries:geometries,materials:materials,textures:textures,
         seasonProfile:environmentSeason?environmentSeason.profile(seasonKey||'summer'):{key:'summer',sky:'#cbe7e8',horizon:'#f0ecdf',hills:['#b0ceac','#c4dbb9','#bad4b1']}});
@@ -1200,6 +1203,13 @@
           var fallen = leaf(decor, i % 2 ? '#bd8756' : '#d7b16d', p.x + .22, .061, p.z + .13, .16, Math.PI / 2, 0);
           fallen.rotation.set(Math.PI / 2, 0, i * 1.7);
           fallen.name = 'autumn-fallen-leaf';
+          // Rest the actual decorative leaf volume just above its real floor,
+          // instead of retaining the old floating center-height shortcut.
+          fallen.updateWorldMatrix(true,false);
+          var fallenBottom=new THREE.Box3().setFromObject(fallen).min.y;
+          var fallenFloor=heightAt(townPoint(world,{x:fallen.position.x,z:fallen.position.z}));
+          fallen.position.y+=fallenFloor+.002-fallenBottom;
+          fallen.userData.finiteFloorGap=.002;
         } else if (key === 'winter') {
           var snow = ball(decor, '#f0eee0', p.x - .10, .08, p.z + .05, .28, .055, .18);
           snow.name = 'winter-low-snow-edge'; snow.receiveShadow = true;
@@ -1235,7 +1245,8 @@
       // would leave winter muddy. One replacement happens only at a season edge.
       var nextTexture = groundTexture(THREE, doc, key);
       if (nextTexture) { textures.add(nextTexture); nextTexture.repeat.set(world.width / 640, world.height / 640); }
-      land.material.map = nextTexture; land.material.color.set(nextTexture ? '#ffffff' : palette.ground); land.material.needsUpdate = true;
+      if(groundFinish)groundFinish.applyGround(land.material,nextTexture);else land.material.map=nextTexture;
+      land.material.color.set(nextTexture ? '#ffffff' : palette.ground); land.material.needsUpdate = true;
       if (grassTexture) { textures.delete(grassTexture); grassTexture.dispose(); }
       grassTexture = nextTexture;
       materials.forEach(function (m) {
@@ -1245,6 +1256,7 @@
           m.color.set(index >= 13 ? palette.hills[(index - 13) % palette.hills.length] : palette.foliage[Math.max(0, index) % palette.foliage.length]);
         } else if(role==='accent'&&palette.accents){m.color.set(palette.accents[m.userData.seasonIndex||0]);} else if (role === 'flower' && palette.flowers) m.color.set(palette.flowers[base === '#edc0c1' ? 0 : 1]);
       });
+      if(meadowLife&&typeof meadowLife.setSeason==='function')meadowLife.setSeason(palette);
       Object.keys(seasonGroups).forEach(function (k) { seasonGroups[k].visible = k === key; });
       var nextSky = skyTexture(THREE, doc, palette);
       if (nextSky) {
@@ -1296,7 +1308,8 @@
       batches.forEach(function (b) { if (b.dynamic) { b.rows.forEach(function (m, i) { b.mesh.setMatrixAt(i, m.matrixWorld); }); b.mesh.instanceMatrix.needsUpdate = true; } });
       return frame;
     }
-    scene.userData.environmentStyleRevision=groundFinish&&waterFinish&&environmentLife&&layoutModel&&layoutModel.environmentRevision==='shop-environment1'?'shop-environment1':null;
+    scene.userData.environmentStyleRevision=groundFinish&&waterFinish&&environmentLife&&layoutModel&&layoutModel.environmentRevision==='shop-environment1'?'shop-environment2':null;
+    scene.userData.treeFamilyRevision=scene.userData.environmentStyleRevision&&meadowLife&&meadowLife.revision==='meadow-flowers3'?'tree-family1':null;
     scene.userData.environmentStyle={revision:scene.userData.environmentStyleRevision,ground:groundFinish?groundFinish.summary():null,water:waterFinish?waterFinish.metrics:null,environment:environmentLife?environmentLife.summary():null};
     function dispose() { if (disposed) return; disposed = true; if(environmentLife)environmentLife.dispose(); if(meadowLife)meadowLife.dispose(); if(originalArt)originalArt.dispose(); if(oceanLife&&oceanLife.instanceMeshes)oceanLife.instanceMeshes.forEach(function(m){m.dispose();}); batches.forEach(function (b) { b.mesh.dispose(); }); geometries.forEach(function (g) { g.dispose(); }); materials.forEach(function (m) { m.dispose(); }); textures.forEach(function (t) { t.dispose(); }); sun.shadow.dispose(); scene.clear(); }
     return { scene: scene, surfaces: surfaces, occluders: occluders, pickables: pickables, placeGroups: placeGroups, solidLifeRevision:solidLifeRevision, windowRooms:windowRooms, windowLifeMaterials:windowLifeMaterials, waterLife:waterLife, oceanLife:oceanLife, shoreTransition:shoreTransition, meadowLife:meadowLife, groundFinish:groundFinish, waterFinish:waterFinish, environment:environmentLife, animate: animate, dispose: dispose,
@@ -1323,7 +1336,7 @@
       if (fishingVisual) release(function () { fishingVisual.dispose(); });
       if (model) release(function () { model.dispose(); }); if (texture) release(function () { texture.dispose(); });
       if (renderer) { release(function () { renderer.renderLists.dispose(); }); release(function () { renderer.dispose(); }); release(function () { renderer.forceContextLoss(); }); release(function () { renderer.domElement.remove(); }); }
-      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; delete host.dataset.townOriginalArt; delete host.dataset.townSolidLife; delete host.dataset.townShoreTransition; delete host.dataset.townTreeVariety; delete host.dataset.townTreeKinds; delete host.dataset.townTreeRoots; delete host.dataset.townFountainReference; delete host.dataset.townShopStyle; delete host.dataset.townMeadowFlowers; delete host.dataset.townEnvironmentStyle; }
+      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; delete host.dataset.townOriginalArt; delete host.dataset.townSolidLife; delete host.dataset.townShoreTransition; delete host.dataset.townTreeVariety; delete host.dataset.townTreeKinds; delete host.dataset.townTreeRoots; delete host.dataset.townFountainReference; delete host.dataset.townShopStyle; delete host.dataset.townMeadowFlowers; delete host.dataset.townEnvironmentStyle; delete host.dataset.townArtFamily; }
     }
     function fail(code) { if (dead || failed) return; failed = true; destroy(); report('onFailure', code); }
     var THREE;
@@ -1450,7 +1463,7 @@
       model = buildWorld(THREE, world, options.view, position, doc, firstSeason ? firstSeason.key : 'summer');
       await model.loadOriginalArt();
       if(!active()){destroy();return null;}
-      host.dataset.townOriginalArt=model.scene.userData.originalArtRevision;host.dataset.townSolidLife=model.solidLifeRevision;host.dataset.townOceanMotion=model.scene.userData.oceanMotionRevision;host.dataset.townShoreTransition=model.scene.userData.shoreTransitionRevision;host.dataset.townTreeVariety=model.treeVarietyRevision;host.dataset.townTreeKinds=JSON.stringify(model.treeVarietyKinds);host.dataset.townTreeRoots=model.scene.userData.treeRootsRevision;host.dataset.townFountainReference=model.scene.userData.fountainReferenceRevision;host.dataset.townShopStyle=model.scene.userData.shopStyleRevision;host.dataset.townMeadowFlowers=model.scene.userData.meadowFlowersRevision;host.dataset.townEnvironmentStyle=model.scene.userData.environmentStyleRevision;
+      host.dataset.townOriginalArt=model.scene.userData.originalArtRevision;host.dataset.townSolidLife=model.solidLifeRevision;host.dataset.townOceanMotion=model.scene.userData.oceanMotionRevision;host.dataset.townShoreTransition=model.scene.userData.shoreTransitionRevision;host.dataset.townTreeVariety=model.treeVarietyRevision;host.dataset.townTreeKinds=JSON.stringify(model.treeVarietyKinds);host.dataset.townTreeRoots=model.scene.userData.treeRootsRevision;host.dataset.townFountainReference=model.scene.userData.fountainReferenceRevision;host.dataset.townShopStyle=model.scene.userData.shopStyleRevision;host.dataset.townMeadowFlowers=model.scene.userData.meadowFlowersRevision;host.dataset.townEnvironmentStyle=model.scene.userData.environmentStyleRevision;host.dataset.townArtFamily=model.scene.userData.treeFamilyRevision;
       host.dataset.townStyle = model.styleLimits ? 'shop-cottage-match2' : 'legacy';
       host.dataset.townLayoutArt = model.layoutArtRevision;
       if (Fishing && typeof Fishing.createVisual === 'function') { fishingVisual = Fishing.createVisual(THREE, world); model.scene.add(fishingVisual.group); }

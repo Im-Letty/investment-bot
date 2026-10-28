@@ -16,10 +16,12 @@ function document(){
 test('sky uses a bounded world background gradient and safe non-canvas fallback',()=>{
  const doc=document(),t=Scene.skyTexture(THREE,doc,Seasons.profile('autumn')),expected=Environment.profile(Seasons.profile('autumn'));
  try{
-  assert.deepEqual([t.image.width,t.image.height],[256,128]);assert.equal(t.colorSpace,THREE.SRGBColorSpace);
+  assert.deepEqual([t.image.width,t.image.height],[512,256]);assert.equal(t.colorSpace,THREE.SRGBColorSpace);
   assert.equal(t.mapping,THREE.EquirectangularReflectionMapping);
-  assert.ok(t.image.stops.some(([at,c])=>at===0&&c===expected.sky));
-  assert.ok(t.image.stops.some(([at,c])=>at===.70&&c===expected.horizon));
+  assert.equal(t.userData.paintMode,'periodic-layered-cloud-pigment');assert.equal(t.userData.cloudBanks,4);
+  assert.equal(t.image.pixels.length,512*256*4);
+  const horizonRow=200*512*4,expectedRGB=[1,3,5].map(i=>parseInt(expected.horizon.slice(i,i+2),16));
+  assert.deepEqual([...t.image.pixels.slice(horizonRow,horizonRow+3)],expectedRGB);
   assert.notEqual(expected.sky,expected.horizon);
   assert.equal(Scene.skyTexture(THREE,null,Seasons.profile('autumn')),null);
   assert.equal(Scene.skyTexture(THREE,{createElement(){return {getContext(){return {};}};}},Seasons.profile('autumn')),null);

@@ -68,7 +68,7 @@ function cleanup(f) {
 test('UMD registers in a timerless empty realm and recipes preserve caller identity and deterministic structure',()=>{
   const realm=vm.createContext({});
   vm.runInContext(readFileSync(new URL('../static/pet-town-meadow-flowers.js',import.meta.url),'utf8'),realm);
-  assert.equal(realm.PetTownMeadowFlowers.revision,'meadow-flowers2');
+  assert.equal(realm.PetTownMeadowFlowers.revision,'meadow-flowers3');
   assert.equal(realm.setTimeout,undefined);assert.equal(realm.localStorage,undefined);
   const input=Object.freeze(sites()),before=JSON.stringify(input);
   const a=input.map(x=>Meadow.recipe(x)),b=input.map(x=>Meadow.recipe({...x}));
@@ -91,7 +91,33 @@ test('invalid contexts, duplicate site IDs and nonfinite transforms fail before 
 test('shared actual solids are closed outward volumes, while rendered species have distinct silhouettes and visible parts',()=>{
   const f=fixture();
   try{
-    for(const geometry of f.geometries)closedPositive(geometry);
+    for(const geometry of f.geometries){
+      closedPositive(geometry);
+      const normal=geometry.attributes.normal,position=geometry.attributes.position,samePosition=new Map();
+      for(let k=0;k<normal.count;k++){
+        const n=new THREE.Vector3().fromBufferAttribute(normal,k);
+        assert.ok(n.toArray().every(Number.isFinite));
+        assert.ok(Math.abs(n.length()-1)<2e-6,'every stored shading normal is finite and unit length');
+        if(geometry.userData.normalPolicy==='analytic-inverse-transpose'){
+          const key=[position.getX(k),position.getY(k),position.getZ(k)].map(v=>Math.round(v*1e6)).join(':');
+          if(samePosition.has(key))assert.ok(n.distanceTo(samePosition.get(key))<2e-6,'duplicate seam and pole normals agree');
+          else samePosition.set(key,n);
+        }
+      }
+      if(geometry.userData.botanicalRole==='closed-padded-midrib-leaf'){
+        // Only the padded poles may share an XZ point at different heights.
+        // The visible outline is one fine ring, without an extruded side band.
+        const outline=new Map();
+        for(let k=0;k<position.count;k++){
+          const x=position.getX(k),z=position.getZ(k);
+          if(Math.hypot(x,z)<1e-6)continue;
+          const key=[x,z].map(v=>Math.round(v*1e6)).join(':');
+          if(outline.has(key))assert.ok(Math.abs(outline.get(key)-position.getY(k))<2e-6,'leaf outline has no vertical side strip');
+          else outline.set(key,position.getY(k));
+        }
+        assert.ok(outline.size>=24,'leaf outline is sufficiently fine beside the tree artwork');
+      }
+    }
     const signatures=new Map();
     for(const plant of f.meadow.plants){
       const rows=f.meadow.batches.flatMap(b=>b.rows.filter(r=>r.plant===plant).map(r=>[r,b.mesh.geometry]));
@@ -103,7 +129,7 @@ test('shared actual solids are closed outward volumes, while rendered species ha
     for(const batch of f.meadow.batches){
       assert.equal(batch.mesh.userData.noStaticBatch,true);
       assert.equal(batch.mesh.userData.nonSolidDecoration,true);
-      assert.equal(batch.mesh.castShadow,false);assert.equal(batch.mesh.receiveShadow,false);
+      assert.equal(batch.mesh.castShadow,false);assert.equal(batch.mesh.receiveShadow,true);
       assert.ok(f.geometries.has(batch.mesh.geometry));assert.ok(f.materials.has(batch.mesh.material));
       assert.equal(batch.mesh.material.map,null);
     }
@@ -301,5 +327,35 @@ test('finite rest-pose representatives have actual common-solid interior witness
       assert.equal(reached.size,parts.length,kind+' all visible parts have a common-interior connection to a grounded part');
       if(kind==='tulip')assert.ok(parts.some(p=>p.role==='tulip-receptacle'),'the authored contact remedy is present');
     }
+  }finally{cleanup(f);}
+});
+
+
+test('local seasonal pigments and soft finishes preserve recipes, roots, buffers and every outside material',()=>{
+  const input=sites(),recipes=input.map(s=>Meadow.recipe(s)),f=fixture(input);
+  const outside=new THREE.MeshStandardMaterial({color:'#abcdef'}),outsideBefore=outside.color.getHexString();
+  f.materials.add(outside);
+  try{
+    const resources=[...f.geometries,...f.materials],buffers=f.meadow.batches.map(b=>b.mesh.instanceMatrix.array);
+    const roots=f.meadow.plants.map(p=>p.base.slice()),signatures=new Set();
+    for(const season of ['spring','summer','autumn','winter']){
+      assert.equal(f.meadow.setSeason({key:season}),true);
+      assert.equal(f.meadow.summary().season,season);
+      signatures.add(f.meadow.batches.map(b=>b.mesh.material.color.getHexString()).join(':'));
+      for(const m of f.meadow.batches.map(b=>b.mesh.material)){
+        assert.equal(m.userData.meadowSeason,season);assert.equal(m.userData.seasonRole,undefined);
+        assert.equal(m.metalness,0);assert.equal(m.flatShading,false);assert.equal(m.bumpScale,0);
+        assert.ok(m.roughness>=.68&&m.roughness<=.83);
+      }
+      f.meadow.animate(1773,false);
+      assert.deepEqual(f.meadow.plants.map(p=>p.base),roots);
+      assert.deepEqual(input.map(s=>Meadow.recipe(s)),recipes);
+      assert.deepEqual([...f.geometries,...f.materials],resources);
+      f.meadow.batches.forEach((b,i)=>assert.equal(b.mesh.instanceMatrix.array,buffers[i]));
+      assert.equal(outside.color.getHexString(),outsideBefore);
+    }
+    assert.equal(signatures.size,4);
+    for(const invalid of [null,{},'bad',0,[]])assert.throws(()=>f.meadow.setSeason(invalid),/meadow_season_invalid/);
+    f.meadow.dispose();assert.equal(f.meadow.setSeason('summer'),false);
   }finally{cleanup(f);}
 });
