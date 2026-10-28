@@ -78,9 +78,9 @@ function harness({stock=true,community=true,last}={}){
   vm.runInNewContext(read('static/talk-theme.js'),context,{filename:'static/talk-theme.js'});
   return {context,document,body,nav,talkButton,morningButton,entrance,morning,timers,intervals,observers,requests,storage,Element,html,closeSaved:()=>closeSaved,settle:()=>new Promise(resolve=>setImmediate(resolve))};
 }
-function ready(h,id='cmOv'){
+function ready(h,id='cmOv',navigationTabs=2){
   const screen=h.document.getElementById(id);assert.ok(screen,'new conversation is synchronous before any observer or timer');assert.equal(h.body.querySelectorAll('.cw-screen').length,1);assert.equal(screen.classList.contains('cw-screen'),true);
-  assert.equal(screen.querySelectorAll('.cw-view-tab').length,0);assert.equal(h.document.getElementById('knMyTalkHub'),null);assert.equal(h.document.getElementById('talkHubOv'),null);
+  assert.equal(screen.querySelectorAll('.cw-view-tab').length,navigationTabs);assert.equal(h.document.getElementById('knMyTalkHub'),null);assert.equal(h.document.getElementById('talkHubOv'),null);
   assert.ok(h.body.classList.contains('kn-talk-active'));
   assert.equal(h.document.documentElement.style['--kn-talk-nav-height'],'58px');
   return screen;
@@ -88,7 +88,7 @@ function ready(h,id='cmOv'){
 
 test('the real upper Talk click opens the general feed with an inline composer before observers or timers',async()=>{
   const h=harness();assert.equal(h.document.getElementById('knMyTalkHub'),null);
-  h.entrance.click();const screen=ready(h);assert.equal(screen.querySelector('.cw-title').textContent,'みんなのトーク');assert.equal(screen.querySelector('.cw-composer').hidden,false);assert.equal(screen.querySelectorAll('.cw-compose-toggle').length,0);assert.equal(screen.querySelectorAll('.cw-categories').length,0);assert.equal(screen.querySelector('.cw-intro').textContent,'話題は自由。いま気になっていることを、気軽に話そう。');assert.equal(h.document.activeElement,null,'initial entry leaves the keyboard closed');assert.equal(screen.querySelector('.cw-stock-talk-link'),null);await h.settle();assert.equal(h.requests.length,1);assert.ok(h.requests.every(request=>!request.options.method||request.options.method==='GET'),'opening never sends a comment');assert.equal(h.closeSaved(),1);
+  h.entrance.click();const screen=ready(h);assert.equal(screen.querySelector('.cw-title').textContent,'みんなのトーク');assert.equal(screen.querySelector('.cw-composer').hidden,false);assert.equal(screen.querySelectorAll('.cw-compose-toggle').length,0);assert.equal(screen.querySelectorAll('.cw-categories').length,0);assert.equal(screen.querySelector('.cw-intro').textContent,'');assert.equal(h.document.activeElement,null,'initial entry leaves the keyboard closed');assert.equal(screen.querySelector('.cw-stock-talk-link'),null);await h.settle();assert.equal(h.requests.length,1);assert.ok(h.requests.every(request=>!request.options.method||request.options.method==='GET'),'opening never sends a comment');assert.equal(h.closeSaved(),1);
 });
 test('repeated upper and real legacy bottom clicks preserve the active root, composer and single loading request',async()=>{
   const h=harness();h.entrance.click();const root=ready(h),input=root.querySelector('#cmInput');input.value='保存前の架空下書き';input.dispatch('input');await h.settle();
@@ -96,10 +96,10 @@ test('repeated upper and real legacy bottom clicks preserve the active root, com
 });
 test('global Talk replaces a scoped voice without returning to company detail and preserves each draft',async()=>{
   const h=harness();let returns=0;h.entrance.click();const general=ready(h);general.querySelector('#cmInput').value='一般の下書き';general.querySelector('#cmInput').dispatch('input');
-  h.context.KNStockTalk.openRoom({category:'stock:1832',code:'1832',name:'北海電工'},{onReturn(){returns++;}});const voice=ready(h,'stockTalkOv');voice.querySelector('#cmInput').value='銘柄の下書き';voice.querySelector('#cmInput').dispatch('input');await h.settle();
+  h.context.KNStockTalk.openRoom({category:'stock:1832',code:'1832',name:'北海電工'},{onReturn(){returns++;}});const voice=ready(h,'stockTalkOv',0);voice.querySelector('#cmInput').value='銘柄の下書き';voice.querySelector('#cmInput').dispatch('input');await h.settle();
   assert.match(h.requests.at(-1).url,/category=stock%3A1832/);assert.equal(voice.querySelector('.cw-room-picker').hidden,true);assert.match(voice.querySelector('.cw-company-context').textContent,/北海電工.*1832/);
   h.entrance.click();assert.equal(returns,0);assert.equal(ready(h).querySelector('#cmInput').value,'一般の下書き');assert.equal(h.intervals.size,1);
-  h.context.KNStockTalk.openRoom({category:'stock:1832',code:'1832',name:'北海電工'},{onReturn(){returns++;}});assert.equal(ready(h,'stockTalkOv').querySelector('#cmInput').value,'銘柄の下書き');h.morningButton.click();assert.equal(returns,0);assert.equal(h.intervals.size,0);assert.ok(h.requests.every(r=>!r.options.method||r.options.method==='GET'));
+  h.context.KNStockTalk.openRoom({category:'stock:1832',code:'1832',name:'北海電工'},{onReturn(){returns++;}});assert.equal(ready(h,'stockTalkOv',0).querySelector('#cmInput').value,'銘柄の下書き');h.morningButton.click();assert.equal(returns,0);assert.equal(h.intervals.size,0);assert.ok(h.requests.every(r=>!r.options.method||r.options.method==='GET'));
 });
 test('all four index rooms and four existing company rooms remain available through the new conversation instance',()=>{
  const h=harness();assert.deepEqual(Array.from(h.context.KNStockTalk.categories, r=>r[0]),['stock:7203','stock:6758','stock:9984','stock:8306','index:N225','index:SP500','index:DJI','index:IXIC']);

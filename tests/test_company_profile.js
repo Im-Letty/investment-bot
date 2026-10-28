@@ -269,7 +269,8 @@ class Element {
   setAttribute(key,value){this.attributes[key]=String(value);}getAttribute(key){return this.attributes[key]??null;}removeAttribute(key){delete this.attributes[key];}
   addEventListener(type,fn){(this.listeners[type]??=[]).push(fn);}dispatch(type,event={}){for(const fn of this.listeners[type]||[])fn({target:this,...event});}
   focus(){this.doc.activeElement=this;}
-  matches(selector){if(selector==='[hidden]')return this.hidden;if(selector==='[inert]')return this.inert;if(selector==='[data-company-profile]')return !!this.dataset.companyProfile;if(selector==='[tabindex="0"]')return this.tabIndex===0;if(selector==='a[href]')return this.tagName==='A'&&!!this.href;if(selector.includes(':not([disabled])'))return this.tagName===selector.split(':')[0].toUpperCase()&&!this.disabled;return selector[0]==='.'?this.className.split(' ').includes(selector.slice(1)):this.tagName===selector.toUpperCase();}
+  click(){if(!this.disabled)this.dispatch('click');}
+  matches(selector){if(selector==='[hidden]')return this.hidden;if(selector==='[inert]')return this.inert;if(selector==='dialog[open]')return this.tagName==='DIALOG'&&this.open;if(selector==='[data-company-profile]')return !!this.dataset.companyProfile;if(selector==='[tabindex="0"]')return this.tabIndex===0;if(selector==='a[href]')return this.tagName==='A'&&!!this.href;if(selector.includes(':not([disabled])'))return this.tagName===selector.split(':')[0].toUpperCase()&&!this.disabled;return selector[0]==='.'?this.className.split(' ').includes(selector.slice(1)):this.tagName===selector.toUpperCase();}
   closest(selector){let node=this;while(node){if(node.matches(selector))return node;node=node.parentNode;}return null;}
   contains(node){while(node){if(node===this)return true;node=node.parentNode;}return false;}
   querySelectorAll(selector){const parts=selector.split(',').map(s=>s.trim()),results=[];function walk(node){for(const child of node.children){if(parts.some(s=>child.matches(s)))results.push(child);walk(child);}}walk(this);return results;}
@@ -463,26 +464,52 @@ test('delegated company button does not toggle its article, closes cancel reques
   api.close();assert.equal(requests[0].options.signal.aborted,true);assert.equal(overlay.hidden,true);requests[0].resolve({ok:true,json:async()=>fixture()});await flush();assert.equal(overlay.hidden,true);assert.equal(h.home.inert,false);
 });
 function voiceHarness(){
-  const h=dialogHarness(),requests=[],calls=[];h.w.fetch=(url,options)=>new Promise(resolve=>requests.push({url,options,resolve}));
-  h.w.KNStockTalk={openForCompany:(symbol,options)=>new Promise(resolve=>calls.push({symbol,options,resolve}))};
+  const h=dialogHarness(),requests=[],calls=[],handles=[];h.w.fetch=(url,options)=>new Promise(resolve=>requests.push({url,options,resolve}));
+  let cancellations=0;h.w.KNStockTalk={mountForCompany:(symbol,host,options)=>new Promise(resolve=>calls.push({symbol,host,options,resolve})),cancelPending(){cancellations++;}};
   const api=profile.start(h.w);api.open(KEY,'トヨタ',h.trigger);
-  const overlay=h.doc.body.children.at(-1),button=overlay.querySelector('.cp-voice'),status=overlay.querySelector('.cp-voice-status');
-  return {...h,api,requests,calls,overlay,button,status};
+  const overlay=h.doc.body.children.at(-1),button=overlay.querySelector('.cp-voice'),info=overlay.querySelector('.cp-info-tab'),status=overlay.querySelector('.cp-voice-status');
+  function handle(){const value={visible:[],destroyed:0,setVisible(v){this.visible.push(v);},destroy(){this.destroyed++;}};handles.push(value);return value;}
+  return {...h,api,requests,calls,overlay,button,info,status,handle,get cancellations(){return cancellations;}};
 }
-test('company voice resolves before releasing the modal and its close callback restores company context and focus',async()=>{
-  const h=voiceHarness();await flush();h.button.dispatch('click');assert.equal(h.calls.length,1);assert.equal(h.calls[0].symbol,KEY);assert.equal(h.button.disabled,true);assert.equal(h.overlay.hidden,false);assert.equal(h.home.inert,true);
-  h.button.dispatch('click');assert.equal(h.calls.length,1,'double taps do not resolve twice');
-  const call=h.calls[0];assert.equal(call.options.isCurrent(),true);assert.equal(call.options.beforeOpen(),true);assert.equal(h.overlay.hidden,true);assert.equal(h.home.inert,false);assert.equal(h.requests[0].options.signal.aborted,true);
-  call.resolve(true);await flush();call.options.onReturn();assert.equal(h.overlay.hidden,false);assert.equal(h.overlay.querySelector('.cp-code').textContent,'7203');assert.equal(h.doc.activeElement,h.button);assert.equal(h.home.inert,true);
-  h.api.close();assert.equal(h.doc.activeElement,h.trigger);assert.equal(h.home.inert,false);
+test('company voices mount inside the persistent modal and tab switching retains content, disclosure and child state',async()=>{
+  const h=voiceHarness();await flush();const body=h.overlay.querySelector('.cp-info-panel'),numbers=h.overlay.querySelector('.cp-numbers');
+  numbers.open=true;h.button.dispatch('click');assert.equal(h.calls.length,1);assert.equal(h.calls[0].symbol,KEY);assert.equal(h.calls[0].host,h.overlay.querySelector('.cp-voices-host'));
+  assert.equal(h.button.disabled,false);assert.equal(h.button.getAttribute('aria-busy'),'true');assert.equal(h.overlay.hidden,false);assert.equal(h.home.inert,true);assert.equal(body.hidden,true);
+  assert.equal(h.overlay.querySelector('.cp-voices-panel').hidden,false);h.button.dispatch('click');assert.equal(h.calls.length,1);
+  assert.equal(h.requests[0].options.signal.aborted,true);assert.equal(h.calls[0].options.isCurrent(),true);
+  const mounted=h.handle();h.calls[0].resolve(mounted);await flush();assert.deepEqual(mounted.visible,[true]);assert.equal(h.button.disabled,false);
+  h.info.dispatch('click');assert.equal(body.hidden,false);assert.equal(h.overlay.querySelector('.cp-info-panel'),body);assert.equal(numbers.open,true);assert.equal(mounted.visible.at(-1),false);
+  h.button.dispatch('click');assert.equal(h.calls.length,1,'returning to voices reuses the owned child');assert.equal(mounted.visible.at(-1),true);
+  h.api.close(true);assert.equal(mounted.destroyed,1);assert.equal(h.doc.activeElement,h.trigger);assert.equal(h.home.inert,false);
 });
-test('failed or unavailable voice keeps company information visible and offers a retry without declaring an empty conversation',async()=>{
+test('a failed voice tab preserves original company data and retries without declaring an empty conversation',async()=>{
   const h=voiceHarness();h.button.dispatch('click');h.calls[0].resolve(false);await flush();assert.equal(h.overlay.hidden,false);assert.equal(h.button.disabled,false);assert.match(h.status.textContent,/今は開けません/);assert.doesNotMatch(h.status.textContent,/投稿がありません/);
+  h.info.dispatch('click');assert.equal(h.overlay.querySelector('.cp-info-panel').hidden,false);assert.equal(h.status.hidden,true);
   h.button.dispatch('click');assert.equal(h.calls.length,2);h.calls[1].resolve(false);await flush();delete h.w.KNStockTalk;h.button.dispatch('click');await flush();assert.equal(h.button.disabled,false);assert.equal(h.overlay.hidden,false);
 });
-test('late company voice resolution cannot open after closing or switching to another company',async()=>{
-  const h=voiceHarness();h.button.dispatch('click');const first=h.calls[0];h.api.close();assert.equal(first.options.isCurrent(),false);assert.equal(first.options.beforeOpen(),false);first.resolve(false);await flush();assert.equal(h.overlay.hidden,true);
-  h.api.open(KEY,'トヨタ',h.trigger);h.button.dispatch('click');const next=h.calls[1];h.api.open('1832.JP','北海電工',h.trigger);assert.equal(next.options.isCurrent(),false);assert.equal(next.options.beforeOpen(),false);next.resolve(false);await flush();assert.equal(h.overlay.querySelector('.cp-code').textContent,'1832');assert.equal(h.status.hidden,true);assert.equal(h.button.disabled,false);
+test('late mounts are destroyed after close, company change or returning to information',async()=>{
+  const h=voiceHarness();h.button.dispatch('click');const first=h.calls[0];h.api.close(true);assert.equal(first.options.isCurrent(),false);const abandoned=h.handle();first.resolve(abandoned);await flush();assert.equal(abandoned.destroyed,1);assert.equal(h.overlay.hidden,true);
+  h.api.open(KEY,'トヨタ',h.trigger);const next=h.calls.at(-1);h.api.open('1832.JP','北海電工',h.trigger);assert.equal(next.options.isCurrent(),false);const second=h.handle();next.resolve(second);await flush();assert.equal(second.destroyed,1);assert.equal(h.overlay.querySelector('.cp-code').textContent,'1832');assert.equal(h.status.hidden,true);assert.equal(h.button.disabled,false);
+  h.button.dispatch('click');const hidden=h.calls.at(-1);h.info.dispatch('click');assert.equal(hidden.options.isCurrent(),false);const third=h.handle();hidden.resolve(third);await flush();assert.equal(third.destroyed,1);assert.equal(h.overlay.querySelector('.cp-info-panel').hidden,false);
+});
+test('company tab roles link real panels and keyboard switching uses roving focus without replacing data',()=>{
+  const h=dialogHarness();h.view.open(KEY,'トヨタ',h.trigger);h.view.render(state());const e=h.view.elements,overview=e.overview.textContent;
+  assert.equal(e.tabs.getAttribute('role'),'tablist');assert.equal(e.infoTab.getAttribute('aria-controls'),e.infoPanel.id);assert.equal(e.voice.getAttribute('aria-controls'),e.voicesPanel.id);
+  assert.equal(e.infoTab.getAttribute('aria-selected'),'true');assert.equal(e.voice.tabIndex,-1);let prevented=false;
+  e.tabs.dispatch('keydown',{target:e.infoTab,key:'ArrowRight',preventDefault(){prevented=true;}});assert.equal(prevented,true);assert.equal(h.doc.activeElement,e.voice);assert.equal(e.voice.getAttribute('aria-selected'),'true');assert.equal(e.infoPanel.hidden,true);assert.equal(e.voicesPanel.hidden,false);
+  e.tabs.dispatch('keydown',{target:e.voice,key:'Home',preventDefault(){}});assert.equal(h.doc.activeElement,e.infoTab);assert.equal(e.overview.textContent,overview);assert.equal(e.infoPanel.hidden,false);assert.equal(e.voicesPanel.hidden,true);
+});
+test('parent Escape leaves an owned open native conversation dialog to its own cancel handling',()=>{
+  const h=dialogHarness();h.view.open(KEY,'トヨタ',h.trigger);h.view.selectTab('voices');
+  const dialog=h.doc.createElement('dialog');dialog.open=true;h.view.elements.voicesHost.appendChild(dialog);
+  const first=h.key('Escape');assert.equal(first.prevented,false);assert.equal(h.view.isOpen(),true);
+  dialog.open=false;const second=h.key('Escape');assert.equal(second.prevented,true);assert.equal(h.view.isOpen(),false);
+});
+test('external conversation close and authentication release the parent background lock immediately',async()=>{
+  for(const callback of ['onClose','onAuthRequired']){
+    const h=voiceHarness();h.button.dispatch('click');const mounted=h.handle();h.calls[0].resolve(mounted);await flush();
+    h.calls[0].options[callback]();assert.equal(h.overlay.hidden,true,callback);assert.equal(h.home.inert,false,callback);assert.equal(mounted.destroyed,1,callback);assert.equal(h.doc.body.style.position,'',callback);
+  }
 });
 test('only the selected visible Tokyo company requests minute quotes; previews and regional identities do not',async()=>{
   const h=dialogHarness(),requests=[];h.w.fetch=(url,options)=>new Promise(resolve=>requests.push({url,options,resolve}));const api=profile.start(h.w);

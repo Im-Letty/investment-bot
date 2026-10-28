@@ -354,8 +354,8 @@
     }
     return {load,cancel,peek:key=>saved(symbol(key)),getState:()=>last};
   }
-  function createDialog(w,onRetry,onVoice){
-    const doc=w.document,refs={};let opened=false,closing=null,returnFocus=null,returnCompanySymbol='',background=[],scrolls=[],bodyStyle=null,currentSymbol='',selectedName='';
+  function createDialog(w,onRetry,onVoice,onInfo){
+    const doc=w.document,refs={};let opened=false,closing=null,returnFocus=null,returnCompanySymbol='',background=[],scrolls=[],bodyStyle=null,currentSymbol='',selectedName='',selectedTab='info',infoScroll=0;
     function el(tag,cls,content){const node=doc.createElement(tag);if(cls)node.className=cls;if(content!==undefined)node.textContent=content;return node;}
     function append(parent,...nodes){nodes.forEach(node=>parent.appendChild(node));return parent;}
     const overlay=el('div','cp-overlay');overlay.id='knCompanyProfile';overlay.hidden=true;
@@ -364,11 +364,17 @@
     const head=el('header','cp-head'),identity=el('div','cp-identity');refs.code=el('p','cp-code');refs.name=el('h2','cp-title');refs.name.id='cp-company-title';
     const closeButton=el('button','cp-close','閉じる');closeButton.type='button';
     append(identity,refs.code,refs.name);append(head,identity,closeButton);
-    const voiceEntry=el('div','cp-voice-entry');refs.voice=el('button','cp-voice');refs.voice.type='button';
-    const voiceArrow=el('span','cp-voice-arrow','›');voiceArrow.setAttribute('aria-hidden','true');append(refs.voice,el('span','cp-voice-label','みんなの声'),el('span','cp-voice-caption','この銘柄の投稿・返信'),voiceArrow);
+    const tabs=el('div','cp-view-tabs');tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','会社情報とみんなの声');
+    refs.infoTab=el('button','cp-view-tab cp-info-tab','会社情報');refs.voice=el('button','cp-view-tab cp-voice','みんなの声');
+    const content=el('div','cp-content'),infoPanel=el('section','cp-info-panel'),voicesPanel=el('section','cp-voices-panel');
+    refs.voicesHost=el('div','cp-voices-host');
+    [[refs.infoTab,'cp-info-tab','cp-info-panel',infoPanel],[refs.voice,'cp-voices-tab','cp-voices-panel',voicesPanel]].forEach(([tab,id,panelId,body])=>{
+      tab.type='button';tab.id=id;tab.setAttribute('role','tab');tab.setAttribute('aria-controls',panelId);
+      body.id=panelId;body.setAttribute('role','tabpanel');body.setAttribute('aria-labelledby',id);body.tabIndex=0;tabs.appendChild(tab);
+    });
     refs.voiceStatus=el('p','cp-voice-status');refs.voiceStatus.setAttribute('role','status');refs.voiceStatus.hidden=true;
-    append(voiceEntry,refs.voice,refs.voiceStatus);
-    const content=el('div','cp-content'),feedback=el('div','cp-feedback');feedback.setAttribute('role','status');
+    append(voicesPanel,refs.voiceStatus,refs.voicesHost);append(content,infoPanel,voicesPanel);
+    const feedback=el('div','cp-feedback');feedback.setAttribute('role','status');
     refs.status=el('p');refs.retry=el('button','cp-retry','もう一度確認');refs.retry.type='button';refs.retry.hidden=true;append(feedback,refs.status,refs.retry);
     const basic=el('section','cp-basic');basic.hidden=true;
     const basicList=el('dl','cp-basic-list');append(basic,el('h3','cp-heading','会社の基本情報'),basicList);refs.basic=basic;
@@ -411,7 +417,7 @@
     const reasonHelp=el('details','cp-reason-help');reasonHelp.hidden=true;
     append(reasonHelp,el('summary','','表示の意味'),el('p','','取得中：読み込み中です。通信エラー：取得先に接続できませんでした。'),el('p','','提供元に情報なし：取得先で確認できません。会社が未公表とは限りません。'),el('p','','内容を確認中・未確認：正確に表示できるか確認できていません。空欄は0円という意味ではありません。'));facts.appendChild(reasonHelp);refs.reasonHelp=reasonHelp;
     const sources=el('footer','cp-sources');append(sources,el('h3','cp-heading','出典'));refs.identityDate=el('p','cp-review-date');refs.reviewed=el('p','cp-review-date');refs.sources=el('ul','cp-source-list');append(sources,refs.businessSource,refs.identityDate,refs.reviewed,refs.sources);
-    append(content,voiceEntry,overview,feedback,basic,stories,numbers,sources);append(panel,head,content);append(overlay,backdrop,panel);doc.body.appendChild(overlay);
+    append(infoPanel,overview,feedback,basic,stories,numbers,sources);append(panel,head,tabs,content);append(overlay,backdrop,panel);doc.body.appendChild(overlay);
     let sourcesSignature='',businessSourceSignature='',marketReferenceSignature='',historicalSourceSignature='',issuerForecastSourceSignature='';
     function setMetric(key,value,when,reason){const ref=refs[key];ref.value.textContent=value||'—';ref.unknown.hidden=!!value;ref.unknown.textContent=reason||FIELD_REASONS.unconfirmed;ref.time.textContent=when||'';ref.time.hidden=!when;}
     function render(state){
@@ -525,9 +531,9 @@
       if(closing!==null){w.clearTimeout(closing);closing=null;}
       delete overlay.dataset.closing;
       if(!opened)rememberBackground(trigger);
-      if(currentSymbol!==key){numbers.open=false;content.scrollTop=0;sourcesSignature='';}
+      if(currentSymbol!==key){numbers.open=false;content.scrollTop=0;infoScroll=0;selectedTab='info';sourcesSignature='';}
       currentSymbol=key;selectedName=text(name,160)||key;opened=true;refs.code.textContent=key.replace(/\.(?:T|JP)$/,'');refs.name.textContent=selectedName;overlay.hidden=false;sizeViewport();panel.focus({preventScroll:true});
-      voiceState(false);refs.voice.setAttribute('aria-label',selectedName+'のみんなの声を開く');
+      voiceState(false);selectTab(selectedTab);refs.voice.setAttribute('aria-label',selectedName+'のみんなの声');
       background.forEach(item=>item.node.setAttribute('aria-hidden','true'));
     }
     function finishClose(){
@@ -543,12 +549,28 @@
     function close(immediate=false){if(!opened||closing!==null)return;if(immediate||w.matchMedia&&w.matchMedia('(prefers-reduced-motion: reduce)').matches){finishClose();return;}overlay.dataset.closing='true';closing=w.setTimeout(finishClose,180);}
     let onClose=()=>close();
     closeButton.addEventListener('click',()=>onClose());refs.retry.addEventListener('click',()=>onRetry());
-    refs.voice.addEventListener('click',()=>{if(onVoice&&!refs.voice.disabled)onVoice();});
-    function voiceState(busy,message=''){refs.voice.disabled=busy;refs.voice.setAttribute('aria-busy',String(busy));refs.voiceStatus.textContent=message;refs.voiceStatus.hidden=!message;}
+    function selectTab(value){
+      if(value!=='info'&&value!=='voices')return false;
+      if(selectedTab==='info')infoScroll=content.scrollTop;
+      selectedTab=value;content.dataset.view=value;
+      [[refs.infoTab,'info',infoPanel],[refs.voice,'voices',voicesPanel]].forEach(([tab,key,body])=>{
+        const active=key===value;tab.setAttribute('aria-selected',String(active));tab.tabIndex=active?0:-1;body.hidden=!active;
+      });
+      content.scrollTop=value==='info'?infoScroll:0;return true;
+    }
+    refs.infoTab.addEventListener('click',()=>{selectTab('info');if(onInfo)onInfo();});
+    refs.voice.addEventListener('click',()=>{if(refs.voice.getAttribute('aria-busy')==='true')return;selectTab('voices');if(onVoice)onVoice();});
+    tabs.addEventListener('keydown',event=>{
+      if(event.isComposing)return;const all=[refs.infoTab,refs.voice].filter(tab=>!tab.disabled),index=all.indexOf(event.target);if(index<0)return;
+      let next;if(event.key==='ArrowRight')next=(index+1)%all.length;else if(event.key==='ArrowLeft')next=(index+all.length-1)%all.length;else if(event.key==='Home')next=0;else if(event.key==='End')next=all.length-1;else return;
+      event.preventDefault();all[next].focus({preventScroll:true});all[next].click();
+    });
+    function voiceState(busy,message=''){refs.voice.disabled=false;refs.voice.setAttribute('aria-busy',String(busy));voicesPanel.setAttribute('aria-busy',String(busy));refs.voiceStatus.textContent=message;refs.voiceStatus.hidden=!message;}
+    selectTab('info');
     overlay.addEventListener('click',event=>{if(event.target===overlay||event.target===backdrop)onClose();});
-    function focusables(){return Array.from(panel.querySelectorAll('button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex="0"]')).filter(node=>!node.closest('[hidden]')&&node.getClientRects().length);}
+    function focusables(){return Array.from(panel.querySelectorAll('button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex="0"]')).filter(node=>node.tabIndex!==-1&&!node.closest('[hidden]')&&node.getClientRects().length);}
     doc.addEventListener('keydown',event=>{
-      if(!opened||event.isComposing)return;
+      if(!opened||event.isComposing||panel.querySelector('dialog[open]'))return;
       if(event.key==='Escape'){event.preventDefault();event.stopImmediatePropagation();onClose();return;}
       if(event.key!=='Tab')return;
       event.stopImmediatePropagation();const all=focusables(),first=all[0],last=all[all.length-1];
@@ -558,11 +580,11 @@
     },true);
     doc.addEventListener('focusin',event=>{if(opened&&!panel.contains(event.target))(focusables()[0]||panel).focus({preventScroll:true});},true);
     if(w.visualViewport){w.visualViewport.addEventListener('resize',sizeViewport);w.visualViewport.addEventListener('scroll',sizeViewport);}
-    return {open,close,render,voiceState,setClose(fn){onClose=fn;},isOpen:()=>opened,elements:{overlay,panel,content,numbers,closeButton,backdrop,...refs}};
+    return {open,close,render,voiceState,selectTab,isInfoTab:()=>selectedTab==='info',setClose(fn){onClose=fn;},isOpen:()=>opened,elements:{overlay,panel,content,numbers,closeButton,backdrop,tabs,infoPanel,voicesPanel,...refs}};
   }
   function start(w){
     if(w.KNCompanyProfile&&w.KNCompanyProfile.__ready)return w.KNCompanyProfile;
-    let view=null,current='',name='',refreshTimer=null,voiceVersion=0,opener=null;
+    let view=null,current='',name='',refreshTimer=null,voiceVersion=0,opener=null,voiceHandle=null;
     let storage=null;try{storage=w.localStorage;}catch(e){}
     const env={fetch:w.fetch.bind(w),AbortController:w.AbortController,setTimeout:w.setTimeout.bind(w),clearTimeout:w.clearTimeout.bind(w),now:w.now,storage,purpose:'detail'};
     function stopRefresh(){w.clearTimeout(refreshTimer);refreshTimer=null;}
@@ -571,34 +593,46 @@
       stopRefresh();
       // Only a current API response can enable licensed quote refreshes.
       // An old browser cache or a failed request cannot grant that capability.
-      if(!state.updating&&state.quoteRefreshEnabled===true&&view&&view.isOpen()&&!w.document.hidden&&current.endsWith('.T')&&!['not_found','invalid_request','invalid'].includes(state.reason)){
+      if(!state.updating&&state.quoteRefreshEnabled===true&&view&&view.isOpen()&&view.isInfoTab()&&!w.document.hidden&&current.endsWith('.T')&&!['not_found','invalid_request','invalid'].includes(state.reason)){
         const delay=Math.max(QUOTE_REFRESH_MS,((state.data&&state.data.retry_after_seconds)||0)*1000);
-        refreshTimer=w.setTimeout(()=>{refreshTimer=null;if(view.isOpen()&&!w.document.hidden)loader.load(current);},delay);
+        refreshTimer=w.setTimeout(()=>{refreshTimer=null;if(view.isOpen()&&view.isInfoTab()&&!w.document.hidden)loader.load(current);},delay);
       }
     });
-    function cancelVoice(){voiceVersion++;if(w.KNStockTalk&&typeof w.KNStockTalk.cancelPending==='function')w.KNStockTalk.cancelPending();}
-    function close(immediate=false){cancelVoice();stopRefresh();loader.cancel();if(view)view.close(immediate);}
+    function cancelVoice(destroy=false){
+      voiceVersion++;if(w.KNStockTalk&&typeof w.KNStockTalk.cancelPending==='function')w.KNStockTalk.cancelPending();
+      if(destroy&&voiceHandle){const previous=voiceHandle;voiceHandle=null;previous.destroy();}
+    }
+    function close(immediate=false){cancelVoice(true);stopRefresh();loader.cancel();if(view)view.close(immediate);}
+    function showInfo(){
+      if(!view||!view.isOpen())return;cancelVoice();if(voiceHandle)voiceHandle.setVisible(false);
+      view.selectTab('info');view.voiceState(false);if(!w.document.hidden)loader.load(current);
+    }
     async function openVoice(){
-      if(!view||!view.isOpen()||view.elements.voice.disabled)return;
-      const key=current,label=name,trigger=opener,token=++voiceVersion;
-      const isCurrent=()=>token===voiceVersion&&view.isOpen()&&current===key;
-      view.voiceState(true,'会話を開いています…');
-      let opened=false;
+      if(!view||!view.isOpen()||view.elements.voice.getAttribute('aria-busy')==='true')return;
+      view.selectTab('voices');stopRefresh();loader.cancel();
+      if(voiceHandle){voiceHandle.setVisible(true);view.voiceState(false);return;}
+      const key=current,token=++voiceVersion;
+      const isCurrent=()=>token===voiceVersion&&view.isOpen()&&!view.isInfoTab()&&current===key;
+      view.voiceState(true,'会話を開いています…');let mounted=null;
       try{
-        if(w.KNStockTalk&&typeof w.KNStockTalk.openForCompany==='function')opened=await w.KNStockTalk.openForCompany(key,{
+        if(w.KNStockTalk&&typeof w.KNStockTalk.mountForCompany==='function')mounted=await w.KNStockTalk.mountForCompany(key,view.elements.voicesHost,{
           isCurrent,
-          beforeOpen(){if(!isCurrent())return false;voiceVersion++;stopRefresh();loader.cancel();view.close(true);return true;},
-          onReturn(){open(key,label,trigger);view.elements.voice.focus({preventScroll:true});}
+          onClose(){if(view&&view.isOpen()&&current===key)close(true);},
+          onAuthRequired(){if(view&&view.isOpen()&&current===key)close(true);}
         });
       }catch(e){}
-      if(isCurrent())view.voiceState(false,opened?'':'この銘柄の会話を今は開けませんでした。もう一度お試しください。');
+      if(!isCurrent()){if(mounted&&typeof mounted.destroy==='function')mounted.destroy();return;}
+      if(mounted){voiceHandle=mounted;mounted.setVisible(true);}
+      view.voiceState(false,mounted?'':'この銘柄の会話を今は開けませんでした。もう一度お試しください。');
     }
     function open(value,label,trigger){
       const key=symbol(value);if(!key||!w.document.body)return false;
-      if(!view){view=createDialog(w,()=>loader.load(current),openVoice);view.setClose(()=>close());}
-      cancelVoice();opener=trigger||w.document.activeElement;stopRefresh();current=key;name=text(label,160)||key;view.open(key,name,trigger);if(!w.document.hidden)loader.load(key);const state=loader.getState();if(state&&state.symbol===key)view.render(state);return true;
+      if(!view){view=createDialog(w,()=>loader.load(current),openVoice,showInfo);view.setClose(()=>close());}
+      cancelVoice(true);opener=trigger||w.document.activeElement;stopRefresh();current=key;name=text(label,160)||key;view.open(key,name,trigger);
+      if(view.isInfoTab()){if(!w.document.hidden)loader.load(key);}else openVoice();
+      const state=loader.getState();if(state&&state.symbol===key)view.render(state);return true;
     }
-    w.document.addEventListener('visibilitychange',()=>{if(!view||!view.isOpen())return;stopRefresh();if(w.document.hidden)loader.cancel();else loader.load(current);});
+    w.document.addEventListener('visibilitychange',()=>{if(!view||!view.isOpen())return;stopRefresh();if(w.document.hidden)loader.cancel();else if(view.isInfoTab())loader.load(current);});
     w.document.addEventListener('click',event=>{const target=event.target&&event.target.closest&&event.target.closest('[data-company-profile]');if(!target||target.disabled||target.getAttribute('aria-disabled')==='true'||!symbol(target.dataset.companyProfile))return;event.preventDefault();event.stopPropagation();open(target.dataset.companyProfile,target.dataset.companyName,target);},true);
     return {open,close,createFactsLoader:onState=>createLoader({...env,purpose:'preview'},onState),__ready:true};
   }
