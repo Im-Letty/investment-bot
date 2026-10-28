@@ -52,7 +52,8 @@ function fixture({ origin = 'morning', preloaded = true, hydration, mounting } =
     getElementById(id) { return id === 'knBottomNav' ? navEl : nodes[id] || null; },
     querySelector(selector) { return selector.includes('[data-act="pet"]') ? pet : null; },
     head: { appendChild(asset) { if (asset.tagName === 'LINK') asset.onload(); else assets.push(asset); } } };
-  const window = { __knGateReady: hydration?.promise || Promise.resolve(true),
+  const window = {
+    PetOceanDiscoveries: {}, PetOceanSnorkeling: {}, __knGateReady: hydration?.promise || Promise.resolve(true),
     __knReadGameStorage: () => 'saved-progress', __knPersistLocalSetting: async () => { storageWrites++; },
     location: { reload() { reloads++; } }, scrollTo() {},
     addEventListener(type, fn) { windows.push({ type, fn }); },

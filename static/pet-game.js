@@ -21,6 +21,7 @@
   var shopController = null, shopPending = null, shopLoading = null, shopGeneration = 0, shopMemory = {}, shopCleanup = null;
   var homeController = null, homePending = null, homeLoading = null, homeGeneration = 0, homeMemory = {}, homeCleanup = null;
   var lifePanelOpen = false;
+  var oceanCleanup = null, oceanSaveAttempt = null;
   var riverFishingCleanup = null, fishingPanelOpen = false, fishingCelebration = null;
   // Walking is a view of the existing pet, not a second pet or a save action.
   // Retain the spot when visiting a facility; never write a frame into the store.
@@ -252,6 +253,7 @@
     motionRequests.forEach(refreshRoomTouch);
   }
   function stopMotions() {
+    if (oceanCleanup) { oceanCleanup(); oceanCleanup = null; }
     if (riverFishingCleanup) { riverFishingCleanup(); riverFishingCleanup = null; }
     homeGeneration++; homePending = null;
     if (homeCleanup) { homeCleanup(); homeCleanup = null; }
@@ -1987,7 +1989,7 @@
     if (townSceneLoading) return townSceneLoading;
     if (!d.head) return Promise.resolve(null);
     townSceneLoading = new Promise(function (resolve) {
-      var script = d.createElement('script'); script.src = '/static/pet-town-scene.js?v=20261028-tree-road-clearance1'; script.async = true;
+      var script = d.createElement('script'); script.src = '/static/pet-town-scene.js?v=20261029-snorkeling1'; script.async = true;
       script.onload = function () { resolve(w.PetTownScene && typeof w.PetTownScene.mount === 'function' ? w.PetTownScene : null); };
       script.onerror = function () { townSceneLoading = null; script.remove(); resolve(null); };
       d.head.appendChild(script);
@@ -2085,6 +2087,110 @@
     refresh();
     return { refresh: refresh, moved: function () { if (!alive()) return; var v = current(); if (v.active && !v.nearBank) abandon(true); else refresh(); } };
   }
+  function renderOceanSnorkeling(village, viewport, world, canUse, hooks) {
+    var api = w.PetOceanSnorkeling, Town = w.PetTownWalk;
+    var empty = { active: function () { return false; }, refresh: function () {}, reset: function () {} };
+    if (!api || !w.PetOceanDiscoveries || typeof core().getOceanDiscoveryView !== 'function') return empty;
+    var habitat = api.createHabitat(world, Town); if (!habitat || !habitat.entry) return empty;
+    var owner = store, target = host, epoch = lifecycleEpoch, dead = false, opened = false, pending = false, localError = '', controller = null, lastRevision = -1;
+    var wrap = node('section', 'ipg-ocean-controls'), panel = node('div', 'ipg-ocean-panel');
+    wrap.setAttribute('aria-label', '海あそび'); panel.hidden = true;
+    var toggle = button('海あそび', function () {
+      if (!alive() || busy) return; opened = !opened; if (townController) townController.stop(); if (controller) controller.stop(); refresh();
+    }, true); toggle.dataset.focusKey = 'ocean-open'; toggle.setAttribute('aria-expanded', 'false');
+    var status = node('p', 'ipg-ocean-status'); status.setAttribute('role', 'status'); status.setAttribute('aria-live', 'polite');
+    var hint = text('浜から海へ。海面や海底をタップして泳ぎ、ドラッグで見渡せます。矢印キー・WASDでも泳げます。', 'ipg-small');
+    var shore = button('浜へ歩く', function () {
+      if (!usable() || inWater()) return; localError = '';
+      if (!townController || !townController.walkTo(api.entryPoint(habitat))) localError = '浜までの道がふさがっています。村の配置を確認してください。';
+      refresh();
+    }, true); shore.dataset.focusKey = 'ocean-shore';
+    var enter = button('海に入る', function () {
+      if (!usable() || inWater() || activeFishing()) return;
+      var p = dryPosition(); if (townController) townController.stop();
+      lifePanelOpen = false; fishingPanelOpen = false; resumeManualWorldControl(null);
+      localError = controller.enter(p) ? '' : '浜の入り口まで歩いて近づこう。'; refresh(); focusSea();
+    }, true); enter.dataset.focusKey = 'ocean-enter';
+    var dive = button('潜る', function () { if (usable() && controller) { controller.dive(); opened = false; refresh(); focusSea(); } }, true); dive.dataset.focusKey = 'ocean-dive';
+    var surface = button('浮上する', function () { if (usable() && controller) { controller.surface(); refresh(); focusSea(); } }, true); surface.dataset.focusKey = 'ocean-surface';
+    var leave = button('岸へ戻る', function () { if (usable() && controller) { localError = controller.exit() ? '' : '今は岸へ戻れません。表示を整えてから、もう一度選べます。'; refresh(); focusSea(); } }, true); leave.dataset.focusKey = 'ocean-return';
+    var observe = button('みつけた記録を保存', saveDiscovery); observe.dataset.focusKey = 'ocean-observe';
+    var actions = append(node('div', 'ipg-ocean-buttons'), shore, enter, dive, surface, leave, observe);
+    var directions = node('div', 'ipg-ocean-sites'); directions.setAttribute('role', 'group'); directions.setAttribute('aria-label', '海中の観察場所');
+    habitat.creatures.forEach(function (creature) {
+      var go = button(creature.name + 'を探す', function () {
+        if (!usable() || !inWater()) return;
+        var current = snap().position, gap = Math.hypot(creature.position.x - current.x, creature.position.y - current.y);
+        var approach = gap > 55 ? { x: creature.position.x + (current.x - creature.position.x) / gap * 55, y: creature.position.y + (current.y - creature.position.y) / gap * 55 } : current;
+        controller.goTo(api.isWater(habitat, approach) ? approach : creature.position);
+        opened = false; localError = ''; refresh(); focusSea();
+      }, true); go.dataset.focusKey = 'ocean-find-' + creature.id; directions.appendChild(go);
+    });
+    var collection = node('p', 'ipg-ocean-collection'), error = node('p', 'ipg-error'); error.setAttribute('role', 'alert');
+    var close = button('閉じる', function () { opened = false; if (controller) controller.stop(); refresh(); focusSea(); }, true); close.dataset.focusKey = 'ocean-close';
+    append(panel, status, hint, actions, directions, collection, error, close); append(wrap, toggle, panel); village.appendChild(wrap);
+    function alive() { return !dead && viewport.isConnected && store === owner && host === target && lifecycleEpoch === epoch && !suspended && tab === 'village'; }
+    function usable() { return alive() && !busy && !state().readOnly && canUse(); }
+    function snap() { return controller ? controller.snapshot() : { mode: 'dry', phase: 'dry', position: null, depth: 0, discovery: null }; }
+    function inWater() { var v = snap(); return v.mode !== 'dry' || v.phase === 'entering' || v.phase === 'exiting'; }
+    function dryPosition() { return townController ? townController.position() : townPosition || world.spawn; }
+    function activeFishing() { var v = core().getRiverFishingView(state(), (options && options.now || Date.now)(), dryPosition()); return !!v.active; }
+    function focusSea() { try { viewport.focus({ preventScroll: true }); } catch (_) {} }
+    function disable(el, value) { el.disabled = !!value; if (value) el.dataset.ipgDisabled = '1'; else delete el.dataset.ipgDisabled; }
+    function label(el, value) { if (el.textContent !== value) el.textContent = value; }
+    function refresh() {
+      if (!alive()) return;
+      var v = snap(), water = inWater(), ready = usable(), record = core().getOceanDiscoveryView(state());
+      wrap.dataset.mode = v.mode; wrap.dataset.phase = v.phase;
+      viewport.dataset.oceanMode = v.mode; viewport.dataset.oceanPhase = v.phase;
+      if (v.position) viewport.dataset.oceanPosition = JSON.stringify({ x: v.position.x, y: v.position.y, depth: v.depth });
+      panel.hidden = !opened; toggle.setAttribute('aria-expanded', String(!panel.hidden));
+      label(toggle, '海あそび · ' + record.total + '/' + record.available);
+      disable(toggle, busy);
+      shore.hidden = water; enter.hidden = water; dive.hidden = !water || v.mode === 'underwater' && v.depth >= 1.149; surface.hidden = !water || v.mode !== 'underwater' && v.depth <= .001; leave.hidden = !water; observe.hidden = !water;
+      var p = dryPosition(), entry = api.entryPoint(habitat), near = Math.hypot(p.x - entry.x, p.y - entry.y) <= habitat.entry.reach;
+      disable(shore, !ready); disable(enter, !ready || !near || activeFishing());
+      var transition = v.phase === 'entering' || v.phase === 'exiting';
+      disable(dive, !ready || transition); disable(surface, !ready || transition); disable(leave, !ready || transition && !v.transitionPaused);
+      var discovered = record.entries.map(function (e) { return e.id || e.creatureId; });
+      var found = v.discovery, already = found && discovered.indexOf(found.id) >= 0;
+      disable(observe, !ready || pending || !found || v.mode !== 'underwater' || v.depth < .8 || already);
+      label(observe, pending ? '保存しています…' : already ? found.name + 'は記録済み' : found ? found.name + 'を記録する' : 'みつけた記録を保存');
+      directions.hidden = !water; directions.querySelectorAll('button').forEach(function (b) { disable(b, !ready || transition); });
+      var message = !ready ? state().readOnly ? '保存内容を確認できないため、今は海に入れません。' : '村の表示を準備しています。' :
+        v.phase === 'entering' ? '浜から海へ入っています。' : v.phase === 'exiting' ? '乾いた浜へ戻っています。' :
+        v.mode === 'underwater' ? found ? found.name + 'が見つかりました。近くで観察して記録できます。' : '海の中を泳いで、魚や海藻、貝を探そう。' :
+        water ? '海面を泳いでいます。「潜る」で海中へ。「岸へ戻る」で浜へ戻れます。' :
+        activeFishing() ? '川釣りを終えてから、海へ遊びに行こう。' : near ? 'ここが海への入り口。「海に入る」で泳げます。' : '「浜へ歩く」で入り口へ向かえます。';
+      label(status, message); error.hidden = !localError; label(error, localError);
+      if (state().revision !== lastRevision) { lastRevision = state().revision; label(collection, 'みつけた海の生き物：' + (record.entries.length ? record.entries.map(function (e) { return e.name; }).join('、') : 'まだありません')); }
+    }
+    async function saveDiscovery() {
+      if (!usable() || pending) return;
+      var v = snap(); if (v.mode !== 'underwater' || v.depth < .8 || !v.discovery) return;
+      controller.stop(); pending = true; localError = ''; var attempt = {}; oceanSaveAttempt = attempt; setBusy(true); refresh();
+      var result;
+      try { result = await owner.dispatch({ type: 'recordOceanDiscovery', expectedRevision: state().revision, creatureId: v.discovery.id, position: { x: v.position.x, y: v.position.y }, mode: v.mode, depth: v.depth }); }
+      catch (_) { result = { ok: false }; }
+      if (oceanSaveAttempt !== attempt || !alive()) return;
+      oceanSaveAttempt = null; pending = false; setBusy(false);
+      if (inWater()) hooks.setWater(snap());
+      localError = result && result.ok ? '' : result && result.error && result.error.code === 'ocean_already_discovered' ? 'この生き物は記録済みです。' : '記録を保存できませんでした。前の記録はそのままです。';
+      lastRevision = -1; refresh(); focusSea();
+    }
+    controller = api.mount({ viewport: viewport, world: world, Town: Town, habitat: habitat,
+      canRun: usable,
+      resolveTap: function (event) { return townVisual && townVisual.resolveWaterTap ? townVisual.resolveWaterTap(event) : null; },
+      projectDirection: function (x, y) { return townVisual ? townVisual.direction(x, y) : { x: x, y: y }; },
+      onChange: function (v) { if (!alive()) return; hooks.setWater(v.mode !== 'dry' || v.phase === 'entering' || v.phase === 'exiting' ? v : null); refresh(); },
+      onExit: function (p) { if (!alive()) return; hooks.returnDry(p); localError = ''; refresh(); }
+    });
+    ['pointerdown', 'pointermove', 'pointerup', 'keydown'].forEach(function (name) { wrap.addEventListener(name, function (e) { if (e.stopPropagation) e.stopPropagation(); }); });
+    function reset() { if (!controller) return; if (typeof controller.reset === 'function') controller.reset(); else controller.stop(); hooks.setWater(null); }
+    oceanCleanup = function () { dead = true; if (controller) controller.destroy(); };
+    refresh();
+    return { active: inWater, refresh: refresh, reset: reset };
+  }
   function renderTown(s, body, messages) {
     var village = card('', 'ipg-village ipg-town'), engine = w.PetTownWalk;
     village.appendChild(node('h3', '', 'カフェとお店の村'));
@@ -2107,10 +2213,11 @@
     drawVillageRoads(scene, layout);
     var images = { home: 'pet-items-v1/house.webp', cafe: 'pet-village-art/cafe.webp', shop: 'pet-village-art/shop.webp', playground: 'pet-items-v1/fountain.webp', tree: 'pet-village-art/tree-v2.webp', flowers: 'pet-village-art/flowerbed-v2.webp' };
     var mountedStore = store, epoch = lifecycleEpoch;
-    function active() { return village.isConnected && store === mountedStore && epoch === lifecycleEpoch && tab === 'village' && motionsVisible() && !busy && !villageEdit && !roomEdit; }
-    var sceneState = 'loading', walkingMounted = false, loadTimer = null, flatTreePlace = null;
+    function sameTown() { return village.isConnected && store === mountedStore && epoch === lifecycleEpoch && tab === 'village' && !suspended; }
+    function active() { return sameTown() && motionsVisible() && !busy && !villageEdit && !roomEdit; }
+    var sceneState = 'loading', walkingMounted = false, loadTimer = null, flatTreePlace = null, snorkeling = null;
     // Initial layout draw is needed by the walking engine; later input waits.
-    function canWalk() { return active() && (!walkingMounted || sceneState !== 'loading' && !lifePanelOpen && !currentWorldReaction()); }
+    function canWalk() { return active() && !(snorkeling && snorkeling.active()) && (!walkingMounted || sceneState !== 'loading' && !lifePanelOpen && !currentWorldReaction()); }
     world.places.forEach(function (p) {
       var place = button('', function () { if (canWalk() && townController) townController.approach(p.id); }, true);
       place.className = 'ipg-town-place'; place.dataset.place = p.id; place.dataset.focusKey = 'village-place-' + p.id;
@@ -2150,8 +2257,8 @@
     var loadingView = node('div', 'ipg-town-loading'); loadingView.setAttribute('role', 'status'); loadingView.setAttribute('aria-live', 'polite');
     append(loadingView, node('span', 'ipg-town-loading-mark'), text('村を準備しています…'));
     viewport.appendChild(loadingView);
-    var life = renderVillageLife(s, viewport, function () { return active() && sceneState !== 'loading'; });
-    var fishing = renderRiverFishing(s, viewport, world, function () { return active() && sceneState === 'ready'; });
+    var life = renderVillageLife(s, viewport, function () { return active() && sceneState !== 'loading' && !(snorkeling && snorkeling.active()); });
+    var fishing = renderRiverFishing(s, viewport, world, function () { return active() && sceneState === 'ready' && !(snorkeling && snorkeling.active()); });
     village.appendChild(viewport);
     var guide = text('ドアへ進むと中に入れるよ', 'ipg-town-guide'); village.appendChild(guide);
     guide.hidden = true;
@@ -2172,6 +2279,23 @@
     var actions = node('div', 'ipg-town-actions');
     (messages || []).forEach(function (message) { actions.appendChild(message); });
     append(actions, edit, enter, retry); village.appendChild(actions);
+    snorkeling = renderOceanSnorkeling(village, viewport, world, function () { return active() && sceneState === 'ready' && !lifePanelOpen && !currentWorldReaction(); }, {
+      setWater: function (snapshot) {
+        if (snapshot && townController) townController.stop();
+        guide.textContent = snapshot ? '海面や海底をタップして泳ぐ・ドラッグで見渡す' : 'ドアへ進むと中に入る・ドラッグで見渡す';
+        viewport.setAttribute('aria-label', snapshot ? '海あそび。海面や海底をタップ、または矢印キーやWASDで泳ぎます。ドラッグで見渡せます。海あそびボタンから潜る・浮上・岸へ戻る操作ができます。' : '街をおさんぽ。地面やドアをタップして歩き、ドア正面へ押し進むと入れます。ドラッグで見渡せます。矢印キーやWASDでも歩けます。');
+        if (townVisual && typeof townVisual.setSnorkeling === 'function') townVisual.setSnorkeling(snapshot);
+        if (request && request.controller && typeof request.controller.setSituation === 'function') request.controller.setSituation('idle', { durationMs: 0 });
+        fishing.refresh();
+        edit.disabled = !!snapshot || state().readOnly; if (edit.disabled) edit.dataset.ipgDisabled = '1'; else delete edit.dataset.ipgDisabled;
+      },
+      returnDry: function (p) {
+        if (townVisual && typeof townVisual.setSnorkeling === 'function') townVisual.setSnorkeling(null);
+        if (townController && townController.setPosition(p)) townPosition = { x: p.x, y: p.y };
+        if (townVisual) townVisual.setPosition(p);
+        fishing.refresh();
+      }
+    });
     body.appendChild(village);
     var visualStarting = false, visualAttempted = false;
     function clearLoadingWait() { if (loadTimer != null) w.clearTimeout(loadTimer); loadTimer = null; }
@@ -2192,13 +2316,14 @@
       if (mode === 'fallback') { scene.removeAttribute('aria-hidden'); scene.removeAttribute('inert'); }
       else { scene.setAttribute('aria-hidden', 'true'); scene.setAttribute('inert', ''); }
       if (!s.readOnly) { delete edit.dataset.ipgDisabled; edit.disabled = false; }
-      life.setReady(); fishing.refresh();
+      life.setReady(); fishing.refresh(); if (snorkeling) snorkeling.refresh();
       if (townController && typeof townController.refresh === 'function') townController.refresh();
     }
     function fallback() {
-      if (!active() || sceneState === 'fallback') return;
+      if (!sameTown() || sceneState === 'fallback') return;
       visualStarting = false; visualAttempted = true;
       if (request) { request.frameConsumer = null; request.frameFailure = null; }
+      if (snorkeling) snorkeling.reset();
       var failedVisual = townVisual; townVisual = null;
       if (failedVisual) failedVisual.destroy();
       if (townController) townController.stop();
@@ -2219,7 +2344,7 @@
           onCamera: function (camera) { if (active()) townCamera = { yaw: camera.yaw, pitch: camera.pitch, distance: camera.distance }; },
           onReady: function () { if (active() && sceneState === 'loading' && townController === controllerAtStart) { reveal('ready'); guide.textContent = 'ドアへ進むと中に入る・ドラッグで見渡す'; viewport.setAttribute('aria-label', '街をおさんぽ。地面やドアをタップして歩き、ドア正面へ押し進むと入れます。ドラッグで見渡せます。矢印キーやWASDでも歩けます。'); } },
           onFailure: function () {
-            if (!active() || townController !== controllerAtStart) return;
+            if (!sameTown() || townController !== controllerAtStart) return;
             fallback();
           }
         });
@@ -2232,7 +2357,7 @@
         if (request) {
           request.frameConsumer = function (canvas) { if (active() && sceneState !== 'fallback' && townVisual === mounted) mounted.setFrame(canvas); };
           request.frameFailure = function () {
-            if (!active() || townVisual !== mounted) return;
+            if (!sameTown() || townVisual !== mounted) return;
             fallback();
           };
           if (request.failed) { fallback(); return; }
@@ -2264,7 +2389,7 @@
         },
         projectDirection: function (x, y) { return townVisual && viewport.dataset.visualMode === 'three' ? townVisual.direction(x, y) : { x: x, y: y }; },
         onDraw: function (point) { if (active() && townVisual) townVisual.setPosition(point); },
-        onPosition: function (point) { if (active()) { townPosition = { x: point.x, y: point.y }; fishing.moved(); } },
+        onPosition: function (point) { if (active()) { townPosition = { x: point.x, y: point.y }; fishing.moved(); if (snorkeling) snorkeling.refresh(); } },
         onEnter: function (id) { if (active()) villageDestination(id); },
         onMotion: function (motion) {
           if (!active()) return;
@@ -2941,7 +3066,7 @@
     if (host === target && store) { render(); return true; }
     if (mounting) return mounting;
     discardRoomEdit(); discardVillageEdit(); discardShopEdit(); lifecycleEpoch++;
-    host = target; townPosition = null; townCamera = null; shopMemory = {}; homeMemory = {}; lifePanelOpen = false; runAttempt = null; busy = false; nameDraft = null; shopRoomId = 'shop'; villageListingDraft = null; villageTradeDrafts = {}; options = opts || options || {};
+    host = target; townPosition = null; townCamera = null; shopMemory = {}; homeMemory = {}; lifePanelOpen = false; runAttempt = null; oceanSaveAttempt = null; busy = false; nameDraft = null; shopRoomId = 'shop'; villageListingDraft = null; villageTradeDrafts = {}; options = opts || options || {};
     tab = developerPreview() ? 'care' : 'village';
     loading('ゲームの記録を読み込んでいます…');
     mounting = (async function () {
@@ -2971,7 +3096,7 @@
   }
   function suspend() {
     suspended = true; lifecycleEpoch++; discardRoomEdit(); discardVillageEdit(); discardShopEdit();
-    runAttempt = null; setBusy(false);
+    runAttempt = null; oceanSaveAttempt = null; setBusy(false);
     stopMotions(); reaction = null; greeted = false; appearancePreview = false; bodyDrawerOpen.pet = bodyDrawerOpen.preview = bodyDrawerOpen.growth = false; directionDrawerOpen.pet = directionDrawerOpen.preview = directionDrawerOpen.growth = false; growthAlbumOpen = false; growthPreviewStage = null; growthPreviewPath = null; growthEmotionOpen = false; fittingOpen = false; fittingOutfit = null;
   }
   d.addEventListener('visibilitychange', function () {

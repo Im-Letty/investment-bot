@@ -109,7 +109,7 @@ async function fixture(config = {}) {
   const townAssets = [];
   if (config.townModuleDeferred) document.head = { appendChild(asset) { townAssets.push(asset); return asset; } };
   const raf = new Map(), intervals = new Map(), timers = new Map(), mounts = [], actionCues = [], anchorCalls = [], hitTests = [];
-  const cozyMounts = [], cozyControl = { pending: null, reject: false }, economyScenes = [], townScenes = [], townSceneControl = {
+  const cozyMounts = [], cozyControl = { pending: null, reject: false }, economyScenes = [], townScenes = [], oceanMounts = [], townSceneControl = {
     pending: config.scenePending ? deferred() : null, acceptFrame: config.sceneAcceptFrame !== false, failBeforeReturn: !!config.sceneEarlyFailure, reject: !!config.sceneReject
   };
   const shopMounts = [], shopControl = { pending: null, reject: false, frameReady: true };
@@ -192,13 +192,20 @@ async function fixture(config = {}) {
   const townSceneAPI={async mount(options){
     const controller={options,destroyed:false,destroyCount:0,frames:[],positions:[],motions:[],destroy(){if(this.destroyed)return;this.destroyed=true;this.destroyCount++;options.viewport.dataset.visualMode='flat';},
       setFrame(canvas){if(this.destroyed||!options.canRun()||!townSceneControl.acceptFrame)return false;this.frames.push(canvas);options.viewport.dataset.visualMode='three';options.onReady();return true;},
-      setFishing(value){this.fishing=value;return true;},setPosition(p){this.positions.push({...p});},setMotion(m){this.motions.push({...m});},direction(x,y){return{x:-y,y:x};},resolveTap(){return this.hit||null;},
+      setSnorkeling(value){this.snorkeling=value;return true;},resolveWaterTap(){return this.waterHit||null;},setFishing(value){this.fishing=value;return true;},setPosition(p){this.positions.push({...p});},setMotion(m){this.motions.push({...m});},direction(x,y){return{x:-y,y:x};},resolveTap(){return this.hit||null;},
       fail(){this.destroy();options.onFailure('synthetic_context_lost');}};
     townScenes.push(controller);if(townSceneControl.failBeforeReturn)controller.fail();if(townSceneControl.pending)await townSceneControl.pending.promise;
     if(townSceneControl.reject){controller.destroy();throw Error('private scene renderer failure');}return controller;
   }};
   if(config.townScene)window.PetTownScene=townSceneAPI;
   window.PetRiverFishing=Fishing;
+  if (config.ocean) {
+    window.PetOceanDiscoveries = require('../static/pet-ocean-discoveries.js');
+    const oceanAPI = require('../static/pet-ocean-snorkeling.js');
+    window.PetOceanSnorkeling = { ...oceanAPI, mount(options) {
+      const controller = oceanAPI.mount(options); oceanMounts.push({ controller, options }); return controller;
+    } };
+  }
   if (config.villageScene === 'actual') window.PetVillageEconomyScene = EconomyScene;
   else if (config.villageScene) window.PetVillageEconomyScene = {
     mount(options) {
@@ -233,7 +240,7 @@ async function fixture(config = {}) {
     assert.ok(room, 'existing room scenarios can enter the room from the village');
     room.emit('click'); await flush();
   }
-  return { ui, host, pane, document, window, data, storage, writes, control, renderer, rendererControl, mounts, actionCues, anchorCalls, hitTests, raf, timers, intervals, beforeMountRaw, writesBeforeMount, cozyMounts, cozyControl, economyScenes, townScenes, townSceneControl, townSceneAPI, townAssets, shopMounts, shopControl, shopInteriorAPI, homeMounts, homeControl, homeInteriorAPI,
+  return { ui, host, pane, document, window, data, storage, writes, control, renderer, rendererControl, mounts, actionCues, anchorCalls, hitTests, raf, timers, intervals, beforeMountRaw, writesBeforeMount, cozyMounts, cozyControl, economyScenes, townScenes, oceanMounts, townSceneControl, townSceneAPI, townAssets, shopMounts, shopControl, shopInteriorAPI, homeMounts, homeControl, homeInteriorAPI,
     get store() { return store; },
     get now() { return clock; },
     saved() { return JSON.parse(data.get(Core.KEY)); },
@@ -4462,4 +4469,93 @@ test('native derived tree placement stays aligned in flat fallback without chang
   native.fail(); await flush(); townPresentationState(f,'fallback');
   assert.equal(paint.style.left,tree.x+'px'); assert.equal(paint.style.top,tree.y+'px');
   assert.deepEqual(f.saved(),saved); assert.equal(f.writes.length,writes); f.ui.close();
+});
+
+
+async function oceanObservationFixture() {
+  const f = await villageFixture({ rendererMode: 'ready', townScene: true, ocean: true });
+  const ocean = f.oceanMounts.at(-1); assert.ok(ocean, 'the real ocean controller is mounted');
+  async function until(predicate, message) {
+    for (let step = 0; step < 650 && !predicate(); step++) await f.frame(50);
+    assert.ok(predicate(), message);
+  }
+  await f.click(f.focusButton('ocean-open')); await f.click(f.focusButton('ocean-shore'));
+  await until(() => !f.focusButton('ocean-enter').disabled, 'the real dry walking route reaches the shore');
+  await f.click(f.focusButton('ocean-enter'));
+  await until(() => ocean.controller.snapshot().phase === 'surface', 'the explicit shore transition completes');
+  await f.click(f.focusButton('ocean-dive'));
+  await until(() => ocean.controller.snapshot().depth >= 1.149, 'the explicit dive reaches observation depth');
+  await f.click(f.focusButton('ocean-open')); await f.click(f.focusButton('ocean-find-shell'));
+  await until(() => ocean.controller.snapshot().discovery?.id === 'shell', 'manual search reaches the requested authored encounter');
+  assert.equal(ocean.controller.snapshot().discovery.id, 'shell');
+  assert.equal(f.focusButton('ocean-observe').disabled, false);
+  return { f, ocean };
+}
+
+test('an old ocean save response cannot clear another host and store busy state or focus its new screen', async () => {
+  const { f } = await oceanObservationFixture(), oldGate = deferred(), oldBefore = f.saved();
+  const nextRecord = copy(oldBefore); nextRecord.pet.name = '別の保存先のこ';
+  const values = new Map([[Core.KEY, JSON.stringify(nextRecord)]]), nextWrites = [], nextGate = deferred();
+  const storage = { getItem: key => values.get(key) ?? null, async setItem(key, value) { await nextGate.promise; values.set(key, value); nextWrites.push([key, value]); } };
+  // Prepare the second real store before holding a global navigator.locks
+  // write. The UI still receives real dispatch, CAS and awaited storage.
+  const nextStore = Core.create({ storage, now: () => f.now, random: () => .5 }); assert.equal((await nextStore.ready).ok, true);
+  f.control.pending = oldGate; await f.click(f.focusButton('ocean-observe'));
+  assert.equal(f.host.getAttribute('aria-busy'), 'true'); await f.ui.close();
+  f.window.PetGameCore.create = () => nextStore;
+  const target = f.document.createElement('div'); f.pane.appendChild(target);
+  assert.equal(await f.ui.mount(target, { storage, developerPreview: true, now: () => f.now, random: () => .5 }), true);
+  const rest = target.querySelector('[data-focus-key="care-rest"]'); assert.ok(rest);
+  rest.emit('click'); await flush(); assert.equal(target.getAttribute('aria-busy'), 'true'); assert.equal(rest.disabled, true);
+  const focused = f.document.activeElement;
+  oldGate.resolve(); f.control.pending = null; await flush();
+  assert.equal(target.getAttribute('aria-busy'), 'true', 'late ocean completion cannot unlock the new pending action');
+  assert.equal(rest.disabled, true); assert.equal(f.document.activeElement, focused); assert.equal(nextWrites.length, 0);
+  nextGate.resolve(); await flush(); assert.equal(target.getAttribute('aria-busy'), 'false'); assert.equal(nextWrites.length, 1);
+  const nextSaved = JSON.parse(values.get(Core.KEY)); assert.equal(nextSaved.pet.name, nextRecord.pet.name);
+  assert.equal(Object.hasOwn(nextSaved, 'oceanDiscoveries'), false); assert.equal(nextSaved.care.total.rest, nextRecord.care.total.rest + 1);
+  await f.ui.close();
+});
+
+test('a native scene failure during an ocean save falls back to validated dry ground and never resumes hidden swimming', async () => {
+  const { f, ocean } = await oceanObservationFixture(), before = f.saved(), gate = deferred();
+  const root = f.host.children[0], viewport = f.host.querySelector('.ipg-town-viewport'), scene = f.townScenes.at(-1);
+  f.control.pending = gate; await f.click(f.focusButton('ocean-observe')); assert.equal(f.host.getAttribute('aria-busy'), 'true');
+  scene.fail(); await flush();
+  assert.equal(viewport.dataset.sceneState, 'fallback'); assert.equal(viewport.dataset.visualMode, 'flat');
+  assert.equal(ocean.controller.snapshot().mode, 'dry'); assert.equal(ocean.controller.snapshot().depth, 0);
+  assert.equal(Town.isWalkable(ocean.options.world, ocean.controller.snapshot().position.x, ocean.controller.snapshot().position.y), true);
+  assert.equal(f.host.children[0], root, 'pending observation never remounts the game or source character');
+  assert.equal(f.focusButton('ocean-enter').disabled, true); assert.equal(f.host.getAttribute('aria-busy'), 'true');
+  gate.resolve(); f.control.pending = null; await flush();
+  assert.equal(f.host.children[0], root); assert.equal(viewport.dataset.sceneState, 'fallback'); assert.equal(ocean.controller.snapshot().mode, 'dry');
+  assert.equal(f.focusButton('ocean-enter').disabled, true); assert.equal(f.host.getAttribute('aria-busy'), 'false'); assert.equal(scene.destroyCount, 1);
+  const saved = f.saved(); assert.equal(saved.oceanDiscoveries.entries.length, 1);
+  const old = copy(before), actual = copy(saved); delete actual.oceanDiscoveries; actual.revision = old.revision; actual.updatedAt = old.updatedAt;
+  assert.deepEqual(actual, old, 'only the already requested discovery can be acknowledged after fallback');
+  await f.ui.close();
+});
+
+
+test('opening ocean controls during partial depth motion keeps a safe stop and exposes explicit dive and surface resume', async () => {
+  const f = await villageFixture({ rendererMode: 'ready', townScene: true, ocean: true }), ocean = f.oceanMounts.at(-1);
+  async function until(predicate, message) { for (let i = 0; i < 650 && !predicate(); i++) await f.frame(50); assert.ok(predicate(), message); }
+  await f.click(f.focusButton('ocean-open')); await f.click(f.focusButton('ocean-shore'));
+  await until(() => !f.focusButton('ocean-enter').disabled, 'manual shore route finishes'); await f.click(f.focusButton('ocean-enter'));
+  await until(() => ocean.controller.snapshot().phase === 'surface', 'explicit entry finishes');
+  await f.click(f.focusButton('ocean-dive')); await until(() => ocean.controller.snapshot().depth > 0, 'dive starts after its first animation timestamp');
+  const partialDive = ocean.controller.snapshot().depth; assert.ok(partialDive > 0 && partialDive < .8);
+  await f.click(f.focusButton('ocean-open')); for (let i = 0; i < 20; i++) await f.frame(50);
+  assert.equal(ocean.controller.snapshot().depth, partialDive, 'opening controls keeps the requested safe stop');
+  assert.equal(ocean.controller.snapshot().mode, 'underwater'); assert.equal(f.focusButton('ocean-dive').hidden, false); assert.equal(f.focusButton('ocean-dive').disabled, false);
+  await f.click(f.focusButton('ocean-dive')); await until(() => ocean.controller.snapshot().depth >= 1.149, 'a fresh dive command resumes to observation depth');
+  assert.equal(ocean.controller.snapshot().depth, 1.15);
+  await f.click(f.focusButton('ocean-open')); await f.click(f.focusButton('ocean-surface')); await until(() => ocean.controller.snapshot().depth < 1.15, 'surfacing starts after its first animation timestamp');
+  const partialSurface = ocean.controller.snapshot().depth; assert.ok(partialSurface > 0 && partialSurface < 1.15);
+  await f.click(f.focusButton('ocean-close')); await f.click(f.focusButton('ocean-open')); for (let i = 0; i < 20; i++) await f.frame(50);
+  assert.equal(ocean.controller.snapshot().depth, partialSurface); assert.equal(ocean.controller.snapshot().mode, 'surface');
+  assert.equal(f.focusButton('ocean-surface').hidden, false); assert.equal(f.focusButton('ocean-surface').disabled, false);
+  await f.click(f.focusButton('ocean-surface')); await until(() => ocean.controller.snapshot().depth === 0, 'a fresh surface command resumes to the waterline');
+  assert.equal(ocean.controller.snapshot().depth, 0); assert.equal(f.focusButton('ocean-surface').hidden, true);
+  await f.ui.close();
 });

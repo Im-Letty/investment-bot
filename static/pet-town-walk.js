@@ -469,6 +469,18 @@
     return {
       destroy: function () { if (dead) return; stop(); dead = true; if (observer) observer.disconnect(); removers.forEach(function (remove) { remove(); }); removers = []; },
       approach: approach,
+      // Explicit destination controls (including the shore) use the same dry
+      // route and collision rules as a floor tap.
+      walkTo: function (p) {
+        if (!active() || !point(p) || !isWalkable(world, p.x, p.y)) return false;
+        var path = route(world, position, p); if (!path) return false;
+        stop(); destination = path.shift(); waypoints = path; focusViewport(); schedule(); return true;
+      },
+      // A water controller may hand back only a validated dry location.
+      setPosition: function (p) {
+        if (dead || !point(p) || !isWalkable(world, p.x, p.y)) return false;
+        stop(); position = copy(p); draw(); callback('onPosition', copy(position)); return true;
+      },
       enterDoor: enterDoor,
       refresh: draw,
       stop: stop,

@@ -71,6 +71,8 @@ function loaderFixture(options = {}) {
     PetShopLayout: options.layoutMissing ? undefined : {},
     PetTownWalk: options.townMissing ? undefined : {},
     PetRiverFishing: options.fishingMissing ? undefined : {},
+    PetOceanDiscoveries: options.oceanMissing ? undefined : {},
+    PetOceanSnorkeling: options.oceanMissing ? undefined : {},
     PetVillageEconomyScene: options.sceneMissing ? undefined : {mount(){}},
     PetCozyRoom: options.cozyMissing ? undefined : {mount(){}},
     __knGateReady: options.gate ?? Promise.resolve(true),
@@ -98,6 +100,8 @@ function loaderFixture(options = {}) {
     townLoaded() { window.PetTownWalk = {}; this.asset('pet-town-walk').onload(); },
     sceneLoaded() { window.PetVillageEconomyScene = {mount(){}}; this.asset('pet-village-economy-scene').onload(); },
     fishingLoaded() { window.PetRiverFishing = {}; this.asset('pet-river-fishing').onload(); },
+    discoveriesLoaded() { window.PetOceanDiscoveries = {}; this.asset('pet-ocean-discoveries').onload(); },
+    snorkelingLoaded() { window.PetOceanSnorkeling = {}; this.asset('pet-ocean-snorkeling').onload(); },
     coreLoaded() { window.PetGameCore = {}; this.asset('pet-game-core').onload(); },
     motionLoaded() { window.PetLilacMotion = {}; this.asset('pet-lilac-motion').onload(); },
     roomLoaded() { window.PetRoomBehavior = {}; this.asset('pet-room-behavior').onload(); },
@@ -652,11 +656,11 @@ test('main game does not load a removed minigame runtime and updates only change
   for(const asset of ['pet-village-economy.js','pet-village-economy-scene.js','pet-village-economy-scene.css'])assert.ok(html.includes('/static/'+asset+'?v=20261024-village-economy1'),asset);
   assert.ok(html.includes('/static/pet-game.css?v=20261028-market-art1'),'market artwork layout pin');
   for(const asset of ['pet-shop-layout.js','pet-shop-entry.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-shop1'),asset);
-  assert.ok(html.includes('/static/pet-town-walk.js?v=20261028-fountain-reference1'),'shared physical shape walk pin');
-  assert.ok(html.includes('/static/pet-town-walk.css?v=20261027-mobile-framing1'),'unchanged viewport clipping CSS pin');
+  assert.ok(html.includes('/static/pet-town-walk.js?v=20261029-snorkeling1'),'shared physical shape walk pin');
+  assert.ok(html.includes('/static/pet-town-walk.css?v=20261029-snorkeling1'),'unchanged viewport clipping CSS pin');
   for(const asset of ['pet-cozy-room.js','pet-home-interior.css'])assert.ok(html.includes('/static/'+asset+'?v=20261025-life1'),asset+' village-life pin');
-  assert.ok(html.includes('/static/pet-game-core.js?v=20261025-fishing1'));assert.ok(html.includes('/static/pet-village-life.css?v=20261027-mobile-framing1'));
-  assert.ok(html.includes('/static/pet-game.js?v=20261028-flower-garden4'),'integrated manual-control UI retains fit1 renderer contract');
+  assert.ok(html.includes('/static/pet-game-core.js?v=20261029-snorkeling1'));assert.ok(html.includes('/static/pet-village-life.css?v=20261027-mobile-framing1'));
+  assert.ok(html.includes('/static/pet-game.js?v=20261029-snorkeling1'),'integrated manual-control UI retains fit1 renderer contract');
   assert.equal(loader.includes('/static/pet-frame-fit.js?'),false,'visual-only frame contract stays out of game boot');
   assert.ok(html.includes('/static/pet-lilac-motion.js?v=20261028-gentle-walk1'),'gentle walking face renderer pin is current');
   assert.ok(html.includes('/static/pet-cozy-room.css?v=20261024-cozy-room1'),'unchanged room asset pin is preserved');
@@ -673,27 +677,38 @@ test('fishing is a required lightweight dependency after walking and before core
 test('resize repair refreshes only the three borrowed-frame consumer cache revisions, leaving source art/rig/core pins untouched',()=>{
  const game=fs.readFileSync(path.join(root,'static/pet-game.js'),'utf8');
  for(const name of ['pet-home-interior.js','pet-shop-interior.js'])assert.ok(game.includes('/static/'+name+'?v=20261025-resize1'),name);
- assert.ok(game.includes('/static/pet-town-scene.js?v=20261028-flower-garden4'));
- assert.ok(html.includes('/static/pet-game-core.js?v=20261025-fishing1'));assert.ok(html.includes('/static/pet-lilac-motion.js?v=20261028-gentle-walk1'));
+ assert.ok(game.includes('/static/pet-town-scene.js?v=20261029-snorkeling1'));
+ assert.ok(html.includes('/static/pet-game-core.js?v=20261029-snorkeling1'));assert.ok(html.includes('/static/pet-lilac-motion.js?v=20261028-gentle-walk1'));
  assert.equal(loader.includes('/static/pet-frame-fit.js?'),false);
 });
 
 test('Japanese season resolver loads with Town only and refreshes the game entry without changing saved-core or interior pins',()=>{
  const game=fs.readFileSync(path.join(root,'static/pet-game.js'),'utf8'),town=fs.readFileSync(path.join(root,'static/pet-town-scene.js'),'utf8');
- assert.ok(loader.includes('/static/pet-game.js?v=20261028-flower-garden4'));
+ assert.ok(loader.includes('/static/pet-game.js?v=20261029-snorkeling1'));
  assert.equal(loader.includes('pet-japan-seasons.js'),false,'the calendar does not add an eager startup resource');
  assert.ok(town.includes("import('/static/pet-japan-seasons.js?v=20261026-shop-cottage-match2')"));
  assert.ok(town.includes("loadFrameFit(), loadSeasons()"));
- assert.ok(game.includes('/static/pet-town-scene.js?v=20261028-flower-garden4'));
+ assert.ok(game.includes('/static/pet-town-scene.js?v=20261029-snorkeling1'));
  for(const name of ['pet-home-interior.js','pet-shop-interior.js'])assert.ok(game.includes('/static/'+name+'?v=20261025-resize1'));
- assert.ok(loader.includes('/static/pet-game-core.js?v=20261025-fishing1'));
+ assert.ok(loader.includes('/static/pet-game-core.js?v=20261029-snorkeling1'));
 });
 
 test('bounded village detailing is lazy with Town while the deployed calendar, frame contract and indoors retain their revisions',()=>{
  const game=fs.readFileSync(path.join(root,'static/pet-game.js'),'utf8'),town=fs.readFileSync(path.join(root,'static/pet-town-scene.js'),'utf8');
- assert.ok(loader.includes('/static/pet-game.js?v=20261028-flower-garden4'));assert.equal(loader.includes('pet-town-style.js'),false);
- assert.ok(game.includes('/static/pet-town-scene.js?v=20261028-flower-garden4'));assert.ok(town.includes("import('/static/pet-town-style.js?v=20261027-layout-art3d1')"));
+ assert.ok(loader.includes('/static/pet-game.js?v=20261029-snorkeling1'));assert.equal(loader.includes('pet-town-style.js'),false);
+ assert.ok(game.includes('/static/pet-town-scene.js?v=20261029-snorkeling1'));assert.ok(town.includes("import('/static/pet-town-style.js?v=20261027-layout-art3d1')"));
  assert.ok(town.includes("loadSeasons(), loadStyle()"));assert.ok(town.includes("/static/pet-japan-seasons.js?v=20261026-shop-cottage-match2"));
  assert.ok(town.includes("/static/pet-frame-fit.js?v=20261025-fit1"));
  for(const name of ['pet-home-interior.js','pet-shop-interior.js'])assert.ok(game.includes('/static/'+name+'?v=20261025-resize1'));
+});
+
+test('ocean discovery and movement load in order before the core without duplicate concurrent loads', async () => {
+ const f=loaderFixture({oceanMissing:true}),a=f.window.openPetTab(),b=f.window.openPetTab();
+ assert.equal(a,b);assert.ok(f.asset('pet-ocean-discoveries'));
+ assert.equal(f.asset('pet-ocean-snorkeling'),undefined);assert.equal(f.asset('pet-game-core'),undefined);
+ f.uiLoaded();f.discoveriesLoaded();await flush();
+ assert.ok(f.asset('pet-ocean-snorkeling'));assert.equal(f.asset('pet-game-core'),undefined);
+ f.snorkelingLoaded();await flush();assert.ok(f.asset('pet-game-core'));f.coreLoaded();
+ assert.equal(await a,true);assert.equal(f.mounts,1);
+ for(const id of ['pet-ocean-discoveries','pet-ocean-snorkeling','pet-game-core'])assert.equal(f.scripts.filter(x=>x.src.includes('/'+id+'.js?')).length,1);
 });

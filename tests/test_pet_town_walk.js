@@ -437,3 +437,18 @@ test('resize and explicit refresh normalize viewport scroll during input gates a
   assert.equal(f.viewport.scrollTop, 213); assert.equal(f.viewport.scrollLeft, 24);
   for (const target of [f.win, f.doc, f.viewport, f.enter, ...f.buttons]) assert.equal(target.count(), 0);
 });
+
+test('explicit shore walking routes through dry ground and never acquires an entry intent', () => {
+ const Ocean=require('../static/pet-ocean-snorkeling.js'), f=fixture({doorEntry:true}),habitat=Ocean.createHabitat(f.world,Town),before=f.controller.position();
+ assert.equal(f.controller.walkTo(habitat.entry.water),false);assert.deepEqual(f.controller.position(),before);
+ assert.equal(f.controller.walkTo(habitat.entry.dry),true);f.settle();
+ for(const p of f.positions)assert.equal(Town.isWalkable(f.world,p.x,p.y),true);
+ near(f.controller.position().x,habitat.entry.dry.x);near(f.controller.position().y,habitat.entry.dry.y);assert.deepEqual(f.entries,[]);f.controller.destroy();
+});
+test('dry handoff rejects water, stops old input and stays inert after destruction', () => {
+ const Ocean=require('../static/pet-ocean-snorkeling.js'),f=fixture(),h=Ocean.createHabitat(f.world,Town),start=f.controller.position();
+ assert.equal(f.controller.setPosition(h.entry.water),false);assert.deepEqual(f.controller.position(),start);
+ f.key('ArrowRight');f.advance(3);assert.equal(f.controller.setPosition(h.entry.dry),true);assert.equal(f.raf.size,0);f.advance(5);
+ assert.deepEqual(f.controller.position(),h.entry.dry);assert.deepEqual(f.positions.at(-1),h.entry.dry);
+ f.controller.destroy();assert.equal(f.controller.setPosition(start),false);assert.deepEqual(f.controller.position(),h.entry.dry);
+});
