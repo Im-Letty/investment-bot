@@ -13,6 +13,8 @@ import WaterLife from '../static/pet-town-water-life.js';
 import OceanLife from '../static/pet-town-ocean-life.js';
 import ShoreTransition from '../static/pet-town-shore-transition.js';
 import TreeVariety from '../static/pet-town-tree-variety.js';
+import MeadowSites from '../static/pet-town-meadow-sites.js';
+import MeadowFlowers from '../static/pet-town-meadow-flowers.js';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 
@@ -112,8 +114,8 @@ test('browser registration can precede the visual-only helper and mount adopts t
  assert.equal(context.PetTownScene.alphaAnchor({tagName:'CANVAS',width:16,height:16,getContext:()=>null}),null);
  const painted={tagName:'CANVAS',width:16,height:16,getContext:()=>({RGBA:1,UNSIGNED_BYTE:2,readPixels(x,y,w,h,a,b,p){p[(2*w+8)*4+3]=255;}})};
  assert.equal(context.PetTownScene.alphaAnchor(painted),.125,'the existing public diagnostics work synchronously before any mount or helper import');
- context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;context.PetTownStyle=TownStyle;context.PetTownLayoutArt=LayoutArt;context.PetTownPlacementOriginals=Originals;context.PetTownWaterLife=WaterLife;context.PetTownOceanLife=OceanLife;context.PetTownShoreTransition=ShoreTransition;context.PetTownTreeVariety=TreeVariety;
- const f=await fixture({sceneAPI:context.PetTownScene});try{assert.ok(f.controller);assert.equal(f.controller.setFrame(f.source,{anchor:.3}),true);const scene=f.renderers[0].calls.at(-1).scene;assert.equal(scene.getObjectByName('current-pet-2d-frame').center.y,.3);assert.equal(f.host.dataset.townLayoutArt,LayoutArt.revision);assert.equal(scene.userData.layoutArtRevision,LayoutArt.revision);assert.ok(scene.getObjectByName('layout-art-native-landscape'));assert.equal(scene.getObjectByName('bridge-deck').userData.layoutBoardCount,11);assert.deepEqual(f.failures,[]);}finally{f.controller?.destroy();}
+ context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;context.PetTownStyle=TownStyle;context.PetTownLayoutArt=LayoutArt;context.PetTownPlacementOriginals=Originals;context.PetTownWaterLife=WaterLife;context.PetTownOceanLife=OceanLife;context.PetTownShoreTransition=ShoreTransition;context.PetTownTreeVariety=TreeVariety;context.PetTownMeadowSites=MeadowSites;context.PetTownMeadowFlowers=MeadowFlowers;
+ const f=await fixture({sceneAPI:context.PetTownScene});try{assert.ok(f.controller);assert.equal(f.controller.setFrame(f.source,{anchor:.3}),true);const scene=f.renderers[0].calls.at(-1).scene;assert.equal(scene.getObjectByName('current-pet-2d-frame').center.y,.3);assert.equal(f.host.dataset.townLayoutArt,LayoutArt.revision);assert.equal(f.host.dataset.townMeadowFlowers,'meadow-flowers2');assert.equal(scene.userData.meadowFlowersRevision,'meadow-flowers2');assert.equal(scene.userData.layoutArtRevision,LayoutArt.revision);assert.ok(scene.getObjectByName('layout-art-native-landscape'));assert.equal(scene.getObjectByName('bridge-deck').userData.layoutBoardCount,11);assert.deepEqual(f.failures,[]);}finally{f.controller?.destroy();assert.equal(f.host.dataset.townMeadowFlowers,undefined);}
 });
 
 test('actual geometry uses the six saved facilities and funding/open economy sites, without a terrain painting',()=>{

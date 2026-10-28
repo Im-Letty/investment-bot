@@ -23,14 +23,16 @@ function closed(g) {
   for(const key of ['position','normal','uv'])for(const n of g.attributes[key].array)assert.ok(Number.isFinite(n));
   const n=g.attributes.normal;for(let i=0;i<n.count;i++)assert.ok(Math.abs(Math.hypot(n.getX(i),n.getY(i),n.getZ(i))-1)<1e-5);
 }
-function legacyPointedScene() {
-  // The previous explicit recipe remains in the same renderer. Omitting only
-  // the additive rounded shape selects it, without storing a duplicate fixture.
-  const oldStyle={...Style};delete oldStyle.roundedLeafGeometry;
+function legacyNativeScene(pointed=false) {
+  // These historical native recipes remain available to isolated synchronous
+  // previews. The normal game now uses original tree/bed art plus meadow v2;
+  // those paths have their own current integration and original-art tests.
+  const oldStyle={...Style};if(pointed)delete oldStyle.roundedLeafGeometry;
   const c={PetTownWalk:Town,PetFrameFit:Fit,PetRiverFishing:Fishing,PetJapanSeasons:Seasons,PetTownStyle:oldStyle};c.window=c;
   vm.runInNewContext(readFileSync(new URL('../static/pet-town-scene.js',import.meta.url),'utf8'),c);
   return c.PetTownScene;
 }
+const nativeFallback=legacyNativeScene();
 function treeGroups(model) {const rows=[];model.scene.traverse(o=>{if(o.name==='rounded-tree-trunk')rows.push(o.parent);});return rows;}
 function eachLocalVertex(root,visit) {
   root.updateWorldMatrix(true,true);const inverse=root.matrixWorld.clone().invert();
@@ -51,8 +53,8 @@ test('rounded crown leaves are a separately authored closed padded volume and re
   } finally {g.dispose();old.dispose();material.dispose();}
 });
 
-test('all 27 crowns have the owner reference dome proportions at finite wind poses while saved tree roots and door transforms stay fixed',()=>{
-  const world=Town.createWorld(),saved=JSON.stringify(world),before=legacyPointedScene().buildWorld(THREE,world,{}),after=Scene.buildWorld(THREE,world,{});
+test('legacy native fallback keeps all 27 rounded crowns and finite wind poses while saved roots and doors stay fixed',()=>{
+  const world=Town.createWorld(),saved=JSON.stringify(world),before=legacyNativeScene(true).buildWorld(THREE,world,{}),after=nativeFallback.buildWorld(THREE,world,{});
   try {
     const old=treeGroups(before),now=treeGroups(after);assert.equal(old.length,27);assert.equal(now.length,27);
     for(const ms of [0,1000,3200]){
@@ -87,8 +89,8 @@ test('current layout reference SHA metadata is immutable and leaves the historic
   }
 });
 
-test('the normal existing 2D frame has a clear vertical approach column near all six saved entrances and the central path junction',()=>{
-  const world=Town.createWorld(),m=Scene.buildWorld(THREE,world,{}),crowns=[];
+test('legacy native fallback has clear existing-frame approach columns at all six entrances and the central junction',()=>{
+  const world=Town.createWorld(),m=nativeFallback.buildWorld(THREE,world,{}),crowns=[];
   try {
     m.animate(1400,false);
     for(const tree of treeGroups(m))tree.getObjectByName('overlapping-leaf-crown').traverse(o=>{if(o.isMesh)crowns.push(o);});
@@ -100,8 +102,8 @@ test('the normal existing 2D frame has a clear vertical approach column near all
   } finally {m.dispose();}
 });
 
-test('the saved flowers entrance is a planted mixed bed inside its unchanged collision ellipse, with no single flowerpot',()=>{
-  const world=Town.createWorld(),saved=JSON.stringify(world),m=Scene.buildWorld(THREE,world,{}),place=world.places.find(p=>p.id==='flowers'),bed=m.placeGroups.find(p=>p.userData.placeId==='flowers');
+test('legacy native fallback retains its mixed bed inside the unchanged collision ellipse',()=>{
+  const world=Town.createWorld(),saved=JSON.stringify(world),m=nativeFallback.buildWorld(THREE,world,{}),place=world.places.find(p=>p.id==='flowers'),bed=m.placeGroups.find(p=>p.userData.placeId==='flowers');
   try {
     assert.ok(bed.getObjectByName('mixed-planted-flowerbed'));assert.equal(bed.getObjectByName('rounded-ivory-tulip-pot'),undefined);
     let tulips=0,cream=0,rocks=0,leafShapes=new Set(),maxEllipse=0;
@@ -112,16 +114,16 @@ test('the saved flowers entrance is a planted mixed bed inside its unchanged col
   } finally {m.dispose();}
 });
 
-test('meadow decoration forms bounded mixed clusters and keeps the 27 existing tree positions',()=>{
-  const world=Town.createWorld(),m=Scene.buildWorld(THREE,world,{});try{
+test('legacy native fallback retains bounded meadow clusters and the 27 existing tree positions',()=>{
+  const world=Town.createWorld(),m=nativeFallback.buildWorld(THREE,world,{});try{
     const clusters=[];m.scene.traverse(o=>{if(o.name==='clustered-meadow-flowerbed')clusters.push(o);});
     assert.ok(clusters.length>=6&&clusters.length<=13);assert.equal(treeGroups(m).length,27);
     for(const bed of clusters){const p=Scene.townPoint(world,bed.position);assert.ok(Town.isWalkable(world,p.x,p.y));assert.ok(world.places.every(place=>Math.hypot(place.x-p.x,place.y-p.y)>=155));assert.ok(bed.getObjectByName('planted-pink-tulip'));}
   } finally {m.dispose();}
 });
 
-test('rounded planting keeps finite clear camera segments for sampled approaches and orbit angles',()=>{
-  const world=Town.createWorld(),m=Scene.buildWorld(THREE,world,{});let restricted=0,samples=0;
+test('legacy native planting keeps finite clear camera segments for sampled approaches and orbit angles',()=>{
+  const world=Town.createWorld(),m=nativeFallback.buildWorld(THREE,world,{});let restricted=0,samples=0;
   try{
     m.animate(1400,false);
     for(const id of ['home','shop','cafe'])for(const yaw of [0,.7,1.4,2.1,2.8,3.5,4.2,4.9,5.6]){
@@ -135,8 +137,8 @@ test('rounded planting keeps finite clear camera segments for sampled approaches
   } finally {m.dispose();}
 });
 
-test('rounded-leaf shadow policy survives instancing while ground/building shadows, seasons and one-time disposal stay intact',()=>{
-  const world=Town.createWorld(),saved=JSON.stringify(world),m=Scene.buildWorld(THREE,world,{}),counts=new Map();
+test('legacy native rounded-leaf shadows, seasons and one-time disposal remain intact',()=>{
+  const world=Town.createWorld(),saved=JSON.stringify(world),m=nativeFallback.buildWorld(THREE,world,{}),counts=new Map();
   const rounded=[...m.geometries].filter(g=>g.userData.styleRole==='closed-plump-rounded-leaf');assert.equal(rounded.length,1);
   const smooth=[...m.materials].filter(m=>m.userData.normalPolicy==='smooth-analytic-rounded-volume');assert.equal(smooth.length,5);
   for(const material of smooth){assert.equal(material.bumpMap,null);assert.equal(material.bumpScale,0);assert.equal(material.flatShading,false);assert.equal(material.userData.seasonRole,'foliage');}
@@ -146,7 +148,7 @@ test('rounded-leaf shadow policy survives instancing while ground/building shado
   assert.equal(castLeaves.length,54);assert.ok(castLeaves.every(o=>o.castShadow===true),'the selected tree still casts its real silhouette');
   assert.ok(leafMeshes.some(o=>o.isInstancedMesh&&o.castShadow),'casting remains enabled through batching');
   assert.equal(m.scene.getObjectByName('dry-land').receiveShadow,true);assert.equal(m.scene.getObjectByName('bridge-deck').receiveShadow,true);
-  const house=m.placeGroups.find(g=>g.userData.placeId==='home'),houseReceivers=[];house.traverse(o=>{if(o.isMesh&&o.geometry.userData.styleRole!=='closed-plump-rounded-leaf')houseReceivers.push(o);});assert.ok(houseReceivers.length>20);assert.ok(houseReceivers.every(o=>o.receiveShadow));
+  const house=m.placeGroups.find(g=>g.userData.placeId==='home'),houseReceivers=[],windowNonReceivers=[];house.traverse(o=>{if(!o.isMesh)return;if(o.userData.nonSolidWindow)windowNonReceivers.push(o);else if(o.geometry.userData.styleRole!=='closed-plump-rounded-leaf')houseReceivers.push(o);});assert.ok(houseReceivers.length>20);assert.ok(houseReceivers.every(o=>o.receiveShadow));assert.ok(windowNonReceivers.length>0);assert.ok(windowNonReceivers.every(o=>!o.receiveShadow),'existing window-room lighting remains deliberately independent of ground shadows');
   for(const batch of m.batches)assert.equal(batch.mesh.receiveShadow,batch.rows.some(o=>o.receiveShadow),'each batch preserves its rows shadow policy');
   for(const resource of [...m.geometries,...m.materials,...m.textures,...m.batches.map(b=>b.mesh)]){counts.set(resource,0);resource.addEventListener('dispose',()=>counts.set(resource,counts.get(resource)+1));}
   const dynamic=m.batches.filter(b=>b.dynamic),initial=dynamic.map(b=>Array.from(b.mesh.instanceMatrix.array));
