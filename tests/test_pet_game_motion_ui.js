@@ -3286,7 +3286,15 @@ function tapTownGround(f, dx, dy, pointerType='mouse', viewport=f.host.querySele
 }
 function villagePlace(f,id) { return f.focusButton('village-place-'+id); }
 function villagePositionInView(f,id) { const p=villagePlace(f,id);return p.className.includes('ipg-town-place')?{x:Number(p.dataset.layoutX),y:Number(p.dataset.layoutY)}:{x:Number.parseFloat(p.style.left),y:Number.parseFloat(p.style.top)}; }
-async function setVillageAxis(f,axis,value) { const field=f.focusButton('village-'+axis);field.value=String(value);field.emit('input');await flush(); }
+async function restoreArchivedVillageLayout(store, layout) {
+  const backup = JSON.parse(store.exportBackup());
+  backup.state.villageLayout = copy(layout);
+  assert.equal((await store.importBackup(JSON.stringify(backup))).ok, true);
+}
+function assertNoDirectVillageEditor(f) {
+  for (const selector of ['.ipg-village-editor', '.ipg-village-controls', '.ipg-village-coordinate-fields', '[data-focus-key="village-edit"]', '[data-focus-key="village-save"]', '[data-focus-key="village-x"]', '[data-focus-key="village-y"]']) assert.equal(f.host.querySelector(selector), null, selector);
+  assert.doesNotMatch(f.host.textContent, /村の配置を変える|はじめの配置|配置の変更にコインは使いません/);
+}
 async function walkToVillagePlace(f,id,enter=true) {
   const entering = enter && ['home','shop','cafe'].includes(id);
   await f.click(entering ? f.focusButton('village-door-'+id) : villagePlace(f,id));
@@ -3447,7 +3455,7 @@ test('public game enters the cafe village without initializing layout or changin
   assert.equal(f.host.querySelector('.ipg-town-controls'),null);assert.equal(f.buttons().filter(b=>b.dataset.direction).length,0);
   assert.match(f.host.querySelector('.ipg-town-guide').textContent,/簡易表示/);
   assert.match(f.host.querySelector('.ipg-town-viewport').getAttribute('aria-label'),/地面や建物をタップ/);
-  const actions=f.host.querySelector('.ipg-town-actions');assert.equal(f.host.querySelector('[data-focus-key="town-enter"]'),null);assert.equal(f.focusButton('village-edit').parentNode,actions);
+  assert.ok(f.host.querySelector('.ipg-town-actions'));assert.equal(f.host.querySelector('[data-focus-key="town-enter"]'),null);assertNoDirectVillageEditor(f);
   assert.equal(f.data.get(Core.KEY),f.beforeMountRaw);assert.equal(f.writes.length,f.writesBeforeMount);assert.equal(f.saved().pet.exp,686);assert.equal(f.saved().coins,574);
   f.ui.render();await f.ui.close();await f.ui.open();assert.equal(f.data.get(Core.KEY),f.beforeMountRaw);assert.ok(f.host.querySelector('.ipg-village'));
 });
@@ -3493,15 +3501,18 @@ test('returning from a facility keeps the walked position while detached door co
   assert.ok(f.host.querySelector('.ipg-town'));assert.deepEqual([current.style.left,current.style.top],position);assert.deepEqual(f.saved(),before);
 });
 
-test('town hide and editing destroy all movement frames; reopening is still with the same durable pet',async()=>{
+test('town close and tab navigation destroy all movement frames; reopening is still with the same durable pet',async()=>{
   const f=await villageFixture(),before=f.saved(),viewport=f.host.querySelector('.ipg-town-viewport');
   tapTownGround(f,180,0,'touch');await f.frame();await f.frame(50);const stale=[...f.raf.values()];
   await f.ui.close();assert.equal(f.raf.size,0);stale.forEach(fn=>fn(999999));await f.ui.open();
   const avatar=f.host.querySelector('.ipg-town-avatar'),position=[avatar.style.left,avatar.style.top];
   await f.frame(500);assert.deepEqual([avatar.style.left,avatar.style.top],position);assert.equal(avatar.dataset.walking,'false');
-  tapTownGround(f,150,0);await f.frame();await f.click(f.focusButton('village-edit'));
+  tapTownGround(f,150,0);await f.frame();await f.click(f.focusButton('tab-care'));
   assert.equal(f.raf.size,0);viewport.emit('pointerdown',{pointerId:2,button:0,clientX:240,clientY:150});viewport.emit('pointerup',{pointerId:2,button:0,clientX:240,clientY:150});await f.frame(50);
-  assert.ok(f.host.querySelector('.ipg-village-editor'));assert.deepEqual(f.saved(),before);
+  assert.ok(f.host.querySelector('.ipg-care-room'));await f.click(f.focusButton('tab-village'));
+  const returned=f.host.querySelector('.ipg-town-avatar'),returnedPosition=[returned.style.left,returned.style.top];
+  await f.frame(500);assert.deepEqual([returned.style.left,returned.style.top],returnedPosition);assert.equal(returned.dataset.walking,'false');
+  assertNoDirectVillageEditor(f);assert.deepEqual(f.saved(),before);await f.ui.close();
 });
 
 test('mouse and touch ground taps work without a direction panel, finish at their targets and keep all saved fields',async()=>{
@@ -3532,80 +3543,40 @@ test('missing town movement code reports a loading failure without showing telep
   assert.equal(f.data.get(Core.KEY),f.beforeMountRaw);assert.equal(f.writes.length,f.writesBeforeMount);
 });
 
-test('village editor keeps all six entrances free, blocks navigation and updates only local integer positions before save',async()=>{
-  const f=await villageFixture(),before=f.saved(),writes=f.writes.length,oldRoomTab=f.focusButton('tab-care'),oldShop=villagePlace(f,'shop');
-  await f.click(f.focusButton('village-edit'));assert.ok(f.host.querySelector('.ipg-village-editor'));
-  assert.equal(f.host.querySelector('.ipg-town-actions'),null);assert.equal(f.host.querySelector('.ipg-notice').parentNode,f.host.querySelector('.ipg'));
-  assert.equal(f.host.querySelectorAll('.ipg-village-place,.ipg-town-place').length,6);assert.equal(f.host.querySelector('.ipg-backup'),null);
-  assert.ok(f.host.querySelector('.ipg-tabs').querySelectorAll('button').every(x=>x.disabled));oldRoomTab.emit('click');oldShop.emit('click');await flush();
-  assert.ok(f.host.querySelector('.ipg-village-editor'));
-  await f.click(villagePlace(f,'cafe'));await setVillageAxis(f,'x',81);await setVillageAxis(f,'y',79);
-  assert.deepEqual(villagePositionInView(f,'cafe'),{x:81,y:78});assert.equal(villagePlace(f,'cafe').getAttribute('aria-pressed'),'true');
-  assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
-  await f.click(f.button('はじめの配置'));assert.deepEqual(villagePositionInView(f,'cafe'),{x:72,y:23});
-  await f.click(f.button('やめる'));assert.equal(f.host.querySelector('.ipg-village-editor'),null);assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
+for (const [mode, config] of [
+  ['loading', { rendererMode: 'pending', townScene: true }],
+  ['ready', { rendererMode: 'ready', townScene: true }],
+  ['fallback', { rendererMode: 'error', townScene: true }]
+]) test('the ' + mode + ' village has no direct exterior arrangement page or controls and reopening writes nothing', async () => {
+  const f = await villageFixture(config), before = f.saved(), raw = f.data.get(Core.KEY), writes = f.writes.length;
+  assertNoDirectVillageEditor(f);
+  assert.equal(f.host.querySelector('.ipg-town-viewport').dataset.sceneState, mode);
+  assert.equal(f.host.querySelectorAll('.ipg-town-place').length, 6);
+  assert.equal(f.host.querySelector('[data-focus-key="town-enter"]'), null);
+  f.ui.render(); await f.ui.close(); await f.ui.open(); assertNoDirectVillageEditor(f);
+  assert.deepEqual(f.saved(), before); assert.equal(f.data.get(Core.KEY), raw); assert.equal(f.writes.length, writes);
+  assert.equal(Object.hasOwn(f.saved(), 'villageLayout'), false); await f.ui.close();
 });
 
-test('village save waits for durability and publishes exactly the edited layout without touching room growth or economy',async()=>{
-  const f=await villageFixture(),before=f.saved(),gate=deferred();
-  await f.click(f.focusButton('village-edit'));await f.click(villagePlace(f,'shop'));await setVillageAxis(f,'x',33);await setVillageAxis(f,'y',77);
-  f.control.pending=gate;await f.click(f.focusButton('village-save'));
-  assert.deepEqual(f.saved(),before);assert.equal(f.host.getAttribute('aria-busy'),'true');assert.ok(f.focusButton('village-save').disabled);
-  const pendingSlider=f.focusButton('village-x');pendingSlider.value='80';pendingSlider.emit('input');await flush();assert.deepEqual(villagePositionInView(f,'shop'),{x:33,y:77});
-  gate.resolve();await flush();f.control.pending=null;
-  const expected=Core.defaultVillageLayout();Object.assign(expected.items.find(x=>x.id==='shop'),{x:33,y:77});
-  assert.deepEqual(f.saved(),{...before,villageLayout:expected,revision:before.revision+1});assert.equal(f.host.querySelector('.ipg-village-editor'),null);
-  assert.ok(f.host.textContent.includes('村の配置を保存しました'));assert.equal(f.document.activeElement,f.focusButton('village-edit'));
-  const status=f.host.querySelector('.ipg-notice'),actions=f.host.querySelector('.ipg-town-actions');
-  assert.equal(status.parentNode,actions);assert.equal(actions.children[0],status);assert.equal(status.getAttribute('role'),'status');assert.equal(status.getAttribute('aria-live'),'polite');
-  assert.equal(f.focusButton('village-edit').parentNode,actions);assert.equal(f.host.querySelector('[data-focus-key="town-enter"]'),null);
-  f.ui.render();await f.ui.close();await f.ui.open();assert.deepEqual(villagePositionInView(f,'shop'),{x:33,y:77});
+test('a read-only village does not expose exterior arrangement controls while preserving its readable saved world', async () => {
+  const f = await villageFixture({ rendererMode: 'ready', townScene: true }), before = f.saved(), raw = f.data.get(Core.KEY), writes = f.writes.length;
+  const getState = f.store.getState;
+  f.store.getState = () => ({ ...getState(), readOnly: true });
+  f.ui.render(); await flush(); assertNoDirectVillageEditor(f);
+  assert.equal(f.host.querySelectorAll('.ipg-town-place').length, 6);
+  await f.ui.close(); await f.ui.open(); assertNoDirectVillageEditor(f);
+  assert.deepEqual(f.saved(), before); assert.equal(f.data.get(Core.KEY), raw); assert.equal(f.writes.length, writes);
+  f.store.getState = getState; await f.ui.close();
 });
 
-for(const mode of ['false','throw'])test(mode+' village write retains the draft and old save until explicit retry',async()=>{
-  const f=await villageFixture(),before=f.saved();await f.click(f.focusButton('village-edit'));await setVillageAxis(f,'x',76);
-  f.control.outcome=mode;await f.click(f.focusButton('village-save'));assert.deepEqual(f.saved(),before);assert.ok(f.host.querySelector('.ipg-village-editor'));
-  assert.deepEqual(villagePositionInView(f,'home'),{x:76,y:23});assert.ok(f.host.textContent.includes('下書きは残っています'));assert.equal(f.focusButton('village-save').disabled,false);
-  f.control.outcome='ok';await f.click(f.focusButton('village-save'));assert.equal(f.saved().villageLayout.items.find(x=>x.id==='home').x,76);assert.equal(f.saved().coins,before.coins);assert.equal(f.saved().pet.exp,before.pet.exp);
-});
-
-test('a village revision conflict retains the draft and newer real care without rebasing it',async()=>{
-  const f=await villageFixture();await f.click(f.focusButton('village-edit'));await setVillageAxis(f,'y',71);
-  assert.equal((await f.store.dispatch({type:'care',kind:'rest'})).ok,true);const saved=f.saved(),writes=f.writes.length;
-  await f.click(f.focusButton('village-save'));assert.deepEqual(f.saved(),saved);assert.equal(f.writes.length,writes);
-  assert.ok(f.host.querySelector('.ipg-village-editor'));assert.deepEqual(villagePositionInView(f,'home'),{x:22,y:71});assert.ok(f.host.textContent.includes('ほかの操作で記録が変わりました'));
-});
-
-for(const interrupt of ['close','pagehide','visibility'])test(interrupt+' discards village draft and ignores old controls after reopen',async()=>{
-  const f=await villageFixture(),before=f.saved(),writes=f.writes.length;
-  await f.click(f.focusButton('village-edit'));await setVillageAxis(f,'x',78);
-  const oldSlider=f.focusButton('village-x'),oldSave=f.focusButton('village-save'),oldCancel=f.button('やめる'),oldReset=f.button('はじめの配置');
-  if(interrupt==='close')await f.ui.close();if(interrupt==='pagehide')f.window.emit('pagehide');if(interrupt==='visibility'){f.document.hidden=true;f.document.emit('visibilitychange');}
-  f.document.hidden=false;await f.ui.open();await f.click(f.focusButton('village-edit'));await setVillageAxis(f,'y',73);
-  oldSlider.value='85';oldSlider.emit('input');oldSave.emit('click');oldCancel.emit('click');oldReset.emit('click');await flush();
-  assert.ok(f.host.querySelector('.ipg-village-editor'));assert.deepEqual(villagePositionInView(f,'home'),{x:22,y:73});assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
-});
-
-test('a late village save may finish in its store but cannot close or announce success in a newer editor',async()=>{
-  const f=await villageFixture();await f.click(f.focusButton('village-edit'));await setVillageAxis(f,'x',79);
-  const gate=deferred();f.control.pending=gate;await f.click(f.focusButton('village-save'));await f.ui.close();await f.ui.open();
-  await f.click(f.focusButton('village-edit'));await f.click(villagePlace(f,'cafe'));await setVillageAxis(f,'y',77);
-  gate.resolve();await flush();f.control.pending=null;
-  assert.equal(f.saved().villageLayout.items.find(x=>x.id==='home').x,79);assert.ok(f.host.querySelector('.ipg-village-editor'));
-  assert.deepEqual(villagePositionInView(f,'cafe'),{x:72,y:77});assert.equal(f.focusButton('village-save').disabled,false);assert.ok(!f.host.textContent.includes('村の配置を保存しました'));
-});
-
-test('mounting a different host isolates a pending village save and all detached editor callbacks',async()=>{
-  const f=await villageFixture();await f.click(f.focusButton('village-edit'));await setVillageAxis(f,'y',79);
-  const oldSlider=f.focusButton('village-y'),oldSave=f.focusButton('village-save'),oldCancel=f.button('やめる');
-  const gate=deferred();f.control.pending=gate;await f.click(oldSave);
-  const target=f.document.createElement('div');f.pane.appendChild(target);const renders=[],replace=target.replaceChildren.bind(target);
-  target.replaceChildren=(...children)=>{replace(...children);renders.push(target.textContent);};
-  const opening=f.ui.mount(target);await flush();assert.equal(target.querySelector('.ipg-village-editor'),null);
-  gate.resolve();await flush();f.control.pending=null;assert.equal(await opening,true);assert.equal(renders.length,2);
-  assert.ok(target.querySelector('.ipg-village'));assert.equal(target.querySelector('.ipg-village-editor'),null);const text=target.textContent,saved=f.saved(),writes=f.writes.length;
-  oldSlider.value='16';oldSlider.emit('input');oldSave.emit('click');oldCancel.emit('click');await flush();
-  assert.equal(target.textContent,text);assert.deepEqual(f.saved(),saved);assert.equal(f.writes.length,writes);assert.equal(saved.villageLayout.items.find(x=>x.id==='home').y,78);
+for (const interrupt of ['close', 'pagehide', 'visibility']) test(interrupt + ' preserves an archived village layout and cannot reopen its retired arrangement page', async () => {
+  const layout = Core.defaultVillageLayout(); Object.assign(layout.items.find(row => row.id === 'shop'), { x: 33, y: 67 });
+  const f = await villageFixture({ setup: store => restoreArchivedVillageLayout(store, layout) }), before = f.saved(), raw = f.data.get(Core.KEY), writes = f.writes.length;
+  assert.deepEqual(villagePositionInView(f, 'shop'), { x: 33, y: 67 }); assertNoDirectVillageEditor(f);
+  if (interrupt === 'close') await f.ui.close(); else if (interrupt === 'pagehide') f.window.emit('pagehide'); else { f.document.hidden = true; f.document.emit('visibilitychange'); }
+  f.document.hidden = false; await f.ui.open(); await flush(); assertNoDirectVillageEditor(f);
+  assert.deepEqual(villagePositionInView(f, 'shop'), { x: 33, y: 67 });
+  assert.deepEqual(f.saved(), before); assert.equal(f.data.get(Core.KEY), raw); assert.equal(f.writes.length, writes); await f.ui.close();
 });
 
 test('the cafe shop and playground never mount removed minigames or grant rewards',async()=>{
@@ -3647,25 +3618,17 @@ test('ordinary care play can save while an archived minigame active and all prio
   assert.deepEqual(f.saved(),after);await f.ui.close();assert.deepEqual(f.saved(),after);
 });
 
-test('village facility and flora edges clamp to their distinct safe bands without rewriting saved coordinates on view or edit',async()=>{
-  const f=await villageFixture({setup:async store=>{
-    const layout=Core.defaultVillageLayout();layout.items.forEach((row,i)=>{row.x=i%2?100:0;row.y=i%2?100:0;});
-    assert.equal((await store.dispatch({type:'saveVillageLayout',layout,expectedRevision:store.getState().revision})).ok,true);
-  }}),before=f.saved(),writes=f.writes.length;
-  const bounds=id=>['tree','flowers'].includes(id)?[16,84]:[22,78];
-  Town.createWorld(before.villageLayout).places.forEach(row=>assert.deepEqual(villagePositionInView(f,row.id),{x:row.x/2880*100,y:row.y/1920*100}));
-  assert.equal(f.data.get(Core.KEY),f.beforeMountRaw);assert.equal(f.writes.length,writes);
-  await f.click(f.focusButton('village-edit'));
-  for(const {id} of Core.villagePlaces){
-    await f.click(villagePlace(f,id));const [low,high]=bounds(id),vertical=f.focusButton('village-y');
-    assert.equal(Number(vertical.min),low);assert.equal(Number(vertical.max),high);
-    await setVillageAxis(f,'y',-999);await setVillageAxis(f,'x',-999);assert.deepEqual(villagePositionInView(f,id),{x:15,y:low});
-    await setVillageAxis(f,'y',999);await setVillageAxis(f,'x',999);assert.deepEqual(villagePositionInView(f,id),{x:85,y:high});
-    assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
+test('saved village facility and flora edges retain their distinct display bands without rewriting archived coordinates', async () => {
+  const f = await villageFixture({ setup: async store => {
+    const layout = Core.defaultVillageLayout(); layout.items.forEach((row, i) => { row.x = i % 2 ? 100 : 0; row.y = i % 2 ? 100 : 0; });
+    await restoreArchivedVillageLayout(store, layout);
+  } }), before = f.saved(), raw = f.data.get(Core.KEY), writes = f.writes.length;
+  function checkSavedPositions() {
+    Town.createWorld(before.villageLayout).places.forEach(row => assert.deepEqual(villagePositionInView(f, row.id), { x: row.x / 2880 * 100, y: row.y / 1920 * 100 }));
+    assertNoDirectVillageEditor(f);
   }
-  await f.click(f.focusButton('village-save'));
-  const expected=Core.defaultVillageLayout();expected.items.forEach(row=>{row.x=85;row.y=bounds(row.id)[1];});
-  assert.deepEqual(f.saved(),{...before,villageLayout:expected,revision:before.revision+1});assert.equal(f.writes.length,writes+1);
+  checkSavedPositions(); f.ui.render(); await f.ui.close(); await f.ui.open(); checkSavedPositions();
+  assert.deepEqual(f.saved(), before); assert.equal(f.data.get(Core.KEY), raw); assert.equal(f.writes.length, writes); await f.ui.close();
 });
 
 test('village connected roads stay decorative while all six original entrances and browsing remain free',async()=>{
@@ -3689,28 +3652,20 @@ test('village connected roads stay decorative while all six original entrances a
   assert.ok(f.host.querySelector('.ipg-village-roads'));assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
 });
 
-test('village roads follow visible clamped entrances and draft edits without stale controls changing a newer world',async()=>{
-  const f=await villageFixture({setup:async store=>{
-    const layout=Core.defaultVillageLayout();layout.items.forEach((row,i)=>{row.x=i%2?100:0;row.y=i%2?100:0;});
-    assert.equal((await store.dispatch({type:'saveVillageLayout',layout,expectedRevision:store.getState().revision})).ok,true);
-  }}),before=f.saved(),writes=f.writes.length;
-  function lane(id){return f.host.querySelectorAll('.ipg-village-lane').find(path=>path.dataset.pathFor===id);}
-  function endpoint(id){const coordinates=lane(id).getAttribute('d').match(/-?\d+(?:\.\d+)?/g).map(Number);return coordinates.slice(-2);}
-  for(const row of before.villageLayout.items.filter(row=>row.id!=='tree')){
-    const position=villagePositionInView(f,row.id);assert.deepEqual(endpoint(row.id),[position.x*10,(position.y+4)*10]);
+test('village roads follow the visible clamped archived entrances through rerender and reopen without saving', async () => {
+  const f = await villageFixture({ setup: async store => {
+    const layout = Core.defaultVillageLayout(); layout.items.forEach((row, i) => { row.x = i % 2 ? 100 : 0; row.y = i % 2 ? 100 : 0; });
+    await restoreArchivedVillageLayout(store, layout);
+  } }), before = f.saved(), raw = f.data.get(Core.KEY), writes = f.writes.length;
+  function endpoints() {
+    return f.host.querySelectorAll('.ipg-village-lane').map(lane => {
+      const coordinates = lane.getAttribute('d').match(/-?\d+(?:\.\d+)?/g).map(Number), position = villagePositionInView(f, lane.dataset.pathFor);
+      assert.deepEqual(coordinates.slice(-2), [position.x * 10, (position.y + 4) * 10]); return lane.getAttribute('d');
+    });
   }
-  await f.click(f.focusButton('village-edit'));await f.click(villagePlace(f,'cafe'));
-  await setVillageAxis(f,'x',63);await setVillageAxis(f,'y',41);assert.deepEqual(endpoint('cafe'),[630,450]);
-  await f.click(villagePlace(f,'flowers'));await setVillageAxis(f,'x',-999);await setVillageAxis(f,'y',999);
-  assert.deepEqual(endpoint('flowers'),[150,880]);assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
-  const oldSlider=f.focusButton('village-x');await f.ui.close();await f.ui.open();
-  await f.click(f.focusButton('village-edit'));await setVillageAxis(f,'x',56);await setVillageAxis(f,'y',64);
-  const currentRoads=f.host.querySelectorAll('.ipg-village-lane').map(path=>path.getAttribute('d'));
-  oldSlider.value='85';oldSlider.emit('input');await flush();
-  assert.deepEqual(f.host.querySelectorAll('.ipg-village-lane').map(path=>path.getAttribute('d')),currentRoads);
-  assert.deepEqual(endpoint('home'),[560,680]);await f.click(f.button('やめる'));
-  assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
-  assert.deepEqual(endpoint('home'),[150,260]);
+  const paths = endpoints(); f.ui.render(); assert.deepEqual(endpoints(), paths);
+  await f.ui.close(); await f.ui.open(); assert.deepEqual(endpoints(), paths); assertNoDirectVillageEditor(f);
+  assert.deepEqual(f.saved(), before); assert.equal(f.data.get(Core.KEY), raw); assert.equal(f.writes.length, writes); await f.ui.close();
 });
 
 test('market illustrations use six fixed decorative images and recover from loading failures without state writes',async()=>{
