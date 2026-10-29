@@ -1,0 +1,250 @@
+{
+  "schema_version": 1,
+  "model_id": "spring-camellia-window-planter-v1",
+  "unit_id": "village:asset-library:spring-camellia-window-planter:v1",
+  "run_id": "automation360-20261029-215338",
+  "base_main_sha": "e809639d682b86494b17a40e95ba69035302edec",
+  "parent_reservation": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/heartbeat-20261029-215338/parent-reservation.json",
+    "sha256": "9a2543849811d15a33bcc9547850f8636b7b8bc830772f4c6e0370e4b8d2e297",
+    "bytes": 253
+  },
+  "parent_reservation_verified": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/heartbeat-20261029-215338/parent-reserve-verification.json",
+    "sha256": "be386da76b96025791ec4c24eb6b319bd2a3c9dda85900b20bc0120ba1693ca8",
+    "bytes": 476
+  },
+  "preproduction_fit_audit": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/heartbeat-20261029-215338/fit-audit-verification.json",
+    "sha256": "87b7b8aeb120e8fd3d7ae41517f69c587bb5183217c55854fdae0098d0924fc9",
+    "bytes": 1847
+  },
+  "files": [
+    {
+      "path": "SPEC.json",
+      "sha256": "f9128f88fb072242487ca4dde30b3ea187a3d8160dda24e5bac4af8d6023909a",
+      "bytes": 1828
+    },
+    {
+      "path": "audit.mjs",
+      "sha256": "a9594fba4ef79c2980fd6c587a015abb176ff3202fbc32ca78535dff9f22b34a",
+      "bytes": 3214
+    },
+    {
+      "path": "entry.mjs",
+      "sha256": "ead93b33427b6388662f3b40f0ab64fd7b26ea0294f42d9abf1104f5063e2967",
+      "bytes": 3185
+    },
+    {
+      "path": "finite-geometry-certificate.json",
+      "sha256": "f26de001c563d73c09a6331e715cbd409657ab5850d589fa2a27442807b058b9",
+      "bytes": 190304
+    },
+    {
+      "path": "index.html",
+      "sha256": "1b411317d5d47ea740cce4ed62ba4a3346050917bb03ba0a85e02d2020015a64",
+      "bytes": 4970
+    },
+    {
+      "path": "placement.mjs",
+      "sha256": "a073da9cbdee7f0a290e31a33b43769ac51999d62c9277b20f1d0dcd99b50209",
+      "bytes": 7316
+    },
+    {
+      "path": "planter.mjs",
+      "sha256": "07bf2c8d86b706a29e556be2bccf5b5f4e63ead0304ef9be13970998f5103f3a",
+      "bytes": 13787
+    },
+    {
+      "path": "viewer.mjs",
+      "sha256": "bfa88dbf8f00e7ce301550f25840ad358c6b3e394e6927777ec3ae4261570caa",
+      "bytes": 14285
+    }
+  ],
+  "inputs": [
+    {
+      "path": "static/pet-breeze-cape-proof-20261029/geometry-audit.mjs",
+      "sha256": "2dbe7723509ae914cb98153f133e2a2db9d15e5f4112cc184fa128a2df8e92c0",
+      "bytes": 6377
+    },
+    {
+      "path": "static/pet-frame-fit.js",
+      "sha256": "7b3b730dc7834e1c56f455161d59005f8352a3cd918e52be1893bc4b7706dc13",
+      "bytes": 2434
+    },
+    {
+      "path": "static/pet-items-v1/flower.webp",
+      "sha256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+      "bytes": 22012
+    },
+    {
+      "path": "static/pet-items-v1/house.webp",
+      "sha256": "69ce8c93823a50c5f2225414d4df8adcfe92fcd271ae113982e64f7ccd01cd60",
+      "bytes": 21548
+    },
+    {
+      "path": "static/pet-japan-seasons.js",
+      "sha256": "944ff98aa81f7975b4daf4dc3ca59887f042e2c8be9eb1e5b6ea29637f46225a",
+      "bytes": 5025
+    },
+    {
+      "path": "static/pet-ocean-discoveries.js",
+      "sha256": "4241c7b0fd0d3556181a29b5775c5779b69fc48f2c4c76be48f26fee32afe425",
+      "bytes": 4849
+    },
+    {
+      "path": "static/pet-ocean-snorkeling-world.js",
+      "sha256": "a795153a6d27b9f80250abafaf2e7e4d20127c99468b1ee7374cf6e7b4176a99",
+      "bytes": 16012
+    },
+    {
+      "path": "static/pet-ocean-snorkeling.js",
+      "sha256": "800b0085765507d99a651e89418dbb8ddc72aba5e2e40aa2b3bcba8a3caa19b5",
+      "bytes": 18398
+    },
+    {
+      "path": "static/pet-petal-washstand-proof-20261028/placement.mjs",
+      "sha256": "eb4982bc87cc63e00fb9fe838c3c3e9e2f5d037ac634d66d950d2976745877a3",
+      "bytes": 8995
+    },
+    {
+      "path": "static/pet-river-fishing.js",
+      "sha256": "8b4e1d2d9f2b9fda72f66e79b2105dccdadd2e6de5230c24e920cbdcf561aedb",
+      "bytes": 8325
+    },
+    {
+      "path": "static/pet-scalloped-path-proof-20261027/framing.mjs",
+      "sha256": "dba92c2f6dec2816ebcf25434ee07c3b699accb61b7e1961a11baf366edad08a",
+      "bytes": 1678
+    },
+    {
+      "path": "static/pet-snow-glass-lamp-proof-20261027/placement.mjs",
+      "sha256": "eb6d92d6dd9e06d4c0391d39ea9b3c6df4e86dcd28e243b74b15097cec5c214e",
+      "bytes": 5943
+    },
+    {
+      "path": "static/pet-toolbox-integral-link-proof-20261027/placement.mjs",
+      "sha256": "b56467e091b3d0408d2f1d52d83a48cdd88f837304fa3b1fb71717b5b3dce961",
+      "bytes": 2718
+    },
+    {
+      "path": "static/pet-toolbox-joint-proof-20261026/placement.mjs",
+      "sha256": "1419d42a6fd4f3e83547ec105506c38a32058a9e2ac05321a324340c1ae62fc1",
+      "bytes": 1577
+    },
+    {
+      "path": "static/pet-town-environment.js",
+      "sha256": "32e7680cc2770f0d6ba3d561456fe3980f2147d5d790e91081ab5f005f412439",
+      "bytes": 10394
+    },
+    {
+      "path": "static/pet-town-ground-finish.js",
+      "sha256": "a167074f886714701dad8bd2d72c659f2c05ef9f8af45526bc05823d7356b6e6",
+      "bytes": 10682
+    },
+    {
+      "path": "static/pet-town-layout-art.js",
+      "sha256": "66b5969fbe9f7ecdaf78c30553453dc25badd69ea6b416a71a3bca285abeaa27",
+      "bytes": 14751
+    },
+    {
+      "path": "static/pet-town-meadow-flowers.js",
+      "sha256": "c66181a2d15f03f67e1c34e238fef661b82796b12a179cf62b95c11d686f1652",
+      "bytes": 23214
+    },
+    {
+      "path": "static/pet-town-meadow-sites.js",
+      "sha256": "8dc614aa334fc3351cf893451b8624ef00cbe1b2bba6f29501d6359d62d9b870",
+      "bytes": 6433
+    },
+    {
+      "path": "static/pet-town-ocean-life.js",
+      "sha256": "91107133ee5c315b110226b7fc0be81376fc5d1cf5b937108b29e64813329a2d",
+      "bytes": 8545
+    },
+    {
+      "path": "static/pet-town-placement-originals.js",
+      "sha256": "cd1cc166950eb94c4989e91e765e70a4ff2b861bc431d1dcf734a95edb06ab8b",
+      "bytes": 12383
+    },
+    {
+      "path": "static/pet-town-scene.js",
+      "sha256": "043ee3fc5e624dcf5cf550af58beb2c1357a1b85e7d6fa0b73f53f428cbd02fd",
+      "bytes": 153318
+    },
+    {
+      "path": "static/pet-town-shore-transition.js",
+      "sha256": "14949767cb6b42c491c91702b2bf0cd98d1fb7fe1534b292b0d94c79a292d3fd",
+      "bytes": 10284
+    },
+    {
+      "path": "static/pet-town-style.js",
+      "sha256": "7985e1f983329bcef7567c634543a74b442de56b8757858693ae54ef64b68e2a",
+      "bytes": 13719
+    },
+    {
+      "path": "static/pet-town-tree-variety.js",
+      "sha256": "8333b6fb83d13ff3c24d6fc9a83c2439f55cd957153d71607c991a2023ab374e",
+      "bytes": 3137
+    },
+    {
+      "path": "static/pet-town-walk.js",
+      "sha256": "59d9cfaca33bc21d9e62c2ca3c622124b266d63c0655aeb3eb5842427c6975c5",
+      "bytes": 29442
+    },
+    {
+      "path": "static/pet-town-water-finish.js",
+      "sha256": "055ea1ff65df676b5bb998407f5d0dfb67047465741ff675e9532c5384aa5460",
+      "bytes": 13709
+    },
+    {
+      "path": "static/pet-town-water-life.js",
+      "sha256": "948078e9fcb8b6897bcf1ec7653106545b72401b76b17881111fe4b816f3c28d",
+      "bytes": 6154
+    },
+    {
+      "path": "static/pet-winter-berry-tree-proof-20261028/tree.mjs",
+      "sha256": "b15b2f6003d84d8d05b8e5f551652f09771de2ae3e0c084f29eca428e4722b18",
+      "bytes": 9015
+    },
+    {
+      "path": "static/vendor/three-0.160.1.module.js",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    {
+      "path": "tests/pet-spring-camellia-planter-20261029.test.mjs",
+      "sha256": "f2ad0bcd9ffd0af64713a7d01b55051573b6789dc5f3189675332af71258a8cd",
+      "bytes": 10623
+    }
+  ],
+  "material_reference_images": [
+    {
+      "path": "static/pet-items-v1/flower.webp",
+      "sha256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+      "bytes": 22012
+    },
+    {
+      "path": "static/pet-items-v1/house.webp",
+      "sha256": "69ce8c93823a50c5f2225414d4df8adcfe92fcd271ae113982e64f7ccd01cd60",
+      "bytes": 21548
+    }
+  ],
+  "references_are_existing_colour_material_guides_not_new_camellia_PNG": true,
+  "bodyBinding": null,
+  "new_PNG_designs": 0,
+  "new_raw_versions": 0,
+  "imagegen_calls": 0,
+  "new_body_references": 0,
+  "new_canonical_fit_success": 0,
+  "new_mesh_library_candidate": 1,
+  "normal_game_changes": 0,
+  "closed_components": 90,
+  "finite_material_connections": 91,
+  "finite_flat_pad_floor_samples": 20,
+  "finite_cavity_samples": 9,
+  "finite_camera_samples": 36,
+  "finite_witnesses_are_not_unique_tests": true,
+  "scope": "One new standalone floor-supported camellia planter Mesh library candidate. Hidden surfaces and dimensions authored. No wall attachment, body calibration, wind/care/growth, load/friction/stability, normal owner placement/acquisition/price/unlock/save. No old artwork or current world replacement.",
+  "all_runtime_static_JS_imports_and_fallback_loader_sources_bound": true
+}

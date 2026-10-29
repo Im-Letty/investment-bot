@@ -1,0 +1,6748 @@
+{
+  "schema_version": 1,
+  "result": "pass",
+  "unit_id": "village:asset-library:spring-camellia-window-planter:v1",
+  "scope": "One static standalone Mesh candidate only. Finite topology/material points/cavity rays/pad rays/envelopes/camera samples are not continuous or physical guarantees.",
+  "bounds": {
+    "min": [
+      -0.800000011920929,
+      0,
+      -0.4055711088189148
+    ],
+    "max": [
+      0.800000011920929,
+      1.5556554581098245,
+      0.3470146839766237
+    ],
+    "size": [
+      1.600000023841858,
+      1.5556554581098245,
+      0.7525857927955385
+    ]
+  },
+  "budget": {
+    "meshes": 90,
+    "geometries": 12,
+    "materials": 9,
+    "textures": 0,
+    "lights": 0,
+    "triangles": 12480
+  },
+  "topology": [
+    {
+      "name": "hollow-rounded-cream-planter",
+      "vertices": 194,
+      "triangles": 384,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.19116768956628263,
+      "faceNormals": {
+        "triangles": 384,
+        "minimumFaceAverageNormalDot": 0.6959008592636857,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "closed-recessed-soil-field",
+      "vertices": 66,
+      "triangles": 128,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02544421597681322,
+      "faceNormals": {
+        "triangles": 128,
+        "minimumFaceAverageNormalDot": 0.3558451139053015,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "warm-wood-cradle-0",
+      "vertices": 24,
+      "triangles": 12,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.012527999857306467,
+      "faceNormals": {
+        "triangles": 12,
+        "minimumFaceAverageNormalDot": 1,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "rounded-flat-pad-foot-0-0",
+      "vertices": 122,
+      "triangles": 240,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.003579786732198775,
+      "faceNormals": {
+        "triangles": 240,
+        "minimumFaceAverageNormalDot": 0.8328523376498004,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "rounded-flat-pad-foot-0-1",
+      "vertices": 122,
+      "triangles": 240,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.003579786732198775,
+      "faceNormals": {
+        "triangles": 240,
+        "minimumFaceAverageNormalDot": 0.8328523376498004,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "warm-wood-cradle-1",
+      "vertices": 24,
+      "triangles": 12,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.012527999857306467,
+      "faceNormals": {
+        "triangles": 12,
+        "minimumFaceAverageNormalDot": 1,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "rounded-flat-pad-foot-1-0",
+      "vertices": 122,
+      "triangles": 240,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.003579786732198775,
+      "faceNormals": {
+        "triangles": 240,
+        "minimumFaceAverageNormalDot": 0.8328523376498004,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "rounded-flat-pad-foot-1-1",
+      "vertices": 122,
+      "triangles": 240,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.003579786732198775,
+      "faceNormals": {
+        "triangles": 240,
+        "minimumFaceAverageNormalDot": 0.8328523376498004,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "warm-wood-longitudinal-support-0",
+      "vertices": 24,
+      "triangles": 12,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.005095999856472013,
+      "faceNormals": {
+        "triangles": 12,
+        "minimumFaceAverageNormalDot": 1,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "warm-wood-longitudinal-support-1",
+      "vertices": 24,
+      "triangles": 12,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.005095999856472013,
+      "faceNormals": {
+        "triangles": 12,
+        "minimumFaceAverageNormalDot": 1,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "curved-camellia-main-stem-0",
+      "vertices": 106,
+      "triangles": 208,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.000650374910533031,
+      "faceNormals": {
+        "triangles": 208,
+        "minimumFaceAverageNormalDot": 0.5617672231894515,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-receptacle-0",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-0-layer-0-petal-0",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-0-layer-0-petal-1",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-0-layer-0-petal-2",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-0-layer-0-petal-3",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-0-layer-0-petal-4",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-0-layer-0-petal-5",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-0-layer-0-petal-6",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-0-layer-1-petal-0",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-0-layer-1-petal-1",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-0-layer-1-petal-2",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-0-layer-1-petal-3",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-0-layer-1-petal-4",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-0-layer-2-petal-0",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-0-layer-2-petal-1",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-0-layer-2-petal-2",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-0-layer-2-petal-3",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-0-closed-stamen-0",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-0-closed-stamen-1",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-0-closed-stamen-2",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-0-closed-stamen-3",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-0-closed-stamen-4",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "padded-camellia-leaf-0-0",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.03115689513670393,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.8769156376177727,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "real-leaf-petiole-0-0",
+      "vertices": 52,
+      "triangles": 32,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 2.828427076339719,
+      "faceNormals": {
+        "triangles": 32,
+        "minimumFaceAverageNormalDot": 0.9906023243737807,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "padded-camellia-leaf-0-1",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.03115689513670393,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.8769156376177727,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "real-leaf-petiole-0-1",
+      "vertices": 52,
+      "triangles": 32,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 2.828427076339719,
+      "faceNormals": {
+        "triangles": 32,
+        "minimumFaceAverageNormalDot": 0.9906023243737807,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "padded-camellia-leaf-0-2",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.03115689513670393,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.8769156376177727,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "real-leaf-petiole-0-2",
+      "vertices": 52,
+      "triangles": 32,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 2.828427076339719,
+      "faceNormals": {
+        "triangles": 32,
+        "minimumFaceAverageNormalDot": 0.9906023243737807,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "connected-bud-stem-0",
+      "vertices": 52,
+      "triangles": 32,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 2.828427076339719,
+      "faceNormals": {
+        "triangles": 32,
+        "minimumFaceAverageNormalDot": 0.9906023243737807,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "rounded-unopened-camellia-bud-0",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "curved-camellia-main-stem-1",
+      "vertices": 106,
+      "triangles": 208,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.0008286325204806343,
+      "faceNormals": {
+        "triangles": 208,
+        "minimumFaceAverageNormalDot": 0.5276519829934047,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-receptacle-1",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-1-layer-0-petal-0",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-1-layer-0-petal-1",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-1-layer-0-petal-2",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-1-layer-0-petal-3",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-1-layer-0-petal-4",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-1-layer-0-petal-5",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-1-layer-1-petal-0",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-1-layer-1-petal-1",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-1-layer-1-petal-2",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-1-layer-1-petal-3",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-1-layer-2-petal-0",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-1-layer-2-petal-1",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-1-closed-stamen-0",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-1-closed-stamen-1",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-1-closed-stamen-2",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-1-closed-stamen-3",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-1-closed-stamen-4",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "padded-camellia-leaf-1-0",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.03115689513670393,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.8769156376177727,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "real-leaf-petiole-1-0",
+      "vertices": 52,
+      "triangles": 32,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 2.828427076339719,
+      "faceNormals": {
+        "triangles": 32,
+        "minimumFaceAverageNormalDot": 0.9906023243737807,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "padded-camellia-leaf-1-1",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.03115689513670393,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.8769156376177727,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "real-leaf-petiole-1-1",
+      "vertices": 52,
+      "triangles": 32,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 2.828427076339719,
+      "faceNormals": {
+        "triangles": 32,
+        "minimumFaceAverageNormalDot": 0.9906023243737807,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "padded-camellia-leaf-1-2",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.03115689513670393,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.8769156376177727,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "real-leaf-petiole-1-2",
+      "vertices": 52,
+      "triangles": 32,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 2.828427076339719,
+      "faceNormals": {
+        "triangles": 32,
+        "minimumFaceAverageNormalDot": 0.9906023243737807,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "curved-camellia-main-stem-2",
+      "vertices": 106,
+      "triangles": 208,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.0006051385967146591,
+      "faceNormals": {
+        "triangles": 208,
+        "minimumFaceAverageNormalDot": 0.5829705930714246,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-receptacle-2",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-2-layer-0-petal-0",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-2-layer-0-petal-1",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-2-layer-0-petal-2",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-2-layer-0-petal-3",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-2-layer-0-petal-4",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-2-layer-1-petal-0",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-2-layer-1-petal-1",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-2-layer-1-petal-2",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-2-layer-2-petal-0",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.02889864817295557,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.701870410002959,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-2-closed-stamen-0",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-2-closed-stamen-1",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-2-closed-stamen-2",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-2-closed-stamen-3",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "camellia-2-closed-stamen-4",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "padded-camellia-leaf-2-0",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.03115689513670393,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.8769156376177727,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "real-leaf-petiole-2-0",
+      "vertices": 52,
+      "triangles": 32,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 2.828427076339719,
+      "faceNormals": {
+        "triangles": 32,
+        "minimumFaceAverageNormalDot": 0.9906023243737807,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "padded-camellia-leaf-2-1",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.03115689513670393,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.8769156376177727,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "real-leaf-petiole-2-1",
+      "vertices": 52,
+      "triangles": 32,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 2.828427076339719,
+      "faceNormals": {
+        "triangles": 32,
+        "minimumFaceAverageNormalDot": 0.9906023243737807,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "padded-camellia-leaf-2-2",
+      "vertices": 74,
+      "triangles": 144,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.03115689513670393,
+      "faceNormals": {
+        "triangles": 144,
+        "minimumFaceAverageNormalDot": 0.8769156376177727,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "real-leaf-petiole-2-2",
+      "vertices": 52,
+      "triangles": 32,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 2.828427076339719,
+      "faceNormals": {
+        "triangles": 32,
+        "minimumFaceAverageNormalDot": 0.9906023243737807,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "connected-bud-stem-2",
+      "vertices": 52,
+      "triangles": 32,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 2.828427076339719,
+      "faceNormals": {
+        "triangles": 32,
+        "minimumFaceAverageNormalDot": 0.9906023243737807,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "rounded-unopened-camellia-bud-2",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    }
+  ],
+  "crossings": [
+    {
+      "name": "hollow-rounded-cream-planter",
+      "triangles": 384,
+      "candidateNonadjacentAABBPairs": 1074,
+      "strictEdgeInteriorCrossings": 0,
+      "witnesses": [],
+      "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+    },
+    {
+      "name": "closed-recessed-soil-field",
+      "triangles": 128,
+      "candidateNonadjacentAABBPairs": 112,
+      "strictEdgeInteriorCrossings": 0,
+      "witnesses": [],
+      "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+    },
+    {
+      "name": "warm-wood-cradle-0",
+      "triangles": 12,
+      "candidateNonadjacentAABBPairs": 48,
+      "strictEdgeInteriorCrossings": 0,
+      "witnesses": [],
+      "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+    },
+    {
+      "name": "rounded-flat-pad-foot-0-0",
+      "triangles": 240,
+      "candidateNonadjacentAABBPairs": 145,
+      "strictEdgeInteriorCrossings": 0,
+      "witnesses": [],
+      "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+    },
+    {
+      "name": "warm-wood-longitudinal-support-0",
+      "triangles": 12,
+      "candidateNonadjacentAABBPairs": 48,
+      "strictEdgeInteriorCrossings": 0,
+      "witnesses": [],
+      "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+    },
+    {
+      "name": "curved-camellia-main-stem-0",
+      "triangles": 208,
+      "candidateNonadjacentAABBPairs": 112,
+      "strictEdgeInteriorCrossings": 0,
+      "witnesses": [],
+      "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+    },
+    {
+      "name": "camellia-receptacle-0",
+      "triangles": 168,
+      "candidateNonadjacentAABBPairs": 177,
+      "strictEdgeInteriorCrossings": 0,
+      "witnesses": [],
+      "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+    },
+    {
+      "name": "camellia-0-layer-0-petal-0",
+      "triangles": 144,
+      "candidateNonadjacentAABBPairs": 163,
+      "strictEdgeInteriorCrossings": 0,
+      "witnesses": [],
+      "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+    },
+    {
+      "name": "padded-camellia-leaf-0-0",
+      "triangles": 144,
+      "candidateNonadjacentAABBPairs": 159,
+      "strictEdgeInteriorCrossings": 0,
+      "witnesses": [],
+      "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+    },
+    {
+      "name": "real-leaf-petiole-0-0",
+      "triangles": 32,
+      "candidateNonadjacentAABBPairs": 157,
+      "strictEdgeInteriorCrossings": 0,
+      "witnesses": [],
+      "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+    },
+    {
+      "name": "curved-camellia-main-stem-1",
+      "triangles": 208,
+      "candidateNonadjacentAABBPairs": 168,
+      "strictEdgeInteriorCrossings": 0,
+      "witnesses": [],
+      "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+    },
+    {
+      "name": "curved-camellia-main-stem-2",
+      "triangles": 208,
+      "candidateNonadjacentAABBPairs": 63,
+      "strictEdgeInteriorCrossings": 0,
+      "witnesses": [],
+      "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+    }
+  ],
+  "attachments": {
+    "rows": [
+      {
+        "child": "closed-recessed-soil-field",
+        "parent": "hollow-rounded-cream-planter",
+        "point": [
+          0,
+          0.35,
+          0
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.009999996423721291,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.010000014305114768,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            3,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "warm-wood-cradle-0",
+        "parent": "hollow-rounded-cream-planter",
+        "point": [
+          -0.5,
+          0.285,
+          0
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.024999998658895517,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02500000953674314,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            3,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "rounded-flat-pad-foot-0-0",
+        "parent": "warm-wood-cradle-0",
+        "point": [
+          -0.5,
+          0.215,
+          -0.19
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.024999994635581974,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02499999865889549,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "rounded-flat-pad-foot-0-1",
+        "parent": "warm-wood-cradle-0",
+        "point": [
+          -0.5,
+          0.215,
+          0.19
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.024999994635581974,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02499999865889549,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "warm-wood-cradle-1",
+        "parent": "hollow-rounded-cream-planter",
+        "point": [
+          0.5,
+          0.285,
+          0
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.024999998658895517,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02500000953674314,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "rounded-flat-pad-foot-1-0",
+        "parent": "warm-wood-cradle-1",
+        "point": [
+          0.5,
+          0.215,
+          -0.19
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.024999994635581974,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02499999865889549,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "rounded-flat-pad-foot-1-1",
+        "parent": "warm-wood-cradle-1",
+        "point": [
+          0.5,
+          0.215,
+          0.19
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.024999994635581974,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02499999865889549,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "warm-wood-longitudinal-support-0",
+        "parent": "warm-wood-cradle-0",
+        "point": [
+          -0.5,
+          0.25,
+          -0.21
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.032499998807907104,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.05999999865889549,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "warm-wood-longitudinal-support-0",
+        "parent": "warm-wood-cradle-1",
+        "point": [
+          0.5,
+          0.25,
+          -0.21
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.032499998807907104,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.05999999865889549,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "warm-wood-longitudinal-support-1",
+        "parent": "warm-wood-cradle-0",
+        "point": [
+          -0.5,
+          0.25,
+          0.21
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.032499998807907104,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.05999999865889549,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "warm-wood-longitudinal-support-1",
+        "parent": "warm-wood-cradle-1",
+        "point": [
+          0.5,
+          0.25,
+          0.21
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.032499998807907104,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.05999999865889549,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "curved-camellia-main-stem-0",
+        "parent": "closed-recessed-soil-field",
+        "point": [
+          -0.43872706283578944,
+          0.3791932250236225,
+          0.008741460597216186
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.014305347524245268,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.020806780936841962,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-receptacle-0",
+        "parent": "curved-camellia-main-stem-0",
+        "point": [
+          -0.47886696470971135,
+          1.0939187891799094,
+          0.029189537869796944
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.04014994206769178,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.006238730423652497,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-0-layer-0-petal-0",
+        "parent": "camellia-receptacle-0",
+        "point": [
+          -0.47802034060816256,
+          1.0663742642688252,
+          0.05377696329101474
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.00761568321258605,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.021173703317679465,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-0-layer-0-petal-1",
+        "parent": "camellia-receptacle-0",
+        "point": [
+          -0.44709182757041815,
+          1.0830323957924497,
+          0.04814127153519257
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.007615683212585861,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02007595282357626,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-0-layer-0-petal-2",
+        "parent": "camellia-receptacle-0",
+        "point": [
+          -0.4412721119942962,
+          1.11404318696568,
+          0.0317008023334244
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.007615683212585957,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.019855169098683616,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-0-layer-0-petal-3",
+        "parent": "camellia-receptacle-0",
+        "point": [
+          -0.46494355840917956,
+          1.1360548795302152,
+          0.016835564319096476
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0076156832125860085,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.020516285186823174,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-0-layer-0-petal-4",
+        "parent": "camellia-receptacle-0",
+        "point": [
+          -0.5002810848551522,
+          1.1324922200282599,
+          0.014739384912592161
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0076156832125860085,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.020516284830127844,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-0-layer-0-petal-5",
+        "parent": "camellia-receptacle-0",
+        "point": [
+          -0.5206748131642231,
+          1.1060379637297963,
+          0.026990729961276643
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0076156832125859435,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.019855169712397876,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-0-layer-0-petal-6",
+        "parent": "camellia-receptacle-0",
+        "point": [
+          -0.5107678499634176,
+          1.076612705196053,
+          0.04436408676159547
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.007615683212585796,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.020075952823576416,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-0-layer-1-petal-0",
+        "parent": "camellia-receptacle-0",
+        "point": [
+          -0.46642143620984194,
+          1.0837183498960352,
+          0.06027596445769634
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.007116433179374806,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.018437059487697936,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-0-layer-1-petal-1",
+        "parent": "camellia-receptacle-0",
+        "point": [
+          -0.449663554579257,
+          1.1148116050255632,
+          0.04504725836675967
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.007116433179374915,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.018387886836446994,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-0-layer-1-petal-2",
+        "parent": "camellia-receptacle-0",
+        "point": [
+          -0.4772084589852076,
+          1.136854203339741,
+          0.029719743847908577
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.00711643317937493,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.018266079841967337,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-0-layer-1-petal-3",
+        "parent": "camellia-receptacle-0",
+        "point": [
+          -0.5109900277555367,
+          1.1193840231687362,
+          0.035475525003137796
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.00711643317937491,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.01867933891554982,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-0-layer-1-petal-4",
+        "parent": "camellia-receptacle-0",
+        "point": [
+          -0.5043232810429416,
+          1.086544259719293,
+          0.05436030790772667
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.007116433179375006,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.018249629299140372,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-0-layer-2-petal-0",
+        "parent": "camellia-receptacle-0",
+        "point": [
+          -0.46362092071680155,
+          1.1021550798027526,
+          0.0645861304214001
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.005787743753983784,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.01071730795537881,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-0-layer-2-petal-1",
+        "parent": "camellia-receptacle-0",
+        "point": [
+          -0.46821028508911,
+          1.131924187454751,
+          0.04763428201888287
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.005787743753983777,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.010717307955378787,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-0-layer-2-petal-2",
+        "parent": "camellia-receptacle-0",
+        "point": [
+          -0.5022923378500528,
+          1.1262285613181486,
+          0.046859219110233274
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.005787743753983798,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.01071730795537873,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-0-layer-2-petal-3",
+        "parent": "camellia-receptacle-0",
+        "point": [
+          -0.49770297347774434,
+          1.0964594536661503,
+          0.06381106751275051
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.00578774375398383,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.010717307955378823,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-0-closed-stamen-0",
+        "parent": "camellia-receptacle-0",
+        "point": [
+          -0.48150761188510954,
+          1.0942922893824818,
+          0.0651162234004533
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.009392327539579784,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.013442263923334797,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-0-closed-stamen-1",
+        "parent": "camellia-receptacle-0",
+        "point": [
+          -0.46162169780981405,
+          1.109630749363041,
+          0.058939362040523496
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.009392327539579944,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.01313150031784286,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-0-closed-stamen-2",
+        "parent": "camellia-receptacle-0",
+        "point": [
+          -0.47100871197097793,
+          1.130258589533677,
+          0.04647951756003891
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.009392327539579791,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.01323546798690802,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-0-closed-stamen-3",
+        "parent": "camellia-receptacle-0",
+        "point": [
+          -0.49669611985074935,
+          1.1276688358930709,
+          0.04495577153649147
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.009392327539579784,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.013235467986908054,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-0-closed-stamen-4",
+        "parent": "camellia-receptacle-0",
+        "point": [
+          -0.5031847968421661,
+          1.105440439950052,
+          0.05647388918420123
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.009392327539579927,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.013131500489582868,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "real-leaf-petiole-0-0",
+        "parent": "curved-camellia-main-stem-0",
+        "point": [
+          -0.4113794587834392,
+          0.5786548540851725,
+          -0.013652979266761352
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0040000000000000036,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.013957045067719654,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "padded-camellia-leaf-0-0",
+        "parent": "real-leaf-petiole-0-0",
+        "point": [
+          -0.296655420371719,
+          0.6177791945306222,
+          -0.018654502037976455
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.012737671834960829,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.008000000000000044,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "real-leaf-petiole-0-1",
+        "parent": "curved-camellia-main-stem-0",
+        "point": [
+          -0.41157414239898976,
+          0.7002801253199964,
+          -0.017489585606849278
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.003999999999999989,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.01375257130013147,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "padded-camellia-leaf-0-1",
+        "parent": "real-leaf-petiole-0-1",
+        "point": [
+          -0.48511887533297043,
+          0.7584957628723324,
+          0.0701543727821673
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.014223733549039642,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.008000000000000024,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "real-leaf-petiole-0-2",
+        "parent": "curved-camellia-main-stem-0",
+        "point": [
+          -0.42310650062808247,
+          0.8268198915993358,
+          -0.01573190113744155
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.003999999999999988,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.011489333515264225,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "padded-camellia-leaf-0-2",
+        "parent": "real-leaf-petiole-0-2",
+        "point": [
+          -0.45756311605729255,
+          0.8646589087730081,
+          -0.1411210967837297
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.01570979526311836,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.008000000000000002,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "connected-bud-stem-0",
+        "parent": "curved-camellia-main-stem-0",
+        "point": [
+          -0.4234266161673467,
+          0.81293367979769,
+          -0.014357361285529883
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0045343136195017545,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.011946200961634634,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "rounded-unopened-camellia-bud-0",
+        "parent": "connected-bud-stem-0",
+        "point": [
+          -0.6067766161673467,
+          0.9287336797976901,
+          -0.04330736128552989
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.049574237513988796,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0034007352146264184,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "curved-camellia-main-stem-1",
+        "parent": "closed-recessed-soil-field",
+        "point": [
+          -0.0014497219050572277,
+          0.37912077523062604,
+          -0.07125862543030421
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.014250420275808372,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02087923072983844,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-receptacle-1",
+        "parent": "curved-camellia-main-stem-1",
+        "point": [
+          0.019105254745590543,
+          1.3497365055385826,
+          -0.021297385634836435
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.03732568261696596,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.010383787299203555,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-1-layer-0-petal-0",
+        "parent": "camellia-receptacle-1",
+        "point": [
+          0.027444886325582812,
+          1.3303419996454189,
+          0.0002913202856389928
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.006663722811012683,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02432696045050163,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-1-layer-0-petal-1",
+        "parent": "camellia-receptacle-1",
+        "point": [
+          0.0547568873090617,
+          1.350844900982838,
+          -0.012590280508769265
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.006663722811012716,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02432696105167199,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-1-layer-0-petal-2",
+        "parent": "camellia-receptacle-1",
+        "point": [
+          0.047503446366111035,
+          1.382340777010688,
+          -0.029550451136608855
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.006663722811012725,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.024326960724796537,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-1-layer-0-petal-3",
+        "parent": "camellia-receptacle-1",
+        "point": [
+          0.012938004439681496,
+          1.3933337517011186,
+          -0.03362902097004019
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.006663722811012721,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.024326960450501683,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-1-layer-0-petal-4",
+        "parent": "camellia-receptacle-1",
+        "point": [
+          -0.014373996543797403,
+          1.3728308503636995,
+          -0.020747420175631928
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0066637228110127235,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.024326961051671935,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-1-layer-0-petal-5",
+        "parent": "camellia-receptacle-1",
+        "point": [
+          -0.007120555600846713,
+          1.3413349743358496,
+          -0.003787249547792332
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.006663722811012609,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02432696072479663,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-1-layer-1-petal-0",
+        "parent": "camellia-receptacle-1",
+        "point": [
+          0.03805863979443239,
+          1.3469294795787636,
+          0.0052323921775782375
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.006226879031953199,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02030586393053237,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-1-layer-1-petal-1",
+        "parent": "camellia-receptacle-1",
+        "point": [
+          0.044441194608012755,
+          1.3825646823923619,
+          -0.014795222869785086
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.006226879031953098,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.020305863930532436,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-1-layer-1-petal-2",
+        "parent": "camellia-receptacle-1",
+        "point": [
+          0.00361657372163361,
+          1.38915257017547,
+          -0.01608367699802981
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.006226879031953063,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02030586393053246,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-1-layer-1-petal-3",
+        "parent": "camellia-receptacle-1",
+        "point": [
+          -0.002765981091946753,
+          1.353517367361872,
+          0.003943938049333505
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.006226879031953104,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.020305863930532353,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-1-layer-2-petal-0",
+        "parent": "camellia-receptacle-1",
+        "point": [
+          0.04064139291964425,
+          1.3641505632348876,
+          0.009784483792357359
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.005064275784735764,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.012362144604931501,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-1-layer-2-petal-1",
+        "parent": "camellia-receptacle-1",
+        "point": [
+          0.002282110909218059,
+          1.3839150735221906,
+          0.0010844828298468253
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.005064275784735824,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.012362144604931576,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-1-closed-stamen-0",
+        "parent": "camellia-receptacle-1",
+        "point": [
+          0.020754997053694203,
+          1.3542707057071963,
+          0.015136948734279117
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.009392327539579857,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.013442263923334774,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-1-closed-stamen-1",
+        "parent": "camellia-receptacle-1",
+        "point": [
+          0.04209325005673117,
+          1.3665125517038854,
+          0.00715649042558646
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.009392327539579862,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.013131500317842854,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-1-closed-stamen-2",
+        "parent": "camellia-receptacle-1",
+        "point": [
+          0.03484407818814878,
+          1.3884233521336888,
+          -0.004515607980018731
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.00939232753957986,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.013235467986908129,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-1-closed-stamen-3",
+        "parent": "camellia-receptacle-1",
+        "point": [
+          0.009025590580038313,
+          1.389723125523334,
+          -0.00374890320602354
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.009392327539579859,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.01323546798690814,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-1-closed-stamen-4",
+        "parent": "camellia-receptacle-1",
+        "point": [
+          0.00031805956869045485,
+          1.368615629226004,
+          0.008397044809247488
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.009392327539579857,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.013131500489582872,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "real-leaf-petiole-1-0",
+        "parent": "curved-camellia-main-stem-1",
+        "point": [
+          -0.025259459051129463,
+          0.5720291720349492,
+          -0.0897924811330012
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.003999999999999962,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.013866740864661664,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "padded-camellia-leaf-1-0",
+        "parent": "real-leaf-petiole-1-0",
+        "point": [
+          -0.012359057684214273,
+          0.6187724126489904,
+          0.029068785651100992
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.014223733549039585,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.008000000000000005,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "real-leaf-petiole-1-1",
+        "parent": "curved-camellia-main-stem-1",
+        "point": [
+          -0.037679353431953194,
+          0.6976842895967041,
+          -0.10213733060664944
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0039999999999999385,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.012267292984217726,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "padded-camellia-leaf-1-1",
+        "parent": "real-leaf-petiole-1-1",
+        "point": [
+          -0.14139126689269055,
+          0.7558782932406828,
+          -0.1669354547965224
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.015709795263118387,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.007999999999999981,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "real-leaf-petiole-1-2",
+        "parent": "curved-camellia-main-stem-1",
+        "point": [
+          -0.024557332584197237,
+          0.8870173770451827,
+          -0.08889751729772846
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.003999999999999956,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.011640362242422764,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "padded-camellia-leaf-1-2",
+        "parent": "real-leaf-petiole-1-2",
+        "point": [
+          0.08278130962284719,
+          0.9281232776937163,
+          -0.12770544246562793
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0127376718349608,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.008000000000000004,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "curved-camellia-main-stem-2",
+        "parent": "closed-recessed-soil-field",
+        "point": [
+          0.43119882972059104,
+          0.37921504742673906,
+          0.033739250851384066
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.014320980522515705,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.020784958533725417,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-receptacle-2",
+        "parent": "curved-camellia-main-stem-2",
+        "point": [
+          0.4895198257827136,
+          1.0348822400820128,
+          0.049270956388924834
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.04092163689621186,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.005191635065975718,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-2-layer-0-petal-0",
+        "parent": "camellia-receptacle-2",
+        "point": [
+          0.5014055585386568,
+          1.0140104145242153,
+          0.0651365723136574
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.005711762409439471,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02899650985909433,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-2-layer-0-petal-1",
+        "parent": "camellia-receptacle-2",
+        "point": [
+          0.5220441082890622,
+          1.0398490083650305,
+          0.047204742288544745
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0057117624094394645,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.028695461401730023,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-2-layer-0-petal-2",
+        "parent": "camellia-receptacle-2",
+        "point": [
+          0.49921064055962255,
+          1.0679709979398568,
+          0.03705981008955504
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.005711762409439471,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02864046833252509,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-2-layer-0-petal-3",
+        "parent": "camellia-receptacle-2",
+        "point": [
+          0.4644602316713995,
+          1.0595127494875547,
+          0.04872172720212884
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.005711762409439486,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.029105894868462635,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-2-layer-0-petal-4",
+        "parent": "camellia-receptacle-2",
+        "point": [
+          0.4658167655849609,
+          1.0261632748839142,
+          0.06607412055067319
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.00571176240943948,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.028539751056556862,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-2-layer-1-petal-0",
+        "parent": "camellia-receptacle-2",
+        "point": [
+          0.5107608705843115,
+          1.0297006455376423,
+          0.06971345554071016
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.00533732488453126,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.022236562275731245,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-2-layer-1-petal-1",
+        "parent": "camellia-receptacle-2",
+        "point": [
+          0.499582361549249,
+          1.0688465675944465,
+          0.05132840666735539
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.005337324884531203,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.022236561948447114,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-2-layer-1-petal-2",
+        "parent": "camellia-receptacle-2",
+        "point": [
+          0.4683699044289043,
+          1.0437196914164324,
+          0.0710716311771813
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.005337324884531162,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02223656238464753,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-2-layer-2-petal-0",
+        "parent": "camellia-receptacle-2",
+        "point": [
+          0.5131797656890605,
+          1.0455323931546876,
+          0.07521884148228723
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.004340807815487846,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.013428175701915582,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-2-closed-stamen-0",
+        "parent": "camellia-receptacle-2",
+        "point": [
+          0.4926797952611854,
+          1.0337428150999501,
+          0.08495234376239617
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.009392327539579911,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.013442263923334785,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-2-closed-stamen-1",
+        "parent": "camellia-receptacle-2",
+        "point": [
+          0.5147683616387423,
+          1.0431977922402575,
+          0.07538311223078507
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.009392327539579843,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.013131500317842834,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-2-closed-stamen-2",
+        "parent": "camellia-receptacle-2",
+        "point": [
+          0.5095898705890596,
+          1.0660252469460039,
+          0.06438483547710641
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.00939232753957984,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.013235467986907966,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-2-closed-stamen-3",
+        "parent": "camellia-receptacle-2",
+        "point": [
+          0.4843008207323618,
+          1.0706784126904962,
+          0.06715675815726624
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.009392327539579887,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.013235467986908136,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "camellia-2-closed-stamen-4",
+        "parent": "camellia-receptacle-2",
+        "point": [
+          0.4738498194274145,
+          1.050726772570133,
+          0.07986817734147038
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.009392327539579887,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.013131500489583023,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "real-leaf-petiole-2-0",
+        "parent": "curved-camellia-main-stem-2",
+        "point": [
+          0.4441666013846376,
+          0.5807808813565873,
+          0.011811485585226968
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.004000000000000017,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.013435735287002499,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "padded-camellia-leaf-2-0",
+        "parent": "real-leaf-petiole-2-0",
+        "point": [
+          0.3180912000663782,
+          0.6271721953406403,
+          0.028967799921409756
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.01570979526311829,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.007999999999999983,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "real-leaf-petiole-2-1",
+        "parent": "curved-camellia-main-stem-2",
+        "point": [
+          0.4597914420171433,
+          0.7008573098505327,
+          0.0014391169099481236
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.004000000000000007,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.012114899013145936,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "padded-camellia-leaf-2-1",
+        "parent": "real-leaf-petiole-2-1",
+        "point": [
+          0.5092829644489966,
+          0.7505339459511148,
+          -0.09755661667450483
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.01273767183496075,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.008000000000000004,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "real-leaf-petiole-2-2",
+        "parent": "curved-camellia-main-stem-2",
+        "point": [
+          0.47002425768510325,
+          0.8123297306350562,
+          0.015698731302257993
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.003999999999999954,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.01178646583309191,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "padded-camellia-leaf-2-2",
+        "parent": "real-leaf-petiole-2-2",
+        "point": [
+          0.5253732609171503,
+          0.8585099803279428,
+          0.12192125254691998
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.01422373354903955,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.007999999999999995,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "connected-bud-stem-2",
+        "parent": "curved-camellia-main-stem-2",
+        "point": [
+          0.47010412737744633,
+          0.8004327280589004,
+          0.010223256710155637
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0038884444190448028,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.012331278130596425,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "rounded-unopened-camellia-bud-2",
+        "parent": "connected-bud-stem-2",
+        "point": [
+          0.6148541273774464,
+          0.9162327280589004,
+          -0.01872674328984436
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.05014867689618872,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.002916333314283439,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "authored point checked inside both actual closed triangle solids",
+        "verified": true
+      }
+    ],
+    "partCount": 90,
+    "connectedPartCount": 90,
+    "strictVerified": true,
+    "minimumSurfaceClearance": 0.002916333314283439,
+    "scope": "Finite common material points checked with3noncollinear triangle rays and actual triangle distance, not load/friction/stability or continuous assembly safety."
+  },
+  "cavity": {
+    "rows": [
+      {
+        "localXZ": [
+          -0.3,
+          -0.08
+        ],
+        "potFloorY": 0.36000001430511475,
+        "soilTopY": 0.40000000596046453,
+        "potTriangle": 275,
+        "soilTriangle": 87
+      },
+      {
+        "localXZ": [
+          -0.3,
+          0
+        ],
+        "potFloorY": 0.36000001430511475,
+        "soilTopY": 0.40000000596046453,
+        "potTriangle": 191,
+        "soilTriangle": 63
+      },
+      {
+        "localXZ": [
+          -0.3,
+          0.08
+        ],
+        "potFloorY": 0.36000001430511475,
+        "soilTopY": 0.40000000596046453,
+        "potTriangle": 119,
+        "soilTriangle": 43
+      },
+      {
+        "localXZ": [
+          0,
+          -0.08
+        ],
+        "potFloorY": 0.36000001430511475,
+        "soilTopY": 0.4000000059604645,
+        "potTriangle": 287,
+        "soilTriangle": 95
+      },
+      {
+        "localXZ": [
+          0,
+          0
+        ],
+        "potFloorY": 0.36000001430511475,
+        "soilTopY": 0.40000000596046453,
+        "potTriangle": 11,
+        "soilTriangle": 23
+      },
+      {
+        "localXZ": [
+          0,
+          0.08
+        ],
+        "potFloorY": 0.36000001430511475,
+        "soilTopY": 0.4000000059604645,
+        "potTriangle": 95,
+        "soilTriangle": 31
+      },
+      {
+        "localXZ": [
+          0.3,
+          -0.08
+        ],
+        "potFloorY": 0.36000001430511475,
+        "soilTopY": 0.40000000596046453,
+        "potTriangle": 311,
+        "soilTriangle": 107
+      },
+      {
+        "localXZ": [
+          0.3,
+          0
+        ],
+        "potFloorY": 0.36000001430511475,
+        "soilTopY": 0.40000000596046453,
+        "potTriangle": 383,
+        "soilTriangle": 127
+      },
+      {
+        "localXZ": [
+          0.3,
+          0.08
+        ],
+        "potFloorY": 0.36000001430511475,
+        "soilTopY": 0.40000000596046453,
+        "potTriangle": 83,
+        "soilTriangle": 23
+      }
+    ],
+    "finiteVerticalRays": 9,
+    "allPotFloorHits": true,
+    "allRecessedSoilHits": true,
+    "emptyCentreAboveSoil": true,
+    "scope": "9finite vertical samples through pot opening to actual inner floor and recessed soil; plants excluded from cavity probe. Not drainage, water retention or continuous access."
+  },
+  "placement": {
+    "townPoint": {
+      "x": 2400,
+      "y": 400
+    },
+    "worldPosition": [
+      9.6,
+      0.025000000000001292,
+      -5.6
+    ],
+    "projectedFootprint": {
+      "minX": 8.79999998807907,
+      "maxX": 10.400000011920929,
+      "minZ": -6.005571108818914,
+      "maxZ": -5.252985316023376
+    },
+    "supports": [
+      {
+        "foot": "rounded-flat-pad-foot-0-0",
+        "sample": [
+          0,
+          0
+        ],
+        "x": 9.1,
+        "z": -5.79,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 0,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000129,
+        "requiredGroupY": 0.02500000000000129,
+        "soleMinusFloor": 3.469446951953614e-18
+      },
+      {
+        "foot": "rounded-flat-pad-foot-0-0",
+        "sample": [
+          0.01925,
+          0
+        ],
+        "x": 9.11925,
+        "z": -5.79,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 0,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000129,
+        "requiredGroupY": 0.02500000000000129,
+        "soleMinusFloor": 3.469446951953614e-18
+      },
+      {
+        "foot": "rounded-flat-pad-foot-0-0",
+        "sample": [
+          -0.01925,
+          0
+        ],
+        "x": 9.08075,
+        "z": -5.79,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 120,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000129,
+        "requiredGroupY": 0.02500000000000129,
+        "soleMinusFloor": 3.469446951953614e-18
+      },
+      {
+        "foot": "rounded-flat-pad-foot-0-0",
+        "sample": [
+          0,
+          0.01925
+        ],
+        "x": 9.1,
+        "z": -5.77075,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 60,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000128,
+        "requiredGroupY": 0.02500000000000128,
+        "soleMinusFloor": 1.0408340855860843e-17
+      },
+      {
+        "foot": "rounded-flat-pad-foot-0-0",
+        "sample": [
+          0,
+          -0.01925
+        ],
+        "x": 9.1,
+        "z": -5.80925,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 180,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001292,
+        "requiredGroupY": 0.025000000000001292,
+        "soleMinusFloor": 0
+      },
+      {
+        "foot": "rounded-flat-pad-foot-0-1",
+        "sample": [
+          0,
+          0
+        ],
+        "x": 9.1,
+        "z": -5.409999999999999,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 0,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001202,
+        "requiredGroupY": 0.025000000000001202,
+        "soleMinusFloor": 9.020562075079397e-17
+      },
+      {
+        "foot": "rounded-flat-pad-foot-0-1",
+        "sample": [
+          0.01925,
+          0
+        ],
+        "x": 9.11925,
+        "z": -5.409999999999999,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 0,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001202,
+        "requiredGroupY": 0.025000000000001202,
+        "soleMinusFloor": 9.020562075079397e-17
+      },
+      {
+        "foot": "rounded-flat-pad-foot-0-1",
+        "sample": [
+          -0.01925,
+          0
+        ],
+        "x": 9.08075,
+        "z": -5.409999999999999,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 120,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001202,
+        "requiredGroupY": 0.025000000000001202,
+        "soleMinusFloor": 9.020562075079397e-17
+      },
+      {
+        "foot": "rounded-flat-pad-foot-0-1",
+        "sample": [
+          0,
+          0.01925
+        ],
+        "x": 9.1,
+        "z": -5.39075,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 60,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.0250000000000012,
+        "requiredGroupY": 0.0250000000000012,
+        "soleMinusFloor": 9.367506770274758e-17
+      },
+      {
+        "foot": "rounded-flat-pad-foot-0-1",
+        "sample": [
+          0,
+          -0.01925
+        ],
+        "x": 9.1,
+        "z": -5.42925,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 180,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001205,
+        "requiredGroupY": 0.025000000000001205,
+        "soleMinusFloor": 8.673617379884035e-17
+      },
+      {
+        "foot": "rounded-flat-pad-foot-1-0",
+        "sample": [
+          0,
+          0
+        ],
+        "x": 10.1,
+        "z": -5.79,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 0,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000129,
+        "requiredGroupY": 0.02500000000000129,
+        "soleMinusFloor": 3.469446951953614e-18
+      },
+      {
+        "foot": "rounded-flat-pad-foot-1-0",
+        "sample": [
+          0.01925,
+          0
+        ],
+        "x": 10.11925,
+        "z": -5.79,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 0,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000129,
+        "requiredGroupY": 0.02500000000000129,
+        "soleMinusFloor": 3.469446951953614e-18
+      },
+      {
+        "foot": "rounded-flat-pad-foot-1-0",
+        "sample": [
+          -0.01925,
+          0
+        ],
+        "x": 10.08075,
+        "z": -5.79,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 120,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000129,
+        "requiredGroupY": 0.02500000000000129,
+        "soleMinusFloor": 3.469446951953614e-18
+      },
+      {
+        "foot": "rounded-flat-pad-foot-1-0",
+        "sample": [
+          0,
+          0.01925
+        ],
+        "x": 10.1,
+        "z": -5.77075,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 60,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000128,
+        "requiredGroupY": 0.02500000000000128,
+        "soleMinusFloor": 1.0408340855860843e-17
+      },
+      {
+        "foot": "rounded-flat-pad-foot-1-0",
+        "sample": [
+          0,
+          -0.01925
+        ],
+        "x": 10.1,
+        "z": -5.80925,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 180,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001292,
+        "requiredGroupY": 0.025000000000001292,
+        "soleMinusFloor": 0
+      },
+      {
+        "foot": "rounded-flat-pad-foot-1-1",
+        "sample": [
+          0,
+          0
+        ],
+        "x": 10.1,
+        "z": -5.409999999999999,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 0,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001202,
+        "requiredGroupY": 0.025000000000001202,
+        "soleMinusFloor": 9.020562075079397e-17
+      },
+      {
+        "foot": "rounded-flat-pad-foot-1-1",
+        "sample": [
+          0.01925,
+          0
+        ],
+        "x": 10.11925,
+        "z": -5.409999999999999,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 0,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001202,
+        "requiredGroupY": 0.025000000000001202,
+        "soleMinusFloor": 9.020562075079397e-17
+      },
+      {
+        "foot": "rounded-flat-pad-foot-1-1",
+        "sample": [
+          -0.01925,
+          0
+        ],
+        "x": 10.08075,
+        "z": -5.409999999999999,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 120,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001202,
+        "requiredGroupY": 0.025000000000001202,
+        "soleMinusFloor": 9.020562075079397e-17
+      },
+      {
+        "foot": "rounded-flat-pad-foot-1-1",
+        "sample": [
+          0,
+          0.01925
+        ],
+        "x": 10.1,
+        "z": -5.39075,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 60,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.0250000000000012,
+        "requiredGroupY": 0.0250000000000012,
+        "soleMinusFloor": 9.367506770274758e-17
+      },
+      {
+        "foot": "rounded-flat-pad-foot-1-1",
+        "sample": [
+          0,
+          -0.01925
+        ],
+        "x": 10.1,
+        "z": -5.42925,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 180,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001205,
+        "requiredGroupY": 0.025000000000001205,
+        "soleMinusFloor": 8.673617379884035e-17
+      }
+    ],
+    "flatPadSampleCount": 20,
+    "flatPads": 4,
+    "entireCurvedFootSoleContactVerified": false,
+    "finiteWalkability": {
+      "samples": 63,
+      "blocked": 0
+    },
+    "roads": [
+      {
+        "name": "layout-plaza-border",
+        "triangles": 192,
+        "minimumGap": 7.842849942073124
+      },
+      {
+        "name": "layout-plaza-floor",
+        "triangles": 96,
+        "minimumGap": 8.147372180770613
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.012023652365318
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.899143288661416
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.845700572269337
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.841850897179531
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.857766820619484
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.936381315738634
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.080219919437173
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.286492737192564
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.550192643357883
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.864503766596739
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.221310809252834
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.611707851997286
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.026439635384532
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.456247870008315
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.877050995531924
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.268200404310797
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.65052056752
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.017264198235617
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.362282764524782
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.680078252373255
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.965842375437445
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.215485731068826
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.425657976769442
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.593759220899996
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.71794235905267
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.797105925488653
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.821075763562092
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.767701964064049
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.671782062717718
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.535465262181136
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.361403746657363
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.152684649096717
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.912758576502524
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.645367431983072
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.354474728160191
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.044201962295762
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.718774852963504
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.382483231627893
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.0396580240201
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.694623976536274
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.321494193498268
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.95309670286374
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.596319208307941
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.25628130343106
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.938448022605057
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.648692694381301
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.39329783326283
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.178854452831835
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 10.873127923920281
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 10.903635551181502
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 16.42153436965695
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 2.092477394231369
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 2.148474210729226
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 2.1089298426793675
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 10.873151823787293
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 10.90365661647934
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 18.575272912747767
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 7.136552162558602
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 7.1965372290732
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 10.71305675598906
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 10.762736874594985
+      }
+    ],
+    "minimumRoadGap": 2.092477394231369,
+    "requiredMargin": 0.2,
+    "originalSpriteEnvelopeClearance": {
+      "checkedCards": 38,
+      "kinds": {
+        "shopTulip": 6,
+        "treeGrove": 12,
+        "flowers": 1,
+        "lantern": 4,
+        "treeApple": 5,
+        "treeBirch": 5,
+        "tree": 5
+      },
+      "minimumGap": 1.5231345230572086,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "kind": "shopTulip",
+          "sourceSHA256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+          "contact": [
+            6.8759999999999994,
+            0.025,
+            -4.894
+          ],
+          "fullQuadRadius": 0.43406919941234284,
+          "envelopeDistance": 1.9572037224695515,
+          "gap": 1.5231345230572086
+        },
+        {
+          "kind": "shopTulip",
+          "sourceSHA256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+          "contact": [
+            5.795999999999999,
+            0.025,
+            -4.894
+          ],
+          "fullQuadRadius": 0.43406919941234284,
+          "envelopeDistance": 3.025373759636892,
+          "gap": 2.5913045602245495
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            3.800391407986147,
+            0.025,
+            -10.014646520277676
+          ],
+          "fullQuadRadius": 3.428153984302411,
+          "envelopeDistance": 6.408492147838055,
+          "gap": 2.9803381635356443
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            3.018835793838979,
+            0.025,
+            -10.44966867454055
+          ],
+          "fullQuadRadius": 3.816913714481035,
+          "envelopeDistance": 7.291903908748157,
+          "gap": 3.4749901942671224
+        },
+        {
+          "kind": "lantern",
+          "sourceSHA256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+          "contact": [
+            4.032,
+            0.025,
+            -3.4560000000000004
+          ],
+          "fullQuadRadius": 0.9909739577995439,
+          "envelopeDistance": 5.0953881218534915,
+          "gap": 4.1044141640539475
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            0.8327002596367137,
+            0.025,
+            -9.982363263208441
+          ],
+          "fullQuadRadius": 4.385813983669816,
+          "envelopeDistance": 8.9046471464091,
+          "gap": 4.518833162739285
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            -3.9520000000000004
+          ],
+          "fullQuadRadius": 3.816913714481035,
+          "envelopeDistance": 9.46583005176869,
+          "gap": 5.6489163372876545
+        },
+        {
+          "kind": "treeApple",
+          "sourceSHA256": "ce7ef7adda439841a3fc36de04d5250eb01249ce653337f19b6d9520b028c45b",
+          "contact": [
+            -0.3355192961773006,
+            0.025,
+            -9.667760567754863
+          ],
+          "fullQuadRadius": 2.824426245157773,
+          "envelopeDistance": 9.842222524722839,
+          "gap": 7.017796279565066
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            -1.9396978898859323,
+            0.025,
+            -10.216135629486423
+          ],
+          "fullQuadRadius": 3.3722855420654474,
+          "envelopeDistance": 11.535595523971443,
+          "gap": 8.163309981905996
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            -3.7735156195406474,
+            0.025,
+            -10.38942810991384
+          ],
+          "fullQuadRadius": 3.777696918707195,
+          "envelopeDistance": 13.31583632150477,
+          "gap": 9.538139402797576
+        }
+      ],
+      "method": "sphere enclosing all four full raw Sprite quad corners from actual world scale/center; sphere-to-conservative-3D-pose-envelope distance; includes faint/transparent corners without cropping",
+      "cameraOrientationIndependentGeometryEnvelope": true,
+      "physicalFixtureVolumes": false,
+      "allCameraProjectionOcclusionGuaranteed": false
+    },
+    "buildingProxyClearance": [
+      {
+        "place": "home",
+        "intersects": false,
+        "separation": 15.631882714223302
+      },
+      {
+        "place": "cafe",
+        "intersects": false,
+        "separation": 1.2318827142233042
+      },
+      {
+        "place": "shop",
+        "intersects": false,
+        "separation": 17.016097261527992
+      },
+      {
+        "place": "playground",
+        "intersects": false,
+        "separation": 7.0749925199107935
+      },
+      {
+        "place": "tree",
+        "intersects": false,
+        "separation": null
+      },
+      {
+        "place": "flowers",
+        "intersects": false,
+        "separation": null
+      }
+    ],
+    "meadowInstances": {
+      "instanceCount": 1102,
+      "batchCount": 10,
+      "siteCount": 40,
+      "animationPadding": 0.018,
+      "minimumGap": 1.023509224645584,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "batch": "meadow-daisy-lobed-head-instances",
+          "instance": 19,
+          "bounds": {
+            "min": [
+              7.958820739835853,
+              0.26966038848726037,
+              -4.399957903835882
+            ],
+            "max": [
+              8.234389373794551,
+              0.48924224177269227,
+              -4.1378291572550845
+            ]
+          },
+          "minimumGap": 1.023509224645584
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 135,
+          "bounds": {
+            "min": [
+              7.977578815044441,
+              0.07105114515847945,
+              -4.3950632941515035
+            ],
+            "max": [
+              8.21403826324015,
+              0.22419910853424715,
+              -4.18908480159886
+            ]
+          },
+          "minimumGap": 1.0389327882923538
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 135,
+          "bounds": {
+            "min": [
+              7.985089577379973,
+              0.12565921738691058,
+              -4.33268680280395
+            ],
+            "max": [
+              8.19508846259249,
+              0.2939266082809292,
+              -4.162581188564673
+            ]
+          },
+          "minimumGap": 1.1013025502106073
+        },
+        {
+          "batch": "meadow-daisy-heart-instances",
+          "instance": 19,
+          "bounds": {
+            "min": [
+              8.064667348143331,
+              0.3707389938978198,
+              -4.31753558400345
+            ],
+            "max": [
+              8.167966242554911,
+              0.4668721449228284,
+              -4.218473250835417
+            ]
+          },
+          "minimumGap": 1.1289521055463112
+        },
+        {
+          "batch": "meadow-stem-instances",
+          "instance": 192,
+          "bounds": {
+            "min": [
+              8.067568068700785,
+              0.007000005960464479,
+              -4.295128576088361
+            ],
+            "max": [
+              8.118887038740318,
+              0.40940555262565614,
+              -4.243320091918379
+            ]
+          },
+          "minimumGap": 1.1753316059716374
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 133,
+          "bounds": {
+            "min": [
+              8.110396255521929,
+              0.062432864866922136,
+              -4.15085454583853
+            ],
+            "max": [
+              8.303385749492183,
+              0.21558082824268984,
+              -3.9123348705861134
+            ]
+          },
+          "minimumGap": 1.2088498403670647
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 132,
+          "bounds": {
+            "min": [
+              7.901148489831921,
+              0.041575798950860735,
+              -4.264367702750147
+            ],
+            "max": [
+              8.09452233541299,
+              0.19472376232662844,
+              -4.025857540398
+            ]
+          },
+          "minimumGap": 1.2145219239212193
+        },
+        {
+          "batch": "meadow-pansy-lobed-head-instances",
+          "instance": 17,
+          "bounds": {
+            "min": [
+              8.074392434718781,
+              0.24648008531446056,
+              -4.147406772627841
+            ],
+            "max": [
+              8.294425435225413,
+              0.4569575053289031,
+              -3.907472393100149
+            ]
+          },
+          "minimumGap": 1.215693030378051
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 133,
+          "bounds": {
+            "min": [
+              8.069273578978953,
+              0.11260869100637162,
+              -4.150892292711159
+            ],
+            "max": [
+              8.257900287576387,
+              0.28087608190039026,
+              -3.935303830406008
+            ]
+          },
+          "minimumGap": 1.2282023926530032
+        },
+        {
+          "batch": "meadow-rose-outer-rosette-instances",
+          "instance": 42,
+          "bounds": {
+            "min": [
+              7.872678861722074,
+              0.23156414085790836,
+              -4.255414189465224
+            ],
+            "max": [
+              8.078212702953188,
+              0.34142650297063937,
+              -4.046932128716306
+            ]
+          },
+          "minimumGap": 1.2313102929448343
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 132,
+          "bounds": {
+            "min": [
+              7.860408253295483,
+              0.08102512851304734,
+              -4.264202428528577
+            ],
+            "max": [
+              8.04857208160829,
+              0.24929251940706595,
+              -4.048723461221426
+            ]
+          },
+          "minimumGap": 1.2419080067483312
+        },
+        {
+          "batch": "meadow-rose-outer-rosette-instances",
+          "instance": 43,
+          "bounds": {
+            "min": [
+              7.897852390299883,
+              0.2736531604253287,
+              -4.230364211487056
+            ],
+            "max": [
+              8.05303405705311,
+              0.36177435561321625,
+              -4.072034530926201
+            ]
+          },
+          "minimumGap": 1.2663775209456951
+        }
+      ],
+      "scope": "every actual current meadow instance geometry AABB transformed by its actual instance and world matrix, expanded .018 in all axes; current finite matrices and authored animation allowance, no all-frame proof"
+    },
+    "shoreline": {
+      "segments": 7,
+      "minimumGap": 3.594429272650813,
+      "rows": [
+        {
+          "a": [
+            14.399999618530273,
+            -9.600000381469727
+          ],
+          "b": [
+            -14.399999618530273,
+            -9.600000381469727
+          ],
+          "footprintGap": 3.594429272650813
+        },
+        {
+          "a": [
+            -14.399999618530273,
+            -9.600000381469727
+          ],
+          "b": [
+            -14.399999618530273,
+            9.600000381469727
+          ],
+          "footprintGap": 23.199999606609346
+        },
+        {
+          "a": [
+            -14.399999618530273,
+            9.600000381469727
+          ],
+          "b": [
+            5.5,
+            9.600000381469727
+          ],
+          "footprintGap": 15.215162964991752
+        },
+        {
+          "a": [
+            5.5,
+            9.600000381469727
+          ],
+          "b": [
+            10.699999809265137,
+            4.900000095367432
+          ],
+          "footprintGap": 10.157416632309673
+        },
+        {
+          "a": [
+            10.699999809265137,
+            4.900000095367432
+          ],
+          "b": [
+            12.800000190734863,
+            0.8999999761581421
+          ],
+          "footprintGap": 6.60448551093187
+        },
+        {
+          "a": [
+            12.800000190734863,
+            0.8999999761581421
+          ],
+          "b": [
+            14,
+            -4.099999904632568
+          ],
+          "footprintGap": 3.780129002170342
+        },
+        {
+          "a": [
+            14,
+            -4.099999904632568
+          ],
+          "b": [
+            14.399999618530273,
+            -9.600000381469727
+          ],
+          "footprintGap": 3.6741494613028878
+        }
+      ],
+      "method": "every actual dry-land boundary segment against entire planter XZ AABB"
+    },
+    "waterBacking": {
+      "topY": -0.05,
+      "soleAboveWaterBacking": 0.07500000000000129
+    },
+    "worldUnchanged": true,
+    "walkableSurfacesUnchanged": true,
+    "occludersUnchanged": true,
+    "notRegisteredAsTownSurface": true,
+    "normalPlacement": false,
+    "ownershipUnlockSave": false,
+    "bodyBinding": null,
+    "limits": "one fixed authored standalone planter pose at one synthetic current-default-world site;20 finite rays on four flat contact pads,63 finite walkability samples and conservative envelope clearances. Not a continuous placement/stability/physical/body or all-camera-visibility guarantee"
+  },
+  "camera": [
+    {
+      "aspect": 0.44,
+      "yaw": 0,
+      "pitch": 12,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 5.498496354056087,
+      "actualDistance": 5.498496354056087,
+      "ndcBounds": {
+        "minX": -0.8620689655172412,
+        "maxX": 0.8620689655172412,
+        "minY": -0.3735187439884219,
+        "maxY": 0.3464975856214464
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 0.44,
+      "yaw": 90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 3.137111357049962,
+      "actualDistance": 3.137111357049962,
+      "ndcBounds": {
+        "minX": -0.8620689655172407,
+        "maxX": 0.8620689655172414,
+        "minY": -0.7840650380293122,
+        "maxY": 0.7840650380293122
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 0.44,
+      "yaw": 180,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 5.344999778356459,
+      "actualDistance": 5.344999778356459,
+      "ndcBounds": {
+        "minX": -0.8620689655172414,
+        "maxX": 0.8620689655172412,
+        "minY": -0.36879762465983346,
+        "maxY": 0.36879762465983346
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 0.44,
+      "yaw": -90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 3.137111357049962,
+      "actualDistance": 3.137111357049962,
+      "ndcBounds": {
+        "minX": -0.8620689655172414,
+        "maxX": 0.8620689655172407,
+        "minY": -0.7840650380293122,
+        "maxY": 0.7840650380293122
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 0.44,
+      "yaw": 0,
+      "pitch": 80,
+      "roll": 23,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 6.501477826335973,
+      "actualDistance": 6.501477826335973,
+      "ndcBounds": {
+        "minX": -0.7822679491577716,
+        "maxX": 0.8620689655172415,
+        "minY": -0.25449792770636115,
+        "maxY": 0.31597851992274517
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 0.44,
+      "yaw": 137,
+      "pitch": -80,
+      "roll": -17,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 6.447232768130414,
+      "actualDistance": 6.447232768130414,
+      "ndcBounds": {
+        "minX": -0.8013827040252012,
+        "maxX": 0.8620689655172413,
+        "minY": -0.32610697594104093,
+        "maxY": 0.26859617294302707
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 0.54,
+      "yaw": 0,
+      "pitch": 12,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 4.578365449989663,
+      "actualDistance": 4.578365449989663,
+      "ndcBounds": {
+        "minX": -0.8620689655172411,
+        "maxX": 0.8620689655172411,
+        "minY": -0.4521292118709455,
+        "maxY": 0.4131312455954378
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 0.54,
+      "yaw": 90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.925638874929834,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.7462041372263449,
+        "maxX": 0.7462041372263456,
+        "minY": -0.8329305934666539,
+        "maxY": 0.8329305934666539
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 0.54,
+      "yaw": 180,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 4.424868874290035,
+      "actualDistance": 4.424868874290035,
+      "ndcBounds": {
+        "minX": -0.8620689655172413,
+        "maxX": 0.8620689655172411,
+        "minY": -0.45261526662797746,
+        "maxY": 0.45261526662797746
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 0.54,
+      "yaw": -90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.925638874929834,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.7462041372263456,
+        "maxX": 0.7462041372263449,
+        "minY": -0.8329305934666539,
+        "maxY": 0.8329305934666539
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 0.54,
+      "yaw": 0,
+      "pitch": 80,
+      "roll": 23,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 5.427253821894621,
+      "actualDistance": 5.427253821894621,
+      "ndcBounds": {
+        "minX": -0.7863871921143994,
+        "maxX": 0.8620689655172415,
+        "minY": -0.29911138426488093,
+        "maxY": 0.38779181990518724
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 0.54,
+      "yaw": 137,
+      "pitch": -80,
+      "roll": -17,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 5.386459495029298,
+      "actualDistance": 5.386459495029298,
+      "ndcBounds": {
+        "minX": -0.8044298809322448,
+        "maxX": 0.8620689655172414,
+        "minY": -0.3987349531059355,
+        "maxY": 0.3160042442900668
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1,
+      "yaw": 0,
+      "pitch": 12,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.7160205001592206,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.7629640872525915,
+        "maxX": 0.7629640872525915,
+        "minY": -0.7075746895160064,
+        "maxY": 0.6509939807636027
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1,
+      "yaw": 90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.925638874929834,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.4029502341022263,
+        "maxX": 0.40295023410222663,
+        "minY": -0.8329305934666539,
+        "maxY": 0.8329305934666539
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1,
+      "yaw": 180,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.5625239244595925,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.7183278644767049,
+        "maxX": 0.7183278644767049,
+        "minY": -0.6984191540212188,
+        "maxY": 0.6984191540212188
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1,
+      "yaw": -90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.925638874929834,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.40295023410222663,
+        "maxX": 0.4029502341022263,
+        "minY": -0.8329305934666539,
+        "maxY": 0.8329305934666539
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1,
+      "yaw": 0,
+      "pitch": 80,
+      "roll": 23,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 3.253024436905325,
+      "actualDistance": 3.253024436905325,
+      "ndcBounds": {
+        "minX": -0.8059083400565888,
+        "maxX": 0.8620689655172415,
+        "minY": -0.5149831752121432,
+        "maxY": 0.7181329998244208
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1,
+      "yaw": 137,
+      "pitch": -80,
+      "roll": -17,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 3.239454390272643,
+      "actualDistance": 3.239454390272643,
+      "ndcBounds": {
+        "minX": -0.8187506785737287,
+        "maxX": 0.8620689655172414,
+        "minY": -0.7259881520821563,
+        "maxY": 0.5536765892607594
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.35,
+      "yaw": 0,
+      "pitch": 12,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.499340688764467,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.5651585831500676,
+        "maxX": 0.5651585831500676,
+        "minY": -0.7075746895160064,
+        "maxY": 0.6509939807636027
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.35,
+      "yaw": 90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.925638874929834,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.29848165489053796,
+        "maxX": 0.29848165489053824,
+        "minY": -0.8329305934666539,
+        "maxY": 0.8329305934666539
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.35,
+      "yaw": 180,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.5019317594066743,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.5320947144271888,
+        "maxX": 0.5320947144271888,
+        "minY": -0.6984191540212188,
+        "maxY": 0.6984191540212188
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.35,
+      "yaw": -90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.925638874929834,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.29848165489053824,
+        "maxX": 0.29848165489053796,
+        "minY": -0.8329305934666539,
+        "maxY": 0.8329305934666539
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.35,
+      "yaw": 0,
+      "pitch": 80,
+      "roll": 23,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.8268684399869093,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.6666198517279995,
+        "maxX": 0.7088394601660126,
+        "minY": -0.5750682647552792,
+        "maxY": 0.7971582184073266
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.35,
+      "yaw": 137,
+      "pitch": -80,
+      "roll": -17,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.8265130434537884,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.672884551096273,
+        "maxX": 0.7056069221844472,
+        "minY": -0.7991375689043737,
+        "maxY": 0.6170678983022231
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.7,
+      "yaw": 0,
+      "pitch": 12,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.499340688764467,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.4488024042662302,
+        "maxX": 0.4488024042662302,
+        "minY": -0.7075746895160064,
+        "maxY": 0.6509939807636027
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.7,
+      "yaw": 90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.925638874929834,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.2370295494718978,
+        "maxX": 0.23702954947189803,
+        "minY": -0.8329305934666539,
+        "maxY": 0.8329305934666539
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.7,
+      "yaw": 180,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.5019317594066743,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.4225458026333558,
+        "maxX": 0.4225458026333558,
+        "minY": -0.6984191540212188,
+        "maxY": 0.6984191540212188
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.7,
+      "yaw": -90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.925638874929834,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.23702954947189803,
+        "maxX": 0.2370295494718978,
+        "minY": -0.8329305934666539,
+        "maxY": 0.8329305934666539
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.7,
+      "yaw": 0,
+      "pitch": 80,
+      "roll": 23,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.8268684399869093,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.5293745881369407,
+        "maxX": 0.5629019242494807,
+        "minY": -0.5750682647552792,
+        "maxY": 0.7971582184073266
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.7,
+      "yaw": 137,
+      "pitch": -80,
+      "roll": -17,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.8265130434537884,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.534349496458805,
+        "maxX": 0.5603349087935316,
+        "minY": -0.7991375689043737,
+        "maxY": 0.6170678983022231
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 2.1,
+      "yaw": 0,
+      "pitch": 12,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.499340688764467,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.36331623202504354,
+        "maxX": 0.36331623202504354,
+        "minY": -0.7075746895160064,
+        "maxY": 0.6509939807636027
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 2.1,
+      "yaw": 90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.925638874929834,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.191881063858203,
+        "maxX": 0.19188106385820317,
+        "minY": -0.8329305934666539,
+        "maxY": 0.8329305934666539
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 2.1,
+      "yaw": 180,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.5019317594066743,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.34206088784605,
+        "maxX": 0.34206088784605,
+        "minY": -0.6984191540212188,
+        "maxY": 0.6984191540212188
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 2.1,
+      "yaw": -90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.925638874929834,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.19188106385820317,
+        "maxX": 0.191881063858203,
+        "minY": -0.8329305934666539,
+        "maxY": 0.8329305934666539
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 2.1,
+      "yaw": 0,
+      "pitch": 80,
+      "roll": 23,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.8268684399869093,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.42854133325371396,
+        "maxX": 0.4556825101067225,
+        "minY": -0.5750682647552792,
+        "maxY": 0.7971582184073266
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 2.1,
+      "yaw": 137,
+      "pitch": -80,
+      "roll": -17,
+      "targetLocal": [
+        0,
+        0.7778277290549123,
+        -0.029278212421145533
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 2.8265130434537884,
+      "actualDistance": 3,
+      "ndcBounds": {
+        "minX": -0.43256863999046125,
+        "maxX": 0.45360444997571614,
+        "minY": -0.7991375689043737,
+        "maxY": 0.6170678983022231
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    }
+  ],
+  "bodyBinding": null,
+  "authoredDimensionsNotBodyFit": true,
+  "wallMountVerified": false,
+  "physicalLoadFrictionStability": false,
+  "plantGrowthWindOrCare": false,
+  "normalPlacement": false,
+  "ownershipUnlockSave": false,
+  "newOriginalPNG": 0,
+  "imagegenCalls": 0,
+  "newMeshLibraryCandidate": 1
+}
