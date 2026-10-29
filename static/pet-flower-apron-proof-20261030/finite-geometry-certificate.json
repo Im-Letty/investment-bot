@@ -1,0 +1,4281 @@
+{
+  "schema_version": 1,
+  "model_sha256": "1a707624c12f3cbef94ec08b4ebc5a06903c1f3ca2c25adf7570cbfddd6953e1",
+  "audit_sha256": "832ce5003ecdc07f5632d4ac7e65298201e399413ef715d79ea857d347f66842",
+  "original_sha256": "d59209df70ebf50bbf2516d41c9ccf1634498be10bddc107481e11ec139b089f",
+  "budget": {
+    "parts": 30,
+    "geometries": 17,
+    "materials": 7,
+    "textures": 0,
+    "triangles": 23512
+  },
+  "audit": {
+    "schema_version": 1,
+    "model_id": "flower-apron-garment-volume-v1",
+    "source_sha256": "d59209df70ebf50bbf2516d41c9ccf1634498be10bddc107481e11ec139b089f",
+    "result": "pass",
+    "scope": "Finite fixed authored pose, every displayed part triangle, three-direction strict material contacts, and explicit unobstructed segments only; not continuous safety, body anchors, actual wear, load/friction, cloth rig, recovered source back or all-growth fit.",
+    "topology": [
+      {
+        "name": "puff-blouse-and-underfrill-shell",
+        "vertices": 44352,
+        "triangles": 14784,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.18422222943362268,
+        "faceNormals": {
+          "triangles": 14784,
+          "minimumFaceAverageNormalDot": 0.7758738270620097,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "peach-scalloped-apron-skirt",
+        "vertices": 3372,
+        "triangles": 1124,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.08474653097176514,
+        "faceNormals": {
+          "triangles": 1124,
+          "minimumFaceAverageNormalDot": 0.9491211721078642,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "peach-flower-bib",
+        "vertices": 36,
+        "triangles": 68,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.018921299189432108,
+        "faceNormals": {
+          "triangles": 68,
+          "minimumFaceAverageNormalDot": 0.3126796532259224,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "peach-waist-band",
+        "vertices": 18,
+        "triangles": 32,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.009886795539601888,
+        "faceNormals": {
+          "triangles": 32,
+          "minimumFaceAverageNormalDot": 0.11121247299476066,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "peach-shoulder-strap--1",
+        "vertices": 18,
+        "triangles": 32,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0030001505457729017,
+        "faceNormals": {
+          "triangles": 32,
+          "minimumFaceAverageNormalDot": 0.4023523539614503,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "rounded-ivory-collar--1",
+        "vertices": 48,
+        "triangles": 92,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.003713000331065551,
+        "faceNormals": {
+          "triangles": 92,
+          "minimumFaceAverageNormalDot": 0.09565700708470504,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "rounded-pocket-face--1",
+        "vertices": 36,
+        "triangles": 68,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.007481299778127675,
+        "faceNormals": {
+          "triangles": 68,
+          "minimumFaceAverageNormalDot": 0.14251855739871025,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "scalloped-pocket-flap--1",
+        "vertices": 1212,
+        "triangles": 404,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0033464662957911756,
+        "faceNormals": {
+          "triangles": 404,
+          "minimumFaceAverageNormalDot": 0.9613761492047012,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "peach-bow-tail--1",
+        "vertices": 24,
+        "triangles": 44,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.006989399330968716,
+        "faceNormals": {
+          "triangles": 44,
+          "minimumFaceAverageNormalDot": 0.289128301644588,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "peach-shoulder-strap-1",
+        "vertices": 18,
+        "triangles": 32,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.003000150354106656,
+        "faceNormals": {
+          "triangles": 32,
+          "minimumFaceAverageNormalDot": 0.3497926191622772,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "rounded-ivory-collar-1",
+        "vertices": 48,
+        "triangles": 92,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.003713000176093567,
+        "faceNormals": {
+          "triangles": 92,
+          "minimumFaceAverageNormalDot": 0.2387047517949881,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "rounded-pocket-face-1",
+        "vertices": 36,
+        "triangles": 68,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.007481300296563964,
+        "faceNormals": {
+          "triangles": 68,
+          "minimumFaceAverageNormalDot": 0.13533992324862867,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "scalloped-pocket-flap-1",
+        "vertices": 1212,
+        "triangles": 404,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0033464661490420155,
+        "faceNormals": {
+          "triangles": 404,
+          "minimumFaceAverageNormalDot": 0.961376097543467,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "peach-bow-tail-1",
+        "vertices": 24,
+        "triangles": 44,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.006989400361011536,
+        "faceNormals": {
+          "triangles": 44,
+          "minimumFaceAverageNormalDot": 0.40789958705448714,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "padded-waist-bow-wing--1",
+        "vertices": 273,
+        "triangles": 440,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.050029863525642,
+        "faceNormals": {
+          "triangles": 440,
+          "minimumFaceAverageNormalDot": 0.9972867940579733,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "padded-waist-bow-wing-1",
+        "vertices": 273,
+        "triangles": 440,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.050029863525642,
+        "faceNormals": {
+          "triangles": 440,
+          "minimumFaceAverageNormalDot": 0.9972867940579733,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "rounded-waist-bow-knot",
+        "vertices": 273,
+        "triangles": 440,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.050029863525642,
+        "faceNormals": {
+          "triangles": 440,
+          "minimumFaceAverageNormalDot": 0.9972867940579733,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "white-flower-petal-0",
+        "vertices": 273,
+        "triangles": 440,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.050029863525642,
+        "faceNormals": {
+          "triangles": 440,
+          "minimumFaceAverageNormalDot": 0.9972867940579733,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "white-flower-petal-1",
+        "vertices": 273,
+        "triangles": 440,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.050029863525642,
+        "faceNormals": {
+          "triangles": 440,
+          "minimumFaceAverageNormalDot": 0.9972867940579733,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "white-flower-petal-2",
+        "vertices": 273,
+        "triangles": 440,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.050029863525642,
+        "faceNormals": {
+          "triangles": 440,
+          "minimumFaceAverageNormalDot": 0.9972867940579733,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "white-flower-petal-3",
+        "vertices": 273,
+        "triangles": 440,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.050029863525642,
+        "faceNormals": {
+          "triangles": 440,
+          "minimumFaceAverageNormalDot": 0.9972867940579733,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "white-flower-petal-4",
+        "vertices": 273,
+        "triangles": 440,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.050029863525642,
+        "faceNormals": {
+          "triangles": 440,
+          "minimumFaceAverageNormalDot": 0.9972867940579733,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "white-flower-petal-5",
+        "vertices": 273,
+        "triangles": 440,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.050029863525642,
+        "faceNormals": {
+          "triangles": 440,
+          "minimumFaceAverageNormalDot": 0.9972867940579733,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "soft-gold-flower-center",
+        "vertices": 273,
+        "triangles": 440,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.050029863525642,
+        "faceNormals": {
+          "triangles": 440,
+          "minimumFaceAverageNormalDot": 0.9972867940579733,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "green-flower-leaf--1",
+        "vertices": 273,
+        "triangles": 440,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.050029863525642,
+        "faceNormals": {
+          "triangles": 440,
+          "minimumFaceAverageNormalDot": 0.9972867940579733,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "green-flower-leaf-1",
+        "vertices": 273,
+        "triangles": 440,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.050029863525642,
+        "faceNormals": {
+          "triangles": 440,
+          "minimumFaceAverageNormalDot": 0.9972867940579733,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "pearl-blouse-button-1.555",
+        "vertices": 273,
+        "triangles": 440,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.050029863525642,
+        "faceNormals": {
+          "triangles": 440,
+          "minimumFaceAverageNormalDot": 0.9972867940579733,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "pearl-blouse-button-1.49",
+        "vertices": 273,
+        "triangles": 440,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.050029863525642,
+        "faceNormals": {
+          "triangles": 440,
+          "minimumFaceAverageNormalDot": 0.9972867940579733,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "authored-back-strap--1",
+        "vertices": 18,
+        "triangles": 32,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.004160100979291498,
+        "faceNormals": {
+          "triangles": 32,
+          "minimumFaceAverageNormalDot": 0.02860067857486079,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "authored-back-strap-1",
+        "vertices": 18,
+        "triangles": 32,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0041601010817369334,
+        "faceNormals": {
+          "triangles": 32,
+          "minimumFaceAverageNormalDot": 0.07691903104661174,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      }
+    ],
+    "crossings": [
+      {
+        "name": "puff-blouse-and-underfrill-shell",
+        "triangles": 14784,
+        "candidateNonadjacentAABBPairs": 194222,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "peach-scalloped-apron-skirt",
+        "triangles": 1124,
+        "candidateNonadjacentAABBPairs": 11532,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "peach-flower-bib",
+        "triangles": 68,
+        "candidateNonadjacentAABBPairs": 100,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "peach-waist-band",
+        "triangles": 32,
+        "candidateNonadjacentAABBPairs": 41,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "peach-shoulder-strap--1",
+        "triangles": 32,
+        "candidateNonadjacentAABBPairs": 23,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "rounded-ivory-collar--1",
+        "triangles": 92,
+        "candidateNonadjacentAABBPairs": 97,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "rounded-pocket-face--1",
+        "triangles": 68,
+        "candidateNonadjacentAABBPairs": 106,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "scalloped-pocket-flap--1",
+        "triangles": 404,
+        "candidateNonadjacentAABBPairs": 3809,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "peach-bow-tail--1",
+        "triangles": 44,
+        "candidateNonadjacentAABBPairs": 106,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "peach-shoulder-strap-1",
+        "triangles": 32,
+        "candidateNonadjacentAABBPairs": 24,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "rounded-ivory-collar-1",
+        "triangles": 92,
+        "candidateNonadjacentAABBPairs": 123,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "rounded-pocket-face-1",
+        "triangles": 68,
+        "candidateNonadjacentAABBPairs": 122,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "scalloped-pocket-flap-1",
+        "triangles": 404,
+        "candidateNonadjacentAABBPairs": 3826,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "peach-bow-tail-1",
+        "triangles": 44,
+        "candidateNonadjacentAABBPairs": 32,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "pearl-blouse-button-1.49",
+        "triangles": 440,
+        "candidateNonadjacentAABBPairs": 505,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "authored-back-strap--1",
+        "triangles": 32,
+        "candidateNonadjacentAABBPairs": 45,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "authored-back-strap-1",
+        "triangles": 32,
+        "candidateNonadjacentAABBPairs": 62,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      }
+    ],
+    "independentPassages": {
+      "count": 28,
+      "blocked": 0,
+      "segments": [
+        {
+          "kind": "neck",
+          "from": [
+            -0.08,
+            2.1,
+            -0.04
+          ],
+          "to": [
+            -0.08,
+            0.34,
+            -0.04
+          ],
+          "hits": []
+        },
+        {
+          "kind": "neck",
+          "from": [
+            -0.08,
+            2.1,
+            0
+          ],
+          "to": [
+            -0.08,
+            0.34,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "neck",
+          "from": [
+            -0.08,
+            2.1,
+            0.04
+          ],
+          "to": [
+            -0.08,
+            0.34,
+            0.04
+          ],
+          "hits": []
+        },
+        {
+          "kind": "neck",
+          "from": [
+            0,
+            2.1,
+            -0.04
+          ],
+          "to": [
+            0,
+            0.34,
+            -0.04
+          ],
+          "hits": []
+        },
+        {
+          "kind": "neck",
+          "from": [
+            0,
+            2.1,
+            0
+          ],
+          "to": [
+            0,
+            0.34,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "neck",
+          "from": [
+            0,
+            2.1,
+            0.04
+          ],
+          "to": [
+            0,
+            0.34,
+            0.04
+          ],
+          "hits": []
+        },
+        {
+          "kind": "neck",
+          "from": [
+            0.08,
+            2.1,
+            -0.04
+          ],
+          "to": [
+            0.08,
+            0.34,
+            -0.04
+          ],
+          "hits": []
+        },
+        {
+          "kind": "neck",
+          "from": [
+            0.08,
+            2.1,
+            0
+          ],
+          "to": [
+            0.08,
+            0.34,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "neck",
+          "from": [
+            0.08,
+            2.1,
+            0.04
+          ],
+          "to": [
+            0.08,
+            0.34,
+            0.04
+          ],
+          "hits": []
+        },
+        {
+          "kind": "hem",
+          "from": [
+            -0.25,
+            -0.16,
+            -0.05
+          ],
+          "to": [
+            -0.25,
+            0.28,
+            -0.05
+          ],
+          "hits": []
+        },
+        {
+          "kind": "hem",
+          "from": [
+            -0.25,
+            -0.16,
+            0
+          ],
+          "to": [
+            -0.25,
+            0.28,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "hem",
+          "from": [
+            -0.25,
+            -0.16,
+            0.05
+          ],
+          "to": [
+            -0.25,
+            0.28,
+            0.05
+          ],
+          "hits": []
+        },
+        {
+          "kind": "hem",
+          "from": [
+            0,
+            -0.16,
+            -0.05
+          ],
+          "to": [
+            0,
+            0.28,
+            -0.05
+          ],
+          "hits": []
+        },
+        {
+          "kind": "hem",
+          "from": [
+            0,
+            -0.16,
+            0
+          ],
+          "to": [
+            0,
+            0.28,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "hem",
+          "from": [
+            0,
+            -0.16,
+            0.05
+          ],
+          "to": [
+            0,
+            0.28,
+            0.05
+          ],
+          "hits": []
+        },
+        {
+          "kind": "hem",
+          "from": [
+            0.25,
+            -0.16,
+            -0.05
+          ],
+          "to": [
+            0.25,
+            0.28,
+            -0.05
+          ],
+          "hits": []
+        },
+        {
+          "kind": "hem",
+          "from": [
+            0.25,
+            -0.16,
+            0
+          ],
+          "to": [
+            0.25,
+            0.28,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "hem",
+          "from": [
+            0.25,
+            -0.16,
+            0.05
+          ],
+          "to": [
+            0.25,
+            0.28,
+            0.05
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_cuff",
+          "from": [
+            -1.13,
+            1.1,
+            -0.045
+          ],
+          "to": [
+            -0.69,
+            1.46,
+            -0.045
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_cuff",
+          "from": [
+            -1.13,
+            1.1,
+            -0.02
+          ],
+          "to": [
+            -0.69,
+            1.46,
+            -0.02
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_cuff",
+          "from": [
+            -1.13,
+            1.1,
+            0
+          ],
+          "to": [
+            -0.69,
+            1.46,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_cuff",
+          "from": [
+            -1.13,
+            1.1,
+            0.02
+          ],
+          "to": [
+            -0.69,
+            1.46,
+            0.02
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_cuff",
+          "from": [
+            -1.13,
+            1.1,
+            0.045
+          ],
+          "to": [
+            -0.69,
+            1.46,
+            0.045
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_cuff",
+          "from": [
+            1.13,
+            1.1,
+            -0.045
+          ],
+          "to": [
+            0.69,
+            1.46,
+            -0.045
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_cuff",
+          "from": [
+            1.13,
+            1.1,
+            -0.02
+          ],
+          "to": [
+            0.69,
+            1.46,
+            -0.02
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_cuff",
+          "from": [
+            1.13,
+            1.1,
+            0
+          ],
+          "to": [
+            0.69,
+            1.46,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_cuff",
+          "from": [
+            1.13,
+            1.1,
+            0.02
+          ],
+          "to": [
+            0.69,
+            1.46,
+            0.02
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_cuff",
+          "from": [
+            1.13,
+            1.1,
+            0.045
+          ],
+          "to": [
+            0.69,
+            1.46,
+            0.045
+          ],
+          "hits": []
+        }
+      ]
+    },
+    "independentAttachments": {
+      "count": 30,
+      "failed": 0,
+      "minimumClearance": 0.002996631341963199,
+      "contacts": [
+        {
+          "part": "peach-scalloped-apron-skirt",
+          "target": "puff-blouse-and-underfrill-shell",
+          "point": [
+            0.000027329357757023464,
+            0.3483184445060223,
+            0.24682956445906856
+          ],
+          "meaning": "Projected cloth relief shares actual receiving material; finite contact witness",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.01166750256299836,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.005993575975567177,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.01166750256299836,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.005993575975567177,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "peach-flower-bib",
+          "target": "puff-blouse-and-underfrill-shell",
+          "point": [
+            -0.020555555555555546,
+            1.1672222222222222,
+            0.28314013360484247
+          ],
+          "meaning": "Projected cloth relief shares actual receiving material; finite contact witness",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.011242518538739308,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.005998039451525188,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.011242518538739308,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.005998039451525188,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "peach-waist-band",
+          "target": "puff-blouse-and-underfrill-shell",
+          "point": [
+            0.000555555555555556,
+            0.965,
+            0.2788991039088031
+          ],
+          "meaning": "Projected cloth relief shares actual receiving material; finite contact witness",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.00801959204852229,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.005998039451525578,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00801959204852229,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.005998039451525578,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "peach-shoulder-strap--1",
+          "target": "puff-blouse-and-underfrill-shell",
+          "point": [
+            -0.34500000000000003,
+            1.6127777777777776,
+            0.26375927398197807
+          ],
+          "meaning": "Projected cloth relief shares actual receiving material; finite contact witness",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.007979710213824046,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.005974941036306688,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.007979710213824046,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.005974941036306688,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "rounded-ivory-collar--1",
+          "target": "puff-blouse-and-underfrill-shell",
+          "point": [
+            -0.22750000000000004,
+            1.6070833333333336,
+            0.2619466793083658
+          ],
+          "meaning": "Projected cloth relief shares actual receiving material; finite contact witness",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.007869810864243723,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.00598762049581734,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.007869810864243723,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00598762049581734,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "rounded-pocket-face--1",
+          "target": "peach-scalloped-apron-skirt",
+          "point": [
+            -0.488888888888889,
+            0.47694444444444445,
+            0.30428244164321305
+          ],
+          "meaning": "Projected cloth relief shares actual receiving material; finite contact witness",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.007788576194555777,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.005989350025185963,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.007788576194555777,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.005989350025185963,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "scalloped-pocket-flap--1",
+          "target": "peach-scalloped-apron-skirt",
+          "point": [
+            -0.48075006623724165,
+            0.6261273626473036,
+            0.31391848026768865
+          ],
+          "meaning": "Projected cloth relief shares actual receiving material; finite contact witness",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.007982634199576247,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.005986969215702484,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.007982634199576247,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.005986969215702484,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "peach-bow-tail--1",
+          "target": "peach-scalloped-apron-skirt",
+          "point": [
+            -0.1333333333333333,
+            0.6804166666666667,
+            0.31746278561020413
+          ],
+          "meaning": "Projected cloth relief shares actual receiving material; finite contact witness",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.00807653907342722,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.005988968311584847,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00807653907342722,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.005988968311584847,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "peach-shoulder-strap-1",
+          "target": "puff-blouse-and-underfrill-shell",
+          "point": [
+            0.34500000000000003,
+            1.612222222222222,
+            0.26372161957637963
+          ],
+          "meaning": "Projected cloth relief shares actual receiving material; finite contact witness",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.007976904335474247,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.00596597174122389,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.007976904335474247,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00596597174122389,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "rounded-ivory-collar-1",
+          "target": "puff-blouse-and-underfrill-shell",
+          "point": [
+            0.22625,
+            1.6062499999999997,
+            0.2619377584667768
+          ],
+          "meaning": "Projected cloth relief shares actual receiving material; finite contact witness",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.008012959761206804,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.005986062495488117,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.008012959761206804,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.005986062495488117,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "rounded-pocket-face-1",
+          "target": "peach-scalloped-apron-skirt",
+          "point": [
+            0.4711111111111111,
+            0.47694444444444445,
+            0.3046724909844756
+          ],
+          "meaning": "Projected cloth relief shares actual receiving material; finite contact witness",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.007988412123795334,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.005989364563030958,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.007988412123795334,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.005989364563030958,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "scalloped-pocket-flap-1",
+          "target": "peach-scalloped-apron-skirt",
+          "point": [
+            0.4792499337627584,
+            0.6261273626473036,
+            0.31364454739507486
+          ],
+          "meaning": "Projected cloth relief shares actual receiving material; finite contact witness",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.007955157960113247,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.00598893941675832,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.007955157960113247,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00598893941675832,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "peach-bow-tail-1",
+          "target": "peach-scalloped-apron-skirt",
+          "point": [
+            0.1408333333333333,
+            0.6658333333333333,
+            0.3163289481176219
+          ],
+          "meaning": "Projected cloth relief shares actual receiving material; finite contact witness",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.007975923474675354,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.005988939416758319,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.007975923474675354,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.005988939416758319,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "padded-waist-bow-wing--1",
+          "target": "peach-waist-band",
+          "point": [
+            -0.15,
+            0.965,
+            0.3483521986628464
+          ],
+          "meaning": "padded-waist-bow-wing--1 strict common-solid attachment",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.07454661663603056,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.007998231189331554,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.07454661663603056,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.007998231189331554,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "padded-waist-bow-wing-1",
+          "target": "peach-waist-band",
+          "point": [
+            0.15,
+            0.965,
+            0.34828063970207745
+          ],
+          "meaning": "padded-waist-bow-wing-1 strict common-solid attachment",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.07454661663603056,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.007987608638536712,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.07454661663603056,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.007987608638536712,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "rounded-waist-bow-knot",
+          "target": "padded-waist-bow-wing--1",
+          "point": [
+            -0.056999999999999995,
+            0.965,
+            0.374095337875077
+          ],
+          "meaning": "Knot shares material with each fixed bow wing",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.030271533861539943,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.037629611017938415,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.030271533861539943,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.037629611017938415,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "rounded-waist-bow-knot",
+          "target": "padded-waist-bow-wing-1",
+          "point": [
+            0.056999999999999995,
+            0.965,
+            0.3740681454699848
+          ],
+          "meaning": "Knot shares material with each fixed bow wing",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.030267718119744283,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.03758622340354556,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.030267718119744283,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03758622340354556,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "white-flower-petal-0",
+          "target": "peach-flower-bib",
+          "point": [
+            0,
+            1.3230000000000002,
+            0.3244516105626244
+          ],
+          "meaning": "white-flower-petal-0 strict common-solid attachment",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.03576490397681335,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.002996631341963199,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03576490397681335,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.002996631341963199,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "white-flower-petal-1",
+          "target": "peach-flower-bib",
+          "point": [
+            0.0675499814951862,
+            1.284,
+            0.3267635262251246
+          ],
+          "meaning": "white-flower-petal-1 strict common-solid attachment",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.03576490397681335,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.0029966313419633656,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03576490397681333,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0029966313419633656,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "white-flower-petal-2",
+          "target": "peach-flower-bib",
+          "point": [
+            0.06754998149518622,
+            1.2060000000000002,
+            0.3275330707891061
+          ],
+          "meaning": "white-flower-petal-2 strict common-solid attachment",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.03576490397681335,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.0029991015848775293,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03576490397681333,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0029991015848775293,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "white-flower-petal-3",
+          "target": "peach-flower-bib",
+          "point": [
+            9.552245033349355e-18,
+            1.167,
+            0.32813263397636183
+          ],
+          "meaning": "white-flower-petal-3 strict common-solid attachment",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.03576490397681335,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.0029997939001955493,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03576490397681335,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0029997939001955493,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "white-flower-petal-4",
+          "target": "peach-flower-bib",
+          "point": [
+            -0.0675499814951862,
+            1.206,
+            0.32779424758244835
+          ],
+          "meaning": "white-flower-petal-4 strict common-solid attachment",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.03576490397681335,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.0029999521636758977,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03576490397681333,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0029999521636758977,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "white-flower-petal-5",
+          "target": "peach-flower-bib",
+          "point": [
+            -0.0675499814951862,
+            1.284,
+            0.32651857519858984
+          ],
+          "meaning": "white-flower-petal-5 strict common-solid attachment",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.03576490397681335,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.002998861657599093,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03576490397681333,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.002998861657599093,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "soft-gold-flower-center",
+          "target": "peach-flower-bib",
+          "point": [
+            0,
+            1.245,
+            0.3271355223379354
+          ],
+          "meaning": "soft-gold-flower-center strict common-solid attachment",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.03330105245411469,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.0029991015848772015,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03330105245411469,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0029991015848772015,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "green-flower-leaf--1",
+          "target": "peach-flower-bib",
+          "point": [
+            -0.115,
+            1.1,
+            0.3272338481599171
+          ],
+          "meaning": "green-flower-leaf--1 strict common-solid attachment",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.027803527087450673,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.003999936218235196,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.027803527087450684,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.003999936218235196,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "green-flower-leaf-1",
+          "target": "peach-flower-bib",
+          "point": [
+            0.115,
+            1.1,
+            0.32830120757692693
+          ],
+          "meaning": "green-flower-leaf-1 strict common-solid attachment",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.027803527087450673,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.003999725200260399,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.027803527087450684,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.003999725200260399,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "pearl-blouse-button-1.555",
+          "target": "puff-blouse-and-underfrill-shell",
+          "point": [
+            0,
+            1.555,
+            0.26603107108991375
+          ],
+          "meaning": "pearl-blouse-button-1.555 strict common-solid attachment",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.03040539400530945,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.004992824596840114,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03040539400530945,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.004992824596840114,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "pearl-blouse-button-1.49",
+          "target": "puff-blouse-and-underfrill-shell",
+          "point": [
+            0,
+            1.49,
+            0.2694938145558411
+          ],
+          "meaning": "pearl-blouse-button-1.49 strict common-solid attachment",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.030405394005309453,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.004992824596840224,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.030405394005309453,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.004992824596840224,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "authored-back-strap--1",
+          "target": "puff-blouse-and-underfrill-shell",
+          "point": [
+            -0.315,
+            1.426111111111111,
+            -0.25261493724423967
+          ],
+          "meaning": "Projected cloth relief shares actual receiving material; finite contact witness",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.008214722386891183,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.005964455605007215,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                3,
+                3,
+                3
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.008214722386891183,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.005964455605007215,
+            "independentUniqueRayHitCounts": [
+              1,
+              3,
+              3
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "authored-back-strap-1",
+          "target": "puff-blouse-and-underfrill-shell",
+          "point": [
+            0.315,
+            1.423888888888889,
+            -0.24696425764202456
+          ],
+          "meaning": "Projected cloth relief shares actual receiving material; finite contact witness",
+          "strictValidation": {
+            "part": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.008033454380743417,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                1,
+                1,
+                1
+              ],
+              "directionCount": 3
+            },
+            "target": {
+              "inside": true,
+              "minimumSurfaceClearance": 0.005988107772435128,
+              "requiredSurfaceClearance": 0.00001,
+              "uniqueRayHitCounts": [
+                3,
+                1,
+                3
+              ],
+              "directionCount": 3
+            },
+            "probeDirections": [
+              [
+                0.731,
+                0.239,
+                0.641
+              ],
+              [
+                -0.371,
+                0.817,
+                0.439
+              ],
+              [
+                0.553,
+                -0.389,
+                0.737
+              ]
+            ],
+            "finitePointOnly": true
+          },
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.008033454380743417,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.005988107772435128,
+            "independentUniqueRayHitCounts": [
+              3,
+              3,
+              3
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "materialControls": [
+      {
+        "name": "front-cloth-control",
+        "from": [
+          0,
+          0.8,
+          2
+        ],
+        "to": [
+          0,
+          0.8,
+          0
+        ],
+        "hits": [
+          {
+            "part": "puff-blouse-and-underfrill-shell",
+            "face": 2326,
+            "distance": 1.7193359739224374
+          },
+          {
+            "part": "puff-blouse-and-underfrill-shell",
+            "face": 8918,
+            "distance": 1.7513358906483603
+          }
+        ]
+      },
+      {
+        "name": "back-cloth-control",
+        "from": [
+          0,
+          0.8,
+          -2
+        ],
+        "to": [
+          0,
+          0.8,
+          0
+        ],
+        "hits": [
+          {
+            "part": "puff-blouse-and-underfrill-shell",
+            "face": 4542,
+            "distance": 1.7476444422073598
+          },
+          {
+            "part": "puff-blouse-and-underfrill-shell",
+            "face": 11134,
+            "distance": 1.779642271830506
+          }
+        ]
+      },
+      {
+        "name": "side-seam-control",
+        "from": [
+          2,
+          0.8,
+          0
+        ],
+        "to": [
+          0,
+          0.8,
+          0
+        ],
+        "hits": [
+          {
+            "part": "puff-blouse-and-underfrill-shell",
+            "face": 5804,
+            "distance": 1.3770149081118717
+          },
+          {
+            "part": "puff-blouse-and-underfrill-shell",
+            "face": 12396,
+            "distance": 1.3781160916030684
+          }
+        ]
+      }
+    ],
+    "connectedPartCount": 30,
+    "totalPartCount": 30,
+    "bodyBinding": null,
+    "bodyMeasurements": false,
+    "wearingFit": false,
+    "rig": false,
+    "normalGame": false,
+    "ownershipUnlockSave": false,
+    "newVillageLibraryCandidate": false
+  }
+}

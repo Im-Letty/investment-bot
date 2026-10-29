@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "unit_id": "wardrobe:fit-prerequisite:flower-apron:garment-volume-openings:v1",
+  "model_id": "flower-apron-garment-volume-v1",
+  "source_original": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-level-collection-20261023/clothing/02-flower-apron.png",
+    "sha256": "d59209df70ebf50bbf2516d41c9ccf1634498be10bddc107481e11ec139b089f",
+    "bytes": 1630385
+  },
+  "source_copy_unmodified": true,
+  "bodyBinding": null,
+  "raw_png_designs": 0,
+  "village_library_additions": 0,
+  "paid_calls": 0,
+  "dimension_basis": "Authored garment-only trial units; no anatomical dimensions or fit calibration.",
+  "normal_game_changes": 0,
+  "artifacts": {
+    "SPEC.json": {
+      "sha256": "964a1258ff9cb0baf9b57162dac0da2e9079f6929bbe91d91c0635c6b5278f40",
+      "bytes": 4013
+    },
+    "audit.mjs": {
+      "sha256": "832ce5003ecdc07f5632d4ac7e65298201e399413ef715d79ea857d347f66842",
+      "bytes": 3577
+    },
+    "entry.mjs": {
+      "sha256": "d371027b9c12e20199a4510b58bc547dc11950f3579af2de32e8d739a82569ac",
+      "bytes": 1730
+    },
+    "finite-geometry-certificate.json": {
+      "sha256": "9aa8a1f81c94305381fd47c66423fc855e4e40b00e87b95f5a9f6b9ae0351fae",
+      "bytes": 110525
+    },
+    "index.html": {
+      "sha256": "069fdce97b2811f4937ab58e1b07c5fa9444d40849e8c92b763ba8e45acf7f9c",
+      "bytes": 4439
+    },
+    "modelrecipe.mjs": {
+      "sha256": "1a707624c12f3cbef94ec08b4ebc5a06903c1f3ca2c25adf7570cbfddd6953e1",
+      "bytes": 18966
+    },
+    "reference.png": {
+      "sha256": "d59209df70ebf50bbf2516d41c9ccf1634498be10bddc107481e11ec139b089f",
+      "bytes": 1630385
+    },
+    "viewer.mjs": {
+      "sha256": "ed0738339597cb9a1235f02c83c3a2ba1b606981ca7ed0637f7167a36bfe73e1",
+      "bytes": 8193
+    }
+  },
+  "unchanged_dependencies": {
+    "static/vendor/three-0.160.1.module.js": {
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    "static/pet-breeze-cape-proof-20261029/geometry-audit.mjs": {
+      "sha256": "2dbe7723509ae914cb98153f133e2a2db9d15e5f4112cc184fa128a2df8e92c0",
+      "bytes": 6377
+    },
+    "static/pet-breeze-cape-proof-20261029/audit.mjs": {
+      "sha256": "0295f409a2c7182069dd6023bf78d94c3a7d05e237fd244923ea3a4c29a4eb80",
+      "bytes": 5891
+    },
+    "static/pet-scalloped-path-proof-20261027/framing.mjs": {
+      "sha256": "dba92c2f6dec2816ebcf25434ee07c3b699accb61b7e1961a11baf366edad08a",
+      "bytes": 1678
+    }
+  }
+}
