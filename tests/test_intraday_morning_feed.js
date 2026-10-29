@@ -242,8 +242,17 @@ test('reviewed FSA morning and intraday editions render from API and saved copy 
     const embedded=app({},data);embedded.start();assert.match(embedded.html(),/金融庁の確認済み新記事/);
     const restored=app({'kn_published_news_v1_ja':JSON.stringify(saved)});restored.start();
     assert.match(restored.html(),/金融庁の確認済み新記事/);
-    assert.match(a.html(),/class="news-info"/,'FSA dates and source stay inside the existing information disclosure');
-    assert.match(a.html(),/発表日時と出典/);
+    for(const html of [a.html(),embedded.html(),restored.html()]){
+      const front=html.split('<details class="read-more"')[0];
+      assert.doesNotMatch(html,/class="news-info"|class="article-sources"/,'Publication facts need no separate information disclosure');
+      assert.match(front,/class="news-publication-source"/,'The original date and source remain visible with the news before any expansion');
+      assert.ok(front.includes('datetime="'+data.news[0].published_date+'"'));
+      assert.ok(front.includes('>'+data.news[0].published_date.replace(/-/g,'/')+' 発表</time>'));
+      assert.ok(front.includes('href="'+data.news[0].url+'"'));
+      assert.match(front,/>金融庁 ↗<\/a>/);
+      assert.match(front,/発表日時と出典/);
+      assert.doesNotMatch(front,/1970| 00:00|JST/,'A confirmed date does not invent a publication time');
+    }
   }
 });
 

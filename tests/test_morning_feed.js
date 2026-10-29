@@ -42,9 +42,10 @@ function harness(saved={}){
     setInterval:(fn,ms)=>{const id=++timerId;intervals.set(id,{fn,ms});return id;},clearInterval:id=>intervals.delete(id),
     _mktCache:null,_mktLastFetch:0,_mktFetchSec:10,_mktCountdown:10,_mktInterval:null,
     renderMorningGrid:data=>renders.push(data),translateNewsSource:s=>s,t:s=>s};
-  context.window=context;vm.runInNewContext(dates,context);vm.runInNewContext(source,context);
+  context.window=context;vm.runInNewContext(dates,context);vm.runInNewContext(source.replace("  function digestMarkup(d,l,status){","  window.__testDigestMarkup=digestMarkup; window.__testArticleMeta=articleMeta;\n  function digestMarkup(d,l,status){"),context);
   return {context,requests,storage,nodes,timers,intervals,renders,
     now:()=>clock,advance:ms=>clock+=ms,
+    markup:data=>context.__testDigestMarkup(data,"ja",""),metadata:item=>context.__testArticleMeta(item,"ja"),
     event:name=>(listeners[name]||[]).forEach(fn=>fn()),
     language(l){storage.set('app_lang',l);context.document.documentElement.lang=l;},
     reply(request,data){request.resolve({ok:true,json:async()=>data});return flush();},
@@ -164,12 +165,12 @@ test('first visit reads the embedded publication before any API or market respon
 test('first hydration preserves panels and focus opened before deferred scripts finish',()=>{
   const app=harness();published(app);
   const content=app.nodes['morning-news-content'];
-  content.innerHTML='<details data-news-key="more"><summary data-news-focus="more">もっと詳しく</summary><details data-news-key="article:https://news.example/item-0"><summary data-news-focus="article:https://news.example/item-0">今日のニュース</summary></details></details>';
-  content.details.forEach(node=>node.open=true);content.summaries[1].focus();
+  content.innerHTML='<details data-news-key="more"><summary data-news-focus="more">もっと詳しく</summary></details>';
+  content.details.forEach(node=>node.open=true);content.summaries[0].focus();
   app.event('DOMContentLoaded');
   assert.ok(content.details.every(node=>node.open));
-  assert.equal(app.context.document.activeElement,content.summaries[1]);
-  assert.equal(content.summaries[1].focusOptions.preventScroll,true);
+  assert.equal(app.context.document.activeElement,content.summaries[0]);
+  assert.equal(content.summaries[0].focusOptions.preventScroll,true);
 });
 
 test('published edition remains readable during cold refresh, network failure and a long same-day visit',async()=>{
@@ -239,11 +240,12 @@ test('E front shows one reviewed daily digest and A details preserve all selecte
   assert.equal((front.match(/class="brief-summary"/g)||[]).length,1);
   assert.ok(front.includes(data.digest.headline));
   assert.ok(front.includes(data.digest.summary));
-  news.forEach(item=>assert.ok(!front.includes(item.title)));
+  news.forEach(item=>assert.ok(!front.includes('class="story-title">'+item.title)));
+  assert.equal((front.match(/class="news-publication-source"/g)||[]).length,3,'A combined summary identifies all originals separately');
   assert.ok(!html.includes('本日発表された経済ニュースを優先'));
   assert.ok(!html.includes('news-period'));
   assert.match(html,/class="stories editorial-detail"/);
-  assert.equal((html.match(/<details class="story"/g)||[]).length,3);
+  assert.equal((html.match(/<article class="story source-story"/g)||[]).length,3);
   news.forEach(item=>assert.ok(html.includes('<span class="story-title">'+item.title+'</span>')));
   assert.ok(!html.includes('サンマルク'));
 });
@@ -360,11 +362,11 @@ test('verified current headlines replace an older saved edition after 08:00 with
   const html=app.nodes['morning-news-content'].innerHTML;
   assert.match(html,/今日の見出し/);assert.match(html,/2026\/09\/13 · 本日の要約は未掲載です/);
   assert.match(html,/<ul class="headline-list"><li><a class="story-title" href="https:\/\/news.example\/item-0" target="_blank" rel="noopener noreferrer">今日のニュース<\/a>/);
-  assert.match(html,/<span class="headline-source">NHK経済<\/span>/);
+  assert.match(html,/<a class="source-link"[^>]+>NHK経済 ↗<\/a>/);
   assert.match(html,/href="https:\/\/news.example\/item-0"/);
   assert.match(html,/datetime="2026-09-13T00:00:00.000Z"/);
   assert.doesNotMatch(html,/前号の確認済み要約|class="brief-summary"|class="article-summary"|class="read-more"/);
-  assert.equal((html.match(/今日のニュース/g)||[]).length,1,'A headline appears once and links directly to its source');
+  assert.equal((html.match(/>今日のニュース<\/a>/g)||[]).length,1,'The visible headline appears once; metadata keeps its accessible original-source label');
   assert.equal(app.storage.has('kn_published_news_v1_ja'),false);
   assert.equal(JSON.parse(app.storage.get('kn_news_v4_ja')).delivery,'headlines');
   assert.equal(JSON.parse(app.storage.get('kn_news_headline_edition_v1_ja')),'2026-09-13');
@@ -708,7 +710,7 @@ test('API delivers one 200–300 character published summary from two or three a
     app.event('DOMContentLoaded');await app.reply(app.requests[0],data);
     const html=app.nodes['morning-news-content'].innerHTML;
     assert.equal((html.match(/class="brief-summary"/g)||[]).length,1);
-    assert.equal((html.match(/<details class="story"/g)||[]).length,count);
+    assert.equal((html.match(/<article class="story source-story"/g)||[]).length,count);
     assert.ok(html.includes(data.digest.summary));assert.match(html,/掲載/);
     assert.ok(!html.includes('morning-news-error'));assert.equal(app.storage.has('kn_news_v4_ja'),false);
     app.context.loadMorningNews();assert.equal(app.requests.length,2,'Published edition is reused between refreshes');
@@ -763,13 +765,13 @@ test('refresh preserves open articles and keyboard focus; language change resets
   await app.reply(app.requests[0],app.news());
   const content=app.nodes['morning-news-content'];
   content.details.forEach(node=>node.open=true);
-  const oldSummary=content.summaries[1];oldSummary.focus();
+  const oldSummary=content.summaries[0];oldSummary.focus();
   app.advance(121000);app.context.loadMorningNews();
   await app.reply(app.requests.at(-1),app.news('ja',{news:[{source:'NHK経済',title:'更新された見出し'}]}));
   assert.ok(content.details.every(node=>node.open));
-  assert.equal(app.context.document.activeElement,content.summaries[1]);
+  assert.equal(app.context.document.activeElement,content.summaries[0]);
   assert.notEqual(app.context.document.activeElement,oldSummary);
-  assert.equal(content.summaries[1].focusOptions.preventScroll,true);
+  assert.equal(content.summaries[0].focusOptions.preventScroll,true);
   app.language('en');app.event('langChanged');
   await app.reply(app.requests.at(-1),app.news('en'));
   assert.ok(content.details.every(node=>!node.open));
@@ -779,14 +781,14 @@ test('unchanged news keeps the same open detail and focused summary DOM nodes',a
   const app=harness();app.event('DOMContentLoaded');const data=app.news();
   await app.reply(app.requests[0],data);
   const content=app.nodes['morning-news-content'];
-  content.details.forEach(node=>node.open=true);content.summaries[1].focus();
-  const detail=content.details[1],summary=content.summaries[1],replacements=content.replacements;
+  content.details.forEach(node=>node.open=true);content.summaries[0].focus();
+  const detail=content.details[0],summary=content.summaries[0],replacements=content.replacements;
   assert.match(content.innerHTML,/open=""/,'The harness serializes reader interaction like a browser');
   app.context.loadMorningNews();
   assert.equal(content.replacements,replacements,'Cached refresh does not rebuild reader state');
   app.context.loadMorningNews(true);await app.reply(app.requests.at(-1),data);
   assert.equal(content.replacements,replacements,'An unchanged successful response does not replace DOM');
-  assert.equal(content.details[1],detail);assert.equal(content.summaries[1],summary);
+  assert.equal(content.details[0],detail);assert.equal(content.summaries[0],summary);
   assert.equal(app.context.document.activeElement,summary);assert.equal(detail.open,true);
 });
 
@@ -795,8 +797,8 @@ test('background retries keep a failed-refresh notice until a successful respons
   await app.reply(app.requests[0],data);
   app.context.loadMorningNews(true);app.requests.at(-1).reject(new Error('offline'));await flush();
   const content=app.nodes['morning-news-content'];
-  content.details.forEach(node=>node.open=true);content.summaries[1].focus();
-  const summary=content.summaries[1],replacements=content.replacements;
+  content.details.forEach(node=>node.open=true);content.summaries[0].focus();
+  const summary=content.summaries[0],replacements=content.replacements;
   assert.match(content.innerHTML,/いま更新できません/);
   app.context.loadMorningNews(true);
   assert.equal(content.replacements,replacements,'Starting a background request keeps the failed notice');
@@ -851,14 +853,17 @@ test('failed refresh retains expanded content and escapes unsafe titles and sour
 
 test('an article disappearing during refresh returns keyboard focus to Read more',async()=>{
   const app=harness();app.event('DOMContentLoaded');
-  await app.reply(app.requests[0],app.news());
+  const data=app.news();
+  const old=app.now()/1000-86400;
+  data.supplements=[{source:'NHK経済',title:'以前の補足',url:'https://news.example/context',published_at:old,published_date:'2026-09-11',is_supplement:true,editorial_reason:'仕組みを理解するための補足'}];
+  await app.reply(app.requests[0],data);
   const content=app.nodes['morning-news-content'];
   content.details.forEach(node=>node.open=true);content.summaries[1].focus();
   app.advance(121000);app.context.loadMorningNews();
   await app.reply(app.requests.at(-1),app.news('ja',{news:[{source:'別の配信元',title:'見出し',url:'https://news.example/replacement'}]}));
   assert.equal(app.context.document.activeElement,content.summaries[0]);
   assert.equal(content.details[0].open,true);
-  assert.equal(content.details[1].open,false);
+  assert.equal(content.details.length,1,'The removed supplement leaves no empty expander');
 });
 
 test('saved recent market data renders before the first network response',()=>{
@@ -1269,7 +1274,7 @@ test('official morning edition retains yesterday publication date and edited att
     const html=app.nodes['morning-news-content'].innerHTML;
     assert.ok(html.includes(data.digest.summary));assert.match(html,/aria-label="掲載対象日 2026-09-12 /);
     assert.match(html,/<time class="publication-date" datetime="2026-09-11T03:00:00.000Z" title="2026\/09\/11 12:00 発表 JST">2026\/09\/11 12:00 発表<\/time>/);
-    assert.match(html,/財務省/);assert.match(html,/公式発表をもとに要約/);
+    assert.match(html,/財務省/);assert.match(html,/class="news-publication-source"/);
     assert.match(html,/日本経済の発表を確認/);
     assert.equal(JSON.parse(app.storage.get('kn_published_news_v1_ja')).news[0].published_date,'2026-09-11');
   }
@@ -1367,67 +1372,39 @@ function leadOtherMorning(app,count=3,precision='day'){
   return data;
 }
 
-test('lead plus other news shows one representative and only the independently reviewed extra articles',async()=>{
+test('lead and authored extras expose their own publication facts once, beside the corresponding copy',async()=>{
   for(const count of [1,2,3])for(const precision of ['day','second'])for(const origin of ['api','embedded','saved']){
     const app=harness(),data=leadOtherMorning(app,count,precision),before=JSON.stringify(data);
     if(origin==='embedded')app.nodes.knInitialNews={textContent:before};
     if(origin==='saved')app.storage.set('kn_published_news_v1_ja',before);
-    app.event('DOMContentLoaded');
-    if(origin==='api')await app.reply(app.requests[0],data);
+    app.event('DOMContentLoaded');if(origin==='api')await app.reply(app.requests[0],data);
     const html=app.nodes['morning-news-content'].innerHTML;
     assert.ok(html.includes(data.digest.summary));
-    assert.doesNotMatch(html,/追加ニュース0|記事0を単独で/);
+    assert.doesNotMatch(html,/追加ニュース0|記事0を単独で|1970|<img>|class="news-info"|class="article-sources"/);
     assert.equal((html.match(/class="story summarized-story"/g)||[]).length,count-1);
-    assert.equal(html.includes('class="read-more"'),true);
-    assert.match(html,/href="https:\/\/www.mof.go.jp\/policy\/example0.html"/);
-    assert.doesNotMatch(html,/1970|<img>/);
+    assert.equal((html.match(/class="news-publication-source"/g)||[]).length,count);
+    assert.equal(html.includes('class="read-more"'),count>1);
+    assert.equal(html.includes('class="news-tail"'),count>1,'One lead needs no empty extra-news panel or reserved tail');
+    const front=html.split('<details class="read-more"')[0];
+    assert.equal((front.match(/class="source-link"/g)||[]).length,1);
+    assert.ok(front.includes('href="'+data.digest.article_refs[0].url+'"'));
     if(precision==='day')assert.doesNotMatch(html,/00:00|JST/);
-    const [beforeSources,afterSources]=html.split('class="article-sources"');
-    assert.ok(afterSources,'The source row exists even when there is one article');
-    assert.match(beforeSources,/<details class="read-more"/);
-    assert.doesNotMatch(beforeSources,/<a\b/,'Source names are not beside plus or repeated below extra articles');
-    assert.doesNotMatch(beforeSources,/class="news-info"/,'Summary information is not shown before plus is opened');
-    assert.doesNotMatch(beforeSources,/class="publication-date"/,'Publication dates appear only in the final opened source row');
-    const sourceRow=afterSources.split('</details>')[0];
-    const [infoHeader,infoContent]=sourceRow.split('<div class="news-info-content">');
-    assert.ok(infoContent,'Publication metadata is enclosed by the info disclosure');
-    assert.match(infoHeader,/<details class="news-info"[^>]*><summary[^>]*aria-label="発表日時と出典"/);
-    assert.doesNotMatch(infoHeader,/<time\b|<a\b/,'Dates and source links are not visible beside the closed info symbol');
-    assert.doesNotMatch(infoHeader,/<details[^>]*\bopen(?:\s|>)/,'Source details start closed');
-    const links=sourceRow.match(/<a\b[^>]*>[^<]*<\/a>/g)||[];
-    assert.equal(links.length,count,'Every reviewed article keeps its own source link');
-    assert.equal((infoContent.match(/<time\b/g)||[]).length,count,'Each article date appears once inside the info disclosure');
-    for(const ref of data.digest.article_refs){
-      const matching=links.filter(markup=>markup.includes('href="'+ref.url+'"'));
-      assert.equal(matching.length,1,'Source link must point to this article: '+ref.url);
-      const link=matching[0];
-      assert.ok(link.endsWith('>'+ref.source+' ↗</a>'),'Link label must name this article’s source');
-      const title=link.match(/title="([^"]*)"/);
-      assert.ok(title&&title[1].includes(ref.title),'A shared publisher’s links remain distinguishable');
-      assert.ok(link.match(/aria-label="[^"]*"/)[0].includes(ref.title),'The spoken link name identifies the article');
-      const linkStart=sourceRow.indexOf('<a href="'+ref.url+'"');
-      const dateMarkup=sourceRow.slice(sourceRow.lastIndexOf('<time ',linkStart),linkStart);
-      const fullDate=ref.published_date.replace(/-/g,'/');
-      const realDatetime=precision==='day'?ref.published_date:new Date(ref.published_at*1000).toISOString();
-      assert.ok(dateMarkup.includes('datetime="'+realDatetime+'"'),'Each source link retains its own actual publication date');
-      const displayed=fullDate+(precision==='day'?'':ref.source==='総務省統計局'?' 06:00':' 12:00')+' 発表';
-      assert.ok(dateMarkup.includes('>'+displayed+'</time>'),'Date and verified time belong to the corresponding article');
-      const exactTitle=displayed+(precision==='day'?'':' JST');
-      assert.ok(dateMarkup.includes('title="'+exactTitle+'"'),'The full precision remains available without inventing a time');
+    for(const [i,ref] of data.digest.article_refs.entries()){
+      const section=i===0?front:html.split('<article class="story summarized-story"')[i].split('</article>')[0];
+      const metadata=section.split('class="news-publication-source"')[1];
+      assert.ok(metadata,'Each body has its publication row');
+      assert.equal((metadata.match(/class="source-link"/g)||[]).length,1);
+      assert.ok(metadata.includes('href="'+ref.url+'"'),'The date and publisher link belong to this article');
+      assert.ok(metadata.includes('>'+ref.source+' ↗</a>'));
+      assert.ok(metadata.includes('title="'+ref.title+'"'),'Shared-source articles remain distinguishable');
+      const displayed=ref.published_date.replace(/-/g,'/')+(precision==='day'?'':i%2?' 06:00':' 12:00')+' 発表';
+      const datetime=precision==='day'?ref.published_date:new Date(ref.published_at*1000).toISOString();
+      assert.ok(metadata.includes('datetime="'+datetime+'"'));
+      assert.ok(metadata.includes('>'+displayed+'</time>'));
+      assert.ok(metadata.includes('title="'+displayed+(precision==='day'?'':' JST')+'"'));
+      if(i>0){assert.ok(section.includes(data.digest.article_summaries[i].summary));assert.ok(section.includes('追加ニュース'+i+'&lt;img&gt;'));}
     }
-    assert.equal((html.match(/class="news-info-note">公式発表をもとに要約<\/p>/g)||[]).length,1);
-    assert.match(sourceRow,/<details class="news-info"/);
-    assert.match(sourceRow,/class="news-info-note">公式発表をもとに要約<\/p>/);
-    assert.ok(sourceRow.includes('data-news-key="summary-info:'+data.digest.article_refs[0].url+'"'));
-    assert.ok(sourceRow.includes('data-news-focus="summary-info:'+data.digest.article_refs[0].url+'"'));
-    assert.doesNotMatch(html,/class="news-footer"|当サイトが要約・編集/);
-    for(let i=1;i<count;i++){
-      assert.ok(html.includes('追加ニュース'+i+'&lt;img&gt;'));
-      assert.ok(html.includes(data.digest.article_summaries[i].summary));
-    }
-    if(count===3)assert.ok(html.indexOf('追加ニュース1')<html.indexOf('追加ニュース2'));
     if(count>1){assert.match(html,/ほかのニュース/);assert.doesNotMatch(html,/もっと詳しく/);}
-    else {assert.match(html,/記事の出典/);assert.doesNotMatch(html,/ほかのニュース/);}
     assert.equal(JSON.stringify(data),before);
     assert.deepEqual(JSON.parse(app.storage.get('kn_published_news_v1_ja')).digest,data.digest);
   }
@@ -1454,4 +1431,51 @@ test('new reading marker cannot alter legacy copy or bypass source, policy and o
   const html=app.nodes['morning-news-content'].innerHTML;
   assert.equal((html.match(/class="story summarized-story"/g)||[]).length,3);
   assert.match(html,/追加ニュース0|もっと詳しく/);assert.doesNotMatch(html,/ほかのニュース/);
+});
+
+test('publication metadata leaves absent or invalid dates unconfirmed without using retrieval time',()=>{
+  const app=harness();
+  for(const stamp of [null,undefined,true,'2026-09-12',NaN,Infinity,1e100,8640000000000]){
+    const markup=app.metadata({source:'金融庁',url:'https://www.fsa.go.jp/announcement.html',title:'発表',published_at:stamp,published_date:'2026-09-12',fetched_at:app.now()/1000});
+    assert.match(markup,/発表日未確認/);assert.doesNotMatch(markup,/<time|1970|09:00|取得/);
+    assert.match(markup,/>金融庁 ↗<\/a>/);
+  }
+  const invalidDay=app.metadata({source:'財務省',url:'https://www.mof.go.jp/announcement.html',publication_precision:'day',published_at:null,published_date:'2026-02-30'});
+  assert.match(invalidDay,/発表日未確認/);assert.doesNotMatch(invalidDay,/<time|1970/);
+});
+
+test('publication source links escape labels and reject active, credential and broken URLs',()=>{
+  const app=harness();
+  for(const url of ['javascript:alert(1)','data:text/html,test','https://user:secret@example.test/source','https://[bad']){
+    const html=app.metadata({source:'<img> "source"',title:'<script>bad()</script>',url,published_at:app.now()/1000});
+    assert.doesNotMatch(html,/<a\b|<img>|<script>|onclick=/);
+    assert.match(html,/&lt;img&gt; &quot;source&quot;/);
+  }
+  const html=app.metadata({source:'金融庁',title:'発表 "確認" <img>',url:'https://www.fsa.go.jp/news/?x=1&y=2',published_at:app.now()/1000});
+  assert.match(html,/rel="noopener noreferrer"/);
+  assert.match(html,/href="https:\/\/www.fsa.go.jp\/news\/\?x=1&amp;y=2"/);
+  assert.match(html,/title="発表 &quot;確認&quot; &lt;img&gt;"/);assert.doesNotMatch(html,/<img>/);
+});
+
+test('a combined summary separates every original publisher and its corresponding publication date',async()=>{
+  const app=harness(),data=leadOtherMorning(app,3,'second');
+  delete data.digest.reading_structure;data.digest.summary='複数の原典を確認して経済の動きを紹介します。'.repeat(15);
+  app.event('DOMContentLoaded');await app.reply(app.requests[0],data);
+  const html=app.nodes['morning-news-content'].innerHTML,front=html.split('<details class="read-more"')[0];
+  const rows=front.split('<div class="news-publication-source"').slice(1);
+  assert.equal(rows.length,3);
+  data.digest.article_refs.forEach((ref,i)=>{
+    assert.ok(rows[i].includes('href="'+ref.url+'"'));
+    assert.ok(rows[i].includes('datetime="'+new Date(ref.published_at*1000).toISOString()+'"'));
+    assert.ok(rows[i].includes('>'+ref.source+' ↗</a>'));
+  });
+  assert.doesNotMatch(html,/class="news-info"|class="article-sources"/);
+});
+
+test('raw source-only stories have visible metadata without an empty expander',async()=>{
+  const app=harness();app.event('DOMContentLoaded');await app.reply(app.requests[0],app.news());
+  const html=app.nodes['morning-news-content'].innerHTML;
+  assert.match(html,/<article class="story source-story">/);
+  assert.doesNotMatch(html,/<details class="story"/);
+  assert.match(html,/<div class="news-publication-source"[^>]*><time/);
 });

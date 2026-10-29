@@ -218,3 +218,34 @@ body.kn-home-a #knNewsDigest .news-tail>.read-more>summary:hover {background:tra
   #knNewsDigest .story-content {padding-block:17px}
   #knNewsDigest .story-title {font-size:calc(14px * var(--kn-a-scale,1))!important}
 }
+
+
+/* Original publication facts stay directly below the news they describe. */
+#knNewsDigest .news-publication-source {
+  display:flex;flex-wrap:wrap;align-items:center;gap:0 8px;
+  min-width:0;margin:8px 0 0;padding:0;border:0;background:transparent;
+  color:var(--kn-news-muted);
+  font:400 calc(12px * var(--kn-a-scale,1))/1.8 var(--kn-news-sans)!important;
+  overflow-wrap:anywhere;
+}
+#knNewsDigest .news-publication-source .publication-date {
+  color:inherit;font:inherit!important;
+}
+#knNewsDigest .news-publication-source .source-link {
+  display:inline-flex;align-items:center;min-height:44px;min-width:0;
+  color:inherit;font:inherit!important;text-decoration-thickness:1px;
+  text-underline-offset:3px;overflow-wrap:anywhere;
+}
+#knNewsDigest .news-publication-source .source-link:focus-visible {
+  outline:2px solid var(--kn-news-ink);outline-offset:3px;border-radius:3px;
+}
+#knNewsDigest .news-summary-sources {
+  display:grid;gap:0;margin-top:8px;
+}
+#knNewsDigest .news-summary-sources .news-publication-source {margin-top:0}
+
+#knNewsDigest .story > summary > .news-publication-source {grid-column:1 / -1}
+
+#knNewsDigest .news-supplements .story > summary {
+  display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:14px;row-gap:0;
+}
