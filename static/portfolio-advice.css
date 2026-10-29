@@ -31,3 +31,5 @@ body.kn-ledger-paper .pa-generated{color:var(--kn-ledger-muted);font-size:calc(1
 body.kn-ledger-paper .pa-risk{margin:12px 0}
 body.kn-ledger-paper .pa-risk p{margin-top:4px}
 @media(max-width:420px){body.kn-ledger-paper .pa-facts,body.kn-ledger-paper .pa-fields{grid-template-columns:1fr}}
+
+body.kn-ledger-paper .pa-info-symbol{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;width:16px;height:16px;border:1px solid currentColor;border-radius:50%;font:400 12px/1 var(--kn-ledger-sans,sans-serif)}

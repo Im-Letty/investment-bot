@@ -1,14 +1,52 @@
-/* Keep the original video intact from the top overlay to the bottom navigation. */
-body.kn-home-a #knShorts .ks-slide:not(.ks-social) > :is(iframe, video, .ks-ph) {
-  top:0;
-  bottom:0;
-  height:100%!important;
+/* The video fills its available stage without crop. App chrome has its own row:
+   YouTube's picture, controls and branding must not have our text over them. */
+body.kn-home-a #knShorts.open .ks-top {
+  position:relative;top:auto;left:auto;right:auto;transform:none;
+  flex:0 0 auto;width:100%;min-height:72px;
+  padding-left:calc(var(--kn-a-menu-left) + 48px)!important;
+  padding-right:max(12px,var(--kn-a-menu-left))!important;
+  background:#0b0c0d!important;pointer-events:auto;
 }
-
-/* A caption must not paint a dark rectangle that ends partway through a video. */
-body.kn-home-a #knShorts .ks-slide:not(.ks-social) .ks-meta {
-  background:transparent;
+body.kn-home-a #knShorts .ks-feed {height:auto;flex:1 1 0;min-height:0}
+body.kn-home-a #knShorts .ks-slide > :is(iframe,video,.ks-ph) {
+  top:0;bottom:0;width:100%;height:100%!important;
+  object-fit:contain;transform:none;
 }
-body.kn-home-a #knShorts .ks-slide:not(.ks-social) :is(.ks-tag, .ks-creator-name) {
-  text-shadow:0 1px 3px rgba(0,0,0,.85),0 0 6px rgba(0,0,0,.65);
+/* Keep original metadata in place for existing follow/save/share handlers. */
+body.kn-home-a #knShorts .ks-slide > :is(.ks-meta,.ks-save,.ks-feed-share) {display:none!important}
+body.kn-home-a #knShorts.open #ksInfoBtn {
+  display:grid;place-items:center;flex:0 0 36px;width:36px;min-width:36px;height:42px;
+  margin:0;padding:6px;border:0;border-radius:50%;background:transparent;color:#fff;cursor:pointer;
+}
+body.kn-home-a #knShorts #ksInfoBtn svg {width:23px;height:23px}
+body.kn-home-a #knShorts #ksInfoBtn[aria-expanded="true"] {background:rgba(255,255,255,.16)}
+body.kn-home-a #knShorts .ks-details-panel[hidden] {display:none!important}
+body.kn-home-a #knShorts .ks-details-panel {
+  flex:0 0 auto;max-height:36%;overflow:auto;box-sizing:border-box;
+  width:100%;margin:0;padding:14px max(20px,calc((100% - 960px)/2));
+  border:0;border-top:1px solid var(--kn-sh-line);background:var(--kn-sh-paper);color:var(--kn-sh-ink);
+  font:400 calc(var(--kn-type-control,14px) * var(--kn-type-scale,1))/1.65 system-ui,sans-serif;
+}
+body.kn-home-a #knShorts .ks-details-heading {display:flex;align-items:center;justify-content:space-between;gap:12px}
+body.kn-home-a #knShorts .ks-details-heading h2 {margin:0;font-size:14px;font-weight:500}
+body.kn-home-a #knShorts .ks-details-panel p {margin:8px 0;overflow-wrap:anywhere;white-space:pre-wrap}
+body.kn-home-a #knShorts .ks-details-title {font-size:16px;font-weight:500}
+body.kn-home-a #knShorts .ks-details-creator,body.kn-home-a #knShorts .ks-details-tag {color:var(--kn-sh-muted);font-size:13px}
+body.kn-home-a #knShorts .ks-details-actions {display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
+body.kn-home-a #knShorts .ks-details-panel :is(button,a) {
+  display:inline-flex;align-items:center;justify-content:center;min-height:40px;box-sizing:border-box;
+  padding:7px 14px;border:1px solid var(--kn-sh-line);border-radius:999px;background:transparent;color:inherit;
+  text-decoration:none;font:inherit;cursor:pointer;
+}
+body.kn-home-a #knShorts .ks-details-panel :is(button,a):focus-visible {outline:2px solid var(--kn-sh-button)!important;outline-offset:2px}
+body.kn-home-a #knShorts .ks-details-close {min-height:36px!important;padding:4px 12px!important;font-size:12px!important}
+body.kn-home-a #knShorts .ks-details-action[aria-pressed="true"] {background:var(--kn-sh-chip)}
+/* Status belongs to the app chrome too, never over the embedded player. */
+body.kn-home-a #knShorts .ks-follow-status:not([hidden]) {position:static;transform:none;flex:0 0 auto;width:auto;max-height:20%;margin:0 16px 8px;overflow:auto}
+/* A share dialog is a separate app view, not a mask on a live provider player. */
+body:has(.ks-share-copy-overlay) #knShorts .ks-feed {visibility:hidden}
+@media(max-width:360px) {
+  body.kn-home-a #knShorts.open .ks-top {gap:3px!important;padding-right:8px!important}
+  body.kn-home-a #knShorts.open #ksInfoBtn {width:32px;min-width:32px;flex-basis:32px;padding:4px}
+  body.kn-home-a #knShorts.open :is(#kgShortsSaved,#ksSearchBtn) {width:32px!important;min-width:32px!important;flex-basis:32px!important}
 }

@@ -16,6 +16,9 @@ function fixture({share,clipboard,origin='https://site.example',search='?auth=pr
     get isConnected(){let el=this;while(el){if(el===doc.body)return true;el=el.parentNode;}return false;}
     get textContent(){return this._text+this.children.map(el=>el.textContent).join('');}set textContent(v){this._text=String(v);this.children.forEach(x=>x.parentNode=null);this.children=[];}
     appendChild(el){this.children.push(el);el.parentNode=this;for(const o of observers){let p=this;while(p&&p!==o.target)p=p.parentNode;if(p===o.target)o.pending.push({addedNodes:[el]});}return el;}
+    contains(el){return el===this||this.children.some(n=>n.contains(el));}
+    replaceChildren(){this.children.forEach(n=>n.parentNode=null);this.children=[];this._text='';}
+    insertBefore(el,before){if(!before)return this.appendChild(el);this.children.splice(this.children.indexOf(before),0,el);el.parentNode=this;return el;}
     remove(){if(this.parentNode){this.parentNode.children=this.parentNode.children.filter(x=>x!==this);this.parentNode=null;}}
     setAttribute(k,v){this.attrs.set(k,String(v));}getAttribute(k){return this.attrs.has(k)?this.attrs.get(k):null;}
     matches(sel){if(sel.startsWith('.'))return this.className.split(/\s+/).includes(sel.slice(1));if(sel.startsWith('#'))return this.id===sel.slice(1);return this.tagName.toLowerCase()===sel;}
@@ -94,11 +97,26 @@ test('invalid mutated ids and hidden documents cannot trigger a native or clipbo
   const h=fixture({share:()=>Promise.resolve(),clipboard:()=>Promise.resolve()}),slide=h.slide({post:'13'});h.api.mount();const b=h.button(slide);b.setAttribute('data-post-id','13?secret=private');b.click();assert.equal(h.manual(),null);h.doc.hidden=true;b.setAttribute('data-post-id','13');b.click();await settle();assert.equal(h.calls.share.length+h.calls.copy.length,0);assert.equal(h.manual(),null);
 });
 test('loader is separate and rendering/playback scripts remain at the published revision',()=>{
-  const root=fs.readFileSync(require('node:path').join(__dirname,'../index.html'),'utf8');assert.equal((root.match(/shorts-sharing\.js\?v=20261022-hybrid2/g)||[]).length,1);assert.equal((root.match(/shorts-sharing\.css\?v=20261022-hybrid2/g)||[]).length,1);assert.match(root,/shorts-player\.js\?v=20261014-loading1/);assert.doesNotMatch(root,/shorts-social\.js/);
+  const root=fs.readFileSync(require('node:path').join(__dirname,'../index.html'),'utf8');assert.equal((root.match(/shorts-sharing\.js\?v=20261030-details1/g)||[]).length,1);assert.equal((root.match(/shorts-sharing\.css\?v=20261022-hybrid2/g)||[]).length,1);assert.match(root,/shorts-player\.js\?v=20261014-loading1/);assert.doesNotMatch(root,/shorts-social\.js/);
   const css=fs.readFileSync(require('node:path').join(__dirname,'../static/shorts-sharing.css'),'utf8');assert.match(css,/width:44px;height:44px/);assert.match(css,/white-space:pre-wrap;overflow-wrap:anywhere/);
 });
 test('pending browser APIs never hide the readonly URL or prevent closing and reopening the local sheet',async()=>{
   for(const native of [false,true]){
     const old=deferred(),h=fixture(native?{share:()=>old.promise}:{clipboard:()=>old.promise}),slide=h.slide({post:'60'});h.api.mount();const origin=h.button(slide);origin.click();const first=h.manual(),input=first.querySelector('input');(native?h.native():h.copy()).click();assert.equal(input.value,'https://site.example/shorts/60');assert.equal(input.readOnly,true);assert.equal(h.close().disabled,false);assert.equal(origin.disabled,false);input.click();assert.equal(input.selected,true);h.close().click();assert.equal(h.manual(),null);assert.equal(h.doc.activeElement,origin);origin.click();const second=h.manual(),before=h.status().textContent;assert.notEqual(first,second);assert.equal(h.copy().disabled,false);if(native)assert.equal(h.native().disabled,false);old.reject(new Error('old pending operation'));await settle();assert.equal(h.manual(),second);assert.equal(h.status().textContent,before);assert.equal(h.copy().disabled,false);
   }
+});
+
+test('a visible information action shares without a hidden-source focus target; hidden information cannot initiate sharing',()=>{
+ const h=fixture();h.api.mount();const panel=h.doc.createElement('section');panel.id='ksDetailsPanel';h.sheet.appendChild(panel);const action=h.doc.createElement('button');action.setAttribute('data-share-provider','youtube');action.setAttribute('data-video-id','AAAAAAAAAAA');action.setAttribute('data-share-title','fixture');panel.appendChild(action);
+ h.api.share(action);assert.ok(h.manual());h.close().click();assert.equal(h.doc.activeElement,action);assert.equal(h.calls.fetch+h.calls.storage+h.calls.share.length+h.calls.copy.length,0);
+ panel.hidden=true;h.api.share(action);assert.equal(h.manual(),null);panel.hidden=false;h.sheet.className='';h.api.share(action);assert.equal(h.manual(),null);
+});
+
+test('real information and sharing modules keep the visible initiator alive through copy and return focus on close',async()=>{
+ const h=fixture({clipboard:()=>Promise.resolve()}),header=h.doc.createElement('div');header.className='ks-top';h.sheet.appendChild(header);const close=h.doc.createElement('button');close.id='ksClose';header.appendChild(close);h.feed.scrollTop=0;h.feed.clientHeight=600;h.slide({video:'AAAAAAAAAAA',title:'fixture current video'});
+ h.api.mount();h.w.KNShortsSharing=h.api;const details=require('../static/shorts-details.js')(h.w);details.mount();h.doc.getElementById('ksInfoBtn').click();const panel=h.doc.getElementById('ksDetailsPanel');
+ const origin=panel.querySelectorAll('button').find(b=>b.getAttribute('data-details-action')==='.ks-share-button');origin.click();assert.ok(h.manual());assert.equal(origin.isConnected,true);
+ // A late source-decoration observation must not detach an active share job.
+ for(const o of h.observers)if(o.target===h.feed)o.fn([]);assert.equal(origin.isConnected,true);
+ h.copy().click();await settle();assert.deepEqual(h.calls.copy,['https://www.youtube.com/shorts/AAAAAAAAAAA']);h.close().click();assert.equal(h.doc.activeElement,origin);assert.equal(origin.isConnected,true);assert.equal(h.calls.fetch+h.calls.storage,0);
 });

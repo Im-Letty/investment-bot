@@ -273,15 +273,15 @@ class AssistReplyPolicy(unittest.TestCase):
         self.create_message.side_effect = RuntimeError("synthetic provider unavailable")
         response = self.ask(mode="teacher")
         self.assertEqual(response.status_code, 500)
-        self.assertEqual(response.get_json(), {"error": "synthetic provider unavailable"})
+        self.assertEqual(response.get_json(), {"error": "chat_unavailable"})
         self.dispatched()
-        self.log.assert_called_once_with("[api_chat] error: synthetic provider unavailable")
+        self.log.assert_not_called()
 
     def test_factory_exception_keeps_500_without_starting_generation(self):
         self.provider_factory.side_effect = RuntimeError("synthetic client unavailable")
         response = self.ask()
         self.assertEqual(response.status_code, 500)
-        self.assertEqual(response.get_json(), {"error": "synthetic client unavailable"})
+        self.assertEqual(response.get_json(), {"error": "chat_unavailable"})
         self.provider_factory.assert_called_once_with()
         self.create_message.assert_not_called()
 
@@ -289,7 +289,7 @@ class AssistReplyPolicy(unittest.TestCase):
         self.rate_limit.side_effect = RuntimeError("synthetic limiter unavailable")
         response = self.ask()
         self.assertEqual(response.status_code, 500)
-        self.assertEqual(response.get_json(), {"error": "synthetic limiter unavailable"})
+        self.assertEqual(response.get_json(), {"error": "chat_unavailable"})
         self.rate_limit.assert_called_once_with()
         self.assert_no_generation()
 

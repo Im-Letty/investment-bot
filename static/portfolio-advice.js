@@ -147,7 +147,7 @@
       }
       var panel=el('section','card pa-panel');panel.id='kkPortfolioAdvice';panel.setAttribute('aria-labelledby','paTitle');
       var header=el('div','pa-heading'),title=el('h2','','資産の見直し・AIアドバイス');title.id='paTitle';header.appendChild(title);
-      var info=el('details','pa-info'),toggle=el('summary','','！');toggle.setAttribute('aria-label','分析について');
+      var info=el('details','pa-info'),toggle=el('summary'),symbol=el('span','pa-info-symbol','!');symbol.setAttribute('aria-hidden','true');toggle.appendChild(symbol);toggle.setAttribute('aria-label','分析について');
       info.appendChild(toggle);info.appendChild(el('p','','登録した評価額をもとにした参考情報です。価格は自動更新されません。銘柄の中身・負債・為替・将来の値動きまでは判断できません。AIの説明には誤りが含まれることがあります。大切な判断は専門家にもご相談ください。'));header.appendChild(info);panel.appendChild(header);
       var notice=el('p','pa-notice');notice.setAttribute('role','status');panel.appendChild(notice);
       var facts=el('div','pa-facts');panel.appendChild(facts);

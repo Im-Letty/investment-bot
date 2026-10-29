@@ -7,7 +7,7 @@ const searchSource=scripts.find(s=>s.includes('window.__ksFetchPatched'));
 const patchStart=searchSource.indexOf('(function(){if(!window.__ksFetchPatched)'),patchEnd=searchSource.indexOf('})();',patchStart)+5;
 assert.ok(patchStart>=0&&patchEnd>patchStart);const keywordPatch=searchSource.slice(patchStart,patchEnd);
 const tags=JSON.parse(searchSource.match(/var TAGS=(\[[^;]+\]);/)[1]);
-function harness({pool=[],managed=true}={}){
+function harness({pool=[],managed=true,staticButton=false}={}){
  const storage=new Map([['ksPool',JSON.stringify(pool)]]),requests=[],pending=[],observers=[],actions=[];
  class Node{
   constructor(tag){this.tagName=tag.toUpperCase();this.children=[];this.parentNode=null;this.attrs={};this.style={};this.events=new Map();this._classes=new Set();this._text='';this.__m=false;this.scrollTop=0;this.classList={add:(...a)=>a.forEach(c=>this._classes.add(c)),remove:(...a)=>a.forEach(c=>this._classes.delete(c)),contains:c=>this._classes.has(c)};if(tag==='iframe')this.contentWindow={postMessage:(data)=>actions.push({kind:'native-message',data})};}
@@ -30,6 +30,7 @@ function harness({pool=[],managed=true}={}){
  function parseSlides(parent,value){for(const m of value.matchAll(/<div class="ks-slide"([^>]*)>([\s\S]*?)<\/span><\/div><\/div>/g)){const slide=new Node('div');slide.className='ks-slide';for(const a of m[1].matchAll(/([\w-]+)="([^"]*)"/g))slide.setAttribute(a[1],a[2]);const ph=new Node('div');ph.className='ks-ph';ph.textContent='読み込み中…';slide.appendChild(ph);parent.appendChild(slide);}}
  const document={readyState:'complete',hidden:false,body:new Node('body'),createElement:tag=>new Node(tag),getElementById(id){return this.body.querySelector('#'+id);},addEventListener(){}};
  const nav=new Node('nav');nav.id='knBottomNav';document.body.appendChild(nav);for(const action of ['home','morning']){const b=new Node('button');b.className='bn-item';b.setAttribute('data-act',action);nav.appendChild(b);}
+ if(staticButton){const b=new Node('button');b.className='bn-item';b.id='knShortsBtn';b.setAttribute('data-act','shorts');nav.appendChild(b);}
  class IO{constructor(fn,options){this.fn=fn;this.options=options;this.targets=new Set();observers.push(this);}observe(n){this.targets.add(n);}unobserve(n){this.targets.delete(n);}disconnect(){this.targets.clear();}fire(node,on=true){this.fn([{target:node,isIntersecting:on,intersectionRatio:on?1:0}]);}}
  const context={document,IntersectionObserver:IO,Date,Math,Promise,setTimeout(){return 1;},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},fetch(url,options){requests.push({url,options});return new Promise((resolve,reject)=>pending.push({resolve,reject}));}};context.window=context;
  const player={active:null,activate(slide){assert.ok(document.getElementById('ksFeed').contains(slide));actions.push({kind:'activate',slide});this.active=slide;mount(slide,true);if(slide.nextElementSibling)this.prepare(slide.nextElementSibling);},prepare(slide){actions.push({kind:'prepare',slide});mount(slide,false);},pause(slide){actions.push({kind:'pause',slide});},close(){actions.push({kind:'close'});const feed=document.getElementById('ksFeed');feed.querySelectorAll('iframe').forEach(n=>n.remove());feed.querySelectorAll('.ks-slide').forEach(n=>n.__m=false);this.active=null;}};
@@ -95,4 +96,11 @@ test('native fallback reuses an existing unmarked iframe on visibility and after
  const h=harness({managed:false});h.button.click();const first=h.slides()[0],iframe=first.querySelector('iframe');assert.ok(iframe);delete first.__m;assert.equal(first.__m,undefined);assert.equal(h.requests.length,1);assert.equal(h.pending.length,1);
  h.observers[1].fire(first);assert.equal(first.querySelectorAll('iframe').length,1);assert.equal(first.querySelector('iframe'),iframe);assert.ok(h.actions.some(a=>a.kind==='native-message'&&JSON.parse(a.data).func==='playVideo'));assert.equal(h.requests.length,1,'observer reuse does not start another search');
  h.close();assert.equal(h.feed.querySelectorAll('iframe').length,0);assert.equal(first.__m,false);h.button.click();const reopened=first.querySelector('iframe');assert.ok(reopened);assert.notEqual(reopened,iframe);delete first.__m;h.observers[1].fire(first);assert.equal(first.querySelectorAll('iframe').length,1);assert.equal(first.querySelector('iframe'),reopened);assert.equal(h.slides()[0],first);assert.equal(h.requests.length,1);assert.equal(h.pending.length,1);h.close();assert.equal(h.feed.querySelectorAll('iframe').length,0);
+});
+
+test('a first-paint video button is reused while its feed and playback controllers initialize once',()=>{
+ const h=harness({staticButton:true});assert.equal(h.document.getElementById('knBottomNav').querySelectorAll('#knShortsBtn').length,1);
+ const sheet=h.sheet;h.button.click();assert.ok(h.sheet.classList.contains('open'));assert.ok(h.slides()[0].querySelector('iframe'));
+ vm.runInNewContext(seedSource,h.context);assert.equal(h.document.getElementById('knShorts'),sheet);assert.equal(h.document.body.querySelectorAll('#knShorts').length,1);
+ h.close();assert.equal(h.feed.querySelectorAll('iframe').length,0);
 });

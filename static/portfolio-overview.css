@@ -1,5 +1,5 @@
 /* Adopted goal-first portfolio. Values keep the ledger's selected reading theme. */
-#tab-assets.po-overview{--po-category-0:#aeb58d;--po-category-1:#758454;--po-category-2:#b5a074;--po-category-3:#9b8078;--po-category-4:#8199a0;--po-category-5:#9b88a7;--po-category-6:#9c9e91;max-width:960px}
+#tab-assets.po-overview{--po-category-0:var(--kn-ledger-button,#74784b);--po-category-1:color-mix(in srgb,var(--kn-ledger-button,#74784b) 60%,var(--kn-ledger-paper,#fffdf6));--po-category-2:color-mix(in srgb,var(--kn-ledger-button,#74784b) 55%,var(--kn-ledger-ink,#505538));--po-category-3:color-mix(in srgb,var(--kn-ledger-muted,#72785b) 70%,var(--kn-ledger-paper,#fffdf6));--po-category-4:color-mix(in srgb,var(--kn-ledger-button,#74784b) 30%,var(--kn-ledger-paper,#fffdf6));--po-category-5:color-mix(in srgb,var(--kn-ledger-button,#74784b) 70%,var(--kn-ledger-muted,#72785b));--po-category-6:color-mix(in srgb,var(--kn-ledger-muted,#72785b) 45%,var(--kn-ledger-paper,#fffdf6));max-width:960px}
 #tab-assets.po-overview [hidden]{display:none!important}
 #tab-assets .po-hero{display:block!important}
 #tab-assets .po-hero,#tab-assets .po-panel{background:var(--kn-ledger-paper,#fffdf6);border:1px solid var(--kn-ledger-line,#d9d8c3);border-radius:12px;padding:22px;margin-bottom:18px;box-shadow:none;min-width:0}
@@ -78,8 +78,7 @@
 #tab-assets #poRetry{margin:0 0 16px}#tab-assets[data-po-ready="true"] #poRetry{display:none}
 
 /* Adopted Natural / standard asset entry. Scope stays within this editor and its launchers. */
-#tab-assets #poEditor,#tab-assets [data-po-add]{--po-entry-paper:#fcfbf5;--po-entry-panel:#fffef8;--po-entry-ink:#53583c;--po-entry-muted:#70765e;--po-entry-line:#d2d3bf;--po-entry-button:#747b4e;--po-entry-on-button:#fffef8}
-body[data-kn-ledger-dark="true"] #tab-assets :is(#poEditor,[data-po-add]){--po-entry-paper:#252820;--po-entry-panel:#2d3227;--po-entry-ink:#e7e8d5;--po-entry-muted:#bdc3a8;--po-entry-line:#62684f;--po-entry-button:#bfc994;--po-entry-on-button:#242b17}
+#tab-assets #poEditor,#tab-assets [data-po-add]{--po-entry-paper:var(--kn-ledger-bg,#fcfbf5);--po-entry-panel:var(--kn-ledger-paper,#fffef8);--po-entry-ink:var(--kn-ledger-ink,#53583c);--po-entry-muted:var(--kn-ledger-muted,#70765e);--po-entry-line:var(--kn-ledger-line,#d2d3bf);--po-entry-button:var(--kn-ledger-button,#747b4e);--po-entry-on-button:var(--kn-ledger-on-button,#fffef8)}
 #tab-assets [data-po-add]{min-height:46px;padding:11px 16px;border:1px solid transparent;border-radius:10px;background:var(--po-entry-button);color:var(--po-entry-on-button);font-weight:400;line-height:1.4}
 #tab-assets #poEditor{container-type:inline-size;box-sizing:border-box;max-width:580px;margin-inline:auto;padding:18px;border:1px solid var(--po-entry-line);border-radius:16px;background:var(--po-entry-panel);color:var(--po-entry-ink);box-shadow:none}
 #tab-assets #poEditor .po-fields{grid-template-columns:minmax(0,1fr);gap:16px}
@@ -99,8 +98,7 @@ body[data-kn-ledger-dark="true"] #tab-assets :is(#poEditor,[data-po-add]){--po-e
 @media(max-width:420px){#tab-assets #poEditor{padding:16px}#tab-assets [data-po-add],#tab-assets #poEditor .po-actions .po-button{padding-inline:13px}}
 
 /* Adopted goal input: Natural / current atmosphere, with its own reference palette. */
-#tab-assets #poGoalForm{--po-goal-paper:#fcfbf5;--po-goal-field:#fffef8;--po-goal-ink:#53583c;--po-goal-muted:#70765e;--po-goal-line:#d2d3bf;--po-goal-button:#7b8055;--po-goal-on-button:#fffef8;container:po-goal-entry / inline-size;box-sizing:border-box;max-width:580px;margin:22px auto 0;padding:0;border:0;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--po-goal-paper);color:var(--po-goal-ink)}
-body[data-kn-ledger-dark="true"] #tab-assets #poGoalForm{--po-goal-paper:#252820;--po-goal-field:#2d3227;--po-goal-ink:#e7e8d5;--po-goal-muted:#bdc3a8;--po-goal-line:#62684f;--po-goal-button:#bfc994;--po-goal-on-button:#242b17}
+#tab-assets #poGoalForm{--po-goal-paper:transparent;--po-goal-field:var(--kn-ledger-paper,#fffef8);--po-goal-ink:var(--kn-ledger-ink,#53583c);--po-goal-muted:var(--kn-ledger-muted,#70765e);--po-goal-line:var(--kn-ledger-line,#d2d3bf);--po-goal-button:var(--kn-ledger-button,#7b8055);--po-goal-on-button:var(--kn-ledger-on-button,#fffef8);container:po-goal-entry / inline-size;box-sizing:border-box;max-width:580px;margin:22px auto 0;padding:0;border:0;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--po-goal-paper);color:var(--po-goal-ink)}
 #tab-assets #poGoalForm .po-goal-input-value{grid-column:1;grid-row:1;display:flex;align-items:center;gap:8px;min-width:0;min-height:52px;padding:0 14px;border:1px solid var(--po-goal-line);border-radius:10px;background:var(--po-goal-field)}
 #tab-assets #poGoalForm .po-goal-input-value:focus-within{outline:2px solid var(--po-goal-button);outline-offset:3px}
 #tab-assets #poGoalForm .po-goal-input-value:has([aria-invalid="true"]){border-color:var(--kn-ledger-expense,#a15f54)}
@@ -111,3 +109,32 @@ body[data-kn-ledger-dark="true"] #tab-assets #poGoalForm{--po-goal-paper:#252820
 @media(max-width:420px){#tab-assets #poGoalForm{column-gap:10px}}
 /* A narrow form gives the amount a full row when enlarged type needs it. */
 @container po-goal-entry (max-width:260px){#tab-assets #poGoalForm .po-goal-input-value{grid-column:1/-1}#tab-assets #poGoalForm #poGoalSave{grid-column:1/-1;grid-row:2;justify-self:end}}
+
+/* The saved target and its editor share one place. No form stays open after saving. */
+#tab-assets .po-goal-display{display:flex;align-items:center;gap:8px;min-width:0}
+#tab-assets .po-target-amount{font:500 calc(38px * var(--kn-ledger-scale,1))/1.4 var(--kn-ledger-sans,sans-serif);letter-spacing:-.03em;overflow-wrap:anywhere;font-variant-numeric:tabular-nums;min-width:0}
+#tab-assets .po-icon-button{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;flex:none;width:44px;height:44px;min-height:44px;padding:0;border:1px solid var(--kn-ledger-line,#d9d8c3);border-radius:50%;background:transparent;color:var(--kn-ledger-ink,#505538);font:300 27px/1 var(--kn-ledger-sans,sans-serif);cursor:pointer;touch-action:manipulation}
+#tab-assets .po-icon-button:focus-visible,#tab-assets .po-button:focus-visible,#tab-assets .po-asset:focus-visible{outline:2px solid var(--kn-ledger-button,#74784b);outline-offset:3px}
+#tab-assets .po-icon-button:disabled{opacity:.5;cursor:wait}
+#tab-assets .po-pencil{border-color:transparent}
+#tab-assets #poGoalForm{max-width:none;margin:0;grid-template-columns:minmax(0,1fr);gap:12px}
+#tab-assets #poGoalForm .po-goal-input-value{border-width:0 0 1px;border-radius:0;padding:0;min-height:58px}
+#tab-assets #poGoalForm #poGoalAmount{font-size:max(16px,calc(38px * var(--kn-ledger-scale,1)))!important;font-weight:500}
+#tab-assets .po-target-actions{grid-row:2;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#tab-assets #poGoalForm #poGoalSave{grid-column:auto;grid-row:auto}
+#tab-assets .po-goal-current-target{grid-template-columns:1fr}
+#tab-assets .po-goal-gap{margin-top:24px}
+#tab-assets .po-goal-amount{font-size:calc(28px * var(--kn-ledger-scale,1))}
+/* One section owns the total, chart, entry controls and saved rows. */
+#tab-assets .po-assets-group>.po-heading{margin-bottom:22px}
+#tab-assets .po-assets-group .po-hero{padding:0;margin:0;border:0;border-radius:0;background:transparent}
+#tab-assets .po-assets-group .po-columns{align-items:start;margin-bottom:24px}
+#tab-assets .po-allocation{min-width:0}
+#tab-assets .po-allocation .po-heading{margin-bottom:8px}
+#tab-assets .po-pie{width:min(100%,210px);aspect-ratio:1;border-radius:50%;margin:18px auto 20px;background:var(--kn-ledger-chip,#f4f2e7)}
+#tab-assets .po-assets-group #poEditor{max-width:none;margin:0 0 22px;background:color-mix(in srgb,var(--kn-ledger-paper,#fffdf6) 90%,var(--kn-ledger-button,#74784b));border-radius:12px}
+#tab-assets [data-po-add].po-icon-button{width:44px;height:44px;min-height:44px;padding:0;border:1px solid var(--kn-ledger-line,#d9d8c3);background:transparent;color:var(--kn-ledger-ink,#505538);font-size:27px;font-weight:300}
+#tab-assets .po-delete.po-icon-button{width:44px;padding:0;border-color:transparent;color:var(--kn-ledger-muted,#72785b);font-size:27px}
+#tab-assets .po-undo{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px;margin-bottom:16px;border:1px solid var(--kn-ledger-line,#d9d8c3);border-radius:10px;background:var(--kn-ledger-chip,#f4f2e7);font-size:calc(13px * var(--kn-ledger-scale,1))}
+#tab-assets[data-po-ready="false"] .po-assets-group{visibility:hidden}
+@media(max-width:620px){#tab-assets .po-assets-group .po-columns{gap:22px}#tab-assets .po-pie{width:min(65%,200px)}#tab-assets .po-target-amount,#tab-assets #poGoalForm #poGoalAmount{font-size:max(16px,calc(32px * var(--kn-ledger-scale,1)))!important}}
