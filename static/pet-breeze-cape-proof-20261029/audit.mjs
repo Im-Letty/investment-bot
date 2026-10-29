@@ -1,0 +1,29 @@
+import {inspectTopology,inspectCrossings,inspectFaceNormalAgreement} from './geometry-audit.mjs';
+export function worldTriangles(T,mesh){mesh.updateMatrixWorld(true);const p=mesh.geometry.attributes.position,i=mesh.geometry.index,result=[];for(let j=0;j<i.count;j+=3)result.push(new T.Triangle(...[0,1,2].map(k=>new T.Vector3().fromBufferAttribute(p,i.getX(j+k)).applyMatrix4(mesh.matrixWorld))));return result;}
+export function independentPointAudit(T,mesh,point){
+ const triangles=worldTriangles(T,mesh),p=new T.Vector3(...point),closest=new T.Vector3(),directions=[[.173,.913,.367],[-.683,.247,.687],[.591,-.721,.363]];let clearance=Infinity;
+ for(const t of triangles){t.closestPointToPoint(p,closest);clearance=Math.min(clearance,closest.distanceTo(p));}
+ const counts=directions.map(v=>{const ray=new T.Ray(p,new T.Vector3(...v).normalize()),hit=new T.Vector3(),distances=[];for(const t of triangles)if(ray.intersectTriangle(t.a,t.b,t.c,false,hit)){const d=hit.distanceTo(p);if(d>1e-7)distances.push(d);}distances.sort((a,b)=>a-b);return distances.filter((d,i)=>!i||d-distances[i-1]>1e-6).length;});
+ return{strictInside:clearance>1e-5&&counts.every(x=>x%2===1),minimumSurfaceClearance:clearance,independentUniqueRayHitCounts:counts,directions};
+}
+export function independentSegmentAudit(T,parts,from,to){
+ const origin=new T.Vector3(...from),delta=new T.Vector3(...to).sub(origin),length=delta.length(),ray=new T.Ray(origin,delta.divideScalar(length)),hit=new T.Vector3(),hits=[];
+ for(const mesh of parts)for(const [face,triangle]of worldTriangles(T,mesh).entries())if(ray.intersectTriangle(triangle.a,triangle.b,triangle.c,false,hit)){const distance=hit.distanceTo(origin);if(distance>1e-6&&distance<length-1e-6)hits.push({part:mesh.name,face,distance});}
+ return hits;
+}
+export function finiteAudit(T,model){
+ model.group.updateMatrixWorld(true);const topology=model.parts.map(m=>({name:m.name,...inspectTopology(T,m.geometry),faceNormals:inspectFaceNormalAgreement(T,m.geometry),positiveFiniteTransform:m.matrixWorld.elements.every(Number.isFinite)&&m.matrixWorld.determinant()>0}));
+ const unique=new Map(model.parts.map(m=>[m.geometry,m]));const crossings=[...unique.values()].map(m=>({name:m.name,...inspectCrossings(T,m.geometry)}));
+ const passageDefinitions=[];
+ for(let i=0;i<8;i++){const a=i*Math.PI/4;passageDefinitions.push({kind:'neck',from:[Math.cos(a)*.12,1.98,Math.sin(a)*.12],to:[Math.cos(a)*.12,.19,Math.sin(a)*.12]});}
+ for(const y of[.33,.61,.93])for(const x of[-.035,0,.035])passageDefinitions.push({kind:'front',from:[x,y,1.43],to:[x,y,-.04]});
+ for(const z of[-.08,0,.08])passageDefinitions.push({kind:'lowerHem',from:[0,-.15,z],to:[0,.20,z]});
+ const passages=passageDefinitions.map(d=>({...d,hits:independentSegmentAudit(T,model.parts,d.from,d.to)}));
+ const contacts=model.contactWitnesses.map(c=>({part:c.part,target:c.target,point:c.point,partAudit:independentPointAudit(T,model.parts.find(p=>p.name===c.part),c.point),targetAudit:independentPointAudit(T,model.parts.find(p=>p.name===c.target),c.point)}));
+ const bindingCoverage=model.bindingCoverageWitnesses.map(w=>({binding:w.binding,target:w.target,targetRim:w.targetRim,targetFace:w.targetFace,point:w.point,audit:independentPointAudit(T,model.parts.find(p=>p.name===w.binding),w.point)}));
+ const frontCapVertices=model.frontCapLapVertices.map(v=>({target:v.target,point:v.point,coveringPart:v.coveringPart,audit:independentPointAudit(T,model.parts.find(p=>p.name===v.coveringPart),v.point)}));
+ const solidProbes=[{name:'left-side-material',from:[-2,.76,0],to:[0,.76,0]},{name:'rear-material',from:[0,.76,-2],to:[0,.76,0]}].map(d=>({...d,hits:independentSegmentAudit(T,[model.shell],d.from,d.to)}));
+ const connected=new Set([model.shell.name]);for(let pass=0;pass<model.parts.length;pass++)for(const c of contacts)if(c.partAudit.strictInside&&c.targetAudit.strictInside&&(connected.has(c.part)||connected.has(c.target))){connected.add(c.part);connected.add(c.target);}
+ const pass=topology.every(p=>p.closedEdges&&!p.badEdges&&!p.degenerateTriangles&&!p.invalidNormals&&p.signedVolume>0&&!p.faceNormals.nonpositiveFaces&&p.positiveFiniteTransform)&&crossings.every(c=>c.strictEdgeInteriorCrossings===0)&&passages.every(p=>p.hits.length===0)&&contacts.every(c=>c.partAudit.strictInside&&c.targetAudit.strictInside)&&solidProbes.every(p=>p.hits.length>=2)&&connected.size===model.parts.length&&bindingCoverage.length>0&&bindingCoverage.every(w=>w.audit.strictInside)&&frontCapVertices.length===16&&frontCapVertices.every(w=>w.audit.strictInside);
+ return{schema_version:1,result:pass?'pass':'fail',scope:'Fixed authored garment pose and finite independently generated rays/common-solid points only. Not continuous collision safety, anatomy, fit, cloth physics or load/friction.',topology,crossings,independentPassages:{count:passages.length,blocked:passages.filter(p=>p.hits.length).length,segments:passages},independentAttachments:{count:contacts.length,failed:contacts.filter(c=>!c.partAudit.strictInside||!c.targetAudit.strictInside).length,minimumClearance:Math.min(...contacts.flatMap(c=>[c.partAudit.minimumSurfaceClearance,c.targetAudit.minimumSurfaceClearance])),contacts},independentBindingCoverage:{count:bindingCoverage.length,failed:bindingCoverage.filter(w=>!w.audit.strictInside).length,minimumSurfaceClearance:Math.min(...bindingCoverage.map(w=>w.audit.minimumSurfaceClearance)),witnesses:bindingCoverage},independentFrontTopCapVertices:{count:frontCapVertices.length,failed:frontCapVertices.filter(v=>!v.audit.strictInside).length,maximumY:Math.max(...frontCapVertices.map(v=>v.point[1])),minimumSurfaceClearance:Math.min(...frontCapVertices.map(v=>v.audit.minimumSurfaceClearance)),vertices:frontCapVertices},solidProbes,connectedPartCount:connected.size,totalPartCount:model.parts.length,bodyBinding:null,wearingFit:false,rig:false,normalGame:false,ownershipUnlockSave:false};
+}
