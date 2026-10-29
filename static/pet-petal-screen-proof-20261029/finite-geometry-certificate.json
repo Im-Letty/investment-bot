@@ -1,0 +1,5561 @@
+{
+  "schema_version": 1,
+  "result": "pass",
+  "scope": "Fixed authored furniture pose only. Finite material points, pad rays, envelopes and camera samples; no body fit, folding, load, friction, stability or continuous safety.",
+  "unit_id": "wardrobe:fit-prerequisite:petal-dressing-screen:closed-panels-floor-support:v1",
+  "sourceSHA": "91e5350067b0a1a7407176ad75e36ee8e184e2d228c7671606f27a459d049afc",
+  "bounds": {
+    "min": [
+      -1.3420144672616376,
+      0,
+      -0.22294657510541574
+    ],
+    "max": [
+      1.3420144672616376,
+      2.352294921875,
+      0.22294657510541574
+    ],
+    "size": [
+      2.6840289345232753,
+      2.352294921875,
+      0.4458931502108315
+    ]
+  },
+  "budget": {
+    "meshes": 57,
+    "geometries": 8,
+    "materials": 5,
+    "textures": 0,
+    "triangles": 12520
+  },
+  "topology": [
+    {
+      "name": "rounded-petal-cream-frame-0",
+      "vertices": 2376,
+      "triangles": 792,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.09699293004160627,
+      "faceNormals": {
+        "triangles": 792,
+        "minimumFaceAverageNormalDot": 0.9999999999229475,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "inset-woven-color-panel-0",
+      "vertices": 1176,
+      "triangles": 392,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.1392662998091001,
+      "faceNormals": {
+        "triangles": 392,
+        "minimumFaceAverageNormalDot": 0.999999999927863,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "thin-gold-inner-binding-0",
+      "vertices": 2376,
+      "triangles": 792,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.0024648627560641123,
+      "faceNormals": {
+        "triangles": 792,
+        "minimumFaceAverageNormalDot": 0.9999999988545356,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "rounded-foot-0--1",
+      "vertices": 170,
+      "triangles": 336,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.005848771975673696,
+      "faceNormals": {
+        "triangles": 336,
+        "minimumFaceAverageNormalDot": 0.7274906407387978,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "rounded-foot-0-1",
+      "vertices": 170,
+      "triangles": 336,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.005848771975673696,
+      "faceNormals": {
+        "triangles": 336,
+        "minimumFaceAverageNormalDot": 0.7274906407387978,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "botanical-stem-0-0",
+      "vertices": 52,
+      "triangles": 32,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 2.828427076339719,
+      "faceNormals": {
+        "triangles": 32,
+        "minimumFaceAverageNormalDot": 0.9906023243737807,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-0-0-0",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-0-0-1",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-0-0-2",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-0-0-3",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "botanical-stem-0-1",
+      "vertices": 52,
+      "triangles": 32,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 2.828427076339719,
+      "faceNormals": {
+        "triangles": 32,
+        "minimumFaceAverageNormalDot": 0.9906023243737807,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-0-1-0",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-0-1-1",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-0-1-2",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-0-1-3",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "rounded-petal-cream-frame-1",
+      "vertices": 2376,
+      "triangles": 792,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.09699293004160627,
+      "faceNormals": {
+        "triangles": 792,
+        "minimumFaceAverageNormalDot": 0.9999999999229475,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "inset-woven-color-panel-1",
+      "vertices": 1176,
+      "triangles": 392,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.1392662998091001,
+      "faceNormals": {
+        "triangles": 392,
+        "minimumFaceAverageNormalDot": 0.999999999927863,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "thin-gold-inner-binding-1",
+      "vertices": 2376,
+      "triangles": 792,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.0024648627560641123,
+      "faceNormals": {
+        "triangles": 792,
+        "minimumFaceAverageNormalDot": 0.9999999988545356,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "rounded-foot-1--1",
+      "vertices": 170,
+      "triangles": 336,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.005848771975673696,
+      "faceNormals": {
+        "triangles": 336,
+        "minimumFaceAverageNormalDot": 0.7274906407387978,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "rounded-foot-1-1",
+      "vertices": 170,
+      "triangles": 336,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.005848771975673696,
+      "faceNormals": {
+        "triangles": 336,
+        "minimumFaceAverageNormalDot": 0.7274906407387978,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "botanical-stem-1-0",
+      "vertices": 52,
+      "triangles": 32,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 2.828427076339719,
+      "faceNormals": {
+        "triangles": 32,
+        "minimumFaceAverageNormalDot": 0.9906023243737807,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-1-0-0",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-1-0-1",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-1-0-2",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-1-0-3",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "botanical-stem-1-1",
+      "vertices": 52,
+      "triangles": 32,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 2.828427076339719,
+      "faceNormals": {
+        "triangles": 32,
+        "minimumFaceAverageNormalDot": 0.9906023243737807,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-1-1-0",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-1-1-1",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-1-1-2",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-1-1-3",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "rounded-petal-cream-frame-2",
+      "vertices": 2376,
+      "triangles": 792,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.09699293004160627,
+      "faceNormals": {
+        "triangles": 792,
+        "minimumFaceAverageNormalDot": 0.9999999999229475,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "inset-woven-color-panel-2",
+      "vertices": 1176,
+      "triangles": 392,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.1392662998091001,
+      "faceNormals": {
+        "triangles": 392,
+        "minimumFaceAverageNormalDot": 0.999999999927863,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "thin-gold-inner-binding-2",
+      "vertices": 2376,
+      "triangles": 792,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.0024648627560641123,
+      "faceNormals": {
+        "triangles": 792,
+        "minimumFaceAverageNormalDot": 0.9999999988545356,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "rounded-foot-2--1",
+      "vertices": 170,
+      "triangles": 336,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.005848771975673696,
+      "faceNormals": {
+        "triangles": 336,
+        "minimumFaceAverageNormalDot": 0.7274906407387978,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "rounded-foot-2-1",
+      "vertices": 170,
+      "triangles": 336,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.005848771975673696,
+      "faceNormals": {
+        "triangles": 336,
+        "minimumFaceAverageNormalDot": 0.7274906407387978,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "botanical-stem-2-0",
+      "vertices": 52,
+      "triangles": 32,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 2.828427076339719,
+      "faceNormals": {
+        "triangles": 32,
+        "minimumFaceAverageNormalDot": 0.9906023243737807,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-2-0-0",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-2-0-1",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-2-0-2",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-2-0-3",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "botanical-stem-2-1",
+      "vertices": 52,
+      "triangles": 32,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 2.828427076339719,
+      "faceNormals": {
+        "triangles": 32,
+        "minimumFaceAverageNormalDot": 0.9906023243737807,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-2-1-0",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-2-1-1",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-2-1-2",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "stitched-leaf-relief-2-1-3",
+      "vertices": 117,
+      "triangles": 168,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 3.847758883112088,
+      "faceNormals": {
+        "triangles": 168,
+        "minimumFaceAverageNormalDot": 0.9917118500303924,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "hinge-0-0-central-leaf",
+      "vertices": 24,
+      "triangles": 12,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.000618800013566016,
+      "faceNormals": {
+        "triangles": 12,
+        "minimumFaceAverageNormalDot": 0.9999999999999999,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "hinge-0-0-outer-leaf",
+      "vertices": 24,
+      "triangles": 12,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.000618800013566016,
+      "faceNormals": {
+        "triangles": 12,
+        "minimumFaceAverageNormalDot": 0.9999999999999999,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "hinge-0-0-fixed-barrel",
+      "vertices": 100,
+      "triangles": 64,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.0006016396166580636,
+      "faceNormals": {
+        "triangles": 64,
+        "minimumFaceAverageNormalDot": 0.9978090972915669,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "hinge-0-1-central-leaf",
+      "vertices": 24,
+      "triangles": 12,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.000618800013566016,
+      "faceNormals": {
+        "triangles": 12,
+        "minimumFaceAverageNormalDot": 0.9999999999999999,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "hinge-0-1-outer-leaf",
+      "vertices": 24,
+      "triangles": 12,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.000618800013566016,
+      "faceNormals": {
+        "triangles": 12,
+        "minimumFaceAverageNormalDot": 0.9999999999999999,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "hinge-0-1-fixed-barrel",
+      "vertices": 100,
+      "triangles": 64,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.0006016396166580636,
+      "faceNormals": {
+        "triangles": 64,
+        "minimumFaceAverageNormalDot": 0.9978090972915669,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "hinge-1-0-central-leaf",
+      "vertices": 24,
+      "triangles": 12,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.000618800013566016,
+      "faceNormals": {
+        "triangles": 12,
+        "minimumFaceAverageNormalDot": 0.9999999999999999,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "hinge-1-0-outer-leaf",
+      "vertices": 24,
+      "triangles": 12,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.000618800013566016,
+      "faceNormals": {
+        "triangles": 12,
+        "minimumFaceAverageNormalDot": 0.9999999999999999,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "hinge-1-0-fixed-barrel",
+      "vertices": 100,
+      "triangles": 64,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.0006016396166580636,
+      "faceNormals": {
+        "triangles": 64,
+        "minimumFaceAverageNormalDot": 0.9978090972915669,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "hinge-1-1-central-leaf",
+      "vertices": 24,
+      "triangles": 12,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.000618800013566016,
+      "faceNormals": {
+        "triangles": 12,
+        "minimumFaceAverageNormalDot": 0.9999999999999999,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "hinge-1-1-outer-leaf",
+      "vertices": 24,
+      "triangles": 12,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.000618800013566016,
+      "faceNormals": {
+        "triangles": 12,
+        "minimumFaceAverageNormalDot": 0.9999999999999999,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    },
+    {
+      "name": "hinge-1-1-fixed-barrel",
+      "vertices": 100,
+      "triangles": 64,
+      "closedEdges": true,
+      "badEdges": 0,
+      "degenerateTriangles": 0,
+      "invalidNormals": 0,
+      "signedVolume": 0.0006016396166580636,
+      "faceNormals": {
+        "triangles": 64,
+        "minimumFaceAverageNormalDot": 0.9978090972915669,
+        "nonpositiveFaces": 0,
+        "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+      },
+      "positiveFiniteTransform": true
+    }
+  ],
+  "crossings": [
+    {
+      "name": "rounded-petal-cream-frame-0",
+      "triangles": 792,
+      "candidateNonadjacentAABBPairs": 6598,
+      "strictEdgeInteriorCrossings": 0,
+      "witnesses": [],
+      "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+    },
+    {
+      "name": "inset-woven-color-panel-0",
+      "triangles": 392,
+      "candidateNonadjacentAABBPairs": 2863,
+      "strictEdgeInteriorCrossings": 0,
+      "witnesses": [],
+      "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+    },
+    {
+      "name": "thin-gold-inner-binding-0",
+      "triangles": 792,
+      "candidateNonadjacentAABBPairs": 6543,
+      "strictEdgeInteriorCrossings": 0,
+      "witnesses": [],
+      "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+    },
+    {
+      "name": "rounded-foot-0--1",
+      "triangles": 336,
+      "candidateNonadjacentAABBPairs": 183,
+      "strictEdgeInteriorCrossings": 0,
+      "witnesses": [],
+      "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+    },
+    {
+      "name": "botanical-stem-0-0",
+      "triangles": 32,
+      "candidateNonadjacentAABBPairs": 157,
+      "strictEdgeInteriorCrossings": 0,
+      "witnesses": [],
+      "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+    },
+    {
+      "name": "stitched-leaf-relief-0-0-0",
+      "triangles": 168,
+      "candidateNonadjacentAABBPairs": 177,
+      "strictEdgeInteriorCrossings": 0,
+      "witnesses": [],
+      "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+    },
+    {
+      "name": "hinge-0-0-central-leaf",
+      "triangles": 12,
+      "candidateNonadjacentAABBPairs": 48,
+      "strictEdgeInteriorCrossings": 0,
+      "witnesses": [],
+      "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+    },
+    {
+      "name": "hinge-0-0-fixed-barrel",
+      "triangles": 64,
+      "candidateNonadjacentAABBPairs": 429,
+      "strictEdgeInteriorCrossings": 0,
+      "witnesses": [],
+      "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+    }
+  ],
+  "attachments": {
+    "rows": [
+      {
+        "child": "inset-woven-color-panel-0",
+        "parent": "rounded-petal-cream-frame-0",
+        "point": [
+          -0.8945077318515195,
+          0.313,
+          0.06850682884412578
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.019319987773895264,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02499999952316284,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "thin-gold-inner-binding-0",
+        "parent": "rounded-petal-cream-frame-0",
+        "point": [
+          -0.8823995481488368,
+          0.296,
+          0.14353610238067344
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.010740015745162979,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0059999948143959,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "rounded-foot-0--1",
+        "parent": "rounded-petal-cream-frame-0",
+        "point": [
+          -1.1857397804473295,
+          0.235,
+          0.11550569979532833
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02499999046325685,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.026999995708465563,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "rounded-foot-0-1",
+        "parent": "rounded-petal-cream-frame-0",
+        "point": [
+          -0.6032756832557096,
+          0.235,
+          0.021507957892923216
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02499999046325685,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.026999995708465563,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "botanical-stem-0-0",
+        "parent": "inset-woven-color-panel-0",
+        "point": [
+          -1.0444981868609076,
+          1.75,
+          0.14335910607118646
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014782072393688102,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143893,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-0-0-0",
+        "parent": "inset-woven-color-panel-0",
+        "point": [
+          -1.0411761091251857,
+          1.625,
+          0.14282299095767523
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.001992795871344769,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143266,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-0-0-1",
+        "parent": "inset-woven-color-panel-0",
+        "point": [
+          -0.9874001013810759,
+          1.71,
+          0.1341446478274383
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0019927958713447484,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143346,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-0-0-2",
+        "parent": "inset-woven-color-panel-0",
+        "point": [
+          -1.1034271863775742,
+          1.795,
+          0.15286903623485165
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0019927958713447957,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.001499996334314362,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-0-0-3",
+        "parent": "inset-woven-color-panel-0",
+        "point": [
+          -1.0496511786334644,
+          1.88,
+          0.1441906931046147
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0019927958713447454,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143266,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "botanical-stem-0-1",
+        "parent": "inset-woven-color-panel-0",
+        "point": [
+          -0.7483300018482195,
+          0.64,
+          0.09556364408691269
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.001478207239368756,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143305,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-0-1-0",
+        "parent": "inset-woven-color-panel-0",
+        "point": [
+          -0.8319342195352482,
+          0.515,
+          0.10905564765243456
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0019927958713447423,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143266,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-0-1-1",
+        "parent": "inset-woven-color-panel-0",
+        "point": [
+          -0.719048330903668,
+          0.6,
+          0.09083818382045508
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0019927958713447463,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.001499996334314362,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-0-1-2",
+        "parent": "inset-woven-color-panel-0",
+        "point": [
+          -0.7759655350126958,
+          0.685,
+          0.1000234515261259
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0019927958713447155,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.001499996334314358,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-0-1-3",
+        "parent": "inset-woven-color-panel-0",
+        "point": [
+          -0.6630796463811157,
+          0.77,
+          0.08180598769414645
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0019927958713447463,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143483,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "inset-woven-color-panel-1",
+        "parent": "rounded-petal-cream-frame-1",
+        "point": [
+          0,
+          0.313,
+          0
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.019319987773895264,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02499999952316284,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "thin-gold-inner-binding-1",
+        "parent": "rounded-petal-cream-frame-1",
+        "point": [
+          0,
+          0.296,
+          0.076
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.010740015745162979,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.005999994814395906,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "rounded-foot-1--1",
+        "parent": "rounded-petal-cream-frame-1",
+        "point": [
+          -0.295,
+          0.235,
+          0
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02499999046325685,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.026999995708465563,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "rounded-foot-1-1",
+        "parent": "rounded-petal-cream-frame-1",
+        "point": [
+          0.295,
+          0.235,
+          0
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02499999046325685,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.026999995708465563,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "botanical-stem-1-0",
+        "parent": "inset-woven-color-panel-1",
+        "point": [
+          -0.16,
+          1.75,
+          0.05
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014782072393688364,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143435,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-1-0-0",
+        "parent": "inset-woven-color-panel-1",
+        "point": [
+          -0.15663494132337719,
+          1.625,
+          0.05
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0019927958713447476,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143435,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-1-0-1",
+        "parent": "inset-woven-color-panel-1",
+        "point": [
+          -0.10216318122348068,
+          1.71,
+          0.05
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0019927958713447454,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143435,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-1-0-2",
+        "parent": "inset-woven-color-panel-1",
+        "point": [
+          -0.2196914211235842,
+          1.795,
+          0.05
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0019927958713447476,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143435,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-1-0-3",
+        "parent": "inset-woven-color-panel-1",
+        "point": [
+          -0.16521966102368774,
+          1.88,
+          0.05
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0019927958713447445,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143435,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "botanical-stem-1-1",
+        "parent": "inset-woven-color-panel-1",
+        "point": [
+          0.14,
+          0.64,
+          0.05
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014782072393688408,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143435,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-1-1-0",
+        "parent": "inset-woven-color-panel-1",
+        "point": [
+          0.05531411348239822,
+          0.515,
+          0.05
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0019927958713447463,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143435,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-1-1-1",
+        "parent": "inset-woven-color-panel-1",
+        "point": [
+          0.1696605163143674,
+          0.6,
+          0.05
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0019927958713447467,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143435,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-1-1-2",
+        "parent": "inset-woven-color-panel-1",
+        "point": [
+          0.11200691914633669,
+          0.685,
+          0.05
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0019927958713447463,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143435,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-1-1-3",
+        "parent": "inset-woven-color-panel-1",
+        "point": [
+          0.22635332197830588,
+          0.77,
+          0.05
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0019927958713447467,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143435,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "inset-woven-color-panel-2",
+        "parent": "rounded-petal-cream-frame-2",
+        "point": [
+          0.8945077318515195,
+          0.313,
+          -0.06850682884412578
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.019319987773895264,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02499999952316284,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "thin-gold-inner-binding-2",
+        "parent": "rounded-petal-cream-frame-2",
+        "point": [
+          0.9066159155542023,
+          0.296,
+          0.006522444692421872
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.010740015745162979,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.005999994814395894,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "rounded-foot-2--1",
+        "parent": "rounded-petal-cream-frame-2",
+        "point": [
+          0.6032756832557096,
+          0.235,
+          -0.021507957892923216
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02499999046325685,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.026999995708465563,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "rounded-foot-2-1",
+        "parent": "rounded-petal-cream-frame-2",
+        "point": [
+          1.1857397804473295,
+          0.235,
+          -0.11550569979532833
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02499999046325685,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.026999995708465563,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "botanical-stem-2-0",
+        "parent": "inset-woven-color-panel-2",
+        "point": [
+          0.7445172768421315,
+          1.75,
+          0.006345448382934923
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014782072393688065,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143494,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-2-0-0",
+        "parent": "inset-woven-color-panel-2",
+        "point": [
+          0.7478393545778534,
+          1.625,
+          0.005809333269423678
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.001992795871344748,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.001499996334314341,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-2-0-1",
+        "parent": "inset-woven-color-panel-2",
+        "point": [
+          0.8016153623219632,
+          1.71,
+          -0.0028690098608132736
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.001992795871344738,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143444,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-2-0-2",
+        "parent": "inset-woven-color-panel-2",
+        "point": [
+          0.685588277325465,
+          1.795,
+          0.015855378546600088
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.00199279587134476,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143483,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-2-0-3",
+        "parent": "inset-woven-color-panel-2",
+        "point": [
+          0.7393642850695746,
+          1.88,
+          0.007177035416363137
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.001992795871344738,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143477,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "botanical-stem-2-1",
+        "parent": "inset-woven-color-panel-2",
+        "point": [
+          1.0406854618548196,
+          0.64,
+          -0.04145001360133886
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.001478207239368706,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.001499996334314362,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-2-1-0",
+        "parent": "inset-woven-color-panel-2",
+        "point": [
+          0.957081244167791,
+          0.515,
+          -0.027958010035816994
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.001992795871344746,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143234,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-2-1-1",
+        "parent": "inset-woven-color-panel-2",
+        "point": [
+          1.069967132799371,
+          0.6,
+          -0.04617547386779647
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.00199279587134476,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143472,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-2-1-2",
+        "parent": "inset-woven-color-panel-2",
+        "point": [
+          1.0130499286903434,
+          0.685,
+          -0.036990206162125644
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.001992795871344772,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143483,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "stitched-leaf-relief-2-1-3",
+        "parent": "inset-woven-color-panel-2",
+        "point": [
+          1.1259358173219234,
+          0.77,
+          -0.055207669994105105
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.00199279587134476,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.0014999963343143414,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "hinge-0-0-central-leaf",
+        "parent": "rounded-petal-cream-frame-1",
+        "point": [
+          -0.401,
+          0.72,
+          0.076
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.01300000092387199,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.005999994814395906,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "hinge-0-0-fixed-barrel",
+        "parent": "hinge-0-0-central-leaf",
+        "point": [
+          -0.4409999978840351,
+          0.72,
+          0.08
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.019200400568129748,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.017000000923871994,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "finite authored AABB candidate point checked strictly inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "hinge-0-0-outer-leaf",
+        "parent": "hinge-0-0-fixed-barrel",
+        "point": [
+          -0.4515029779055916,
+          0.72,
+          0.0838684782968292
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.011255838546260373,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02605899283465775,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "finite authored AABB candidate point checked strictly inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "hinge-0-0-outer-leaf",
+        "parent": "rounded-petal-cream-frame-0",
+        "point": [
+          -0.48652140751521045,
+          0.72,
+          0.07964950152836078
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.013000000923871985,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.005999994814395882,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "hinge-0-1-central-leaf",
+        "parent": "rounded-petal-cream-frame-1",
+        "point": [
+          -0.401,
+          1.77,
+          0.076
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.01300000092387199,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.005999994814395906,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "hinge-0-1-fixed-barrel",
+        "parent": "hinge-0-1-central-leaf",
+        "point": [
+          -0.4409999978840351,
+          1.77,
+          0.08
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.019200400568129748,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.017000000923871994,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "finite authored AABB candidate point checked strictly inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "hinge-0-1-outer-leaf",
+        "parent": "hinge-0-1-fixed-barrel",
+        "point": [
+          -0.4515029779055916,
+          1.77,
+          0.0838684782968292
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.011255838546260373,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.02605899283465775,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "finite authored AABB candidate point checked strictly inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "hinge-0-1-outer-leaf",
+        "parent": "rounded-petal-cream-frame-0",
+        "point": [
+          -0.48652140751521045,
+          1.77,
+          0.07964950152836078
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.013000000923871985,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.005999994814395892,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "hinge-1-0-central-leaf",
+        "parent": "rounded-petal-cream-frame-1",
+        "point": [
+          0.401,
+          0.72,
+          0.076
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.01300000092387199,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.005999994814395906,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "hinge-1-0-fixed-barrel",
+        "parent": "hinge-1-0-central-leaf",
+        "point": [
+          0.4409999978840351,
+          0.72,
+          0.08
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.01920040056812976,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.017000000923871994,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "finite authored AABB candidate point checked strictly inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "hinge-1-0-outer-leaf",
+        "parent": "hinge-1-0-fixed-barrel",
+        "point": [
+          0.46424843443473124,
+          0.72,
+          0.07924825030501606
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.014319706673681827,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.01497063697086369,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "finite authored AABB candidate point checked strictly inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "hinge-1-0-outer-leaf",
+        "parent": "rounded-petal-cream-frame-2",
+        "point": [
+          0.5107377749205758,
+          0.72,
+          0.0704090455447345
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.013000000923871971,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.005999994814395915,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "hinge-1-1-central-leaf",
+        "parent": "rounded-petal-cream-frame-1",
+        "point": [
+          0.401,
+          1.77,
+          0.076
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.01300000092387199,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.005999994814395906,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      },
+      {
+        "child": "hinge-1-1-fixed-barrel",
+        "parent": "hinge-1-1-central-leaf",
+        "point": [
+          0.4409999978840351,
+          1.77,
+          0.08
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.01920040056812976,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.017000000923871994,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "finite authored AABB candidate point checked strictly inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "hinge-1-1-outer-leaf",
+        "parent": "hinge-1-1-fixed-barrel",
+        "point": [
+          0.46424843443473124,
+          1.77,
+          0.07924825030501606
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.014319706673681827,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.01497063697086369,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "finite authored AABB candidate point checked strictly inside both actual closed triangle solids",
+        "verified": true
+      },
+      {
+        "child": "hinge-1-1-outer-leaf",
+        "parent": "rounded-petal-cream-frame-2",
+        "point": [
+          0.5107377749205758,
+          1.77,
+          0.0704090455447345
+        ],
+        "childTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.013000000923871971,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "parentTest": {
+          "inside": true,
+          "minimumSurfaceClearance": 0.005999994814395918,
+          "requiredSurfaceClearance": 0.00001,
+          "uniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directionCount": 3
+        },
+        "method": "explicit authored common material point",
+        "verified": true
+      }
+    ],
+    "connectedPartCount": 57,
+    "partCount": 57,
+    "strictVerified": true,
+    "minimumSurfaceClearance": 0.001478207239368706,
+    "scope": "Finite dual-solid common points, three noncollinear rays each, positive triangle distance. Not load, folding, friction or stability."
+  },
+  "passages": {
+    "finiteRays": 9,
+    "blocked": 0,
+    "rows": [
+      {
+        "kind": "under-panel-between-feet",
+        "start": [
+          -1.0865745613360493,
+          0.1,
+          -0.305672717646273
+        ],
+        "end": [
+          -0.9591199960446527,
+          0.1,
+          0.48410910905422855
+        ],
+        "hits": []
+      },
+      {
+        "kind": "under-panel-between-feet",
+        "start": [
+          -0.9582350144972179,
+          0.1,
+          -0.326384084506125
+        ],
+        "end": [
+          -0.8307804492058212,
+          0.1,
+          0.46339774219437657
+        ],
+        "hits": []
+      },
+      {
+        "kind": "under-panel-between-feet",
+        "start": [
+          -0.8298954676583864,
+          0.1,
+          -0.34709545136597697
+        ],
+        "end": [
+          -0.7024409023669896,
+          0.1,
+          0.4426863753345246
+        ],
+        "hits": []
+      },
+      {
+        "kind": "under-panel-between-feet",
+        "start": [
+          -0.13,
+          0.1,
+          -0.4
+        ],
+        "end": [
+          -0.13,
+          0.1,
+          0.4
+        ],
+        "hits": []
+      },
+      {
+        "kind": "under-panel-between-feet",
+        "start": [
+          0,
+          0.1,
+          -0.4
+        ],
+        "end": [
+          0,
+          0.1,
+          0.4
+        ],
+        "hits": []
+      },
+      {
+        "kind": "under-panel-between-feet",
+        "start": [
+          0.13,
+          0.1,
+          -0.4
+        ],
+        "end": [
+          0.13,
+          0.1,
+          0.4
+        ],
+        "hits": []
+      },
+      {
+        "kind": "under-panel-between-feet",
+        "start": [
+          0.7024409023669896,
+          0.1,
+          -0.4426863753345246
+        ],
+        "end": [
+          0.8298954676583864,
+          0.1,
+          0.34709545136597697
+        ],
+        "hits": []
+      },
+      {
+        "kind": "under-panel-between-feet",
+        "start": [
+          0.8307804492058212,
+          0.1,
+          -0.46339774219437657
+        ],
+        "end": [
+          0.9582350144972179,
+          0.1,
+          0.326384084506125
+        ],
+        "hits": []
+      },
+      {
+        "kind": "under-panel-between-feet",
+        "start": [
+          0.9591199960446527,
+          0.1,
+          -0.48410910905422855
+        ],
+        "end": [
+          1.0865745613360493,
+          0.1,
+          0.305672717646273
+        ],
+        "hits": []
+      }
+    ],
+    "occupiedControls": [
+      {
+        "kind": "closed-cloth-panel",
+        "start": [
+          -0.9502691041665057,
+          0.65,
+          -0.2770227203373436
+        ],
+        "end": [
+          -0.8387463595365334,
+          0.65,
+          0.4140363780255952
+        ],
+        "hits": [
+          {
+            "part": "inset-woven-color-panel-0",
+            "face": 27,
+            "distance": 0.2984999999403953
+          }
+        ]
+      },
+      {
+        "kind": "closed-cloth-panel",
+        "start": [
+          -0.9502691041665057,
+          1.38,
+          -0.2770227203373436
+        ],
+        "end": [
+          -0.8387463595365334,
+          1.38,
+          0.4140363780255952
+        ],
+        "hits": [
+          {
+            "part": "inset-woven-color-panel-0",
+            "face": 29,
+            "distance": 0.2984999999403953
+          }
+        ]
+      },
+      {
+        "kind": "closed-cloth-panel",
+        "start": [
+          0,
+          0.65,
+          -0.35
+        ],
+        "end": [
+          0,
+          0.65,
+          0.35
+        ],
+        "hits": [
+          {
+            "part": "inset-woven-color-panel-1",
+            "face": 27,
+            "distance": 0.29849999994039533
+          }
+        ]
+      },
+      {
+        "kind": "closed-cloth-panel",
+        "start": [
+          0,
+          1.38,
+          -0.35
+        ],
+        "end": [
+          0,
+          1.38,
+          0.35
+        ],
+        "hits": [
+          {
+            "part": "inset-woven-color-panel-1",
+            "face": 29,
+            "distance": 0.29849999994039533
+          }
+        ]
+      },
+      {
+        "kind": "closed-cloth-panel",
+        "start": [
+          0.8387463595365334,
+          0.65,
+          -0.4140363780255952
+        ],
+        "end": [
+          0.9502691041665057,
+          0.65,
+          0.2770227203373436
+        ],
+        "hits": [
+          {
+            "part": "inset-woven-color-panel-2",
+            "face": 27,
+            "distance": 0.29849999994039533
+          }
+        ]
+      },
+      {
+        "kind": "closed-cloth-panel",
+        "start": [
+          0.8387463595365334,
+          1.38,
+          -0.4140363780255952
+        ],
+        "end": [
+          0.9502691041665057,
+          1.38,
+          0.2770227203373436
+        ],
+        "hits": [
+          {
+            "part": "inset-woven-color-panel-2",
+            "face": 29,
+            "distance": 0.29849999994039533
+          }
+        ]
+      }
+    ],
+    "jointRegionProbes": [
+      {
+        "kind": "projected-fixed-join-region-not-required-empty",
+        "start": [
+          -0.45,
+          0.4,
+          -0.4
+        ],
+        "end": [
+          -0.45,
+          0.4,
+          0.4
+        ],
+        "hits": [
+          {
+            "part": "rounded-petal-cream-frame-0",
+            "face": 186,
+            "distance": 0.4486105396436855
+          }
+        ]
+      },
+      {
+        "kind": "projected-fixed-join-region-not-required-empty",
+        "start": [
+          -0.45,
+          1.15,
+          -0.4
+        ],
+        "end": [
+          -0.45,
+          1.15,
+          0.4
+        ],
+        "hits": [
+          {
+            "part": "rounded-petal-cream-frame-0",
+            "face": 187,
+            "distance": 0.4486105396436855
+          }
+        ]
+      },
+      {
+        "kind": "projected-fixed-join-region-not-required-empty",
+        "start": [
+          -0.45,
+          1.42,
+          -0.4
+        ],
+        "end": [
+          -0.45,
+          1.42,
+          0.4
+        ],
+        "hits": [
+          {
+            "part": "rounded-petal-cream-frame-0",
+            "face": 187,
+            "distance": 0.4486105396436855
+          }
+        ]
+      },
+      {
+        "kind": "projected-fixed-join-region-not-required-empty",
+        "start": [
+          -0.45,
+          2.02,
+          -0.4
+        ],
+        "end": [
+          -0.45,
+          2.02,
+          0.4
+        ],
+        "hits": []
+      },
+      {
+        "kind": "projected-fixed-join-region-not-required-empty",
+        "start": [
+          0.45,
+          0.4,
+          -0.4
+        ],
+        "end": [
+          0.45,
+          0.4,
+          0.4
+        ],
+        "hits": [
+          {
+            "part": "rounded-petal-cream-frame-2",
+            "face": 393,
+            "distance": 0.32332559905529845
+          }
+        ]
+      },
+      {
+        "kind": "projected-fixed-join-region-not-required-empty",
+        "start": [
+          0.45,
+          1.15,
+          -0.4
+        ],
+        "end": [
+          0.45,
+          1.15,
+          0.4
+        ],
+        "hits": [
+          {
+            "part": "rounded-petal-cream-frame-2",
+            "face": 393,
+            "distance": 0.32332559905529845
+          }
+        ]
+      },
+      {
+        "kind": "projected-fixed-join-region-not-required-empty",
+        "start": [
+          0.45,
+          1.42,
+          -0.4
+        ],
+        "end": [
+          0.45,
+          1.42,
+          0.4
+        ],
+        "hits": [
+          {
+            "part": "rounded-petal-cream-frame-2",
+            "face": 393,
+            "distance": 0.32332559905529845
+          }
+        ]
+      },
+      {
+        "kind": "projected-fixed-join-region-not-required-empty",
+        "start": [
+          0.45,
+          2.02,
+          -0.4
+        ],
+        "end": [
+          0.45,
+          2.02,
+          0.4
+        ],
+        "hits": []
+      }
+    ],
+    "throughJointPassageVerified": false,
+    "scope": "9 finite static under-panel empty-space segments plus6 occupied-panel controls. Rounded frame edges can occlude projected joint gaps;8 such diagnostic probes are retained separately. No body passage, folding or continuous collision guarantee"
+  },
+  "placement": {
+    "townPoint": {
+      "x": 2400,
+      "y": 400
+    },
+    "worldPosition": [
+      9.6,
+      0.0250000000000013,
+      -5.6
+    ],
+    "projectedFootprint": {
+      "minX": 8.257985532738363,
+      "maxX": 10.942014467261636,
+      "minZ": -5.822946575105415,
+      "maxZ": -5.3770534248945845
+    },
+    "supports": [
+      {
+        "foot": "rounded-foot-0--1",
+        "sample": [
+          0,
+          0
+        ],
+        "x": 8.41426021955267,
+        "z": -5.4844943002046715,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 300,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000122,
+        "requiredGroupY": 0.02500000000000122,
+        "soleMinusFloor": 7.979727989493313e-17
+      },
+      {
+        "foot": "rounded-foot-0--1",
+        "sample": [
+          0.02,
+          0
+        ],
+        "x": 8.43426021955267,
+        "z": -5.4844943002046715,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 288,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000122,
+        "requiredGroupY": 0.02500000000000122,
+        "soleMinusFloor": 7.979727989493313e-17
+      },
+      {
+        "foot": "rounded-foot-0--1",
+        "sample": [
+          -0.02,
+          0
+        ],
+        "x": 8.39426021955267,
+        "z": -5.4844943002046715,
+        "soleLocalY": -2.7755575615628914e-17,
+        "actualFootSoleTriangle": 312,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000122,
+        "requiredGroupY": 0.025000000000001247,
+        "soleMinusFloor": 5.204170427930421e-17
+      },
+      {
+        "foot": "rounded-foot-0--1",
+        "sample": [
+          0,
+          0.02
+        ],
+        "x": 8.41426021955267,
+        "z": -5.464494300204671,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 300,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001216,
+        "requiredGroupY": 0.025000000000001216,
+        "soleMinusFloor": 8.326672684688674e-17
+      },
+      {
+        "foot": "rounded-foot-0--1",
+        "sample": [
+          0,
+          -0.02
+        ],
+        "x": 8.41426021955267,
+        "z": -5.504494300204671,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 324,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001223,
+        "requiredGroupY": 0.025000000000001223,
+        "soleMinusFloor": 7.632783294297951e-17
+      },
+      {
+        "foot": "rounded-foot-0-1",
+        "sample": [
+          0,
+          0
+        ],
+        "x": 8.99672431674429,
+        "z": -5.578492042107077,
+        "soleLocalY": -2.7755575615628914e-17,
+        "actualFootSoleTriangle": 312,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000124,
+        "requiredGroupY": 0.025000000000001268,
+        "soleMinusFloor": 3.122502256758253e-17
+      },
+      {
+        "foot": "rounded-foot-0-1",
+        "sample": [
+          0.02,
+          0
+        ],
+        "x": 9.01672431674429,
+        "z": -5.578492042107077,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 288,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000124,
+        "requiredGroupY": 0.02500000000000124,
+        "soleMinusFloor": 5.898059818321144e-17
+      },
+      {
+        "foot": "rounded-foot-0-1",
+        "sample": [
+          -0.02,
+          0
+        ],
+        "x": 8.97672431674429,
+        "z": -5.578492042107077,
+        "soleLocalY": -2.7755575615628914e-17,
+        "actualFootSoleTriangle": 312,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000124,
+        "requiredGroupY": 0.025000000000001268,
+        "soleMinusFloor": 3.122502256758253e-17
+      },
+      {
+        "foot": "rounded-foot-0-1",
+        "sample": [
+          0,
+          0.02
+        ],
+        "x": 8.99672431674429,
+        "z": -5.558492042107076,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 300,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001237,
+        "requiredGroupY": 0.025000000000001237,
+        "soleMinusFloor": 6.245004513516506e-17
+      },
+      {
+        "foot": "rounded-foot-0-1",
+        "sample": [
+          0,
+          -0.02
+        ],
+        "x": 8.99672431674429,
+        "z": -5.598492042107076,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 324,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001243,
+        "requiredGroupY": 0.025000000000001243,
+        "soleMinusFloor": 5.551115123125783e-17
+      },
+      {
+        "foot": "rounded-foot-1--1",
+        "sample": [
+          0,
+          0
+        ],
+        "x": 9.305,
+        "z": -5.6,
+        "soleLocalY": -2.7755575615628914e-17,
+        "actualFootSoleTriangle": 312,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001243,
+        "requiredGroupY": 0.02500000000000127,
+        "soleMinusFloor": 2.7755575615628914e-17
+      },
+      {
+        "foot": "rounded-foot-1--1",
+        "sample": [
+          0.02,
+          0
+        ],
+        "x": 9.325,
+        "z": -5.6,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 288,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001243,
+        "requiredGroupY": 0.025000000000001243,
+        "soleMinusFloor": 5.551115123125783e-17
+      },
+      {
+        "foot": "rounded-foot-1--1",
+        "sample": [
+          -0.02,
+          0
+        ],
+        "x": 9.285,
+        "z": -5.6,
+        "soleLocalY": -2.7755575615628914e-17,
+        "actualFootSoleTriangle": 312,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001243,
+        "requiredGroupY": 0.02500000000000127,
+        "soleMinusFloor": 2.7755575615628914e-17
+      },
+      {
+        "foot": "rounded-foot-1--1",
+        "sample": [
+          0,
+          0.02
+        ],
+        "x": 9.305,
+        "z": -5.58,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 300,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000124,
+        "requiredGroupY": 0.02500000000000124,
+        "soleMinusFloor": 5.898059818321144e-17
+      },
+      {
+        "foot": "rounded-foot-1--1",
+        "sample": [
+          0,
+          -0.02
+        ],
+        "x": 9.305,
+        "z": -5.619999999999999,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 324,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000125,
+        "requiredGroupY": 0.02500000000000125,
+        "soleMinusFloor": 4.85722573273506e-17
+      },
+      {
+        "foot": "rounded-foot-1-1",
+        "sample": [
+          0,
+          0
+        ],
+        "x": 9.895,
+        "z": -5.6,
+        "soleLocalY": -2.7755575615628914e-17,
+        "actualFootSoleTriangle": 312,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001243,
+        "requiredGroupY": 0.02500000000000127,
+        "soleMinusFloor": 2.7755575615628914e-17
+      },
+      {
+        "foot": "rounded-foot-1-1",
+        "sample": [
+          0.02,
+          0
+        ],
+        "x": 9.915,
+        "z": -5.6,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 288,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001243,
+        "requiredGroupY": 0.025000000000001243,
+        "soleMinusFloor": 5.551115123125783e-17
+      },
+      {
+        "foot": "rounded-foot-1-1",
+        "sample": [
+          -0.02,
+          0
+        ],
+        "x": 9.875,
+        "z": -5.6,
+        "soleLocalY": -2.7755575615628914e-17,
+        "actualFootSoleTriangle": 312,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001243,
+        "requiredGroupY": 0.02500000000000127,
+        "soleMinusFloor": 2.7755575615628914e-17
+      },
+      {
+        "foot": "rounded-foot-1-1",
+        "sample": [
+          0,
+          0.02
+        ],
+        "x": 9.895,
+        "z": -5.58,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 300,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000124,
+        "requiredGroupY": 0.02500000000000124,
+        "soleMinusFloor": 5.898059818321144e-17
+      },
+      {
+        "foot": "rounded-foot-1-1",
+        "sample": [
+          0,
+          -0.02
+        ],
+        "x": 9.895,
+        "z": -5.619999999999999,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 324,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000125,
+        "requiredGroupY": 0.02500000000000125,
+        "soleMinusFloor": 4.85722573273506e-17
+      },
+      {
+        "foot": "rounded-foot-2--1",
+        "sample": [
+          0,
+          0
+        ],
+        "x": 10.20327568325571,
+        "z": -5.621507957892923,
+        "soleLocalY": -2.7755575615628914e-17,
+        "actualFootSoleTriangle": 312,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000125,
+        "requiredGroupY": 0.025000000000001278,
+        "soleMinusFloor": 2.0816681711721685e-17
+      },
+      {
+        "foot": "rounded-foot-2--1",
+        "sample": [
+          0.02,
+          0
+        ],
+        "x": 10.223275683255709,
+        "z": -5.621507957892923,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 288,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000125,
+        "requiredGroupY": 0.02500000000000125,
+        "soleMinusFloor": 4.85722573273506e-17
+      },
+      {
+        "foot": "rounded-foot-2--1",
+        "sample": [
+          -0.02,
+          0
+        ],
+        "x": 10.18327568325571,
+        "z": -5.621507957892923,
+        "soleLocalY": -2.7755575615628914e-17,
+        "actualFootSoleTriangle": 312,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000125,
+        "requiredGroupY": 0.025000000000001278,
+        "soleMinusFloor": 2.0816681711721685e-17
+      },
+      {
+        "foot": "rounded-foot-2--1",
+        "sample": [
+          0,
+          0.02
+        ],
+        "x": 10.20327568325571,
+        "z": -5.601507957892923,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 300,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001243,
+        "requiredGroupY": 0.025000000000001243,
+        "soleMinusFloor": 5.551115123125783e-17
+      },
+      {
+        "foot": "rounded-foot-2--1",
+        "sample": [
+          0,
+          -0.02
+        ],
+        "x": 10.20327568325571,
+        "z": -5.641507957892923,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 324,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001254,
+        "requiredGroupY": 0.025000000000001254,
+        "soleMinusFloor": 4.5102810375396984e-17
+      },
+      {
+        "foot": "rounded-foot-2-1",
+        "sample": [
+          0,
+          0
+        ],
+        "x": 10.78573978044733,
+        "z": -5.715505699795328,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 324,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000127,
+        "requiredGroupY": 0.02500000000000127,
+        "soleMinusFloor": 2.7755575615628914e-17
+      },
+      {
+        "foot": "rounded-foot-2-1",
+        "sample": [
+          0.02,
+          0
+        ],
+        "x": 10.805739780447329,
+        "z": -5.715505699795328,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 288,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000127,
+        "requiredGroupY": 0.02500000000000127,
+        "soleMinusFloor": 2.7755575615628914e-17
+      },
+      {
+        "foot": "rounded-foot-2-1",
+        "sample": [
+          -0.02,
+          0
+        ],
+        "x": 10.76573978044733,
+        "z": -5.715505699795328,
+        "soleLocalY": -2.7755575615628914e-17,
+        "actualFootSoleTriangle": 312,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.02500000000000127,
+        "requiredGroupY": 0.0250000000000013,
+        "soleMinusFloor": 0
+      },
+      {
+        "foot": "rounded-foot-2-1",
+        "sample": [
+          0,
+          0.02
+        ],
+        "x": 10.78573978044733,
+        "z": -5.695505699795328,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 300,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001268,
+        "requiredGroupY": 0.025000000000001268,
+        "soleMinusFloor": 3.122502256758253e-17
+      },
+      {
+        "foot": "rounded-foot-2-1",
+        "sample": [
+          0,
+          -0.02
+        ],
+        "x": 10.78573978044733,
+        "z": -5.735505699795328,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 324,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001275,
+        "requiredGroupY": 0.025000000000001275,
+        "soleMinusFloor": 2.42861286636753e-17
+      }
+    ],
+    "flatPadSampleCount": 30,
+    "flatPads": 6,
+    "entireCurvedFootSoleContactVerified": false,
+    "finiteWalkability": {
+      "samples": 63,
+      "blocked": 0
+    },
+    "roads": [
+      {
+        "name": "layout-plaza-border",
+        "triangles": 192,
+        "minimumGap": 7.495506194349182
+      },
+      {
+        "name": "layout-plaza-floor",
+        "triangles": 96,
+        "minimumGap": 7.793847097935042
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.706201325865501
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.578129376560237
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.507695347544058
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.495273975880518
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.500934059619125
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.561434868083101
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.687878842370048
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.8781365851363425
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.127648835021764
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.429828597816325
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.77660524261436
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.15898799133762
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.567562330354232
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.992880457248933
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.41677510740355
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.806104353997668
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.187699277574522
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.554706031508905
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.90088701120274
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.220671403681033
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.509192337005679
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.762313670313347
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.976647781464589
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.14956466579407
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.279192101673509
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.364406425309886
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.40186882888341
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.356206531160023
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.268505323255148
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.140875581462685
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.97592025794242
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.776664101325538
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.546479302672576
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.28901038223009
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.008101635959363
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.707730893016025
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.391953630721835
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.064861563550409
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.730559553367685
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.393163939214578
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.038215092563133
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.675795525703647
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.323038256686775
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.984711470902232
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.66595765511346
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.372390443759938
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.110137965923808
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.88578956474681
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 10.475518237084321
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 10.507888733267784
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 15.885443299026084
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 1.6624721969571312
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 1.7135495095976914
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 1.654726337279185
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 10.475541610034377
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 10.507909328302777
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 18.1582557523763
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 7.01163377142288
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 7.071622442528833
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 10.34249495925276
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 10.39081711049258
+      }
+    ],
+    "minimumRoadGap": 1.654726337279185,
+    "requiredMargin": 0.2,
+    "originalSpriteEnvelopeClearance": {
+      "checkedCards": 38,
+      "kinds": {
+        "shopTulip": 6,
+        "treeGrove": 12,
+        "flowers": 1,
+        "lantern": 4,
+        "treeApple": 5,
+        "treeBirch": 5,
+        "tree": 5
+      },
+      "minimumGap": 1.0299064233357005,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "kind": "shopTulip",
+          "sourceSHA256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+          "contact": [
+            6.8759999999999994,
+            0.025,
+            -4.894
+          ],
+          "fullQuadRadius": 0.43406919941234284,
+          "envelopeDistance": 1.4639756227480434,
+          "gap": 1.0299064233357005
+        },
+        {
+          "kind": "shopTulip",
+          "sourceSHA256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+          "contact": [
+            5.795999999999999,
+            0.025,
+            -4.894
+          ],
+          "fullQuadRadius": 0.43406919941234284,
+          "envelopeDistance": 2.5089267376141904,
+          "gap": 2.0748575382018477
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            3.800391407986147,
+            0.025,
+            -10.014646520277676
+          ],
+          "fullQuadRadius": 3.428153984302411,
+          "envelopeDistance": 6.118863768003222,
+          "gap": 2.690709783700811
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            3.018835793838979,
+            0.025,
+            -10.44966867454055
+          ],
+          "fullQuadRadius": 3.816913714481035,
+          "envelopeDistance": 6.989652879221609,
+          "gap": 3.172739164740574
+        },
+        {
+          "kind": "lantern",
+          "sourceSHA256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+          "contact": [
+            4.032,
+            0.025,
+            -3.4560000000000004
+          ],
+          "fullQuadRadius": 0.9909739577995439,
+          "envelopeDistance": 4.6421331286611265,
+          "gap": 3.6511591708615825
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            0.8327002596367137,
+            0.025,
+            -9.982363263208441
+          ],
+          "fullQuadRadius": 4.385813983669816,
+          "envelopeDistance": 8.510911148179739,
+          "gap": 4.125097164509923
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            -3.9520000000000004
+          ],
+          "fullQuadRadius": 3.816913714481035,
+          "envelopeDistance": 8.948188512566915,
+          "gap": 5.13127479808588
+        },
+        {
+          "kind": "treeApple",
+          "sourceSHA256": "ce7ef7adda439841a3fc36de04d5250eb01249ce653337f19b6d9520b028c45b",
+          "contact": [
+            -0.3355192961773006,
+            0.025,
+            -9.667760567754863
+          ],
+          "fullQuadRadius": 2.824426245157773,
+          "envelopeDistance": 9.414399602878019,
+          "gap": 6.589973357720246
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            -1.9396978898859323,
+            0.025,
+            -10.216135629486423
+          ],
+          "fullQuadRadius": 3.3722855420654474,
+          "envelopeDistance": 11.103731681538394,
+          "gap": 7.731446139472946
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            -3.7735156195406474,
+            0.025,
+            -10.38942810991384
+          ],
+          "fullQuadRadius": 3.777696918707195,
+          "envelopeDistance": 12.868946094573458,
+          "gap": 9.091249175866263
+        }
+      ],
+      "method": "sphere enclosing all four full raw Sprite quad corners from actual world scale/center; sphere-to-conservative-3D-pose-envelope distance; includes faint/transparent corners without cropping",
+      "cameraOrientationIndependentGeometryEnvelope": true,
+      "physicalFixtureVolumes": false,
+      "allCameraProjectionOcclusionGuaranteed": false
+    },
+    "buildingProxyClearance": [
+      {
+        "place": "home",
+        "intersects": false,
+        "separation": 15.089868258882596
+      },
+      {
+        "place": "cafe",
+        "intersects": false,
+        "separation": 0.6898682588825968
+      },
+      {
+        "place": "shop",
+        "intersects": false,
+        "separation": 16.57043807111737
+      },
+      {
+        "place": "playground",
+        "intersects": false,
+        "separation": 7.085815797708417
+      },
+      {
+        "place": "tree",
+        "intersects": false,
+        "separation": null
+      },
+      {
+        "place": "flowers",
+        "intersects": false,
+        "separation": null
+      }
+    ],
+    "meadowInstances": {
+      "instanceCount": 1102,
+      "batchCount": 10,
+      "siteCount": 40,
+      "animationPadding": 0.018,
+      "minimumGap": 0.9773803947235071,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "batch": "meadow-daisy-lobed-head-instances",
+          "instance": 19,
+          "bounds": {
+            "min": [
+              7.958820739835853,
+              0.26966038848726037,
+              -4.399957903835882
+            ],
+            "max": [
+              8.234389373794551,
+              0.48924224177269227,
+              -4.1378291572550845
+            ]
+          },
+          "minimumGap": 0.9773803947235071
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 135,
+          "bounds": {
+            "min": [
+              7.977578815044441,
+              0.07105114515847945,
+              -4.3950632941515035
+            ],
+            "max": [
+              8.21403826324015,
+              0.22419910853424715,
+              -4.18908480159886
+            ]
+          },
+          "minimumGap": 0.9829730308473178
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 135,
+          "bounds": {
+            "min": [
+              7.985089577379973,
+              0.12565921738691058,
+              -4.33268680280395
+            ],
+            "max": [
+              8.19508846259249,
+              0.2939266082809292,
+              -4.162581188564673
+            ]
+          },
+          "minimumGap": 1.0462588985379941
+        },
+        {
+          "batch": "meadow-daisy-heart-instances",
+          "instance": 19,
+          "bounds": {
+            "min": [
+              8.064667348143331,
+              0.3707389938978198,
+              -4.31753558400345
+            ],
+            "max": [
+              8.167966242554911,
+              0.4668721449228284,
+              -4.218473250835417
+            ]
+          },
+          "minimumGap": 1.0633350966519177
+        },
+        {
+          "batch": "meadow-stem-instances",
+          "instance": 192,
+          "bounds": {
+            "min": [
+              8.067568068700785,
+              0.007000005960464479,
+              -4.295128576088361
+            ],
+            "max": [
+              8.118887038740318,
+              0.40940555262565614,
+              -4.243320091918379
+            ]
+          },
+          "minimumGap": 1.0908298535962855
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 132,
+          "bounds": {
+            "min": [
+              7.901148489831921,
+              0.041575798950860735,
+              -4.264367702750147
+            ],
+            "max": [
+              8.09452233541299,
+              0.19472376232662844,
+              -4.025857540398
+            ]
+          },
+          "minimumGap": 1.1246287090164124
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 132,
+          "bounds": {
+            "min": [
+              7.860408253295483,
+              0.08102512851304734,
+              -4.264202428528577
+            ],
+            "max": [
+              8.04857208160829,
+              0.24929251940706595,
+              -4.048723461221426
+            ]
+          },
+          "minimumGap": 1.1323830330886377
+        },
+        {
+          "batch": "meadow-rose-outer-rosette-instances",
+          "instance": 42,
+          "bounds": {
+            "min": [
+              7.872678861722074,
+              0.23156414085790836,
+              -4.255414189465224
+            ],
+            "max": [
+              8.078212702953188,
+              0.34142650297063937,
+              -4.046932128716306
+            ]
+          },
+          "minimumGap": 1.1359545962684996
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 137,
+          "bounds": {
+            "min": [
+              7.744055235928408,
+              0.11781527593679154,
+              -4.293236297858033
+            ],
+            "max": [
+              7.915505536981387,
+              0.2860826668308102,
+              -4.055709474413007
+            ]
+          },
+          "minimumGap": 1.1366407138368146
+        },
+        {
+          "batch": "meadow-rose-outer-rosette-instances",
+          "instance": 43,
+          "bounds": {
+            "min": [
+              7.897852390299883,
+              0.2736531604253287,
+              -4.230364211487056
+            ],
+            "max": [
+              8.05303405705311,
+              0.36177435561321625,
+              -4.072034530926201
+            ]
+          },
+          "minimumGap": 1.1648610473059606
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 137,
+          "bounds": {
+            "min": [
+              7.675200721285802,
+              0.06587118860311293,
+              -4.2583102846284735
+            ],
+            "max": [
+              7.902138236793523,
+              0.21901915197888064,
+              -4.05499737746007
+            ]
+          },
+          "minimumGap": 1.1739733863779596
+        },
+        {
+          "batch": "meadow-hanging-flared-bell-instances",
+          "instance": 19,
+          "bounds": {
+            "min": [
+              7.673261736095995,
+              0.2665756102455934,
+              -4.254005318920048
+            ],
+            "max": [
+              7.891350546655003,
+              0.4024837637134102,
+              -4.036220874064243
+            ]
+          },
+          "minimumGap": 1.1813798124876433
+        }
+      ],
+      "scope": "every actual current meadow instance geometry AABB transformed by its actual instance and world matrix, expanded .018 in all axes; current finite matrices and authored animation allowance, no all-frame proof"
+    },
+    "shoreline": {
+      "segments": 7,
+      "minimumGap": 3.1425621255769522,
+      "rows": [
+        {
+          "a": [
+            14.399999618530273,
+            -9.600000381469727
+          ],
+          "b": [
+            -14.399999618530273,
+            -9.600000381469727
+          ],
+          "footprintGap": 3.7770538063643118
+        },
+        {
+          "a": [
+            -14.399999618530273,
+            -9.600000381469727
+          ],
+          "b": [
+            -14.399999618530273,
+            9.600000381469727
+          ],
+          "footprintGap": 22.657985151268637
+        },
+        {
+          "a": [
+            -14.399999618530273,
+            9.600000381469727
+          ],
+          "b": [
+            5.5,
+            9.600000381469727
+          ],
+          "footprintGap": 15.228874709495965
+        },
+        {
+          "a": [
+            5.5,
+            9.600000381469727
+          ],
+          "b": [
+            10.699999809265137,
+            4.900000095367432
+          ],
+          "footprintGap": 10.277053520262015
+        },
+        {
+          "a": [
+            10.699999809265137,
+            4.900000095367432
+          ],
+          "b": [
+            12.800000190734863,
+            0.8999999761581421
+          ],
+          "footprintGap": 6.5462592637549815
+        },
+        {
+          "a": [
+            12.800000190734863,
+            0.8999999761581421
+          ],
+          "b": [
+            14,
+            -4.099999904632568
+          ],
+          "footprintGap": 3.3139313831234865
+        },
+        {
+          "a": [
+            14,
+            -4.099999904632568
+          ],
+          "b": [
+            14.399999618530273,
+            -9.600000381469727
+          ],
+          "footprintGap": 3.1425621255769522
+        }
+      ],
+      "method": "every actual dry-land boundary segment against entire screen XZ AABB"
+    },
+    "waterBacking": {
+      "topY": -0.05,
+      "soleAboveWaterBacking": 0.07500000000000127
+    },
+    "worldUnchanged": true,
+    "walkableSurfacesUnchanged": true,
+    "occludersUnchanged": true,
+    "notRegisteredAsTownSurface": true,
+    "normalPlacement": false,
+    "ownershipUnlockSave": false,
+    "bodyBinding": null,
+    "limits": "one fixed authored screen pose at one synthetic current-default-world site;30 finite rays on six flat contact pads,63 finite walkability samples and conservative envelope clearances. Not a continuous placement/stability/physical/body or all-camera-visibility guarantee"
+  },
+  "camera": [
+    {
+      "aspect": 0.44,
+      "yaw": 0,
+      "pitch": 12,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 8.79770498954689,
+      "actualDistance": 8.79770498954689,
+      "ndcBounds": {
+        "minX": -0.8620689655172413,
+        "maxX": 0.8620689655172413,
+        "minY": -0.31951824900633835,
+        "maxY": 0.321446025704502
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 0.44,
+      "yaw": 90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 4.556177010214,
+      "actualDistance": 4.556177010214,
+      "ndcBounds": {
+        "minX": -0.37138842501776514,
+        "maxX": 0.37138842501776614,
+        "minY": -0.8620689655172414,
+        "maxY": 0.8620689655172414
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 0.44,
+      "yaw": 180,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 8.558042099866594,
+      "actualDistance": 8.558042099866594,
+      "ndcBounds": {
+        "minX": -0.8620689655172413,
+        "maxX": 0.8620689655172413,
+        "minY": -0.3324292769262055,
+        "maxY": 0.3324292769262055
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 0.44,
+      "yaw": -90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 4.556177010214,
+      "actualDistance": 4.556177010214,
+      "ndcBounds": {
+        "minX": -0.37138842501776614,
+        "maxX": 0.37138842501776514,
+        "minY": -0.8620689655172414,
+        "maxY": 0.8620689655172414
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 0.44,
+      "yaw": 0,
+      "pitch": 80,
+      "roll": 23,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 9.820521246457547,
+      "actualDistance": 9.820521246457547,
+      "ndcBounds": {
+        "minX": -0.770714568153404,
+        "maxX": 0.8620689655172414,
+        "minY": -0.19692370343275337,
+        "maxY": 0.2476006293429349
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 0.44,
+      "yaw": 137,
+      "pitch": -80,
+      "roll": -17,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 9.476323793288355,
+      "actualDistance": 9.476323793288355,
+      "ndcBounds": {
+        "minX": -0.8114759975618078,
+        "maxX": 0.8620689655172413,
+        "minY": -0.268214303835342,
+        "maxY": 0.2183557463581852
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 0.54,
+      "yaw": 0,
+      "pitch": 12,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 7.254168781257781,
+      "actualDistance": 7.254168781257781,
+      "ndcBounds": {
+        "minX": -0.8620689655172414,
+        "maxX": 0.8620689655172414,
+        "minY": -0.38725799940781325,
+        "maxY": 0.3900934498024758
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 0.54,
+      "yaw": 90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 4.556177010214,
+      "actualDistance": 4.556177010214,
+      "ndcBounds": {
+        "minX": -0.30261279075521597,
+        "maxX": 0.3026127907552168,
+        "minY": -0.8620689655172414,
+        "maxY": 0.8620689655172414
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 0.54,
+      "yaw": 180,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 7.014505891577485,
+      "actualDistance": 7.014505891577485,
+      "ndcBounds": {
+        "minX": -0.8620689655172414,
+        "maxX": 0.8620689655172413,
+        "minY": -0.407981385318525,
+        "maxY": 0.407981385318525
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 0.54,
+      "yaw": -90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 4.556177010214,
+      "actualDistance": 4.556177010214,
+      "ndcBounds": {
+        "minX": -0.3026127907552168,
+        "maxX": 0.30261279075521597,
+        "minY": -0.8620689655172414,
+        "maxY": 0.8620689655172414
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 0.54,
+      "yaw": 0,
+      "pitch": 80,
+      "roll": 23,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 8.209233028915914,
+      "actualDistance": 8.209233028915914,
+      "ndcBounds": {
+        "minX": -0.7722905241629012,
+        "maxX": 0.8620689655172414,
+        "minY": -0.23093675060936716,
+        "maxY": 0.3038734996481474
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 0.54,
+      "yaw": 137,
+      "pitch": -80,
+      "roll": -17,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 7.911756642018955,
+      "actualDistance": 7.911756642018955,
+      "ndcBounds": {
+        "minX": -0.8174034663015175,
+        "maxX": 0.8620689655172414,
+        "minY": -0.3286747605692957,
+        "maxY": 0.25681575963566555
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1,
+      "yaw": 0,
+      "pitch": 12,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 4.13005149568063,
+      "actualDistance": 4.13005149568063,
+      "ndcBounds": {
+        "minX": -0.8620689655172414,
+        "maxX": 0.8620689655172414,
+        "minY": -0.6783288571704141,
+        "maxY": 0.7092352608241453
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1,
+      "yaw": 90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 4.556177010214,
+      "actualDistance": 4.556177010214,
+      "ndcBounds": {
+        "minX": -0.16341090700781663,
+        "maxX": 0.1634109070078171,
+        "minY": -0.8620689655172414,
+        "maxY": 0.8620689655172414
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1,
+      "yaw": 180,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 3.8903886060003336,
+      "actualDistance": 3.8903886060003336,
+      "ndcBounds": {
+        "minX": -0.8620689655172414,
+        "maxX": 0.8620689655172414,
+        "minY": -0.7555210839231944,
+        "maxY": 0.7555210839231944
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1,
+      "yaw": -90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 4.556177010214,
+      "actualDistance": 4.556177010214,
+      "ndcBounds": {
+        "minX": -0.1634109070078171,
+        "maxX": 0.16341090700781663,
+        "minY": -0.8620689655172414,
+        "maxY": 0.8620689655172414
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1,
+      "yaw": 0,
+      "pitch": 80,
+      "roll": 23,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 4.947985676611652,
+      "actualDistance": 4.947985676611652,
+      "ndcBounds": {
+        "minX": -0.7796237219594291,
+        "maxX": 0.8620689655172414,
+        "minY": -0.35506292977734344,
+        "maxY": 0.5627287030521247
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1,
+      "yaw": 137,
+      "pitch": -80,
+      "roll": -17,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 4.745072727849689,
+      "actualDistance": 4.745072727849689,
+      "ndcBounds": {
+        "minX": -0.845823945849363,
+        "maxX": 0.8620689655172415,
+        "minY": -0.6044559656235435,
+        "maxY": 0.4003441995288578
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.35,
+      "yaw": 0,
+      "pitch": 12,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 3.4798613429791723,
+      "actualDistance": 3.4798613429791723,
+      "ndcBounds": {
+        "minX": -0.7761755067933591,
+        "maxX": 0.7761755067933591,
+        "minY": -0.804113884054957,
+        "maxY": 0.8620689655172415
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.35,
+      "yaw": 90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 4.556177010214,
+      "actualDistance": 4.556177010214,
+      "ndcBounds": {
+        "minX": -0.1210451163020864,
+        "maxX": 0.12104511630208674,
+        "minY": -0.8620689655172414,
+        "maxY": 0.8620689655172414
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.35,
+      "yaw": 180,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 3.4371091180577786,
+      "actualDistance": 3.4371091180577786,
+      "ndcBounds": {
+        "minX": -0.7286243226295771,
+        "maxX": 0.728624322629577,
+        "minY": -0.8620689655172414,
+        "maxY": 0.8620689655172414
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.35,
+      "yaw": -90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 4.556177010214,
+      "actualDistance": 4.556177010214,
+      "ndcBounds": {
+        "minX": -0.12104511630208674,
+        "maxX": 0.1210451163020864,
+        "minY": -0.8620689655172414,
+        "maxY": 0.8620689655172414
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.35,
+      "yaw": 0,
+      "pitch": 80,
+      "roll": 23,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 3.9554321346060064,
+      "actualDistance": 3.9554321346060064,
+      "ndcBounds": {
+        "minX": -0.7852972996978347,
+        "maxX": 0.8620689655172415,
+        "minY": -0.4598838045130153,
+        "maxY": 0.7596837491203685
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.35,
+      "yaw": 137,
+      "pitch": -80,
+      "roll": -17,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 3.800783532764204,
+      "actualDistance": 3.800783532764204,
+      "ndcBounds": {
+        "minX": -0.8620689655172414,
+        "maxX": 0.8560120029311236,
+        "minY": -0.8061632673769827,
+        "maxY": 0.5543160348769869
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.7,
+      "yaw": 0,
+      "pitch": 12,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 3.4798613429791723,
+      "actualDistance": 3.4798613429791723,
+      "ndcBounds": {
+        "minX": -0.6163746671594323,
+        "maxX": 0.6163746671594323,
+        "minY": -0.804113884054957,
+        "maxY": 0.8620689655172415
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.7,
+      "yaw": 90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 4.556177010214,
+      "actualDistance": 4.556177010214,
+      "ndcBounds": {
+        "minX": -0.0961240629457745,
+        "maxX": 0.09612406294577476,
+        "minY": -0.8620689655172414,
+        "maxY": 0.8620689655172414
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.7,
+      "yaw": 180,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 3.4371091180577786,
+      "actualDistance": 3.4371091180577786,
+      "ndcBounds": {
+        "minX": -0.5786134326764288,
+        "maxX": 0.5786134326764287,
+        "minY": -0.8620689655172414,
+        "maxY": 0.8620689655172414
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.7,
+      "yaw": -90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 4.556177010214,
+      "actualDistance": 4.556177010214,
+      "ndcBounds": {
+        "minX": -0.09612406294577476,
+        "maxX": 0.0961240629457745,
+        "minY": -0.8620689655172414,
+        "maxY": 0.8620689655172414
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.7,
+      "yaw": 0,
+      "pitch": 80,
+      "roll": 23,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 3.6186251098827844,
+      "actualDistance": 3.6186251098827844,
+      "ndcBounds": {
+        "minX": -0.71035296762692,
+        "maxX": 0.776847965026804,
+        "minY": -0.5238456760003223,
+        "maxY": 0.8620689655172415
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 1.7,
+      "yaw": 137,
+      "pitch": -80,
+      "roll": -17,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 3.6172725195275883,
+      "actualDistance": 3.6172725195275883,
+      "ndcBounds": {
+        "minX": -0.7385397112659492,
+        "maxX": 0.7279459678896367,
+        "minY": -0.8620689655172414,
+        "maxY": 0.5990934957897839
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 2.1,
+      "yaw": 0,
+      "pitch": 12,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 3.4798613429791723,
+      "actualDistance": 3.4798613429791723,
+      "ndcBounds": {
+        "minX": -0.4989699686528738,
+        "maxX": 0.4989699686528738,
+        "minY": -0.804113884054957,
+        "maxY": 0.8620689655172415
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 2.1,
+      "yaw": 90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 4.556177010214,
+      "actualDistance": 4.556177010214,
+      "ndcBounds": {
+        "minX": -0.07781471762276983,
+        "maxX": 0.07781471762277005,
+        "minY": -0.8620689655172414,
+        "maxY": 0.8620689655172414
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 2.1,
+      "yaw": 180,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 3.4371091180577786,
+      "actualDistance": 3.4371091180577786,
+      "ndcBounds": {
+        "minX": -0.46840135026187096,
+        "maxX": 0.4684013502618709,
+        "minY": -0.8620689655172414,
+        "maxY": 0.8620689655172414
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 2.1,
+      "yaw": -90,
+      "pitch": 0,
+      "roll": 0,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 4.556177010214,
+      "actualDistance": 4.556177010214,
+      "ndcBounds": {
+        "minX": -0.07781471762277005,
+        "maxX": 0.07781471762276983,
+        "minY": -0.8620689655172414,
+        "maxY": 0.8620689655172414
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 2.1,
+      "yaw": 0,
+      "pitch": 80,
+      "roll": 23,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 3.6186251098827844,
+      "actualDistance": 3.6186251098827844,
+      "ndcBounds": {
+        "minX": -0.5750476404598877,
+        "maxX": 0.6288769240693176,
+        "minY": -0.5238456760003223,
+        "maxY": 0.8620689655172415
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    },
+    {
+      "aspect": 2.1,
+      "yaw": 137,
+      "pitch": -80,
+      "roll": -17,
+      "targetLocal": [
+        0,
+        1.1761474609375,
+        0
+      ],
+      "requestedDistance": 3,
+      "minimumDistance": 3.6172725195275883,
+      "actualDistance": 3.6172725195275883,
+      "ndcBounds": {
+        "minX": -0.5978654805486255,
+        "maxX": 0.5892895930535155,
+        "minY": -0.8620689655172414,
+        "maxY": 0.5990934957897839
+      },
+      "scope": "real authored doorstep bounds only; not body seating/fit calibration"
+    }
+  ],
+  "bodyBinding": null,
+  "bodyFit": false,
+  "foldingMechanism": false,
+  "normalGameIntegration": false,
+  "ownershipUnlockSave": false,
+  "newOriginalDesigns": 0,
+  "newRawPNG": 0,
+  "newVillageLibraryCandidates": 0
+}

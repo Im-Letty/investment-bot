@@ -1,0 +1,45 @@
+{
+  "unit_id": "wardrobe:fit-prerequisite:petal-dressing-screen:closed-panels-floor-support:v1",
+  "model_id": "petal-screen-closed-panels-floor-support-v1",
+  "source_original_sha256": "91e5350067b0a1a7407176ad75e36ee8e184e2d228c7671606f27a459d049afc",
+  "source_original_viewed": true,
+  "source_original_unchanged": true,
+  "authored_trial_dimensions": {
+    "panel_width": 0.86,
+    "panel_height": 2.12,
+    "panel_base": 0.22,
+    "frame_depth": 0.14,
+    "fixed_panel_yaw_radians": [
+      0.16,
+      0,
+      0.16
+    ],
+    "flat_contact_pad_radius": 0.07
+  },
+  "dimension_basis": "Furniture-local authored prototype units. Not body measurements, reaching/sitting fit or recovered unseen source surfaces.",
+  "visual_identity": "Three connected petal-arched thick cream frames, warm peach/ivory cloth fields, restrained gold edging and hinges, sparse sage botanical relief, six rounded feet. Subtle code-authored anti-aliased surface weave; no new bitmap.",
+  "hinges": "Fixed decorative closed solids with finite actual material overlap witnesses connecting neighbouring panels. No articulated joint, rotating barrel/bore or folding-clearance claim.",
+  "supports": "Only finite central rays on six actual flat contact pads are checked; the curved feet do not wholly contact the floor.",
+  "bodyBinding": null,
+  "anatomical_contact": false,
+  "wearing_fit": false,
+  "rig": false,
+  "folding_motion": false,
+  "physical_stability": false,
+  "load_friction": false,
+  "ordinary_game_registration": false,
+  "ownership_unlock_price_save": false,
+  "new_original_PNGs": 0,
+  "new_designs": 0,
+  "imagegen_calls": 0,
+  "new_village_mesh_library_candidates": 0,
+  "contractor_only_layout_preserved": true,
+  "generic_helpers_reused": [
+    "../pet-breeze-cape-proof-20261029/geometry-audit.mjs",
+    "../pet-scalloped-path-proof-20261027/framing.mjs",
+    "../pet-toolbox-integral-link-proof-20261027/placement.mjs",
+    "../pet-snow-glass-lamp-proof-20261027/placement.mjs",
+    "../pet-petal-washstand-proof-20261028/placement.mjs"
+  ],
+  "interpanel_gap": "No through-joint/body passage claim. Rounded frame edges occlude six of eight finite full-depth projected joint-region diagnostic rays; these are not required-empty under-panel rays."
+}
