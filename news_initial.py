@@ -9,7 +9,7 @@ import time
 
 from flask import Response
 from market_snapshot import validated_market
-from news_cache import (JST, LEAD_OTHER_NEWS_STRUCTURE, PUBLISHED_NEWS_SOURCES, _publication_time, _validated_digest,
+from news_cache import (JST, LEAD_OTHER_NEWS_STRUCTURE, PUBLISHED_NEWS_SOURCES, _publication_time, _safe_url, _validated_digest,
                         load_reviewed_digests, load_reviewed_supplements,
                         select_daily_news)
 
@@ -65,52 +65,48 @@ def _stamp(value):
     return f"{date:%Y/%m/%d %H:%M}"
 
 
-def _publication(item, *, compact=False):
+def _publication(item):
     day_only = item.get("publication_precision") == "day" and item.get("published_at") is None
+    date = None
     if day_only:
-        date = datetime.fromisoformat(item["published_date"])
+        value = item.get("published_date")
+        try:
+            date = datetime.strptime(value, "%Y-%m-%d") if isinstance(value, str) else None
+            if date is not None and date.strftime("%Y-%m-%d") != value:
+                date = None
+        except ValueError:
+            pass
+    stamp = _publication_time(item.get("published_at"))
+    if date is not None:
         iso, label = f"{date:%Y-%m-%d}", f"{date:%Y/%m/%d} 発表"
+    elif stamp is not None:
+        iso = stamp.isoformat(timespec="milliseconds").replace("+00:00", "Z")
+        label = f"{stamp.astimezone(JST):%Y/%m/%d %H:%M} 発表"
     else:
-        iso = datetime.fromtimestamp(item["published_at"], timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
-        label = f"{_stamp(item['published_at'])} 発表"
-    title = label + ("" if day_only else " JST")
+        return '<span class="publication-unknown">発表日未確認</span>'
+    title = label + ("" if date is not None else " JST")
     return (f'<time class="publication-date" datetime="{iso}" title="{title}">'
             f'{label}</time>')
 
 
 def _article_link(item):
-    source = item.get("source", "").strip() or "元の記事"
-    title = item.get("title", "").strip()
-    return (f'<a href="{escape(item["url"], quote=True)}" target="_blank" rel="noopener noreferrer" '
+    source = str(item.get("source") or "").strip() or "元の記事"
+    title = str(item.get("title") or "").strip()
+    url = _safe_url(item.get("url"))
+    if not url:
+        return f'<span class="headline-source">{escape(source)}</span>'
+    return (f'<a class="source-link" href="{escape(url, quote=True)}" target="_blank" rel="noopener noreferrer" '
             f'title="{escape(title, quote=True)}" '
             f'aria-label="{escape(title + " · " if title else "", quote=True)}{escape(source, quote=True)}の元の記事を読む">{escape(source)} ↗</a>')
 
 
-def _summary_info(item, source_rows=''):
-    """Wrap source rows already escaped by the publication/link renderers."""
-    if item.get("source") not in ("財務省", "総務省統計局", "日本銀行", "金融庁"):
-        return ''
-    key = escape("summary-info:" + item["url"], quote=True)
-    return (f'<details class="news-info" data-news-key="{key}">'
-            f'<summary data-news-focus="{key}" aria-label="発表日時と出典">'
-            '<span class="news-info-symbol" aria-hidden="true">i</span></summary>'
-            '<div class="news-info-content">'
-            + (f'<div class="article-source-links">{source_rows}</div>' if source_rows else '')
-            + '<p class="news-info-note">公式発表をもとに要約</p></div></details>')
-
-
-def _article_meta(item, *, summarized=False, source_link=True):
-    source_row = (f'<div class="article-source">{_publication(item, compact=True)}'
-                  f'{_article_link(item) if source_link else ""}</div>')
-    info = _summary_info(item, source_row) if summarized else ''
-    if info:
-        return f'<div class="headline-meta article-meta">{info}</div>'
-    return (f'<div class="headline-meta article-meta"><div class="article-meta-main">'
-            f'{_publication(item, compact=True)}{_article_link(item) if source_link else ""}</div></div>')
+def _article_meta(item):
+    return ('<div class="news-publication-source" aria-label="発表日時と出典">'
+            f'{_publication(item)}<span aria-hidden="true">·</span>{_article_link(item)}</div>')
 
 
 def render_news_markup(data, *, now=None):
-    """Use the existing E-front/A-details structure, without waiting for JS."""
+    """Render each article's original publication facts beside its own copy."""
     esc = lambda value: escape(str(value), quote=True)
     edition = datetime.fromisoformat(data["edition_date"])
     weekday = "月火水木金土日"[edition.weekday()] + "曜日"
@@ -122,15 +118,19 @@ def render_news_markup(data, *, now=None):
                      for ref in digest["article_refs"]] if lead_and_others else data["news"])
     headlines_only = data.get("delivery") == "headlines" and not digest
     if digest:
+        summary_news = (ordered_news[:1] if lead_and_others else
+                        [next(item for item in data["news"] if item["url"] == ref["url"])
+                         for ref in digest["article_refs"]])
         brief = (f'<div class="daily-digest" lang="ja"><h4 class="brief-headline">{esc(digest["headline"])}</h4>'
-                 f'<p class="brief-summary">{esc(digest["summary"])}</p></div>')
+                 f'<p class="brief-summary">{esc(digest["summary"])}</p>'
+                 '<div class="news-summary-sources">'
+                 + ''.join(_article_meta(item) for item in summary_news) + '</div></div>')
     elif headlines_only and data["news"]:
         brief = ('<h4 class="brief-headline">今日の見出し</h4>'
                  f'<p class="news-empty">{edition:%Y/%m/%d} · 本日の要約は未掲載です。</p>'
                  '<ul class="headline-list">'
-                 + ''.join(f'<li><a class="story-title" href="{esc(item["url"])}" target="_blank" rel="noopener noreferrer">'
-                           f'{esc(item["title"])}</a><div class="headline-meta">'
-                           f'{_publication(item)}<span class="headline-source">{esc(item["source"])}</span></div></li>' for item in data["news"])
+                 + ''.join(f'<li><a class="story-title" href="{esc(_safe_url(item["url"]) or "")}" target="_blank" rel="noopener noreferrer">'
+                           f'{esc(item["title"])}</a>{_article_meta(item)}</li>' for item in data["news"])
                  + '</ul>')
     else:
         message = ("本日のまとめはまだ掲載されていません。記事は「もっと詳しく」から読めます。" if data["news"]
@@ -139,41 +139,32 @@ def render_news_markup(data, *, now=None):
     stories = []
     article_summaries = {item["url"]: item for item in (digest or {}).get("article_summaries", [])}
     for item in ([] if headlines_only else ordered_news[1:] if lead_and_others else ordered_news):
-        key = esc("article:" + item["url"])
         authored = article_summaries.get(item["url"])
         if authored:
             stories.append('<article class="story summarized-story" lang="ja">'
                            f'<h4><span class="story-title">{esc(authored["headline"])}</span></h4>'
                            f'<div class="story-content"><p class="article-summary">{esc(authored["summary"])}</p>'
-                           f'{"" if lead_and_others else _article_meta(item, summarized=True)}</div></article>')
+                           f'{_article_meta(item)}</div></article>')
             continue
-        stories.append(f'<details class="story" name="kn-news-sources" data-news-key="{key}">'
-                       f'<summary data-news-focus="{key}"><h4>'
-                       f'<span class="story-title">{esc(item["title"])}</span>'
-                       '</h4><span class="plus" aria-hidden="true"></span></summary>'
-                       f'<div class="story-content">{"" if lead_and_others else _article_meta(item)}</div></details>')
+        stories.append('<article class="story source-story"><h4>'
+                       f'<span class="story-title">{esc(item["title"])}</span></h4>'
+                       f'{_article_meta(item)}</article>')
     if data["supplements"]:
         supplements = []
         for item in data["supplements"]:
             key = esc("supplement:" + item["url"])
             supplements.append(f'<details class="story" name="kn-news-sources" data-news-key="{key}">'
-                               f'<summary data-news-focus="{key}"><h4><span class="story-category">補足 · {_publication(item)}</span>'
-                               f'<span class="story-title">{esc(item["title"])}</span>'
-                               '</h4><span class="plus" aria-hidden="true"></span></summary>'
-                               f'<div class="story-content"><p>{esc(item["editorial_reason"])}</p>'
-                               f'{_article_meta(item)}</div></details>')
+                               f'<summary data-news-focus="{key}"><h4><span class="story-category">補足</span>'
+                               f'<span class="story-title">{esc(item["title"])}</span></h4>'
+                               '<span class="plus" aria-hidden="true"></span>'
+                               f'{_article_meta(item)}</summary>'
+                               f'<div class="story-content"><p>{esc(item["editorial_reason"])}</p></div></details>')
         stories.append('<section class="news-supplements"><h4>日付付きの補足</h4>' + "".join(supplements) + '</section>')
-    source_rows = ''.join('<div class="article-source">' + _publication(item, compact=True)
-                         + _article_link(item) + '</div>' for item in ordered_news) if lead_and_others else ''
-    source_row = ('<div class="article-sources" aria-label="記事の出典">'
-                  + (_summary_info(ordered_news[0], source_rows)
-                     or '<div class="article-source-links">' + source_rows + '</div>') + '</div>'
-                  if lead_and_others else '')
-    more_label = ('ほかのニュース' if stories else '記事の出典') if lead_and_others else 'もっと詳しく'
+    more_label = 'ほかのニュース' if lead_and_others else 'もっと詳しく'
     more = (('<details class="read-more" data-news-key="more"><summary data-news-focus="more">'
              f'<span class="closed-label">{more_label}</span><span class="open-label">閉じる</span>'
              '<span class="read-toggle" aria-hidden="true"></span></summary><div class="stories editorial-detail">'
-             + "".join(stories) + source_row + '</div></details>') if stories or source_row else '')
+             + "".join(stories) + '</div></details>') if stories else '')
     if data.get("delivery") == "published":
         current_period = (datetime.fromtimestamp(time.time() if now is None else now, JST)
                           - timedelta(hours=8)).date()
@@ -182,7 +173,7 @@ def render_news_markup(data, *, now=None):
     else:
         status = _stamp(data["fetched_at"]) + " 取得" + (" · 最新情報を確認中" if data.get("stale") else "")
     tail = (f'<div class="news-tail">{more}</div>'
-            if lead_and_others else more)
+            if lead_and_others and more else more)
     footer = f'<footer class="news-footer"><p>{esc(status)}</p></footer>' if status else ''
     return ('<article id="knNewsDigest" class="news-card journal" aria-labelledby="knNewsDigestTitle">'
             '<header class="news-header">' + calendar + '<div class="heading-text"><h3 id="knNewsDigestTitle">経済ニュース</h3></div></header>'
