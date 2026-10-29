@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="/static/mypage-kakeibo-theme.css?v=20261023-flat-selection1">
   <link rel="stylesheet" href="/static/site-typography.css?v=20261011-type1">
   <script defer src="/static/mypage-kakeibo-theme.js?v=20261015-homegraphs1"></script>
-  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261023-flat-selection1">
+  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261029-side-icons1">
   <script defer src="/static/kakeibo-layout.js?v=20261017-assets1"></script>
   <link rel="stylesheet" href="/static/kakeibo-calendar-designs.css?v=20261028-remove-planner-divider1">
   <script defer src="/static/kakeibo-investment-categories.js?v=20261016-investmentcats1"></script>
@@ -254,8 +254,8 @@ body{padding-bottom:24px;}
   <div class="tn-item" onclick="switchTab('calendar')" data-i18n="kk_tab_calendar" style="display:none">📅 カレンダー</div>
 </div>
 <nav class="kk-bottomnav" id="kkBottomNav" aria-label="家計簿のメニュー" data-kk-layout-label="kk_layout_navigation">
-  <button type="button" class="kk-nav-item active" data-kknav="home" aria-pressed="true" onclick="kkNavGo('home', this)"><span data-i18n="kk_layout_home">ホーム</span></button>
-  <button type="button" class="kk-nav-item" data-kknav="calendar" aria-pressed="false" onclick="kkNavGo('calendar', this)"><span data-i18n="kk_layout_calendar">カレンダー</span></button>
+  <button type="button" class="kk-nav-item" data-kknav="calendar" aria-pressed="false" aria-label="カレンダー" data-kk-layout-label="kk_layout_calendar" onclick="kkNavGo('calendar', this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="4" y="5" width="16" height="16" rx="3"/><path d="M8 3v4M16 3v4M4 10h16M8 14h2M14 14h2M8 17h2"/></svg><span class="kk-nav-label" data-i18n="kk_layout_calendar">カレンダー</span></button>
+  <button type="button" class="kk-nav-item active" data-kknav="home" aria-pressed="true" aria-label="グラフ" data-kk-layout-label="kk_layout_graphs" onclick="kkNavGo('home', this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 4v16h16M7 15l4-5 4 3 5-7"/><circle cx="11" cy="10" r="1"/><circle cx="15" cy="13" r="1"/></svg><span class="kk-nav-label" data-i18n="kk_layout_graphs">グラフ</span></button>
   <button type="button" class="kk-nav-item" data-kknav="settings" onclick="event.preventDefault();" style="display:none">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
     設定
