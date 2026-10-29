@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "model_id": "breeze-cape-garment-volume-v1",
+  "unit_id": "wardrobe:fit-prerequisite:breeze-cape:garment-volume-openings:v1",
+  "run_id": "automation360-20261029-144134",
+  "base_main_sha": "116912feb09af7ca5777cab11071c45535b06407",
+  "parent_reservation": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/heartbeat-20261029-144134/parent-reservation.json",
+    "sha256": "75c4a9cc299171d464cf8f52dfceb362f2cd04d01d975e92ca3771e66850b1f1",
+    "bytes": 262
+  },
+  "preproduction_fit_audit": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/heartbeat-20261029-144134/fit-audit-verification.json",
+    "sha256": "c802ff97cc53da5358762f4fbba5b589ea3234184193fa0b01cc5d85c16279ff",
+    "bytes": 3098
+  },
+  "source_original": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-level-collection-20261023/clothing/03-breeze-cape.png",
+    "sha256": "e9ad18c4b38fbd1db5336d93be771f1eb74490fcf136ff0f9d87c4ab3f5caa0f",
+    "bytes": 1334288
+  },
+  "source_original_viewed_before_design": true,
+  "original_copy_unmodified": true,
+  "new_raw_PNGs": 0,
+  "new_original_designs": 0,
+  "imagegen_calls": 0,
+  "new_body_references": 0,
+  "new_canonical_fit_success": 0,
+  "new_village_library_candidates": 0,
+  "bodyBinding": null,
+  "not_a_body_or_fitting_pass": true,
+  "authored_garment_depth_back_and_interior": true,
+  "bitmap_applied_to_all_sides": false,
+  "model_textures": 0,
+  "ordinary_game_changes": 0,
+  "scope": "Authored standalone open-front mint cape, rounded cream collar, fixed padded bow, layered hems, actual gold/leaf relief attachments. Garment-local prototype values, not anatomy or calibrated fit.",
+  "finite_authored_passages": 8,
+  "finite_independent_passages": 20,
+  "finite_strict_attachment_points": 18,
+  "finite_camera_samples": 36,
+  "finite_witnesses_are_not_unique_tests": true,
+  "crossing_limit": "Fixed-pose strict nonadjacent edge/interior crossings only; coplanar/adjacent contacts excluded, no continuous or physical guarantee.",
+  "files": [
+    {
+      "path": "SPEC.json",
+      "sha256": "5dcf72fef3cadf1b5dbc3dc113fb597b3c1ecd0cfe14c68fc3a9c02c5ccb18f3",
+      "bytes": 4867
+    },
+    {
+      "path": "audit.mjs",
+      "sha256": "0295f409a2c7182069dd6023bf78d94c3a7d05e237fd244923ea3a4c29a4eb80",
+      "bytes": 5891
+    },
+    {
+      "path": "entry.mjs",
+      "sha256": "adbed1daaf1382f7a92721d99c076c089f2e9073d49ef537873d580070499640",
+      "bytes": 1721
+    },
+    {
+      "path": "finite-geometry-certificate.json",
+      "sha256": "7f6283aeb51f902623f05d009fe97e9fa4712426b2434575b8db75e36e045bf2",
+      "bytes": 529351
+    },
+    {
+      "path": "geometry-audit.mjs",
+      "sha256": "2dbe7723509ae914cb98153f133e2a2db9d15e5f4112cc184fa128a2df8e92c0",
+      "bytes": 6377
+    },
+    {
+      "path": "index.html",
+      "sha256": "06a2d1340d3b6e394dfe87107c58c2eb8ccf124b274ecc52bb421bf2224f7e6e",
+      "bytes": 4328
+    },
+    {
+      "path": "modelrecipe.mjs",
+      "sha256": "225e9fafdea6fb9ba728e2b3eb47ed8e663852b0f2225769c92cba7a2292ab3d",
+      "bytes": 18709
+    },
+    {
+      "path": "reference.png",
+      "sha256": "e9ad18c4b38fbd1db5336d93be771f1eb74490fcf136ff0f9d87c4ab3f5caa0f",
+      "bytes": 1334288
+    },
+    {
+      "path": "viewer.mjs",
+      "sha256": "260a6bb8ce51e69449cf433c4c99229f3eb6d6300703ffeec4b5ae627193c1b7",
+      "bytes": 7440
+    }
+  ],
+  "inputs": [
+    {
+      "path": "static/vendor/three-0.160.1.module.js",
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    {
+      "path": "static/pet-scalloped-path-proof-20261027/framing.mjs",
+      "sha256": "dba92c2f6dec2816ebcf25434ee07c3b699accb61b7e1961a11baf366edad08a",
+      "bytes": 1678
+    },
+    {
+      "path": "tests/test_pet_breeze_cape_20261029.mjs",
+      "sha256": "59ac64321c0cd30769da73028f3a9a04d4b607fa8b2997ee6c1f34d0344087c6",
+      "bytes": 10124
+    }
+  ],
+  "same_unit_cloth_normal_repair": {
+    "actual_Chrome_flat_panel_issue_repaired": true,
+    "actual_triangle_positions_winding_and_transforms_preserved_during_that_normal_step": true,
+    "later_gold_binding_geometry_repair_is_separate": true,
+    "verification": {
+      "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/heartbeat-20261029-144134/cape-normal-repair-verification.json",
+      "sha256": "7552f1902108ba9a72c1619f37e0cd2f6a0c6c22d328e4e6e4782fbf643d60ce",
+      "bytes": 6206
+    }
+  },
+  "same_unit_gold_binding_geometry_repair": {
+    "actual_exported_front_and_bottom_rim_z_fighting_repaired_by_geometry": true,
+    "changed_gold_parts": 5,
+    "unchanged_main_cloth_bow_leaf_parts": 13,
+    "renderer_ordering_masking": false,
+    "body_dimensions_anchors_or_fit_changed": false,
+    "verification": {
+      "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/heartbeat-20261029-144134/cape-binding-repair-verification.json",
+      "sha256": "b28331b8fdeb0b25847f79c7eeaadca4d3be3786f372b4544f8ce2d0c311c9d2",
+      "bytes": 7816
+    },
+    "independent_exact_rim_centroids_checked_at_that_step": 584,
+    "later_endpoint_finish_changes_cream_collar_and_two_front_bindings": true
+  },
+  "same_unit_front_binding_endpoint_finish": {
+    "observed_unintended_horns_repaired_by_hidden_cream_lap": true,
+    "changed_parts": 3,
+    "other_fifteen_parts_unchanged": true,
+    "other_three_gold_bands_unchanged": true,
+    "finite_current_rim_coverage_centroids": 576,
+    "actual_front_top_cap_vertices_inside_cream_collar": 16,
+    "renderer_masking": false,
+    "body_dimensions_anchors_or_fit_changed": false,
+    "verification": {
+      "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/heartbeat-20261029-144134/cape-endpoint-repair-verification.json",
+      "sha256": "0296bed503b02078b08c6b219c027977bfe3b7721c9f9d1af712d942c4100506",
+      "bytes": 7126
+    }
+  }
+}

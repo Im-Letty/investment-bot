@@ -1,0 +1,89 @@
+{
+  "model_id": "breeze-cape-garment-volume-v1",
+  "unit_id": "wardrobe:fit-prerequisite:breeze-cape:garment-volume-openings:v1",
+  "source_original_sha256": "e9ad18c4b38fbd1db5336d93be771f1eb74490fcf136ff0f9d87c4ab3f5caa0f",
+  "source_original_viewed_before_design": true,
+  "original_copy_unmodified": true,
+  "authored_trial_dimensions": {
+    "cape_neck_rx": 0.32,
+    "cape_neck_rz": 0.3,
+    "mantle_height": 1.35,
+    "main_material_thickness": 0.035,
+    "front_gap_half_angle_radians": 0.22
+  },
+  "dimension_basis": "Garment-local prototype parameters authored for this isolated study, not anatomical dimensions or calibration values.",
+  "authoring_instruction": "Retain the original mint/ivory cape identity: rounded scalloped collar, open front, layered hems, a small padded connected bow, restrained gold bindings and two pairs of leaf relief. Build new authored closed material solids with actual neck and front passages; do not infer a body or original backside.",
+  "generic_audit_reuse": {
+    "source": "static/pet-leaf-sleep-sack-proof-20261028/modelrecipe.mjs",
+    "source_sha256": "ea3232a6e3f21fe7358fa2fda0c0fd0f97075cf4b9d8efe9d118653756ed3c64",
+    "scope": "Only generic actual-triangle topology, face normal and strict point-overlap helpers; prior garment recipe is excluded."
+  },
+  "bodyBinding": null,
+  "body_measurements": false,
+  "wearing_fit": false,
+  "rig": false,
+  "cloth_physics": false,
+  "all_growth_fit": false,
+  "normal_game_placement": false,
+  "unlock_price_ownership_save": false,
+  "new_raw_PNGs": 0,
+  "new_original_designs": 0,
+  "imagegen_calls": 0,
+  "new_village_mesh_library_candidates": 0,
+  "back_and_interior": "New authored garment design, not a recovered original rear or anatomical volume.",
+  "fastening": "Fixed bow, not an operable clasp or closure mechanism.",
+  "passage_scope": "Finite authored segments tested against actual triangles of every part; not continuous collision safety.",
+  "attachment_scope": "Strict points inside actual material triangles of both attached parts, three probe directions and positive surface clearance. Finite witness scope; no load/friction guarantee.",
+  "cloth_normal_construction": {
+    "same_unit_visual_repair": "Actual Chrome showed broad flat panels. Share normals within continuous cloth surfaces; preserve thickness/front/rim creases.",
+    "actual_triangle_positions_and_winding_unchanged": true,
+    "separate_normal_regions": [
+      "outer cloth",
+      "inner cloth",
+      "neck rim strip",
+      "left front rim strip",
+      "hem rim strip",
+      "right front rim strip"
+    ],
+    "body_depth_or_fit_changed": false,
+    "comparison_scope": "Normal smoothing step only. A later same-unit binding repair intentionally extends five gold solids; main cloth triangles remain unchanged."
+  },
+  "binding_visual_repair": {
+    "observed_issue": "Actual exported front and bottom PNGs showed jagged alternating colors at coplanar exposed front/rim faces.",
+    "method": "Extend five gold binding solids beyond target rim domains; fully enclose target cut faces in actual gold volume. Front endcaps are staggered past hem bindings.",
+    "renderer_masking_used": false,
+    "gold_front_theta_extension": 0.014,
+    "gold_front_t_domain": [
+      -0.018,
+      1.024
+    ],
+    "gold_hem_t1": 1.018,
+    "gold_collar_outer_t_extension": 0.01,
+    "gold_shoulder_outer_t_extension": 0.012,
+    "body_dimensions_or_anchors_changed": false,
+    "source_PNG_changed": false,
+    "finite_enclosure_evidence": "Actual target rim triangle centroids must be strictly inside the intended gold solid with positive clearance; independent ray audit repeats these finite points.",
+    "main_mint_cream_cloth_bow_leaf_triangles_changed_during_that_step": false,
+    "later_endpoint_finish_changes_cream_collar_and_two_front_bindings": true
+  },
+  "binding_endpoint_finish_repair": {
+    "observed_issue": "Actual Chrome front view showed two unintended gold tips above cream neckline after the rim wrap repair.",
+    "method": "Front binding starts at garment t=.012 below neckline; its top has outer offset .015 and thickness .055, wholly inside an extended cream collar lap. Smoothstep profile reaches previous enclosing dimensions by t=.18.",
+    "cream_collar_front_theta_lap_extension": 0.018,
+    "front_binding_t_domain": [
+      0.012,
+      1.024
+    ],
+    "front_binding_top_outer_offset": 0.015,
+    "front_binding_top_thickness": 0.055,
+    "profile_blend_t_domain": [
+      0.055,
+      0.18
+    ],
+    "gold_front_cap_hidden_in_cream_lap": true,
+    "renderer_masking_used": false,
+    "body_dimensions_or_anchors_changed": false,
+    "source_PNG_changed": false,
+    "finite_verification": "Exact front strip top-cap triangle centroids are strictly inside actual cream collar material, independently rechecked alongside remaining rim coverage."
+  }
+}
