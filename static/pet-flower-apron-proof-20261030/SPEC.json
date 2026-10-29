@@ -1,0 +1,51 @@
+{
+  "model_id": "flower-apron-garment-volume-v1",
+  "unit_id": "wardrobe:fit-prerequisite:flower-apron:garment-volume-openings:v1",
+  "source_original_sha256": "d59209df70ebf50bbf2516d41c9ccf1634498be10bddc107481e11ec139b089f",
+  "source_original_viewed_before_design": true,
+  "original_copy_unmodified": true,
+  "authoring_instruction": "Preserve the cream puff-sleeved blouse, rounded collar, peach flower bib and shoulder straps, full apron skirt over an ivory underfrill, two raised pocket faces with scalloped flaps, fixed waist bow and white flower with leaves. This is a new garment recipe, not a recolor of a saved smock.",
+  "authored_trial_dimensions": {
+    "outer_front_depth_base": 0.235,
+    "front_inner_z_offset": 0.032,
+    "back_outer_depth_multiplier": 0.9,
+    "outline_inset_into_material": 0.001,
+    "contour_control_points": 38,
+    "actual_curve_samples_per_edge": 4,
+    "surface_subdivision_passes": 2
+  },
+  "thickness_basis": "Anisotropic authored material wall: front/back offset .032 in local z, outline inset .001 in XY. These are prototype garment values, not body measurements or uniform calibrated cloth thickness.",
+  "geometry_construction": "Separate front and authored rear contour triangulation, shared seam indices, four actual boundary loops bridged only around material thickness; neck/cuffs/hem remain passages.",
+  "normal_construction": "Separate continuous exterior/interior/rim regions; smooth incident face normals only across dot>0.4, preserving actual triangle positions and winding.",
+  "same_unit_repairs": [
+    "Initial outward-normal offset folded narrow hem material; replace with explicit authored front/back/outline inner profiles. Remove unsupported high-frequency lower z ripple and nonplanar collinear back-neck ears.",
+    "Actual Chrome showed angular shoulder/sleeve/hem/neck outlines. Replace the actual XY silhouette with a closed centripetal Catmull-Rom contour, four samples per original edge, separately for front and authored back; retain four material openings.",
+    "Initial cavity camera viewed only a nearby cream wall. Move the actual eye outside the hem and aim through the garment toward the neck; record the exact special-mode eye/target/FOV.",
+    "Final raw PNG showed the peach apron hem and pocket flaps still had angular V edges. Sample only those actual panel contours along closed centripetal curves (5 and 4 samples/edge), project new vertices onto actual receiving triangles, and remove only collinear XY contour samples before triangulation. The white blouse/underfrill shell recipe and dimensions are unchanged."
+  ],
+  "bodyBinding": null,
+  "body_measurements": false,
+  "wearing_fit": false,
+  "rig": false,
+  "cloth_physics": false,
+  "all_growth_fit": false,
+  "normal_game_placement": false,
+  "unlock_price_ownership_save": false,
+  "new_raw_PNGs": 0,
+  "new_original_designs": 0,
+  "imagegen_calls": 0,
+  "new_village_mesh_library_candidates": 0,
+  "back_and_interior": "New authored garment design, not recovered original back or anatomical volume.",
+  "pockets": "Connected raised pocket faces and scalloped flaps; not operable storage.",
+  "fastening": "Fixed padded bow and garment strips, not opening/fastening mechanics.",
+  "interior_camera": "Fixed look from outside the lower hem: eye [0,-.62,.12], target [0,1.62,0], FOV62. Partial hem rim/lining/neck opening observation; no full-interior visibility claim.",
+  "capture": "Display current unmodified renderer canvas PNG and separate download link; no automatic download click.",
+  "finite_audit_scope": "Every displayed mesh triangle is used for finite rays and three-direction strict common-solid contact witnesses. Finite checks are not continuous full-domain safety, load/friction or body fit.",
+  "peach_panel_contours": {
+    "apron_samples_per_edge": 5,
+    "pocket_flap_samples_per_edge": 4,
+    "collinear_XY_pruning_tolerance": 1e-09,
+    "receiver_projection": "actual receiving mesh triangles",
+    "white_blouse_shell_changed": false
+  }
+}
