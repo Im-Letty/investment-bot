@@ -63,17 +63,55 @@ body.kn-ledger-paper .kk-more-panel button:hover {background:var(--kn-ledger-chi
 body.kn-ledger-paper .kk-export-tools {margin-top:8px;padding-top:10px;border-top:1px solid var(--kn-ledger-line)}
 body.kn-ledger-paper .kk-export-tools>p {padding:4px 12px}
 body.kn-ledger-letter.kn-ledger-paper #ocr-bar {height:0;padding:0!important;overflow:hidden}
+/* The two shortcuts sit beside the first heading rows. Content below those
+   rows keeps its full width, including the seven-column mobile calendar. */
+body.kn-ledger-paper {position:relative;--kk-side-nav-space:64px}
 body.kn-ledger-letter.kn-ledger-paper #kkBottomNav {
-  margin:0 auto 8px;padding:0;border:0;border-bottom:1px solid var(--kn-ledger-line);
-  border-radius:0;background:transparent;gap:0;
+  position:absolute;top:24px;right:max(24px,calc((100% - 960px)/2 + 24px));z-index:2;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  width:44px;max-width:none;margin:0;padding:0;border:0;
+  border-radius:0;background:transparent;box-shadow:none;gap:6px;
+}
+body.kn-ledger-paper[data-kk-active-tab="home"] #kkBottomNav {
+  right:max(44px,calc((100% - 720px)/2 + 44px));
 }
 body.kn-ledger-letter.kn-ledger-paper #kkBottomNav .kk-nav-item {
-  min-height:48px;padding:10px 3px;border-radius:0;font-size:calc(13px * var(--kn-ledger-scale,1));
-  overflow-wrap:anywhere;line-height:1.5;
+  flex:none;position:relative;display:flex;align-items:center;justify-content:center;
+  width:44px;height:44px;min-width:44px;min-height:44px;padding:0;
+  border:1px solid transparent;border-radius:10px;background:transparent;
+  color:var(--kn-ledger-muted);box-shadow:none;line-height:1;
 }
-body.kn-ledger-paper #kkBottomNav .kk-nav-item svg {display:none}
+body.kn-ledger-paper #kkBottomNav .kk-nav-item svg {
+  display:block;width:26px;height:26px;flex:none;pointer-events:none;
+}
+body.kn-ledger-paper #kkBottomNav .kk-nav-label {
+  position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;
+  overflow:hidden;clip-path:inset(50%);white-space:nowrap;
+}
 body.kn-ledger-letter.kn-ledger-paper #kkBottomNav .kk-nav-item.active {
-  background:var(--kn-ledger-chip);box-shadow:none;color:var(--kn-ledger-ink);
+  border-color:var(--kn-ledger-line);background:var(--kn-ledger-chip);
+  color:var(--kn-ledger-ink);box-shadow:none;
+}
+body.kn-ledger-paper .kk-summary-heading {padding-inline-end:var(--kk-side-nav-space)}
+body.kn-ledger-paper .kk-summary-heading .kk-more-panel {right:calc(-1 * var(--kk-side-nav-space))}
+body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview > .month-nav {margin-inline-end:var(--kk-side-nav-space)}
+body.kn-ledger-letter.kn-ledger-paper :is(#tab-calendar,#tab-records) > .kk-pane-title {
+  min-height:44px;padding-inline-end:var(--kk-side-nav-space);
+}
+body.kn-ledger-paper #tab-calendar > .month-nav,
+body.kn-ledger-paper #tab-records > .kk-pane-links {margin-inline-end:var(--kk-side-nav-space)}
+@media (hover:hover) {
+  body.kn-ledger-paper #kkBottomNav .kk-nav-item:hover {
+    background:var(--kn-ledger-chip);color:var(--kn-ledger-ink);
+  }
+}
+@media (max-width:480px) {
+  body.kn-ledger-letter.kn-ledger-paper #kkBottomNav {right:16px}
+  body.kn-ledger-paper[data-kk-active-tab="home"] #kkBottomNav {right:36px}
+  /* Give the shortcut stack its own header height, then restore the full
+     month row even with larger text. The calendar grid keeps that same width. */
+  body.kn-ledger-letter.kn-ledger-paper #tab-calendar > .kk-pane-title {min-height:94px}
+  body.kn-ledger-paper #tab-calendar > .month-nav {margin-inline-end:0}
 }
 body.kn-ledger-letter.kn-ledger-paper .tab-content {padding-top:18px}
 body.kn-ledger-letter.kn-ledger-paper #tab-home {max-width:720px}
