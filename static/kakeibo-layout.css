@@ -63,23 +63,29 @@ body.kn-ledger-paper .kk-more-panel button:hover {background:var(--kn-ledger-chi
 body.kn-ledger-paper .kk-export-tools {margin-top:8px;padding-top:10px;border-top:1px solid var(--kn-ledger-line)}
 body.kn-ledger-paper .kk-export-tools>p {padding:4px 12px}
 body.kn-ledger-letter.kn-ledger-paper #ocr-bar {height:0;padding:0!important;overflow:hidden}
-/* The two shortcuts sit beside the first heading rows. Content below those
-   rows keeps its full width, including the seven-column mobile calendar. */
-body.kn-ledger-paper {position:relative;--kk-side-nav-space:64px}
-body.kn-ledger-letter.kn-ledger-paper #kkBottomNav {
-  position:absolute;top:24px;right:max(24px,calc((100% - 960px)/2 + 24px));z-index:2;
-  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
-  width:44px;max-width:none;margin:0;padding:0;border:0;
-  border-radius:0;background:transparent;box-shadow:none;gap:6px;
+/* Keep both shortcuts in normal flow, outside the summary card. */
+body.kn-ledger-letter.kn-ledger-paper .kk-page-heading {
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  width:100%;max-width:720px;min-height:44px;margin:0 auto;
+  padding:18px 24px 0;box-sizing:border-box;
 }
-body.kn-ledger-paper[data-kk-active-tab="home"] #kkBottomNav {
-  right:max(44px,calc((100% - 720px)/2 + 44px));
+body.kn-ledger-paper:is([data-kk-active-tab="calendar"],[data-kk-active-tab="records"]) .kk-page-heading {
+  max-width:960px;
+}
+body.kn-ledger-paper .kk-page-title {
+  min-width:0;margin:0;color:var(--kn-ledger-ink);
+  font:500 calc(18px * var(--kn-ledger-scale,1))/1.5 var(--kn-ledger-sans);
+}
+body.kn-ledger-letter.kn-ledger-paper #kkBottomNav {
+  position:static;display:flex;flex-direction:row;align-items:center;
+  justify-content:flex-end;flex:none;width:auto;max-width:none;
+  margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;gap:6px;
 }
 body.kn-ledger-letter.kn-ledger-paper #kkBottomNav .kk-nav-item {
   flex:none;position:relative;display:flex;align-items:center;justify-content:center;
   width:44px;height:44px;min-width:44px;min-height:44px;padding:0;
   border:1px solid transparent;border-radius:10px;background:transparent;
-  color:var(--kn-ledger-muted);box-shadow:none;line-height:1;
+  color:var(--kn-ledger-ink);box-shadow:none;line-height:1;
 }
 body.kn-ledger-paper #kkBottomNav .kk-nav-item svg {
   display:block;width:26px;height:26px;flex:none;pointer-events:none;
@@ -92,31 +98,18 @@ body.kn-ledger-letter.kn-ledger-paper #kkBottomNav .kk-nav-item.active {
   border-color:var(--kn-ledger-line);background:var(--kn-ledger-chip);
   color:var(--kn-ledger-ink);box-shadow:none;
 }
-body.kn-ledger-paper .kk-summary-heading {padding-inline-end:var(--kk-side-nav-space)}
-body.kn-ledger-paper .kk-summary-heading .kk-more-panel {right:calc(-1 * var(--kk-side-nav-space))}
-body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview > .month-nav {margin-inline-end:var(--kk-side-nav-space)}
-body.kn-ledger-letter.kn-ledger-paper :is(#tab-calendar,#tab-records) > .kk-pane-title {
-  min-height:44px;padding-inline-end:var(--kk-side-nav-space);
-}
-body.kn-ledger-paper #tab-calendar > .month-nav,
-body.kn-ledger-paper #tab-records > .kk-pane-links {margin-inline-end:var(--kk-side-nav-space)}
 @media (hover:hover) {
   body.kn-ledger-paper #kkBottomNav .kk-nav-item:hover {
     background:var(--kn-ledger-chip);color:var(--kn-ledger-ink);
   }
 }
 @media (max-width:480px) {
-  body.kn-ledger-letter.kn-ledger-paper #kkBottomNav {right:16px}
-  body.kn-ledger-paper[data-kk-active-tab="home"] #kkBottomNav {right:36px}
-  /* Give the shortcut stack its own header height, then restore the full
-     month row even with larger text. The calendar grid keeps that same width. */
-  body.kn-ledger-letter.kn-ledger-paper #tab-calendar > .kk-pane-title {min-height:94px}
-  body.kn-ledger-paper #tab-calendar > .month-nav {margin-inline-end:0}
+  body.kn-ledger-letter.kn-ledger-paper .kk-page-heading {padding:16px 16px 0}
 }
 body.kn-ledger-letter.kn-ledger-paper .tab-content {padding-top:18px}
 body.kn-ledger-letter.kn-ledger-paper #tab-home {max-width:720px}
 body.kn-ledger-paper .kk-paper-overview {
-  padding:4px 20px 20px;border:1px solid var(--kn-ledger-line);border-radius:10px;
+  padding:4px 20px 20px;border:1px solid var(--kn-ledger-line);border-radius:16px;
   background:var(--kn-ledger-paper);margin-bottom:26px;
 }
 body.kn-ledger-paper .kk-summary-heading {
@@ -131,8 +124,6 @@ body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview .sum-grid {grid-templat
 body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview .sum-item {
   min-width:0;background:transparent;border:0;border-radius:0;padding:18px 10px;
 }
-body.kn-ledger-paper .kk-paper-overview .sum-item:nth-child(odd) {border-right:1px solid var(--kn-ledger-line)}
-body.kn-ledger-paper .kk-paper-overview .sum-item:nth-child(-n+2) {border-bottom:1px solid var(--kn-ledger-line)}
 body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview .sum-lbl {font-size:calc(12px * var(--kn-ledger-scale,1))}
 body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview .sum-num {
   margin-top:5px;font-size:calc(23px * var(--kn-ledger-scale,1));line-height:1.5;
