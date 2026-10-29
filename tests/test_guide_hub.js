@@ -262,7 +262,7 @@ test('the keyboard trap keeps lower rendered guide controls in order and wraps o
 
 // Use the same retained guide controller and DOM fixture for the concern entrance.
 const {install:installConcern}=require('../static/guide-concern.js');
-function concernHarness(){
+function concernHarness({beforeConcernInstall}={}){
   const h=harness();install(h.window);
   const foot=h.document.createElement('div');foot.className='kn-chat-foot';h.panel.appendChild(foot);
   foot.appendChild(h.input);foot.appendChild(h.node('knChatSend'));
@@ -275,20 +275,81 @@ function concernHarness(){
   for(const [box,title] of [[faq,'③ よくある疑問'],[dictionary,'④ ことばの意味'],[feelings,'⑤ こんな気持ちのときは？']]){
     const heading=h.document.createElement('h3');heading.textContent=title;box.insertBefore(heading,box.firstChild);
   }
-  const sourceDetails=[...h.nodes('.bg-q')],api=installConcern(h.window);
+  const sourceDetails=[...h.nodes('.bg-q')];if(beforeConcernInstall)beforeConcernInstall(h);
+  const api=installConcern(h.window);
   return{...h,api,sourceDetails};
 }
-test('concern entrance uses four topics and three editable examples without requests or storage writes',()=>{
-  const h=concernHarness(),saved=new Map(h.storage);h.window.openBeginnerGuide();
+test('concern entrance and navigation retain four topics and three examples without automatic sending',()=>{
+  const sent=[];
+  const h=concernHarness({beforeConcernInstall(h){h.node('knChatSend').addEventListener('click',()=>sent.push(h.input.value));}});
+  const saved=new Map(h.storage),draft=h.input.value;
+  assert.equal(sent.length,0,'Installing must not send the existing draft');
+  h.window.openBeginnerGuide();
   assert.equal(h.node('knConcernHome').hidden,false);assert.equal(h.node('knChatBody').hidden,true);
   assert.equal(h.document.activeElement,h.node('knConcernTitle'),'Opening must not focus the input and open a mobile keyboard');
   assert.equal(h.nodes('.kn-concern-topic').length,4);assert.equal(h.nodes('.kn-concern-question').length,3);
   for(let i=0;i<4;i++){
     h.node('knConcernTopic'+i).click();assert.equal(h.node('knConcernTopic'+i).getAttribute('aria-pressed'),'true');
-    h.node('knConcernQuestion0').click();assert.ok(h.input.value);assert.equal(h.document.activeElement,h.input);
-    assert.equal(h.node('knConcernHome').hidden,false,'Examples prepare a draft, not a conversation');
   }
-  assert.equal(h.nodes('#knChatInput').length,1);assert.equal(h.network(),0);assert.equal(h.storageWrites(),0);assert.deepEqual(h.storage,saved);
+  for(const language of ['en','ko','zh','ja']){h.document.documentElement.lang=language;h.dispatch('langChanged');}
+  assert.equal(installConcern(h.window),h.api);
+  h.node('knConcernRead').click();h.node('knConcernBack').click();h.api.close();h.api.open();
+  assert.equal(sent.length,0,'Topics, translations, guide navigation, reinstall and reopening must not send');
+  assert.equal(h.input.value,draft);assert.equal(h.nodes('#knChatInput').length,1);
+  assert.equal(h.network(),0);assert.equal(h.storageWrites(),0);assert.deepEqual(h.storage,saved);
+});
+test('an example tap sends exactly once through the existing button with the current topic and language',()=>{
+  const h=concernHarness(),saved=new Map(h.storage),sent=[];let inputKeyEvents=0;
+  h.input.addEventListener('keydown',()=>inputKeyEvents++);
+  // This test double observes the retained button boundary after the concern
+  // capture handler; it does not send AI requests or implement example selection.
+  h.node('knChatSend').addEventListener('click',()=>{
+    sent.push({text:h.input.value,homeHidden:h.node('knConcernHome').hidden,bodyHidden:h.node('knChatBody').hidden});
+    h.input.value='';
+  });
+  const cases=[
+    ['ja',0,0,'家計は何から見直せばいい？'],
+    ['ja',2,2,'投資の言葉がわかりません'],
+    ['en',1,1,'I want to understand NISA'],
+    ['ko',3,0,'자산을 한곳에서 보고 싶어요'],
+    ['zh',2,1,'正在犹豫是否继续定期投资'],
+    ['fr',1,2,'まだ投資しなくても大丈夫？']
+  ];
+  for(const [language,topic,index,text] of cases){
+    h.document.documentElement.lang=language;h.dispatch('langChanged');h.api.open();h.node('knConcernTopic'+topic).click();
+    const before=sent.length;h.node('knConcernQuestion'+index).click();
+    assert.equal(sent.length,before+1,'One example activation must dispatch one send');
+    assert.deepEqual(sent.at(-1),{text,homeHidden:true,bodyHidden:false});
+    assert.equal(h.input.value,'','The retained sender can clear the original input');
+    assert.equal(h.node('knConcernBack').hidden,false);assert.equal(h.nodes('#knChatInput').length,1);
+  }
+  assert.equal(inputKeyEvents,0,'Example activation must not synthesize Enter or composition input events');
+  assert.equal(h.network(),0);assert.equal(h.storageWrites(),0);assert.deepEqual(h.storage,saved);
+});
+test('busy and disabled example taps preserve an unfinished draft and cannot duplicate an in-flight send',()=>{
+  const h=concernHarness(),send=h.node('knChatSend'),sent=[];h.api.open();
+  send.addEventListener('click',()=>{sent.push(h.input.value);h.input.value='';send.disabled=true;});
+  send.disabled=true;h.input.value='keep before pending finishes';h.node('knConcernQuestion0').click();
+  assert.equal(sent.length,0);assert.equal(h.input.value,'keep before pending finishes');assert.equal(h.node('knConcernHome').hidden,false);
+  send.disabled=false;h.node('knConcernQuestion0').click();
+  assert.deepEqual(sent,['家計は何から見直せばいい？']);assert.equal(send.disabled,true);
+  h.node('knConcernBack').click();h.input.value='new draft while reply is pending';
+  h.node('knConcernQuestion1').click();h.node('knConcernQuestion1').click();
+  assert.equal(sent.length,1);assert.equal(h.input.value,'new draft while reply is pending');assert.equal(h.node('knConcernHome').hidden,false);
+  send.disabled=false;h.node('knConcernQuestion1').click();
+  assert.deepEqual(sent,['家計は何から見直せばいい？','毎月、いくら使っているか知りたい']);
+  assert.equal(h.network(),0);assert.equal(h.storageWrites(),0);
+});
+test('queued example clicks from a closed or hidden landing view never send or overwrite the draft',()=>{
+  const h=concernHarness(),sent=[],draft=h.input.value;
+  h.node('knChatSend').addEventListener('click',()=>sent.push(h.input.value));
+  const question=h.node('knConcernQuestion0');
+  question.click();assert.equal(sent.length,0);assert.equal(h.input.value,draft);
+  h.api.open();h.node('knConcernRead').click();question.click();
+  assert.equal(sent.length,0);assert.equal(h.input.value,draft);
+  h.api.select('chat');question.click();assert.equal(sent.length,0);assert.equal(h.input.value,draft);
+  h.api.close();question.click();assert.equal(sent.length,0);assert.equal(h.input.value,draft);
+  assert.equal(h.network(),0);assert.equal(h.storageWrites(),0);
 });
 test('reading the guide retains all 8/10/5 source details and returns without losing an unsent draft',()=>{
   const h=concernHarness();h.api.open();h.input.value='an unsent question';h.node('knConcernRead').click();
@@ -305,6 +366,7 @@ test('only a nonempty explicit send enters the retained conversation and back ke
   assert.equal(h.node('knConcernHome').hidden,true);assert.equal(h.node('knChatBody').hidden,false);
   assert.equal(h.node('knConcernBack').hidden,false);h.node('knConcernBack').click();
   h.input.value='question with a newline';h.input.emit('keydown',{key:'Enter',shiftKey:true});assert.equal(h.node('knConcernHome').hidden,false);
+  h.input.emit('keydown',{key:'Enter',shiftKey:false,isComposing:true});assert.equal(h.node('knConcernHome').hidden,false);
   h.input.emit('keydown',{key:'Enter',shiftKey:false});assert.equal(h.node('knConcernHome').hidden,true);
   assert.equal(h.network(),0,'The fixture has no assistant sender; this verifies presentation only');
 });

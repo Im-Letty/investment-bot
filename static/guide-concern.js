@@ -64,7 +64,11 @@
   for(var i=0;i<3;i++){
     var q=node('button','kn-concern-question','knConcernQuestion'+i);q.type='button';var label=node('span');q.appendChild(label);
     var arrow=node('span','kn-concern-arrow','','↗');arrow.setAttribute('aria-hidden','true');q.appendChild(arrow);
-    (function(index,button){button.addEventListener('click',function(){input.value=words().questions[topic][index];input.focus();});})(i,q);
+    (function(index,button){button.addEventListener('click',function(){
+      if(!inHome||!modal.classList.contains('bg-open')||send.disabled)return;
+      var question=words().questions[topic][index];if(!question.trim())return;
+      input.value=question;send.click();
+    });})(i,q);
     questionButtons.push({button:q,label:label});questions.appendChild(q);
   }
   var read=node('button','kn-concern-read','knConcernRead');read.type='button';home.appendChild(read);
