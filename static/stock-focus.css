@@ -457,3 +457,10 @@ body.kn-home-a #knTabWrap #knSubRow[hidden] {display:none!important}
   #knCompanyNewsSection .sf-company,
   #knCompanyNewsSection .sf-company:last-child {padding:17px}
 }
+
+#knCompanyNewsSection .sf-update-status {color:var(--sf-muted);font-size:.8em;margin:0 0 12px}
+#knCompanyNewsSection .sf-update-status > summary {cursor:pointer;min-height:44px;padding:8px 0;line-height:1.7}
+#knCompanyNewsSection .sf-update-status dl {display:grid;gap:6px;margin:4px 0 16px}
+#knCompanyNewsSection .sf-update-status dl > div {display:flex;flex-wrap:wrap;gap:4px 14px}
+#knCompanyNewsSection .sf-update-status dt {min-width:8em}
+#knCompanyNewsSection .sf-update-status dd {margin:0;overflow-wrap:anywhere}

@@ -403,6 +403,7 @@ class CompanyJobTests(unittest.TestCase):
         with patch.dict(os.environ, environment, clear=True), \
                 patch('scripts.run_company_news_job.SupabaseNewsStorage'), \
                 patch('scripts.run_company_news_job.published_economy_context', return_value=([], [])), \
+                patch('company_news_catalogue.current_catalogue', return_value=None), \
                 patch('scripts.run_company_news_job.run_job', return_value={'status': 'no_new_release'}) as job, \
                 redirect_stdout(io.StringIO()) as output:
             self.assertEqual(main(['--run-live', '--retry-article-id', identifier]), 0)
@@ -428,6 +429,7 @@ class CompanyJobTests(unittest.TestCase):
                 with patch.dict(os.environ, environment, clear=True), \
                         patch('scripts.run_company_news_job.SupabaseNewsStorage'), \
                         patch('scripts.run_company_news_job.published_economy_context', return_value=([], [])), \
+                patch('company_news_catalogue.current_catalogue', return_value=None), \
                         patch('scripts.run_company_news_job.run_job', side_effect=lambda *_, **__: deepcopy(payload)), \
                         redirect_stdout(io.StringIO()) as output:
                     self.assertEqual(main(['--run-live', '--result-file', str(path)]), 0)

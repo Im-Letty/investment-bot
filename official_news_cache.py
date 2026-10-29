@@ -486,12 +486,25 @@ class OfficialNewsCache:
         with self._read_budget():
             return self._snapshot(now, through=through)
 
-    def _snapshot(self, now, *, through=None):
+    def intraday_snapshot(self, now):
+        """Restore today's observation index for today's intraday selection.
+
+        Intraday eligibility requires a publication dated today. Older poll
+        indexes cannot add an eligible article or prove today's source health.
+        Keep full body/hash/first-version identity checks for every row in the
+        current index, including corrections. The existing time/read budgets
+        remain unchanged; morning's three-day carryover reader is untouched.
+        """
+        with self._read_budget():
+            return self._snapshot(now, current_day_only=True)
+
+    def _snapshot(self, now, *, through=None, current_day_only=False):
         day, _ = _slot(now)
         if through is not None and (not _number(through) or not 0 < through <= now):
             raise ValueError("invalid_source_cache_time")
-        first_day = datetime.fromisoformat(day).date() - timedelta(days=READ_DAYS - 1)
-        days = [(first_day + timedelta(days=index)).isoformat() for index in range(READ_DAYS)]
+        read_days = 1 if current_day_only else READ_DAYS
+        first_day = datetime.fromisoformat(day).date() - timedelta(days=read_days - 1)
+        days = [(first_day + timedelta(days=index)).isoformat() for index in range(read_days)]
         self._prune(now)
         polls, health_polls, claims = [], [], []
         for current_day in days:

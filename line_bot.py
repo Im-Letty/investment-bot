@@ -77,11 +77,13 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 from website_news_execution import configuration as news_configuration, server_generator, configuration_metadata
 from daily_news_runtime import start as start_daily_news
 from website_news import website_news, create_source_preparer
+from news_update_status import economic_update_status
 _news_config = news_configuration()
 _daily_news = start_daily_news(
     supabase, server_generator(_news_config), autostart=False,
     enabled=_news_config["enabled"] and _news_config["configured"],
     generation_owner=_news_config["generation_owner"],
+    observe_jobs=True,
     baseline_path=os.path.join(os.path.dirname(__file__), "news-digests.json"),
     cache_path=os.environ.get("NEWS_RUNTIME_PATH", "/tmp/kn-daily-news.json"),
     url=SUPABASE_URL, key=SUPABASE_KEY,
@@ -2301,6 +2303,7 @@ def api_morning_news():
                   "supplements": translated[news_count:], "lang": lang,
                   "translation_pending": translating,
                   "updated": datetime.fromtimestamp(fetched_at).strftime("%H:%M") if fetched_at else "--"}
+        result["update_status"] = economic_update_status(snapshot, _daily_news.snapshot(), now=time.time())
         response = jsonify(result)
     except Exception:
         response = jsonify({"error": "news_unavailable", "news": []})
@@ -2728,6 +2731,7 @@ def index():
     # feed refreshes run in the background without delaying readable content.
     return news_index_response(os.path.join(app.root_path, "index.html"), website_news, request,
                                market_payload=initial_market_payload(),
+                               publication_state=_daily_news.snapshot(),
                                html_transform=startup_assets.transform)
 
 

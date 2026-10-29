@@ -95,7 +95,7 @@ class IntradayJobTests(unittest.TestCase):
         self.assertEqual(report["eligible_count"], 1)
         self.assertEqual(report["schema_version"], 1)
         preflight.assert_not_called()
-        self.assertEqual(self.storage.created, [])
+        self.assertEqual([path for path in self.storage.created if not path.startswith('news-job-observations/')], [])
         self.assertTrue(report["eligibility_checked"])
         self.assertTrue(report["source_health_verified"])
         self.assertEqual(report["phase"], "outcome")
@@ -110,7 +110,7 @@ class IntradayJobTests(unittest.TestCase):
         self.assertEqual(report["last_error"], "invalid_source_cache_poll")
         self.assertFalse(report["eligibility_checked"])
         self.assertFalse(report["source_health_verified"])
-        self.assertEqual(self.storage.created, [])
+        self.assertEqual([path for path in self.storage.created if not path.startswith('news-job-observations/')], [])
         preflight.assert_not_called()
 
     def test_unrecognized_source_exception_is_redacted_but_phase_is_retained(self):
@@ -130,7 +130,7 @@ class IntradayJobTests(unittest.TestCase):
         self.assertEqual(report["last_error"], "storage_private_required")
         self.assertEqual(report["phase"], "storage_private_check")
         self.assertFalse(report["eligibility_checked"])
-        self.assertEqual(self.storage.created, [])
+        self.assertEqual([path for path in self.storage.created if not path.startswith('news-job-observations/')], [])
 
     def test_fixed_history_errors_keep_cause_and_preclaim_phase(self):
         for code in ("intraday_history_invalid", "intraday_history_deadline", "intraday_history_capacity"):
@@ -142,7 +142,7 @@ class IntradayJobTests(unittest.TestCase):
                 self.assertEqual(report["phase"], "published_history")
                 self.assertTrue(report["source_health_verified"])
                 self.assertFalse(report["eligibility_checked"])
-                self.assertEqual(self.storage.created, [])
+                self.assertEqual([path for path in self.storage.created if not path.startswith('news-job-observations/')], [])
 
     def test_default_storage_gets_private_absolute_budget_and_custom_factory_stays_two_args(self):
         with patch.object(job, "PrivateNewsStorage", return_value=self.storage) as private:

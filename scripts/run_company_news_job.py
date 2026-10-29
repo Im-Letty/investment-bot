@@ -72,7 +72,7 @@ def _manual_retry_source(storage, now, day, identifier, revision):
     return None, None, 'failed_attempt_required'
 
 
-def run_job(storage, generator, *, clock=time.time, exclusion_urls=(), other_news=(),
+def _run_job(storage, generator, *, clock=time.time, exclusion_urls=(), other_news=(),
             retry_article_id=None, retry_revision=None, diagnostics=None):
     now = clock()
     day = datetime.fromtimestamp(now, JST).date().isoformat()
@@ -165,6 +165,19 @@ def run_job(storage, generator, *, clock=time.time, exclusion_urls=(), other_new
             'article_id': claim['article_id'], 'status': attempt_status,
             'finished_at': clock(), 'published_count': report['published_count']})
     return report
+
+
+def run_job(storage, generator, *, clock=time.time, exclusion_urls=(), other_news=(),
+            retry_article_id=None, retry_revision=None, diagnostics=None):
+    from news_job_observations import write_once
+    started, result = clock(), None
+    try:
+        result = _run_job(storage, generator, clock=clock, exclusion_urls=exclusion_urls, other_news=other_news,
+                          retry_article_id=retry_article_id, retry_revision=retry_revision, diagnostics=diagnostics)
+        return result
+    finally:
+        if retry_article_id is None:
+            write_once(storage, "company", result or {"status": "job_unavailable"}, started, clock())
 
 
 def published_economy_context(storage, now, *, baseline_path=None):

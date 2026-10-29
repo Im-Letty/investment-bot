@@ -249,3 +249,10 @@ body.kn-home-a #knNewsDigest .news-tail>.read-more>summary:hover {background:tra
 #knNewsDigest .news-supplements .story > summary {
   display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:14px;row-gap:0;
 }
+
+#knNewsDigest .news-update-status {margin-top:10px;font:inherit;color:var(--kn-news-muted)}
+#knNewsDigest .news-update-status > summary {cursor:pointer;min-height:44px;display:list-item;padding:8px 0;line-height:1.7}
+#knNewsDigest .news-update-status dl {margin:4px 0 0;display:grid;gap:6px}
+#knNewsDigest .news-update-status dl > div {display:flex;flex-wrap:wrap;gap:4px 14px}
+#knNewsDigest .news-update-status dt {min-width:7em}
+#knNewsDigest .news-update-status dd {margin:0;overflow-wrap:anywhere}

@@ -506,6 +506,8 @@ class CompanyNewsRuntime:
         self._collection_health = 'unknown'
         self._scheduled_collection_health = 'unknown'
         self._last_error_phase, self._last_error_code = None, None
+        from news_job_observations import ObservationCache
+        self._job_observations = ObservationCache(storage, ("company",))
         self._last_restore, self._restore_day = 0, None
         self._candidate_check, self._candidate_day = 0, None
         self._publication_checked = None
@@ -712,6 +714,7 @@ class CompanyNewsRuntime:
                 self._last_error_code = (str(error) if isinstance(error, StorageUnavailable)
                     and str(error) in STORAGE_ERROR_CODES else 'runtime_failed')
         finally:
+            self._job_observations.refresh(self.clock())
             # Optional evidence is independent of publication/cache/queue work.
             # One bounded immutable write, never an audit-induced source retry.
             if collection_attempted:
@@ -740,9 +743,14 @@ class CompanyNewsRuntime:
             state = ('available' if result['companies'] else 'unavailable' if self._status == 'error'
                 else 'loading' if self._status == 'refreshing' else 'review_pending' if self._pending
                 else 'no_recent_articles')
-            return {**result, 'coverage': deepcopy(self._coverage),
+            payload = {**result, 'coverage': deepcopy(self._coverage),
                     'collection_health': self._collection_health, 'display_state': state,
                     'publication_checked_at': self._publication_checked}
+            from news_update_status import company_update_status
+            payload['update_status'] = company_update_status(payload, now=self.clock(),
+                normal_result=self._job_observations.snapshot().get('company'),
+                error=self._status in ('error', 'unavailable') or bool(self._last_error_code))
+            return payload
 
     def operational_snapshot(self):
         with self._lock:

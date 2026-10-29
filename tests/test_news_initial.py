@@ -1,5 +1,6 @@
 import ast
 from copy import deepcopy
+from types import SimpleNamespace
 from datetime import datetime, timezone
 from html.parser import HTMLParser
 import json
@@ -640,8 +641,11 @@ class InitialResponseTests(unittest.TestCase):
         self.assertEqual(after.status_code, 200)
         self.assertIn(notice, after.get_data(as_text=True))
         self.assertNotEqual(after.headers['ETag'], before.headers['ETag'])
-        self.assertEqual(json.loads(ParsedInitial(after.get_data(as_text=True)).json),
-                         json.loads(ParsedInitial(before.get_data(as_text=True)).json))
+        after_data = json.loads(ParsedInitial(after.get_data(as_text=True)).json)
+        before_data = json.loads(ParsedInitial(before.get_data(as_text=True)).json)
+        self.assertEqual(after_data.pop('update_status')['publication_state'], 'previous')
+        self.assertEqual(before_data.pop('update_status')['publication_state'], 'current')
+        self.assertEqual(after_data, before_data, "the new status never mutates the retained article")
         self.assertEqual(self.reviews, original)
 
     def test_conditional_response_changes_with_publication_and_midnight(self):
@@ -668,6 +672,7 @@ class InitialResponseTests(unittest.TestCase):
         app = Flask('real-index-wrapper', root_path=str(ROOT))
         from startup_assets import StartupAssets
         context = {'app': app, 'os': os, 'request': request, 'website_news': self.cache,
+                   '_daily_news': SimpleNamespace(snapshot=lambda: {}),
                    'startup_assets': StartupAssets(ROOT),
                    'initial_market_payload': lambda: {'market': {}},
                    'news_index_response': lambda path, cache, req, **kwargs: news_index_response(path, cache, req, now=NOW, **kwargs)}

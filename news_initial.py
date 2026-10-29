@@ -9,6 +9,7 @@ import time
 
 from flask import Response
 from market_snapshot import validated_market
+from news_update_status import economic_update_status, economic_status_lines
 from news_cache import (JST, LEAD_OTHER_NEWS_STRUCTURE, PUBLISHED_NEWS_SOURCES, _publication_time, _safe_url, _validated_digest,
                         load_reviewed_digests, load_reviewed_supplements,
                         select_daily_news)
@@ -174,7 +175,15 @@ def render_news_markup(data, *, now=None):
         status = _stamp(data["fetched_at"]) + " 取得" + (" · 最新情報を確認中" if data.get("stale") else "")
     tail = (f'<div class="news-tail">{more}</div>'
             if lead_and_others and more else more)
-    footer = f'<footer class="news-footer"><p>{esc(status)}</p></footer>' if status else ''
+    update = data.get("update_status")
+    observation = ''
+    if isinstance(update, dict) and update.get("version") == 1:
+        lines = economic_status_lines(update)
+        observation = ('<details class="news-update-status" data-news-key="update-status"><summary data-news-focus="update-status">' + esc(lines[0][1]) + '</summary><dl>'
+                       + ''.join(f'<div><dt>{esc(label)}</dt><dd>{esc(value)}</dd></div>' for label, value in lines[1:])
+                       + '</dl></details>')
+    footer = ('<footer class="news-footer">' + (f'<p>{esc(status)}</p>' if status else '')
+              + observation + '</footer>') if status or observation else ''
     return ('<article id="knNewsDigest" class="news-card journal" aria-labelledby="knNewsDigestTitle">'
             '<header class="news-header">' + calendar + '<div class="heading-text"><h3 id="knNewsDigestTitle">経済ニュース</h3></div></header>'
             '<div class="news-content"><div class="brief">' + brief + '</div>' + tail + footer + '</div></article>')
@@ -204,7 +213,7 @@ def render_initial_market(html, data, *, now=None):
 
 
 def news_index_response(html_path, cache, request, *, now=None, market_payload=None,
-                        html_transform=None):
+                        html_transform=None, publication_state=None):
     # Start all feed refreshes before file reads/rendering, but never wait for
     # external traffic before returning the HTML and published edition.
     snapshot = cache.snapshot(wait=False)
@@ -212,6 +221,8 @@ def news_index_response(html_path, cache, request, *, now=None, market_payload=N
     edition = datetime.fromtimestamp(now, JST).date().isoformat()
     data = initial_news(snapshot, now=now, reviewed_digests=load_reviewed_digests(),
                         reviewed_supplements=load_reviewed_supplements())
+    if data is not None:
+        data["update_status"] = economic_update_status(data, publication_state, now=now)
     source = Path(html_path).read_text(encoding="utf-8")
     if html_transform is not None:
         source = html_transform(source)

@@ -91,6 +91,7 @@ class JobProgress:
         self.manifest_reads = 0
         self.manifest_version = None
         self.runtime_status = None
+        self.last_error = None
         self.attempt_count = None
         self.editorial_review_diagnostics = None
         self.review_receipt = None
@@ -102,6 +103,10 @@ class JobProgress:
         status = state.get("status")
         if isinstance(status, str) and status in _RUNTIME_STATUSES:
             self.runtime_status = status
+        # Keep only the existing fixed error-code projection when a deadline
+        # interrupts the final report. Never retain raw exception/provider text.
+        self.last_error = (_safe_generation_error(state["last_error"])
+                           if state.get("last_error") is not None else None)
         count = state.get("attempt_count")
         if type(count) is int and 0 <= count <= 6:
             self.attempt_count = count
@@ -119,6 +124,8 @@ class JobProgress:
             value["manifest_version"] = self.manifest_version
         if self.runtime_status is not None:
             value["runtime_status"] = self.runtime_status
+        if self.last_error is not None:
+            value["last_error"] = self.last_error
         if self.attempt_count is not None:
             value["attempt_count"] = self.attempt_count
         if self.editorial_review_diagnostics is not None:
@@ -463,7 +470,7 @@ source preparation. Exactly one synchronous publishing tick follows readiness.
             return 0
         return max(0, min(deadline - monotonic(), end_at - now))
 
-    runtime = None
+    runtime, storage = None, None
     try:
         progress.phase = "subscription_login"
         preflight(env)  # Readonly ChatGPT login status, once before any daily claim.
@@ -583,6 +590,8 @@ source preparation. Exactly one synchronous publishing tick follows readiness.
                 runtime.stop()
             except Exception:
                 pass
+        from news_job_observations import write_once
+        write_once(storage, "morning", last_outcome or {"status": "job_unavailable"}, started, wall_clock())
 
 
 def main(argv=None):

@@ -116,7 +116,7 @@ class IntradayTests(unittest.TestCase):
         self.assertEqual((report["status"], report["eligible_count"], report["published_count"]), ("ready", 1, 0))
         self.preflight.assert_not_called()
         self.generator.assert_not_called()
-        self.assertEqual(self.storage.created, [])
+        self.assertEqual([path for path in self.storage.created if not path.startswith('news-job-observations/')], [])
         self.assertEqual(report["source_date_counts"], {"2026-10-11": 1})
 
     def test_real_reviewed_revision_keeps_morning_original_and_actual_source(self):
@@ -525,7 +525,7 @@ class IntradayTests(unittest.TestCase):
         self.assertFalse(result["eligibility_checked"])
         self.assertFalse(result["source_health_verified"])
         self.assertEqual(result["attempt_count"], 0)
-        self.assertEqual(self.storage.created, [])
+        self.assertEqual([path for path in self.storage.created if not path.startswith('news-job-observations/')], [])
         self.assertEqual(updates[-1], result)
         self.preflight.assert_not_called()
         self.generator.assert_not_called()
@@ -553,7 +553,7 @@ class IntradayTests(unittest.TestCase):
         self.assertEqual(result["last_error"], "intraday_history_invalid")
         self.assertTrue(result["source_health_verified"])
         self.assertFalse(result["eligibility_checked"])
-        self.assertEqual(self.storage.created, [])
+        self.assertEqual([path for path in self.storage.created if not path.startswith('news-job-observations/')], [])
         self.assertNotIn("secret", repr(result))
 
     def test_healthy_empty_is_attested_only_after_eligibility_and_claim_checks(self):
@@ -565,7 +565,7 @@ class IntradayTests(unittest.TestCase):
         self.assertTrue(result["source_health_verified"])
         self.assertTrue(result["eligibility_checked"])
         self.assertEqual(updates[-1], result)
-        self.assertEqual(self.storage.created, [])
+        self.assertEqual([path for path in self.storage.created if not path.startswith('news-job-observations/')], [])
         self.preflight.assert_not_called()
         self.generator.assert_not_called()
 
@@ -586,7 +586,7 @@ class IntradayTests(unittest.TestCase):
             result = self.job(cache=None, check_only=True)
         self.assertEqual(factory.call_args.kwargs["read_seconds"], 60)
         self.assertEqual(result["status"], "ready")
-        self.assertEqual(self.storage.created, [])
+        self.assertEqual([path for path in self.storage.created if not path.startswith('news-job-observations/')], [])
         self.preflight.assert_not_called()
         self.generator.assert_not_called()
 
@@ -606,7 +606,7 @@ class IntradayTests(unittest.TestCase):
         self.assertNotIn("secret", repr(result))
         self.preflight.assert_not_called()
         self.generator.assert_not_called()
-        self.assertEqual(self.storage.created, [])
+        self.assertEqual([path for path in self.storage.created if not path.startswith('news-job-observations/')], [])
 
     def test_check_outside_window_expected_day_mismatch_and_private_storage_errors_are_safe(self):
         for hour in (8, 23):

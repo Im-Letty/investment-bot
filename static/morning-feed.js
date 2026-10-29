@@ -5,7 +5,7 @@
   var NEWS_TTL=120000, MAX_NEWS_AGE=900000, MAX_MARKET_AGE=7*86400000;
   var officialSourceHosts={'総務省統計局':'www.stat.go.jp','財務省':'www.mof.go.jp','日本銀行':'www.boj.or.jp','金融庁':'www.fsa.go.jp'};
   var shownLanguage=null, shownEdition=null, shownNews=null, shownState=null, newsLoadedAt={}, started=false;
-  var initialNews=null, initialRead=false, publishedNews={}, publishedRead={}, newsPeriods={}, publishedFloors={};
+  var initialNews=null, initialRead=false, publishedNews={}, publishedRead={}, newsPeriods={}, publishedFloors={}, updateObservations={};
   var copy={
     ja:{loading:'ニュースを準備しています',updated:'取得',pending:'翻訳中',stale:'最新情報を確認中',failed:'いま更新できません。表示中の取得時刻をご確認ください。',empty:'ニュースを取得できませんでした。',retry:'もう一度読み込む'},
     en:{loading:'Preparing headlines',updated:'Retrieved',pending:'Translating',stale:'Checking for updates',failed:'Unable to refresh. Please check the retrieval time.',empty:'Unable to load headlines.',retry:'Try again'},
@@ -22,6 +22,25 @@
   function headlinesFallback(d){return !!(d&&d.delivery==='headlines'&&d.fallback_reason==='current_edition_unavailable'&&d.digest===null&&d.selection_status==='ready'&&Array.isArray(d.news)&&d.news.length);}
   function safeNewsURL(value){try{var u=new URL(value);return ['https:','http:'].includes(u.protocol)&&!u.username&&!u.password?u.href:'';}catch(_){return '';}}
   function validISODate(value){if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;var date=new Date(value+'T00:00:00Z');return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value;}
+  function newsUpdateMarkup(d){
+    var value=d.update_status,now=Date.now()/1000;
+    if(!value||value.version!==1)return '';
+    var labels={no_eligible_articles:'対象記事なし（取得元の確認済み）',partially_published:'一部公開・残りは確認未完',review_failed:'審査で停止',generation_failed:'生成で停止（詳細未提供）',check_failed:'確認に失敗',daily_limit:'当日の試行上限に到達',in_progress:'処理中',publication_confirmed:'掲載を確認',prepared:'原稿準備済み・公開待ち',candidate_confirmed:'掲載候補を確認（未公開）',no_publication:'新規掲載なし（対象候補の有無は未確認）',unavailable:'結果未提供'};
+    var day=validISODate(value.edition_date)?value.edition_date.replace(/-/g,'/')+'版':'掲載版は未確認';
+    var state={current:'新しい掲載を確認',previous:'新しい掲載は未確認・前回分を表示',unconfirmed:'公開記事は未確認'}[value.publication_state]||'公開記事は未確認';
+    var lines=[];
+    [['morning_result','朝の通常処理'],['intraday_result','日中の通常処理']].forEach(function(pair){
+      var row=value[pair[0]]||{},date=validISODate(row.edition_date)?row.edition_date.replace(/-/g,'/')+' · ':'';
+      var count=Number.isInteger(row.published_count)&&row.published_count>0&&row.published_count<=3?' · '+row.published_count+'件掲載':'';
+      lines.push([pair[1],date+(Object.prototype.hasOwnProperty.call(labels,row.state)?labels[row.state]:labels.unavailable)+count+(row.observation_failed===true?' · 最新の処理結果は確認できません':'')]);
+      if(Number.isFinite(row.observed_at)&&row.observed_at>0&&row.observed_at<=now){var stamp=new Date((row.observed_at+9*3600)*1000).toISOString();lines.push([pair[1]+'の確認時刻',stamp.slice(0,10).replace(/-/g,'/')+' '+stamp.slice(11,16)+' JST']);}
+    });
+    [['published_at','公開開始'],['source_checked_at','取得元の確認'],['display_checked_at','表示確認']].forEach(function(pair){
+      var stamp=value[pair[0]];
+      if(Number.isFinite(stamp)&&stamp>0&&stamp<=now){var date=new Date((stamp+9*3600)*1000).toISOString();lines.push([pair[1],date.slice(0,10).replace(/-/g,'/')+' '+date.slice(11,16)+' JST']);}
+    });
+    return '<details class="news-update-status" lang="ja" data-news-key="update-status"><summary data-news-focus="update-status">'+esc(day+' · '+state)+'</summary><dl>'+lines.map(function(row){return '<div><dt>'+esc(row[0])+'</dt><dd>'+esc(row[1])+'</dd></div>';}).join('')+'</dl></details>';
+  }
   function sourceWindow(digest){
     var w=digest&&digest.source_window;
     if(!w||Object.keys(w).length!==(w.version===3?7:5)||digest.publication_mode!=='curated'||w.edition_date!==digest.edition_date||!validISODate(w.edition_date))return null;
@@ -210,7 +229,8 @@
     }).join('')+'</section>';
     var more=stories?'<details class="read-more" data-news-key="more"><summary data-news-focus="more"><span class="closed-label">'+esc(leadAndOthers?otherNewsCopy[l]:c.more)+'</span><span class="open-label">'+esc(c.close)+'</span><span class="read-toggle" aria-hidden="true"></span></summary><div class="stories editorial-detail">'+stories+'</div></details>':'';
     var tail=leadAndOthers&&more?'<div class="news-tail">'+more+'</div>':more;
-    var footer=status?'<footer class="news-footer"><p>'+esc(status)+'</p></footer>':'';
+    var observation=newsUpdateMarkup(d);
+    var footer=status||observation?'<footer class="news-footer">'+(status?'<p>'+esc(status)+'</p>':'')+observation+'</footer>':'';
     return '<article id="knNewsDigest" class="news-card journal" aria-labelledby="knNewsDigestTitle"><header class="news-header">'+calendar+'<div class="heading-text"><h3 id="knNewsDigestTitle">'+esc(c.title)+'</h3></div></header><div class="news-content"><div class="brief">'+brief+'</div>'+tail+footer+'</div></article>';
   }
   function replaceNews(el,html,l){
@@ -244,7 +264,8 @@
       var stamp=window.KNDateDisplay.label(d.fetched_at,c.updated,true);
       status=stamp+(failed?' · '+c.failed:d.translation_pending?' · '+c.pending:d.stale?' · '+c.stale:'');
     }
-    replaceNews(el,digestMarkup(d,l,status),l);
+    var display=updateObservations[l]?Object.assign({},d,{update_status:updateObservations[l]}):d;
+    replaceNews(el,digestMarkup(display,l,status),l);
     el.setAttribute('aria-busy','false');shownLanguage=l;shownEdition=d.edition_date;shownNews=d;shownState='news';
   }
   function drawLoading(l){
@@ -284,6 +305,7 @@
     newsPending[l]=fetchJSON('/api/morning-news?lang='+encodeURIComponent(l)).then(function(d){
       if(d.publication_revoked===true)clearPublished(l);
       if(d.error||!Array.isArray(d.news))throw new Error('Unavailable news');
+      if(d.update_status&&d.update_status.version===1)updateObservations[l]=d.update_status;
       if(validPublished(d,l)&&publishedFloors[l]&&d.edition_date<publishedFloors[l]){
         scheduleNews(l);var retained=cachedNews(l);
         if(!retained&&(newsAttempts[l]||0)>=8)drawFailure(l);else keepNewsWhileLoading(l,retained,false);
