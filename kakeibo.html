@@ -30,10 +30,10 @@
   <script defer src="/static/kakeibo-income-categories.js?v=20261016-incomecats1"></script>
   <script defer src="/static/kakeibo-category-picker.js?v=20261016-incomecats1"></script>
   <script defer src="/static/kakeibo-receipt-sources.js?v=20261016-receipts1"></script>
-  <link rel="stylesheet" href="/static/portfolio-advice.css?v=20261018-advice1">
-<script defer src="/static/portfolio-advice.js?v=20261028-no-review-intro1"></script>
-  <link rel="stylesheet" href="/static/portfolio-overview.css?v=20261026-goal-copy2">
-  <script defer src="/static/portfolio-overview.js?v=20261026-goal-copy2"></script>
+  <link rel="stylesheet" href="/static/portfolio-advice.css?v=20261030-advice-icon1">
+<script defer src="/static/portfolio-advice.js?v=20261030-advice-icon1"></script>
+  <link rel="stylesheet" href="/static/portfolio-overview.css?v=20261030-portfolio-controls1">
+  <script defer src="/static/portfolio-overview.js?v=20261030-portfolio-controls1"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Outfit:wght@400;600;700;800&amp;family=M+PLUS+Rounded+1c:wght@400;700&amp;family=Klee+One:wght@400;600&amp;family=Shippori+Mincho:wght@400;700&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <style>
@@ -343,18 +343,20 @@ body{padding-bottom:24px;}
 
 </div>
 <div class="tab-content po-overview" id="tab-assets" data-po-ready="false">
-  <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_assets">資産管理</h2>
   <p id="poStatus" class="po-status" role="status" aria-live="polite">資産の非公開接続を確認しています…</p>
   <button type="button" class="po-button" id="poRetry">再読み込み</button>
   <section class="po-panel po-goal-hero" id="poGoalHero" aria-labelledby="poGoalTitle">
-    <div class="po-heading"><h3 id="poGoalTitle">資産目標</h3></div>
-    <div id="poGoalBody"></div>
+    <div class="po-heading"><h3 id="poGoalTitle" data-kk-pane-title tabindex="-1">資産目標</h3></div>
+    <div id="poGoalDisplay" class="po-goal-display" hidden><strong id="poGoalTargetValue" class="po-target-amount"></strong><button type="button" id="poGoalEdit" class="po-icon-button po-pencil" aria-label="目標資産額を編集"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m15 5 4 4M4 20l4-1L20 7a2.8 2.8 0 0 0-4-4L4 15z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
     <form id="poGoalForm" class="po-goal-form" novalidate>
       <span class="po-goal-input-value"><input class="inp" id="poGoalAmount" type="text" inputmode="decimal" autocomplete="off" maxlength="128" aria-label="目標資産額（円）"><span class="po-goal-input-yen" aria-hidden="true">円</span></span>
-      <button class="po-button po-button-primary" id="poGoalSave" type="submit" disabled>保存</button>
+      <div class="po-target-actions"><button class="po-button po-button-primary" id="poGoalSave" type="submit" disabled>保存</button><button class="po-button" id="poGoalCancel" type="button" hidden>キャンセル</button></div>
       <p class="po-error" id="poGoalError" role="alert"></p>
     </form><p class="po-muted" id="poGoalStatus" role="status" aria-live="polite"></p>
+    <div id="poGoalBody"></div>
   </section>
+  <section class="po-panel po-assets-group" aria-labelledby="poHoldingsTitle">
+  <div class="po-heading"><h3 id="poHoldingsTitle">保有資産</h3><button type="button" class="po-icon-button po-add" data-po-add aria-label="資産を追加" disabled><span aria-hidden="true">＋</span></button></div>
   <div class="po-columns">
   <section class="kk-asset-summary po-hero" aria-labelledby="kkAssetTotalLabel">
     <div class="po-hero-head"><div class="po-label-row">
@@ -363,12 +365,12 @@ body{padding-bottom:24px;}
         <summary aria-label="資産額の説明" data-kk-layout-label="kk_assets_info"><span class="kk-asset-info-symbol" aria-hidden="true">i</span></summary>
         <div class="kk-asset-info-content"><p id="totalAssetChange" class="kk-layout-note"></p><p class="kk-layout-note" data-i18n="kk_assets_manual_note">登録した評価額の合計です。価格の自動更新は行いません。</p></div>
       </details>
-    </div><button type="button" class="po-button po-button-primary" data-po-add disabled>＋ 資産を追加</button></div>
+    </div></div>
     <p id="totalAssetVal" class="kk-asset-total">—</p>
     <p id="poAsOf" class="po-asof"></p>
     <div class="po-profit"><span class="po-profit-label">投資分の評価損益</span><strong id="poProfitValue" class="po-profit-value">—</strong><p id="poProfitNote" class="po-profit-note"></p></div>
   </section>
-  <section class="po-panel"><div class="po-heading"><h3>資産の内訳</h3></div><p id="poAllocationNote" class="po-muted"></p><div id="poAllocationStack" class="po-stack" role="img" aria-label="資産の内訳"></div><canvas id="assetPieChart" class="po-legacy-canvas" aria-hidden="true" hidden></canvas><div id="asset-legend"></div></section>
+  <section class="po-allocation" aria-labelledby="poAllocationTitle"><div class="po-heading"><h3 id="poAllocationTitle">資産の内訳</h3></div><p id="poAllocationNote" class="po-muted"></p><div id="poAllocationStack" class="po-pie" role="img" aria-label="資産の内訳"></div><canvas id="assetPieChart" class="po-legacy-canvas" aria-hidden="true" hidden></canvas><div id="asset-legend"></div></section>
   </div>
   <form class="po-panel" id="poEditor" hidden novalidate>
     <div class="po-heading"><h3 id="poEditorTitle">資産を追加</h3></div>
@@ -380,7 +382,8 @@ body{padding-bottom:24px;}
     <p id="poEditorError" class="po-error" role="alert"></p>
     <div class="po-actions"><button type="button" class="po-button" id="poCancelButton">キャンセル</button><button type="submit" class="po-button po-button-primary" id="poSaveButton">追加する</button></div></fieldset>
   </form>
-  <section class="po-panel po-holdings"><div class="po-heading"><h3>保有資産</h3><button type="button" class="po-button" data-po-add disabled>＋ 追加</button></div><div id="asset-list-el" class="po-list"></div><p class="po-muted" style="margin-top:10px">資産を押すと、種類と金額を変更できます。</p></section>
+  <section class="po-holdings" aria-label="登録した資産"><div id="poUndoNotice" class="po-undo" hidden><span id="poUndoText" role="status" aria-live="polite"></span><button type="button" id="poUndo" class="po-button">元に戻す</button></div><div id="asset-list-el" class="po-list"></div><p class="po-muted" style="margin-top:10px">資産を押すと編集、−で削除できます。削除後は「元に戻す」で取り消せます。</p></section>
+  </section>
 </div>
 <div class="tab-content" id="tab-records">
   <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_records">記録一覧</h2>
@@ -2218,6 +2221,7 @@ function kkNavGo(tab, el){
   var _t=null,pushInFlight=null,pullInFlight=null,pullOwner='',queuedPush=false;
   var myPageKey='kb2_mypage_v1',loadedOwner='',ownerGeneration=0,savedVersions=Object.create(null),acknowledgedMyPageRaw;
   var pendingMyPagePrefix='kn_mypage_pending:',pendingMyPageRestore=false,pendingMyPageBlocked=false;
+  var memoryKey='kb2_assistant_memory_v1',memoryPendingPrefix='kn_assistant_memory_pending:',memoryRestore=false,memoryBlocked=false,memoryAcknowledged;
   function kkMyPageRaw(raw){
     if(typeof raw!=='string'||raw.length>1000000)return false;
     // Replay must accept the same v1 records as the planner, never an arbitrary
@@ -2275,18 +2279,34 @@ function kkNavGo(tab, el){
       return true;
     }catch(ignore){pendingMyPageRestore=true;pendingMyPageBlocked=true;return false;}
   }
+  function kkMemoryOwner(uid){return typeof uid==='string'&&/^[A-Za-z0-9_-]{1,80}$/.test(uid)&&kkMyPageOwner(uid);}
+  function kkMemoryRaw(raw){
+    if(typeof raw!=='string'||raw.length>16000)return false;
+    try{var d=JSON.parse(raw);return !!d&&!Array.isArray(d)&&Object.keys(d).sort().join(',')==='enabled,summary,version'&&d.version===1&&typeof d.enabled==='boolean'&&typeof d.summary==='string'&&d.summary.length<=1200&&!/[\u0000-\u0008\u000b-\u001f\u007f]/.test(d.summary);}catch(ignore){return false;}
+  }
+  function kkRestoreMemoryPending(uid){
+    if(!kkMemoryOwner(uid))return;
+    try{var raw=localStorage.getItem(memoryPendingPrefix+uid);if(raw===null)return;
+      if(!kkMemoryRaw(raw)){memoryBlocked=true;return;}memoryRestore=true;
+      if(localStorage.getItem(memoryKey)!==raw)_origSet(memoryKey,raw);if(!dirtyVersions[memoryKey])kkMarkChanged(memoryKey);memoryBlocked=false;
+    }catch(ignore){memoryBlocked=true;}
+  }
+  function kkMemoryLoaded(uid,raw){
+    if(!kkMemoryOwner(uid))return;memoryAcknowledged=typeof raw==='string'?raw:null;
+    if(memoryRestore&&dirtyVersions[memoryKey])kkPushDebounced();memoryRestore=false;
+  }
   function kkMyPageLoaded(uid,raw){
     if(!kkMyPageOwner(uid))return;
     var firstRestore=loadedOwner!==uid;
     acknowledgedMyPageRaw=typeof raw==='string'?raw:null;loadedOwner=uid;
-    if(pendingMyPageRestore&&dirtyVersions[myPageKey])kkPushDebounced();
+    if(Object.keys(dirtyVersions).length&&(!dirtyOwner||dirtyOwner===uid))kkPushDebounced();
     pendingMyPageRestore=false;pendingMyPageBlocked=false;kkMyPageNotice();
     if(firstRestore)try{
       if(window.parent!==window&&window.parent.location.origin===location.origin&&typeof window.parent.postMessage==='function')
         window.parent.postMessage({type:'kn-mypage-records-ready'},location.origin);
     }catch(ignore){}
   }
-  window.kkLedgerChangeOwner=function(){if(_t)clearTimeout(_t);_t=null;dirtyVersions=Object.create(null);dirtyOwner=null;loadedOwner='';ownerGeneration++;savedVersions=Object.create(null);acknowledgedMyPageRaw=undefined;pendingMyPageRestore=false;pendingMyPageBlocked=false;};
+  window.kkLedgerChangeOwner=function(){if(_t)clearTimeout(_t);_t=null;dirtyVersions=Object.create(null);dirtyOwner=null;loadedOwner='';ownerGeneration++;savedVersions=Object.create(null);acknowledgedMyPageRaw=undefined;pendingMyPageRestore=false;pendingMyPageBlocked=false;memoryAcknowledged=undefined;memoryRestore=false;memoryBlocked=false;};
   function kkMarkChanged(k){
     if(!KK_RE.test(k))return;
     if(!Object.keys(dirtyVersions).length)dirtyOwner=kkUid()||null;
@@ -2296,10 +2316,16 @@ function kkNavGo(tab, el){
   // Storage named properties do not reliably allow replacing an instance method.
   // This iframe's prototype intercepts its own edits without changing the parent.
   storagePrototype.setItem=function(k,v){nativeSet.call(this,k,v);if(this===localStorage)kkMarkChanged(String(k));};
-  storagePrototype.removeItem=function(k){nativeRemove.call(this,k);if(this===localStorage)kkMarkChanged(String(k));};
+  storagePrototype.removeItem=function(k){
+    nativeRemove.call(this,k);
+    // Auth clears the previous owner's live keys with no active session. That
+    // internal purge is not a deletion by the incoming owner. Backup restores
+    // still use setItem, retaining their existing unsynced-draft protection.
+    if(this===localStorage){var uid=kkUid();if(uid&&localStorage.getItem('kn_ledger_owner')===uid)kkMarkChanged(String(k));}
+  };
   function kkPush(){
     _t=null;
-    var uid=kkUid();if(!uid||(dirtyOwner&&dirtyOwner!==uid))return Promise.resolve(false);
+    var uid=kkUid();if(!uid||loadedOwner!==uid||(dirtyOwner&&dirtyOwner!==uid))return Promise.resolve(false);
     if(pendingMyPageBlocked||pendingMyPageRestore&&loadedOwner!==uid)return Promise.resolve(false);
     if(pushInFlight){queuedPush=true;return pushInFlight;}
     var snap=kkSnapshot(),versions=Object.assign({},dirtyVersions),generation=ownerGeneration;
@@ -2307,13 +2333,17 @@ function kkNavGo(tab, el){
       if(!r.ok)throw new Error('ledger_save_failed');return r.json();
     }).then(function(j){
       if(!j||j.ok!==true||kkUid()!==uid||ownerGeneration!==generation)return false;
-      var matchingMyPageVersion=dirtyVersions[myPageKey]===versions[myPageKey];
+      var matchingMyPageVersion=dirtyVersions[myPageKey]===versions[myPageKey],matchingMemoryVersion=dirtyVersions[memoryKey]===versions[memoryKey];
       Object.keys(versions).forEach(function(k){savedVersions[k]=Math.max(savedVersions[k]||0,versions[k]);if(dirtyVersions[k]===versions[k])delete dirtyVersions[k];});
       acknowledgedMyPageRaw=typeof snap[myPageKey]==='string'?snap[myPageKey]:null;
       if(matchingMyPageVersion&&kkMyPageOwner(uid))try{
         if(localStorage.getItem(myPageKey)===acknowledgedMyPageRaw&&localStorage.getItem(pendingMyPagePrefix+uid)===acknowledgedMyPageRaw)
           nativeRemove.call(localStorage,pendingMyPagePrefix+uid);
       }catch(ignore){ /* Retain the local journal when its cleanup is unavailable. */ }
+      memoryAcknowledged=typeof snap[memoryKey]==='string'?snap[memoryKey]:null;
+      if(matchingMemoryVersion&&kkMemoryOwner(uid))try{
+        if(localStorage.getItem(memoryKey)===memoryAcknowledged&&localStorage.getItem(memoryPendingPrefix+uid)===memoryAcknowledged)nativeRemove.call(localStorage,memoryPendingPrefix+uid);
+      }catch(ignore){ /* Pending memory is removed only after a matching ACK. */ }
       if(!Object.keys(dirtyVersions).length)dirtyOwner=null;
       return true;
     }).catch(function(){return false;}).then(function(ok){
@@ -2342,13 +2372,13 @@ function kkNavGo(tab, el){
     var uid=kkUid();if(!uid)return Promise.resolve(false);
     if(pullInFlight)return pullInFlight;
     if(!kkRestoreMyPagePending(uid))return Promise.resolve(false);
-    pullOwner=uid;
+    kkRestoreMemoryPending(uid);pullOwner=uid;
     var before=kkSnapshot(),dirtyBefore=Object.assign({},dirtyVersions),startedVersion=editVersion,generation=ownerGeneration;
     pullInFlight=fetch("/api/kakeibo/load",{headers:kkHeaders()}).then(function(r){
       if(!r.ok)throw new Error('ledger_load_failed');return r.json();
     }).then(function(j){
       if(kkUid()!==uid||ownerGeneration!==generation||!j)return false;
-      if(j.data===null){Object.keys(kkSnapshot()).forEach(function(k){if(!dirtyVersions[k])kkMarkChanged(k);});kkMyPageLoaded(uid,null);return false;}
+      if(j.data===null){Object.keys(kkSnapshot()).forEach(function(k){if(!dirtyVersions[k])kkMarkChanged(k);});kkMemoryLoaded(uid,null);kkMyPageLoaded(uid,null);return false;}
       if(!j.data)return false;
       var remote=j.data,changed=false;
       Object.keys(remote).forEach(function(k){
@@ -2360,7 +2390,7 @@ function kkNavGo(tab, el){
         _origSet(k,remote[k]);changed=true;
       });
       if(changed)kkRenderFresh();
-      if(typeof remote==='object'&&!Array.isArray(remote))kkMyPageLoaded(uid,remote[myPageKey]);
+      if(typeof remote==='object'&&!Array.isArray(remote)){kkMemoryLoaded(uid,remote[memoryKey]);kkMyPageLoaded(uid,remote[myPageKey]);}
       return changed;
     }).catch(function(){return false;}).then(function(result){pullInFlight=null;pullOwner='';return result;});
     return pullInFlight;
@@ -2410,6 +2440,32 @@ function kkNavGo(tab, el){
         }
         return kkMyPageOwner(expected)&&ownerGeneration===generation&&localStorage.getItem(myPageKey)===raw&&acknowledgedMyPageRaw===raw&&(savedVersions[myPageKey]||0)>=version;
       }catch(ignore){return false;}
+    }
+  };
+  // Independent optional summaries share the existing queue, but need their own
+  // intent journal so a failed edit or deletion cannot resurrect after reload.
+  window.kkAssistantMemoryStore={
+    load:async function(expected){
+      if(!kkMemoryOwner(expected))throw Error('memory_owner_changed');var generation=ownerGeneration;
+      await window.kkMyPageStore.load(expected);
+      if(!kkMemoryOwner(expected)||generation!==ownerGeneration)throw Error('memory_owner_changed');
+      if(memoryBlocked)throw Error('memory_restore_unavailable');var raw=localStorage.getItem(memoryKey);
+      if(raw!==null&&!kkMemoryRaw(raw))throw Error('memory_format');return raw;
+    },
+    write:async function(expected,base,next){
+      if(!kkMemoryOwner(expected)||!kkMemoryRaw(next))throw Error('memory_format');var generation=ownerGeneration;
+      var current=await window.kkAssistantMemoryStore.load(expected);
+      if(!kkMemoryOwner(expected)||generation!==ownerGeneration)throw Error('memory_owner_changed');
+      if(current!==base)throw Error('memory_changed');
+      // The small owner-specific journal must succeed before any data mutation.
+      if(localStorage.getItem(memoryPendingPrefix+expected)===null){var pendingCount=0;for(var i=0;i<localStorage.length;i++){var key=localStorage.key(i);if(key&&key.indexOf(memoryPendingPrefix)===0)pendingCount++;}if(pendingCount>=32)throw Error('memory_pending_limit');}
+      nativeSet.call(localStorage,memoryPendingPrefix+expected,next);
+      if(current!==next)localStorage.setItem(memoryKey,next);else if(memoryAcknowledged!==next&&!dirtyVersions[memoryKey])kkMarkChanged(memoryKey);
+      var version=dirtyVersions[memoryKey]||0,previous=pushInFlight;if(_t){clearTimeout(_t);_t=null;}if(previous)await previous;
+      if(!kkMemoryOwner(expected)||generation!==ownerGeneration||localStorage.getItem(memoryKey)!==next)throw Error('memory_owner_changed');
+      if(dirtyVersions[memoryKey]||memoryAcknowledged!==next||localStorage.getItem(memoryPendingPrefix+expected)!==null)await kkPush();
+      if(!kkMemoryOwner(expected)||generation!==ownerGeneration)throw Error('memory_owner_changed');
+      return {ok:true,synced:localStorage.getItem(memoryKey)===next&&memoryAcknowledged===next&&(savedVersions[memoryKey]||0)>=version&&localStorage.getItem(memoryPendingPrefix+expected)===null};
     }
   };
   var identityChecks=0,identityTimer=null;

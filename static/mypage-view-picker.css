@@ -1,0 +1,19 @@
+/* Adopted "choose from the heading": native selector, original tab actions. */
+body.kn-home-a #myPageOv .mp-toptabs[data-mp-picker-ready="true"] {
+  display:flex;align-items:center;min-height:72px;
+  padding-top:12px!important;padding-bottom:12px!important;
+  overflow:visible;
+}
+body.kn-home-a #myPageOv .mp-toptabs[data-mp-picker-ready="true"][hidden] {display:none!important}
+body.kn-home-a #myPageOv .mp-toptabs[data-mp-picker-ready="true"] > .mp-toptab {display:none!important}
+body.kn-home-a #myPageOv .mp-view-picker {display:block;min-width:0;max-width:100%}
+body.kn-home-a #myPageOv .mp-view-picker[hidden] {display:none!important}
+body.kn-home-a #myPageOv .mp-view-picker select {
+  display:block;box-sizing:border-box;min-height:48px;max-width:100%;width:auto;
+  margin:0;padding:6px 24px 6px 0;border:0;border-radius:4px;
+  background:var(--kn-sh-bg,#f0eedf);color:var(--kn-sh-ink,#3d4b3c);
+  font:500 calc(22px * var(--kn-type-scale,1))/1.4 var(--kn-a-sans,system-ui,sans-serif);
+  cursor:pointer;appearance:auto;
+}
+body.kn-home-a #myPageOv .mp-view-picker select:focus-visible {outline:2px solid var(--kn-sh-button,#607765);outline-offset:3px}
+body.kn-home-a #myPageOv .mp-view-picker-sr {position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden;white-space:nowrap}

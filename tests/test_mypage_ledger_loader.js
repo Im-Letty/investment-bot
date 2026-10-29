@@ -465,3 +465,12 @@ test('memo close without an ordinary close control restores the hidden backgroun
   const h=fixture(undefined,{noMorningControl:true}),doc=h.context.document;h.morning.style.display='none';doc.body.classList.remove('view-asaletter');doc.body.classList.add('kn-mypage-active');h.context.knOpenMemo();const frame=h.frame;assert.equal(h.morning.style.display,'none');h.head.removeChild(h.close);
   h.backdrop.click();assert.equal(h.page.classList.contains('open'),false);assert.equal(h.morning.style.display,'block');assert.equal(doc.body.classList.contains('view-asaletter'),true);assert.equal(doc.body.classList.contains('kn-mypage-active'),false);assert.equal(h.closes(),0);assert.equal(h.menuOpens(),1);assert.equal(h.drawer.classList.contains('open'),true);assert.equal(doc.activeElement,h.menuClose);assert.equal(h.frame,frame);assert.equal(h.backdrop.hidden,true);
 });
+
+test('explicit memory preparation warms the same private document without opening MyPage or changing views',()=>{
+ const h=fixture();const frame=h.frame,group=h.page.getAttribute('data-mp-view'),scroll=h.body.scrollTop;assert.equal(h.frame.getAttribute('src'),null);h.context.knPrepareAssistantMemory();assert.equal(h.frame,frame);assert.deepEqual(h.navigations,['/kakeibo']);assert.equal(h.page.classList.contains('open'),false);assert.equal(h.body.scrollTop,scroll);assert.equal(h.page.getAttribute('data-mp-view'),group);assert.equal(h.morning.style.display,'block');
+ h.context.knPrepareAssistantMemory();assert.equal(h.frame,frame);assert.deepEqual(h.navigations,['/kakeibo']);h.card.click();assert.equal(h.frame,frame);assert.deepEqual(h.navigations,['/kakeibo']);
+});
+test('memory preparation never creates an account and owner change discards its old frame before another explicit warm',()=>{
+ const absent=fixture(null);absent.context.knPrepareAssistantMemory();assert.equal(absent.frame.getAttribute('src'),null);assert.deepEqual(absent.navigations,[]);assert.equal(absent.page.classList.contains('open'),false);
+ const h=fixture();h.context.knPrepareAssistantMemory();const old=h.frame;h.auth({id:'account-B'});assert.notEqual(h.frame,old);assert.equal(h.frame.getAttribute('src'),null);assert.equal(h.page.classList.contains('open'),false);h.context.knPrepareAssistantMemory();assert.deepEqual(h.navigations,['/kakeibo','/kakeibo']);assert.equal(h.page.classList.contains('open'),false);
+});

@@ -377,3 +377,59 @@ test('invalid optional portfolio targets cannot be staged or replayed over valid
   for(const pending of broken){assert.equal(h.bridge.stage('alice',pending),false);assert.equal(await h.bridge.save('alice',pending),false);}
   assert.equal(h.ls.getItem(KEY),valid);assert.equal(h.ls.getItem(JOURNAL+'alice'),null);assert.equal(h.requests.length,1);
 });
+
+const MEMORY='kb2_assistant_memory_v1',MEMORY_JOURNAL='kn_assistant_memory_pending:';
+const memoryRaw=(summary,enabled=true)=>JSON.stringify({version:1,enabled,summary});
+test('summary store journals before local mutation and clears only its matching existing-ledger ACK',async()=>{
+ const h=fixture(),other=raw('notes-and-drafts');await h.restore({[KEY]:other,kb2_assets:'[{"amount":7,"private":"keep"}]'});const value=memoryRaw('confirmed summary'),saving=h.context.kkAssistantMemoryStore.write('alice',null,value);await settle();assert.equal(h.ls.getItem(MEMORY_JOURNAL+'alice'),value);assert.equal(h.ls.getItem(MEMORY),value);assert.ok(h.ls.writes.indexOf(MEMORY_JOURNAL+'alice')<h.ls.writes.indexOf(MEMORY));assert.equal(h.ls.getItem(KEY),other);
+ const sent=JSON.parse(h.requests.find(r=>r.url.endsWith('/save')).init.body).data;assert.equal(sent[MEMORY],value);assert.equal(sent[KEY],other);assert.equal(Object.keys(sent).some(k=>k.startsWith(MEMORY_JOURNAL)),false);h.respondSave();assert.deepEqual(JSON.parse(JSON.stringify(await saving)),{ok:true,synced:true});assert.equal(h.ls.getItem(MEMORY_JOURNAL+'alice'),null);
+});
+test('failed summary edit and deletion survive reload without resurrecting the older cloud memory',async()=>{
+ for(const next of [memoryRaw('edited'),memoryRaw('',false)]){const old=memoryRaw('old cloud'),h=fixture();await h.restore({[KEY]:raw('keep notes'),[MEMORY]:old});const saving=h.context.kkAssistantMemoryStore.write('alice',old,next);await settle();h.respondSave(false);assert.deepEqual(JSON.parse(JSON.stringify(await saving)),{ok:true,synced:false});assert.equal(h.ls.getItem(MEMORY_JOURNAL+'alice'),next);
+ const reload=fixture(Object.fromEntries(h.ls.values)),reading=reload.context.kkAssistantMemoryStore.load('alice');await reload.restore({[KEY]:raw('keep notes'),[MEMORY]:old});assert.equal(await reading,next);assert.equal(reload.ls.getItem(MEMORY),next);assert.equal(reload.ls.getItem(MEMORY_JOURNAL+'alice'),next);const sync=reload.fireSave();reload.respondSave();await sync;assert.equal(reload.ls.getItem(MEMORY_JOURNAL+'alice'),null);}
+});
+test('an old memory ACK cannot clear a newer edit journal or replace its local value',async()=>{
+ const h=fixture();await h.restore({});const first=memoryRaw('first'),second=memoryRaw('second'),a=h.context.kkAssistantMemoryStore.write('alice',null,first);await settle();const b=h.context.kkAssistantMemoryStore.write('alice',first,second);await settle();assert.equal(h.ls.getItem(MEMORY_JOURNAL+'alice'),second);h.respondSave();await settle();assert.equal((await a).synced,false);assert.equal(h.ls.getItem(MEMORY_JOURNAL+'alice'),second);assert.equal(h.ls.getItem(MEMORY),second);h.respondSave();assert.equal((await b).synced,true);assert.equal(h.ls.getItem(MEMORY_JOURNAL+'alice'),null);
+});
+test('failed memory journal write prevents local mutation and conflicting snapshots cannot overwrite',async()=>{
+ const old=memoryRaw('old'),h=fixture();await h.restore({[MEMORY]:old});h.ls.failKey=MEMORY_JOURNAL+'alice';await assert.rejects(h.context.kkAssistantMemoryStore.write('alice',old,memoryRaw('new')));assert.equal(h.ls.getItem(MEMORY),old);assert.equal(h.requests.filter(r=>r.url.endsWith('/save')).length,0);h.ls.failKey=null;
+ await assert.rejects(h.context.kkAssistantMemoryStore.write('alice',null,memoryRaw('stale')),/changed/);assert.equal(h.ls.getItem(MEMORY),old);assert.equal(h.ls.getItem(MEMORY_JOURNAL+'alice'),null);
+});
+test('corrupt pending memory is preserved and blocks memory only while existing notes remain readable',async()=>{
+ for(const pending of ['broken',memoryRaw('x'.repeat(1201)),JSON.stringify({version:9,summary:'future',enabled:true})]){const notes=raw('notes preserved'),h=fixture({[MEMORY_JOURNAL+'alice']:pending}),reading=h.bridge.load('alice');await h.restore({[KEY]:notes,[MEMORY]:memoryRaw('cloud')});assert.equal((await reading).raw,notes);await assert.rejects(h.context.kkAssistantMemoryStore.load('alice'),/restore/);assert.equal(h.ls.getItem(MEMORY_JOURNAL+'alice'),pending);assert.equal(h.ls.getItem(KEY),notes);}
+});
+test('memory account changes and round trips reject old ACKs and never clear another owner journal',async()=>{
+ for(const roundTrip of [false,true]){const h=fixture();await h.restore({});const value=memoryRaw('alice private'),saving=h.context.kkAssistantMemoryStore.write('alice',null,value);await settle();h.change('bob');h.ls.values.delete(MEMORY);h.ls.values.set(MEMORY_JOURNAL+'bob',memoryRaw('bob pending'));if(roundTrip)h.change('alice');h.respondSave();await assert.rejects(saving,/owner/);assert.equal(h.ls.getItem(MEMORY_JOURNAL+'alice'),value);assert.equal(h.ls.getItem(MEMORY_JOURNAL+'bob'),memoryRaw('bob pending'));}
+});
+test('memory strict schema owner bounds and bounded pending-owner count fail without deleting saved records',async()=>{
+ const h=fixture();await h.restore({});for(const value of ['bad','{}',memoryRaw('x'.repeat(1201)),JSON.stringify({version:1,summary:'ok',enabled:true,assets:[]})])await assert.rejects(h.context.kkAssistantMemoryStore.write('alice',null,value));for(let i=0;i<32;i++)h.ls.values.set(MEMORY_JOURNAL+'owner-'+i,memoryRaw('retained'));await assert.rejects(h.context.kkAssistantMemoryStore.write('alice',null,memoryRaw('new')),/limit/);assert.equal(h.ls.getItem(MEMORY),null);assert.equal([...h.ls.values.keys()].filter(k=>k.startsWith(MEMORY_JOURNAL)).length,32);
+ await assert.rejects(h.context.kkAssistantMemoryStore.load('x'.repeat(81)),/owner/);
+});
+
+async function actualAuth(h,firstOwner){
+ let current=firstOwner,tick;const attrs=new Map(),parentEvents=new Map(),dispatch=h.context.dispatchEvent;
+ h.context.document.documentElement={setAttribute:(k,v)=>attrs.set(k,v),removeAttribute:k=>attrs.delete(k)};h.context.document.getElementById=()=>null;h.context.document.createElement=()=>({setAttribute(){}});h.context.document.body={appendChild(){}};h.context.document.head={appendChild(){}};
+ h.context.setInterval=fn=>{tick=fn;};h.context.dispatchEvent=event=>{dispatch(event);const fn=h.listeners.get(event.type);if(fn)fn(event);};h.context.parent.document={addEventListener:(name,fn)=>parentEvents.set(name,fn)};
+ h.context.parent.knEnsureGuest=async()=>({user:{id:current},access_token:'fixture-'+current});h.context.parent.knUser={id:current};
+ vm.runInNewContext(fs.readFileSync('static/ledger-session.js','utf8'),h.context);await settle();
+ return {async owner(next){current=next;h.context.parent.knUser={id:next};parentEvents.get('knAuthChange')();await settle();},async tick(){await tick();await settle();}};
+}
+test('actual auth plus actual sync A to fresh B restores B bank without any empty save or A leakage',async()=>{
+ const a='[{"id":"a","amount":1000000}]',b='[{"id":"b","amount":30000}]',h=fixture();await h.restore({kb2_assets:a,[KEY]:raw('A notes')});const auth=await actualAuth(h,'bob');
+ assert.equal(h.context.knLedgerSession.user.id,'bob');assert.equal(h.ls.getItem('kn_ledger_owner'),'bob');assert.equal(h.ls.getItem('kb2_assets'),null);assert.match(h.ls.getItem('kn_ledger_backup:alice'),/1000000/);
+ for(const [id,timer]of [...h.timers])if(timer.ms===1500){h.timers.delete(id);await timer.fn();}assert.equal(h.requests.filter(r=>r.url.endsWith('/save')).length,0);
+ await h.restore({kb2_assets:b});assert.equal((await h.context.kkMyPageStore.load('bob')).assetsRaw,b);assert.equal(JSON.parse(h.ls.getItem('kb2_assets'))[0].amount,30000);
+ for(const [id,timer]of [...h.timers])if(timer.ms===1500){h.timers.delete(id);await timer.fn();}assert.equal(h.requests.filter(r=>r.url.endsWith('/save')).length,0);assert.match(h.ls.getItem('kn_ledger_backup:alice'),/A notes/);
+ await auth.owner('alice');await h.restore({kb2_assets:a,[KEY]:raw('A notes')});assert.equal(h.ls.getItem('kb2_assets'),a);const save=h.fireSave();const request=h.requests.find(r=>!r.resolved&&r.url.endsWith('/save'));assert.equal(JSON.parse(request.init.body).data.kb2_assets,a);assert.equal(request.init.headers.Authorization,'Bearer fixture-alice');h.respondSave();await save;
+});
+test('actual auth preserves a B owned offline backup and cannot push it until B restore succeeds',async()=>{
+ const h=fixture({'kn_ledger_backup:bob':JSON.stringify({kb2_assets:'[{"amount":31000,"offline":"owned B draft"}]',kb2_2026_10:'[{"amount":2,"type":"inc"}]'})});await h.restore({kb2_assets:'[{"amount":1000000}]'});await actualAuth(h,'bob');
+ assert.equal(JSON.parse(h.ls.getItem('kb2_assets'))[0].amount,31000);const early=h.fireSave();assert.equal(await early,false);assert.equal(h.requests.filter(r=>r.url.endsWith('/save')).length,0);await h.restore({kb2_assets:'[{"amount":30000}]'});assert.equal(JSON.parse(h.ls.getItem('kb2_assets'))[0].amount,31000);const saving=h.fireSave();const request=h.requests.find(r=>!r.resolved&&r.url.endsWith('/save'));assert.equal(JSON.parse(request.init.body).data.kb2_assets,'[{"amount":31000,"offline":"owned B draft"}]');h.respondSave();await saving;
+});
+test('verified owner edits during initial load stay dirty but cannot post a partial snapshot before restore',async()=>{
+ const h=fixture();h.ls.setItem('kb2_assets','[{"amount":31000}]');assert.equal(await h.fireSave(),false);assert.equal(h.requests.filter(r=>r.url.endsWith('/save')).length,0);await h.restore({kb2_assets:'[{"amount":30000}]',kb2_2026_10:'[{"type":"inc","amount":10}]'});assert.equal(h.ls.getItem('kb2_assets'),'[{"amount":31000}]');const saving=h.fireSave();const request=h.requests.find(r=>!r.resolved&&r.url.endsWith('/save'));const data=JSON.parse(request.init.body).data;assert.equal(data.kb2_assets,'[{"amount":31000}]');assert.equal(data.kb2_2026_10,'[{"type":"inc","amount":10}]');h.respondSave();await saving;
+});
+test('failed B restore cannot overwrite an existing B cloud and active owner deletions still sync deliberately',async()=>{
+ const h=fixture();await h.restore({kb2_assets:'[{"amount":1000000}]'});await actualAuth(h,'bob');await h.restore(null,false);for(const [id,timer]of [...h.timers])if(timer.ms===1500){h.timers.delete(id);await timer.fn();}assert.equal(h.requests.filter(r=>r.url.endsWith('/save')).length,0);
+ const read=h.context.kkMyPageStore.load('bob');await h.restore({kb2_assets:'[{"amount":30000}]'});await read;h.ls.removeItem('kb2_assets');const saving=h.fireSave();const request=h.requests.find(r=>!r.resolved&&r.url.endsWith('/save'));assert.equal(JSON.parse(request.init.body).data.kb2_assets,undefined);assert.equal(request.init.headers.Authorization,'Bearer fixture-bob');h.respondSave();await saving;
+});

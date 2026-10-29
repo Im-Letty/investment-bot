@@ -16,6 +16,7 @@ function harness({storage=new Map()}={}){
   insertBefore(n,before){n.parentNode?.removeChild(n);n.parentNode=this;this.children.splice(this.children.indexOf(before),0,n);return n;}
   removeChild(n){this.children.splice(this.children.indexOf(n),1);n.parentNode=null;}
   remove(){this.parentNode?.removeChild(this);}
+  replaceChildren(...nodes){for(const child of this.children)child.parentNode=null;this.children=[];this._text='';this._html='';for(const child of nodes)this.appendChild(child);}
   addEventListener(k,f){if(!this.events.has(k))this.events.set(k,[]);this.events.get(k).push(f);}
   emit(k,extra={}){for(const f of this.events.get(k)||[])f({target:this,preventDefault(){},...extra});}
   click(){if(!this.disabled)this.emit('click');}focus(){document.activeElement=this;}
@@ -45,7 +46,7 @@ test('every fixed topic has a real existing ask handler; installment explanation
  for(const label of labels){const h=harness();h.chat.open({focusInput:false});h.chips().find(n=>n.textContent===label).click();await h.settle();if(label==='つみたての考え方は？'){assert.equal(h.calls.length,0);assert.match(h.nodes.knChatBody.textContent,/分散投資/);assert.equal(h.storage.has('knChatHist_v1'),false);}else{assert.equal(h.calls.length,1);assert.equal(h.calls[0].url,'/api/chat');const payload=JSON.parse(h.calls[0].options.body);assert.deepEqual(payload,{messages:[{role:'user',content:label}]});assert.equal(payload.mode,undefined);await h.reply({reply:'回答例'});}}
 });
 test('successful answers and a new unsent question survive tab and language changes',async()=>{
- const h=harness();h.chat.open({focusInput:false});h.nodes.knChatInput.value='相場の質問';h.nodes.knChatSend.click();await h.reply({reply:'既存の回答'});const before=h.nodes.knChatBody.children.filter(n=>n.textContent.includes('既存の回答'));assert.equal(before.length,1);h.nodes.knChatInput.value='次の未送信文';h.chat.close();h.chat.open({focusInput:false});h.document.documentElement.lang='en';h.document.emit('langChanged');assert.ok(h.nodes.knChatBody.children.includes(before[0]));assert.equal(h.nodes.knChatInput.value,'次の未送信文');assert.equal(h.calls.length,1);assert.deepEqual(JSON.parse(h.storage.get('knChatHist_v1')),[{role:'user',content:'相場の質問'},{role:'assistant',content:'既存の回答'}]);
+ const h=harness();h.chat.open({focusInput:false});h.nodes.knChatInput.value='相場の質問';h.nodes.knChatSend.click();await h.reply({reply:'既存の回答'});const before=h.nodes.knChatBody.children.filter(n=>n.textContent.includes('既存の回答'));assert.equal(before.length,1);h.nodes.knChatInput.value='次の未送信文';h.chat.close();h.chat.open({focusInput:false});h.document.documentElement.lang='en';h.document.emit('langChanged');assert.ok(h.nodes.knChatBody.children.includes(before[0]));assert.equal(h.nodes.knChatInput.value,'次の未送信文');assert.equal(h.calls.length,1);assert.equal(h.storage.has('knChatHist_v1'),false);
 });
 test('unknown result keeps the original three retries and its error survives reopening',async()=>{
  const h=harness();h.chat.open({focusInput:false});h.nodes.knChatInput.value='失敗例';h.nodes.knChatSend.click();await h.reply({});for(let i=0;i<2;i++){assert.equal(h.timers.at(-1).ms,1500);h.runTimers();await h.settle();await h.reply({});}assert.equal(h.calls.length,3);assert.ok(h.calls.every(c=>c.url==='/api/chat'));assert.equal(h.nodes.knChatSend.disabled,false);const errors=h.nodes.knChatBody.children.filter(n=>n.classList.contains('err'));assert.equal(errors.length,1);h.nodes.knChatInput.value='入力を保持';h.chat.close();h.chat.open({focusInput:false});assert.ok(h.nodes.knChatBody.children.includes(errors[0]));assert.equal(h.nodes.knChatInput.value,'入力を保持');
@@ -56,8 +57,8 @@ test('fab chooses the shared guide route and retains the original toggle fallbac
 test('optional focus and close before the delayed callback never move focus to hidden input',()=>{
  const h=harness(),opener={};h.document.activeElement=opener;h.chat.open({focusInput:false});assert.equal(h.timers.length,0);assert.equal(h.document.activeElement,opener);h.chat.open();assert.equal(h.timers[0].ms,50);h.chat.close();h.runTimers();assert.equal(h.document.activeElement,opener);h.chat.open();h.runTimers();assert.equal(h.document.activeElement,h.nodes.knChatInput);
 });
-test('existing storage keys and last twenty saved history entries are preserved',async()=>{
- const history=Array.from({length:20},(_,i)=>({role:i%2?'assistant':'user',content:'以前'+i})),storage=new Map([['knChatHist_v1',JSON.stringify(history)],['private-fixture','unchanged']]);const h=harness({storage});h.chat.open({focusInput:false});h.nodes.knChatInput.value='続き';h.nodes.knChatSend.click();await h.reply({reply:'続きの回答'});const saved=JSON.parse(storage.get('knChatHist_v1'));assert.equal(saved.length,20);assert.deepEqual(saved.slice(-2),[{role:'user',content:'続き'},{role:'assistant',content:'続きの回答'}]);assert.equal(storage.get('private-fixture'),'unchanged');assert.deepEqual([...storage.keys()],['knChatHist_v1','private-fixture']);
+test('legacy unscoped transcripts remain unchanged and are not imported into a current conversation',async()=>{
+ const history=Array.from({length:20},(_,i)=>({role:i%2?'assistant':'user',content:'以前'+i})),storage=new Map([['knChatHist_v1',JSON.stringify(history)],['private-fixture','unchanged']]);const h=harness({storage});h.chat.open({focusInput:false});h.nodes.knChatInput.value='続き';h.nodes.knChatSend.click();await h.reply({reply:'続きの回答'});const saved=JSON.parse(storage.get('knChatHist_v1'));assert.equal(saved.length,20);assert.deepEqual(saved,history);assert.deepEqual(JSON.parse(h.calls[0].options.body),{messages:[{role:'user',content:'続き'}]});assert.doesNotMatch(h.nodes.knChatBody.textContent,/以前/);assert.equal(storage.get('private-fixture'),'unchanged');assert.deepEqual([...storage.keys()],['knChatHist_v1','private-fixture']);
 });
 
 test('assistant answers show readable headings, emphasis, lists and note text without raw markers',async()=>{
@@ -68,10 +69,10 @@ test('assistant answers show readable headings, emphasis, lists and note text wi
  assert.equal(bubble.textContent,'NISAについて\n\n大事な説明です。\n基本的な特徴\n- 利益の説明\n・注意事項\n元本割れの可能性があります。');
  assert.equal(bubble.innerHTML,'');assert.equal(bubble.children.length,0);
 });
-test('formatting affects display only; stored history and the next request retain the exact answer',async()=>{
+test('formatting affects display only; the same-session next request retains the exact answer',async()=>{
  const h=harness();h.chat.open({focusInput:false});h.nodes.knChatInput.value='最初の質問';h.nodes.knChatSend.click();
  const raw='## 見出し\r\n**答え**\r\n※ 注意の本文';await h.reply({reply:raw});
- assert.equal(JSON.parse(h.storage.get('knChatHist_v1'))[1].content,raw);
+ assert.equal(h.storage.has('knChatHist_v1'),false);
  h.nodes.knChatInput.value='続き';h.nodes.knChatSend.click();await h.settle();
  assert.equal(JSON.parse(h.calls[1].options.body).messages[1].content,raw);await h.reply({reply:'続きの回答'});
  assert.equal(h.calls.length,2);
@@ -110,5 +111,46 @@ test('financial signs and literal URL or code content are never changed by prose
  const raw='- 5%\n+ 100円\n- 五パーセント\n* 3\nhttps://example.test/__main__/#risk\n\x60**literal** __name__\x60\n\x60\x60\x60text\n# code heading\n**literal**\n※ code note\n\x60\x60\x60\n\n## 通常の説明\n**注意**\n※ 説明は残す';
  await h.reply({reply:raw});const bubble=h.nodes.knChatBody.children.at(-1).children[0];
  assert.equal(bubble.textContent,raw.replace('## 通常の説明','通常の説明').replace('**注意**','注意').replace('※ 説明は残す','説明は残す'));
- assert.equal(JSON.parse(h.storage.get('knChatHist_v1'))[1].content,raw);
+ assert.equal(h.storage.has('knChatHist_v1'),false);
+});
+
+test('both conversational requests use the shared controller when present without an extra fetch',async()=>{
+ const h=harness(),seen=[];h.context.knAssistantMemory={fetchChat(payload){seen.push(JSON.parse(JSON.stringify(payload)));return h.context.fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});}};
+ h.chat.open({focusInput:false});h.nodes.knChatInput.value='要点を踏まえた相談';h.nodes.knChatSend.click();await h.reply({reply:'今回の回答'});
+ assert.equal(seen.length,1);assert.deepEqual(seen[0],{messages:[{role:'user',content:'要点を踏まえた相談'}]});assert.equal(h.calls.length,1);
+ const teacher=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]).find(s=>s.includes('mode:"teacher"'));
+ assert.match(teacher,/knAssistantMemory\.fetchChat\(\{messages:hist,mode:"teacher"\}\)/);
+});
+
+test('owner changes discard a late reply and do not resend the old conversation',async()=>{
+ const h=harness();h.context.knUser={id:'owner-A'};h.document.emit('knAuthChange');h.chat.open({focusInput:false});h.nodes.knChatInput.value='Aの相談';h.nodes.knChatSend.click();
+ h.context.knUser={id:'owner-B'};h.document.emit('knAuthChange');h.nodes.knChatInput.value='Bの未送信文';await h.reply({reply:'Aだけの回答'});
+ assert.equal(h.calls.length,1);assert.doesNotMatch(h.nodes.knChatBody.textContent,/Aの相談|Aだけの回答/);assert.equal(h.nodes.knChatInput.value,'Bの未送信文');assert.equal(h.nodes.knChatSend.disabled,false);
+ h.nodes.knChatSend.click();await h.settle();assert.deepEqual(JSON.parse(h.calls[1].options.body),{messages:[{role:'user',content:'Bの未送信文'}]});await h.reply({reply:'Bの回答'});
+});
+
+test('a shared-controller ownership rejection stops retries and removes the pending indicator',async()=>{
+ const h=harness();let attempts=0;h.context.knAssistantMemory={fetchChat(){attempts++;let e=Error('owner changed');e.code='assistant_owner_changed';return Promise.reject(e);}};
+ h.chat.open({focusInput:false});h.nodes.knChatInput.value='保留中';h.nodes.knChatSend.click();await h.settle();
+ assert.equal(attempts,1);assert.equal(h.calls.length,0);assert.equal(h.timers.length,0);assert.equal(h.nodes.knChatBody.querySelectorAll('.kn-chat-typing').length,0);assert.equal(h.nodes.knChatSend.disabled,false);
+});
+
+test('requesting a context that cannot be read reports it once without retrying with missing context',async()=>{
+ const h=harness();let attempts=0;h.context.knAssistantMemory={fetchChat(){attempts++;let e=Error('do not expose private diagnostics');e.code='assistant_context_unavailable';return Promise.reject(e);}};
+ h.chat.open({focusInput:false});h.nodes.knChatInput.value='資産の集計を使った相談';h.nodes.knChatSend.click();await h.settle();
+ assert.equal(attempts,1);assert.equal(h.calls.length,0);assert.equal(h.timers.length,0);assert.match(h.nodes.knChatBody.textContent,/集計を確認できませんでした/);assert.doesNotMatch(h.nodes.knChatBody.textContent,/private diagnostics/);
+});
+
+test('Enter while a request is pending never submits a second paid conversation',async()=>{
+ const h=harness();h.chat.open({focusInput:false});h.nodes.knChatInput.value='最初の相談';h.nodes.knChatSend.click();await h.settle();
+ h.nodes.knChatInput.value='入力中の次の相談';h.nodes.knChatInput.emit('keydown',{key:'Enter',shiftKey:false});await h.settle();
+ assert.equal(h.calls.length,1);assert.equal(h.nodes.knChatInput.value,'入力中の次の相談');await h.reply({reply:'回答'});assert.equal(h.nodes.knChatSend.disabled,false);
+});
+
+test('the current session shows the actual user question and preceding answer when another question is sent',async()=>{
+ const h=harness();h.chat.open({focusInput:false});h.nodes.knChatInput.value='最初の質問本文';h.nodes.knChatSend.click();await h.reply({reply:'最初の回答本文'});
+ assert.match(h.nodes.knChatBody.textContent,/最初の質問本文/);assert.match(h.nodes.knChatBody.textContent,/最初の回答本文/);
+ h.nodes.knChatInput.value='次の質問本文';h.nodes.knChatSend.click();await h.settle();
+ assert.match(h.nodes.knChatBody.textContent,/最初の質問本文/);assert.match(h.nodes.knChatBody.textContent,/最初の回答本文/);assert.match(h.nodes.knChatBody.textContent,/次の質問本文/);
+ await h.reply({reply:'次の回答本文'});assert.equal(h.nodes.knChatBody.children.filter(n=>n.textContent==='次の回答本文').length,1);assert.equal(h.storage.has('knChatHist_v1'),false);
 });

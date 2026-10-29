@@ -128,8 +128,8 @@
     var child=frame.contentWindow;
     if(typeof child.kkSetMyPageView==='function')child.kkSetMyPageView(view);
   }
-  function prepare() {
-    if(!page||!page.classList.contains('open'))return;
+  function prepare(allowHidden) {
+    if(!page||!page.classList.contains('open')&&allowHidden!==true)return;
     var current=account();
     if(!current){unload();return;}
     if(owner&&owner!==current)unload();
@@ -275,6 +275,9 @@
     });
     new MutationObserver(syncMemo).observe(page,{attributes:true,attributeFilter:['class','data-mp-view']});
     window.knPrepareLedger=prepare;
+    // Explicit summary-memory setup reuses this one owner-scoped document
+    // without opening MyPage, changing its view or moving the reader.
+    window.knPrepareAssistantMemory=function(){prepare(true);};
     window.knReturnFromLedger=returnFromLedger;
     window.knOpenAssets=openAssets;
     window.knOpenGoals=openGoals;
