@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "model_id": "spring-camellia-window-planter-v1",
+  "unit_id": "village:asset-library:spring-camellia-window-planter:v1",
+  "new_mesh_library_candidate": true,
+  "new_PNG_designs": 0,
+  "new_raw_versions": 0,
+  "imagegen_calls": 0,
+  "bodyBinding": null,
+  "authored_dimensions_not_body_fit": true,
+  "category": "flowers_and_planters",
+  "style": "warm_cottage_classic",
+  "season": "spring",
+  "construction": "One closed thick round-corner cream trough with a real inner floor/open cavity, one recessed closed soil solid, low warm-wood cradles/rails and four rounded flat-pad feet. Three curved stems support three layered camellia flowers with37closed petals/15stamens,9leaves on real petioles and two connected buds. Intersecting closed authored components, not a Boolean-unioned botanical model.",
+  "references": [
+    {
+      "path": "/static/pet-items-v1/flower.webp",
+      "sha256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+      "scope": "colour/material reference only, not a camellia design or new bitmap"
+    },
+    {
+      "path": "/static/pet-items-v1/house.webp",
+      "sha256": "69ce8c93823a50c5f2225414d4df8adcfe92fcd271ae113982e64f7ccd01cd60",
+      "scope": "warm wood/cream material reference only"
+    }
+  ],
+  "static": true,
+  "wallMountVerified": false,
+  "normalPlacement": false,
+  "ownershipUnlockSave": false,
+  "plantGrowthWindOrCare": false,
+  "physicalLoadFrictionStability": false,
+  "finite_witnesses_are_not_unique_tests": true,
+  "scope": "Standalone floor-supported preview despite the window-planter name. No attachment to a saved building, normal inventory or owner world. Twenty finite rays on four flat pads; cavity9; current actual roads/card/meadow/building/shore envelope checks. All unseen surfaces and dimensions authored."
+}
