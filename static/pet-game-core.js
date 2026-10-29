@@ -169,6 +169,7 @@
     invalid_home_furniture:'おうちの家具を確認してください。',home_furniture_locked:'成長やお買い物で、新しい家具が見つかります。',
     invalid_harvest:'収穫する場所を確認してください。',harvest_wait:'ここでの収穫は今日はおしまいです。また明日育ちます。',
     invalid_village_layout:'村の配置を確認してください。保存済みの村は変更していません。',
+    village_construction_required:'村の配置は、業者への工事依頼を通して変更します。保存済みの村は変更していません。',
     village_invalid:'食品の数・値段・株数を確認してください。',village_listing_limit:'出品は8件までです。',
     village_not_found:'商品や出品の最新の状態を確認してください。',village_wait:'村の一日を進めるには60秒あけてください。',
     village_liquidity:'今はNPCの買戻し予算が足りません。株数を減らすか、村の一日を進めてください。',
@@ -752,10 +753,9 @@
         return reward;
       }
       if(a.type==='saveVillageLayout') {
-        check(integer(a.expectedRevision)&&a.expectedRevision===next.revision,'stale_state');
-        validateVillageLayout(a.layout);next.villageLayout=clone(a.layout);
-        // Arranging free village entrances never charges or grants progress.
-        return reward;
+        // Exterior changes belong to a commissioned construction flow. Archived
+        // layouts remain readable/restorable; this retired direct command cannot write.
+        fail('village_construction_required','村の配置を直接変更する操作は終了しました。');
       }
       if(a.type==='care') {
         check(own(LIMITS.care,a.kind),'invalid_action');var c=next.care;

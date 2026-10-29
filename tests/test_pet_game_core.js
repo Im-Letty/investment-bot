@@ -1180,6 +1180,13 @@ function villageLayout() { return {version:1,theme:'cafe',items:Core.villagePlac
 async function saveVillage(g,layout,revision=g.app.getState().revision) {
   return command(g,'saveVillageLayout',{layout,expectedRevision:revision});
 }
+async function restoreHistoricalVillage(g,layout=villageLayout()) {
+  const record=persisted(g.storage);record.villageLayout=structuredClone(layout);
+  g.storage.data.set(Core.KEY,JSON.stringify(record));
+  const writes=g.storage.writes.length;g.app=Core.create(g.options);
+  assert.equal((await g.app.ready).ok,true);assert.equal(g.storage.writes.length,writes);
+  return record;
+}
 
 test('village places are frozen and layout-free v3 records have detached defaults without writes',async()=>{
   assert.equal(Object.isFrozen(Core.villagePlaces),true);assert.ok(Core.villagePlaces.every(Object.isFrozen));
@@ -1197,20 +1204,22 @@ test('village places are frozen and layout-free v3 records have detached default
   assert.equal((await saveVillage(unchosen,villageLayout())).error.code,'egg_required');assert.equal(unchosen.storage.data.get(Core.KEY),before);
 });
 
-test('saving village placements changes only layout revision and update time and keeps the separate room intact',async()=>{
+test('existing custom village placements load untouched and remain detached from callers alongside the room',async()=>{
   const first=await game({pg_exp:'686',pg_coins:'574',pg_items:'{"rice":2}',pg_deco:'{"house":{}}'});
   assert.equal((await saveRoom(first,roomLayout([roomItem('room_bed',{x:6,y:91,flip:true})]))).ok,true);
-  const initial=persisted(first.storage);initial.achievements=[];
-  const g=await game({[Core.KEY]:JSON.stringify(initial)}),before=persisted(g.storage),layout=villageLayout();
-  layout.items.forEach((row,i)=>{row.x=i%2?100:0;row.y=100-i*20;});g.tick(71);
-  const r=await saveVillage(g,layout);assert.equal(r.ok,true);assert.deepEqual(r.reward,{});
-  assert.deepEqual(persisted(g.storage),{...before,villageLayout:layout,revision:before.revision+1,updatedAt:g.options.now()});
-  assert.deepEqual(g.app.getVillageLayout(),layout);assert.deepEqual(r.state.roomLayout,before.roomLayout);assert.deepEqual(r.state.achievements,[]);
+  const initial=persisted(first.storage),layout=villageLayout();initial.achievements=[];
+  layout.items.forEach((row,i)=>{row.x=i%2?100:0;row.y=100-i*20;});initial.villageLayout=structuredClone(layout);
+  const raw=JSON.stringify(initial),g=await game({[Core.KEY]:raw}),writes=g.storage.writes.length;
+  assert.deepEqual(g.app.getVillageLayout(),layout);assert.deepEqual(persisted(g.storage),initial);
+  assert.equal(writes,0);assert.equal(g.storage.data.get(Core.KEY),raw);
+  assert.deepEqual(g.app.getState().roomLayout,initial.roomLayout);assert.deepEqual(g.app.getState().achievements,[]);
   layout.items[0].x=56;const view=g.app.getVillageLayout();view.items[0].y=5;
   assert.equal(g.app.getVillageLayout().items[0].x,0);assert.equal(g.app.getVillageLayout().items[0].y,100);
+  assert.equal((await saveVillage(g,layout)).error.code,'village_construction_required');
+  assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(g.storage.writes.length,writes);
 });
 
-test('village layout rejects missing entrances extra fields malformed positions duplicate and unknown IDs without writes',async()=>{
+test('saved village layout readers still reject malformed positions entrances and object fields',async()=>{
   const g=await game(),raw=g.storage.data.get(Core.KEY),writes=g.storage.writes.length;
   const mutate=fn=>{const l=villageLayout();fn(l);return l;};
   const hidden=mutate(l=>Object.defineProperty(l.items[0],'hidden',{value:1}));
@@ -1222,49 +1231,47 @@ test('village layout rejects missing entrances extra fields malformed positions 
     mutate(l=>{l.items[0].id='__proto__';}),mutate(l=>{l.items[0].id='constructor';}),mutate(l=>{l.items[0].id='house';}),
     mutate(l=>{l.items[0].flip=false;}),mutate(l=>{l.items.extra=1;}),mutate(l=>{delete l.items[0].x;})];
   for(const key of ['x','y'])for(const value of [-1,101,.5,NaN,Infinity,-Infinity,'25',null,undefined,{},[]])cases.push(mutate(l=>{l.items[1][key]=value;}));
-  for(const layout of cases){const r=await saveVillage(g,layout);assert.equal(r.error.code,'invalid_village_layout');assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(g.storage.writes.length,writes);}
-});
-
-test('village editor revision and storage CAS reject stale saves without replacing newer care or layout',async()=>{
-  const g=await game(),revision=g.app.getState().revision,layout=villageLayout();
-  for(const expectedRevision of [undefined,null,String(revision),revision+.5,-1,NaN,Infinity,revision+1]){
-    const r=await command(g,'saveVillageLayout',{layout,expectedRevision});assert.equal(r.error.code,'stale_state');
+  for(const layout of cases){
+    assert.throws(()=>Core.getVillageLayout({villageLayout:layout}),e=>e.code==='corrupt_data');
+    const r=await saveVillage(g,layout);assert.equal(r.error.code,'village_construction_required');
+    assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(g.storage.writes.length,writes);
   }
-  const other=Core.create(g.options);assert.equal((await other.ready).ok,true);
-  assert.equal((await command(g,'care',{kind:'feed'})).ok,true);const raw=g.storage.data.get(Core.KEY);
-  assert.equal((await saveVillage(g,layout,revision)).error.code,'stale_state');
-  assert.equal((await other.dispatch({type:'saveVillageLayout',layout,expectedRevision:revision})).error.code,'stale_state');
-  assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(Object.hasOwn(g.app.getState(),'villageLayout'),false);
-  assert.equal((await saveVillage(g,layout)).ok,true);assert.equal(g.app.getState().pet.exp,8);
 });
 
-test('pending village layout writes expose no candidate and detach mutable caller input before completion',async()=>{
-  const g=await game(),layout=villageLayout(),expected=structuredClone(layout),raw=g.storage.data.get(Core.KEY),notifications=[];
-  const write=g.storage.setItem.bind(g.storage);let release;g.app.subscribe(s=>notifications.push(s));
-  g.storage.setItem=(key,value)=>new Promise(resolve=>{release=()=>{write(key,value);resolve();};});
-  const pending=saveVillage(g,layout);while(!release)await new Promise(resolve=>setImmediate(resolve));
-  assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(Object.hasOwn(g.app.getState(),'villageLayout'),false);assert.equal(notifications.length,0);
-  layout.items[0].x=100;layout.items.pop();release();assert.equal((await pending).ok,true);
-  assert.deepEqual(g.app.getVillageLayout(),expected);assert.deepEqual(persisted(g.storage).villageLayout,expected);assert.equal(notifications.length,1);
+test('direct village layout commands cannot overwrite current or stale saved care and have no developer bypass',async()=>{
+  const g=await game(),revision=g.app.getState().revision,layout=villageLayout();
+  const other=Core.create({...g.options,developerPreview:true});assert.equal((await other.ready).ok,true);
+  assert.equal((await command(g,'care',{kind:'feed'})).ok,true);
+  const raw=g.storage.data.get(Core.KEY),before=persisted(g.storage),writes=g.storage.writes.length;
+  for(const expectedRevision of [undefined,null,String(revision),revision+.5,-1,NaN,Infinity,revision,before.revision]){
+    const r=await command(g,'saveVillageLayout',{layout,expectedRevision});assert.equal(r.error.code,'village_construction_required');
+    assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(g.storage.writes.length,writes);assert.equal(g.app.getState().revision,before.revision);
+  }
+  assert.equal((await other.dispatch({type:'saveVillageLayout',layout,expectedRevision:revision})).error.code,'village_construction_required');
+  assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(g.storage.writes.length,writes);
+  assert.equal(Object.hasOwn(g.app.getState(),'villageLayout'),false);
+  assert.equal((await command(g,'care',{kind:'play'})).ok,true);assert.equal(g.app.getState().pet.exp,13);
 });
 
-test('rejected village writes retain previous or absent layout and support exact retry without economy changes',async()=>{
+test('retired layout commands never call a rejecting storage writer and do not offer a write retry',async()=>{
   for(const previous of [false,true])for(const mode of ['throw','false','object_false']){
-    const g=await game();if(previous)assert.equal((await saveVillage(g,villageLayout())).ok,true);
+    const g=await game();if(previous)await restoreHistoricalVillage(g);
     const raw=g.storage.data.get(Core.KEY),before=persisted(g.storage),write=g.storage.setItem.bind(g.storage),layout=villageLayout();layout.items[0].x=99;
-    g.storage.setItem=async()=>{if(mode==='throw')throw new Error('secret=https://hidden.invalid');return mode==='false'?false:{ok:false};};
-    const r=await saveVillage(g,layout);assert.equal(r.error.code,'storage_failed');assert.equal(g.storage.data.get(Core.KEY),raw);
+    let calls=0;g.storage.setItem=async()=>{calls++;if(mode==='throw')throw new Error('secret=https://hidden.invalid');return mode==='false'?false:{ok:false};};
+    const r=await saveVillage(g,layout);assert.equal(r.error.code,'village_construction_required');assert.equal(calls,0);assert.equal(g.storage.data.get(Core.KEY),raw);
     for(const key of Object.keys(before))assert.deepEqual(r.state[key],before[key],key);
     assert.doesNotMatch(JSON.stringify(r.error),/secret|https:/);g.storage.setItem=write;
-    assert.equal((await saveVillage(g,layout,before.revision)).ok,true);assert.deepEqual(g.app.getVillageLayout(),layout);
-    assert.equal(g.app.getState().coins,before.coins);assert.equal(g.app.getState().pet.exp,before.pet.exp);
+    assert.equal((await saveVillage(g,layout,before.revision)).error.code,'village_construction_required');
+    assert.equal(g.storage.data.get(Core.KEY),raw);
+    const care=await command(g,'care',{kind:'play'});assert.equal(care.ok,true);assert.equal(care.state.coins,before.coins+10);assert.equal(care.state.pet.exp,before.pet.exp+5);
+    assert.deepEqual(care.state.villageLayout,before.villageLayout);
   }
 });
 
 test('invalid persisted village layouts fail closed and cannot replace a valid village through backup',async()=>{
   const g=await game(),original=persisted(g.storage),bad=[null,{}, {...villageLayout(),theme:'island'}, {...villageLayout(),items:[]},villageLayout()];
   bad[4].items[0].id='cafe';
-  assert.equal((await saveVillage(g,villageLayout())).ok,true);const raw=g.storage.data.get(Core.KEY);
+  await restoreHistoricalVillage(g);const raw=g.storage.data.get(Core.KEY);
   for(const villageLayout of bad){
     const corrupt=JSON.stringify({...original,villageLayout}),storage=memory({[Core.KEY]:corrupt}),app=Core.create({storage,now:g.options.now});
     const ready=await app.ready;assert.equal(ready.error.code,'corrupt_data');assert.equal(ready.state.readOnly,true);assert.equal(storage.data.get(Core.KEY),corrupt);assert.equal(storage.writes.length,0);
@@ -1273,11 +1280,11 @@ test('invalid persisted village layouts fail closed and cannot replace a valid v
   }
 });
 
-test('custom village and room survive backup reload while older village-free backups stay initialization-free',async()=>{
+test('archived custom village and room survive backup reload while older village-free backups stay initialization-free',async()=>{
   const g=await game({pg_exp:'686',pg_coins:'574',pg_items:'{"rice":2}'}),old=g.app.exportBackup();
   assert.equal((await saveRoom(g,roomLayout([roomItem('room_rug',{x:5,y:95})]))).ok,true);
   const layout=villageLayout();layout.items.reverse();layout.items[0].y=11;
-  assert.equal((await saveVillage(g,layout)).ok,true);const before=persisted(g.storage),raw=g.storage.data.get(Core.KEY),writes=g.storage.writes.length;
+  await restoreHistoricalVillage(g,layout);const before=persisted(g.storage),raw=g.storage.data.get(Core.KEY),writes=g.storage.writes.length;
   const reload=Core.create(g.options);assert.equal((await reload.ready).ok,true);assert.deepEqual(reload.getVillageLayout(),layout);assert.equal(g.storage.writes.length,writes);assert.equal(g.storage.data.get(Core.KEY),raw);
   const target=await game();assert.equal((await target.app.importBackup(reload.exportBackup())).ok,true);
   for(const key of ['villageLayout','roomLayout','pet','coins','inventory','wardrobe','decorations','care','market','minigames'])assert.deepEqual(target.app.getState()[key],before[key],key);
@@ -1313,7 +1320,7 @@ test('backups preserve historical snack session and completed history without re
 });
 
 test('retired commands never attempt a durable write even when storage rejects writes, while other saves still work',async()=>{
-  const g=await game(),layout=villageLayout();assert.equal((await saveVillage(g,layout)).ok,true);
+  const g=await game(),layout=villageLayout();await restoreHistoricalVillage(g,layout);
   const before=await restoreHistoricalMinigames(g,'snack'),raw=g.storage.data.get(Core.KEY),writes=g.storage.writes.length;
   g.storage.fail=true;
   for(const type of ['beginMinigame','finishMinigame','cancelMinigame']){
