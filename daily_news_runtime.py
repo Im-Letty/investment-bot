@@ -498,12 +498,15 @@ class DailyNewsRuntime:
 
     def __init__(self, storage, generator, *, enabled=False, baseline_path=BASELINE_PATH,
                  cache_path=CACHE_PATH, clock=time.time, interval=30, source_preparer=None,
-                 generation_owner="local", max_attempts=MAX_ATTEMPTS):
+                 generation_owner="local", max_attempts=MAX_ATTEMPTS, observe_jobs=False):
         if generation_owner not in ("local", "external"):
             raise ValueError("invalid_generation_owner")
         if type(max_attempts) is not int or not 1 <= max_attempts <= MAX_ATTEMPTS:
             raise ValueError("invalid_max_attempts")
         self.storage, self.generator = storage, generator
+        from news_job_observations import ObservationCache
+        self._job_observations = ObservationCache(storage, ("morning", "intraday"))
+        self._observe_jobs = observe_jobs is True
         self.source_preparer = source_preparer
         self.generation_owner, self.max_attempts = generation_owner, max_attempts
         self._source_history = None
@@ -571,7 +574,7 @@ class DailyNewsRuntime:
             elif status in ("storage_unavailable", "cache_unavailable", "unavailable", "invalid_edition"):
                 metadata["last_error"] = status
         with self._state_lock:
-            self._state.update(status=status, **metadata)
+            self._state.update(status=status, observed_at=self.clock(), **metadata)
             self._state.pop("review_receipt", None)
             if receipt is not None and status in ("ready", "prepared"):
                 self._state["review_receipt"] = receipt
@@ -585,6 +588,7 @@ class DailyNewsRuntime:
         self._ensure_process()
         with self._state_lock:
             result = dict(self._state)
+            result["job_results"] = self._job_observations.snapshot()
             if "editorial_review_diagnostics" in result:
                 result["editorial_review_diagnostics"] = safe_editorial_review_diagnostics(
                     result["editorial_review_diagnostics"])
@@ -645,6 +649,9 @@ class DailyNewsRuntime:
             # Public status must not contain upstream exception text or keys.
             self._set("unavailable")
         finally:
+            if self._observe_jobs and (self.generation_owner != "external"
+                    or callable(getattr(self.source_preparer, "prepare", None))):
+                self._job_observations.refresh(self.clock())
             self._work_lock.release()
 
     def _install(self, editions):

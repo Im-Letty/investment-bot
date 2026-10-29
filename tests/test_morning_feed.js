@@ -7,6 +7,26 @@ const vm = require('node:vm');
 const dates = fs.readFileSync(path.join(__dirname, '../static/date-display.js'), 'utf8');
 const source = fs.readFileSync(path.join(__dirname, '../static/morning-feed.js'), 'utf8');
 
+test('update observation distinguishes old copy, actual failure and unavailable external job result',async()=>{
+  const app=harness();app.event('DOMContentLoaded');
+  const value={version:1,edition_date:'2026-09-11',publication_state:'previous',display_checked_at:app.now()/1000,
+    morning_result:{state:'generation_failed',edition_date:'2026-09-12'},intraday_result:{state:'unavailable'}};
+  await app.reply(app.requests[0],app.news('ja',{update_status:value}));
+  let html=app.nodes['morning-news-content'].innerHTML;
+  assert.match(html,/2026\/09\/11版.*前回分を表示/);
+  assert.match(html,/生成で停止（詳細未提供）/);assert.match(html,/日中の通常処理/);assert.match(html,/結果未提供/);
+  assert.doesNotMatch(html,/対象記事なし/);
+  const details=app.nodes['morning-news-content'].details.find(node=>node.getAttribute('data-news-key')==='update-status');
+  const focus=app.nodes['morning-news-content'].summaries.find(node=>node.getAttribute('data-news-focus')==='update-status');
+  details.open=true;app.context.document.activeElement=focus;
+  app.context.loadMorningNews(true);const request=app.requests.at(-1);
+  await app.reply(request,app.news('ja',{update_status:{...value,morning_result:{state:'https://private.invalid<script>'},intraday_result:{state:'no_eligible_articles'}}}));
+  html=app.nodes['morning-news-content'].innerHTML;
+  assert.match(html,/対象記事なし（取得元の確認済み）/);assert.doesNotMatch(html,/private.invalid|<script>/);
+  assert.equal(app.nodes['morning-news-content'].details.find(node=>node.getAttribute('data-news-key')==='update-status').open,true);
+  assert.equal(app.context.document.activeElement.getAttribute('data-news-focus'),'update-status');
+});
+
 function deferred(){let resolve, reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return {promise,resolve,reject};}
 async function flush(){for(let i=0;i<30;i++)await Promise.resolve();}
 function harness(saved={}){

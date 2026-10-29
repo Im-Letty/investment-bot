@@ -136,6 +136,25 @@
     const unit=q.currency==='JPY'?'円':'米ドル';
     return (dateLabel(q.trade_date)?dateLabel(q.trade_date)+'の株価は、':'取得した株価は、')+'前の取引日の終値'+(q.change_value===0?'と同じでした。':'より'+amount(q.change_value)+unit+'（'+Math.abs(q.pct).toFixed(2)+'%）'+(q.change_value>0?'上がりました。':'下がりました。'));
   }
+  function companyUpdateMarkup(editorial,status,now){
+    const value=editorial&&editorial.update_status;
+    if(!value||value.version!==1)return '';
+    const day=dateLabel(value.edition_date)?value.edition_date.replace(/-/g,'/')+'版':'掲載版は未確認';
+    const state={current:'新しい掲載を確認',previous:'新しい掲載は未確認・前回分を表示',unconfirmed:'公開記事は未確認'}[value.publication_state]||'公開記事は未確認';
+    const source={check_failed:'確認に失敗',partial:'一部の発表元は未確認',checked:'確認済み',unavailable:'結果未提供'};
+    const job=value.normal_result||{},jobLabels={publication_confirmed:'掲載を確認',prepared:'原稿準備済み・公開待ち',no_eligible_articles:'対象記事なし（取得元の確認済み）',no_publication:'新規掲載なし（対象候補の有無は未確認）',partially_published:'一部公開・残りは確認未完',review_failed:'審査で停止',generation_failed:'生成で停止（詳細未提供）',check_failed:'確認に失敗',daily_limit:'当日の試行上限に到達',in_progress:'処理中',unavailable:'結果未提供'};
+    const jobDay=dateLabel(job.edition_date)?job.edition_date.replace(/-/g,'/')+' · ':'';
+    const count=Number.isInteger(job.published_count)&&job.published_count>0&&job.published_count<=3?' · '+job.published_count+'件掲載':'';
+    const jobText=jobDay+(Object.prototype.hasOwnProperty.call(jobLabels,job.state)?jobLabels[job.state]:jobLabels.unavailable)+count+(job.observation_failed===true?' · 最新の処理結果は確認できません':'');
+    const rows=[['発表元の取得',status==='error'?'今回の表示確認に失敗':Object.prototype.hasOwnProperty.call(source,value.source_state)?source[value.source_state]:source.unavailable],['通常処理の結果',jobText]];
+    if(Number.isFinite(job.observed_at)&&job.observed_at>0&&job.observed_at*1000<=now){const stamp=new Date((job.observed_at+9*3600)*1000).toISOString();rows.push(['通常処理の確認時刻',stamp.slice(0,10).replace(/-/g,'/')+' '+stamp.slice(11,16)+' JST']);}
+    // Collection/review timestamps must never be presented as the writer's
+    // publication success time. That external job receipt is not in this API.
+    for(const [key,label] of [['source_checked_at','取得元の確認'],['publication_checked_at','掲載内容の確認'],['display_checked_at','表示確認']]){
+      const stamp=value[key];if(Number.isFinite(stamp)&&stamp>0&&stamp*1000<=now){const date=new Date((stamp+9*3600)*1000).toISOString();rows.push([label,date.slice(0,10).replace(/-/g,'/')+' '+date.slice(11,16)+' JST']);}
+    }
+    return '<details class="sf-update-status" data-stock-detail="news-update-status"><summary>'+escape(day+' · '+state)+'</summary><dl>'+rows.map(([label,text])=>'<div><dt>'+escape(label)+'</dt><dd>'+escape(text)+'</dd></div>').join('')+'</dl></details>';
+  }
   function companyMarkup(editorial,data,status='loading',now=Date.now(),visible=3,initial=3,expanded=visible>initial){
     const allStories=validStories(editorial,now).slice(0,STORY_LIMIT),stories=allStories.slice(0,Math.min(STORY_LIMIT,Math.max(3,visible)));
     const icons=[
@@ -154,8 +173,9 @@
     const empty=status==='error'?'企業の発表を確認できませんでした。'+retry
       :status==='loading'?'新しい企業の発表を確認しています。'
       :editorial&&editorial.display_state==='review_pending'?'新しい企業の発表を確認しました。記事の確認が終わり次第、掲載します。'
-      :'掲載できる新しい企業ニュースはまだありません。'+(editorial&&editorial.collection_health==='partial'?'一部の発表元を確認できていません。':'');
-    return '<div class="sf-content"><section class="sf-stories" aria-label="企業ニュース">'+(stories.length?'<div class="sf-companies" id="sf-company-list">'+cards+'</div>'+controls+(status==='error'?'<p class="sf-meta" role="status">更新を確認できませんでした。'+retry+'</p>':''):'<p class="sf-state" role="status">'+empty+'</p>')+'</section></div>';
+      :editorial&&editorial.collection_health==='partial'?'一部の発表元を確認できていません。掲載できる記事の有無は未確認です。'
+      :'現在、公開中の企業ニュースはありません。';
+    return '<div class="sf-content"><section class="sf-stories" aria-label="企業ニュース">'+companyUpdateMarkup(editorial,status,now)+(stories.length?'<div class="sf-companies" id="sf-company-list">'+cards+'</div>'+controls+(status==='error'?'<p class="sf-meta" role="status">更新を確認できませんでした。'+retry+'</p>':''):'<p class="sf-state" role="status">'+empty+'</p>')+'</section></div>';
   }
   function selectRanking(container,direction){
     if(!['up','down'].includes(direction))return;
@@ -343,7 +363,7 @@
         const accepted=validStories(next);
         if(accepted.length){editorial=next;storyStatus=['error','unavailable'].includes(next.status)?'error':'ready';}
         else if(next.status==='ready'&&next.companies.length===0){editorial=next;storyStatus='ready';}
-        else storyStatus=['refreshing','pending'].includes(next.status)?'loading':'error';
+        else {if(editorial&&next.update_status)editorial={...editorial,update_status:next.update_status};storyStatus=['refreshing','pending'].includes(next.status)?'loading':'error';}
       }catch(_){storyStatus='error';}
       finally{storyBusy=false;renderStories();scheduleStories();}
     }

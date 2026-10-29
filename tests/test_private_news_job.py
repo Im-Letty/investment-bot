@@ -133,7 +133,7 @@ class PrivateJobTests(unittest.TestCase):
         result = self.run_job()
         self.assertEqual(result["status"], "subscription_login_unavailable")
         self.assertEqual(self.storage.reads, [])
-        self.assertEqual(self.storage.created, [])
+        self.assertEqual([path for path in self.storage.created if not path.startswith('news-job-observations/')], [])
         self.build.assert_not_called()
         self.assertNotIn("private-credential-text", json.dumps(result))
 
@@ -145,7 +145,7 @@ class PrivateJobTests(unittest.TestCase):
         self.assertEqual(self.storage.reads, ["days/2026-10-06/preparation/recovery-v3.json",
                                              "days/2026-10-06/preparation/manifest.json"])
         self.assertEqual(self.storage.private_checks, 0)
-        self.assertEqual(self.storage.created, [])
+        self.assertEqual([path for path in self.storage.created if not path.startswith('news-job-observations/')], [])
         self.preflight.assert_called_once_with(self.env)
         self.assertEqual(self.build.call_args.kwargs["max_attempts"], MAX_ATTEMPTS)
         self.runtime.run_once.assert_called_once()
@@ -164,7 +164,7 @@ class PrivateJobTests(unittest.TestCase):
         self.assertTrue(result["success"])
         self.assertEqual(self.clock.now, at(7, 31))
         self.assertEqual(self.storage.read.call_count, 6)
-        self.assertEqual(self.storage.created, [])
+        self.assertEqual([path for path in self.storage.created if not path.startswith('news-job-observations/')], [])
         self.runtime.run_once.assert_called_once()
 
     def test_actual_0710_start_and_073130_freeze_keep_full_writer_budget(self):
@@ -229,7 +229,7 @@ class PrivateJobTests(unittest.TestCase):
         self.assertFalse(report["success"])
         self.assertNotIn("articles", report)
         self.build.assert_not_called()
-        self.assertEqual(self.storage.created, [])
+        self.assertEqual([path for path in self.storage.created if not path.startswith('news-job-observations/')], [])
 
     def test_late_start_and_finish_after_eight_publish_at_actual_completion(self):
         for hour, minute in ((8, 0), (9, 45), (12, 0), (22, 59)):
@@ -256,7 +256,7 @@ class PrivateJobTests(unittest.TestCase):
         self.assertTrue(all(path in ("days/2026-10-06/preparation/manifest.json",
                                     "days/2026-10-06/preparation/recovery-v3.json")
                             for path in self.storage.reads))
-        self.assertEqual(self.storage.created, [])
+        self.assertEqual([path for path in self.storage.created if not path.startswith('news-job-observations/')], [])
         self.assertEqual(self.storage.private_checks, 0)
         self.build.assert_not_called()
 
@@ -345,7 +345,7 @@ class PrivateJobTests(unittest.TestCase):
         self.assertEqual(report["source_date_counts"], {})
         self.build.assert_not_called()
         self.runtime.run_once.assert_not_called()
-        self.assertEqual(self.storage.created, [])
+        self.assertEqual([path for path in self.storage.created if not path.startswith('news-job-observations/')], [])
 
     def test_nonterminal_runtime_statuses_and_rejections_are_never_success_or_retried(self):
         for status in ("collecting", "waiting", "freezing", "waiting_for_writer", "daily_limit",
@@ -467,7 +467,7 @@ class PrivateJobTests(unittest.TestCase):
             result = self.run_job(runtime_factory=build)
         self.assertEqual((result["status"], result["success"]), ("source_empty", True))
         generator.assert_not_called()
-        self.assertEqual(self.storage.created, [])
+        self.assertEqual([path for path in self.storage.created if not path.startswith('news-job-observations/')], [])
         self.assertEqual(result["source_article_count"], 0)
         self.assertEqual(result["source_date_counts"], {})
 
@@ -601,7 +601,8 @@ class PrivateJobTests(unittest.TestCase):
         self.assertEqual((limited["status"], limited["success"], limited["attempt_count"]),
                          ("daily_limit", False, MAX_ATTEMPTS))
         self.assertEqual(generator.call_count, MAX_ATTEMPTS)
-        self.assertEqual(self.storage.values, claims)
+        self.assertEqual({path: row for path, row in self.storage.values.items() if not path.startswith('news-job-observations/')},
+                         {path: row for path, row in claims.items() if not path.startswith('news-job-observations/')})
         self.assertNotIn("days/2026-10-06/attempt-7.lock", self.storage.values)
 
     def test_jst_next_day_selects_a_new_window_without_relabelling_old_sources(self):
@@ -695,6 +696,16 @@ class PrivateJobTests(unittest.TestCase):
 
 
 class SafeResultTests(unittest.TestCase):
+    def test_progress_retains_only_fixed_failure_code_and_clears_it_after_recovery(self):
+        progress = job.JobProgress()
+        progress.runtime({'status': 'generation_failed', 'last_error': 'isolated_editorial_review_failed'})
+        self.assertEqual(progress.fields()['last_error'], 'isolated_editorial_review_failed')
+        progress.runtime({'status': 'generation_failed', 'last_error': 'https://secret.invalid key=private'})
+        self.assertEqual(progress.fields()['last_error'], 'generation_failed')
+        self.assertNotIn('private', json.dumps(progress.fields()))
+        progress.runtime({'status': 'ready', 'last_error': None})
+        self.assertNotIn('last_error', progress.fields())
+
     def test_editorial_projection_drops_free_text_and_requires_the_matching_failure(self):
         value = diagnostic()
         value['raw_response'] = 'private original or reviewer prose'

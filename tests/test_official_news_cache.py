@@ -87,6 +87,49 @@ class CacheTests(unittest.TestCase):
         return OfficialNewsCache(self.storage, collector or self.collector,
                                  clock=lambda: self.now, read_seconds=read_seconds)
 
+    def test_intraday_cold_restore_reads_current_index_only_and_keeps_full_hash_validation(self):
+        for day in ("2026-10-08", "2026-10-09", "2026-10-10"):
+            self.now = at(day)
+            self.rows = [{**article(published=self.now, body=(day + "消費者物価指数は前年同月比2%上昇しました。") * 15),
+                          "title": "消費者物価指数は前年比2%上昇"}]
+            self.cache().collect(self.now)
+        self.storage.reads.clear(); self.storage.lists.clear()
+        cache = self.cache(read_seconds=MAX_READ_SECONDS)
+        current = cache.intraday_snapshot(self.now)
+        current_reads = len(self.storage.reads)
+        self.assertEqual([row["published_date"] for row in current["articles"]], ["2026-10-10"])
+        self.assertTrue(all("2026-10-08" not in path and "2026-10-09" not in path
+                            for path in self.storage.reads + self.storage.lists))
+        self.assertEqual(current["articles"][0]["body_sha256"], sha256(self.rows[0]["body"].encode()).hexdigest())
+        self.assertEqual(cache.safe_read_diagnostics()["read_seconds"], MAX_READ_SECONDS)
+        self.storage.reads.clear(); self.storage.lists.clear()
+        all_days = self.cache().snapshot(self.now)
+        self.assertEqual(len(all_days["articles"]), 3, "morning carryover contract is unchanged")
+        self.assertGreater(len(self.storage.reads), current_reads)
+        from intraday_news_runtime import intraday_window, select_candidate
+        expected = select_candidate(all_days, intraday_window(self.now), set())
+        self.assertEqual(len(expected), 1)
+        self.assertEqual(select_candidate(current, intraday_window(self.now), set()), expected)
+        digest = current["articles"][0]["body_sha256"]
+        self.storage.values[f"{PREFIX}/bodies/{digest}.json"]["body"] = "tampered original"
+        with self.assertRaisesRegex(ValueError, "invalid_source_cache_body"):
+            self.cache().intraday_snapshot(self.now)
+
+    def test_intraday_current_day_revision_retains_correction_gate_and_missing_health_is_not_empty(self):
+        self.rows = [article(published=self.now)]
+        self.cache().collect(self.now)
+        self.now += POLL_SECONDS
+        self.rows = [article(published=at(), body="公式の訂正を反映した新しい原文です。" * 12)]
+        self.cache().collect(self.now)
+        result = self.cache().intraday_snapshot(self.now)
+        self.assertEqual(len(result["articles"]), 2)
+        self.assertEqual(sum(bool(row.get("requires_correction_review")) for row in result["articles"]), 1)
+        self.now = at("2026-10-11")
+        from intraday_news_runtime import _healthy_snapshot
+        missing = self.cache().intraday_snapshot(self.now)
+        self.assertIsNone(missing["last_checked_at"])
+        self.assertFalse(_healthy_snapshot(missing, self.now))
+
     def test_verified_short_mof_provenance_survives_immutable_cache_roundtrip(self):
         from official_mof_short_source import SHORT_EVIDENCE, valid_short_mof_record
         from tests.test_official_news_sources import short_mof_record, SHORT_NOW
@@ -249,7 +292,8 @@ class CacheTests(unittest.TestCase):
         self.assertEqual(report['status'], 'no_new_release')
         self.assertEqual(report['attempt_count'], 0)
         self.assertEqual(report['published_count'], 0)
-        self.assertGreater(cache.safe_observations()['legacy_two_source_polls'], 0)
+        self.assertEqual(cache.safe_observations()['legacy_two_source_polls'], 0,
+                         "prior-day polls are not hydrated by the current-day intraday reader")
         generator.assert_not_called()
         preflight.assert_not_called()
         self.assertFalse(any('attempt-' in key for key in self.storage.values))

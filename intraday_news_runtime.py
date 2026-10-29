@@ -330,10 +330,15 @@ def run_job(storage, generator=None, *, cache=None, clock=time.time, preflight=N
         if callable(progress):
             progress(deepcopy(report))
 
+    observation_allowed = False
+
     def outcome(status=None, **fields):
         if status is not None:
             report["status"] = status
         report.update(fields)
+        from news_job_observations import write_once
+        if observation_allowed:
+            write_once(storage, "intraday", report, started, clock())
         if callable(progress):
             progress(deepcopy(report))
         return deepcopy(report)
@@ -381,9 +386,10 @@ def run_job(storage, generator=None, *, cache=None, clock=time.time, preflight=N
     try:
         phase("storage_private_check")
         storage.ensure_private()
-        # A cold CLI process restores several days of immutable originals.
-        # Its read budget remains inside the caller's existing 180-second
-        # check deadline; interactive/morning cache readers keep 12 seconds.
+        observation_allowed = True
+        # Today's intraday reader avoids hydrating prior-day poll indexes.
+        # Its existing budget remains inside the caller's 180-second check
+        # deadline; interactive/morning cache readers keep 12 seconds.
         cache = cache if cache is not None else OfficialNewsCache(
             storage, collect_website_sources, clock=clock, read_seconds=MAX_READ_SECONDS)
         cache_observations()
@@ -395,7 +401,7 @@ def run_job(storage, generator=None, *, cache=None, clock=time.time, preflight=N
             return outcome("outside_intraday_window")
         window = intraday_window(now)
         phase("source_snapshot")
-        snapshot = cache.snapshot(now)
+        snapshot = getattr(cache, "intraday_snapshot", cache.snapshot)(now)
         cache_observations()
         phase("source_validation")
         report["source_status"] = source_diagnostics(snapshot.get("source_status"))

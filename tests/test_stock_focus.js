@@ -4,6 +4,25 @@ const stock=require('../static/stock-focus.js');
 const now=Date.parse('2026-09-23T09:00:00Z');
 const item=(symbol,n=0)=>({symbol,name:'企業 '+symbol,price:110+n,prev:100,currency:'JPY',trade_date:'2026-09-18',fetched_at:now/1000});
 const payload=items=>stock.normalizePayload({updated_at:now/1000,items,scope:'selected_jp',total_scanned:items.length},now);
+
+test('company status keeps collection confirmation distinct from external publication result',()=>{
+ const editorial={companies:[],update_status:{version:1,edition_date:'2026-09-22',publication_state:'previous',source_state:'partial',
+   source_checked_at:now/1000-10,publication_checked_at:now/1000-5,display_checked_at:now/1000}};
+ const html=stock.companyMarkup(editorial,null,'ready',now);
+ assert.match(html,/2026\/09\/22版.*前回分を表示/);
+ assert.match(html,/一部の発表元は未確認/);assert.match(html,/通常処理の結果/);assert.match(html,/結果未提供/);
+ assert.match(html,/掲載内容の確認/);assert.doesNotMatch(html,/公開開始|公開成功/);
+ assert.match(stock.companyMarkup(editorial,null,'error',now),/今回の表示確認に失敗/);
+ const unsafe=stock.companyMarkup({...editorial,update_status:{...editorial.update_status,edition_date:'<img>',source_state:'private key'}},null,'ready',now);
+ assert.doesNotMatch(unsafe,/<img>|private key/);
+ const success=stock.companyMarkup({...editorial,update_status:{...editorial.update_status,
+   normal_result:{state:'publication_confirmed',edition_date:'2026-09-23',observed_at:now/1000-3,published_count:3}}},null,'ready',now);
+ assert.match(success,/2026\/09\/23 · 掲載を確認 · 3件掲載/);assert.match(success,/通常処理の確認時刻/);
+ assert.doesNotMatch(success,/通常処理の結果<\/dt><dd>結果未提供/);
+ const partial=stock.companyMarkup({...editorial,update_status:{...editorial.update_status,
+   normal_result:{state:'partially_published',edition_date:'2026-09-23',published_count:1}}},null,'ready',now);
+ assert.match(partial,/一部公開・残りは確認未完 · 1件掲載/);assert.doesNotMatch(partial,/審査で停止/);
+});
 test('a bare Japanese code uses the same canonical favorite identity as the shared store',()=>{
  const html=stock.rankingMarkup(payload([item('7203')]),'up','ready',{favoriteSymbols:['7203.T']});
  assert.match(html,/data-rank-favorite="7203\.T" aria-pressed="true"/);
@@ -931,7 +950,7 @@ test('company empty, expired and failed responses have honest distinct states an
  const before=h.companyRequests().length;h.click(h.companyBox().querySelector('[data-company-retry]'));
  assert.equal(h.companyRequests().length,before+1);await h.respond(h.companyRequests().at(-1),companyPayload());assert.match(h.companyBox().innerHTML,/NTT/);
  fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),{...companyPayload(),companies:[]});
- assert.doesNotMatch(h.companyBox().innerHTML,/NTT|確認できませんでした|確認しています/);assert.match(h.companyBox().innerHTML,/掲載できる新しい企業ニュースはまだありません/);
+ assert.doesNotMatch(h.companyBox().innerHTML,/NTT|確認できませんでした|確認しています/);assert.match(h.companyBox().innerHTML,/現在、公開中の企業ニュースはありません/);
  const expired=companyPayload();expired.valid_until='2000-01-01';fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),expired);
  assert.doesNotMatch(h.companyBox().innerHTML,/NTT/);assert.match(h.companyBox().innerHTML,/企業の発表を確認できませんでした/);
 });
@@ -939,10 +958,12 @@ test('company empty, expired and failed responses have honest distinct states an
 test('healthy empty, pending review and partial collection messages remain truthful',async()=>{
  const h=companyHarness(),empty={...companyPayload(),companies:[],display_state:'no_recent_articles',collection_health:'complete'};
  await h.respond(h.companyRequests()[0],empty);
- assert.match(h.companyBox().innerHTML,/掲載できる新しい企業ニュースはまだありません/);
+ assert.match(h.companyBox().innerHTML,/現在、公開中の企業ニュースはありません/);
  assert.doesNotMatch(h.companyBox().innerHTML,/確認しています|一部の発表元|sf-company-name/);
  fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),{...empty,collection_health:'partial'});
  assert.match(h.companyBox().innerHTML,/一部の発表元を確認できていません/);
+ assert.match(h.companyBox().innerHTML,/記事の有無は未確認/);
+ assert.doesNotMatch(h.companyBox().innerHTML,/公開中の企業ニュースはありません/);
  assert.doesNotMatch(h.companyBox().innerHTML,/企業の発表がありません|確認しています/);
  fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),{...empty,display_state:'review_pending'});
  assert.match(h.companyBox().innerHTML,/記事の確認が終わり次第、掲載します/);
