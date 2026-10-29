@@ -17,22 +17,22 @@
   var foot=panel.querySelector('.kn-chat-foot'),hint=d.getElementById('knChatSuggestRefresh'),guide=d.getElementById('knGuideContent');
   if(!header||!tabs||!foot||!guide)return null;
   var copy={
-    ja:{eyebrow:'お金のこと、ひとつずつ。',title:'何が気になっていますか？',examples:'たとえば、こんなこと',read:'ガイドを読む',back:'悩みから選ぶ画面に戻る',compose:'そのまま質問しても大丈夫',placeholder:'気になっていることを入力',send:'質問を送信',sections:'ガイドの項目',topics:['家計を整えたい','投資を知りたい','運用が気になる','サイトの使い方'],questions:[
+    ja:{title:'何が気になっていますか？',examples:'たとえば、こんなこと',read:'ガイドを読む',back:'悩みから選ぶ画面に戻る',compose:'そのまま質問しても大丈夫',placeholder:'気になっていることを入力',send:'質問を送信',sections:'ガイドの項目',topics:['家計を整えたい','投資を知りたい','運用が気になる','サイトの使い方'],questions:[
       ['家計は何から見直せばいい？','毎月、いくら使っているか知りたい','貯金と投資、どう考えればいい？'],
       ['投資が初めてで、何もわかりません','NISAの仕組みを知りたい','まだ投資しなくても大丈夫？'],
       ['値下がりが不安です','積み立てを続けるか迷っています','投資の言葉がわかりません'],
       ['資産をまとめて見たい','家計簿を使ってみたい','お気に入りの銘柄を整理したい']],sectionNames:['よくある疑問','ことばの意味','こんな気持ちのときは？']},
-    en:{eyebrow:'Money matters, one at a time.',title:'What is on your mind?',examples:'For example',read:'Read the guide',back:'Back to topics',compose:'You can also ask in your own words',placeholder:'Enter what is on your mind',send:'Send question',sections:'Guide topics',topics:['Manage my budget','Learn about investing','Investment concerns','Using this site'],questions:[
+    en:{title:'What is on your mind?',examples:'For example',read:'Read the guide',back:'Back to topics',compose:'You can also ask in your own words',placeholder:'Enter what is on your mind',send:'Send question',sections:'Guide topics',topics:['Manage my budget','Learn about investing','Investment concerns','Using this site'],questions:[
       ['Where can I start reviewing my budget?','I want to know how much I spend each month','How can I think about saving and investing?'],
       ['I am new to investing','I want to understand NISA','Is it OK not to invest yet?'],
       ['I am worried about falling prices','I am unsure about continuing regular investments','I do not understand investment terms'],
       ['I want to see my assets together','I want to try the household ledger','I want to organise my favourite stocks']],sectionNames:['Common questions','Words and meanings','Feelings and concerns']},
-    ko:{eyebrow:'돈에 관한 이야기, 하나씩.',title:'무엇이 궁금한가요?',examples:'예를 들면 이런 질문',read:'가이드 읽기',back:'고민 선택 화면으로 돌아가기',compose:'자신의 말로 질문해도 괜찮아요',placeholder:'궁금한 내용을 입력하세요',send:'질문 보내기',sections:'가이드 항목',topics:['가계 정리하기','투자 알아보기','투자 고민','사이트 사용법'],questions:[
+    ko:{title:'무엇이 궁금한가요?',examples:'예를 들면 이런 질문',read:'가이드 읽기',back:'고민 선택 화면으로 돌아가기',compose:'자신의 말로 질문해도 괜찮아요',placeholder:'궁금한 내용을 입력하세요',send:'질문 보내기',sections:'가이드 항목',topics:['가계 정리하기','투자 알아보기','투자 고민','사이트 사용법'],questions:[
       ['가계는 무엇부터 점검하면 좋을까요?','매달 얼마를 쓰는지 알고 싶어요','저축과 투자를 어떻게 생각하면 좋을까요?'],
       ['투자가 처음이라 잘 모르겠어요','NISA의 구조를 알고 싶어요','아직 투자하지 않아도 괜찮을까요?'],
       ['가격 하락이 걱정돼요','적립식 투자를 계속할지 고민이에요','투자 용어를 잘 모르겠어요'],
       ['자산을 한곳에서 보고 싶어요','가계부를 사용해 보고 싶어요','관심 종목을 정리하고 싶어요']],sectionNames:['자주 묻는 질문','용어의 뜻','이런 마음이 들 때']},
-    zh:{eyebrow:'关于钱的事，一次了解一点。',title:'你在关心什么？',examples:'比如这些问题',read:'阅读指南',back:'返回话题选择',compose:'也可以直接用自己的话提问',placeholder:'输入你关心的事情',send:'发送问题',sections:'指南主题',topics:['整理家庭收支','了解投资','投资方面的担心','网站使用方法'],questions:[
+    zh:{title:'你在关心什么？',examples:'比如这些问题',read:'阅读指南',back:'返回话题选择',compose:'也可以直接用自己的话提问',placeholder:'输入你关心的事情',send:'发送问题',sections:'指南主题',topics:['整理家庭收支','了解投资','投资方面的担心','网站使用方法'],questions:[
       ['家庭收支应该从哪里开始检查？','想知道每月花了多少钱','应该如何考虑储蓄和投资？'],
       ['我是投资新手，什么都不了解','想了解NISA的机制','暂时不投资也可以吗？'],
       ['我担心价格下跌','正在犹豫是否继续定期投资','不明白投资术语'],
@@ -51,8 +51,8 @@
   var mark=icon('bot');mark.classList.add('kn-concern-mark');header.insertBefore(mark,header.firstChild);
   var back=node('button','kn-concern-back','knConcernBack','‹');back.type='button';header.insertBefore(back,mark);
   var home=node('section','kn-concern-home','knConcernHome');
-  var eyebrow=node('p','kn-concern-eyebrow'),heading=node('h2','','knConcernTitle');heading.setAttribute('tabindex','-1');
-  home.setAttribute('aria-labelledby',heading.id);home.appendChild(eyebrow);home.appendChild(heading);
+  var heading=node('h2','','knConcernTitle');heading.setAttribute('tabindex','-1');
+  home.setAttribute('aria-labelledby',heading.id);home.appendChild(heading);
   var grid=node('div','kn-concern-topics');home.appendChild(grid);
   var topicButtons=[],questionButtons=[],topic=0;
   ['wallet','sprout','heart','compass'].forEach(function(name,i){
@@ -105,7 +105,7 @@
     questionButtons.forEach(function(x,i){x.label.textContent=text.questions[topic][i];});
   }
   function refresh(){
-    var text=words();eyebrow.textContent=text.eyebrow;heading.textContent=text.title;exampleLabel.textContent=text.examples;read.textContent=text.read+' →';
+    var text=words();heading.textContent=text.title;exampleLabel.textContent=text.examples;read.textContent=text.read+' →';
     back.setAttribute('aria-label',text.back);compose.textContent=text.compose;input.placeholder=text.placeholder;send.textContent='↑';send.setAttribute('aria-label',text.send);
     nav.setAttribute('aria-label',text.sections);sectionLinks.forEach(function(b,i){b.textContent=text.sectionNames[i];});refreshTopics();
   }
