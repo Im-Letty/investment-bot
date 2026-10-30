@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "run_id": "automation360-20261031-070132",
+  "model_id": "petal-lounge-set-garment-volume-v1",
+  "unit_id": "wardrobe:fit-prerequisite:petal-lounge-set:garment-volume-openings:v1",
+  "asset_id": "prepared_clothing_01b_lounge_v1",
+  "name": "花びらのルームウェア",
+  "source_main_sha": "7a66a1d3ab7f346740e36ebc5ef31e087e759c2f",
+  "parentReservationObserved": {
+    "run_id": "automation360-20261031-070132",
+    "unit": "wardrobe:fit-prerequisite:petal-lounge-set:garment-volume-openings:v1",
+    "started_at_jst": "2026-10-31T07:07:25+09:00",
+    "receipt_sha256": "d1a6a161d545eea989eff587dafb43278ae69b72871cde06a8f55a7939ec2a52",
+    "queueAppendedBeforeReserve": true
+  },
+  "fit_audit_sha256": "d234273e53a418a7ee357055f3760e51123cbc2f7b7dc115d8946a4b2b697243",
+  "source_original": {
+    "file": "petal-lounge-set-v1.png",
+    "sha256": "39ff25bc5973f436ae836b97da20584c5347a5a35a99148fd9664ae8484e7530",
+    "bytes": 1640483,
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "inspected": true,
+    "unchanged": true
+  },
+  "artifacts": {
+    "SPEC.json": {
+      "sha256": "909dc2d0473bdd78d02ce29a29b52f6cb510833ef8c28036e21a25a1550df754",
+      "bytes": 13006
+    },
+    "audit.mjs": {
+      "sha256": "d79786d33f069fa5e1e3780effaeb6757cd64c93051b6e21212302c53b4e1a7f",
+      "bytes": 13451
+    },
+    "entry.mjs": {
+      "sha256": "fb408c6966ce9d602cdcca063ddc46a32bf9832dbc2454dd1606da70776995bd",
+      "bytes": 1860
+    },
+    "finite-geometry-certificate.json": {
+      "sha256": "34e89c5f15fe2f4d92c3c3f932cd4066fec026e7e3d3715d951e7ec02dd989c3",
+      "bytes": 500809
+    },
+    "framing.mjs": {
+      "sha256": "73422f79e10ab7ba09e4cd9e8d9c6c3ef2dd378f03f1b0c319416fa5d5e7d187",
+      "bytes": 969
+    },
+    "index.html": {
+      "sha256": "502f408496c87b4461aa460b5795c6f995a00893cb24597967564f67593a0dfa",
+      "bytes": 4879
+    },
+    "lounge.mjs": {
+      "sha256": "7402ac6ebd7e217fad13fecb46d04c49cd7d5fbba04b896ae35812fae5bc8e3f",
+      "bytes": 24536
+    },
+    "mesh-geometry.json": {
+      "sha256": "8348f444aec8408f22812e5d3599db11efa238768bfec0eb0cf4e05d1383b73b",
+      "bytes": 17265507
+    },
+    "reference.png": {
+      "sha256": "39ff25bc5973f436ae836b97da20584c5347a5a35a99148fd9664ae8484e7530",
+      "bytes": 1640483
+    },
+    "viewer.mjs": {
+      "sha256": "55c8055ec94d73a605946243622a2bca3a2901a46ea514fb28dba49945af9172",
+      "bytes": 14368
+    }
+  },
+  "unchanged_dependencies": {
+    "static/vendor/three-0.160.1.module.js": {
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972,
+      "matches_base": true
+    },
+    "static/pet-scalloped-path-proof-20261027/framing.mjs": {
+      "sha256": "dba92c2f6dec2816ebcf25434ee07c3b699accb61b7e1961a11baf366edad08a",
+      "bytes": 1678,
+      "matches_base": true
+    },
+    "static/pet-breeze-cape-proof-20261029/geometry-audit.mjs": {
+      "sha256": "2dbe7723509ae914cb98153f133e2a2db9d15e5f4112cc184fa128a2df8e92c0",
+      "bytes": 6377,
+      "matches_base": true
+    },
+    "static/pet-breeze-cape-proof-20261029/audit.mjs": {
+      "sha256": "0295f409a2c7182069dd6023bf78d94c3a7d05e237fd244923ea3a4c29a4eb80",
+      "bytes": 5891,
+      "matches_base": true
+    }
+  },
+  "bodyBinding": null,
+  "new_designs": 0,
+  "raw_png_designs": 0,
+  "imagegen_calls": 0,
+  "body_calibrations": 0,
+  "fit_confirmations": 0,
+  "village_library_additions": 0,
+  "paid_calls": 0,
+  "source_raw_quality_pending": true,
+  "canonicalFitPending": true,
+  "normalGame": false,
+  "ownershipUnlockSave": false,
+  "independent_main_garment_assemblies": 2,
+  "shared_body_anchor": false,
+  "scope": "One standalone authored two-piece garment volume/openings prerequisite. Two separate assemblies, trial backs/depth/inside/material thickness, fixed collar/buttons/pocket/waist gathers. No raw quality acceptance, body measurements/anchor, wearing/rig/all-growth fit, cloth physics or normal game acquisition/equipment/ownership/save."
+}

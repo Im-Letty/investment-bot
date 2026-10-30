@@ -1,0 +1,9 @@
+const phases=new Set(['module_loading','module_loaded','manifest_request','manifest_loaded','reference_ready','certificate_ready','geometry_built','renderer_created','controls_bound','ready']);
+const codes=new Set(['manifest_http','manifest_mismatch','manifest_file','artifact_http','artifact_sha','reference_http','reference_sha','reference_decode','certificate_failed','certificate_sha','invalid_real_bounds','collapsed_framing','bounds_mismatch','interior_view_invalid','start_missing'].map(code=>'lounge_'+code));
+export function failureDetails(error){return{kind:['Error','SyntaxError','TypeError','ReferenceError','RangeError'].includes(error?.name)?error.name:'UnknownError',code:codes.has(error?.message)?error.message:null,rawMessageStackOrURLSaved:false};}
+export async function startPreview({doc=globalThis.document,load=()=>import('./viewer.mjs')}={}){
+ const stage=doc?.getElementById('stage'),status=doc?.getElementById('status'),report=doc?.getElementById('report');let api=null,phase='module_loading';if(stage){stage.dataset.startupPhase=phase;stage.dataset.ready='false';}
+ try{api=await load();phase='module_loaded';if(typeof api?.start!=='function')throw Error('lounge_start_missing');await api.start(next=>{if(phases.has(next)){phase=next;if(stage)stage.dataset.startupPhase=next;}});return stage?.dataset.ready==='true';}
+ catch(error){let cleanupFailed=false;try{cleanupFailed=Boolean(api?.cleanup?.()?.failed);}catch{cleanupFailed=true;}if(stage){stage.dataset.ready='false';stage.dataset.startupPhase='failed';}if(status)status.textContent='見本の読み込みを確認できませんでした。';if(report)report.textContent=JSON.stringify({startup:{phase:'failed',phaseAtFailure:phase,failure:failureDetails(error),cleanupFailed,automaticRetry:false}},null,2);return false;}
+}
+if(typeof document!=='undefined')void startPreview();
