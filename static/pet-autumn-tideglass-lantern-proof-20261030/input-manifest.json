@@ -1,0 +1,229 @@
+{
+  "schema_version": 1,
+  "run_id": "automation360-20261030-143921",
+  "unit_id": "village:asset-library:autumn-tideglass-lantern:v1",
+  "model_id": "autumn-tideglass-lantern-v1",
+  "scope": "village.geometry.library_candidate",
+  "style_originals": [
+    {
+      "path": "static/pet-items-v1/house.webp",
+      "sha256": "69ce8c93823a50c5f2225414d4df8adcfe92fcd271ae113982e64f7ccd01cd60",
+      "bytes": 21548,
+      "actual_author_view_image": true
+    },
+    {
+      "path": "static/pet-items-v1/flower.webp",
+      "sha256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+      "bytes": 22012,
+      "actual_author_view_image": true
+    }
+  ],
+  "style_originals_unchanged": true,
+  "bodyBinding": null,
+  "source_copy_unmodified": true,
+  "raw_png_designs": 0,
+  "paid_calls": 0,
+  "normal_game_changes": 0,
+  "new_original_designs": 0,
+  "new_raw_PNGs": 0,
+  "new_body_references": 0,
+  "new_canonical_fit_success": 0,
+  "new_village_library_candidates": 1,
+  "artifacts": {
+    "SPEC.json": {
+      "sha256": "5ed3669dd59fa9d3cb7a9a9719b602f1ef6c1a2e3b6f34445bb648b0f4c41dcc",
+      "bytes": 1051
+    },
+    "audit.mjs": {
+      "sha256": "a0e42cd6688ab37ffe273f0244afdfef2d4fff273c3c4b4b54aaa5de4b839690",
+      "bytes": 5254
+    },
+    "entry.mjs": {
+      "sha256": "d3ca2c5f4d6f2e7adfcbc171b3ce52b2cdaeaf34f2839974d0fa3a9c0158d50b",
+      "bytes": 2030
+    },
+    "finite-geometry-certificate.json": {
+      "sha256": "a1b4e9047671893c58560fe403e914f3f1002dc26fc42efdbc0ad7e3dd16c330",
+      "bytes": 98868
+    },
+    "framing.mjs": {
+      "sha256": "2b7d5a79f184886db09088928efd12d79429797f1bdd10752dea204bbf18963a",
+      "bytes": 964
+    },
+    "index.html": {
+      "sha256": "9cb55000a9a67ceaffd56edd6079b60426e6a2831f81c79515ff68cf22c7dd71",
+      "bytes": 4931
+    },
+    "lantern.mjs": {
+      "sha256": "be7eb37f1396c720316e08c1dd6f6507dad4988cd88c894bf50456a60070f146",
+      "bytes": 9174
+    },
+    "placement.mjs": {
+      "sha256": "f725f8a12d4494ac67369f453183261ec6b154a580c9d8c6dc4bf8f4f9792ade",
+      "bytes": 7315
+    },
+    "viewer.mjs": {
+      "sha256": "739c8d87dc0c3c46d95a54a234ba208c67b15e2e19ef6b4f0784b593e6cffd1a",
+      "bytes": 13727
+    }
+  },
+  "unchanged_dependencies": {
+    "static/pet-breeze-cape-proof-20261029/audit.mjs": {
+      "sha256": "0295f409a2c7182069dd6023bf78d94c3a7d05e237fd244923ea3a4c29a4eb80",
+      "bytes": 5891,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-breeze-cape-proof-20261029/geometry-audit.mjs": {
+      "sha256": "2dbe7723509ae914cb98153f133e2a2db9d15e5f4112cc184fa128a2df8e92c0",
+      "bytes": 6377,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-frame-fit.js": {
+      "sha256": "7b3b730dc7834e1c56f455161d59005f8352a3cd918e52be1893bc4b7706dc13",
+      "bytes": 2434,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-items-v1/flower.webp": {
+      "sha256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+      "bytes": 22012,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-items-v1/house.webp": {
+      "sha256": "69ce8c93823a50c5f2225414d4df8adcfe92fcd271ae113982e64f7ccd01cd60",
+      "bytes": 21548,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-japan-seasons.js": {
+      "sha256": "944ff98aa81f7975b4daf4dc3ca59887f042e2c8be9eb1e5b6ea29637f46225a",
+      "bytes": 5025,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-ocean-discoveries.js": {
+      "sha256": "4241c7b0fd0d3556181a29b5775c5779b69fc48f2c4c76be48f26fee32afe425",
+      "bytes": 4849,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-ocean-snorkeling-world.js": {
+      "sha256": "a795153a6d27b9f80250abafaf2e7e4d20127c99468b1ee7374cf6e7b4176a99",
+      "bytes": 16012,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-ocean-snorkeling.js": {
+      "sha256": "800b0085765507d99a651e89418dbb8ddc72aba5e2e40aa2b3bcba8a3caa19b5",
+      "bytes": 18398,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-petal-washstand-proof-20261028/placement.mjs": {
+      "sha256": "eb4982bc87cc63e00fb9fe838c3c3e9e2f5d037ac634d66d950d2976745877a3",
+      "bytes": 8995,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-river-fishing.js": {
+      "sha256": "8b4e1d2d9f2b9fda72f66e79b2105dccdadd2e6de5230c24e920cbdcf561aedb",
+      "bytes": 8325,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-scalloped-path-proof-20261027/framing.mjs": {
+      "sha256": "dba92c2f6dec2816ebcf25434ee07c3b699accb61b7e1961a11baf366edad08a",
+      "bytes": 1678,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-snow-glass-lamp-proof-20261027/placement.mjs": {
+      "sha256": "eb6d92d6dd9e06d4c0391d39ea9b3c6df4e86dcd28e243b74b15097cec5c214e",
+      "bytes": 5943,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-toolbox-integral-link-proof-20261027/placement.mjs": {
+      "sha256": "b56467e091b3d0408d2f1d52d83a48cdd88f837304fa3b1fb71717b5b3dce961",
+      "bytes": 2718,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-toolbox-joint-proof-20261026/placement.mjs": {
+      "sha256": "1419d42a6fd4f3e83547ec105506c38a32058a9e2ac05321a324340c1ae62fc1",
+      "bytes": 1577,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-town-environment.js": {
+      "sha256": "32e7680cc2770f0d6ba3d561456fe3980f2147d5d790e91081ab5f005f412439",
+      "bytes": 10394,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-town-ground-finish.js": {
+      "sha256": "a167074f886714701dad8bd2d72c659f2c05ef9f8af45526bc05823d7356b6e6",
+      "bytes": 10682,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-town-layout-art.js": {
+      "sha256": "66b5969fbe9f7ecdaf78c30553453dc25badd69ea6b416a71a3bca285abeaa27",
+      "bytes": 14751,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-town-meadow-flowers.js": {
+      "sha256": "c66181a2d15f03f67e1c34e238fef661b82796b12a179cf62b95c11d686f1652",
+      "bytes": 23214,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-town-meadow-sites.js": {
+      "sha256": "8dc614aa334fc3351cf893451b8624ef00cbe1b2bba6f29501d6359d62d9b870",
+      "bytes": 6433,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-town-ocean-life.js": {
+      "sha256": "91107133ee5c315b110226b7fc0be81376fc5d1cf5b937108b29e64813329a2d",
+      "bytes": 8545,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-town-placement-originals.js": {
+      "sha256": "cd1cc166950eb94c4989e91e765e70a4ff2b861bc431d1dcf734a95edb06ab8b",
+      "bytes": 12383,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-town-scene.js": {
+      "sha256": "043ee3fc5e624dcf5cf550af58beb2c1357a1b85e7d6fa0b73f53f428cbd02fd",
+      "bytes": 153318,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-town-shore-transition.js": {
+      "sha256": "14949767cb6b42c491c91702b2bf0cd98d1fb7fe1534b292b0d94c79a292d3fd",
+      "bytes": 10284,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-town-style.js": {
+      "sha256": "7985e1f983329bcef7567c634543a74b442de56b8757858693ae54ef64b68e2a",
+      "bytes": 13719,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-town-tree-variety.js": {
+      "sha256": "8333b6fb83d13ff3c24d6fc9a83c2439f55cd957153d71607c991a2023ab374e",
+      "bytes": 3137,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-town-walk.js": {
+      "sha256": "59d9cfaca33bc21d9e62c2ca3c622124b266d63c0655aeb3eb5842427c6975c5",
+      "bytes": 29442,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-town-water-finish.js": {
+      "sha256": "055ea1ff65df676b5bb998407f5d0dfb67047465741ff675e9532c5384aa5460",
+      "bytes": 13709,
+      "byte_identical_to_base_main": true
+    },
+    "static/pet-town-water-life.js": {
+      "sha256": "948078e9fcb8b6897bcf1ec7653106545b72401b76b17881111fe4b816f3c28d",
+      "bytes": 6154,
+      "byte_identical_to_base_main": true
+    },
+    "static/vendor/three-0.160.1.module.js": {
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972,
+      "byte_identical_to_base_main": true
+    }
+  },
+  "source_base_main_sha": "87ed1ea1cdecc2717f02bb35acc1bc44670f3bad",
+  "limited_scope": "One authored crescent / thick glass shell / core / open leaf motifs / flat stone-foot candidate and one trial current village site. Finite visual light motion only. Optical physics, body/rig/fit, allworld and normal placement/ownership/save unverified.",
+  "related_test": {
+    "path": "tests/test_pet_autumn_tideglass_lantern_20261030.mjs",
+    "sha256": "bce3b8876f31a908fd7d758ebc7f8947bdc1dc92dd609a3fed06e32f23e18ed7",
+    "bytes": 14940
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "model_id": "autumn-tideglass-lantern-v1",
+  "unit_id": "village:asset-library:autumn-tideglass-lantern:v1",
+  "scope": "village.geometry.library_candidate",
+  "category": "lights_and_lanterns",
+  "style": "coastal_clear",
+  "season": "autumn",
+  "features": [
+    "solid crescent warm-wood cradle",
+    "closed thick sea-glass material shell with real inner cavity",
+    "separate connected warm inner light core and stem",
+    "rounded copper hood and eight actual open leaf-frame motifs",
+    "flat rounded stone foot"
+  ],
+  "bodyBinding": null,
+  "geometry_is_authored_not_recovered_hidden_original": true,
+  "style_originals_unchanged": true,
+  "visual_light_motion": "time-dependent emissive/point intensity; ON/OFF visible control; no optical, combustion or physics simulation",
+  "finite_witness_counts_are_not_unique_tests": true,
+  "normal_registration_price_acquisition_layout_ownership_save": false,
+  "body_growth_fit_or_rig": false,
+  "newPNG": 0,
+  "imagegen": 0,
+  "new_code_native_geometry_candidate": 1
+}

@@ -1,0 +1,3692 @@
+{
+  "schema_version": 1,
+  "model_id": "autumn-tideglass-lantern-v1",
+  "unit_id": "village:asset-library:autumn-tideglass-lantern:v1",
+  "model_sha256": "be7eb37f1396c720316e08c1dd6f6507dad4988cd88c894bf50456a60070f146",
+  "audit_sha256": "a0e42cd6688ab37ffe273f0244afdfef2d4fff273c3c4b4b54aaa5de4b839690",
+  "style_originals_unchanged": true,
+  "bodyBinding": null,
+  "audit": {
+    "schema_version": 1,
+    "result": "pass",
+    "scope": "Authored standalone crescent wood / closed thick glass material shell / core / open leaf frames / flat stone foot. Finite actual triangles only; no all-world, physical stability, airflow, optical, weather or body-fit guarantee.",
+    "topology": [
+      {
+        "name": "flat-rounded-stone-foot",
+        "vertices": 450,
+        "triangles": 896,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.1747047350538213,
+        "faceNormals": {
+          "triangles": 896,
+          "minimumFaceAverageNormalDot": 0.9781933524199006,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "solid-warm-wood-crescent-cradle",
+        "vertices": 2762,
+        "triangles": 5520,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.17375669608410338,
+        "faceNormals": {
+          "triangles": 5520,
+          "minimumFaceAverageNormalDot": 0.9974903522935015,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "rounded-copper-lantern-seat",
+        "vertices": 322,
+        "triangles": 640,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.05009746956948541,
+        "faceNormals": {
+          "triangles": 640,
+          "minimumFaceAverageNormalDot": 0.9805136572523672,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-thick-oval-sea-glass-shell",
+        "vertices": 3972,
+        "triangles": 7936,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.09233983416997989,
+        "faceNormals": {
+          "triangles": 7936,
+          "minimumFaceAverageNormalDot": 0.9988394298250078,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "inner-copper-light-stem",
+        "vertices": 66,
+        "triangles": 128,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0027382879245398356,
+        "faceNormals": {
+          "triangles": 128,
+          "minimumFaceAverageNormalDot": 0.5350893206347644,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-warm-inner-light-core",
+        "vertices": 1298,
+        "triangles": 2592,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.04796590119566568,
+        "faceNormals": {
+          "triangles": 2592,
+          "minimumFaceAverageNormalDot": 0.9973874937812031,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "lower-copper-leaf-vent-ring",
+        "vertices": 715,
+        "triangles": 1280,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0023207163059167936,
+        "faceNormals": {
+          "triangles": 1280,
+          "minimumFaceAverageNormalDot": 0.9936961704689445,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "upper-copper-leaf-vent-ring",
+        "vertices": 715,
+        "triangles": 1280,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0023207163059167962,
+        "faceNormals": {
+          "triangles": 1280,
+          "minimumFaceAverageNormalDot": 0.9936961704689445,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "small-rounded-copper-hood",
+        "vertices": 386,
+        "triangles": 768,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.029344125934575978,
+        "faceNormals": {
+          "triangles": 768,
+          "minimumFaceAverageNormalDot": 0.9130175817082645,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "open-leaf-vent-copper-frame-0",
+        "vertices": 369,
+        "triangles": 640,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0001606202372060851,
+        "faceNormals": {
+          "triangles": 640,
+          "minimumFaceAverageNormalDot": 0.9248858267875785,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "open-leaf-vent-copper-frame-1",
+        "vertices": 369,
+        "triangles": 640,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.00016062022919000808,
+        "faceNormals": {
+          "triangles": 640,
+          "minimumFaceAverageNormalDot": 0.9248108764870091,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "open-leaf-vent-copper-frame-2",
+        "vertices": 369,
+        "triangles": 640,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.00016062021876220225,
+        "faceNormals": {
+          "triangles": 640,
+          "minimumFaceAverageNormalDot": 0.9248848848285299,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "open-leaf-vent-copper-frame-3",
+        "vertices": 369,
+        "triangles": 640,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0001606202441327514,
+        "faceNormals": {
+          "triangles": 640,
+          "minimumFaceAverageNormalDot": 0.9248119319366725,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "open-leaf-vent-copper-frame-4",
+        "vertices": 369,
+        "triangles": 640,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0001606202165520798,
+        "faceNormals": {
+          "triangles": 640,
+          "minimumFaceAverageNormalDot": 0.9248858211755993,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "open-leaf-vent-copper-frame-5",
+        "vertices": 369,
+        "triangles": 640,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.00016062020627394242,
+        "faceNormals": {
+          "triangles": 640,
+          "minimumFaceAverageNormalDot": 0.9248655223676769,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "open-leaf-vent-copper-frame-6",
+        "vertices": 369,
+        "triangles": 640,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.00016062021876220184,
+        "faceNormals": {
+          "triangles": 640,
+          "minimumFaceAverageNormalDot": 0.9248848848285299,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "open-leaf-vent-copper-frame-7",
+        "vertices": 369,
+        "triangles": 640,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.000160620258204031,
+        "faceNormals": {
+          "triangles": 640,
+          "minimumFaceAverageNormalDot": 0.9248125114164103,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      }
+    ],
+    "crossings": [
+      {
+        "name": "flat-rounded-stone-foot",
+        "triangles": 896,
+        "candidateNonadjacentAABBPairs": 625,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "solid-warm-wood-crescent-cradle",
+        "triangles": 5520,
+        "candidateNonadjacentAABBPairs": 2751,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "rounded-copper-lantern-seat",
+        "triangles": 640,
+        "candidateNonadjacentAABBPairs": 483,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-thick-oval-sea-glass-shell",
+        "triangles": 7936,
+        "candidateNonadjacentAABBPairs": 11738,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "inner-copper-light-stem",
+        "triangles": 128,
+        "candidateNonadjacentAABBPairs": 116,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-warm-inner-light-core",
+        "triangles": 2592,
+        "candidateNonadjacentAABBPairs": 2249,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "lower-copper-leaf-vent-ring",
+        "triangles": 1280,
+        "candidateNonadjacentAABBPairs": 1685,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "upper-copper-leaf-vent-ring",
+        "triangles": 1280,
+        "candidateNonadjacentAABBPairs": 1685,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "small-rounded-copper-hood",
+        "triangles": 768,
+        "candidateNonadjacentAABBPairs": 1299,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "open-leaf-vent-copper-frame-0",
+        "triangles": 640,
+        "candidateNonadjacentAABBPairs": 934,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "open-leaf-vent-copper-frame-1",
+        "triangles": 640,
+        "candidateNonadjacentAABBPairs": 633,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "open-leaf-vent-copper-frame-2",
+        "triangles": 640,
+        "candidateNonadjacentAABBPairs": 938,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "open-leaf-vent-copper-frame-3",
+        "triangles": 640,
+        "candidateNonadjacentAABBPairs": 619,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "open-leaf-vent-copper-frame-4",
+        "triangles": 640,
+        "candidateNonadjacentAABBPairs": 937,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "open-leaf-vent-copper-frame-5",
+        "triangles": 640,
+        "candidateNonadjacentAABBPairs": 633,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "open-leaf-vent-copper-frame-6",
+        "triangles": 640,
+        "candidateNonadjacentAABBPairs": 938,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "open-leaf-vent-copper-frame-7",
+        "triangles": 640,
+        "candidateNonadjacentAABBPairs": 619,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      }
+    ],
+    "attachments": {
+      "count": 26,
+      "failed": 0,
+      "minimumClearance": 0.0044269769599069725,
+      "rows": [
+        {
+          "part": "solid-warm-wood-crescent-cradle",
+          "target": "flat-rounded-stone-foot",
+          "point": [
+            0,
+            0.18,
+            0
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.07929703437686683,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.05998992209511081,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "rounded-copper-lantern-seat",
+          "target": "solid-warm-wood-crescent-cradle",
+          "point": [
+            0.14,
+            0.29,
+            0
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0449999952316284,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.05104307397261241,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-thick-oval-sea-glass-shell",
+          "target": "rounded-copper-lantern-seat",
+          "point": [
+            0.14,
+            0.425,
+            0
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.015000026226043739,
+            "independentUniqueRayHitCounts": [
+              3,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.044999998807907116,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "inner-copper-light-stem",
+          "target": "rounded-copper-lantern-seat",
+          "point": [
+            0.14,
+            0.455,
+            0
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.024999992847442642,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.014999998807907089,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-warm-inner-light-core",
+          "target": "inner-copper-light-stem",
+          "point": [
+            0.14,
+            0.69,
+            0
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03961021672444265,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.030000028610229545,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "lower-copper-leaf-vent-ring",
+          "target": "closed-thick-oval-sea-glass-shell",
+          "point": [
+            0.37,
+            1.56,
+            0
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0128253680722266,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.004722290827809316,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "lower-copper-leaf-vent-ring",
+          "target": "closed-thick-oval-sea-glass-shell",
+          "point": [
+            0.14000000000000004,
+            1.56,
+            0.188
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.014825350522995008,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0044269769599069725,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "lower-copper-leaf-vent-ring",
+          "target": "closed-thick-oval-sea-glass-shell",
+          "point": [
+            -0.09,
+            1.56,
+            2.3023359823970242e-17
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.012825358808040616,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.004722290827809157,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              3
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "lower-copper-leaf-vent-ring",
+          "target": "closed-thick-oval-sea-glass-shell",
+          "point": [
+            0.13999999999999996,
+            1.56,
+            -0.188
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.014825350522995008,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0044269769599069725,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              3
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "upper-copper-leaf-vent-ring",
+          "target": "small-rounded-copper-hood",
+          "point": [
+            0.38,
+            1.72,
+            0
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02277373155572241,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.019999952316284153,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "open-leaf-vent-copper-frame-0",
+          "target": "lower-copper-leaf-vent-ring",
+          "point": [
+            0.38,
+            1.56,
+            0
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00646717170155966,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02277373155572241,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "open-leaf-vent-copper-frame-0",
+          "target": "upper-copper-leaf-vent-ring",
+          "point": [
+            0.38,
+            1.72,
+            0
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.006467123712874845,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02277373155572241,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "open-leaf-vent-copper-frame-1",
+          "target": "lower-copper-leaf-vent-ring",
+          "point": [
+            0.30970562748477143,
+            1.56,
+            0.1385929291125633
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.006465980854246892,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022542015465623587,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "open-leaf-vent-copper-frame-1",
+          "target": "upper-copper-leaf-vent-ring",
+          "point": [
+            0.30970562748477143,
+            1.72,
+            0.1385929291125633
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.006467123666398514,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022542015465623587,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "open-leaf-vent-copper-frame-2",
+          "target": "lower-copper-leaf-vent-ring",
+          "point": [
+            0.14000000000000004,
+            1.56,
+            0.196
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.006467171564699874,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022810125503417322,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "open-leaf-vent-copper-frame-2",
+          "target": "upper-copper-leaf-vent-ring",
+          "point": [
+            0.14000000000000004,
+            1.72,
+            0.196
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.006467123577181047,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022810125503417322,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "open-leaf-vent-copper-frame-3",
+          "target": "lower-copper-leaf-vent-ring",
+          "point": [
+            -0.029705627484771374,
+            1.56,
+            0.13859292911256332
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.006465982422777327,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022542011205309603,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "open-leaf-vent-copper-frame-3",
+          "target": "upper-copper-leaf-vent-ring",
+          "point": [
+            -0.029705627484771374,
+            1.72,
+            0.13859292911256332
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00646712333485683,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0225420112053096,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "open-leaf-vent-copper-frame-4",
+          "target": "lower-copper-leaf-vent-ring",
+          "point": [
+            -0.09999999999999998,
+            1.56,
+            2.4003077263288125e-17
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0064671721244822355,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022774280652845504,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "open-leaf-vent-copper-frame-4",
+          "target": "upper-copper-leaf-vent-ring",
+          "point": [
+            -0.09999999999999998,
+            1.72,
+            2.4003077263288125e-17
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00646712413581536,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022774280652845504,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "open-leaf-vent-copper-frame-5",
+          "target": "lower-copper-leaf-vent-ring",
+          "point": [
+            -0.02970562748477143,
+            1.56,
+            -0.1385929291125633
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.006465982403593134,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022542011205309593,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "open-leaf-vent-copper-frame-5",
+          "target": "upper-copper-leaf-vent-ring",
+          "point": [
+            -0.02970562748477143,
+            1.72,
+            -0.1385929291125633
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.006467123448457778,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022542011205309593,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "open-leaf-vent-copper-frame-6",
+          "target": "lower-copper-leaf-vent-ring",
+          "point": [
+            0.13999999999999996,
+            1.56,
+            -0.196
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.006467171564699874,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022810125503417322,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "open-leaf-vent-copper-frame-6",
+          "target": "upper-copper-leaf-vent-ring",
+          "point": [
+            0.13999999999999996,
+            1.72,
+            -0.196
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.006467123575924711,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022810125503417322,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "open-leaf-vent-copper-frame-7",
+          "target": "lower-copper-leaf-vent-ring",
+          "point": [
+            0.3097056274847714,
+            1.56,
+            -0.13859292911256335
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.006465980854246887,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022542015465623552,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "open-leaf-vent-copper-frame-7",
+          "target": "upper-copper-leaf-vent-ring",
+          "point": [
+            0.3097056274847714,
+            1.72,
+            -0.13859292911256335
+          ],
+          "scope": "finite strict common-material witness; fixed authored join, not load or stability proof",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.006467124577307256,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022542015465623587,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "connectedPartCount": 17,
+    "totalPartCount": 17,
+    "shellSections": [
+      {
+        "y": 1.03,
+        "z": 0,
+        "hits": [
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 1857,
+            "distance": 1.1799999976158142
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 1921,
+            "distance": 0.3000000023841858
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 1982,
+            "distance": 1.1799999976158142
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 1983,
+            "distance": 1.1799999976158142
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 1984,
+            "distance": 1.1799999976158142
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 1985,
+            "distance": 1.1799999976158142
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 2048,
+            "distance": 0.3000000023841858
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 2110,
+            "distance": 1.1799999976158142
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 5825,
+            "distance": 1.1450000011920929
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 5889,
+            "distance": 0.3349999988079071
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 5950,
+            "distance": 1.1450000011920927
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 5951,
+            "distance": 1.1450000011920929
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 5952,
+            "distance": 1.1450000011920929
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 5953,
+            "distance": 1.1450000011920929
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 6016,
+            "distance": 0.3349999988079071
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 6078,
+            "distance": 1.1450000011920929
+          }
+        ],
+        "uniqueDistances": [
+          0.3000000023841858,
+          0.3349999988079071,
+          1.1450000011920927,
+          1.1799999976158142
+        ],
+        "leftThickness": 0.034999996423721313,
+        "rightThickness": 0.034999996423721536,
+        "cavityWidth": 0.8100000023841856
+      },
+      {
+        "y": 0.82,
+        "z": 0,
+        "hits": [
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 1473,
+            "distance": 1.154276393684884
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 1537,
+            "distance": 0.3257236063151162
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 1598,
+            "distance": 1.1542763936848837
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 5441,
+            "distance": 1.1180477599634617
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 5505,
+            "distance": 0.36195224003653814
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 5566,
+            "distance": 1.118047759963462
+          }
+        ],
+        "uniqueDistances": [
+          0.3257236063151162,
+          0.36195224003653814,
+          1.1180477599634617,
+          1.1542763936848837
+        ],
+        "leftThickness": 0.03622863372142193,
+        "rightThickness": 0.03622863372142193,
+        "cavityWidth": 0.7560955199269236
+      },
+      {
+        "y": 1.24,
+        "z": 0,
+        "hits": [
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 2369,
+            "distance": 1.1542763936848839
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 2433,
+            "distance": 0.32572360631511615
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 2494,
+            "distance": 1.1542763936848839
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 6337,
+            "distance": 1.118047759963462
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 6401,
+            "distance": 0.36195224003653803
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 6462,
+            "distance": 1.118047759963462
+          }
+        ],
+        "uniqueDistances": [
+          0.32572360631511615,
+          0.36195224003653803,
+          1.118047759963462,
+          1.1542763936848839
+        ],
+        "leftThickness": 0.03622863372142188,
+        "rightThickness": 0.03622863372142193,
+        "cavityWidth": 0.7560955199269239
+      },
+      {
+        "y": 1.03,
+        "z": 0.11,
+        "hits": [
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 1863,
+            "distance": 1.1586495742655958
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 1913,
+            "distance": 0.321350425734404
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 1990,
+            "distance": 1.1586495742655958
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 2040,
+            "distance": 0.321350425734404
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 5831,
+            "distance": 1.1205794615614577
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 5881,
+            "distance": 0.3594205384385422
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 5958,
+            "distance": 1.1205794615614577
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 6008,
+            "distance": 0.35942053843854227
+          }
+        ],
+        "uniqueDistances": [
+          0.321350425734404,
+          0.3594205384385422,
+          1.1205794615614577,
+          1.1586495742655958
+        ],
+        "leftThickness": 0.03807011270413824,
+        "rightThickness": 0.03807011270413807,
+        "cavityWidth": 0.7611589231229154
+      },
+      {
+        "y": 1.03,
+        "z": -0.11,
+        "hits": [
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 1927,
+            "distance": 0.321350425734404
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 1977,
+            "distance": 1.158649574265596
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 2054,
+            "distance": 0.321350425734404
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 2104,
+            "distance": 1.1586495742655958
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 5895,
+            "distance": 0.35942053843854227
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 5945,
+            "distance": 1.1205794615614577
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 6022,
+            "distance": 0.35942053843854227
+          },
+          {
+            "part": "closed-thick-oval-sea-glass-shell",
+            "face": 6072,
+            "distance": 1.1205794615614577
+          }
+        ],
+        "uniqueDistances": [
+          0.321350425734404,
+          0.35942053843854227,
+          1.1205794615614577,
+          1.1586495742655958
+        ],
+        "leftThickness": 0.03807011270413829,
+        "rightThickness": 0.03807011270413807,
+        "cavityWidth": 0.7611589231229154
+      }
+    ],
+    "cavityControls": {
+      "centerCavity": {
+        "strictInside": false,
+        "minimumSurfaceClearance": 0.32462907466730734,
+        "independentUniqueRayHitCounts": [
+          2,
+          2,
+          2
+        ],
+        "directions": [
+          [
+            0.173,
+            0.913,
+            0.367
+          ],
+          [
+            -0.683,
+            0.247,
+            0.687
+          ],
+          [
+            0.591,
+            -0.721,
+            0.363
+          ]
+        ]
+      },
+      "occupiedGlass": {
+        "strictInside": true,
+        "minimumSurfaceClearance": 0.014964257106391026,
+        "independentUniqueRayHitCounts": [
+          1,
+          3,
+          1
+        ],
+        "directions": [
+          [
+            0.173,
+            0.913,
+            0.367
+          ],
+          [
+            -0.683,
+            0.247,
+            0.687
+          ],
+          [
+            0.591,
+            -0.721,
+            0.363
+          ]
+        ]
+      },
+      "coreInsideCavity": {
+        "strictInside": true,
+        "minimumSurfaceClearance": 0.15968899126584626,
+        "independentUniqueRayHitCounts": [
+          1,
+          1,
+          1
+        ],
+        "directions": [
+          [
+            0.173,
+            0.913,
+            0.367
+          ],
+          [
+            -0.683,
+            0.247,
+            0.687
+          ],
+          [
+            0.591,
+            -0.721,
+            0.363
+          ]
+        ]
+      }
+    },
+    "leafVentSegments": [
+      {
+        "frame": 0,
+        "from": [
+          0.34,
+          1.64,
+          0
+        ],
+        "to": [
+          0.42,
+          1.64,
+          0
+        ],
+        "allPartHits": [],
+        "scope": "finite radial segment through leaf-frame centre, not all possible vents or optical airflow guarantee"
+      },
+      {
+        "frame": 1,
+        "from": [
+          0.2814213562373095,
+          1.64,
+          0.1103086578651014
+        ],
+        "to": [
+          0.33798989873223334,
+          1.64,
+          0.16687720036002518
+        ],
+        "allPartHits": [],
+        "scope": "finite radial segment through leaf-frame centre, not all possible vents or optical airflow guarantee"
+      },
+      {
+        "frame": 2,
+        "from": [
+          0.14000000000000004,
+          1.64,
+          0.156
+        ],
+        "to": [
+          0.14000000000000004,
+          1.64,
+          0.23600000000000002
+        ],
+        "allPartHits": [],
+        "scope": "finite radial segment through leaf-frame centre, not all possible vents or optical airflow guarantee"
+      },
+      {
+        "frame": 3,
+        "from": [
+          -0.0014213562373094762,
+          1.64,
+          0.11030865786510141
+        ],
+        "to": [
+          -0.05798989873223327,
+          1.64,
+          0.16687720036002524
+        ],
+        "allPartHits": [],
+        "scope": "finite radial segment through leaf-frame centre, not all possible vents or optical airflow guarantee"
+      },
+      {
+        "frame": 4,
+        "from": [
+          -0.05999999999999998,
+          1.64,
+          1.910449006669871e-17
+        ],
+        "to": [
+          -0.13999999999999999,
+          1.64,
+          2.890166445987754e-17
+        ],
+        "allPartHits": [],
+        "scope": "finite radial segment through leaf-frame centre, not all possible vents or optical airflow guarantee"
+      },
+      {
+        "frame": 5,
+        "from": [
+          -0.0014213562373095213,
+          1.64,
+          -0.1103086578651014
+        ],
+        "to": [
+          -0.05798989873223334,
+          1.64,
+          -0.16687720036002518
+        ],
+        "allPartHits": [],
+        "scope": "finite radial segment through leaf-frame centre, not all possible vents or optical airflow guarantee"
+      },
+      {
+        "frame": 6,
+        "from": [
+          0.13999999999999996,
+          1.64,
+          -0.156
+        ],
+        "to": [
+          0.13999999999999996,
+          1.64,
+          -0.23600000000000002
+        ],
+        "allPartHits": [],
+        "scope": "finite radial segment through leaf-frame centre, not all possible vents or optical airflow guarantee"
+      },
+      {
+        "frame": 7,
+        "from": [
+          0.28142135623730946,
+          1.64,
+          -0.11030865786510144
+        ],
+        "to": [
+          0.3379898987322333,
+          1.64,
+          -0.16687720036002526
+        ],
+        "allPartHits": [],
+        "scope": "finite radial segment through leaf-frame centre, not all possible vents or optical airflow guarantee"
+      }
+    ],
+    "actualFlatSole": [
+      {
+        "x": 0,
+        "z": 0,
+        "triangle": 0,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "x": 0.12,
+        "z": 0,
+        "triangle": 0,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "x": -0.12,
+        "z": 0,
+        "triangle": 32,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "x": 0,
+        "z": 0.12,
+        "triangle": 16,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "x": 0,
+        "z": -0.12,
+        "triangle": 48,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "x": 0.18,
+        "z": 0.1,
+        "triangle": 6,
+        "y": 0,
+        "normal": [
+          0,
+          -0.9999999999999999,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "x": -0.18,
+        "z": 0.1,
+        "triangle": 25,
+        "y": 0,
+        "normal": [
+          0,
+          -0.9999999999999999,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "x": 0.18,
+        "z": -0.1,
+        "triangle": 57,
+        "y": 0,
+        "normal": [
+          0,
+          -0.9999999999999999,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "x": -0.18,
+        "z": -0.1,
+        "triangle": 38,
+        "y": 0,
+        "normal": [
+          0,
+          -0.9999999999999999,
+          0
+        ],
+        "flat": true
+      }
+    ],
+    "occupiedControl": [
+      {
+        "part": "flat-rounded-stone-foot",
+        "face": 481,
+        "distance": 1.2368000085115425
+      },
+      {
+        "part": "flat-rounded-stone-foot",
+        "face": 545,
+        "distance": 0.3631999914884575
+      },
+      {
+        "part": "solid-warm-wood-crescent-cradle",
+        "face": 4492,
+        "distance": 0.8634856148824721
+      },
+      {
+        "part": "solid-warm-wood-crescent-cradle",
+        "face": 4530,
+        "distance": 0.736514385117528
+      }
+    ],
+    "emptyExteriorControl": [],
+    "lightVariation": {
+      "sampleTimes": [
+        {
+          "ms": 0,
+          "motionEnabled": true,
+          "phase": 0,
+          "pulse": 0.5,
+          "coreEmissive": 1,
+          "glassEmissive": 0.07750000000000001,
+          "pointIntensity": 0.28,
+          "scope": "finite authored emissive and point-light variation only; not combustion, photometry, optical or physical-light simulation"
+        },
+        {
+          "ms": 800,
+          "motionEnabled": true,
+          "phase": 1.36,
+          "pulse": 0.9889323012176581,
+          "coreEmissive": 1.3422526108523605,
+          "glassEmissive": 0.11905924560350095,
+          "pointIntensity": 0.4266796903652974,
+          "scope": "finite authored emissive and point-light variation only; not combustion, photometry, optical or physical-light simulation"
+        },
+        {
+          "ms": 1700,
+          "motionEnabled": true,
+          "phase": 2.8899999999999997,
+          "pulse": 0.6244733933365765,
+          "coreEmissive": 1.0871313753356036,
+          "glassEmissive": 0.08808023843360901,
+          "pointIntensity": 0.31734201800097295,
+          "scope": "finite authored emissive and point-light variation only; not combustion, photometry, optical or physical-light simulation"
+        }
+      ],
+      "offTimes": [
+        {
+          "ms": 2000,
+          "motionEnabled": false,
+          "phase": 0,
+          "pulse": 0.5,
+          "coreEmissive": 1,
+          "glassEmissive": 0.07750000000000001,
+          "pointIntensity": 0.28,
+          "scope": "finite authored emissive and point-light variation only; not combustion, photometry, optical or physical-light simulation"
+        },
+        {
+          "ms": 4000,
+          "motionEnabled": false,
+          "phase": 0,
+          "pulse": 0.5,
+          "coreEmissive": 1,
+          "glassEmissive": 0.07750000000000001,
+          "pointIntensity": 0.28,
+          "scope": "finite authored emissive and point-light variation only; not combustion, photometry, optical or physical-light simulation"
+        }
+      ],
+      "itemAndPartPoseUnchanged": true,
+      "physicsOrOptics": false
+    },
+    "bodyBinding": null,
+    "physics": false,
+    "lightPhysics": false,
+    "loadOrStability": false,
+    "rig": false,
+    "wearingFit": false,
+    "normalGame": false,
+    "ownershipUnlockSave": false
+  },
+  "compiledWorldPlacement": {
+    "townPoint": {
+      "x": 2400,
+      "y": 250
+    },
+    "worldPosition": [
+      9.6,
+      0.025000000000001583,
+      -7.1
+    ],
+    "projectedFootprint": {
+      "minX": 8.550000047683715,
+      "maxX": 10.251266574859619,
+      "minZ": -7.541000014543533,
+      "maxZ": -6.658999985456466
+    },
+    "supports": [
+      {
+        "foot": "flat-rounded-stone-foot",
+        "sample": [
+          0,
+          0
+        ],
+        "x": 9.6,
+        "z": -7.1,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 0,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001577,
+        "requiredGroupY": 0.025000000000001577,
+        "soleMinusFloor": 6.938893903907228e-18
+      },
+      {
+        "foot": "flat-rounded-stone-foot",
+        "sample": [
+          0.02,
+          0
+        ],
+        "x": 9.62,
+        "z": -7.1,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 0,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001577,
+        "requiredGroupY": 0.025000000000001577,
+        "soleMinusFloor": 6.938893903907228e-18
+      },
+      {
+        "foot": "flat-rounded-stone-foot",
+        "sample": [
+          -0.02,
+          0
+        ],
+        "x": 9.58,
+        "z": -7.1,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 32,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001577,
+        "requiredGroupY": 0.025000000000001577,
+        "soleMinusFloor": 6.938893903907228e-18
+      },
+      {
+        "foot": "flat-rounded-stone-foot",
+        "sample": [
+          0,
+          0.02
+        ],
+        "x": 9.6,
+        "z": -7.08,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 16,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001573,
+        "requiredGroupY": 0.025000000000001573,
+        "soleMinusFloor": 1.0408340855860843e-17
+      },
+      {
+        "foot": "flat-rounded-stone-foot",
+        "sample": [
+          0,
+          -0.02
+        ],
+        "x": 9.6,
+        "z": -7.119999999999999,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 48,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001583,
+        "requiredGroupY": 0.025000000000001583,
+        "soleMinusFloor": 0
+      }
+    ],
+    "flatPadSampleCount": 5,
+    "flatPads": 1,
+    "entireCurvedFootSoleContactVerified": false,
+    "finiteWalkability": {
+      "samples": 63,
+      "blocked": 0
+    },
+    "roads": [
+      {
+        "name": "layout-plaza-border",
+        "triangles": 192,
+        "minimumGap": 8.57076763391581
+      },
+      {
+        "name": "layout-plaza-floor",
+        "triangles": 96,
+        "minimumGap": 8.85970912098012
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.85164543399648
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.70343344416443
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.608130796263458
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.570907362036214
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.57066036102658
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.598086436095482
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.689005603553934
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.842735714990713
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.056259249649855
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.324426960705775
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.640348767290364
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.995878481585171
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.38210358224798
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.789779102350305
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.209677725182813
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.60227669161141
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.979347485268843
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.345338454233195
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.693720044098063
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.018618937123833
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.31486862462176
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.57804405897899
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.804483276878866
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.991297560360461
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.136370849892755
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.238348655921092
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.296616539204761
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.285276450310715
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.217454324390204
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.109981972678172
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.965257399218432
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.78609847369901
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.575668248490576
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.33740021068877
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.074926740093952
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.792014381614411
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.49250971701878
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.180299557035937
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.859288777635825
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.533398290184673
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.202962378309872
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.848833135666144
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.501875908799772
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.166626889584686
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.847958243409275
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.551163945993176
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.282003219600332
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.046668743996156
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 11.448112965033912
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 11.484440280970906
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 16.2882026713685
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 2.754025843974716
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 2.791440161250586
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 2.699321881911275
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 11.44813505927035
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 11.484459747656397
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 19.061891912286896
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 8.302177373301896
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 8.362171769836989
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 11.371440133780125
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 11.416942265715992
+      },
+      {
+        "name": "bridge-deck",
+        "triangles": 44,
+        "minimumGap": 7.760425425396313
+      }
+    ],
+    "minimumRoadGap": 2.699321881911275,
+    "requiredMargin": 0.2,
+    "originalSpriteEnvelopeClearance": {
+      "checkedCards": 38,
+      "kinds": {
+        "shopTulip": 6,
+        "treeGrove": 12,
+        "flowers": 1,
+        "lantern": 4,
+        "treeApple": 5,
+        "treeBirch": 5,
+        "tree": 5
+      },
+      "minimumGap": 1.9270032744174967,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            3.800391407986147,
+            0.025,
+            -10.014646520277676
+          ],
+          "fullQuadRadius": 3.428153984302411,
+          "envelopeDistance": 5.355157258719908,
+          "gap": 1.9270032744174967
+        },
+        {
+          "kind": "shopTulip",
+          "sourceSHA256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+          "contact": [
+            6.8759999999999994,
+            0.025,
+            -4.894
+          ],
+          "fullQuadRadius": 0.43406919941234284,
+          "envelopeDistance": 2.432591438837687,
+          "gap": 1.9985222394253441
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            3.018835793838979,
+            0.025,
+            -10.44966867454055
+          ],
+          "fullQuadRadius": 3.816913714481035,
+          "envelopeDistance": 6.249330474271515,
+          "gap": 2.43241675979048
+        },
+        {
+          "kind": "shopTulip",
+          "sourceSHA256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+          "contact": [
+            5.795999999999999,
+            0.025,
+            -4.894
+          ],
+          "fullQuadRadius": 0.43406919941234284,
+          "envelopeDistance": 3.2710458895135113,
+          "gap": 2.8369766901011686
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            0.8327002596367137,
+            0.025,
+            -9.982363263208441
+          ],
+          "fullQuadRadius": 4.385813983669816,
+          "envelopeDistance": 8.094255403094344,
+          "gap": 3.7084414194245285
+        },
+        {
+          "kind": "lantern",
+          "sourceSHA256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+          "contact": [
+            4.032,
+            0.025,
+            -3.4560000000000004
+          ],
+          "fullQuadRadius": 0.9909739577995439,
+          "envelopeDistance": 5.53818863327209,
+          "gap": 4.547214675472546
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            -3.9520000000000004
+          ],
+          "fullQuadRadius": 3.816913714481035,
+          "envelopeDistance": 9.519019161215326,
+          "gap": 5.702105446734291
+        },
+        {
+          "kind": "treeApple",
+          "sourceSHA256": "ce7ef7adda439841a3fc36de04d5250eb01249ce653337f19b6d9520b028c45b",
+          "contact": [
+            -0.3355192961773006,
+            0.025,
+            -9.667760567754863
+          ],
+          "fullQuadRadius": 2.824426245157773,
+          "envelopeDistance": 9.136496290199219,
+          "gap": 6.3120700450414455
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            -1.9396978898859323,
+            0.025,
+            -10.216135629486423
+          ],
+          "fullQuadRadius": 3.3722855420654474,
+          "envelopeDistance": 10.82543825347449,
+          "gap": 7.453152711409042
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            -3.7735156195406474,
+            0.025,
+            -10.38942810991384
+          ],
+          "fullQuadRadius": 3.777696918707195,
+          "envelopeDistance": 12.648422076085984,
+          "gap": 8.87072515737879
+        }
+      ],
+      "method": "sphere enclosing all four full raw Sprite quad corners from actual world scale/center; sphere-to-conservative-3D-pose-envelope distance; includes faint/transparent corners without cropping",
+      "cameraOrientationIndependentGeometryEnvelope": true,
+      "physicalFixtureVolumes": false,
+      "allCameraProjectionOcclusionGuaranteed": false
+    },
+    "buildingProxyClearance": [
+      {
+        "place": "home",
+        "intersects": false,
+        "separation": 15.381907356273505
+      },
+      {
+        "place": "cafe",
+        "intersects": false,
+        "separation": 0.9839989988046601
+      },
+      {
+        "place": "shop",
+        "intersects": false,
+        "separation": 17.397552404847435
+      },
+      {
+        "place": "playground",
+        "intersects": false,
+        "separation": 8.398757327634529
+      },
+      {
+        "place": "tree",
+        "intersects": false,
+        "separation": null
+      },
+      {
+        "place": "flowers",
+        "intersects": false,
+        "separation": null
+      }
+    ],
+    "meadowInstances": {
+      "instanceCount": 1102,
+      "batchCount": 10,
+      "siteCount": 40,
+      "animationPadding": 0.018,
+      "minimumGap": 2.2809825128670833,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "batch": "meadow-daisy-lobed-head-instances",
+          "instance": 19,
+          "bounds": {
+            "min": [
+              7.958820739835853,
+              0.26966038848726037,
+              -4.399957903835882
+            ],
+            "max": [
+              8.234389373794551,
+              0.48924224177269227,
+              -4.1378291572550845
+            ]
+          },
+          "minimumGap": 2.2809825128670833
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 135,
+          "bounds": {
+            "min": [
+              7.977578815044441,
+              0.07105114515847945,
+              -4.3950632941515035
+            ],
+            "max": [
+              8.21403826324015,
+              0.22419910853424715,
+              -4.18908480159886
+            ]
+          },
+          "minimumGap": 2.288728831216876
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 135,
+          "bounds": {
+            "min": [
+              7.985089577379973,
+              0.12565921738691058,
+              -4.33268680280395
+            ],
+            "max": [
+              8.19508846259249,
+              0.2939266082809292,
+              -4.162581188564673
+            ]
+          },
+          "minimumGap": 2.3532308125245267
+        },
+        {
+          "batch": "meadow-daisy-heart-instances",
+          "instance": 19,
+          "bounds": {
+            "min": [
+              8.064667348143331,
+              0.3707389938978198,
+              -4.31753558400345
+            ],
+            "max": [
+              8.167966242554911,
+              0.4668721449228284,
+              -4.218473250835417
+            ]
+          },
+          "minimumGap": 2.37242605185766
+        },
+        {
+          "batch": "meadow-stem-instances",
+          "instance": 192,
+          "bounds": {
+            "min": [
+              8.067568068700785,
+              0.007000005960464479,
+              -4.295128576088361
+            ],
+            "max": [
+              8.118887038740318,
+              0.40940555262565614,
+              -4.243320091918379
+            ]
+          },
+          "minimumGap": 2.40286214055409
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 132,
+          "bounds": {
+            "min": [
+              7.901148489831921,
+              0.041575798950860735,
+              -4.264367702750147
+            ],
+            "max": [
+              8.09452233541299,
+              0.19472376232662844,
+              -4.025857540398
+            ]
+          },
+          "minimumGap": 2.4375651203105635
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 132,
+          "bounds": {
+            "min": [
+              7.860408253295483,
+              0.08102512851304734,
+              -4.264202428528577
+            ],
+            "max": [
+              8.04857208160829,
+              0.24929251940706595,
+              -4.048723461221426
+            ]
+          },
+          "minimumGap": 2.4467295199572683
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 137,
+          "bounds": {
+            "min": [
+              7.744055235928408,
+              0.11781527593679154,
+              -4.293236297858033
+            ],
+            "max": [
+              7.915505536981387,
+              0.2860826668308102,
+              -4.055709474413007
+            ]
+          },
+          "minimumGap": 2.449371574439192
+        },
+        {
+          "batch": "meadow-rose-outer-rosette-instances",
+          "instance": 42,
+          "bounds": {
+            "min": [
+              7.872678861722074,
+              0.23156414085790836,
+              -4.255414189465224
+            ],
+            "max": [
+              8.078212702953188,
+              0.34142650297063937,
+              -4.046932128716306
+            ]
+          },
+          "minimumGap": 2.4494505460079683
+        },
+        {
+          "batch": "meadow-rose-outer-rosette-instances",
+          "instance": 43,
+          "bounds": {
+            "min": [
+              7.897852390299883,
+              0.2736531604253287,
+              -4.230364211487056
+            ],
+            "max": [
+              8.05303405705311,
+              0.36177435561321625,
+              -4.072034530926201
+            ]
+          },
+          "minimumGap": 2.4789608545613335
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 137,
+          "bounds": {
+            "min": [
+              7.675200721285802,
+              0.06587118860311293,
+              -4.2583102846284735
+            ],
+            "max": [
+              7.902138236793523,
+              0.21901915197888064,
+              -4.05499737746007
+            ]
+          },
+          "minimumGap": 2.4865711262040175
+        },
+        {
+          "batch": "meadow-hanging-flared-bell-instances",
+          "instance": 19,
+          "bounds": {
+            "min": [
+              7.673261736095995,
+              0.2665756102455934,
+              -4.254005318920048
+            ],
+            "max": [
+              7.891350546655003,
+              0.4024837637134102,
+              -4.036220874064243
+            ]
+          },
+          "minimumGap": 2.4935553956698033
+        }
+      ],
+      "scope": "every actual current meadow instance geometry AABB transformed by its actual instance and world matrix, expanded .018 in all axes; current finite matrices and authored animation allowance, no all-frame proof"
+    },
+    "shoreline": {
+      "segments": 7,
+      "minimumGap": 2.0590003669261936,
+      "rows": [
+        {
+          "a": [
+            14.399999618530273,
+            -9.600000381469727
+          ],
+          "b": [
+            -14.399999618530273,
+            -9.600000381469727
+          ],
+          "footprintGap": 2.0590003669261936
+        },
+        {
+          "a": [
+            -14.399999618530273,
+            -9.600000381469727
+          ],
+          "b": [
+            -14.399999618530273,
+            9.600000381469727
+          ],
+          "footprintGap": 22.94999966621399
+        },
+        {
+          "a": [
+            -14.399999618530273,
+            9.600000381469727
+          ],
+          "b": [
+            5.5,
+            9.600000381469727
+          ],
+          "footprintGap": 16.54259934903148
+        },
+        {
+          "a": [
+            5.5,
+            9.600000381469727
+          ],
+          "b": [
+            10.699999809265137,
+            4.900000095367432
+          ],
+          "footprintGap": 11.56770696309977
+        },
+        {
+          "a": [
+            10.699999809265137,
+            4.900000095367432
+          ],
+          "b": [
+            12.800000190734863,
+            0.8999999761581421
+          ],
+          "footprintGap": 7.977125012457944
+        },
+        {
+          "a": [
+            12.800000190734863,
+            0.8999999761581421
+          ],
+          "b": [
+            14,
+            -4.099999904632568
+          ],
+          "footprintGap": 4.5388857340124185
+        },
+        {
+          "a": [
+            14,
+            -4.099999904632568
+          ],
+          "b": [
+            14.399999618530273,
+            -9.600000381469727
+          ],
+          "footprintGap": 3.924477254855813
+        }
+      ],
+      "method": "every actual dry-land boundary segment against entire lantern XZ AABB"
+    },
+    "waterBacking": {
+      "topY": -0.05,
+      "soleAboveWaterBacking": 0.0750000000000016
+    },
+    "worldUnchanged": true,
+    "walkableSurfacesUnchanged": true,
+    "occludersUnchanged": true,
+    "notRegisteredAsTownSurface": true,
+    "normalPlacement": false,
+    "ownershipUnlockSave": false,
+    "bodyBinding": null,
+    "limits": "one fixed authored lantern pose at one synthetic current-default-world site;5 finite rays on the flat lantern base,63 finite walkability samples and conservative envelope clearances. Not a continuous placement/stability/physical/body or all-camera-visibility guarantee"
+  },
+  "compiledWorldScope": "Existing current Scene after its synchronous construction/tree-road correction; no DOM or original image bytes loaded in Node. Native art-ready Scene and display are separate gates.",
+  "worldJSONUnchanged": true
+}
