@@ -2142,6 +2142,99 @@
           "schedules": []
         }
       ]
+    },
+    {
+      "code": "1848",
+      "symbol": "1848.T",
+      "name": "富士ピー・エス",
+      "category": "QUOカード",
+      "aliases": "株式会社富士ピー・エス",
+      "versions": [
+        {
+          "id": "current-html-and-2019-revision-reviewed-20261030",
+          "status": "active",
+          "effective_from": "2019-09-30",
+          "effective_until": null,
+          "announced_on": "2019-08-28",
+          "verified_on": "2026-10-30",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://www.fujips.co.jp/ir/stock/shareholder/",
+            "title": "富士ピー・エス公式 株主優待",
+            "security_code": "1848",
+            "issuer_name": "富士ピー・エス",
+            "official_legal_name": "株式会社富士ピー・エス",
+            "security_code_basis": "公式FAQで1848・東京スタンダード/福岡・100株単元を確認し、現在ローカルStockSearchと保存公式取引所snapshotに照合。2019年改定PDFにも1848の印字あり。全市場当日鮮度の保証ではない。",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-30T20:17:46.270299+09:00",
+            "observed_at_kind": "actual_official_HTML_GET_finished_at_jst",
+            "evidence_path": "evidence/reviewed-1848-observation-note-20261030.json",
+            "evidence_sha256": "adfe619ff82235908e591d54b22648f90f737c3014fd772cad0b26579162e9a0",
+            "original_HTML_sha256": "42a4ef578c0395de55db7bcf748bdefc1f91fbc92b1608624b8cd3587aaf9fb2",
+            "original_HTML_bytes": 41293,
+            "revision_PDF_original_sha256": "bb44343fb2fa6603d6b5f34065574fcb6cece16e9ed0c0fd1a52cc9c850c95d0"
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "root-primary-observer-and-independent-saved-PDF-facts-review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "all_future_amendments_verified_absent": false,
+            "general_reuse_licence_claimed": false,
+            "primary_original_SHA_separate_from_note_SHA": true,
+            "local_StockSearch_code_name_symbol_market_join_verified": true,
+            "all_listing_freshness_verified": false,
+            "independent_current_HTML_GET": false,
+            "scope": "担当者が現行制度・FAQ・免責と現在IR一覧を実取得し、現行4区分と3月末/9月末の同番号連続3回の定義を確認。2019年改定PDFは両頁を視覚確認。独立レビューは保存済み原PDFの表・脚注と取得receipt・自作ノートを照合する範囲で、現行HTMLの独立再取得とは呼ばない。再GETは自動承認拒否のため行わず、回避しない。IR一覧明細は未露出で全将来改廃の不存在は保証しない。"
+          },
+          "period": "毎年9月30日の株主名簿で対象を判定。現行株数・保有年数区分は2019年8月28日発表、2019年9月30日基準から適用。制度創設は2017年ですが正確な創設日は未確認。次回の具体的な購入締切は未確認です。",
+          "conditions": "基準日に100株以上で、売買単元も100株。3月末・9月末の名簿に同じ株主番号が連続3回以上記録されると1年以上、2回以下は1年未満の区分です。途中各回の必要株数は明記確認できず、推測していません。",
+          "use": "株数と継続区分に対応するQUOカード1区分の額面です。100〜999株は500円または1,000円、1,000株以上は1,500円または3,000円。区分間を加算しません。申請の要否・選択の手続き・券の有効期限は未確認です。",
+          "delivery": "毎年12月に株主通信と併せて発送する予定です。実際の発送日・到着日は未確認。購入締切未確認でも、この発送予定は保持します。",
+          "grant_summary": "9月末分を12月に株主通信と同時発送予定。額面は株数・継続記録により500/1,000/1,500/3,000円。",
+          "tiers": [
+            {
+              "id": "100plus-short",
+              "shares_min": 100,
+              "shares_max": 999,
+              "holding_months_min": null,
+              "holding_requirement": "1年未満（同一株主番号の連続名簿記録2回以下。最低月数は明記未確認）",
+              "reward": "QUOカード500円分",
+              "conditions": "9月30日の保有株数と名簿継続に対応する1区分。各区分の額面を加算しません。途中各回の必要株数は未確認。"
+            },
+            {
+              "id": "100plus-long",
+              "shares_min": 100,
+              "shares_max": 999,
+              "holding_months_min": 12,
+              "holding_requirement": "1年以上（3月末・9月末の同一株主番号の名簿記録が連続3回以上）",
+              "reward": "QUOカード1,000円分",
+              "conditions": "9月30日の保有株数と名簿継続に対応する1区分。各区分の額面を加算しません。途中各回の必要株数は未確認。"
+            },
+            {
+              "id": "1000plus-short",
+              "shares_min": 1000,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "1年未満（同一株主番号の連続名簿記録2回以下。最低月数は明記未確認）",
+              "reward": "QUOカード1,500円分",
+              "conditions": "9月30日の保有株数と名簿継続に対応する1区分。各区分の額面を加算しません。途中各回の必要株数は未確認。"
+            },
+            {
+              "id": "1000plus-long",
+              "shares_min": 1000,
+              "shares_max": null,
+              "holding_months_min": 12,
+              "holding_requirement": "1年以上（3月末・9月末の同一株主番号の名簿記録が連続3回以上）",
+              "reward": "QUOカード3,000円分",
+              "conditions": "9月30日の保有株数と名簿継続に対応する1区分。各区分の額面を加算しません。途中各回の必要株数は未確認。"
+            }
+          ],
+          "schedules": []
+        }
+      ]
     }
   ]
 }
