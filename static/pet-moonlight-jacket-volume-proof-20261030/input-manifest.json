@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "model_id": "moonlight-jacket-garment-volume-v1",
+  "unit_id": "wardrobe:fit-prerequisite:moonlight-jacket:garment-volume-openings:v1",
+  "asset_id": "prepared_clothing_04_v1",
+  "name": "月あかりジャケット",
+  "run_id": "automation360-20261030-162052",
+  "source_main_sha": "4bde2a9dcc73284dca5c60d55cdcc396a2e88d37",
+  "parentReservationObserved": {
+    "run_id": "automation360-20261030-162052",
+    "unit": "wardrobe:fit-prerequisite:moonlight-jacket:garment-volume-openings:v1",
+    "started_at_jst": "2026-10-30T16:28:08+09:00",
+    "source": "parent-reserve-command.json and current parent work-unit-reservations.json read before production",
+    "noLeaseMutation": true
+  },
+  "source_original": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-level-collection-20261023/clothing/04-moonlight-jacket.png",
+    "sha256": "464f4259b93325e3224623325280ca285eeedf657614d681307309c233ecc654",
+    "bytes": 1407245,
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "inspected": true,
+    "unchanged": true
+  },
+  "artifacts": {
+    "jacket.mjs": {
+      "sha256": "32aad9803c8aef575e0aabc353d2a3013e43c836de18b01d6f18a80a75f4d193",
+      "bytes": 25349
+    },
+    "audit.mjs": {
+      "sha256": "9033f0f8fa562207650cdfbe1a8b8eb6908daae91ee7ee39ed6127c63138e1d8",
+      "bytes": 7091
+    },
+    "viewer.mjs": {
+      "sha256": "de597c53f41cc185e0893644ace9b97f67e264502d3ef11d83bff14aea15b6b0",
+      "bytes": 10993
+    },
+    "entry.mjs": {
+      "sha256": "d4ab39057e1f3a85e0fadd878fd7c78a1c3dde7e446b31b2374c6ad67b889786",
+      "bytes": 1497
+    },
+    "index.html": {
+      "sha256": "d4f5dcf41448cd4b302c63f451eb2dda709a11689fe18205e8c44091ad867081",
+      "bytes": 4436
+    },
+    "reference.png": {
+      "sha256": "464f4259b93325e3224623325280ca285eeedf657614d681307309c233ecc654",
+      "bytes": 1407245
+    },
+    "SPEC.json": {
+      "sha256": "5db34117c8fe494a02ad94b170350d54967f7f5186be3bda3525d8e4189077d5",
+      "bytes": 3299
+    },
+    "finite-geometry-certificate.json": {
+      "sha256": "3380dad52620d326f0184eae589c0f63f2729c7a1d88a1335a906d190b741128",
+      "bytes": 160729
+    }
+  },
+  "unchanged_dependencies": {
+    "static/vendor/three-0.160.1.module.js": {
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    "static/pet-breeze-cape-proof-20261029/geometry-audit.mjs": {
+      "sha256": "2dbe7723509ae914cb98153f133e2a2db9d15e5f4112cc184fa128a2df8e92c0",
+      "bytes": 6377
+    },
+    "static/pet-breeze-cape-proof-20261029/audit.mjs": {
+      "sha256": "0295f409a2c7182069dd6023bf78d94c3a7d05e237fd244923ea3a4c29a4eb80",
+      "bytes": 5891
+    },
+    "static/pet-komorebi-overalls-volume-proof-20261030/audit.mjs": {
+      "sha256": "df27baf806cd5814577addd94b47c43723b67d8338e90628844c2c33371c8a16",
+      "bytes": 6544
+    },
+    "static/pet-scalloped-path-proof-20261027/framing.mjs": {
+      "sha256": "dba92c2f6dec2816ebcf25434ee07c3b699accb61b7e1961a11baf366edad08a",
+      "bytes": 1678
+    }
+  },
+  "source_files": {
+    "scripts/build_pet_moonlight_jacket_20261030.mjs": {
+      "sha256": "a1685b9cc6a43ddc1e2ba1b080feb44b676efb5a63660e73c8094b4df039faca",
+      "bytes": 5593
+    },
+    "tests/test_pet_moonlight_jacket_20261030.mjs": {
+      "sha256": "a35d51803087ede22e48efe5665206a7498f2f1f9520ea799674ecf9724ac1c6",
+      "bytes": 13681
+    },
+    "static/pet-moonlight-jacket-volume-demo.html": {
+      "sha256": "d0750d79afd2284218310d0d62d60a3063ec43a9521067acc88106b918ff3e75",
+      "bytes": 2752
+    }
+  },
+  "bodyBinding": null,
+  "new_designs": 0,
+  "raw_png_designs": 0,
+  "imagegen_calls": 0,
+  "body_calibrations": 0,
+  "fit_confirmations": 0,
+  "village_library_additions": 0,
+  "paid_calls": 0,
+  "source_raw_quality_pending": true,
+  "canonicalFitPending": true,
+  "normalGame": false,
+  "ownershipUnlockSave": false,
+  "scope": "Standalone authored fixed jacket material thickness and real sleeve/neck/front/hem cavities only. All back/depth/inside are trial author dimensions. Finite numeric evidence is not visual acceptance or continuous safety."
+}

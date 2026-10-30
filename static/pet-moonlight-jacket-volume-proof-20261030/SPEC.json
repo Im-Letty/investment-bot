@@ -1,0 +1,84 @@
+{
+  "schema_version": 1,
+  "model_id": "moonlight-jacket-garment-volume-v1",
+  "unit_id": "wardrobe:fit-prerequisite:moonlight-jacket:garment-volume-openings:v1",
+  "asset_id": "prepared_clothing_04_v1",
+  "name": "月あかりジャケット",
+  "source": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-level-collection-20261023/clothing/04-moonlight-jacket.png",
+    "sha256": "464f4259b93325e3224623325280ca285eeedf657614d681307309c233ecc654",
+    "dimensions": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "visualInspectedBeforeAuthoring": true,
+    "unchanged": true
+  },
+  "construction": {
+    "pattern": "Two open front panels and complete rear sewn along shoulders, underarms and sides; continuous hollow torso-to-sleeve cavities, no sleeve-root caps.",
+    "shellBoundaryLoops": 3,
+    "openingTopology": "Neck, open front and lower hem are one connected surface boundary; two separate cuff boundaries. Doubling with real thickness closes material, never the cavities.",
+    "frontBackDepthOffset": 0.04,
+    "sideMaterialOffset": 0.04,
+    "sideDepthSegments": 10,
+    "sampledContour": "centripetal Catmull-Rom, three samples per authored control span",
+    "remesh": "Constrained planar Delaunay flips and interior grid insertion",
+    "delaunayFlips": 7502,
+    "bodyBinding": null,
+    "thicknessScope": "Authored paired vertices and finite actual wall probes only; no global minimum or anatomical depth claim.",
+    "mainBinding": "Constant-radius continuous closed ivory and gold cords along Gaussian-smoothed equal-arc-length actual boundary samples; no variable-radius pinching."
+  },
+  "bounds": {
+    "min": [
+      -2.088284492492676,
+      0.22353947162628174,
+      -0.49111902713775635
+    ],
+    "max": [
+      2.088284492492676,
+      2.4584434032440186,
+      0.49808042358143567
+    ]
+  },
+  "budget": {
+    "parts": 36,
+    "geometries": 23,
+    "materials": 5,
+    "textures": 0,
+    "triangles": 53296
+  },
+  "bodyBinding": null,
+  "authoredDimensionsOnly": true,
+  "closedMaterialAndThreeConnectedSurfaceBoundaries": true,
+  "sleeveRootCaps": false,
+  "threeButtonsAreFixedFrontRestrictions": true,
+  "backInsideAndDepth": "Trial author dimensions, not measured body dimensions or recovered source views.",
+  "pending": [
+    "body calibration and bodyBinding",
+    "wearing and anatomical anchors",
+    "rig and all-growth fit",
+    "unfastening and cloth physics",
+    "ordinary acquisition, equipment, ownership and save"
+  ],
+  "counts": {
+    "new_design": 0,
+    "new_raw_png": 0,
+    "imagegen": 0,
+    "body": 0,
+    "fit": 0,
+    "library_additions": 0,
+    "paid_calls": 0
+  },
+  "localRevision": {
+    "revision": 3,
+    "changes": [
+      "Revision2 actual source/receipts frozen in H/repair-before before repair",
+      "Native view caught uneven pinched boundary binding: replace variable-radius trim by continuous constant-radius ivory/gold after equal-arc smoothing",
+      "Move partial interior approach below and outside lower hem, aimed toward lining cavity; no complete inner visibility claim",
+      "Retain actual closed material, uncapped sleeve paths, genuine thick bindings and all fixed supports"
+    ],
+    "sameOwnedUnit": true
+  },
+  "finiteEvidenceOnly": true
+}
