@@ -1,0 +1,6662 @@
+{
+  "schema_version": 1,
+  "model_id": "komorebi-overalls-volume-v1",
+  "unit_id": "wardrobe:fit-prerequisite:komorebi-overalls:garment-volume-openings:v1",
+  "model_sha256": "653e0de49f23d246ae1caf8cca36cae1ff2882815ff3edcc7930f6d6ab0b6375",
+  "audit_sha256": "df27baf806cd5814577addd94b47c43723b67d8338e90628844c2c33371c8a16",
+  "source_original_sha256": "78fed4a12638213fd68093334dfbf91abf46cd4c780e051d1b0df4da0e315194",
+  "bodyBinding": null,
+  "audit": {
+    "schema_version": 1,
+    "result": "pass",
+    "scope": "Fixed authored garment pose. Finite triangle closure, strict edge/interior crossings, sampled lining pairs, independently authored passage rays, occupied wall rays and shared material contacts; not global continuous collision/volume/thickness proof, anatomy, fit or physics.",
+    "topology": [
+      {
+        "name": "continuous-bib-puff-shorts-crotch-shell",
+        "vertices": 2376,
+        "triangles": 4084,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.22119709052675587,
+        "faceNormals": {
+          "triangles": 4084,
+          "minimumFaceAverageNormalDot": 0.6542432084468567,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "connected-mint-shoulder-strap--1",
+        "vertices": 2340,
+        "triangles": 780,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.030730757471449103,
+        "faceNormals": {
+          "triangles": 780,
+          "minimumFaceAverageNormalDot": 0.9526768849219268,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-strap-edge--1--1",
+        "vertices": 3492,
+        "triangles": 1164,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0009320246605702741,
+        "faceNormals": {
+          "triangles": 1164,
+          "minimumFaceAverageNormalDot": 0.9527751254018537,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-strap-edge--1-1",
+        "vertices": 3492,
+        "triangles": 1164,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0009320247527526428,
+        "faceNormals": {
+          "triangles": 1164,
+          "minimumFaceAverageNormalDot": 0.9527751736655518,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "connected-mint-shoulder-strap-1",
+        "vertices": 2340,
+        "triangles": 780,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.030730489091016167,
+        "faceNormals": {
+          "triangles": 780,
+          "minimumFaceAverageNormalDot": 0.9536991752990731,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-strap-edge-1--1",
+        "vertices": 3492,
+        "triangles": 1164,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0009320248948584379,
+        "faceNormals": {
+          "triangles": 1164,
+          "minimumFaceAverageNormalDot": 0.9527741433985011,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-strap-edge-1-1",
+        "vertices": 3492,
+        "triangles": 1164,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0009320248021796693,
+        "faceNormals": {
+          "triangles": 1164,
+          "minimumFaceAverageNormalDot": 0.9527742016072565,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "hollow-mint-leg-band-left",
+        "vertices": 2016,
+        "triangles": 672,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.018236837537318702,
+        "faceNormals": {
+          "triangles": 672,
+          "minimumFaceAverageNormalDot": 0.9218705764495376,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-leg-piping-left",
+        "vertices": 1512,
+        "triangles": 504,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0012946498332202145,
+        "faceNormals": {
+          "triangles": 504,
+          "minimumFaceAverageNormalDot": 0.9272110342750784,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "hollow-mint-leg-band-right",
+        "vertices": 2016,
+        "triangles": 672,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.018236837537318706,
+        "faceNormals": {
+          "triangles": 672,
+          "minimumFaceAverageNormalDot": 0.9218705764495376,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-leg-piping-right",
+        "vertices": 1512,
+        "triangles": 504,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0012946498332202137,
+        "faceNormals": {
+          "triangles": 504,
+          "minimumFaceAverageNormalDot": 0.9272110342750784,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "mint-rounded-tulip-pocket-face",
+        "vertices": 1104,
+        "triangles": 368,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.022563267106600452,
+        "faceNormals": {
+          "triangles": 368,
+          "minimumFaceAverageNormalDot": 0.8679927848687856,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-leaf-button-base--1",
+        "vertices": 425,
+        "triangles": 720,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.10131950804027,
+        "faceNormals": {
+          "triangles": 720,
+          "minimumFaceAverageNormalDot": 0.9983542358053258,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "green-leaf-button--1",
+        "vertices": 425,
+        "triangles": 720,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.10131950804027,
+        "faceNormals": {
+          "triangles": 720,
+          "minimumFaceAverageNormalDot": 0.9983542358053258,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-leaf-button-base-1",
+        "vertices": 425,
+        "triangles": 720,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.10131950804027,
+        "faceNormals": {
+          "triangles": 720,
+          "minimumFaceAverageNormalDot": 0.9983542358053258,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "green-leaf-button-1",
+        "vertices": 425,
+        "triangles": 720,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.10131950804027,
+        "faceNormals": {
+          "triangles": 720,
+          "minimumFaceAverageNormalDot": 0.9983542358053258,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "pink-tulip-bud",
+        "vertices": 425,
+        "triangles": 720,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.10131950804027,
+        "faceNormals": {
+          "triangles": 720,
+          "minimumFaceAverageNormalDot": 0.9983542358053258,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "green-tulip-leaf--1",
+        "vertices": 425,
+        "triangles": 720,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.10131950804027,
+        "faceNormals": {
+          "triangles": 720,
+          "minimumFaceAverageNormalDot": 0.9983542358053258,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "green-tulip-leaf-1",
+        "vertices": 425,
+        "triangles": 720,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.10131950804027,
+        "faceNormals": {
+          "triangles": 720,
+          "minimumFaceAverageNormalDot": 0.9983542358053258,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-tulip-stem",
+        "vertices": 612,
+        "triangles": 204,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.00003517181499768573,
+        "faceNormals": {
+          "triangles": 204,
+          "minimumFaceAverageNormalDot": 0.952782917328777,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-bib-top-piping",
+        "vertices": 2340,
+        "triangles": 780,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0008263213761858226,
+        "faceNormals": {
+          "triangles": 780,
+          "minimumFaceAverageNormalDot": 0.952788195535524,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-pocket-outline",
+        "vertices": 3840,
+        "triangles": 1280,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0013691051707550043,
+        "faceNormals": {
+          "triangles": 1280,
+          "minimumFaceAverageNormalDot": 0.9539759774520543,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      }
+    ],
+    "crossings": [
+      {
+        "name": "continuous-bib-puff-shorts-crotch-shell",
+        "triangles": 4084,
+        "candidateNonadjacentAABBPairs": 18845,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "connected-mint-shoulder-strap--1",
+        "triangles": 780,
+        "candidateNonadjacentAABBPairs": 5131,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "gold-strap-edge--1--1",
+        "triangles": 1164,
+        "candidateNonadjacentAABBPairs": 7745,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "gold-strap-edge--1-1",
+        "triangles": 1164,
+        "candidateNonadjacentAABBPairs": 7745,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "connected-mint-shoulder-strap-1",
+        "triangles": 780,
+        "candidateNonadjacentAABBPairs": 5126,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "gold-strap-edge-1--1",
+        "triangles": 1164,
+        "candidateNonadjacentAABBPairs": 7750,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "gold-strap-edge-1-1",
+        "triangles": 1164,
+        "candidateNonadjacentAABBPairs": 7750,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "hollow-mint-leg-band-left",
+        "triangles": 672,
+        "candidateNonadjacentAABBPairs": 4728,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "gold-leg-piping-left",
+        "triangles": 504,
+        "candidateNonadjacentAABBPairs": 4554,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "hollow-mint-leg-band-right",
+        "triangles": 672,
+        "candidateNonadjacentAABBPairs": 4728,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "gold-leg-piping-right",
+        "triangles": 504,
+        "candidateNonadjacentAABBPairs": 4554,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "mint-rounded-tulip-pocket-face",
+        "triangles": 368,
+        "candidateNonadjacentAABBPairs": 3576,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "green-tulip-leaf-1",
+        "triangles": 720,
+        "candidateNonadjacentAABBPairs": 795,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "gold-tulip-stem",
+        "triangles": 204,
+        "candidateNonadjacentAABBPairs": 1380,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "gold-bib-top-piping",
+        "triangles": 780,
+        "candidateNonadjacentAABBPairs": 5021,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "gold-pocket-outline",
+        "triangles": 1280,
+        "candidateNonadjacentAABBPairs": 8261,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      }
+    ],
+    "conditionedCloth": {
+      "outer": {
+        "triangles": 1016,
+        "adjacentPairs": 1440,
+        "minimumPlanarTriangleQuality": 0.3024179502000977,
+        "minimumAbsoluteFaceNormalZ": 0.9167313154563915,
+        "maximumAdjacentFaceDihedralDegrees": 12.34349887556552,
+        "pass": true,
+        "criterion": {
+          "minimumPlanarQuality": 0.2,
+          "minimumAbsoluteFaceNormalZ": 0.8,
+          "maximumAdjacentDihedralDegrees": 25
+        },
+        "scope": "Actual finite front/back graph triangles only, outer or lining; rim/connecting side charts excluded. Catches the previous near-collinear graph triangles and 150-degree front folds, no global smoothness or physical cloth guarantee."
+      },
+      "lining": {
+        "triangles": 1004,
+        "adjacentPairs": 1422,
+        "minimumPlanarTriangleQuality": 0.31694107238993685,
+        "minimumAbsoluteFaceNormalZ": 0.916847304865022,
+        "maximumAdjacentFaceDihedralDegrees": 12.34349887556552,
+        "pass": true,
+        "criterion": {
+          "minimumPlanarQuality": 0.2,
+          "minimumAbsoluteFaceNormalZ": 0.8,
+          "maximumAdjacentDihedralDegrees": 25
+        },
+        "scope": "Actual finite front/back graph triangles only, outer or lining; rim/connecting side charts excluded. Catches the previous near-collinear graph triangles and 150-degree front folds, no global smoothness or physical cloth guarantee."
+      }
+    },
+    "independentPassages": {
+      "count": 54,
+      "blocked": 0,
+      "segments": [
+        {
+          "kind": "upper_entry",
+          "from": [
+            -0.18,
+            2.9,
+            -0.14
+          ],
+          "to": [
+            -0.18,
+            0.88,
+            -0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "upper_entry",
+          "from": [
+            -0.18,
+            2.9,
+            0
+          ],
+          "to": [
+            -0.18,
+            0.88,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "upper_entry",
+          "from": [
+            -0.18,
+            2.9,
+            0.14
+          ],
+          "to": [
+            -0.18,
+            0.88,
+            0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "upper_entry",
+          "from": [
+            -0.06,
+            2.9,
+            -0.14
+          ],
+          "to": [
+            -0.06,
+            0.88,
+            -0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "upper_entry",
+          "from": [
+            -0.06,
+            2.9,
+            0
+          ],
+          "to": [
+            -0.06,
+            0.88,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "upper_entry",
+          "from": [
+            -0.06,
+            2.9,
+            0.14
+          ],
+          "to": [
+            -0.06,
+            0.88,
+            0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "upper_entry",
+          "from": [
+            0.06,
+            2.9,
+            -0.14
+          ],
+          "to": [
+            0.06,
+            0.88,
+            -0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "upper_entry",
+          "from": [
+            0.06,
+            2.9,
+            0
+          ],
+          "to": [
+            0.06,
+            0.88,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "upper_entry",
+          "from": [
+            0.06,
+            2.9,
+            0.14
+          ],
+          "to": [
+            0.06,
+            0.88,
+            0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "upper_entry",
+          "from": [
+            0.18,
+            2.9,
+            -0.14
+          ],
+          "to": [
+            0.18,
+            0.88,
+            -0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "upper_entry",
+          "from": [
+            0.18,
+            2.9,
+            0
+          ],
+          "to": [
+            0.18,
+            0.88,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "upper_entry",
+          "from": [
+            0.18,
+            2.9,
+            0.14
+          ],
+          "to": [
+            0.18,
+            0.88,
+            0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_leg",
+          "from": [
+            -0.43,
+            -0.2,
+            -0.14
+          ],
+          "to": [
+            -0.43,
+            0.87,
+            -0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_leg",
+          "from": [
+            -0.43,
+            -0.2,
+            0
+          ],
+          "to": [
+            -0.43,
+            0.87,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_leg",
+          "from": [
+            -0.43,
+            -0.2,
+            0.14
+          ],
+          "to": [
+            -0.43,
+            0.87,
+            0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_leg",
+          "from": [
+            -0.53,
+            -0.2,
+            -0.14
+          ],
+          "to": [
+            -0.53,
+            0.87,
+            -0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_leg",
+          "from": [
+            -0.53,
+            -0.2,
+            0
+          ],
+          "to": [
+            -0.53,
+            0.87,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_leg",
+          "from": [
+            -0.53,
+            -0.2,
+            0.14
+          ],
+          "to": [
+            -0.53,
+            0.87,
+            0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_leg",
+          "from": [
+            -0.63,
+            -0.2,
+            -0.14
+          ],
+          "to": [
+            -0.63,
+            0.87,
+            -0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_leg",
+          "from": [
+            -0.63,
+            -0.2,
+            0
+          ],
+          "to": [
+            -0.63,
+            0.87,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_leg",
+          "from": [
+            -0.63,
+            -0.2,
+            0.14
+          ],
+          "to": [
+            -0.63,
+            0.87,
+            0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_leg",
+          "from": [
+            -0.71,
+            -0.2,
+            -0.14
+          ],
+          "to": [
+            -0.71,
+            0.87,
+            -0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_leg",
+          "from": [
+            -0.71,
+            -0.2,
+            0
+          ],
+          "to": [
+            -0.71,
+            0.87,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_leg",
+          "from": [
+            -0.71,
+            -0.2,
+            0.14
+          ],
+          "to": [
+            -0.71,
+            0.87,
+            0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_arm",
+          "from": [
+            -1.3,
+            1.62,
+            -0.12
+          ],
+          "to": [
+            -0.25,
+            1.62,
+            -0.12
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_arm",
+          "from": [
+            -1.3,
+            1.62,
+            0
+          ],
+          "to": [
+            -0.25,
+            1.62,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_arm",
+          "from": [
+            -1.3,
+            1.62,
+            0.12
+          ],
+          "to": [
+            -0.25,
+            1.62,
+            0.12
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_arm",
+          "from": [
+            -1.3,
+            1.83,
+            -0.12
+          ],
+          "to": [
+            -0.25,
+            1.83,
+            -0.12
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_arm",
+          "from": [
+            -1.3,
+            1.83,
+            0
+          ],
+          "to": [
+            -0.25,
+            1.83,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_arm",
+          "from": [
+            -1.3,
+            1.83,
+            0.12
+          ],
+          "to": [
+            -0.25,
+            1.83,
+            0.12
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_arm",
+          "from": [
+            -1.3,
+            2.08,
+            -0.12
+          ],
+          "to": [
+            -0.25,
+            2.08,
+            -0.12
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_arm",
+          "from": [
+            -1.3,
+            2.08,
+            0
+          ],
+          "to": [
+            -0.25,
+            2.08,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_arm",
+          "from": [
+            -1.3,
+            2.08,
+            0.12
+          ],
+          "to": [
+            -0.25,
+            2.08,
+            0.12
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_leg",
+          "from": [
+            0.43,
+            -0.2,
+            -0.14
+          ],
+          "to": [
+            0.43,
+            0.87,
+            -0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_leg",
+          "from": [
+            0.43,
+            -0.2,
+            0
+          ],
+          "to": [
+            0.43,
+            0.87,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_leg",
+          "from": [
+            0.43,
+            -0.2,
+            0.14
+          ],
+          "to": [
+            0.43,
+            0.87,
+            0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_leg",
+          "from": [
+            0.53,
+            -0.2,
+            -0.14
+          ],
+          "to": [
+            0.53,
+            0.87,
+            -0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_leg",
+          "from": [
+            0.53,
+            -0.2,
+            0
+          ],
+          "to": [
+            0.53,
+            0.87,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_leg",
+          "from": [
+            0.53,
+            -0.2,
+            0.14
+          ],
+          "to": [
+            0.53,
+            0.87,
+            0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_leg",
+          "from": [
+            0.63,
+            -0.2,
+            -0.14
+          ],
+          "to": [
+            0.63,
+            0.87,
+            -0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_leg",
+          "from": [
+            0.63,
+            -0.2,
+            0
+          ],
+          "to": [
+            0.63,
+            0.87,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_leg",
+          "from": [
+            0.63,
+            -0.2,
+            0.14
+          ],
+          "to": [
+            0.63,
+            0.87,
+            0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_leg",
+          "from": [
+            0.71,
+            -0.2,
+            -0.14
+          ],
+          "to": [
+            0.71,
+            0.87,
+            -0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_leg",
+          "from": [
+            0.71,
+            -0.2,
+            0
+          ],
+          "to": [
+            0.71,
+            0.87,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_leg",
+          "from": [
+            0.71,
+            -0.2,
+            0.14
+          ],
+          "to": [
+            0.71,
+            0.87,
+            0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_arm",
+          "from": [
+            1.3,
+            1.62,
+            -0.12
+          ],
+          "to": [
+            0.25,
+            1.62,
+            -0.12
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_arm",
+          "from": [
+            1.3,
+            1.62,
+            0
+          ],
+          "to": [
+            0.25,
+            1.62,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_arm",
+          "from": [
+            1.3,
+            1.62,
+            0.12
+          ],
+          "to": [
+            0.25,
+            1.62,
+            0.12
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_arm",
+          "from": [
+            1.3,
+            1.83,
+            -0.12
+          ],
+          "to": [
+            0.25,
+            1.83,
+            -0.12
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_arm",
+          "from": [
+            1.3,
+            1.83,
+            0
+          ],
+          "to": [
+            0.25,
+            1.83,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_arm",
+          "from": [
+            1.3,
+            1.83,
+            0.12
+          ],
+          "to": [
+            0.25,
+            1.83,
+            0.12
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_arm",
+          "from": [
+            1.3,
+            2.08,
+            -0.12
+          ],
+          "to": [
+            0.25,
+            2.08,
+            -0.12
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_arm",
+          "from": [
+            1.3,
+            2.08,
+            0
+          ],
+          "to": [
+            0.25,
+            2.08,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_arm",
+          "from": [
+            1.3,
+            2.08,
+            0.12
+          ],
+          "to": [
+            0.25,
+            2.08,
+            0.12
+          ],
+          "hits": []
+        }
+      ]
+    },
+    "independentAttachments": {
+      "count": 33,
+      "failed": 0,
+      "minimumClearance": 0.00011856856372347096,
+      "contacts": [
+        {
+          "part": "connected-mint-shoulder-strap--1",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "point": [
+            -0.46,
+            1.895,
+            0.308
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.015608514050293948,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0022993268487146836,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "connected-mint-shoulder-strap--1",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "point": [
+            -0.46,
+            1.325,
+            -0.345
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02526514359838092,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.003209689550216371,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-strap-edge--1--1",
+          "target": "connected-mint-shoulder-strap--1",
+          "point": [
+            -0.6469928392306233,
+            2.5841714261512494,
+            -0.0005566795627519328
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.010729415829176605,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.009999655492210238,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-strap-edge--1-1",
+          "target": "connected-mint-shoulder-strap--1",
+          "point": [
+            -0.4369928392306234,
+            2.5841714261512494,
+            -0.0005566795627519328
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.010729417766768386,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.010000005608956716,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "connected-mint-shoulder-strap-1",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "point": [
+            0.46,
+            1.895,
+            0.308
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.01560851405029373,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0022922731849099416,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "connected-mint-shoulder-strap-1",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "point": [
+            0.46,
+            1.325,
+            -0.345
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02526514359838092,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0032280087258913033,
+            "independentUniqueRayHitCounts": [
+              1,
+              3,
+              3
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-strap-edge-1--1",
+          "target": "connected-mint-shoulder-strap-1",
+          "point": [
+            0.4369928392306234,
+            2.5841714261512494,
+            -0.0005566795627519328
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.010729318250383327,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.010000005610537795,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-strap-edge-1-1",
+          "target": "connected-mint-shoulder-strap-1",
+          "point": [
+            0.6469928392306233,
+            2.5841714261512494,
+            -0.0005566795627519328
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.010729320259825854,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.009999739285731847,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "point": [
+            -0.867214042723925,
+            0.219205899634825,
+            0.38831168073635863
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.015896217667326604,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00013448863007007653,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "point": [
+            -0.2214142135623731,
+            0.25,
+            0.3988364712580079
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022310038822564267,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0003067326052144772,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "point": [
+            -0.22000000000000003,
+            0.175,
+            -0.13141689494012695
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.025858889388045377,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0003275351744480603,
+            "independentUniqueRayHitCounts": [
+              3,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "point": [
+            -0.5100214283924344,
+            0.16813986228247804,
+            -0.37129065689253804
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.027472407204344282,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00045227826941322634,
+            "independentUniqueRayHitCounts": [
+              3,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "point": [
+            -0.945238070666965,
+            0.21457159131188183,
+            -0.19897064187181124
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.027952983554252672,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0003776524690328697,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "point": [
+            -0.915721006289022,
+            0.24625349325144946,
+            0.3323875368119383
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022120847826107577,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              3
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0003332269706899051,
+            "independentUniqueRayHitCounts": [
+              3,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-leg-piping-left",
+          "target": "hollow-mint-leg-band-left",
+          "point": [
+            -0.76,
+            0.22799999999999998,
+            0.3754772475346561
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.000488952386830781,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.011902867999796252,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "point": [
+            0.32370122903871923,
+            0.1970589352433038,
+            0.3795615633271211
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.01955109401274416,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.000123378467520883,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "point": [
+            0.9145663057506427,
+            0.2465130062754433,
+            0.3321280237879444
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02095671005125789,
+            "independentUniqueRayHitCounts": [
+              1,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0009466452431946828,
+            "independentUniqueRayHitCounts": [
+              3,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "point": [
+            0.9440833701285857,
+            0.21483110433587568,
+            -0.20153955597256357
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.027415569376786797,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00045948565652251434,
+            "independentUniqueRayHitCounts": [
+              3,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "point": [
+            0.5071930012676896,
+            0.168139862282478,
+            -0.371290656892538
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.027307285476133734,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0004522782694132878,
+            "independentUniqueRayHitCounts": [
+              1,
+              7,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "point": [
+            0.22000000000000003,
+            0.175,
+            -0.13141689494012695
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.025858889388045377,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.000316022285253974,
+            "independentUniqueRayHitCounts": [
+              3,
+              5,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "point": [
+            0.22,
+            0.25,
+            0.398250684820381
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.023175332028137017,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00011856856372347096,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-leg-piping-right",
+          "target": "hollow-mint-leg-band-right",
+          "point": [
+            0.5086072148300628,
+            0.2147256487201049,
+            0.371290656892538
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0005341426168557321,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.011999971068313613,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "mint-rounded-tulip-pocket-face",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "point": [
+            -0.001021505376344099,
+            1.3467793689238017,
+            0.33768098270936053
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.005397943152831877,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.005865234090971593,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-leaf-button-base--1",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "point": [
+            -0.46,
+            1.86,
+            0.3064712545403343
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03395629646573619,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.003999951756634476,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "green-leaf-button--1",
+          "target": "gold-leaf-button-base--1",
+          "point": [
+            -0.45999999999999996,
+            1.8600000000000003,
+            0.33647125454033433
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.044842013088500485,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.003994858407733655,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-leaf-button-base-1",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "point": [
+            0.46,
+            1.86,
+            0.30647125454033475
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03395629646573619,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.003999951756634032,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "green-leaf-button-1",
+          "target": "gold-leaf-button-base-1",
+          "point": [
+            0.45999999999999996,
+            1.8600000000000003,
+            0.3364712545403348
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.044842013088500485,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.003994858407733651,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "pink-tulip-bud",
+          "target": "mint-rounded-tulip-pocket-face",
+          "point": [
+            0,
+            1.34,
+            0.3959294540158247
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.026962534592069275,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.003860033911396028,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "green-tulip-leaf--1",
+          "target": "mint-rounded-tulip-pocket-face",
+          "point": [
+            -0.105,
+            1.24,
+            0.42310213580599854
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.023907535651446488,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.003860033911395867,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "green-tulip-leaf-1",
+          "target": "mint-rounded-tulip-pocket-face",
+          "point": [
+            0.105,
+            1.24,
+            0.4244710239348808
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.023907535651446484,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.003856591677978751,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-tulip-stem",
+          "target": "mint-rounded-tulip-pocket-face",
+          "point": [
+            0,
+            1.24,
+            0.42510213580599854
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.009238793462243601,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.001930016955697958,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-bib-top-piping",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "point": [
+            0,
+            1.886,
+            0.30833117849268254
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.015705933926747587,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0019999744090767354,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-pocket-outline",
+          "target": "mint-rounded-tulip-pocket-face",
+          "point": [
+            0,
+            1.135,
+            0.4559221737072382
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.013777665989788745,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.002782276098585352,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "actualLegRimVertexCoverage": {
+      "count": 84,
+      "failed": 0,
+      "witnesses": [
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.8657998291615518,
+            0.21779168607245192,
+            0.38831168073635863
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.016301031572508232,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.8172408686200235,
+            0.19577859197874134,
+            0.38067393777492653
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02006941505165298,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.76,
+            0.18,
+            0.3754772475346561
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02309349352530604,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.64400673250762,
+            0.16639498349320422,
+            0.37118855813018725
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.026968262972950092,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.5086072148300612,
+            0.16672564872010495,
+            0.37129065689253804
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.027389846340239037,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.39,
+            0.18,
+            0.3754772475346561
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.023907510136893524,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.3248559295770985,
+            0.19590423470492455,
+            0.38071626386550034
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02088109694748167,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.26805571676487994,
+            0.21824000380774575,
+            0.38847178508473384
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.01696187011489545,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.22,
+            0.25,
+            0.400250684820381
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02121847067516286,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.22,
+            0.24330127018922193,
+            0.3335422373503175
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.019568431405833014,
+            "independentUniqueRayHitCounts": [
+              1,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.22000000000000003,
+            0.225,
+            0.266833789880254
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.021600844363408964,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.22,
+            0.2,
+            0.20012534241019048
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.023750080555371835,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.22000000000000003,
+            0.175,
+            0.13341689494012704
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02579852177658934,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.22,
+            0.15669872981077804,
+            0.06670844747006346
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.027365981298890226,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.22,
+            0.15,
+            0
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.027999032949540353,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.22000000000000003,
+            0.15669872981077804,
+            -0.06670844747006355
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0273659812988902,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.22000000000000003,
+            0.175,
+            -0.13341689494012696
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02579852177658931,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.22,
+            0.19999999999999998,
+            -0.20012534241019048
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.023750080555371835,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.22,
+            0.225,
+            -0.266833789880254
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.021600844363408995,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.22,
+            0.24330127018922193,
+            -0.33354223735031746
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.019568431405833014,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.22,
+            0.25,
+            -0.400250684820381
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02121847067516286,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.26805571676487994,
+            0.21824000380774575,
+            -0.38847178508473384
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.01696187011489545,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.3248559295770985,
+            0.19590423470492455,
+            -0.38071626386550034
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.020881096947481626,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.39,
+            0.18,
+            -0.3754772475346561
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.023907510136893472,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.5086072148300612,
+            0.16672564872010495,
+            -0.37129065689253804
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.027389846340238982,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.64400673250762,
+            0.16639498349320422,
+            -0.37118855813018725
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.026968262972950092,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.76,
+            0.18,
+            -0.3754772475346561
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02309349352530599,
+            "independentUniqueRayHitCounts": [
+              1,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.8172408686200235,
+            0.19577859197874134,
+            -0.38067393777492653
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02006941505165298,
+            "independentUniqueRayHitCounts": [
+              1,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.8657998291615518,
+            0.21779168607245192,
+            -0.38831168073635863
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.016301031572508232,
+            "independentUniqueRayHitCounts": [
+              1,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.91,
+            0.25,
+            -0.400250684820381
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.020544685605871704,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.9145663057506427,
+            0.24509879271307022,
+            -0.33354223735031746
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02101315162170725,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.9270416850642929,
+            0.2317084453867513,
+            -0.266833789880254
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02487227426935243,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.9440833701285857,
+            0.2134168907735026,
+            -0.20012534241019048
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.027092550739623925,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.9611250551928786,
+            0.1951253361602539,
+            -0.13341689494012696
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02789759687205645,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.9736004345065284,
+            0.18173498883393496,
+            -0.06670844747006355
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.027999991212446253,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.9781667402571712,
+            0.17683378154700524,
+            0
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02799997838201862,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.9736004345065283,
+            0.18173498883393496,
+            0.06670844747006346
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02799999121244613,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.9611250551928786,
+            0.19512533616025393,
+            0.13341689494012704
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02789759687205645,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.9440833701285857,
+            0.21341689077350262,
+            0.20012534241019048
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.027092550739623925,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.927041685064293,
+            0.2317084453867513,
+            0.266833789880254
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02487227426935254,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.9145663057506427,
+            0.24509879271307022,
+            0.3335422373503175
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.021013151621707245,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              3
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-left",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "left_leg",
+          "point": [
+            -0.91,
+            0.25,
+            0.400250684820381
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.020544685605871704,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.32485592957709847,
+            0.19590423470492457,
+            0.38071626386550034
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.020881096947481626,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.39,
+            0.18,
+            0.3754772475346561
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.023907510136893472,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.5086072148300628,
+            0.1667256487201049,
+            0.371290656892538
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.027389846340239037,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.6440067325076209,
+            0.16639498349320428,
+            0.37118855813018725
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.026968262972950036,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.76,
+            0.18,
+            0.3754772475346561
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02309349352530599,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.8172408686200239,
+            0.19577859197874153,
+            0.38067393777492664
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.020069415051653036,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.8657998291615518,
+            0.21779168607245203,
+            0.3883116807363587
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.016301031572508284,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.91,
+            0.25,
+            0.400250684820381
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.020544685605871704,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.9145663057506427,
+            0.24509879271307022,
+            0.3335422373503175
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02101315162170725,
+            "independentUniqueRayHitCounts": [
+              1,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.927041685064293,
+            0.2317084453867513,
+            0.266833789880254
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02487227426935254,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.9440833701285857,
+            0.21341689077350262,
+            0.20012534241019048
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.027092550739623925,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.9611250551928785,
+            0.1951253361602539,
+            0.13341689494012704
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.027897596872056337,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.9736004345065283,
+            0.18173498883393496,
+            0.06670844747006346
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02799999121244613,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.9781667402571712,
+            0.17683378154700521,
+            0
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02799997838201862,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.9736004345065284,
+            0.18173498883393496,
+            -0.06670844747006355
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.027999991212446253,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.9611250551928786,
+            0.1951253361602539,
+            -0.13341689494012696
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02789759687205645,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.9440833701285857,
+            0.2134168907735026,
+            -0.20012534241019048
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.027092550739623925,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.9270416850642929,
+            0.2317084453867513,
+            -0.266833789880254
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02487227426935243,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.9145663057506427,
+            0.24509879271307022,
+            -0.33354223735031746
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02101315162170725,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.91,
+            0.25,
+            -0.400250684820381
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.020544685605871704,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.8657998291615518,
+            0.21779168607245203,
+            -0.3883116807363587
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.016301031572508284,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.8172408686200239,
+            0.19577859197874153,
+            -0.38067393777492664
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.020069415051653036,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.76,
+            0.18,
+            -0.3754772475346561
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02309349352530604,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.6440067325076209,
+            0.16639498349320428,
+            -0.37118855813018725
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.026968262972950036,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.5086072148300628,
+            0.1667256487201049,
+            -0.371290656892538
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.027389846340239037,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.39,
+            0.18,
+            -0.3754772475346561
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.023907510136893524,
+            "independentUniqueRayHitCounts": [
+              1,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.32485592957709847,
+            0.19590423470492457,
+            -0.38071626386550034
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02088109694748168,
+            "independentUniqueRayHitCounts": [
+              1,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.2680557167648796,
+            0.21824000380774594,
+            -0.3884717850847339
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.01696187011489545,
+            "independentUniqueRayHitCounts": [
+              1,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.22,
+            0.25,
+            -0.400250684820381
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02121847067516286,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.22,
+            0.24330127018922193,
+            -0.33354223735031746
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.019568431405833014,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.22,
+            0.225,
+            -0.266833789880254
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.021600844363408995,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.22,
+            0.19999999999999998,
+            -0.20012534241019048
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.023750080555371835,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.22000000000000003,
+            0.175,
+            -0.13341689494012696
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02579852177658934,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.22000000000000003,
+            0.15669872981077804,
+            -0.06670844747006355
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0273659812988902,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.22,
+            0.15,
+            0
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.027999032949540353,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.22,
+            0.15669872981077804,
+            0.06670844747006346
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.027365981298890226,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.22000000000000003,
+            0.175,
+            0.13341689494012704
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02579852177658931,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.22,
+            0.2,
+            0.20012534241019048
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.023750080555371835,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.22000000000000003,
+            0.225,
+            0.266833789880254
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.021600844363408964,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.22,
+            0.24330127018922193,
+            0.3335422373503175
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.019568431405833014,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              3
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.22,
+            0.25,
+            0.400250684820381
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02121847067516286,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "binding": "hollow-mint-leg-band-right",
+          "target": "continuous-bib-puff-shorts-crotch-shell",
+          "targetRim": "right_leg",
+          "point": [
+            0.2680557167648796,
+            0.21824000380774594,
+            0.3884717850847339
+          ],
+          "finiteVertexOnly": true,
+          "audit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.016961870114895437,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "materialControls": [
+      {
+        "name": "crotch-bridge",
+        "from": [
+          0,
+          -0.2,
+          0
+        ],
+        "to": [
+          0,
+          0.9,
+          0
+        ],
+        "hits": [
+          {
+            "part": "continuous-bib-puff-shorts-crotch-shell",
+            "face": 1434,
+            "distance": 0.5899999856948852
+          },
+          {
+            "part": "continuous-bib-puff-shorts-crotch-shell",
+            "face": 1435,
+            "distance": 0.5899999856948851
+          },
+          {
+            "part": "continuous-bib-puff-shorts-crotch-shell",
+            "face": 1437,
+            "distance": 0.5899999856948851
+          },
+          {
+            "part": "continuous-bib-puff-shorts-crotch-shell",
+            "face": 1458,
+            "distance": 0.5899999856948851
+          },
+          {
+            "part": "continuous-bib-puff-shorts-crotch-shell",
+            "face": 1460,
+            "distance": 0.5899999856948851
+          },
+          {
+            "part": "continuous-bib-puff-shorts-crotch-shell",
+            "face": 1461,
+            "distance": 0.5899999856948852
+          },
+          {
+            "part": "continuous-bib-puff-shorts-crotch-shell",
+            "face": 3326,
+            "distance": 0.6026313424110411
+          },
+          {
+            "part": "continuous-bib-puff-shorts-crotch-shell",
+            "face": 3329,
+            "distance": 0.6026313424110412
+          }
+        ],
+        "uniqueShellWallDistances": [
+          0.5899999856948851,
+          0.6026313424110411
+        ],
+        "firstWallThicknessAlongRay": 0.012631356716156006
+      },
+      {
+        "name": "left-side-material",
+        "from": [
+          -1.5,
+          0.7,
+          0
+        ],
+        "to": [
+          -0.5,
+          0.7,
+          0
+        ],
+        "hits": [
+          {
+            "part": "continuous-bib-puff-shorts-crotch-shell",
+            "face": 1170,
+            "distance": 0.34015275409488566
+          },
+          {
+            "part": "continuous-bib-puff-shorts-crotch-shell",
+            "face": 1173,
+            "distance": 0.34015275409488566
+          },
+          {
+            "part": "continuous-bib-puff-shorts-crotch-shell",
+            "face": 3038,
+            "distance": 0.35221992399235447
+          },
+          {
+            "part": "continuous-bib-puff-shorts-crotch-shell",
+            "face": 3041,
+            "distance": 0.35221992399235447
+          }
+        ],
+        "uniqueShellWallDistances": [
+          0.34015275409488566,
+          0.35221992399235447
+        ],
+        "firstWallThicknessAlongRay": 0.01206716989746881
+      },
+      {
+        "name": "right-side-material",
+        "from": [
+          1.5,
+          0.7,
+          0
+        ],
+        "to": [
+          0.5,
+          0.7,
+          0
+        ],
+        "hits": [
+          {
+            "part": "continuous-bib-puff-shorts-crotch-shell",
+            "face": 1722,
+            "distance": 0.34015275409488566
+          },
+          {
+            "part": "continuous-bib-puff-shorts-crotch-shell",
+            "face": 1725,
+            "distance": 0.34015275409488566
+          },
+          {
+            "part": "continuous-bib-puff-shorts-crotch-shell",
+            "face": 3590,
+            "distance": 0.35221992399235447
+          },
+          {
+            "part": "continuous-bib-puff-shorts-crotch-shell",
+            "face": 3593,
+            "distance": 0.35221992399235447
+          }
+        ],
+        "uniqueShellWallDistances": [
+          0.34015275409488566,
+          0.35221992399235447
+        ],
+        "firstWallThicknessAlongRay": 0.01206716989746881
+      },
+      {
+        "name": "bib-material",
+        "from": [
+          0,
+          1.75,
+          1.5
+        ],
+        "to": [
+          0,
+          1.75,
+          0
+        ],
+        "hits": [
+          {
+            "part": "continuous-bib-puff-shorts-crotch-shell",
+            "face": 492,
+            "distance": 1.188557267560809
+          },
+          {
+            "part": "continuous-bib-puff-shorts-crotch-shell",
+            "face": 2355,
+            "distance": 1.2235572639845302
+          }
+        ],
+        "uniqueShellWallDistances": [
+          1.188557267560809,
+          1.2235572639845302
+        ],
+        "firstWallThicknessAlongRay": 0.034999996423721313
+      },
+      {
+        "name": "rear-material",
+        "from": [
+          0,
+          1,
+          -1.5
+        ],
+        "to": [
+          0,
+          1,
+          0
+        ],
+        "hits": [
+          {
+            "part": "continuous-bib-puff-shorts-crotch-shell",
+            "face": 967,
+            "distance": 1.0365897588789035
+          },
+          {
+            "part": "continuous-bib-puff-shorts-crotch-shell",
+            "face": 2831,
+            "distance": 1.0715897553026248
+          }
+        ],
+        "uniqueShellWallDistances": [
+          1.0365897588789035,
+          1.0715897553026248
+        ],
+        "firstWallThicknessAlongRay": 0.034999996423721313
+      }
+    ],
+    "liningPairDistances": {
+      "count": 597,
+      "minimum": 0.012003974320695119,
+      "maximum": 0.0371844083488864,
+      "scope": "Authored paired mesh vertex distances only; not a global minimum of cloth thickness"
+    },
+    "connectedPartCount": 22,
+    "totalPartCount": 22,
+    "bodyBinding": null,
+    "wearingFit": false,
+    "rig": false,
+    "clothPhysics": false,
+    "normalGame": false,
+    "ownershipUnlockSave": false
+  }
+}

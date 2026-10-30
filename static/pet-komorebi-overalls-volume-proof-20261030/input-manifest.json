@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "unit_id": "wardrobe:fit-prerequisite:komorebi-overalls:garment-volume-openings:v1",
+  "model_id": "komorebi-overalls-volume-v1",
+  "source_original": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/wardrobe-living-village-continuation-20261024/assets/komorebi-overalls-v1.png",
+    "sha256": "78fed4a12638213fd68093334dfbf91abf46cd4c780e051d1b0df4da0e315194",
+    "bytes": 1484114
+  },
+  "source_copy_unmodified": true,
+  "source_raw_quality_pending": true,
+  "source_png_count_contribution": 0,
+  "raw_png_designs": 0,
+  "village_library_additions": 0,
+  "paid_calls": 0,
+  "imagegen_calls": 0,
+  "bodyBinding": null,
+  "dimension_basis": "Authored garment-only trial units; no anatomical dimensions or fit calibration.",
+  "normal_game_changes": 0,
+  "artifacts": {
+    "SPEC.json": {
+      "sha256": "f597b29c8fcf6f848ced4d418dbdacb85b2ec4c4a3dcbf1873b27291a24bbabf",
+      "bytes": 2569
+    },
+    "audit.mjs": {
+      "sha256": "df27baf806cd5814577addd94b47c43723b67d8338e90628844c2c33371c8a16",
+      "bytes": 6544
+    },
+    "entry.mjs": {
+      "sha256": "e410def03d54d9a4931f954cb9924f58099ababdb493c526eb069505c00d063f",
+      "bytes": 1757
+    },
+    "finite-geometry-certificate.json": {
+      "sha256": "15ed0ba1cc069a0826b0c4828aee5e2cb75cdadfa7eb1f0978e05819b218c629",
+      "bytes": 163201
+    },
+    "index.html": {
+      "sha256": "816f79534736a9e7151dcf42b9540008d0b95574ec4b734d35949bea19fea921",
+      "bytes": 4612
+    },
+    "overalls.mjs": {
+      "sha256": "653e0de49f23d246ae1caf8cca36cae1ff2882815ff3edcc7930f6d6ab0b6375",
+      "bytes": 25315
+    },
+    "reference.png": {
+      "sha256": "78fed4a12638213fd68093334dfbf91abf46cd4c780e051d1b0df4da0e315194",
+      "bytes": 1484114
+    },
+    "viewer.mjs": {
+      "sha256": "5b28eb97776b14db47b97e496c4fe7e4b9e612230b03bc5ad9b424adb0f661f6",
+      "bytes": 8515
+    }
+  },
+  "unchanged_dependencies": {
+    "static/vendor/three-0.160.1.module.js": {
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    "static/pet-breeze-cape-proof-20261029/geometry-audit.mjs": {
+      "sha256": "2dbe7723509ae914cb98153f133e2a2db9d15e5f4112cc184fa128a2df8e92c0",
+      "bytes": 6377
+    },
+    "static/pet-breeze-cape-proof-20261029/audit.mjs": {
+      "sha256": "0295f409a2c7182069dd6023bf78d94c3a7d05e237fd244923ea3a4c29a4eb80",
+      "bytes": 5891
+    },
+    "static/pet-scalloped-path-proof-20261027/framing.mjs": {
+      "sha256": "dba92c2f6dec2816ebcf25434ee07c3b699accb61b7e1961a11baf366edad08a",
+      "bytes": 1678
+    }
+  },
+  "verification_sources": {
+    "tests/test_pet_komorebi_overalls_20261030.mjs": {
+      "sha256": "693572bf027bca7ad80a8226bb2a1feb2e1d7abb209d5a5338436bdb835241e5",
+      "bytes": 10146
+    }
+  }
+}
