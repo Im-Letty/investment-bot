@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "recorded_at_jst": "2026-10-30T12:44:59.158590+09:00",
+  "code": "1828",
+  "name": "田辺工業",
+  "symbol": "1828.T",
+  "saved_market": "Tokyo Standard dated2026-09-30 source snapshot",
+  "primary_observations": [
+    {
+      "receipt": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/heartbeat-20261030-123819/company-1828/http-3.json",
+        "sha256": "ca32d60fb910487ce1a960d3613755a7ff1a35dbd7c900fdacaa6852961e62cb",
+        "bytes": 6168
+      },
+      "URL": "https://www.tanabe-ind.co.jp/ir/stock/stockholder.html",
+      "raw_primary_HTML_SHA256": "099cf6dde3ad8b1b991c2d6811fbd4942821288ed5917446f24bbb853797baa9",
+      "raw_response_bytes": 8708,
+      "actual_started_at_jst": "2026-10-30T12:42:39.460020+09:00",
+      "actual_finished_at_jst": "2026-10-30T12:42:39.676527+09:00",
+      "raw_HTML_saved": false
+    },
+    {
+      "receipt": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/heartbeat-20261030-123819/company-1828/http-5.json",
+        "sha256": "4b29f6a1880bc2e6ce26f333f9dc2a4427a5e903d2494753b38cb6409570677b",
+        "bytes": 5347
+      },
+      "URL": "https://www.tanabe-ind.co.jp/ir/disclaimers/",
+      "raw_primary_HTML_SHA256": "afc7eb7d6757754fa3fbc19fdfeaa680bf8f29ab0abda6635690bbcfaef5e4d8",
+      "raw_response_bytes": 8539,
+      "actual_started_at_jst": "2026-10-30T12:43:09.591536+09:00",
+      "actual_finished_at_jst": "2026-10-30T12:43:09.652280+09:00",
+      "raw_HTML_saved": false
+    },
+    {
+      "receipt": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/heartbeat-20261030-123819/company-1828/http-7.json",
+        "sha256": "85aafe5e3b8c376ab871ff6b93d26094c46bf2c809f65ef73dd45f93f3c72b9c",
+        "bytes": 3526
+      },
+      "URL": "https://www.tanabe-ind.co.jp/privacy_policy/",
+      "raw_primary_HTML_SHA256": "8836cd364a34659928303689773d55f5fe626fb80137abf49b4238c3220d3062",
+      "raw_response_bytes": 23639,
+      "actual_started_at_jst": "2026-10-30T12:43:28.257069+09:00",
+      "actual_finished_at_jst": "2026-10-30T12:43:28.346651+09:00",
+      "raw_HTML_saved": false
+    },
+    {
+      "receipt": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/heartbeat-20261030-123819/company-1828/http-8.json",
+        "sha256": "0e42ec9e7ad0717ff14a9041b6201c7edbfe8bf19d8bb18d1c0d1afece3e6998",
+        "bytes": 6318
+      },
+      "URL": "https://www.tanabe-ind.co.jp/ir/stock/index.html",
+      "raw_primary_HTML_SHA256": "d280707bcb6bd5ad167180a5c474854046836f70bbe5bbac585434f9437e461e",
+      "raw_response_bytes": 10359,
+      "actual_started_at_jst": "2026-10-30T12:43:37.120714+09:00",
+      "actual_finished_at_jst": "2026-10-30T12:43:37.158713+09:00",
+      "raw_HTML_saved": false
+    },
+    {
+      "receipt": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/heartbeat-20261030-123819/company-1828/http-9.json",
+        "sha256": "85cd3f97cdc02e9219f85c5629c546868924b0b8d6150e3807c81899a39db79b",
+        "bytes": 5353
+      },
+      "URL": "https://www.tanabe-ind.co.jp/ir/news/index.html",
+      "raw_primary_HTML_SHA256": "b33ccd7137f279e001b57d7899b7f04fe63c4fa8fd571c7d5e3d8231d50d995a",
+      "raw_response_bytes": 7050,
+      "actual_started_at_jst": "2026-10-30T12:43:42.962377+09:00",
+      "actual_finished_at_jst": "2026-10-30T12:43:43.003459+09:00",
+      "raw_HTML_saved": false
+    }
+  ],
+  "independently_written_factual_observations_jp": [
+    "現在の公式優待ページには100株以上を対象として、保有期間にかかわらず、3月31日と9月30日の各基準日に500円のQUOカード1枚を贈呈する制度が記載される。各回500円であり、年額を各回金額として扱わない。",
+    "9月30日分は12月上旬、3月31日分は6月下旬の贈呈予定。実際の発送・到着や購入締切とは別。",
+    "株式情報は1単元100株を記載。公式ページの田辺工業株式会社という主体名と、保存した公式JPX由来の会社code1828・東証スタンダードのStockSearch identityを照合した。今回読んだ本文内では1828というcode・市場区分の明示は未確認。",
+    "IR免責事項は投資判断・情報正確性・将来見通し・通信/運営の免責を記載。読んだ範囲で短い独立事実や通常リンクを禁止する明示を確認していない。プライバシーポリシーは個人情報取扱いの記載で、包括的な情報再利用の許可とは扱わない。",
+    "IRニュースの静的HTMLは一覧明細・実公表日・改定資料への新しい実リンクを露出しない。情報不存在や改定なしの証明ではない。"
+  ],
+  "issuer_identity_comparison": "issuer_name_matches_saved_officialJPX_code1828_TokyoStandard_StockSearch; fresh_official_code_market_text_not_observed",
+  "identity": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/heartbeat-20261030-123819/StockSearch-selected-identities.json",
+    "sha256": "f7f7986a1ba0280e229dca99ccd841b8da0697c6f0dfdcebb42b35c07ead4f1c",
+    "bytes": 3876
+  },
+  "conditions_scope": {
+    "reviewed_IR_disclaimer": true,
+    "reviewed_privacy": true,
+    "explicit_independent_fact_or_ordinary_link_prohibition_observed": false,
+    "general_reuse_license_established": false,
+    "copyright_footer_not_blanket_fact_ban": true
+  },
+  "review_gaps": [
+    "新しい優待制度の原公表日・制度開始日・現区分適用開始日は未確認。",
+    "IRニュース明細が未露出で、現在版の全改定・廃止・分割の確認は未完。",
+    "今回の公式本文で会社code1828・市場区分を直接確認していない。保存公式JPX由来identityとの照合は済み。",
+    "申請要否、選択・併用の詳細、券の有効期限、実発送・到着、次回購入締切は未確認。",
+    "独立レビュー・公開適格性・本番追加は別gate。"
+  ],
+  "current_public_adoption_ready": false,
+  "new_public_company_records": 0,
+  "new_schedules": 0,
+  "source_prose_tables_images_saved": false,
+  "note_SHA_is_raw_page_SHA": false,
+  "current_day_all_market_identity_freshness_verified": false,
+  "source_observation_clock_distinct_from_note_time": true,
+  "private_candidate_programme": {
+    "basic_share_tiers": [
+      {
+        "min_shares": 100,
+        "max_shares": null,
+        "holding_condition": "explicitly regardless of holding duration",
+        "holding_months_if_adopted": 0,
+        "record_dates": [
+          "03-31",
+          "09-30"
+        ],
+        "benefit_type": "QUO card",
+        "amount_yen_per_record": 500,
+        "card_count_per_record": 1,
+        "non_additive_tiers": true
+      }
+    ],
+    "planned_delivery_by_record": {
+      "03-31": "late June",
+      "09-30": "early December"
+    },
+    "actual_delivery_or_arrival_verified": false,
+    "application_required": null,
+    "selection_details": null,
+    "expiry": null,
+    "programme_started_on": null,
+    "tier_effective_from": null,
+    "next_purchase_deadline": null,
+    "schedules": [],
+    "original_announcement_date": null
+  }
+}
