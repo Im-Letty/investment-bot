@@ -1,19 +1,35 @@
-/* Adopted "choose from the heading": native selector, original tab actions. */
-body.kn-home-a #myPageOv .mp-toptabs[data-mp-picker-ready="true"] {
-  display:flex;align-items:center;min-height:72px;
-  padding-top:12px!important;padding-bottom:12px!important;
+/* One row of round view tabs, using the original route controls and palette. */
+body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] {
+  --mp-tabs-left:max(var(--mypage-gutter),calc(var(--kn-a-menu-left,22px) + 48px));
+  display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);
+  position:relative;isolation:isolate;align-items:stretch;gap:3px;
+  min-width:0;min-height:72px;box-sizing:border-box;
+  padding:10px var(--mypage-gutter) 10px var(--mp-tabs-left);
   overflow:visible;
 }
-body.kn-home-a #myPageOv .mp-toptabs[data-mp-picker-ready="true"][hidden] {display:none!important}
-body.kn-home-a #myPageOv .mp-toptabs[data-mp-picker-ready="true"] > .mp-toptab {display:none!important}
-body.kn-home-a #myPageOv .mp-view-picker {display:block;min-width:0;max-width:100%}
-body.kn-home-a #myPageOv .mp-view-picker[hidden] {display:none!important}
-body.kn-home-a #myPageOv .mp-view-picker select {
-  display:block;box-sizing:border-box;min-height:48px;max-width:100%;width:auto;
-  margin:0;padding:6px 24px 6px 0;border:0;border-radius:4px;
-  background:var(--kn-sh-bg,#f0eedf);color:var(--kn-sh-ink,#3d4b3c);
-  font:500 calc(22px * var(--kn-type-scale,1))/1.4 var(--kn-a-sans,system-ui,sans-serif);
-  cursor:pointer;appearance:auto;
+body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"][hidden] {display:none!important}
+body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"]::before {
+  content:"";position:absolute;z-index:-1;
+  inset:10px var(--mypage-gutter) 10px var(--mp-tabs-left);
+  border-radius:999px;background:var(--kn-sh-chip,#eeeddf);pointer-events:none;
 }
-body.kn-home-a #myPageOv .mp-view-picker select:focus-visible {outline:2px solid var(--kn-sh-button,#607765);outline-offset:3px}
-body.kn-home-a #myPageOv .mp-view-picker-sr {position:absolute;width:1px;height:1px;clip-path:inset(50%);overflow:hidden;white-space:nowrap}
+body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab {
+  display:flex;align-items:center;justify-content:center;
+  min-width:0;min-height:44px;margin:4px 0;padding:8px 9px;
+  border:0;border-radius:999px;
+  background:transparent!important;color:var(--kn-sh-ink,#3d4b3c)!important;
+  font:400 calc(var(--kn-type-control,14px) * var(--kn-type-scale,1))/1.4 var(--kn-a-sans,system-ui,sans-serif)!important;
+  white-space:normal;overflow-wrap:anywhere;text-align:center;box-shadow:none;
+}
+body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab:first-child {margin-left:4px}
+body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab:last-child {margin-right:4px}
+body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab.on {
+  background:var(--kn-sh-paper,#fdfcf6)!important;font-weight:500!important;
+  box-shadow:0 1px 4px color-mix(in srgb,var(--kn-sh-ink,#3d4b3c) 10%,transparent);
+}
+body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab:focus-visible {
+  outline:2px solid var(--kn-sh-button,#607765)!important;outline-offset:-2px;
+}
+@media(max-width:360px) {
+  body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab {padding-right:5px;padding-left:5px}
+}
