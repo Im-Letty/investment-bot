@@ -690,3 +690,29 @@ purchase schedules retain their exact values. The new record has no purchase
 schedule; no next-year entitlement, trade deadline, actual dispatch or arrival
 is inferred. Coverage remains partial. Repository validation and public
 publication verification are separate steps.
+
+
+## Tokyo addition reviewed on 2026-10-30
+
+- 1828 Tanabe Engineering: https://www.tanabe-ind.co.jp/ir/stock/stockholder.html
+  The current single tier is 100+ shares at each March 31 and September 30 record,
+  with one 500-yen QUO card per record. The programme expressly applies regardless
+  of holding duration. Planned grant is late June for March records and early
+  December for September records; actual dispatch and arrival remain unknown.
+  Applications, card expiry, original announcement, programme/tier start dates
+  and the next purchase deadline are unconfirmed. No schedule is fabricated.
+  The current official HTML was read independently twice within the same bounded
+  allocation; both raw HTML hashes match. IR disclaimer, privacy policy and stock
+  details were checked separately. Dynamic IR list rows were not exposed, so
+  comprehensive amendment coverage and all future changes are not guaranteed.
+  Issuer name joins the dated official JPX identity and current local StockSearch;
+  this is not a fresh printed-code or all-market freshness claim. The authored
+  observation-note hash remains distinct from the original HTML hash.
+  All prior 36 dated information records, 27 additions, nine legacy records and
+  12 schedules are preserved. The resulting 37 records include past one-time
+  1770 and are not a count of all current annual-benefit issuers.
+
+The same bounded review leaves 1826 Sata Construction unknown: its official FAQ
+contains placeholder text, and omission from stock information is not explicit
+absence. 1827 Nakano Corporation explicitly states in its current FAQ that no
+shareholder benefit is offered; this is a dated observation, not a future promise.

@@ -2064,6 +2064,84 @@
           "schedules": []
         }
       ]
+    },
+    {
+      "code": "1828",
+      "symbol": "1828.T",
+      "name": "田辺工業",
+      "category": "QUOカード",
+      "aliases": "田辺工業株式会社",
+      "versions": [
+        {
+          "id": "current-html-reviewed-20261030",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-10-30",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://www.tanabe-ind.co.jp/ir/stock/stockholder.html",
+            "title": "田辺工業公式 株主優待制度",
+            "security_code": "1828",
+            "issuer_name": "田辺工業",
+            "official_legal_name": "田辺工業株式会社",
+            "security_code_basis": "公式の発行体名を、2026年9月30日の公式JPX由来1828・東証スタンダードと現在ローカルStockSearchに照合。制度本文のコード印字や当日全市場鮮度を確認した意味ではありません。",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-30T12:42:39.676527+09:00",
+            "observed_at_kind": "actual_official_HTML_GET_finished_at_jst",
+            "evidence_path": "evidence/reviewed-1828-observation-note-20261030.json",
+            "evidence_sha256": "4f881a6bb794364032aeb9af4d19fc509192875a5b623b8e592cd91939b04e19",
+            "original_HTML_sha256": "099cf6dde3ad8b1b991c2d6811fbd4942821288ed5917446f24bbb853797baa9",
+            "original_HTML_bytes": 8708
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "benefits-author-primary-and-root-independent-numeric-source-review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "all_future_amendments_verified_absent": false,
+            "general_reuse_licence_claimed": false,
+            "primary_original_SHA_separate_from_note_SHA": true,
+            "official_programme_body_printed_security_code_verified": false,
+            "local_StockSearch_code_name_symbol_market_join_verified": true,
+            "all_listing_freshness_verified": false,
+            "scope": "担当者が制度・株式情報・IR免責・個人情報方針・現在IR一覧を限定確認。Rootは同じ制度URLを予算内で独立に1回通常GETし、同一HTML SHAと100株以上/各回500円QUO1枚/3月末9月末/保有期間不問/予定贈呈時期を原本文で照合。利用条件の詳細は担当者の観測ノート・receiptによる照合で、Rootがその原本文を再読したとは主張しません。IR一覧明細が未露出のため全改廃・将来変更の不存在を保証せず、開始日や原公表日も作りません。保護された原文・表・画像を転載せず短い独立事実だけを記載。",
+            "independent_numeric_source_review": {
+              "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/heartbeat-20261030-123819/company-1828/root-independent-numeric-source-GO.json",
+              "sha256": "234a64af09635e2f716445ac105400a4e0d0eecb48c9b02583aaf5227687aed0",
+              "bytes": 2419
+            },
+            "independent_original_programme_HTML_SHA": "099cf6dde3ad8b1b991c2d6811fbd4942821288ed5917446f24bbb853797baa9",
+            "independent_numeric_source_GETs": 1,
+            "final_public_record_wording_reviewed": true,
+            "final_public_record_wording_review": {
+              "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/heartbeat-20261030-123819/company-1828/root-final-wording-and-diff-GO.json",
+              "sha256": "02f70bf32d984b24f08f590c10dcf6ee8c7f7525131944891c17e5377e37b7be",
+              "bytes": 2867
+            }
+          },
+          "period": "毎年3月31日・9月30日の株主名簿で対象を判定する年2回の優待です。各回の基準日と次回の具体的な購入締切日は別で、購入締切は未確認です。制度開始日・現行区分の適用開始日・原公表日は未確認です。",
+          "conditions": "各基準日に100株以上。売買単元も100株です。保有期間を問わないと明記されています。長期保有による追加額は確認した現行区分にはなく、株数の多さで加算される区分もありません。",
+          "use": "各基準日につきQUOカード500円券1枚です。各回500円であり、年額を各回金額として扱いません。申請の要否・選択の詳細・券の有効期限は未確認です。",
+          "delivery": "3月31日分は6月下旬、9月30日分は12月上旬の贈呈予定です。予定と実際の発送・到着は区別し、次回の購入締切日や到着日を推測していません。",
+          "grant_summary": "3月末分は6月下旬、9月末分は12月上旬に各500円QUOカード1枚の贈呈予定。",
+          "tiers": [
+            {
+              "id": "100plus-each-march-september",
+              "shares_min": 100,
+              "shares_max": null,
+              "holding_months_min": 0,
+              "holding_requirement": "所有期間にかかわらず対象と公式制度ページに明記",
+              "reward": "3月31日・9月30日の各基準日につきQUOカード500円券1枚",
+              "conditions": "100株以上は同一の1区分です。年2回分を1回の贈呈額に加算しません。申請・券期限等は未確認。"
+            }
+          ],
+          "schedules": []
+        }
+      ]
     }
   ]
 }
