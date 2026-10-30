@@ -65,8 +65,8 @@
       "bytes": 8171
     },
     "viewer.mjs": {
-      "sha256": "4d836b3d847d5b4d365ac8d7b49066923b7e9b72cc7103f65e2527077a41dda3",
-      "bytes": 14816
+      "sha256": "ecb51bb69494ec9d89e88ab95b7f7be74e054adcc6f6c22b45b504595aefd3b9",
+      "bytes": 14909
     },
     "wreath.mjs": {
       "sha256": "1e5945ea88f9078116d73386593ab5cbf9f500fa381af6889e65edfcb8806614",
@@ -229,8 +229,8 @@
   "limited_scope": "Fixed standalone seasonal display, one trial current village site. No physics/light mechanism/rig/body fit/normal game ownership or save.",
   "related_test": {
     "path": "tests/test_pet_winter_frosted_star_wreath_20261030.mjs",
-    "sha256": "050e80abac1151a74ff2a599e073065d3be4f671f91fc8f27364f308a42467ad",
-    "bytes": 14837
+    "sha256": "74fb8210f2b814cea4fa58374545ac1bd654923fa12ceef5b6a7d7800fd86c7f",
+    "bytes": 17662
   },
   "geometry_counts": {
     "geometryObjectCount": 22,
