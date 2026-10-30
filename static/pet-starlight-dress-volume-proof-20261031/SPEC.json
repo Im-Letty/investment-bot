@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "model_id": "starlight-dress-garment-volume-v1",
+  "unit_id": "wardrobe:fit-prerequisite:starlight-dress:garment-volume-openings:v1",
+  "asset_id": "prepared_clothing_05_v1",
+  "name": "星あかりのドレス",
+  "source": {
+    "file": "05-starlight-dress.png",
+    "sha256": "985cb4146962e2f29f0f84d28b907ec25519f2f44b3ebf76e77193d10f12880e",
+    "dimensions": [
+      1254,
+      1254
+    ],
+    "mode": "RGBA",
+    "visualInspectedBeforeAuthoring": true,
+    "unchanged": true,
+    "rawFringeQualityUnresolved": true
+  },
+  "construction": {
+    "pattern": "Closed front and rear torso/skirt charts sewn continuously around shoulders, underarms, puff sleeves and sides; four unsealed cavity boundaries, no sleeve-root caps.",
+    "shellBoundaryLoops": 4,
+    "openingTopology": "Neck, left cuff, right cuff and hem; doubled cloth closes material only.",
+    "frontBackDepthOffset": 0.04,
+    "sideMaterialOffset": 0.03,
+    "sideDepthSegments": 14,
+    "delaunayFlips": 9468,
+    "bodyBinding": null,
+    "underskirt": "Separate closed-material annular flared cream underlayer, open at waist and hem; finite overlapping waist witnesses only.",
+    "trim": "Equal-arc Gaussian-smoothed constant-radius closed loops, no variable-radius pinching.",
+    "rear": "Authored trial back/inside/underskirt and rear motifs, not unseen original artwork recovery."
+  },
+  "bounds": {
+    "min": [
+      -1.8785234689712524,
+      0.07058548927307129,
+      -0.882102906703949
+    ],
+    "max": [
+      1.8785234689712524,
+      2.6519830226898193,
+      0.882102906703949
+    ]
+  },
+  "budget": {
+    "parts": 41,
+    "geometries": 41,
+    "materials": 6,
+    "textures": 0,
+    "triangles": 110960
+  },
+  "geometryIdentity": {
+    "geometryObjects": 41,
+    "exactPositionIndexFingerprints": 41,
+    "scope": "Object identities and exact position/index content hashes; neither is a count of unique semantic shapes or new designs."
+  },
+  "bodyBinding": null,
+  "authoredDimensionsOnly": true,
+  "backInsideAndDepth": "Trial author dimensions, not measured body dimensions or recovered source views.",
+  "pending": [
+    "source raw-fringe quality decision",
+    "body calibration and bodyBinding",
+    "wearing and anatomical anchors",
+    "rig and all-growth fit",
+    "cloth, sleeves, ribbons and contact motion",
+    "ordinary acquisition, equipment, ownership and save"
+  ],
+  "counts": {
+    "new_design": 0,
+    "new_raw_png": 0,
+    "imagegen": 0,
+    "body": 0,
+    "fit": 0,
+    "library_additions": 0,
+    "paid_calls": 0
+  },
+  "revision": 5,
+  "finiteEvidenceOnly": true
+}

@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "model_id": "starlight-dress-garment-volume-v1",
+  "unit_id": "wardrobe:fit-prerequisite:starlight-dress:garment-volume-openings:v1",
+  "asset_id": "prepared_clothing_05_v1",
+  "name": "星あかりのドレス",
+  "run_id": "automation360-20261031-033100",
+  "source_main_sha": "67a18cfd2e887045ccc7b39d4b858dd6f3629ca8",
+  "parentReservationObserved": {
+    "run_id": "automation360-20261031-033100",
+    "unit": "wardrobe:fit-prerequisite:starlight-dress:garment-volume-openings:v1",
+    "started_at_jst": "2026-10-31T03:39:38+09:00",
+    "receipt_sha256": "8f7ff56473f71aa1ef4818f590db4892c552f4dbd41e956c199ec103282a69c0",
+    "queueAppendedBeforeReserve": true
+  },
+  "fit_audit_sha256": "6dbbd82333aa781e6cee6ebbf3f33993c638b120c6817fd14367e162b90ea60c",
+  "source_original": {
+    "file": "05-starlight-dress.png",
+    "sha256": "985cb4146962e2f29f0f84d28b907ec25519f2f44b3ebf76e77193d10f12880e",
+    "bytes": 1644483,
+    "width": 1254,
+    "height": 1254,
+    "mode": "RGBA",
+    "inspected": true,
+    "unchanged": true
+  },
+  "artifacts": {
+    "dress.mjs": {
+      "sha256": "6079f5ea37a714e88c503c6e8edc4fbe52a2931cffd0a71d95ddd3c2c3d5a01b",
+      "bytes": 33330
+    },
+    "audit.mjs": {
+      "sha256": "bf90bea251397d81633a761e54d05fd8fa4128e177c0ef4ac1b3f4b7adbd34cf",
+      "bytes": 17656
+    },
+    "viewer.mjs": {
+      "sha256": "e1e363878770904a167aa0237f6c56c518d1b242540994f9bcc0165b1cd9e6bf",
+      "bytes": 11369
+    },
+    "entry.mjs": {
+      "sha256": "a463f0a03d6891e2fd5d3beb49876604ca46bb52721d026563d4482845a01c8e",
+      "bytes": 1495
+    },
+    "index.html": {
+      "sha256": "c78ab8cd488ff4d8aacf8879eb297729393ccde99c71b255fe34e5b54eaab8b1",
+      "bytes": 4478
+    },
+    "reference.png": {
+      "sha256": "985cb4146962e2f29f0f84d28b907ec25519f2f44b3ebf76e77193d10f12880e",
+      "bytes": 1644483
+    },
+    "SPEC.json": {
+      "sha256": "5b6bb31090ef0585c315f9592afbf5c670f3d9e9d8e9bf979869e0661b01bba3",
+      "bytes": 2607
+    },
+    "finite-geometry-certificate.json": {
+      "sha256": "49dacdb0debdadf896de1b4d2c4bb8e2034de7643c16748e00d5f257db17fdf0",
+      "bytes": 300186
+    }
+  },
+  "unchanged_dependencies": {
+    "static/pet-breeze-cape-proof-20261029/geometry-audit.mjs": {
+      "sha256": "2dbe7723509ae914cb98153f133e2a2db9d15e5f4112cc184fa128a2df8e92c0",
+      "bytes": 6377
+    },
+    "static/pet-breeze-cape-proof-20261029/audit.mjs": {
+      "sha256": "0295f409a2c7182069dd6023bf78d94c3a7d05e237fd244923ea3a4c29a4eb80",
+      "bytes": 5891
+    },
+    "static/pet-komorebi-overalls-volume-proof-20261030/audit.mjs": {
+      "sha256": "df27baf806cd5814577addd94b47c43723b67d8338e90628844c2c33371c8a16",
+      "bytes": 6544
+    },
+    "static/vendor/three-0.160.1.module.js": {
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    "static/pet-scalloped-path-proof-20261027/framing.mjs": {
+      "sha256": "dba92c2f6dec2816ebcf25434ee07c3b699accb61b7e1961a11baf366edad08a",
+      "bytes": 1678
+    }
+  },
+  "source_files": {
+    "scripts/build_pet_starlight_dress_20261031.mjs": {
+      "sha256": "7a32e12e47bc45b5b09dcd2111864d4661d2e3857a196388a80333bf7bd1ac45",
+      "bytes": 6526
+    },
+    "tests/test_pet_starlight_dress_20261031.mjs": {
+      "sha256": "df48dd00b0e943d2d0334f5393ec9779be2af671e30e7ad3197ea1cebf74b1c6",
+      "bytes": 21128
+    },
+    "static/pet-starlight-dress-volume-demo.html": {
+      "sha256": "34a5d5db46493edb63b53db11ecfdc82b86a203e35505c4e5fe189be270f997a",
+      "bytes": 2741
+    }
+  },
+  "bodyBinding": null,
+  "new_designs": 0,
+  "raw_png_designs": 0,
+  "imagegen_calls": 0,
+  "body_calibrations": 0,
+  "fit_confirmations": 0,
+  "village_library_additions": 0,
+  "paid_calls": 0,
+  "source_raw_quality_pending": true,
+  "canonicalFitPending": true,
+  "normalGame": false,
+  "ownershipUnlockSave": false,
+  "scope": "Standalone authored fixed dress thickness and finite neck/cuff/hem passages. Back/depth/inside are trial author dimensions. Finite evidence is not continuous safety or wearing acceptance."
+}
