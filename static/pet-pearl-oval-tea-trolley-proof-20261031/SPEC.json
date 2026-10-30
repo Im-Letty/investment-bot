@@ -1,0 +1,249 @@
+{
+  "schema_version": 1,
+  "run_id": "automation360-20261031-053331",
+  "authored_after_actual_parent_reserve": true,
+  "actual_authoring_date_jst": "2026-10-31",
+  "actual_parent_reserve": {
+    "evidence_label": "parent-reserve-command.json / actual private command receipt retained separately",
+    "sha256": "f33a74f9598074d66dc6d49f57afa61f3c2da05d5c1c702720075773c3f53af0",
+    "bytes": 721,
+    "run_id": "automation360-20261031-053331",
+    "unit_id": "village:asset-library:pearl-oval-tea-trolley:v1",
+    "started_at_jst": "2026-10-31T05:37:49+09:00",
+    "status_at_reservation": "in_progress"
+  },
+  "model_id": "pearl-oval-tea-trolley-v1",
+  "unit_id": "village:asset-library:pearl-oval-tea-trolley:v1",
+  "category": "interior_furniture",
+  "style": "soft_pearl_elegant",
+  "season": "all_season",
+  "scope": "village.geometry.library_candidate",
+  "construction": "Two closed thick pearl oval tiers with raised rounded rims and warm wood edge bands, four shaped warm wood uprights with pearl collars, one continuous capped curved fixed push handle with mounts and grip, four fixed decorative wheel assemblies with attached necks/axles/hubs and flat bottom chord contact patches.",
+  "authored_dimensions_not_body_calibration": true,
+  "bodyBinding": null,
+  "physics": false,
+  "rolling": false,
+  "steering": false,
+  "serving": false,
+  "loadOrStability": false,
+  "rig": false,
+  "wearingFit": false,
+  "normalGamePlacement": false,
+  "ownershipUnlockSave": false,
+  "finite_witnesses_not_continuous_guarantees": true,
+  "new_raw_images": 0,
+  "geometryIdentity": {
+    "geometryObjectCount": 14,
+    "exactPositionIndexFingerprintCount": 14,
+    "metric": "Exact position/index typed-buffer bytes plus array type, item size and count. Object ownership and exact content are separate; neither is a count of semantic shapes or new designs.",
+    "parts": [
+      {
+        "name": "lower-thick-pearl-oval-tier",
+        "fingerprint": "b5a69c1c6911b589e8cfe6c8fefad4e182451f86ce191b58b4517174b655972e"
+      },
+      {
+        "name": "lower-rounded-raised-pearl-rim",
+        "fingerprint": "7eb88fcfed43fa72b8cdd6bf82326c971e9aa6ddd4cce971f2cd833aa1ce396a"
+      },
+      {
+        "name": "lower-warmwood-lower-edge",
+        "fingerprint": "1cbd95a051ba3f89fce67c845a2f953cdd22b48e62218a6e8c690974f326545e"
+      },
+      {
+        "name": "upper-thick-pearl-oval-tier",
+        "fingerprint": "899c9a0a22a9fe5e02558113df51913dedd5474c4c4b257ee83f55824e1f1ef2"
+      },
+      {
+        "name": "upper-rounded-raised-pearl-rim",
+        "fingerprint": "b7925685f1077db0a15db2978bc9c6715b8441c55e1cf1d19e87eeac327f5466"
+      },
+      {
+        "name": "upper-warmwood-lower-edge",
+        "fingerprint": "33e5ab25d68be70cccc31077f2e7c6fdc1d6e1cc77adbf66f32eb6097a46acc4"
+      },
+      {
+        "name": "shaped-warmwood-upright-0",
+        "fingerprint": "8c89b2c41c92b9f2eedd5eb4592b84f7d0487da611907d52b8d4e8124551eb19"
+      },
+      {
+        "name": "pearl-upright-collar-0",
+        "fingerprint": "d49c54ea5afe1dca60ae59a2d72bb8f6ba234df1fd98f961fdf7b49b86c4122e"
+      },
+      {
+        "name": "pearl-upright-collar-1",
+        "fingerprint": "d49c54ea5afe1dca60ae59a2d72bb8f6ba234df1fd98f961fdf7b49b86c4122e"
+      },
+      {
+        "name": "fixed-wheel-neck-0",
+        "fingerprint": "0f99bec6b2832daa30e5108b9e4e64a8ea044a01abf9495da563e3451211ee6a"
+      },
+      {
+        "name": "fixed-flat-sole-wheel-0",
+        "fingerprint": "a3a46664b735dd841c060d236f9121a0b854bfac663e62d1406ca7b8f333cf55"
+      },
+      {
+        "name": "fixed-wheel-axle-0",
+        "fingerprint": "01d17eb256e46b0f32ff999b018f8626d88c879d15b70f975160ffd728646d97"
+      },
+      {
+        "name": "fixed-pearl-wheel-hub-0",
+        "fingerprint": "02a485958d8024e1a7133f108cc7794e7ace3ed5dd83ebbae0aef3ab711a5063"
+      },
+      {
+        "name": "shaped-warmwood-upright-1",
+        "fingerprint": "8c89b2c41c92b9f2eedd5eb4592b84f7d0487da611907d52b8d4e8124551eb19"
+      },
+      {
+        "name": "pearl-upright-collar-2",
+        "fingerprint": "d49c54ea5afe1dca60ae59a2d72bb8f6ba234df1fd98f961fdf7b49b86c4122e"
+      },
+      {
+        "name": "pearl-upright-collar-3",
+        "fingerprint": "d49c54ea5afe1dca60ae59a2d72bb8f6ba234df1fd98f961fdf7b49b86c4122e"
+      },
+      {
+        "name": "fixed-wheel-neck-1",
+        "fingerprint": "0f99bec6b2832daa30e5108b9e4e64a8ea044a01abf9495da563e3451211ee6a"
+      },
+      {
+        "name": "fixed-flat-sole-wheel-1",
+        "fingerprint": "a3a46664b735dd841c060d236f9121a0b854bfac663e62d1406ca7b8f333cf55"
+      },
+      {
+        "name": "fixed-wheel-axle-1",
+        "fingerprint": "01d17eb256e46b0f32ff999b018f8626d88c879d15b70f975160ffd728646d97"
+      },
+      {
+        "name": "fixed-pearl-wheel-hub-1",
+        "fingerprint": "02a485958d8024e1a7133f108cc7794e7ace3ed5dd83ebbae0aef3ab711a5063"
+      },
+      {
+        "name": "shaped-warmwood-upright-2",
+        "fingerprint": "8c89b2c41c92b9f2eedd5eb4592b84f7d0487da611907d52b8d4e8124551eb19"
+      },
+      {
+        "name": "pearl-upright-collar-4",
+        "fingerprint": "d49c54ea5afe1dca60ae59a2d72bb8f6ba234df1fd98f961fdf7b49b86c4122e"
+      },
+      {
+        "name": "pearl-upright-collar-5",
+        "fingerprint": "d49c54ea5afe1dca60ae59a2d72bb8f6ba234df1fd98f961fdf7b49b86c4122e"
+      },
+      {
+        "name": "fixed-wheel-neck-2",
+        "fingerprint": "0f99bec6b2832daa30e5108b9e4e64a8ea044a01abf9495da563e3451211ee6a"
+      },
+      {
+        "name": "fixed-flat-sole-wheel-2",
+        "fingerprint": "a3a46664b735dd841c060d236f9121a0b854bfac663e62d1406ca7b8f333cf55"
+      },
+      {
+        "name": "fixed-wheel-axle-2",
+        "fingerprint": "01d17eb256e46b0f32ff999b018f8626d88c879d15b70f975160ffd728646d97"
+      },
+      {
+        "name": "fixed-pearl-wheel-hub-2",
+        "fingerprint": "02a485958d8024e1a7133f108cc7794e7ace3ed5dd83ebbae0aef3ab711a5063"
+      },
+      {
+        "name": "shaped-warmwood-upright-3",
+        "fingerprint": "8c89b2c41c92b9f2eedd5eb4592b84f7d0487da611907d52b8d4e8124551eb19"
+      },
+      {
+        "name": "pearl-upright-collar-6",
+        "fingerprint": "d49c54ea5afe1dca60ae59a2d72bb8f6ba234df1fd98f961fdf7b49b86c4122e"
+      },
+      {
+        "name": "pearl-upright-collar-7",
+        "fingerprint": "d49c54ea5afe1dca60ae59a2d72bb8f6ba234df1fd98f961fdf7b49b86c4122e"
+      },
+      {
+        "name": "fixed-wheel-neck-3",
+        "fingerprint": "0f99bec6b2832daa30e5108b9e4e64a8ea044a01abf9495da563e3451211ee6a"
+      },
+      {
+        "name": "fixed-flat-sole-wheel-3",
+        "fingerprint": "a3a46664b735dd841c060d236f9121a0b854bfac663e62d1406ca7b8f333cf55"
+      },
+      {
+        "name": "fixed-wheel-axle-3",
+        "fingerprint": "01d17eb256e46b0f32ff999b018f8626d88c879d15b70f975160ffd728646d97"
+      },
+      {
+        "name": "fixed-pearl-wheel-hub-3",
+        "fingerprint": "02a485958d8024e1a7133f108cc7794e7ace3ed5dd83ebbae0aef3ab711a5063"
+      },
+      {
+        "name": "one-continuous-fixed-curved-push-handle",
+        "fingerprint": "dda03b87549773f3512f262a2ad6fdcd92c32640ba6b2cce7b1a03b5b2bf5697"
+      },
+      {
+        "name": "pearl-curved-handle-mount-0",
+        "fingerprint": "02a485958d8024e1a7133f108cc7794e7ace3ed5dd83ebbae0aef3ab711a5063"
+      },
+      {
+        "name": "pearl-curved-handle-mount-1",
+        "fingerprint": "02a485958d8024e1a7133f108cc7794e7ace3ed5dd83ebbae0aef3ab711a5063"
+      },
+      {
+        "name": "fixed-pearl-handle-grip",
+        "fingerprint": "871aaf0add5c84b35ad51ca5028601ed7ab75e2a4cc00fc5ccbff1a5492d59b0"
+      }
+    ]
+  },
+  "measured_counts": {
+    "spec": {
+      "id": "pearl-oval-tea-trolley-v1",
+      "unit_id": "village:asset-library:pearl-oval-tea-trolley:v1",
+      "category": "interior_furniture",
+      "style": "soft_pearl_elegant",
+      "season": "all_season",
+      "authored_on_jst": "2026-10-31",
+      "bodyBinding": null,
+      "physics": false,
+      "rolling": false,
+      "steering": false,
+      "serving": false,
+      "loadOrStability": false,
+      "rig": false,
+      "wearingFit": false,
+      "normalGame": false,
+      "ownershipUnlockSave": false,
+      "newOriginalDesign": false
+    },
+    "closedParts": 38,
+    "triangles": 29280,
+    "geometryObjectCount": 14,
+    "materialCount": 6,
+    "textures": 0,
+    "ovalTiers": 2,
+    "raisedRims": 2,
+    "shapedUprights": 4,
+    "continuousPushHandles": 1,
+    "fixedWheelAssemblies": 4,
+    "authoredFlatWheelContactPatches": 4,
+    "bounds": {
+      "min": [
+        -1.4499999284744263,
+        0,
+        -0.6079999804496765
+      ],
+      "max": [
+        1.1180000305175781,
+        1.8450000286102295,
+        0.6079999804496765
+      ]
+    },
+    "bodyBinding": null,
+    "rolling": false,
+    "steering": false,
+    "serving": false,
+    "physics": false,
+    "loadOrStability": false,
+    "rig": false,
+    "wearingFit": false,
+    "normalGame": false,
+    "ownershipUnlockSave": false,
+    "scope": "Fixed authored library furniture only. Finite material, contact and clearance witnesses; no continuous collision, wheel dynamics, body dimensions, serving or storage mechanism."
+  }
+}
