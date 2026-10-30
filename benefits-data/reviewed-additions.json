@@ -2235,6 +2235,118 @@
           "schedules": []
         }
       ]
+    },
+    {
+      "code": "1867",
+      "symbol": "1867.T",
+      "name": "植木組",
+      "category": "QUOカード",
+      "aliases": "植木組 ウエキグミ UEKI",
+      "versions": [
+        {
+          "id": "current-official-20261031",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-10-31",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://www.uekigumi.co.jp/ir/priority/",
+            "title": "植木組公式 株主優待制度",
+            "security_code": "1867",
+            "issuer_name": "植木組",
+            "security_code_basis": "現在ローカルStockSearchの1867.T・植木組・東証スタンダード（保存カタログ2026-09-30）と現行公式制度の発行体名・100株単元を照合。独立制度本文に証券コード/市場の印字を確認した意味ではなく、当日全市場の鮮度保証ではない。会社概要はHTTP200/SHAのみ確認し、切れた本文を読了したとは記録しない。",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-31T02:03:18.412584+09:00",
+            "observed_at_kind": "actual_root_official_programme_HTML_GET_finished_at_jst",
+            "evidence_path": "evidence/reviewed-1867-observation-note-20261031.json",
+            "evidence_sha256": "5352134f18e0bfc95ddff36dfde273a70ad6abb2709f180d71adec40c4d007cb",
+            "original_HTML_sha256": "03acc3c74b7946eb9bbabcfda6c0722c0c9546b737e957500873b6f0f108e566",
+            "original_HTML_bytes": 26593
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "root-primary-observer-and-independent-current-HTML-numeric-source-review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "all_future_amendments_verified_absent": false,
+            "general_reuse_licence_claimed": false,
+            "primary_original_SHA_separate_from_note_SHA": true,
+            "official_programme_body_printed_security_code_market_verified": false,
+            "local_StockSearch_code_name_symbol_market_join_verified": true,
+            "all_listing_freshness_verified": false,
+            "independent_current_HTML_GET": true,
+            "independent_programme_HTML_SHA": "03acc3c74b7946eb9bbabcfda6c0722c0c9546b737e957500873b6f0f108e566",
+            "independent_review_sha256": "801273e3b59a9622eb94b4a63292dfa38e56bee2dcf1a763f6ed449b3cf44d45",
+            "scope": "現在ローカルStockSearchの1867.T・植木組・東証スタンダード（保存カタログ2026-09-30）と現行公式制度の発行体名・100株単元を照合。独立制度本文に証券コード/市場の印字を確認した意味ではなく、当日全市場の鮮度保証ではない。会社概要はHTTP200/SHAのみ確認し、切れた本文を読了したとは記録しない。 Rootが実取得したプライバシーページは個人情報の取扱いで、返却範囲に独立事実利用/通常出典リンクの追加条件は観測していない。包括的な転載許諾を主張せず、画像・原文表・券面・長文を転載しない。独立レビューが方針ページを再取得したとは呼ばない。 Rootが現在の開示一覧を限定確認。2015年新設/2021年分割・優待変更の見出しは発見情報で、PDF本文未取得のため開始日/適用日へ転用しない。全改廃の不存在や全将来の制度継続を保証しない。"
+          },
+          "period": "毎年9月30日の株主名簿が対象（年1回）",
+          "conditions": "100株以上。9月30日の保有株数と保有期間で6区分のうち1区分が対象です。1年以上は同じ株主番号で3月末・9月末の名簿に連続3回、各回100株以上の記録が必要です。長期判定の過去各回は100株以上で、現在の上位株数を過去各回の条件にしません。1年未満の最低保有月数、申請・選択の手順と券期限は未確認です。",
+          "use": "QUOカード。該当する1区分の額面で、区分を加算しません。申請・選択の手順、利用や券の有効期限は未確認です。",
+          "delivery": "毎年12月上旬に贈呈予定です。実際の発送日・到着日は未確認です。申請・選択の手順と券の有効期限も未確認です。",
+          "grant_summary": "12月上旬に贈呈予定（実発送・到着は未確認）",
+          "tiers": [
+            {
+              "id": "100plus-under-one-year",
+              "shares_min": 100,
+              "shares_max": 199,
+              "holding_months_min": null,
+              "holding_requirement": "1年未満の区分（最低保有月数は明記未確認）",
+              "reward": "QUOカード500円分",
+              "conditions": "9月30日の保有株数と保有期間に対応する1区分です。株数区分・保有区分の額面は加算しません。申請・選択の手順と券の有効期限は未確認です。"
+            },
+            {
+              "id": "100plus-one-year-or-more",
+              "shares_min": 100,
+              "shares_max": 199,
+              "holding_months_min": 12,
+              "holding_requirement": "1年以上（同じ株主番号で3月末・9月末の名簿に連続3回、各回100株以上）",
+              "reward": "QUOカード1,000円分",
+              "conditions": "9月30日の保有株数と保有期間に対応する1区分です。株数区分・保有区分の額面は加算しません。長期判定の過去各回は100株以上で、上位区分の200株・1,000株を過去各回に当てはめません。"
+            },
+            {
+              "id": "200plus-under-one-year",
+              "shares_min": 200,
+              "shares_max": 999,
+              "holding_months_min": null,
+              "holding_requirement": "1年未満の区分（最低保有月数は明記未確認）",
+              "reward": "QUOカード1,000円分",
+              "conditions": "9月30日の保有株数と保有期間に対応する1区分です。株数区分・保有区分の額面は加算しません。申請・選択の手順と券の有効期限は未確認です。"
+            },
+            {
+              "id": "200plus-one-year-or-more",
+              "shares_min": 200,
+              "shares_max": 999,
+              "holding_months_min": 12,
+              "holding_requirement": "1年以上（同じ株主番号で3月末・9月末の名簿に連続3回、各回100株以上）",
+              "reward": "QUOカード2,000円分",
+              "conditions": "9月30日の保有株数と保有期間に対応する1区分です。株数区分・保有区分の額面は加算しません。長期判定の過去各回は100株以上で、上位区分の200株・1,000株を過去各回に当てはめません。"
+            },
+            {
+              "id": "1000plus-under-one-year",
+              "shares_min": 1000,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "1年未満の区分（最低保有月数は明記未確認）",
+              "reward": "QUOカード2,000円分",
+              "conditions": "9月30日の保有株数と保有期間に対応する1区分です。株数区分・保有区分の額面は加算しません。申請・選択の手順と券の有効期限は未確認です。"
+            },
+            {
+              "id": "1000plus-one-year-or-more",
+              "shares_min": 1000,
+              "shares_max": null,
+              "holding_months_min": 12,
+              "holding_requirement": "1年以上（同じ株主番号で3月末・9月末の名簿に連続3回、各回100株以上）",
+              "reward": "QUOカード3,000円分",
+              "conditions": "9月30日の保有株数と保有期間に対応する1区分です。株数区分・保有区分の額面は加算しません。長期判定の過去各回は100株以上で、上位区分の200株・1,000株を過去各回に当てはめません。"
+            }
+          ],
+          "schedules": []
+        }
+      ]
     }
   ]
 }
