@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "model_id": "flower-basket-hollow-handle-floor-support-v1",
+  "scope": "item.geometry",
+  "unit_id": "wardrobe:fit-prerequisite:flower-basket:hollow-basket-handle-floor-support:v1",
+  "features": [
+    "closed hollow oval woven wall and flat base",
+    "peach curved scalloped padded liner around an open mouth",
+    "three capped braided arch strands with six finite wall anchor witnesses",
+    "fixed mint bow with two padded loops and tails",
+    "three six-petal padded ivory/pink/lilac flowers on authored supports",
+    "actual independent all-part handle aperture segments and contents-hidden structural cavity segments"
+  ],
+  "bodyBinding": null,
+  "dimension_basis": "Authored item-only trial units. Rear, underside, interior and depth are designed, not body or original hidden-view measurements.",
+  "limits": [
+    "Fixed flowers and bow; not growth or tying mechanisms",
+    "No carrying, grip, load, friction or stability guarantee",
+    "No body wearing, rig or all-growth fit",
+    "No normal registration, acquisition, placement, ownership or save",
+    "Finite rays/contacts and fixed triangles do not establish continuous safety",
+    "Original bitmap is unchanged, copied only; no new bitmap/design/library candidate"
+  ],
+  "world_scope": "One current default village dryland comparison, AFTER current Scene construction and original-art load. Actual paving plus bridge triangles, full Sprite quad envelopes, meadow instances, building proxies and every actual dry-land boundary segment; not normal placement.",
+  "finiteWitnessCountsAreNotUniqueTests": true
+}
