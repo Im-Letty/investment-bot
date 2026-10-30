@@ -14,7 +14,7 @@ test('all five visible destinations are static body HTML before deferred routing
  assert.ok(offset>body&&offset<html.indexOf('id="sideDrawer"'));
  const buttons=[...nav.matchAll(/<button\b([^>]*)>([\s\S]*?)<\/button>/g)].filter(m=>!m[1].includes('display:none'));
  assert.deepEqual(buttons.map(m=>m[1].match(/data-act="([^"]+)"/)[1]),['morning','home','shorts','pet','mypage']);
- assert.match(nav,/id="knShortsBtn"[^>]*aria-label="動画"/);assert.doesNotMatch(buttons[2][2],/ショート|bn-label/);
+ assert.deepEqual(buttons.map(m=>m[2].match(/<span class="bn-label"[^>]*>([^<]+)<\/span>/)[1]),['朝レター','シミュレーター','ショート','育成ゲーム','マイページ']);
  assert.equal((html.match(/<nav id="knBottomNav"/g)||[]).length,1);
  assert.match(html,/#knBottomNav\{display:flex!important\}/);assert.match(html,/body:has\(#spl:not\(\.done\),#knWelcomeOv\.open:not\(\.kn-entry-leaving\)\) #knBottomNav\{visibility:hidden;pointer-events:none\}/);
 });
