@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "model_id": "summer-market-hanging-sign-v1",
+  "unit_id": "village:asset-library:summer-market-hanging-sign:v1",
+  "scope": "village.geometry.library_candidate",
+  "style": "atelier_market",
+  "season": "summer",
+  "features": [
+    "freestanding forked warm-wood frame and rounded flat stone feet",
+    "real through-bores in beam and oval plaque",
+    "two stationary paired front/back yokes and four actual through-pins",
+    "annular washers with intentional rigid material overlap to wood and pins",
+    "two raised cream oval faces with actual basket/leaf emblems",
+    "fixed curved thick cloth pennant with separate solid colored stripes"
+  ],
+  "style_originals_unchanged": true,
+  "geometry_is_authored_not_recovered_hidden_original": true,
+  "bodyBinding": null,
+  "dimension_basis": "Item-only trial units, not body/anatomy measurements.",
+  "static_rigid_suspension": "Pins pass real holes; washers and yokes are rigid joined parts. No free chain, hinge, gravity, wind, tension, strength or load model.",
+  "bore_evidence_scope": "All-part internal bore-annulus segments and complementary extended wood-only hole rays across full thickness/bevel are separate. Outer washers intentionally obstruct extended full-assembly rays; no whole assembled through-opening claim.",
+  "labels": "Basket/leaf emblems are actual solid geometry. No lettering, Canvas label textures, carved-text or licensed logo claim.",
+  "finite_witness_counts_are_not_unique_tests": true,
+  "normal_registration_price_acquisition_layout_ownership_save": false,
+  "body_growth_fit_or_rig": false,
+  "newPNG": 0,
+  "imagegen": 0,
+  "new_code_native_geometry_candidate": 1
+}
