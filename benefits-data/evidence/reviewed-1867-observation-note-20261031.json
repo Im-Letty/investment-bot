@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "security_code": "1867",
+  "issuer_name": "植木組",
+  "authored_at_jst": "2026-10-31T02:20:02.342822+09:00",
+  "evidence_kind": "primary_page_observation_note",
+  "not_an_original_page_or_table_copy": true,
+  "original_HTML_SHA_is_distinct_from_this_authored_note_SHA": true,
+  "programme_source": {
+    "url": "https://www.uekigumi.co.jp/ir/priority/",
+    "root_actual_observed_at_jst": "2026-10-31T02:03:18.412584+09:00",
+    "independent_actual_observed_at_jst": "2026-10-31T02:15:32.230981+09:00",
+    "original_HTML_sha256": "03acc3c74b7946eb9bbabcfda6c0722c0c9546b737e957500873b6f0f108e566",
+    "original_HTML_bytes": 26593,
+    "two_normal_GETs_same_original_SHA_and_bytes": true
+  },
+  "facts": {
+    "annual_record_date_month_day": "09-30",
+    "record_date_frequency": "annual_explicit",
+    "minimum_current_shares": 100,
+    "trading_unit_stated_on_programme_page": 100,
+    "benefit_kind": "QUO_card",
+    "applicable_tier_amounts_yen_not_added": [
+      {
+        "shares_min": 100,
+        "shares_max": 199,
+        "holding_months_min": null,
+        "holding_months_max_exclusive": 12,
+        "QUO_yen": 500
+      },
+      {
+        "shares_min": 100,
+        "shares_max": 199,
+        "holding_months_min": 12,
+        "holding_months_max_exclusive": null,
+        "QUO_yen": 1000
+      },
+      {
+        "shares_min": 200,
+        "shares_max": 999,
+        "holding_months_min": null,
+        "holding_months_max_exclusive": 12,
+        "QUO_yen": 1000
+      },
+      {
+        "shares_min": 200,
+        "shares_max": 999,
+        "holding_months_min": 12,
+        "holding_months_max_exclusive": null,
+        "QUO_yen": 2000
+      },
+      {
+        "shares_min": 1000,
+        "shares_max": null,
+        "holding_months_min": null,
+        "holding_months_max_exclusive": 12,
+        "QUO_yen": 2000
+      },
+      {
+        "shares_min": 1000,
+        "shares_max": null,
+        "holding_months_min": 12,
+        "holding_months_max_exclusive": null,
+        "QUO_yen": 3000
+      }
+    ],
+    "one_applicable_tier_not_cumulative": true,
+    "long_holding_months_min": 12,
+    "long_holding_same_shareholder_number_required": true,
+    "long_holding_consecutive_register_records_min": 3,
+    "long_holding_register_months": [
+      3,
+      9
+    ],
+    "long_holding_each_historical_record_shares_min": 100,
+    "historical_register_threshold_is_not_current200_or1000_tier_threshold": true,
+    "planned_grant_period": "12月上旬",
+    "planned_grant_is_not_actual_dispatch_or_arrival": true
+  },
+  "unknowns": {
+    "under_one_year_minimum_holding_months": null,
+    "announcement_date": null,
+    "programme_inception_date": null,
+    "current_tier_effective_from": null,
+    "application_or_selection_steps": null,
+    "card_expiry": null,
+    "actual_dispatch_or_arrival": null,
+    "next_purchase_deadline": null
+  },
+  "identity_scope": "現在ローカルStockSearchの1867.T・植木組・東証スタンダード（保存カタログ2026-09-30）と現行公式制度の発行体名・100株単元を照合。独立制度本文に証券コード/市場の印字を確認した意味ではなく、当日全市場の鮮度保証ではない。会社概要はHTTP200/SHAのみ確認し、切れた本文を読了したとは記録しない。",
+  "source_conditions_scope": "Rootが実取得したプライバシーページは個人情報の取扱いで、返却範囲に独立事実利用/通常出典リンクの追加条件は観測していない。包括的な転載許諾を主張せず、画像・原文表・券面・長文を転載しない。独立レビューが方針ページを再取得したとは呼ばない。",
+  "amendment_scope": "Rootが現在の開示一覧を限定確認。2015年新設/2021年分割・優待変更の見出しは発見情報で、PDF本文未取得のため開始日/適用日へ転用しない。全改廃の不存在や全将来の制度継続を保証しない。",
+  "proof_metadata": {
+    "root_fact_note": {
+      "sha256": "d52394951396c6909c2010923e29e6965ea1691304b485f6d7557836e9df86f1",
+      "bytes": 9587
+    },
+    "independent_numeric_review": {
+      "sha256": "801273e3b59a9622eb94b4a63292dfa38e56bee2dcf1a763f6ed449b3cf44d45",
+      "bytes": 7305
+    },
+    "root_programme_receipt": {
+      "sha256": "d696af4286787e38d45137e92452a7ede80b916632244c35f8cc78f975ae9474",
+      "bytes": 11091
+    },
+    "independent_programme_receipt": {
+      "sha256": "48c1f8f438a5ae8022aaa816136ac7e84315ea126219f9dd2bd457c80e596805",
+      "bytes": 11092
+    }
+  },
+  "source_prose_tables_images_or_vouchers_reproduced": false,
+  "schedules_inferred": false
+}
