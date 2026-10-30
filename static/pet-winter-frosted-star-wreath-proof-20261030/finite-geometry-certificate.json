@@ -1,0 +1,4715 @@
+{
+  "schema_version": 1,
+  "geometryCounts": {
+    "geometryObjectCount": 22,
+    "exactPositionIndexContentFingerprintCount": 18,
+    "metric": "exact position/index typed-array bytes; no mathematical shape-equivalence claim"
+  },
+  "model_id": "winter-frosted-star-wreath-v1",
+  "unit_id": "village:asset-library:winter-frosted-star-wreath:v1",
+  "model_sha256": "1e5945ea88f9078116d73386593ab5cbf9f500fa381af6889e65edfcb8806614",
+  "audit_sha256": "560459af78cfdc2ebe0701ce711bd2eb647d308c8f3da4f05a4c6e287592f0a9",
+  "mesh_json_sha256": "d6c05f5a67985de8eb5ffb532d919f6f1ccb4e6cdd0a60733d81162364c13361",
+  "mesh_json_bytes": 1591690,
+  "style_originals_unchanged": true,
+  "bodyBinding": null,
+  "audit": {
+    "schema_version": 1,
+    "result": "pass",
+    "scope": "Fixed authored laminated wood annulus, three frosted-glass stars and retaining clips on shaped crosspieces, broad plinth/four pads. Finite actual triangle witnesses only.",
+    "topology": [
+      {
+        "name": "low-broad-rounded-wood-plinth",
+        "vertices": 112,
+        "triangles": 220,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.15959157816631545,
+        "faceNormals": {
+          "triangles": 220,
+          "minimumFaceAverageNormalDot": 0.8557244960611301,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "name": "flat-underside-pad-0",
+        "vertices": 194,
+        "triangles": 384,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0015253410729865885,
+        "faceNormals": {
+          "triangles": 384,
+          "minimumFaceAverageNormalDot": 0.9839308495756126,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "name": "flat-underside-pad-1",
+        "vertices": 194,
+        "triangles": 384,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0015253410729865885,
+        "faceNormals": {
+          "triangles": 384,
+          "minimumFaceAverageNormalDot": 0.9839308495756126,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "name": "flat-underside-pad-2",
+        "vertices": 194,
+        "triangles": 384,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0015253410729865885,
+        "faceNormals": {
+          "triangles": 384,
+          "minimumFaceAverageNormalDot": 0.9839308495756126,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "name": "flat-underside-pad-3",
+        "vertices": 194,
+        "triangles": 384,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0015253410729865885,
+        "faceNormals": {
+          "triangles": 384,
+          "minimumFaceAverageNormalDot": 0.9839308495756126,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "name": "closed-laminated-wood-annulus-core",
+        "vertices": 2304,
+        "triangles": 4608,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.16586767892268048,
+        "faceNormals": {
+          "triangles": 4608,
+          "minimumFaceAverageNormalDot": 0.998205040605573,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "name": "closed-wood-front-laminate",
+        "vertices": 2304,
+        "triangles": 4608,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.051994472980868796,
+        "faceNormals": {
+          "triangles": 4608,
+          "minimumFaceAverageNormalDot": 0.9974984924986066,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "name": "closed-wood-back-laminate",
+        "vertices": 2304,
+        "triangles": 4608,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.05199447298086879,
+        "faceNormals": {
+          "triangles": 4608,
+          "minimumFaceAverageNormalDot": 0.9974984930091146,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "name": "fixed-rounded-wood-stand-0",
+        "vertices": 354,
+        "triangles": 704,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0031319728418982154,
+        "faceNormals": {
+          "triangles": 704,
+          "minimumFaceAverageNormalDot": 0.9800724973539999,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "name": "fixed-rounded-wood-stand-1",
+        "vertices": 354,
+        "triangles": 704,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0031319728418982154,
+        "faceNormals": {
+          "triangles": 704,
+          "minimumFaceAverageNormalDot": 0.9800724973539999,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "name": "fixed-shaped-crosspiece-upper",
+        "vertices": 639,
+        "triangles": 1176,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.008417372171683172,
+        "faceNormals": {
+          "triangles": 1176,
+          "minimumFaceAverageNormalDot": 0.805014052573278,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "name": "fixed-shaped-crosspiece-left",
+        "vertices": 639,
+        "triangles": 1176,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0034692559672334896,
+        "faceNormals": {
+          "triangles": 1176,
+          "minimumFaceAverageNormalDot": 0.6883050613167743,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "name": "fixed-shaped-crosspiece-right",
+        "vertices": 639,
+        "triangles": 1176,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0034692559672334917,
+        "faceNormals": {
+          "triangles": 1176,
+          "minimumFaceAverageNormalDot": 0.6879497710177666,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "name": "fixed-rounded-frosted-glass-star-0",
+        "vertices": 160,
+        "triangles": 316,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.014787423506413797,
+        "faceNormals": {
+          "triangles": 316,
+          "minimumFaceAverageNormalDot": 0.852338597007241,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "name": "fixed-u-retaining-clip-0-left",
+        "vertices": 16,
+        "triangles": 28,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0012546005238771676,
+        "faceNormals": {
+          "triangles": 28,
+          "minimumFaceAverageNormalDot": 0.6128797150716788,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "name": "fixed-u-retaining-clip-0-right",
+        "vertices": 16,
+        "triangles": 28,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0012546005238771676,
+        "faceNormals": {
+          "triangles": 28,
+          "minimumFaceAverageNormalDot": 0.6128797150716788,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "name": "fixed-rounded-frosted-glass-star-1",
+        "vertices": 160,
+        "triangles": 316,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.009463950210566636,
+        "faceNormals": {
+          "triangles": 316,
+          "minimumFaceAverageNormalDot": 0.817952460260617,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "name": "fixed-u-retaining-clip-1-left",
+        "vertices": 16,
+        "triangles": 28,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0012546000416754392,
+        "faceNormals": {
+          "triangles": 28,
+          "minimumFaceAverageNormalDot": 0.6128800999521673,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "name": "fixed-u-retaining-clip-1-right",
+        "vertices": 16,
+        "triangles": 28,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0012545995186448511,
+        "faceNormals": {
+          "triangles": 28,
+          "minimumFaceAverageNormalDot": 0.6128799061260864,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "name": "fixed-rounded-frosted-glass-star-2",
+        "vertices": 160,
+        "triangles": 316,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.00869171992515522,
+        "faceNormals": {
+          "triangles": 316,
+          "minimumFaceAverageNormalDot": 0.8101666912312818,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "name": "fixed-u-retaining-clip-2-left",
+        "vertices": 16,
+        "triangles": 28,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.001254599424767553,
+        "faceNormals": {
+          "triangles": 28,
+          "minimumFaceAverageNormalDot": 0.6128799465066029,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "name": "fixed-u-retaining-clip-2-right",
+        "vertices": 16,
+        "triangles": 28,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.00125459896879213,
+        "faceNormals": {
+          "triangles": 28,
+          "minimumFaceAverageNormalDot": 0.6128799282165663,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      }
+    ],
+    "crossings": [
+      {
+        "name": "low-broad-rounded-wood-plinth",
+        "triangles": 220,
+        "candidateNonadjacentAABBPairs": 387,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "flat-underside-pad-0",
+        "triangles": 384,
+        "candidateNonadjacentAABBPairs": 259,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "flat-underside-pad-1",
+        "triangles": 384,
+        "candidateNonadjacentAABBPairs": 259,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "flat-underside-pad-2",
+        "triangles": 384,
+        "candidateNonadjacentAABBPairs": 259,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "flat-underside-pad-3",
+        "triangles": 384,
+        "candidateNonadjacentAABBPairs": 259,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-laminated-wood-annulus-core",
+        "triangles": 4608,
+        "candidateNonadjacentAABBPairs": 3126,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-wood-front-laminate",
+        "triangles": 4608,
+        "candidateNonadjacentAABBPairs": 3318,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-wood-back-laminate",
+        "triangles": 4608,
+        "candidateNonadjacentAABBPairs": 3318,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "fixed-rounded-wood-stand-0",
+        "triangles": 704,
+        "candidateNonadjacentAABBPairs": 593,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "fixed-rounded-wood-stand-1",
+        "triangles": 704,
+        "candidateNonadjacentAABBPairs": 593,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "fixed-shaped-crosspiece-upper",
+        "triangles": 1176,
+        "candidateNonadjacentAABBPairs": 1340,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "fixed-shaped-crosspiece-left",
+        "triangles": 1176,
+        "candidateNonadjacentAABBPairs": 1320,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "fixed-shaped-crosspiece-right",
+        "triangles": 1176,
+        "candidateNonadjacentAABBPairs": 1320,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "fixed-rounded-frosted-glass-star-0",
+        "triangles": 316,
+        "candidateNonadjacentAABBPairs": 489,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "fixed-u-retaining-clip-0-left",
+        "triangles": 28,
+        "candidateNonadjacentAABBPairs": 40,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "fixed-u-retaining-clip-0-right",
+        "triangles": 28,
+        "candidateNonadjacentAABBPairs": 40,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "fixed-rounded-frosted-glass-star-1",
+        "triangles": 316,
+        "candidateNonadjacentAABBPairs": 473,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "fixed-u-retaining-clip-1-left",
+        "triangles": 28,
+        "candidateNonadjacentAABBPairs": 40,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "fixed-u-retaining-clip-1-right",
+        "triangles": 28,
+        "candidateNonadjacentAABBPairs": 40,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "fixed-rounded-frosted-glass-star-2",
+        "triangles": 316,
+        "candidateNonadjacentAABBPairs": 470,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "fixed-u-retaining-clip-2-left",
+        "triangles": 28,
+        "candidateNonadjacentAABBPairs": 40,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "fixed-u-retaining-clip-2-right",
+        "triangles": 28,
+        "candidateNonadjacentAABBPairs": 40,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      }
+    ],
+    "attachments": {
+      "count": 26,
+      "failed": 0,
+      "minimumClearance": 0.006999997615814206,
+      "rows": [
+        {
+          "part": "flat-underside-pad-0",
+          "target": "low-broad-rounded-wood-plinth",
+          "point": [
+            -0.43,
+            0.06,
+            -0.22
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.015000002980232241,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.009999999254941938,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "flat-underside-pad-1",
+          "target": "low-broad-rounded-wood-plinth",
+          "point": [
+            -0.43,
+            0.06,
+            0.22
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.015000002980232241,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.009999999254941938,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "flat-underside-pad-2",
+          "target": "low-broad-rounded-wood-plinth",
+          "point": [
+            0.43,
+            0.06,
+            -0.22
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.015000002980232241,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.009999999254941938,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "flat-underside-pad-3",
+          "target": "low-broad-rounded-wood-plinth",
+          "point": [
+            0.43,
+            0.06,
+            0.22
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.015000002980232241,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.009999999254941938,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-wood-front-laminate",
+          "target": "closed-laminated-wood-annulus-core",
+          "point": [
+            0,
+            2.07,
+            0.068
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0159999989271164,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.010000001609325404,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-wood-back-laminate",
+          "target": "closed-laminated-wood-annulus-core",
+          "point": [
+            0,
+            2.07,
+            -0.068
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0159999989271164,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.010000001609325404,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-rounded-wood-stand-0",
+          "target": "low-broad-rounded-wood-plinth",
+          "point": [
+            -0.28,
+            0.19,
+            0
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02775815684030359,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.04000000417232513,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-rounded-wood-stand-0",
+          "target": "closed-laminated-wood-annulus-core",
+          "point": [
+            -0.28,
+            0.47,
+            0
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.037671786773483804,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.07800000160932541,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-rounded-wood-stand-1",
+          "target": "low-broad-rounded-wood-plinth",
+          "point": [
+            0.28,
+            0.19,
+            0
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02775815684030359,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.04000000417232513,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-rounded-wood-stand-1",
+          "target": "closed-laminated-wood-annulus-core",
+          "point": [
+            0.28,
+            0.47,
+            0
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.037671786773483804,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.07800000160932541,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-shaped-crosspiece-upper",
+          "target": "closed-laminated-wood-annulus-core",
+          "point": [
+            -0.7513148095387391,
+            1.4789010742146333,
+            0
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.04056046315059047,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.06370096345401197,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-shaped-crosspiece-upper",
+          "target": "closed-laminated-wood-annulus-core",
+          "point": [
+            0.751314809538739,
+            1.478901074214633,
+            0
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.04056046315059093,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.06370096345401169,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-shaped-crosspiece-left",
+          "target": "closed-laminated-wood-annulus-core",
+          "point": [
+            -0.7811311693378337,
+            0.9953624374016758,
+            0
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.013873576748452344,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.07800000160932541,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-shaped-crosspiece-right",
+          "target": "closed-laminated-wood-annulus-core",
+          "point": [
+            0.7811311693378337,
+            0.9953624374016758,
+            0
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.013873576748452344,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.07800000160932541,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-u-retaining-clip-0-left",
+          "target": "fixed-shaped-crosspiece-upper",
+          "point": [
+            -0.16246069081629994,
+            1.48,
+            0.023
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02000000186766865,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.017252947755902796,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-u-retaining-clip-0-left",
+          "target": "fixed-rounded-frosted-glass-star-0",
+          "point": [
+            -0.15946069081629993,
+            1.48,
+            0.058
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.006999997615814206,
+            "independentUniqueRayHitCounts": [
+              1,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.017683874392779048,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-u-retaining-clip-0-right",
+          "target": "fixed-shaped-crosspiece-upper",
+          "point": [
+            0.16246069081629996,
+            1.48,
+            0.023
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.020000001867668676,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.01725294982354638,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-u-retaining-clip-0-right",
+          "target": "fixed-rounded-frosted-glass-star-0",
+          "point": [
+            0.15946069081629996,
+            1.48,
+            0.058
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.006999997615814206,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.017683885013835398,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-u-retaining-clip-1-left",
+          "target": "fixed-shaped-crosspiece-left",
+          "point": [
+            -0.5347431694794306,
+            1.01,
+            0.023
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.020000020198882473,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.016937054055625542,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-u-retaining-clip-1-left",
+          "target": "fixed-rounded-frosted-glass-star-1",
+          "point": [
+            -0.5317431694794306,
+            1.01,
+            0.058
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.006999997615814206,
+            "independentUniqueRayHitCounts": [
+              1,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.018000000894069675,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-u-retaining-clip-1-right",
+          "target": "fixed-shaped-crosspiece-left",
+          "point": [
+            -0.2702756130813926,
+            1.01,
+            0.023
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.019999990451398553,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.01729479590091151,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-u-retaining-clip-1-right",
+          "target": "fixed-rounded-frosted-glass-star-1",
+          "point": [
+            -0.2732756130813926,
+            1.01,
+            0.058
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.006999997615814206,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.013241334966081396,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-u-retaining-clip-2-left",
+          "target": "fixed-shaped-crosspiece-right",
+          "point": [
+            0.2773474625363346,
+            1.01,
+            0.023
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.019999993680477557,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.017380264873798495,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-u-retaining-clip-2-left",
+          "target": "fixed-rounded-frosted-glass-star-2",
+          "point": [
+            0.2803474625363346,
+            1.01,
+            0.058
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.006999997615814206,
+            "independentUniqueRayHitCounts": [
+              1,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.013241367641524109,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-u-retaining-clip-2-right",
+          "target": "fixed-shaped-crosspiece-right",
+          "point": [
+            0.529128870751121,
+            1.01,
+            0.023
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.020000002171256526,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.017038290519519286,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-u-retaining-clip-2-right",
+          "target": "fixed-rounded-frosted-glass-star-2",
+          "point": [
+            0.526128870751121,
+            1.01,
+            0.058
+          ],
+          "scope": "finite strict common-material witness; no physical bond/load guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.006999997615814206,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.018000000894069675,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "connectedPartCount": 22,
+    "totalPartCount": 22,
+    "woodOnlyAnnularOpening": [
+      {
+        "from": [
+          0.39,
+          1.24,
+          -0.3
+        ],
+        "to": [
+          0.39,
+          1.24,
+          0.3
+        ],
+        "woodOnlyHits": [],
+        "assemblyHits": [],
+        "scope": "finite wood-only central aperture; crosspieces/stars/clips may occupy assembly opening"
+      },
+      {
+        "from": [
+          0.3377499074759311,
+          1.435,
+          -0.3
+        ],
+        "to": [
+          0.3377499074759311,
+          1.435,
+          0.3
+        ],
+        "woodOnlyHits": [],
+        "assemblyHits": [
+          {
+            "part": "fixed-shaped-crosspiece-upper",
+            "face": 831,
+            "distance": 0.2778075788190842
+          },
+          {
+            "part": "fixed-shaped-crosspiece-upper",
+            "face": 836,
+            "distance": 0.32219242230658046
+          }
+        ],
+        "scope": "finite wood-only central aperture; crosspieces/stars/clips may occupy assembly opening"
+      },
+      {
+        "from": [
+          0.19500000000000006,
+          1.5777499074759311,
+          -0.3
+        ],
+        "to": [
+          0.19500000000000006,
+          1.5777499074759311,
+          0.3
+        ],
+        "woodOnlyHits": [],
+        "assemblyHits": [
+          {
+            "part": "fixed-rounded-frosted-glass-star-0",
+            "face": 65,
+            "distance": 0.3454743482620215
+          },
+          {
+            "part": "fixed-rounded-frosted-glass-star-0",
+            "face": 225,
+            "distance": 0.4545256740877632
+          }
+        ],
+        "scope": "finite wood-only central aperture; crosspieces/stars/clips may occupy assembly opening"
+      },
+      {
+        "from": [
+          2.3880612583373387e-17,
+          1.63,
+          -0.3
+        ],
+        "to": [
+          2.3880612583373387e-17,
+          1.63,
+          0.3
+        ],
+        "woodOnlyHits": [],
+        "assemblyHits": [
+          {
+            "part": "fixed-rounded-frosted-glass-star-0",
+            "face": 290,
+            "distance": 0.3399999991059303
+          },
+          {
+            "part": "fixed-rounded-frosted-glass-star-0",
+            "face": 291,
+            "distance": 0.4599999964237213
+          }
+        ],
+        "scope": "finite wood-only central aperture; crosspieces/stars/clips may occupy assembly opening"
+      },
+      {
+        "from": [
+          -0.19499999999999992,
+          1.5777499074759311,
+          -0.3
+        ],
+        "to": [
+          -0.19499999999999992,
+          1.5777499074759311,
+          0.3
+        ],
+        "woodOnlyHits": [],
+        "assemblyHits": [
+          {
+            "part": "fixed-rounded-frosted-glass-star-0",
+            "face": 8,
+            "distance": 0.3454743228985629
+          },
+          {
+            "part": "fixed-rounded-frosted-glass-star-0",
+            "face": 168,
+            "distance": 0.4545256487243113
+          }
+        ],
+        "scope": "finite wood-only central aperture; crosspieces/stars/clips may occupy assembly opening"
+      },
+      {
+        "from": [
+          -0.3377499074759311,
+          1.435,
+          -0.3
+        ],
+        "to": [
+          -0.3377499074759311,
+          1.435,
+          0.3
+        ],
+        "woodOnlyHits": [],
+        "assemblyHits": [
+          {
+            "part": "fixed-shaped-crosspiece-upper",
+            "face": 327,
+            "distance": 0.27780757769341946
+          },
+          {
+            "part": "fixed-shaped-crosspiece-upper",
+            "face": 332,
+            "distance": 0.32219242118091584
+          }
+        ],
+        "scope": "finite wood-only central aperture; crosspieces/stars/clips may occupy assembly opening"
+      },
+      {
+        "from": [
+          -0.39,
+          1.24,
+          -0.3
+        ],
+        "to": [
+          -0.39,
+          1.24,
+          0.3
+        ],
+        "woodOnlyHits": [],
+        "assemblyHits": [],
+        "scope": "finite wood-only central aperture; crosspieces/stars/clips may occupy assembly opening"
+      },
+      {
+        "from": [
+          -0.3377499074759311,
+          1.045,
+          -0.3
+        ],
+        "to": [
+          -0.3377499074759311,
+          1.045,
+          0.3
+        ],
+        "woodOnlyHits": [],
+        "assemblyHits": [
+          {
+            "part": "fixed-shaped-crosspiece-left",
+            "face": 795,
+            "distance": 0.32109568690549034
+          },
+          {
+            "part": "fixed-shaped-crosspiece-left",
+            "face": 800,
+            "distance": 0.2789043128149443
+          },
+          {
+            "part": "fixed-rounded-frosted-glass-star-1",
+            "face": 314,
+            "distance": 0.3399999991059303
+          },
+          {
+            "part": "fixed-rounded-frosted-glass-star-1",
+            "face": 315,
+            "distance": 0.4599999964237213
+          }
+        ],
+        "scope": "finite wood-only central aperture; crosspieces/stars/clips may occupy assembly opening"
+      },
+      {
+        "from": [
+          -0.19500000000000017,
+          0.902250092524069,
+          -0.3
+        ],
+        "to": [
+          -0.19500000000000017,
+          0.902250092524069,
+          0.3
+        ],
+        "woodOnlyHits": [],
+        "assemblyHits": [],
+        "scope": "finite wood-only central aperture; crosspieces/stars/clips may occupy assembly opening"
+      },
+      {
+        "from": [
+          -7.164183775012016e-17,
+          0.85,
+          -0.3
+        ],
+        "to": [
+          -7.164183775012016e-17,
+          0.85,
+          0.3
+        ],
+        "woodOnlyHits": [],
+        "assemblyHits": [],
+        "scope": "finite wood-only central aperture; crosspieces/stars/clips may occupy assembly opening"
+      },
+      {
+        "from": [
+          0.19500000000000006,
+          0.9022500925240688,
+          -0.3
+        ],
+        "to": [
+          0.19500000000000006,
+          0.9022500925240688,
+          0.3
+        ],
+        "woodOnlyHits": [],
+        "assemblyHits": [],
+        "scope": "finite wood-only central aperture; crosspieces/stars/clips may occupy assembly opening"
+      },
+      {
+        "from": [
+          0.337749907475931,
+          1.045,
+          -0.3
+        ],
+        "to": [
+          0.337749907475931,
+          1.045,
+          0.3
+        ],
+        "woodOnlyHits": [],
+        "assemblyHits": [
+          {
+            "part": "fixed-shaped-crosspiece-right",
+            "face": 807,
+            "distance": 0.2789043130945097
+          },
+          {
+            "part": "fixed-shaped-crosspiece-right",
+            "face": 812,
+            "distance": 0.3210956871850557
+          },
+          {
+            "part": "fixed-rounded-frosted-glass-star-2",
+            "face": 310,
+            "distance": 0.3399999991059303
+          },
+          {
+            "part": "fixed-rounded-frosted-glass-star-2",
+            "face": 311,
+            "distance": 0.45999999642372136
+          }
+        ],
+        "scope": "finite wood-only central aperture; crosspieces/stars/clips may occupy assembly opening"
+      }
+    ],
+    "woodThickness": [
+      {
+        "part": "closed-laminated-wood-annulus-core",
+        "from": [
+          0.83,
+          1.24,
+          -0.3
+        ],
+        "to": [
+          0.83,
+          1.24,
+          0.3
+        ],
+        "hits": [
+          {
+            "part": "closed-laminated-wood-annulus-core",
+            "face": 4570,
+            "distance": 0.3780000016093254
+          },
+          {
+            "part": "closed-laminated-wood-annulus-core",
+            "face": 4594,
+            "distance": 0.22199999839067458
+          }
+        ],
+        "uniqueDistances": [
+          0.22199999839067458,
+          0.3780000016093254
+        ],
+        "thickness": 0.15600000321865082
+      },
+      {
+        "part": "closed-laminated-wood-annulus-core",
+        "from": [
+          5.0822842164615156e-17,
+          2.07,
+          -0.3
+        ],
+        "to": [
+          5.0822842164615156e-17,
+          2.07,
+          0.3
+        ],
+        "hits": [
+          {
+            "part": "closed-laminated-wood-annulus-core",
+            "face": 1138,
+            "distance": 0.22199999839067458
+          },
+          {
+            "part": "closed-laminated-wood-annulus-core",
+            "face": 1163,
+            "distance": 0.3780000016093254
+          },
+          {
+            "part": "closed-laminated-wood-annulus-core",
+            "face": 1187,
+            "distance": 0.22199999839067458
+          }
+        ],
+        "uniqueDistances": [
+          0.22199999839067458,
+          0.3780000016093254
+        ],
+        "thickness": 0.15600000321865082
+      },
+      {
+        "part": "closed-laminated-wood-annulus-core",
+        "from": [
+          -0.83,
+          1.24,
+          -0.3
+        ],
+        "to": [
+          -0.83,
+          1.24,
+          0.3
+        ],
+        "hits": [
+          {
+            "part": "closed-laminated-wood-annulus-core",
+            "face": 2315,
+            "distance": 0.3780000016093254
+          },
+          {
+            "part": "closed-laminated-wood-annulus-core",
+            "face": 2339,
+            "distance": 0.22199999839067458
+          }
+        ],
+        "uniqueDistances": [
+          0.22199999839067458,
+          0.3780000016093254
+        ],
+        "thickness": 0.15600000321865082
+      },
+      {
+        "part": "closed-laminated-wood-annulus-core",
+        "from": [
+          -1.5246852649384544e-16,
+          0.41000000000000003,
+          -0.3
+        ],
+        "to": [
+          -1.5246852649384544e-16,
+          0.41000000000000003,
+          0.3
+        ],
+        "hits": [
+          {
+            "part": "closed-laminated-wood-annulus-core",
+            "face": 3418,
+            "distance": 0.3780000016093254
+          },
+          {
+            "part": "closed-laminated-wood-annulus-core",
+            "face": 3442,
+            "distance": 0.22199999839067458
+          },
+          {
+            "part": "closed-laminated-wood-annulus-core",
+            "face": 3467,
+            "distance": 0.3780000016093254
+          },
+          {
+            "part": "closed-laminated-wood-annulus-core",
+            "face": 3491,
+            "distance": 0.22199999839067458
+          }
+        ],
+        "uniqueDistances": [
+          0.22199999839067458,
+          0.3780000016093254
+        ],
+        "thickness": 0.15600000321865082
+      },
+      {
+        "part": "closed-wood-front-laminate",
+        "from": [
+          0.83,
+          1.24,
+          -0.3
+        ],
+        "to": [
+          0.83,
+          1.24,
+          0.3
+        ],
+        "hits": [
+          {
+            "part": "closed-wood-front-laminate",
+            "face": 4570,
+            "distance": 0.4000000014901161
+          },
+          {
+            "part": "closed-wood-front-laminate",
+            "face": 4594,
+            "distance": 0.3520000010728836
+          }
+        ],
+        "uniqueDistances": [
+          0.3520000010728836,
+          0.4000000014901161
+        ],
+        "thickness": 0.04800000041723251
+      },
+      {
+        "part": "closed-wood-front-laminate",
+        "from": [
+          5.0822842164615156e-17,
+          2.07,
+          -0.3
+        ],
+        "to": [
+          5.0822842164615156e-17,
+          2.07,
+          0.3
+        ],
+        "hits": [
+          {
+            "part": "closed-wood-front-laminate",
+            "face": 1114,
+            "distance": 0.4000000014901161
+          },
+          {
+            "part": "closed-wood-front-laminate",
+            "face": 1163,
+            "distance": 0.4000000014901161
+          },
+          {
+            "part": "closed-wood-front-laminate",
+            "face": 1187,
+            "distance": 0.3520000010728836
+          }
+        ],
+        "uniqueDistances": [
+          0.3520000010728836,
+          0.4000000014901161
+        ],
+        "thickness": 0.04800000041723251
+      },
+      {
+        "part": "closed-wood-front-laminate",
+        "from": [
+          -0.83,
+          1.24,
+          -0.3
+        ],
+        "to": [
+          -0.83,
+          1.24,
+          0.3
+        ],
+        "hits": [
+          {
+            "part": "closed-wood-front-laminate",
+            "face": 2315,
+            "distance": 0.4000000014901161
+          },
+          {
+            "part": "closed-wood-front-laminate",
+            "face": 2339,
+            "distance": 0.3520000010728836
+          }
+        ],
+        "uniqueDistances": [
+          0.3520000010728836,
+          0.4000000014901161
+        ],
+        "thickness": 0.04800000041723251
+      },
+      {
+        "part": "closed-wood-front-laminate",
+        "from": [
+          -1.5246852649384544e-16,
+          0.41000000000000003,
+          -0.3
+        ],
+        "to": [
+          -1.5246852649384544e-16,
+          0.41000000000000003,
+          0.3
+        ],
+        "hits": [
+          {
+            "part": "closed-wood-front-laminate",
+            "face": 3442,
+            "distance": 0.3520000010728836
+          },
+          {
+            "part": "closed-wood-front-laminate",
+            "face": 3467,
+            "distance": 0.4000000014901161
+          },
+          {
+            "part": "closed-wood-front-laminate",
+            "face": 3491,
+            "distance": 0.3520000010728836
+          }
+        ],
+        "uniqueDistances": [
+          0.3520000010728836,
+          0.4000000014901161
+        ],
+        "thickness": 0.04800000041723251
+      },
+      {
+        "part": "closed-wood-back-laminate",
+        "from": [
+          0.83,
+          1.24,
+          -0.3
+        ],
+        "to": [
+          0.83,
+          1.24,
+          0.3
+        ],
+        "hits": [
+          {
+            "part": "closed-wood-back-laminate",
+            "face": 4570,
+            "distance": 0.24799999892711638
+          },
+          {
+            "part": "closed-wood-back-laminate",
+            "face": 4594,
+            "distance": 0.19999999850988387
+          }
+        ],
+        "uniqueDistances": [
+          0.19999999850988387,
+          0.24799999892711638
+        ],
+        "thickness": 0.04800000041723251
+      },
+      {
+        "part": "closed-wood-back-laminate",
+        "from": [
+          5.0822842164615156e-17,
+          2.07,
+          -0.3
+        ],
+        "to": [
+          5.0822842164615156e-17,
+          2.07,
+          0.3
+        ],
+        "hits": [
+          {
+            "part": "closed-wood-back-laminate",
+            "face": 1114,
+            "distance": 0.24799999892711636
+          },
+          {
+            "part": "closed-wood-back-laminate",
+            "face": 1163,
+            "distance": 0.24799999892711638
+          },
+          {
+            "part": "closed-wood-back-laminate",
+            "face": 1187,
+            "distance": 0.19999999850988387
+          }
+        ],
+        "uniqueDistances": [
+          0.19999999850988387,
+          0.24799999892711636
+        ],
+        "thickness": 0.048000000417232486
+      },
+      {
+        "part": "closed-wood-back-laminate",
+        "from": [
+          -0.83,
+          1.24,
+          -0.3
+        ],
+        "to": [
+          -0.83,
+          1.24,
+          0.3
+        ],
+        "hits": [
+          {
+            "part": "closed-wood-back-laminate",
+            "face": 2315,
+            "distance": 0.2479999989271164
+          },
+          {
+            "part": "closed-wood-back-laminate",
+            "face": 2339,
+            "distance": 0.19999999850988387
+          }
+        ],
+        "uniqueDistances": [
+          0.19999999850988387,
+          0.2479999989271164
+        ],
+        "thickness": 0.04800000041723254
+      },
+      {
+        "part": "closed-wood-back-laminate",
+        "from": [
+          -1.5246852649384544e-16,
+          0.41000000000000003,
+          -0.3
+        ],
+        "to": [
+          -1.5246852649384544e-16,
+          0.41000000000000003,
+          0.3
+        ],
+        "hits": [
+          {
+            "part": "closed-wood-back-laminate",
+            "face": 3442,
+            "distance": 0.19999999850988387
+          },
+          {
+            "part": "closed-wood-back-laminate",
+            "face": 3467,
+            "distance": 0.24799999892711638
+          },
+          {
+            "part": "closed-wood-back-laminate",
+            "face": 3491,
+            "distance": 0.19999999850988387
+          }
+        ],
+        "uniqueDistances": [
+          0.19999999850988387,
+          0.24799999892711638
+        ],
+        "thickness": 0.04800000041723251
+      }
+    ],
+    "materialControls": {
+      "woodOccupied": {
+        "strictInside": true,
+        "minimumSurfaceClearance": 0.07800000160932541,
+        "independentUniqueRayHitCounts": [
+          1,
+          1,
+          1
+        ],
+        "directions": [
+          [
+            0.173,
+            0.913,
+            0.367
+          ],
+          [
+            -0.683,
+            0.247,
+            0.687
+          ],
+          [
+            0.591,
+            -0.721,
+            0.363
+          ]
+        ]
+      },
+      "holeControl": {
+        "strictInside": false,
+        "minimumSurfaceClearance": 0.7246118035591731,
+        "independentUniqueRayHitCounts": [
+          0,
+          0,
+          0
+        ],
+        "directions": [
+          [
+            0.173,
+            0.913,
+            0.367
+          ],
+          [
+            -0.683,
+            0.247,
+            0.687
+          ],
+          [
+            0.591,
+            -0.721,
+            0.363
+          ]
+        ]
+      },
+      "outsideControl": {
+        "strictInside": false,
+        "minimumSurfaceClearance": 0.36499999761581436,
+        "independentUniqueRayHitCounts": [
+          0,
+          0,
+          0
+        ],
+        "directions": [
+          [
+            0.173,
+            0.913,
+            0.367
+          ],
+          [
+            -0.683,
+            0.247,
+            0.687
+          ],
+          [
+            0.591,
+            -0.721,
+            0.363
+          ]
+        ]
+      }
+    },
+    "starThickness": [
+      {
+        "part": "fixed-rounded-frosted-glass-star-0",
+        "center": [
+          0,
+          1.48,
+          0.1
+        ],
+        "from": [
+          0,
+          1.48,
+          -0.1
+        ],
+        "to": [
+          0,
+          1.48,
+          0.3
+        ],
+        "outlinePoints": 40,
+        "authoredThickness": 0.12,
+        "hits": [
+          {
+            "part": "fixed-rounded-frosted-glass-star-0",
+            "face": 314,
+            "distance": 0.13999999910593033
+          },
+          {
+            "part": "fixed-rounded-frosted-glass-star-0",
+            "face": 315,
+            "distance": 0.2599999964237213
+          }
+        ],
+        "uniqueDistances": [
+          0.13999999910593033,
+          0.2599999964237213
+        ],
+        "thickness": 0.11999999731779096,
+        "occupied": {
+          "strictInside": true,
+          "minimumSurfaceClearance": 0.05999999642372131,
+          "independentUniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directions": [
+            [
+              0.173,
+              0.913,
+              0.367
+            ],
+            [
+              -0.683,
+              0.247,
+              0.687
+            ],
+            [
+              0.591,
+              -0.721,
+              0.363
+            ]
+          ]
+        }
+      },
+      {
+        "part": "fixed-rounded-frosted-glass-star-1",
+        "center": [
+          -0.42,
+          1.01,
+          0.1
+        ],
+        "from": [
+          -0.42,
+          1.01,
+          -0.1
+        ],
+        "to": [
+          -0.42,
+          1.01,
+          0.3
+        ],
+        "outlinePoints": 40,
+        "authoredThickness": 0.12,
+        "hits": [
+          {
+            "part": "fixed-rounded-frosted-glass-star-1",
+            "face": 314,
+            "distance": 0.13999999910593033
+          },
+          {
+            "part": "fixed-rounded-frosted-glass-star-1",
+            "face": 315,
+            "distance": 0.2599999964237213
+          }
+        ],
+        "uniqueDistances": [
+          0.13999999910593033,
+          0.2599999964237213
+        ],
+        "thickness": 0.11999999731779096,
+        "occupied": {
+          "strictInside": true,
+          "minimumSurfaceClearance": 0.05999999642372131,
+          "independentUniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directions": [
+            [
+              0.173,
+              0.913,
+              0.367
+            ],
+            [
+              -0.683,
+              0.247,
+              0.687
+            ],
+            [
+              0.591,
+              -0.721,
+              0.363
+            ]
+          ]
+        }
+      },
+      {
+        "part": "fixed-rounded-frosted-glass-star-2",
+        "center": [
+          0.42,
+          1.01,
+          0.1
+        ],
+        "from": [
+          0.42,
+          1.01,
+          -0.1
+        ],
+        "to": [
+          0.42,
+          1.01,
+          0.3
+        ],
+        "outlinePoints": 40,
+        "authoredThickness": 0.12,
+        "hits": [
+          {
+            "part": "fixed-rounded-frosted-glass-star-2",
+            "face": 314,
+            "distance": 0.13999999910593033
+          },
+          {
+            "part": "fixed-rounded-frosted-glass-star-2",
+            "face": 315,
+            "distance": 0.2599999964237213
+          }
+        ],
+        "uniqueDistances": [
+          0.13999999910593033,
+          0.2599999964237213
+        ],
+        "thickness": 0.11999999731779096,
+        "occupied": {
+          "strictInside": true,
+          "minimumSurfaceClearance": 0.05999999642372131,
+          "independentUniqueRayHitCounts": [
+            1,
+            1,
+            1
+          ],
+          "directions": [
+            [
+              0.173,
+              0.913,
+              0.367
+            ],
+            [
+              -0.683,
+              0.247,
+              0.687
+            ],
+            [
+              0.591,
+              -0.721,
+              0.363
+            ]
+          ]
+        }
+      }
+    ],
+    "clipChannels": [
+      {
+        "part": "fixed-u-retaining-clip-0-left",
+        "point": [
+          -0.1824606889486313,
+          1.4799999594688416,
+          0.1
+        ],
+        "emptyChannel": true,
+        "scope": "one finite U-clip-only channel point; occupied glass may be present in assembly"
+      },
+      {
+        "part": "fixed-u-retaining-clip-0-right",
+        "point": [
+          0.1824606889486313,
+          1.4799999594688416,
+          0.1
+        ],
+        "emptyChannel": true,
+        "scope": "one finite U-clip-only channel point; occupied glass may be present in assembly"
+      },
+      {
+        "part": "fixed-u-retaining-clip-1-left",
+        "point": [
+          -0.5547431492805481,
+          1.0099999606609344,
+          0.1
+        ],
+        "emptyChannel": true,
+        "scope": "one finite U-clip-only channel point; occupied glass may be present in assembly"
+      },
+      {
+        "part": "fixed-u-retaining-clip-1-right",
+        "point": [
+          -0.25027560353279116,
+          1.0099999606609344,
+          0.1
+        ],
+        "emptyChannel": true,
+        "scope": "one finite U-clip-only channel point; occupied glass may be present in assembly"
+      },
+      {
+        "part": "fixed-u-retaining-clip-2-left",
+        "point": [
+          0.25734745621681215,
+          1.0099999606609344,
+          0.1
+        ],
+        "emptyChannel": true,
+        "scope": "one finite U-clip-only channel point; occupied glass may be present in assembly"
+      },
+      {
+        "part": "fixed-u-retaining-clip-2-right",
+        "point": [
+          0.5491288685798645,
+          1.0099999606609344,
+          0.1
+        ],
+        "emptyChannel": true,
+        "scope": "one finite U-clip-only channel point; occupied glass may be present in assembly"
+      }
+    ],
+    "actualFlatSoles": [
+      {
+        "pad": "flat-underside-pad-0",
+        "x": -0.43,
+        "z": -0.22,
+        "triangle": 0,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "pad": "flat-underside-pad-0",
+        "x": -0.41,
+        "z": -0.22,
+        "triangle": 0,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "pad": "flat-underside-pad-0",
+        "x": -0.45,
+        "z": -0.22,
+        "triangle": 16,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "pad": "flat-underside-pad-0",
+        "x": -0.43,
+        "z": -0.2,
+        "triangle": 8,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "pad": "flat-underside-pad-0",
+        "x": -0.43,
+        "z": -0.24,
+        "triangle": 24,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "pad": "flat-underside-pad-1",
+        "x": -0.43,
+        "z": 0.22,
+        "triangle": 0,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "pad": "flat-underside-pad-1",
+        "x": -0.41,
+        "z": 0.22,
+        "triangle": 0,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "pad": "flat-underside-pad-1",
+        "x": -0.45,
+        "z": 0.22,
+        "triangle": 16,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "pad": "flat-underside-pad-1",
+        "x": -0.43,
+        "z": 0.24,
+        "triangle": 8,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "pad": "flat-underside-pad-1",
+        "x": -0.43,
+        "z": 0.2,
+        "triangle": 24,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "pad": "flat-underside-pad-2",
+        "x": 0.43,
+        "z": -0.22,
+        "triangle": 0,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "pad": "flat-underside-pad-2",
+        "x": 0.45,
+        "z": -0.22,
+        "triangle": 0,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "pad": "flat-underside-pad-2",
+        "x": 0.41,
+        "z": -0.22,
+        "triangle": 16,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "pad": "flat-underside-pad-2",
+        "x": 0.43,
+        "z": -0.2,
+        "triangle": 8,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "pad": "flat-underside-pad-2",
+        "x": 0.43,
+        "z": -0.24,
+        "triangle": 24,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "pad": "flat-underside-pad-3",
+        "x": 0.43,
+        "z": 0.22,
+        "triangle": 0,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "pad": "flat-underside-pad-3",
+        "x": 0.45,
+        "z": 0.22,
+        "triangle": 0,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "pad": "flat-underside-pad-3",
+        "x": 0.41,
+        "z": 0.22,
+        "triangle": 16,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "pad": "flat-underside-pad-3",
+        "x": 0.43,
+        "z": 0.24,
+        "triangle": 8,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "pad": "flat-underside-pad-3",
+        "x": 0.43,
+        "z": 0.2,
+        "triangle": 24,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      }
+    ],
+    "fixedStars": 3,
+    "retainingClips": 6,
+    "flatPads": 4,
+    "bodyBinding": null,
+    "physics": false,
+    "opticalPhysics": false,
+    "loadOrStability": false,
+    "rig": false,
+    "wearingFit": false,
+    "normalGame": false,
+    "ownershipUnlockSave": false,
+    "limits": "No continuous all-material/assembly opening, optical, physical bond/load/friction/stability, all-world or body-fit guarantee. Finite ray/contact/view counts are not unique test counts."
+  },
+  "compiledWorldPlacement": {
+    "townPoint": {
+      "x": 2400,
+      "y": 250
+    },
+    "worldPosition": [
+      9.6,
+      0.025000000000001632,
+      -7.1
+    ],
+    "projectedFootprint": {
+      "minX": 8.66300002336502,
+      "maxX": 10.536999976634979,
+      "minZ": -7.440000003576278,
+      "maxZ": -6.759999996423721
+    },
+    "supports": [
+      {
+        "foot": "flat-underside-pad-0",
+        "sample": [
+          0,
+          0
+        ],
+        "x": 9.17,
+        "z": -7.319999999999999,
+        "soleLocalY": 2.7755575615628914e-17,
+        "actualFootSoleTriangle": 2,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.025000000000001625,
+        "requiredGroupY": 0.025000000000001597,
+        "soleMinusFloor": 3.469446951953614e-17
+      },
+      {
+        "foot": "flat-underside-pad-0",
+        "sample": [
+          0.02,
+          0
+        ],
+        "x": 9.19,
+        "z": -7.319999999999999,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 0,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.025000000000001625,
+        "requiredGroupY": 0.025000000000001625,
+        "soleMinusFloor": 6.938893903907228e-18
+      },
+      {
+        "foot": "flat-underside-pad-0",
+        "sample": [
+          -0.02,
+          0
+        ],
+        "x": 9.15,
+        "z": -7.319999999999999,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 15,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.025000000000001625,
+        "requiredGroupY": 0.025000000000001625,
+        "soleMinusFloor": 6.938893903907228e-18
+      },
+      {
+        "foot": "flat-underside-pad-0",
+        "sample": [
+          0,
+          0.02
+        ],
+        "x": 9.17,
+        "z": -7.3,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 7,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.02500000000000162,
+        "requiredGroupY": 0.02500000000000162,
+        "soleMinusFloor": 1.0408340855860843e-17
+      },
+      {
+        "foot": "flat-underside-pad-0",
+        "sample": [
+          0,
+          -0.02
+        ],
+        "x": 9.17,
+        "z": -7.34,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 24,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.025000000000001632,
+        "requiredGroupY": 0.025000000000001632,
+        "soleMinusFloor": 0
+      },
+      {
+        "foot": "flat-underside-pad-1",
+        "sample": [
+          0,
+          0
+        ],
+        "x": 9.17,
+        "z": -6.88,
+        "soleLocalY": 2.7755575615628914e-17,
+        "actualFootSoleTriangle": 29,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.025000000000001528,
+        "requiredGroupY": 0.0250000000000015,
+        "soleMinusFloor": 1.3183898417423734e-16
+      },
+      {
+        "foot": "flat-underside-pad-1",
+        "sample": [
+          0.02,
+          0
+        ],
+        "x": 9.19,
+        "z": -6.88,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 31,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.025000000000001528,
+        "requiredGroupY": 0.025000000000001528,
+        "soleMinusFloor": 1.0408340855860843e-16
+      },
+      {
+        "foot": "flat-underside-pad-1",
+        "sample": [
+          -0.02,
+          0
+        ],
+        "x": 9.15,
+        "z": -6.88,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 16,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.025000000000001528,
+        "requiredGroupY": 0.025000000000001528,
+        "soleMinusFloor": 1.0408340855860843e-16
+      },
+      {
+        "foot": "flat-underside-pad-1",
+        "sample": [
+          0,
+          0.02
+        ],
+        "x": 9.17,
+        "z": -6.859999999999999,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 7,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.025000000000001524,
+        "requiredGroupY": 0.025000000000001524,
+        "soleMinusFloor": 1.0755285551056204e-16
+      },
+      {
+        "foot": "flat-underside-pad-1",
+        "sample": [
+          0,
+          -0.02
+        ],
+        "x": 9.17,
+        "z": -6.8999999999999995,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 24,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.025000000000001535,
+        "requiredGroupY": 0.025000000000001535,
+        "soleMinusFloor": 9.71445146547012e-17
+      },
+      {
+        "foot": "flat-underside-pad-2",
+        "sample": [
+          0,
+          0
+        ],
+        "x": 10.03,
+        "z": -7.319999999999999,
+        "soleLocalY": 2.7755575615628914e-17,
+        "actualFootSoleTriangle": 13,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.025000000000001625,
+        "requiredGroupY": 0.025000000000001597,
+        "soleMinusFloor": 3.469446951953614e-17
+      },
+      {
+        "foot": "flat-underside-pad-2",
+        "sample": [
+          0.02,
+          0
+        ],
+        "x": 10.049999999999999,
+        "z": -7.319999999999999,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 0,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.025000000000001625,
+        "requiredGroupY": 0.025000000000001625,
+        "soleMinusFloor": 6.938893903907228e-18
+      },
+      {
+        "foot": "flat-underside-pad-2",
+        "sample": [
+          -0.02,
+          0
+        ],
+        "x": 10.01,
+        "z": -7.319999999999999,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 15,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.025000000000001625,
+        "requiredGroupY": 0.025000000000001625,
+        "soleMinusFloor": 6.938893903907228e-18
+      },
+      {
+        "foot": "flat-underside-pad-2",
+        "sample": [
+          0,
+          0.02
+        ],
+        "x": 10.03,
+        "z": -7.3,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 8,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.02500000000000162,
+        "requiredGroupY": 0.02500000000000162,
+        "soleMinusFloor": 1.0408340855860843e-17
+      },
+      {
+        "foot": "flat-underside-pad-2",
+        "sample": [
+          0,
+          -0.02
+        ],
+        "x": 10.03,
+        "z": -7.34,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 23,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.025000000000001632,
+        "requiredGroupY": 0.025000000000001632,
+        "soleMinusFloor": 0
+      },
+      {
+        "foot": "flat-underside-pad-3",
+        "sample": [
+          0,
+          0
+        ],
+        "x": 10.03,
+        "z": -6.88,
+        "soleLocalY": 2.7755575615628914e-17,
+        "actualFootSoleTriangle": 18,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.025000000000001528,
+        "requiredGroupY": 0.0250000000000015,
+        "soleMinusFloor": 1.3183898417423734e-16
+      },
+      {
+        "foot": "flat-underside-pad-3",
+        "sample": [
+          0.02,
+          0
+        ],
+        "x": 10.049999999999999,
+        "z": -6.88,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 31,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.025000000000001528,
+        "requiredGroupY": 0.025000000000001528,
+        "soleMinusFloor": 1.0408340855860843e-16
+      },
+      {
+        "foot": "flat-underside-pad-3",
+        "sample": [
+          -0.02,
+          0
+        ],
+        "x": 10.01,
+        "z": -6.88,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 16,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.025000000000001528,
+        "requiredGroupY": 0.025000000000001528,
+        "soleMinusFloor": 1.0408340855860843e-16
+      },
+      {
+        "foot": "flat-underside-pad-3",
+        "sample": [
+          0,
+          0.02
+        ],
+        "x": 10.03,
+        "z": -6.859999999999999,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 8,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.025000000000001524,
+        "requiredGroupY": 0.025000000000001524,
+        "soleMinusFloor": 1.0755285551056204e-16
+      },
+      {
+        "foot": "flat-underside-pad-3",
+        "sample": [
+          0,
+          -0.02
+        ],
+        "x": 10.03,
+        "z": -6.8999999999999995,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 23,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.025000000000001535,
+        "requiredGroupY": 0.025000000000001535,
+        "soleMinusFloor": 9.71445146547012e-17
+      }
+    ],
+    "flatPadSampleCount": 20,
+    "flatPads": 4,
+    "entirePadSurfaceContactVerified": false,
+    "stabilityOrLoadVerified": false,
+    "finiteWalkability": {
+      "samples": 63,
+      "blocked": 0
+    },
+    "roads": [
+      {
+        "name": "layout-plaza-border",
+        "triangles": 192,
+        "minimumGap": 8.722182258272703
+      },
+      {
+        "name": "layout-plaza-floor",
+        "triangles": 96,
+        "minimumGap": 9.011205458897166
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.001703507063343
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.85401935378144
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.759193674344095
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.72231616876165
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.722080696894263
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.749644080194432
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.840460799195641
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.993845107836894
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.206810568053541
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.474265228710042
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.789389744763076
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.144109338903975
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.529573948294283
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.93658678142011
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.355952926713195
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.74892147326075
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.125773101002055
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.491673106176165
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.840085274528162
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.165125358908266
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.461613096605735
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.725107970714374
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.951931644671047
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.139178694972271
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.284716418020832
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.38717401433883
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.445921269147115
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.435460184644809
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.368031645554757
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.260898726533556
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.116449121542589
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.937492338643237
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.727185440245382
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.488958769264892
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.226444907479763
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.943414434949775
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.643722218829243
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.331267877927786
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.0099736546752
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.683782077408557
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.35253819303753
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.998056828646117
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.650823056158535
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.315406629555712
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.99670722767495
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.700035386153113
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.431150795010025
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.19622610895705
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 11.599179112484228
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 11.635555623337044
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 16.41322773304568
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 2.9033493376986153
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 2.9411693568081
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 2.8496381619837683
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 11.599201188981013
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 11.635575075111632
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 19.211276630767436
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 8.439490198418373
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 8.4994890288076
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 11.522975330456012
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 11.568467506356379
+      },
+      {
+        "name": "bridge-deck",
+        "triangles": 44,
+        "minimumGap": 7.860000020265579
+      }
+    ],
+    "minimumRoadGap": 2.8496381619837683,
+    "requiredMargin": 0.2,
+    "originalSpriteEnvelopeClearance": {
+      "checkedCards": 38,
+      "kinds": {
+        "shopTulip": 6,
+        "treeGrove": 12,
+        "flowers": 1,
+        "lantern": 4,
+        "treeApple": 5,
+        "treeBirch": 5,
+        "tree": 5
+      },
+      "minimumGap": 2.074006248944116,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            3.800391407986147,
+            0.025,
+            -10.014646520277676
+          ],
+          "fullQuadRadius": 3.428153984302411,
+          "envelopeDistance": 5.502160233246527,
+          "gap": 2.074006248944116
+        },
+        {
+          "kind": "shopTulip",
+          "sourceSHA256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+          "contact": [
+            6.8759999999999994,
+            0.025,
+            -4.894
+          ],
+          "fullQuadRadius": 0.43406919941234284,
+          "envelopeDistance": 2.5836650460460064,
+          "gap": 2.1495958466336638
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            3.018835793838979,
+            0.025,
+            -10.44966867454055
+          ],
+          "fullQuadRadius": 3.816913714481035,
+          "envelopeDistance": 6.39645959565486,
+          "gap": 2.579545881173825
+        },
+        {
+          "kind": "shopTulip",
+          "sourceSHA256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+          "contact": [
+            5.795999999999999,
+            0.025,
+            -4.894
+          ],
+          "fullQuadRadius": 0.43406919941234284,
+          "envelopeDistance": 3.4207667445513374,
+          "gap": 2.9866975451389948
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            0.8327002596367137,
+            0.025,
+            -9.982363263208441
+          ],
+          "fullQuadRadius": 4.385813983669816,
+          "envelopeDistance": 8.232691257041713,
+          "gap": 3.8468772733718977
+        },
+        {
+          "kind": "lantern",
+          "sourceSHA256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+          "contact": [
+            4.032,
+            0.025,
+            -3.4560000000000004
+          ],
+          "fullQuadRadius": 0.9909739577995439,
+          "envelopeDistance": 5.688811580002871,
+          "gap": 4.697837622203327
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            -3.9520000000000004
+          ],
+          "fullQuadRadius": 3.816913714481035,
+          "envelopeDistance": 9.656292529312402,
+          "gap": 5.839378814831368
+        },
+        {
+          "kind": "treeApple",
+          "sourceSHA256": "ce7ef7adda439841a3fc36de04d5250eb01249ce653337f19b6d9520b028c45b",
+          "contact": [
+            -0.3355192961773006,
+            0.025,
+            -9.667760567754863
+          ],
+          "fullQuadRadius": 2.824426245157773,
+          "envelopeDistance": 9.270181609628027,
+          "gap": 6.445755364470254
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            -1.9396978898859323,
+            0.025,
+            -10.216135629486423
+          ],
+          "fullQuadRadius": 3.3722855420654474,
+          "envelopeDistance": 10.960115512762792,
+          "gap": 7.587829970697345
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            -3.7735156195406474,
+            0.025,
+            -10.38942810991384
+          ],
+          "fullQuadRadius": 3.777696918707195,
+          "envelopeDistance": 12.78147282165445,
+          "gap": 9.003775902947256
+        }
+      ],
+      "method": "sphere enclosing all four full raw Sprite quad corners from actual world scale/center; sphere-to-conservative-3D-pose-envelope distance; includes faint/transparent corners without cropping",
+      "cameraOrientationIndependentGeometryEnvelope": true,
+      "physicalFixtureVolumes": false,
+      "allCameraProjectionOcclusionGuaranteed": false
+    },
+    "buildingProxyClearance": [
+      {
+        "place": "home",
+        "intersects": false,
+        "separation": 15.495415569454764
+      },
+      {
+        "place": "cafe",
+        "intersects": false,
+        "separation": 1.1073204070862857
+      },
+      {
+        "place": "shop",
+        "intersects": false,
+        "separation": 17.54468756091756
+      },
+      {
+        "place": "playground",
+        "intersects": false,
+        "separation": 8.518434407664772
+      },
+      {
+        "place": "tree",
+        "intersects": false,
+        "separation": null
+      },
+      {
+        "place": "flowers",
+        "intersects": false,
+        "separation": null
+      }
+    ],
+    "meadowInstances": {
+      "instanceCount": 1102,
+      "batchCount": 10,
+      "siteCount": 40,
+      "animationPadding": 0.018,
+      "minimumGap": 2.398646653367604,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "batch": "meadow-daisy-lobed-head-instances",
+          "instance": 19,
+          "bounds": {
+            "min": [
+              7.958820739835853,
+              0.26966038848726037,
+              -4.399957903835882
+            ],
+            "max": [
+              8.234389373794551,
+              0.48924224177269227,
+              -4.1378291572550845
+            ]
+          },
+          "minimumGap": 2.398646653367604
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 135,
+          "bounds": {
+            "min": [
+              7.977578815044441,
+              0.07105114515847945,
+              -4.3950632941515035
+            ],
+            "max": [
+              8.21403826324015,
+              0.22419910853424715,
+              -4.18908480159886
+            ]
+          },
+          "minimumGap": 2.4071751635077603
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 135,
+          "bounds": {
+            "min": [
+              7.985089577379973,
+              0.12565921738691058,
+              -4.33268680280395
+            ],
+            "max": [
+              8.19508846259249,
+              0.2939266082809292,
+              -4.162581188564673
+            ]
+          },
+          "minimumGap": 2.4720013286050624
+        },
+        {
+          "batch": "meadow-daisy-heart-instances",
+          "instance": 19,
+          "bounds": {
+            "min": [
+              8.064667348143331,
+              0.3707389938978198,
+              -4.31753558400345
+            ],
+            "max": [
+              8.167966242554911,
+              0.4668721449228284,
+              -4.218473250835417
+            ]
+          },
+          "minimumGap": 2.492125769314753
+        },
+        {
+          "batch": "meadow-stem-instances",
+          "instance": 192,
+          "bounds": {
+            "min": [
+              8.067568068700785,
+              0.007000005960464479,
+              -4.295128576088361
+            ],
+            "max": [
+              8.118887038740318,
+              0.40940555262565614,
+              -4.243320091918379
+            ]
+          },
+          "minimumGap": 2.5242127602132225
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 132,
+          "bounds": {
+            "min": [
+              7.901148489831921,
+              0.041575798950860735,
+              -4.264367702750147
+            ],
+            "max": [
+              8.09452233541299,
+              0.19472376232662844,
+              -4.025857540398
+            ]
+          },
+          "minimumGap": 2.559560006510047
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 132,
+          "bounds": {
+            "min": [
+              7.860408253295483,
+              0.08102512851304734,
+              -4.264202428528577
+            ],
+            "max": [
+              8.04857208160829,
+              0.24929251940706595,
+              -4.048723461221426
+            ]
+          },
+          "minimumGap": 2.5703165555088208
+        },
+        {
+          "batch": "meadow-rose-outer-rosette-instances",
+          "instance": 42,
+          "bounds": {
+            "min": [
+              7.872678861722074,
+              0.23156414085790836,
+              -4.255414189465224
+            ],
+            "max": [
+              8.078212702953188,
+              0.34142650297063937,
+              -4.046932128716306
+            ]
+          },
+          "minimumGap": 2.5719498973604438
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 137,
+          "bounds": {
+            "min": [
+              7.744055235928408,
+              0.11781527593679154,
+              -4.293236297858033
+            ],
+            "max": [
+              7.915505536981387,
+              0.2860826668308102,
+              -4.055709474413007
+            ]
+          },
+          "minimumGap": 2.5775319884989605
+        },
+        {
+          "batch": "meadow-rose-outer-rosette-instances",
+          "instance": 43,
+          "bounds": {
+            "min": [
+              7.897852390299883,
+              0.2736531604253287,
+              -4.230364211487056
+            ],
+            "max": [
+              8.05303405705311,
+              0.36177435561321625,
+              -4.072034530926201
+            ]
+          },
+          "minimumGap": 2.6021367536105706
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 137,
+          "bounds": {
+            "min": [
+              7.675200721285802,
+              0.06587118860311293,
+              -4.2583102846284735
+            ],
+            "max": [
+              7.902138236793523,
+              0.21901915197888064,
+              -4.05499737746007
+            ]
+          },
+          "minimumGap": 2.6148349990710615
+        },
+        {
+          "batch": "meadow-hanging-flared-bell-instances",
+          "instance": 19,
+          "bounds": {
+            "min": [
+              7.673261736095995,
+              0.2665756102455934,
+              -4.254005318920048
+            ],
+            "max": [
+              7.891350546655003,
+              0.4024837637134102,
+              -4.036220874064243
+            ]
+          },
+          "minimumGap": 2.6221083575214017
+        }
+      ],
+      "scope": "every actual current meadow instance geometry AABB transformed by its actual instance and world matrix, expanded .018 in all axes; current finite matrices and authored animation allowance, no all-frame proof"
+    },
+    "shoreline": {
+      "segments": 7,
+      "minimumGap": 2.1600003778934482,
+      "rows": [
+        {
+          "a": [
+            14.399999618530273,
+            -9.600000381469727
+          ],
+          "b": [
+            -14.399999618530273,
+            -9.600000381469727
+          ],
+          "footprintGap": 2.1600003778934482
+        },
+        {
+          "a": [
+            -14.399999618530273,
+            -9.600000381469727
+          ],
+          "b": [
+            -14.399999618530273,
+            9.600000381469727
+          ],
+          "footprintGap": 23.062999641895296
+        },
+        {
+          "a": [
+            -14.399999618530273,
+            9.600000381469727
+          ],
+          "b": [
+            5.5,
+            9.600000381469727
+          ],
+          "footprintGap": 16.662958366162982
+        },
+        {
+          "a": [
+            5.5,
+            9.600000381469727
+          ],
+          "b": [
+            10.699999809265137,
+            4.900000095367432
+          ],
+          "footprintGap": 11.661139356255337
+        },
+        {
+          "a": [
+            10.699999809265137,
+            4.900000095367432
+          ],
+          "b": [
+            12.800000190734863,
+            0.8999999761581421
+          ],
+          "footprintGap": 7.987287997122068
+        },
+        {
+          "a": [
+            12.800000190734863,
+            0.8999999761581421
+          ],
+          "b": [
+            14,
+            -4.099999904632568
+          ],
+          "footprintGap": 4.366688636730935
+        },
+        {
+          "a": [
+            14,
+            -4.099999904632568
+          ],
+          "b": [
+            14.399999618530273,
+            -9.600000381469727
+          ],
+          "footprintGap": 3.646822624089183
+        }
+      ],
+      "method": "every actual dry-land boundary segment against entire wreath XZ AABB"
+    },
+    "waterBacking": {
+      "topY": -0.05,
+      "soleAboveWaterBacking": 0.07500000000000163
+    },
+    "worldUnchanged": true,
+    "walkableSurfacesUnchanged": true,
+    "occludersUnchanged": true,
+    "notRegisteredAsTownSurface": true,
+    "normalPlacement": false,
+    "ownershipUnlockSave": false,
+    "bodyBinding": null,
+    "limits": "one fixed authored standalone wreath pose at one synthetic current-default-world site;20 finite sole/floor ray pairs on four flat contact pads,63 finite walkability samples and conservative current road, original-card, meadow, shore and building-proxy envelope clearances. These finite witnesses do not verify full pad contact, support stability, load, physical behavior, body fit, whole-world placement or all-camera visibility"
+  },
+  "compiledWorldScope": "Existing current Scene after synchronous construction/tree-road correction. Node has no DOM or original-art decode; native originalArt-ready Scene and visual checks remain separate.",
+  "worldJSONUnchanged": true
+}

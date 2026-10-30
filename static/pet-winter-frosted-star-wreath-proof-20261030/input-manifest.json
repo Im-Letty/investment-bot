@@ -1,0 +1,242 @@
+{
+  "schema_version": 1,
+  "run_id": "automation360-20261030-235057",
+  "unit_id": "village:asset-library:winter-frosted-star-wreath:v1",
+  "model_id": "winter-frosted-star-wreath-v1",
+  "scope": "village.geometry.library_candidate",
+  "actual_authoring_date_jst": "2026-10-31",
+  "style_originals": [
+    {
+      "path": "static/pet-items-v1/house.webp",
+      "sha256": "69ce8c93823a50c5f2225414d4df8adcfe92fcd271ae113982e64f7ccd01cd60",
+      "bytes": 21548,
+      "actual_author_view_image": true,
+      "viewed_after_actual_reserve": true
+    },
+    {
+      "path": "static/pet-items-v1/flower.webp",
+      "sha256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+      "bytes": 22012,
+      "actual_author_view_image": true,
+      "viewed_after_actual_reserve": true
+    }
+  ],
+  "style_originals_unchanged": true,
+  "bodyBinding": null,
+  "raw_png_designs": 0,
+  "paid_calls": 0,
+  "normal_game_changes": 0,
+  "new_original_designs": 0,
+  "new_raw_PNGs": 0,
+  "new_body_references": 0,
+  "new_canonical_fit_success": 0,
+  "new_village_library_candidates": 1,
+  "artifacts": {
+    "SPEC.json": {
+      "sha256": "9d61f89996e7aa56833e9000368e6790d078cd1cfa590cf6d50a6b0d19e40090",
+      "bytes": 1872
+    },
+    "audit.mjs": {
+      "sha256": "560459af78cfdc2ebe0701ce711bd2eb647d308c8f3da4f05a4c6e287592f0a9",
+      "bytes": 5240
+    },
+    "entry.mjs": {
+      "sha256": "d4842ceed602a3239b4b283846f607a64c9eca88a7241375ad7b5e9ced41c797",
+      "bytes": 2425
+    },
+    "finite-geometry-certificate.json": {
+      "sha256": "02e9d79c15c3a891c58ac8d9c520f26d3cdc1cfdbe86ab995f3df04d0b1b30b5",
+      "bytes": 122048
+    },
+    "framing.mjs": {
+      "sha256": "3c12b8ebb9f9b81693a2affe6eb737149d5a5771b880042b9436452342eb46e7",
+      "bytes": 960
+    },
+    "index.html": {
+      "sha256": "fa8138ed2edb7a8f6af330d3b343770a3d81c839246ce6f139dac259cdcf4e36",
+      "bytes": 4981
+    },
+    "mesh-geometry.json": {
+      "sha256": "d6c05f5a67985de8eb5ffb532d919f6f1ccb4e6cdd0a60733d81162364c13361",
+      "bytes": 1591690
+    },
+    "placement.mjs": {
+      "sha256": "6207f024493eb4535a592a9cb8f2db44481b8c2dc938439b242bbb0e255c24c2",
+      "bytes": 8171
+    },
+    "viewer.mjs": {
+      "sha256": "4d836b3d847d5b4d365ac8d7b49066923b7e9b72cc7103f65e2527077a41dda3",
+      "bytes": 14816
+    },
+    "wreath.mjs": {
+      "sha256": "1e5945ea88f9078116d73386593ab5cbf9f500fa381af6889e65edfcb8806614",
+      "bytes": 9097
+    }
+  },
+  "unchanged_dependencies": {
+    "static/pet-breeze-cape-proof-20261029/audit.mjs": {
+      "sha256": "0295f409a2c7182069dd6023bf78d94c3a7d05e237fd244923ea3a4c29a4eb80",
+      "bytes": 5891,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-breeze-cape-proof-20261029/geometry-audit.mjs": {
+      "sha256": "2dbe7723509ae914cb98153f133e2a2db9d15e5f4112cc184fa128a2df8e92c0",
+      "bytes": 6377,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-frame-fit.js": {
+      "sha256": "7b3b730dc7834e1c56f455161d59005f8352a3cd918e52be1893bc4b7706dc13",
+      "bytes": 2434,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-items-v1/flower.webp": {
+      "sha256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+      "bytes": 22012,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-items-v1/house.webp": {
+      "sha256": "69ce8c93823a50c5f2225414d4df8adcfe92fcd271ae113982e64f7ccd01cd60",
+      "bytes": 21548,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-japan-seasons.js": {
+      "sha256": "944ff98aa81f7975b4daf4dc3ca59887f042e2c8be9eb1e5b6ea29637f46225a",
+      "bytes": 5025,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-ocean-discoveries.js": {
+      "sha256": "4241c7b0fd0d3556181a29b5775c5779b69fc48f2c4c76be48f26fee32afe425",
+      "bytes": 4849,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-ocean-snorkeling-world.js": {
+      "sha256": "a795153a6d27b9f80250abafaf2e7e4d20127c99468b1ee7374cf6e7b4176a99",
+      "bytes": 16012,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-ocean-snorkeling.js": {
+      "sha256": "800b0085765507d99a651e89418dbb8ddc72aba5e2e40aa2b3bcba8a3caa19b5",
+      "bytes": 18398,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-petal-washstand-proof-20261028/placement.mjs": {
+      "sha256": "eb4982bc87cc63e00fb9fe838c3c3e9e2f5d037ac634d66d950d2976745877a3",
+      "bytes": 8995,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-river-fishing.js": {
+      "sha256": "8b4e1d2d9f2b9fda72f66e79b2105dccdadd2e6de5230c24e920cbdcf561aedb",
+      "bytes": 8325,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-scalloped-path-proof-20261027/framing.mjs": {
+      "sha256": "dba92c2f6dec2816ebcf25434ee07c3b699accb61b7e1961a11baf366edad08a",
+      "bytes": 1678,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-snow-glass-lamp-proof-20261027/placement.mjs": {
+      "sha256": "eb6d92d6dd9e06d4c0391d39ea9b3c6df4e86dcd28e243b74b15097cec5c214e",
+      "bytes": 5943,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-toolbox-integral-link-proof-20261027/placement.mjs": {
+      "sha256": "b56467e091b3d0408d2f1d52d83a48cdd88f837304fa3b1fb71717b5b3dce961",
+      "bytes": 2718,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-toolbox-joint-proof-20261026/placement.mjs": {
+      "sha256": "1419d42a6fd4f3e83547ec105506c38a32058a9e2ac05321a324340c1ae62fc1",
+      "bytes": 1577,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-town-environment.js": {
+      "sha256": "32e7680cc2770f0d6ba3d561456fe3980f2147d5d790e91081ab5f005f412439",
+      "bytes": 10394,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-town-ground-finish.js": {
+      "sha256": "a167074f886714701dad8bd2d72c659f2c05ef9f8af45526bc05823d7356b6e6",
+      "bytes": 10682,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-town-layout-art.js": {
+      "sha256": "66b5969fbe9f7ecdaf78c30553453dc25badd69ea6b416a71a3bca285abeaa27",
+      "bytes": 14751,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-town-meadow-flowers.js": {
+      "sha256": "c66181a2d15f03f67e1c34e238fef661b82796b12a179cf62b95c11d686f1652",
+      "bytes": 23214,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-town-meadow-sites.js": {
+      "sha256": "8dc614aa334fc3351cf893451b8624ef00cbe1b2bba6f29501d6359d62d9b870",
+      "bytes": 6433,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-town-ocean-life.js": {
+      "sha256": "91107133ee5c315b110226b7fc0be81376fc5d1cf5b937108b29e64813329a2d",
+      "bytes": 8545,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-town-placement-originals.js": {
+      "sha256": "cd1cc166950eb94c4989e91e765e70a4ff2b861bc431d1dcf734a95edb06ab8b",
+      "bytes": 12383,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-town-scene.js": {
+      "sha256": "043ee3fc5e624dcf5cf550af58beb2c1357a1b85e7d6fa0b73f53f428cbd02fd",
+      "bytes": 153318,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-town-shore-transition.js": {
+      "sha256": "14949767cb6b42c491c91702b2bf0cd98d1fb7fe1534b292b0d94c79a292d3fd",
+      "bytes": 10284,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-town-style.js": {
+      "sha256": "7985e1f983329bcef7567c634543a74b442de56b8757858693ae54ef64b68e2a",
+      "bytes": 13719,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-town-tree-variety.js": {
+      "sha256": "8333b6fb83d13ff3c24d6fc9a83c2439f55cd957153d71607c991a2023ab374e",
+      "bytes": 3137,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-town-walk.js": {
+      "sha256": "59d9cfaca33bc21d9e62c2ca3c622124b266d63c0655aeb3eb5842427c6975c5",
+      "bytes": 29442,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-town-water-finish.js": {
+      "sha256": "055ea1ff65df676b5bb998407f5d0dfb67047465741ff675e9532c5384aa5460",
+      "bytes": 13709,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/pet-town-water-life.js": {
+      "sha256": "948078e9fcb8b6897bcf1ec7653106545b72401b76b17881111fe4b816f3c28d",
+      "bytes": 6154,
+      "byte_identical_to_previous_framework": true
+    },
+    "static/vendor/three-0.160.1.module.js": {
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972,
+      "byte_identical_to_previous_framework": true
+    }
+  },
+  "source_base_main_sha": "b0b2cae1eab59616fec65fc2bf33f13b39126cf2",
+  "limited_scope": "Fixed standalone seasonal display, one trial current village site. No physics/light mechanism/rig/body fit/normal game ownership or save.",
+  "related_test": {
+    "path": "tests/test_pet_winter_frosted_star_wreath_20261030.mjs",
+    "sha256": "050e80abac1151a74ff2a599e073065d3be4f671f91fc8f27364f308a42467ad",
+    "bytes": 14837
+  },
+  "geometry_counts": {
+    "geometryObjectCount": 22,
+    "exactPositionIndexContentFingerprintCount": 18,
+    "exactMetric": "position/index typed-array byte identity; counts owned objects separately from exact content; not mathematical shape equivalence",
+    "translationNormalizedAt1e5IndependentGroups": 13,
+    "normalizedMetric": "Independent reviewer finite translation normalization at 1e-5 precision; not exact congruence or design counts"
+  }
+}

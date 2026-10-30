@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "run_id": "automation360-20261030-235057",
+  "authored_after_actual_parent_reserve": true,
+  "actual_authoring_date_jst": "2026-10-31",
+  "actual_parent_reserve": {
+    "evidence_label": "parent-reserve.json / private run evidence retained separately",
+    "sha256": "977a9a4a3edcf4035f2873ef0917176a89d1b916f8e20e975a150fe68c693615",
+    "bytes": 229,
+    "run_id": "automation360-20261030-235057",
+    "unit_id": "village:asset-library:winter-frosted-star-wreath:v1",
+    "started_at_jst": "2026-10-31T00:00:52+09:00",
+    "status_at_reservation": "in_progress"
+  },
+  "model_id": "winter-frosted-star-wreath-v1",
+  "unit_id": "village:asset-library:winter-frosted-star-wreath:v1",
+  "category": "seasonal_and_event_props",
+  "style": "winter_glass_and_wood",
+  "season": "winter",
+  "scope": "village.geometry.library_candidate",
+  "construction": "Closed three-layer wood annulus, exactly three fixed rounded frosted-glass stars on three shaped crosspieces, six actual U retaining clips, two fixed stands, low broad plinth and four flat underside pads.",
+  "authored_dimensions_not_body_calibration": true,
+  "bodyBinding": null,
+  "physics": false,
+  "opticalPhysics": false,
+  "loadOrStability": false,
+  "rig": false,
+  "wearingFit": false,
+  "normalGamePlacement": false,
+  "ownershipUnlockSave": false,
+  "finite_witnesses_not_continuous_guarantees": true,
+  "new_raw_images": 0,
+  "geometry_counts": {
+    "geometryObjectCount": 22,
+    "exactPositionIndexContentFingerprintCount": 18,
+    "exactMetric": "position/index typed-array byte identity; counts owned objects separately from exact content; not mathematical shape equivalence",
+    "translationNormalizedAt1e5IndependentGroups": 13,
+    "normalizedMetric": "Independent reviewer finite translation normalization at 1e-5 precision; not exact congruence or design counts"
+  }
+}
