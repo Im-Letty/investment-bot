@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "model_id": "sunny-cushion-volume-v1",
+  "unit_id": "wardrobe:fit-prerequisite:sunny-cushion:closed-padded-shell-floor-support:v1",
+  "name_ja": "ひだまりクッション",
+  "source_asset_id": "prepared_decoration_01_v1",
+  "source_original_SHA": "a89b5e4adfc5ba74de035a2efa44938a687eedd931bfd069b191946f6de0f0bc",
+  "representation": "authored_standalone_existing_design_geometry_prerequisite",
+  "parts": "four-lobed cream/blush continuous tufted padded shell, closed mint edge piping, fixed solid sewn leaf with seven vein threads and twenty stitch dashes",
+  "geometry_dimensions_are_authored_trial_not_body_measurements": true,
+  "bodyBinding": null,
+  "limited_floor_placement": "One fixed existing current-default-world site at town2400,250 after Scene construction and original-art readiness in native; five actual sole/floor rays, conservative road/card/meadow/building/waterside envelopes. NodecompiledScene is separately labelled without DOM art loading.",
+  "sitting_compression_load_friction_stability": false,
+  "rig_wearing_all_growth_fit": false,
+  "normal_game_acquisition_placement_ownership_save": false,
+  "new_design_raw_imagegen_body_fit_village_library": 0,
+  "new_item_geometry_prerequisite": 1,
+  "raw_source_unchanged": true,
+  "existing_UMD_dependencies_and_world_sources_unchanged": true,
+  "finite_witness_counts_are_not_unique_tests_or_continuous_safety": true,
+  "visual_revision": "Original-proportion repair: sewnleaf/veins/stitches 1.4x as an item subassembly; mintpiping radius .035 to .044 and raised alongtopperimeter. Body/world scale unchanged. Actual lower tube/cloth common material witnesses are inside both; centerline need not be insidecloth."
+}

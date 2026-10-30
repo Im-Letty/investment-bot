@@ -1,0 +1,6749 @@
+{
+  "schema_version": 1,
+  "model_id": "sunny-cushion-volume-v1",
+  "unit_id": "wardrobe:fit-prerequisite:sunny-cushion:closed-padded-shell-floor-support:v1",
+  "model_sha256": "7f4ee2f84810b2a2aee58d6a179a4920b40ce703287d50f09fce1f9acf7d737d",
+  "audit_sha256": "16ea1553b4ee4afd800595edb637ab0d2028929e66fda67c8a979c89eee1766b",
+  "source_original_sha256": "a89b5e4adfc5ba74de035a2efa44938a687eedd931bfd069b191946f6de0f0bc",
+  "bodyBinding": null,
+  "audit": {
+    "schema_version": 1,
+    "result": "pass",
+    "scope": "One authored closed padded item with fixed sewn details. Finite actual triangle/material/sole/central-tuft probes only; no seating, compression, load/friction/stability, body or continuous safety guarantee.",
+    "topology": [
+      {
+        "name": "four-lobed-closed-tufted-padded-shell",
+        "vertices": 4130,
+        "triangles": 8256,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.7828145457144196,
+        "faceNormals": {
+          "triangles": 8256,
+          "minimumFaceAverageNormalDot": 0.8397087328107181,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-mint-perimeter-piping",
+        "vertices": 1920,
+        "triangles": 3840,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.039910805969999824,
+        "faceNormals": {
+          "triangles": 3840,
+          "minimumFaceAverageNormalDot": 0.99261740392467,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "sewn-solid-mint-leaf",
+        "vertices": 458,
+        "triangles": 912,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.00647053905543042,
+        "faceNormals": {
+          "triangles": 912,
+          "minimumFaceAverageNormalDot": 0.9474021223615864,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-sewn-leaf-vein-0",
+        "vertices": 106,
+        "triangles": 208,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.000032422641377458626,
+        "faceNormals": {
+          "triangles": 208,
+          "minimumFaceAverageNormalDot": 0.5335813120364329,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-sewn-leaf-vein-1",
+        "vertices": 106,
+        "triangles": 208,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.00000810080976541706,
+        "faceNormals": {
+          "triangles": 208,
+          "minimumFaceAverageNormalDot": 0.6772355013656048,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-sewn-leaf-vein-2",
+        "vertices": 106,
+        "triangles": 208,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.000008100809809969523,
+        "faceNormals": {
+          "triangles": 208,
+          "minimumFaceAverageNormalDot": 0.6772543431824539,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-sewn-leaf-vein-3",
+        "vertices": 106,
+        "triangles": 208,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.000008109209481037907,
+        "faceNormals": {
+          "triangles": 208,
+          "minimumFaceAverageNormalDot": 0.6770249852856945,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-sewn-leaf-vein-4",
+        "vertices": 106,
+        "triangles": 208,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.000008109210635611353,
+        "faceNormals": {
+          "triangles": 208,
+          "minimumFaceAverageNormalDot": 0.6770447978186429,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-sewn-leaf-vein-5",
+        "vertices": 106,
+        "triangles": 208,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.000008151540128494306,
+        "faceNormals": {
+          "triangles": 208,
+          "minimumFaceAverageNormalDot": 0.6757486443642658,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-sewn-leaf-vein-6",
+        "vertices": 106,
+        "triangles": 208,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.00000815153910453237,
+        "faceNormals": {
+          "triangles": 208,
+          "minimumFaceAverageNormalDot": 0.6757878907317382,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-leaf-stitch-0",
+        "vertices": 32,
+        "triangles": 60,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 1.5245692198027264e-7,
+        "faceNormals": {
+          "triangles": 60,
+          "minimumFaceAverageNormalDot": 0.6986974626192004,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-leaf-stitch-1",
+        "vertices": 32,
+        "triangles": 60,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 3.36394436666872e-7,
+        "faceNormals": {
+          "triangles": 60,
+          "minimumFaceAverageNormalDot": 0.8019654640056081,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-leaf-stitch-2",
+        "vertices": 32,
+        "triangles": 60,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 5.857124140481096e-7,
+        "faceNormals": {
+          "triangles": 60,
+          "minimumFaceAverageNormalDot": 0.707221436755499,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-leaf-stitch-3",
+        "vertices": 32,
+        "triangles": 60,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 7.445863623753513e-7,
+        "faceNormals": {
+          "triangles": 60,
+          "minimumFaceAverageNormalDot": 0.6709507552957427,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-leaf-stitch-4",
+        "vertices": 32,
+        "triangles": 60,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 7.940667409906227e-7,
+        "faceNormals": {
+          "triangles": 60,
+          "minimumFaceAverageNormalDot": 0.6618136410260456,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-leaf-stitch-5",
+        "vertices": 32,
+        "triangles": 60,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 7.949445609066147e-7,
+        "faceNormals": {
+          "triangles": 60,
+          "minimumFaceAverageNormalDot": 0.6615299146813466,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-leaf-stitch-6",
+        "vertices": 32,
+        "triangles": 60,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 7.940667498669513e-7,
+        "faceNormals": {
+          "triangles": 60,
+          "minimumFaceAverageNormalDot": 0.6618013960398047,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-leaf-stitch-7",
+        "vertices": 32,
+        "triangles": 60,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 7.445873127781872e-7,
+        "faceNormals": {
+          "triangles": 60,
+          "minimumFaceAverageNormalDot": 0.6709035742899679,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-leaf-stitch-8",
+        "vertices": 32,
+        "triangles": 60,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 5.857124434857128e-7,
+        "faceNormals": {
+          "triangles": 60,
+          "minimumFaceAverageNormalDot": 0.7072308119698332,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-leaf-stitch-9",
+        "vertices": 32,
+        "triangles": 60,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 3.363942501202671e-7,
+        "faceNormals": {
+          "triangles": 60,
+          "minimumFaceAverageNormalDot": 0.8018257969845662,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-leaf-stitch-10",
+        "vertices": 32,
+        "triangles": 60,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 1.5245714461632372e-7,
+        "faceNormals": {
+          "triangles": 60,
+          "minimumFaceAverageNormalDot": 0.6984745858488983,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-leaf-stitch-11",
+        "vertices": 32,
+        "triangles": 60,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 3.3639479197086855e-7,
+        "faceNormals": {
+          "triangles": 60,
+          "minimumFaceAverageNormalDot": 0.8018262282708447,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-leaf-stitch-12",
+        "vertices": 32,
+        "triangles": 60,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 5.857104223270165e-7,
+        "faceNormals": {
+          "triangles": 60,
+          "minimumFaceAverageNormalDot": 0.7072531444107495,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-leaf-stitch-13",
+        "vertices": 32,
+        "triangles": 60,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 7.445866652022844e-7,
+        "faceNormals": {
+          "triangles": 60,
+          "minimumFaceAverageNormalDot": 0.6709147739884878,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-leaf-stitch-14",
+        "vertices": 32,
+        "triangles": 60,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 7.940662004353709e-7,
+        "faceNormals": {
+          "triangles": 60,
+          "minimumFaceAverageNormalDot": 0.6618083195267865,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-leaf-stitch-15",
+        "vertices": 32,
+        "triangles": 60,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 7.949443484770133e-7,
+        "faceNormals": {
+          "triangles": 60,
+          "minimumFaceAverageNormalDot": 0.6615140297612314,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-leaf-stitch-16",
+        "vertices": 32,
+        "triangles": 60,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 7.940656996137111e-7,
+        "faceNormals": {
+          "triangles": 60,
+          "minimumFaceAverageNormalDot": 0.6618156363653885,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-leaf-stitch-17",
+        "vertices": 32,
+        "triangles": 60,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 7.445857035052187e-7,
+        "faceNormals": {
+          "triangles": 60,
+          "minimumFaceAverageNormalDot": 0.6709155590228901,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-leaf-stitch-18",
+        "vertices": 32,
+        "triangles": 60,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 5.857094402500864e-7,
+        "faceNormals": {
+          "triangles": 60,
+          "minimumFaceAverageNormalDot": 0.707252033801409,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "closed-leaf-stitch-19",
+        "vertices": 32,
+        "triangles": 60,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 3.363947616024189e-7,
+        "faceNormals": {
+          "triangles": 60,
+          "minimumFaceAverageNormalDot": 0.8018255154768342,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      }
+    ],
+    "crossings": [
+      {
+        "name": "four-lobed-closed-tufted-padded-shell",
+        "triangles": 8256,
+        "candidateNonadjacentAABBPairs": 9674,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-mint-perimeter-piping",
+        "triangles": 3840,
+        "candidateNonadjacentAABBPairs": 1105,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "sewn-solid-mint-leaf",
+        "triangles": 912,
+        "candidateNonadjacentAABBPairs": 465,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-sewn-leaf-vein-0",
+        "triangles": 208,
+        "candidateNonadjacentAABBPairs": 703,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-sewn-leaf-vein-1",
+        "triangles": 208,
+        "candidateNonadjacentAABBPairs": 64,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-sewn-leaf-vein-2",
+        "triangles": 208,
+        "candidateNonadjacentAABBPairs": 80,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-sewn-leaf-vein-3",
+        "triangles": 208,
+        "candidateNonadjacentAABBPairs": 81,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-sewn-leaf-vein-4",
+        "triangles": 208,
+        "candidateNonadjacentAABBPairs": 88,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-sewn-leaf-vein-5",
+        "triangles": 208,
+        "candidateNonadjacentAABBPairs": 114,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-sewn-leaf-vein-6",
+        "triangles": 208,
+        "candidateNonadjacentAABBPairs": 92,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-leaf-stitch-0",
+        "triangles": 60,
+        "candidateNonadjacentAABBPairs": 41,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-leaf-stitch-1",
+        "triangles": 60,
+        "candidateNonadjacentAABBPairs": 26,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-leaf-stitch-2",
+        "triangles": 60,
+        "candidateNonadjacentAABBPairs": 16,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-leaf-stitch-3",
+        "triangles": 60,
+        "candidateNonadjacentAABBPairs": 17,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-leaf-stitch-4",
+        "triangles": 60,
+        "candidateNonadjacentAABBPairs": 57,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-leaf-stitch-5",
+        "triangles": 60,
+        "candidateNonadjacentAABBPairs": 92,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-leaf-stitch-6",
+        "triangles": 60,
+        "candidateNonadjacentAABBPairs": 59,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-leaf-stitch-7",
+        "triangles": 60,
+        "candidateNonadjacentAABBPairs": 28,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-leaf-stitch-8",
+        "triangles": 60,
+        "candidateNonadjacentAABBPairs": 16,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-leaf-stitch-9",
+        "triangles": 60,
+        "candidateNonadjacentAABBPairs": 22,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-leaf-stitch-10",
+        "triangles": 60,
+        "candidateNonadjacentAABBPairs": 42,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-leaf-stitch-11",
+        "triangles": 60,
+        "candidateNonadjacentAABBPairs": 22,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-leaf-stitch-12",
+        "triangles": 60,
+        "candidateNonadjacentAABBPairs": 23,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-leaf-stitch-13",
+        "triangles": 60,
+        "candidateNonadjacentAABBPairs": 16,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-leaf-stitch-14",
+        "triangles": 60,
+        "candidateNonadjacentAABBPairs": 60,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-leaf-stitch-15",
+        "triangles": 60,
+        "candidateNonadjacentAABBPairs": 88,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-leaf-stitch-16",
+        "triangles": 60,
+        "candidateNonadjacentAABBPairs": 56,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-leaf-stitch-17",
+        "triangles": 60,
+        "candidateNonadjacentAABBPairs": 31,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-leaf-stitch-18",
+        "triangles": 60,
+        "candidateNonadjacentAABBPairs": 22,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "closed-leaf-stitch-19",
+        "triangles": 60,
+        "candidateNonadjacentAABBPairs": 24,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      }
+    ],
+    "attachments": {
+      "count": 44,
+      "failed": 0,
+      "minimumClearance": 0.00037521152344252844,
+      "rows": [
+        {
+          "part": "closed-mint-perimeter-piping",
+          "target": "four-lobed-closed-tufted-padded-shell",
+          "point": [
+            1.17,
+            0.1682173594671317,
+            0
+          ],
+          "scope": "finite lower-tube/cloth common material; tube centerline need not be inside cloth, not a passage",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022822452907126256,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0096231989574556,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-mint-perimeter-piping",
+          "target": "four-lobed-closed-tufted-padded-shell",
+          "point": [
+            0.9007825441985046,
+            0.157951495155055,
+            0.37311634655596254
+          ],
+          "scope": "finite lower-tube/cloth common material; tube centerline need not be inside cloth, not a passage",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022680606558514466,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00900624150822499,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-mint-perimeter-piping",
+          "target": "four-lobed-closed-tufted-padded-shell",
+          "point": [
+            0.5515432893255071,
+            0.14768563084297825,
+            0.551543289325507
+          ],
+          "scope": "finite lower-tube/cloth common material; tube centerline need not be inside cloth, not a passage",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0227177823719694,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.012576483508395433,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-mint-perimeter-piping",
+          "target": "four-lobed-closed-tufted-padded-shell",
+          "point": [
+            0.3731163465559626,
+            0.157951495155055,
+            0.9007825441985046
+          ],
+          "scope": "finite lower-tube/cloth common material; tube centerline need not be inside cloth, not a passage",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022680520859902062,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.008865557678981228,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-mint-perimeter-piping",
+          "target": "four-lobed-closed-tufted-padded-shell",
+          "point": [
+            7.164183775012016e-17,
+            0.1682173594671317,
+            1.17
+          ],
+          "scope": "finite lower-tube/cloth common material; tube centerline need not be inside cloth, not a passage",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02282243628173056,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0096231989574556,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-mint-perimeter-piping",
+          "target": "four-lobed-closed-tufted-padded-shell",
+          "point": [
+            -0.3731163465559625,
+            0.157951495155055,
+            0.9007825441985046
+          ],
+          "scope": "finite lower-tube/cloth common material; tube centerline need not be inside cloth, not a passage",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022680479253713685,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.009006241508224992,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-mint-perimeter-piping",
+          "target": "four-lobed-closed-tufted-padded-shell",
+          "point": [
+            -0.551543289325507,
+            0.14768563084297825,
+            0.5515432893255071
+          ],
+          "scope": "finite lower-tube/cloth common material; tube centerline need not be inside cloth, not a passage",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02271766088425768,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.012576483508395433,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-mint-perimeter-piping",
+          "target": "four-lobed-closed-tufted-padded-shell",
+          "point": [
+            -0.9007825441985045,
+            0.157951495155055,
+            0.3731163465559626
+          ],
+          "scope": "finite lower-tube/cloth common material; tube centerline need not be inside cloth, not a passage",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022680390241898312,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00886555767898124,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-mint-perimeter-piping",
+          "target": "four-lobed-closed-tufted-padded-shell",
+          "point": [
+            -1.17,
+            0.1682173594671317,
+            1.4328367550024033e-16
+          ],
+          "scope": "finite lower-tube/cloth common material; tube centerline need not be inside cloth, not a passage",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02282230283351119,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0096231989574556,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-mint-perimeter-piping",
+          "target": "four-lobed-closed-tufted-padded-shell",
+          "point": [
+            -0.9007825441985047,
+            0.157951495155055,
+            -0.3731163465559624
+          ],
+          "scope": "finite lower-tube/cloth common material; tube centerline need not be inside cloth, not a passage",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022680351699191414,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.009006241508225104,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-mint-perimeter-piping",
+          "target": "four-lobed-closed-tufted-padded-shell",
+          "point": [
+            -0.5515432893255072,
+            0.14768563084297825,
+            -0.551543289325507
+          ],
+          "scope": "finite lower-tube/cloth common material; tube centerline need not be inside cloth, not a passage",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022717519911675477,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.01257648350839535,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-mint-perimeter-piping",
+          "target": "four-lobed-closed-tufted-padded-shell",
+          "point": [
+            -0.3731163465559629,
+            0.15795149515505497,
+            -0.9007825441985039
+          ],
+          "scope": "finite lower-tube/cloth common material; tube centerline need not be inside cloth, not a passage",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02268027318604454,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00886555767898124,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-mint-perimeter-piping",
+          "target": "four-lobed-closed-tufted-padded-shell",
+          "point": [
+            -2.1492551325036047e-16,
+            0.1682173594671317,
+            -1.17
+          ],
+          "scope": "finite lower-tube/cloth common material; tube centerline need not be inside cloth, not a passage",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022822165539075488,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0096231989574556,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-mint-perimeter-piping",
+          "target": "four-lobed-closed-tufted-padded-shell",
+          "point": [
+            0.37311634655596265,
+            0.15795149515505497,
+            -0.9007825441985042
+          ],
+          "scope": "finite lower-tube/cloth common material; tube centerline need not be inside cloth, not a passage",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02268023054980123,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.009006241508225104,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-mint-perimeter-piping",
+          "target": "four-lobed-closed-tufted-padded-shell",
+          "point": [
+            0.551543289325507,
+            0.14768563084297825,
+            -0.5515432893255072
+          ],
+          "scope": "finite lower-tube/cloth common material; tube centerline need not be inside cloth, not a passage",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022717407640720166,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.01257648350839535,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-mint-perimeter-piping",
+          "target": "four-lobed-closed-tufted-padded-shell",
+          "point": [
+            0.9007825441985038,
+            0.15795149515505497,
+            -0.37311634655596293
+          ],
+          "scope": "finite lower-tube/cloth common material; tube centerline need not be inside cloth, not a passage",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022680153960379857,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00886555767898124,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "sewn-solid-mint-leaf",
+          "target": "four-lobed-closed-tufted-padded-shell",
+          "point": [
+            0.40221446706307823,
+            0.2541055906604619,
+            -0.4594502434056525
+          ],
+          "scope": "finite sewn-leaf material contact, not physical attachment strength",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.015394209990958396,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.009079386707950908,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-sewn-leaf-vein-0",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.4152856298096467,
+            0.3023930416082249,
+            -0.46558431101370035
+          ],
+          "scope": "finite embedded thread contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0024440645100882734,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0013994772794439013,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-sewn-leaf-vein-1",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.3622535706004337,
+            0.29885290944238935,
+            -0.5706394086180208
+          ],
+          "scope": "finite embedded thread contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.002506490269255163,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0011763615262801654,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-sewn-leaf-vein-2",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.30567851073185714,
+            0.32270002808410614,
+            -0.5034711308869753
+          ],
+          "scope": "finite embedded thread contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.002445024961135998,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00117635318364486,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-sewn-leaf-vein-3",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.44583340308033875,
+            0.28885816934160297,
+            -0.4966925999887875
+          ],
+          "scope": "finite embedded thread contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0025053380599276884,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0013135495353167978,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-sewn-leaf-vein-4",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.38925834321176217,
+            0.3127052879833198,
+            -0.42952432225774206
+          ],
+          "scope": "finite embedded thread contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0024468786202234936,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0013135403169145313,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-sewn-leaf-vein-5",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.5377976866142571,
+            0.26999285474038137,
+            -0.41253429739175523
+          ],
+          "scope": "finite embedded thread contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0025101698232135325,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0011650800650111843,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-sewn-leaf-vein-6",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.4812226267456805,
+            0.29383997338209816,
+            -0.3453660196607098
+          ],
+          "scope": "finite embedded thread contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0024550216979888503,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0011650766249363916,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-leaf-stitch-0",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.6085537944200553,
+            0.2513514594707578,
+            -0.2846752113778094
+          ],
+          "scope": "finite embedded stitch contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0014842550673064931,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0007064901928443965,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-leaf-stitch-1",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.5876725979009374,
+            0.25975432646710894,
+            -0.27977870252780523
+          ],
+          "scope": "finite embedded stitch contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0014244911359073634,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0007042771519701511,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-leaf-stitch-2",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.5410755874389674,
+            0.2759850675841848,
+            -0.2825859634495093
+          ],
+          "scope": "finite embedded stitch contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0014191209747433642,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0008102377647746091,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-leaf-stitch-3",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.47278050630765517,
+            0.29541840797626456,
+            -0.29274659873516923
+          ],
+          "scope": "finite embedded stitch contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.001417166743439362,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0006454625193143897,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-leaf-stitch-4",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.39600175898125256,
+            0.3127342534502675,
+            -0.31713388462060216
+          ],
+          "scope": "finite embedded stitch contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0014679738651481255,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00037521911929060646,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-leaf-stitch-5",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.3260403030960198,
+            0.32519705476601185,
+            -0.36221274149531674
+          ],
+          "scope": "finite embedded stitch contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.001450418734754431,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00047795992726137236,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-leaf-stitch-6",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.27322209430395644,
+            0.3319655603898929,
+            -0.42737756494298357
+          ],
+          "scope": "finite embedded stitch contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0014424136360276613,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00037521152344252844,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-leaf-stitch-7",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.2392397059879024,
+            0.3319985275398704,
+            -0.5024425398370904
+          ],
+          "scope": "finite embedded stitch contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.001441713735876781,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0006454554895635158,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-leaf-stitch-8",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.21963425218649132,
+            0.32633328280020574,
+            -0.5712076655783818
+          ],
+          "scope": "finite embedded stitch contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0014453051095708852,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0008102117735488644,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-leaf-stitch-9",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.20979564522372512,
+            0.31894220323355815,
+            -0.61907386253361
+          ],
+          "scope": "finite embedded stitch contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0014555245166191198,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0007042702953651095,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-leaf-stitch-10",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.21123045326969528,
+            0.31358527602354896,
+            -0.6414312549907916
+          ],
+          "scope": "finite embedded stitch contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0014776713115409164,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0007064859914009026,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-leaf-stitch-11",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.2331693798041754,
+            0.30908987213687306,
+            -0.6468241380005464
+          ],
+          "scope": "finite embedded stitch contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0014228752571337467,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0007042777012717918,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-leaf-stitch-12",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.28174118410856686,
+            0.30015440862032366,
+            -0.6449436132213138
+          ],
+          "scope": "finite embedded stitch contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0014202758498828006,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0008102173183097828,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-leaf-stitch-13",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.35114792719018983,
+            0.28482776653327524,
+            -0.635304661407332
+          ],
+          "scope": "finite embedded stitch contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0014176975668928522,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0006454578125261886,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-leaf-stitch-14",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.42774290551928235,
+            0.2668330421702721,
+            -0.610831135951968
+          ],
+          "scope": "finite embedded stitch contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0014679960592231226,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00037522059494573005,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-leaf-stitch-15",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.4973321766673408,
+            0.2529953170938601,
+            -0.5655776193025436
+          ],
+          "scope": "finite embedded stitch contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.001450443308385592,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0004779453818342544,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-leaf-stitch-16",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.5505225701965785,
+            0.2476017352306467,
+            -0.5005874556295866
+          ],
+          "scope": "finite embedded stitch contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0014422379209238037,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0003752203349087445,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-leaf-stitch-17",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.5846887275099426,
+            0.24824764696966942,
+            -0.4256087203054108
+          ],
+          "scope": "finite embedded stitch contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.001442525348475147,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.000645449765359788,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-leaf-stitch-18",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.6031825193610431,
+            0.24980619340430268,
+            -0.35632191109244127
+          ],
+          "scope": "finite embedded stitch contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0014469741100446693,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0008102119901496562,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-leaf-stitch-19",
+          "target": "sewn-solid-mint-leaf",
+          "point": [
+            0.6110463324813876,
+            0.24990199537042385,
+            -0.30752897799474177
+          ],
+          "scope": "finite embedded stitch contact",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0014543929599863537,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0007042811660779773,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "connectedPartCount": 30,
+    "totalPartCount": 30,
+    "thickness": [
+      {
+        "x": 0,
+        "z": 0,
+        "hits": [
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 0,
+            "distance": 0.40999999344348914
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 1,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 2,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 3,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 5,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 6,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 7,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 8,
+            "distance": 0.40999999344348914
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 9,
+            "distance": 0.40999999344348903
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 10,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 11,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 12,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 13,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 14,
+            "distance": 0.40999999344348903
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 15,
+            "distance": 0.40999999344348914
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 16,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 17,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 18,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 19,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 20,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 21,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 22,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 23,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 24,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 25,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 26,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 27,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 28,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 29,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 30,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 31,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 32,
+            "distance": 0.40999999344348914
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 33,
+            "distance": 0.40999999344348903
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 34,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 35,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 36,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 37,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 38,
+            "distance": 0.40999999344348903
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 39,
+            "distance": 0.40999999344348914
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 40,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 41,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 42,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 43,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 44,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 45,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 46,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 47,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 48,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 49,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 50,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 51,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 52,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 53,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 54,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 55,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 56,
+            "distance": 0.40999999344348914
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 57,
+            "distance": 0.40999999344348903
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 58,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 59,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 60,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 61,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 62,
+            "distance": 0.40999999344348903
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 63,
+            "distance": 0.40999999344348914
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 64,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 65,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 66,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 67,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 68,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 69,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 70,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 71,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 72,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 73,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 74,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 75,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 76,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 77,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 78,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 79,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 80,
+            "distance": 0.40999999344348914
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 81,
+            "distance": 0.40999999344348903
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 82,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 83,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 84,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 85,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 86,
+            "distance": 0.40999999344348903
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 87,
+            "distance": 0.40999999344348914
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 88,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 89,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 90,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 91,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 92,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 93,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 94,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 95,
+            "distance": 0.40999999344348914
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4128,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4129,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4130,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4131,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4132,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4133,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4134,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4135,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4136,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4137,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4138,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4139,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4140,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4141,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4142,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4143,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4144,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4145,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4146,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4147,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4148,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4149,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4150,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4151,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4152,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4153,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4154,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4155,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4156,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4157,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4158,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4159,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4160,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4161,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4162,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4163,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4164,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4165,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4166,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4167,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4168,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4169,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4170,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4171,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4172,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4173,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4174,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4175,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4176,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4177,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4178,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4179,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4180,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4181,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4182,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4183,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4184,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4185,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4186,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4187,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4188,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4189,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4190,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4191,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4192,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4193,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4194,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4195,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4196,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4197,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4198,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4199,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4200,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4201,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4202,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4203,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4204,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4205,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4206,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4207,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4208,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4209,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4210,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4211,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4212,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4213,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4214,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4215,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4216,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4217,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4218,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4219,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4220,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4221,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4222,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4223,
+            "distance": 0.20000000000000004
+          }
+        ],
+        "uniqueDistances": [
+          0.2,
+          0.40999999344348903
+        ],
+        "materialThickness": 0.20999999344348902
+      },
+      {
+        "x": 0.45,
+        "z": 0,
+        "hits": [
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 1440,
+            "distance": 0.5839589951675026
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 1631,
+            "distance": 0.5839589951675026
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 5568,
+            "distance": 0.2024007240306804
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 5759,
+            "distance": 0.20240072403068043
+          }
+        ],
+        "uniqueDistances": [
+          0.2024007240306804,
+          0.5839589951675026
+        ],
+        "materialThickness": 0.38155827113682217
+      },
+      {
+        "x": -0.45,
+        "z": 0,
+        "hits": [
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 1536,
+            "distance": 0.5839589951675025
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 5664,
+            "distance": 0.2024007240306804
+          }
+        ],
+        "uniqueDistances": [
+          0.2024007240306804,
+          0.5839589951675025
+        ],
+        "materialThickness": 0.38155827113682206
+      },
+      {
+        "x": 0,
+        "z": 0.45,
+        "hits": [
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 1488,
+            "distance": 0.5839589951675026
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 5616,
+            "distance": 0.20240072403068043
+          }
+        ],
+        "uniqueDistances": [
+          0.20240072403068043,
+          0.5839589951675026
+        ],
+        "materialThickness": 0.38155827113682217
+      },
+      {
+        "x": 0,
+        "z": -0.45,
+        "hits": [
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 1584,
+            "distance": 0.5839589951675027
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 5712,
+            "distance": 0.20240072403068043
+          }
+        ],
+        "uniqueDistances": [
+          0.20240072403068043,
+          0.5839589951675027
+        ],
+        "materialThickness": 0.3815582711368223
+      },
+      {
+        "x": 0.42,
+        "z": 0.42,
+        "hits": [
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 2999,
+            "distance": 0.46551870942982376
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 3000,
+            "distance": 0.4655187094298238
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 7127,
+            "distance": 0.24632570157915024
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 7128,
+            "distance": 0.24632570157915024
+          }
+        ],
+        "uniqueDistances": [
+          0.24632570157915024,
+          0.46551870942982376
+        ],
+        "materialThickness": 0.21919300785067353
+      },
+      {
+        "x": -0.42,
+        "z": 0.42,
+        "hits": [
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 3047,
+            "distance": 0.46551870942982376
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 3048,
+            "distance": 0.4655187094298238
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 7175,
+            "distance": 0.24632570157915024
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 7176,
+            "distance": 0.24632570157915024
+          }
+        ],
+        "uniqueDistances": [
+          0.24632570157915024,
+          0.46551870942982376
+        ],
+        "materialThickness": 0.21919300785067353
+      },
+      {
+        "x": 0.42,
+        "z": -0.42,
+        "hits": [
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 3143,
+            "distance": 0.46551870942982376
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 3144,
+            "distance": 0.4655187094298238
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 7271,
+            "distance": 0.24632570157915024
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 7272,
+            "distance": 0.24632570157915024
+          }
+        ],
+        "uniqueDistances": [
+          0.24632570157915024,
+          0.46551870942982376
+        ],
+        "materialThickness": 0.21919300785067353
+      },
+      {
+        "x": -0.42,
+        "z": -0.42,
+        "hits": [
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 3095,
+            "distance": 0.46551870942982376
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 3096,
+            "distance": 0.4655187094298238
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 7223,
+            "distance": 0.24632570157915024
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 7224,
+            "distance": 0.24632570157915024
+          }
+        ],
+        "uniqueDistances": [
+          0.24632570157915024,
+          0.46551870942982376
+        ],
+        "materialThickness": 0.21919300785067353
+      }
+    ],
+    "actualFlatSole": [
+      {
+        "x": 0,
+        "z": 0,
+        "triangle": 4129,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "x": 0.06,
+        "z": 0,
+        "triangle": 4224,
+        "y": 1.3877787807814457e-17,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "x": -0.06,
+        "z": 0,
+        "triangle": 4320,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "x": 0,
+        "z": 0.06,
+        "triangle": 4272,
+        "y": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "x": 0,
+        "z": -0.06,
+        "triangle": 4368,
+        "y": 1.3877787807814457e-17,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "x": 0.12,
+        "z": 0.12,
+        "triangle": 4823,
+        "y": 0,
+        "normal": [
+          0,
+          -0.9999999999999999,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "x": -0.12,
+        "z": 0.12,
+        "triangle": 4871,
+        "y": 0,
+        "normal": [
+          0,
+          -0.9999999999999999,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "x": 0.12,
+        "z": -0.12,
+        "triangle": 4967,
+        "y": 0,
+        "normal": [
+          0,
+          -0.9999999999999999,
+          0
+        ],
+        "flat": true
+      },
+      {
+        "x": -0.12,
+        "z": -0.12,
+        "triangle": 4919,
+        "y": 0,
+        "normal": [
+          0,
+          -0.9999999999999999,
+          0
+        ],
+        "flat": true
+      }
+    ],
+    "controls": [
+      {
+        "kind": "occupied-thick-center",
+        "hits": [
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 0,
+            "distance": 0.40999999344348914
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 1,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 2,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 3,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 5,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 6,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 7,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 8,
+            "distance": 0.40999999344348914
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 9,
+            "distance": 0.40999999344348903
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 10,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 11,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 12,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 13,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 14,
+            "distance": 0.40999999344348903
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 15,
+            "distance": 0.40999999344348914
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 16,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 17,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 18,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 19,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 20,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 21,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 22,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 23,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 24,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 25,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 26,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 27,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 28,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 29,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 30,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 31,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 32,
+            "distance": 0.40999999344348914
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 33,
+            "distance": 0.40999999344348903
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 34,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 35,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 36,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 37,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 38,
+            "distance": 0.40999999344348903
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 39,
+            "distance": 0.40999999344348914
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 40,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 41,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 42,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 43,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 44,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 45,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 46,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 47,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 48,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 49,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 50,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 51,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 52,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 53,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 54,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 55,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 56,
+            "distance": 0.40999999344348914
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 57,
+            "distance": 0.40999999344348903
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 58,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 59,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 60,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 61,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 62,
+            "distance": 0.40999999344348903
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 63,
+            "distance": 0.40999999344348914
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 64,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 65,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 66,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 67,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 68,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 69,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 70,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 71,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 72,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 73,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 74,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 75,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 76,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 77,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 78,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 79,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 80,
+            "distance": 0.40999999344348914
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 81,
+            "distance": 0.40999999344348903
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 82,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 83,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 84,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 85,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 86,
+            "distance": 0.40999999344348903
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 87,
+            "distance": 0.40999999344348914
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 88,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 89,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 90,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 91,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 92,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 93,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 94,
+            "distance": 0.4099999934434891
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 95,
+            "distance": 0.40999999344348914
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4128,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4129,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4130,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4131,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4132,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4133,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4134,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4135,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4136,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4137,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4138,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4139,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4140,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4141,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4142,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4143,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4144,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4145,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4146,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4147,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4148,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4149,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4150,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4151,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4152,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4153,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4154,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4155,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4156,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4157,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4158,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4159,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4160,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4161,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4162,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4163,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4164,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4165,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4166,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4167,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4168,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4169,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4170,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4171,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4172,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4173,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4174,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4175,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4176,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4177,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4178,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4179,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4180,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4181,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4182,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4183,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4184,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4185,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4186,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4187,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4188,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4189,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4190,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4191,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4192,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4193,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4194,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4195,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4196,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4197,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4198,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4199,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4200,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4201,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4202,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4203,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4204,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4205,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4206,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4207,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4208,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4209,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4210,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4211,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4212,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4213,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4214,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4215,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4216,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4217,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4218,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4219,
+            "distance": 0.20000000000000004
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4220,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4221,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4222,
+            "distance": 0.2
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 4223,
+            "distance": 0.20000000000000004
+          }
+        ]
+      },
+      {
+        "kind": "occupied-puffed-lobe",
+        "hits": [
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 1824,
+            "distance": 0.5846594009746784
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 2015,
+            "distance": 0.5846594009746784
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 5952,
+            "distance": 0.21085212842947407
+          },
+          {
+            "part": "four-lobed-closed-tufted-padded-shell",
+            "face": 6143,
+            "distance": 0.21085212842947407
+          }
+        ]
+      },
+      {
+        "kind": "empty-outside-entire-cushion",
+        "hits": []
+      }
+    ],
+    "actualCentralTuft": {
+      "centerTop": 0.20999999344348919,
+      "lobeTop": [
+        0.38613688473203756,
+        0.38613688473203756,
+        0.38613688473203756,
+        0.38613688473203744
+      ]
+    },
+    "bodyBinding": null,
+    "sitting": false,
+    "compression": false,
+    "loadOrStability": false,
+    "rig": false,
+    "wearingFit": false,
+    "normalGame": false,
+    "ownershipUnlockSave": false
+  },
+  "compiledWorldPlacement": {
+    "townPoint": {
+      "x": 2400,
+      "y": 250
+    },
+    "worldPosition": [
+      9.6,
+      0.025000000000001577,
+      -7.1
+    ],
+    "projectedFootprint": {
+      "minX": 8.388152933120727,
+      "maxX": 10.811846470832824,
+      "minZ": -8.31184742450714,
+      "maxZ": -5.888153171539306
+    },
+    "supports": [
+      {
+        "foot": "four-lobed-closed-tufted-padded-shell",
+        "sample": [
+          0,
+          0
+        ],
+        "x": 9.6,
+        "z": -7.1,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 4129,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001577,
+        "requiredGroupY": 0.025000000000001577,
+        "soleMinusFloor": 0
+      },
+      {
+        "foot": "four-lobed-closed-tufted-padded-shell",
+        "sample": [
+          0.02,
+          0
+        ],
+        "x": 9.62,
+        "z": -7.1,
+        "soleLocalY": 2.7755575615628914e-17,
+        "actualFootSoleTriangle": 4128,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001577,
+        "requiredGroupY": 0.02500000000000155,
+        "soleMinusFloor": 2.7755575615628914e-17
+      },
+      {
+        "foot": "four-lobed-closed-tufted-padded-shell",
+        "sample": [
+          -0.02,
+          0
+        ],
+        "x": 9.58,
+        "z": -7.1,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 4176,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001577,
+        "requiredGroupY": 0.025000000000001577,
+        "soleMinusFloor": 0
+      },
+      {
+        "foot": "four-lobed-closed-tufted-padded-shell",
+        "sample": [
+          0,
+          0.02
+        ],
+        "x": 9.6,
+        "z": -7.08,
+        "soleLocalY": 0,
+        "actualFootSoleTriangle": 4152,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001573,
+        "requiredGroupY": 0.025000000000001573,
+        "soleMinusFloor": 3.469446951953614e-18
+      },
+      {
+        "foot": "four-lobed-closed-tufted-padded-shell",
+        "sample": [
+          0,
+          -0.02
+        ],
+        "x": 9.6,
+        "z": -7.119999999999999,
+        "soleLocalY": 2.7755575615628914e-17,
+        "actualFootSoleTriangle": 4200,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "floorY": 0.025000000000001583,
+        "requiredGroupY": 0.025000000000001556,
+        "soleMinusFloor": 2.0816681711721685e-17
+      }
+    ],
+    "flatPadSampleCount": 5,
+    "flatPads": 1,
+    "entireCurvedFootSoleContactVerified": false,
+    "finiteWalkability": {
+      "samples": 63,
+      "blocked": 0
+    },
+    "roads": [
+      {
+        "name": "layout-plaza-border",
+        "triangles": 192,
+        "minimumGap": 7.928624787024544
+      },
+      {
+        "name": "layout-plaza-floor",
+        "triangles": 96,
+        "minimumGap": 8.223430824436857
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.166070561620984
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.029489045577014
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.948581890309816
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.927932994001441
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.928937284540302
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 7.975630244314655
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.087333765063342
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.262546769897625
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.497363317205137
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.785788826158166
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.120222590129595
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.491994292616836
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.89186426676591
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.310437305921536
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.737656175918325
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.124290273316246
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.504419258179096
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.87136395386035
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.218760650000416
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.540910886313815
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.83282346940731
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.090243933256131
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.309673451503617
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.48837802624401
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.624388088054923
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.716488320885816
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.764197466489605
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.730744640776722
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.651093153188004
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.531606983678234
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.374808425961017
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.183640692922932
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.961393394070788
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.711627537667988
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.438103357140244
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.14471465467046
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.835433600300238
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.514269937327574
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.18524821912932
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.852405914083212
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.507320932767513
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.148141503187139
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.797610926120594
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.460400015567824
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.14153621561205
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.84649561337097
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.581246506394537
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.352206113266359
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 10.865977900916214
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 10.900002364843072
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 16.04801397127145
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 2.0768919120721225
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 2.1216828706870925
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 2.0446862133336343
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 10.866000766001992
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 10.900022511547172
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 18.52448952567955
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 7.530756949007849
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 7.59075552254882
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 10.756047621255105
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 10.803242974215705
+      },
+      {
+        "name": "bridge-deck",
+        "triangles": 44,
+        "minimumGap": 6.988153195381164
+      }
+    ],
+    "minimumRoadGap": 2.0446862133336343,
+    "requiredMargin": 0.2,
+    "originalSpriteEnvelopeClearance": {
+      "checkedCards": 38,
+      "kinds": {
+        "shopTulip": 6,
+        "treeGrove": 12,
+        "flowers": 1,
+        "lantern": 4,
+        "treeApple": 5,
+        "treeBirch": 5,
+        "tree": 5
+      },
+      "minimumGap": 1.375612270246691,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "kind": "shopTulip",
+          "sourceSHA256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+          "contact": [
+            6.8759999999999994,
+            0.025,
+            -4.894
+          ],
+          "fullQuadRadius": 0.43406919941234284,
+          "envelopeDistance": 1.809681469659034,
+          "gap": 1.375612270246691
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            3.800391407986147,
+            0.025,
+            -10.014646520277676
+          ],
+          "fullQuadRadius": 3.428153984302411,
+          "envelopeDistance": 4.8935754384766685,
+          "gap": 1.4654214541742574
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            3.018835793838979,
+            0.025,
+            -10.44966867454055
+          ],
+          "fullQuadRadius": 3.816913714481035,
+          "envelopeDistance": 5.779260007931737,
+          "gap": 1.962346293450702
+        },
+        {
+          "kind": "shopTulip",
+          "sourceSHA256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+          "contact": [
+            5.795999999999999,
+            0.025,
+            -4.894
+          ],
+          "fullQuadRadius": 0.43406919941234284,
+          "envelopeDistance": 2.77625599633176,
+          "gap": 2.3421867969194174
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            0.8327002596367137,
+            0.025,
+            -9.982363263208441
+          ],
+          "fullQuadRadius": 4.385813983669816,
+          "envelopeDistance": 7.737925320692145,
+          "gap": 3.352111337022329
+        },
+        {
+          "kind": "lantern",
+          "sourceSHA256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+          "contact": [
+            4.032,
+            0.025,
+            -3.4560000000000004
+          ],
+          "fullQuadRadius": 0.9909739577995439,
+          "envelopeDistance": 4.98913193116448,
+          "gap": 3.998157973364936
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            -3.9520000000000004
+          ],
+          "fullQuadRadius": 3.816913714481035,
+          "envelopeDistance": 9.170862931700523,
+          "gap": 5.353949217219488
+        },
+        {
+          "kind": "treeApple",
+          "sourceSHA256": "ce7ef7adda439841a3fc36de04d5250eb01249ce653337f19b6d9520b028c45b",
+          "contact": [
+            -0.3355192961773006,
+            0.025,
+            -9.667760567754863
+          ],
+          "fullQuadRadius": 2.824426245157773,
+          "envelopeDistance": 8.828417616779213,
+          "gap": 6.0039913716214395
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            -1.9396978898859323,
+            0.025,
+            -10.216135629486423
+          ],
+          "fullQuadRadius": 3.3722855420654474,
+          "envelopeDistance": 10.501943448233883,
+          "gap": 7.129657906168435
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            -3.7735156195406474,
+            0.025,
+            -10.38942810991384
+          ],
+          "fullQuadRadius": 3.777696918707195,
+          "envelopeDistance": 12.337849224608298,
+          "gap": 8.560152305901104
+        }
+      ],
+      "method": "sphere enclosing all four full raw Sprite quad corners from actual world scale/center; sphere-to-conservative-3D-pose-envelope distance; includes faint/transparent corners without cropping",
+      "cameraOrientationIndependentGeometryEnvelope": true,
+      "physicalFixtureVolumes": false,
+      "allCameraProjectionOcclusionGuaranteed": false
+    },
+    "buildingProxyClearance": [
+      {
+        "place": "home",
+        "intersects": false,
+        "separation": 15.220035659264958
+      },
+      {
+        "place": "cafe",
+        "intersects": false,
+        "separation": 0.8200356592649607
+      },
+      {
+        "place": "shop",
+        "intersects": false,
+        "separation": 16.90516328404447
+      },
+      {
+        "place": "playground",
+        "intersects": false,
+        "separation": 7.611537665324713
+      },
+      {
+        "place": "tree",
+        "intersects": false,
+        "separation": null
+      },
+      {
+        "place": "flowers",
+        "intersects": false,
+        "separation": null
+      }
+    ],
+    "meadowInstances": {
+      "instanceCount": 1102,
+      "batchCount": 10,
+      "siteCount": 40,
+      "animationPadding": 0.018,
+      "minimumGap": 1.496117771765151,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "batch": "meadow-daisy-lobed-head-instances",
+          "instance": 19,
+          "bounds": {
+            "min": [
+              7.958820739835853,
+              0.26966038848726037,
+              -4.399957903835882
+            ],
+            "max": [
+              8.234389373794551,
+              0.48924224177269227,
+              -4.1378291572550845
+            ]
+          },
+          "minimumGap": 1.496117771765151
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 135,
+          "bounds": {
+            "min": [
+              7.977578815044441,
+              0.07105114515847945,
+              -4.3950632941515035
+            ],
+            "max": [
+              8.21403826324015,
+              0.22419910853424715,
+              -4.18908480159886
+            ]
+          },
+          "minimumGap": 1.5032076703588053
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 135,
+          "bounds": {
+            "min": [
+              7.985089577379973,
+              0.12565921738691058,
+              -4.33268680280395
+            ],
+            "max": [
+              8.19508846259249,
+              0.2939266082809292,
+              -4.162581188564673
+            ]
+          },
+          "minimumGap": 1.5674021545369596
+        },
+        {
+          "batch": "meadow-daisy-heart-instances",
+          "instance": 19,
+          "bounds": {
+            "min": [
+              8.064667348143331,
+              0.3707389938978198,
+              -4.31753558400345
+            ],
+            "max": [
+              8.167966242554911,
+              0.4668721449228284,
+              -4.218473250835417
+            ]
+          },
+          "minimumGap": 1.5859766029104208
+        },
+        {
+          "batch": "meadow-stem-instances",
+          "instance": 192,
+          "bounds": {
+            "min": [
+              8.067568068700785,
+              0.007000005960464479,
+              -4.295128576088361
+            ],
+            "max": [
+              8.118887038740318,
+              0.40940555262565614,
+              -4.243320091918379
+            ]
+          },
+          "minimumGap": 1.6156210829238795
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 132,
+          "bounds": {
+            "min": [
+              7.901148489831921,
+              0.041575798950860735,
+              -4.264367702750147
+            ],
+            "max": [
+              8.09452233541299,
+              0.19472376232662844,
+              -4.025857540398
+            ]
+          },
+          "minimumGap": 1.6501206551525358
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 132,
+          "bounds": {
+            "min": [
+              7.860408253295483,
+              0.08102512851304734,
+              -4.264202428528577
+            ],
+            "max": [
+              8.04857208160829,
+              0.24929251940706595,
+              -4.048723461221426
+            ]
+          },
+          "minimumGap": 1.6590753962490707
+        },
+        {
+          "batch": "meadow-rose-outer-rosette-instances",
+          "instance": 42,
+          "bounds": {
+            "min": [
+              7.872678861722074,
+              0.23156414085790836,
+              -4.255414189465224
+            ],
+            "max": [
+              8.078212702953188,
+              0.34142650297063937,
+              -4.046932128716306
+            ]
+          },
+          "minimumGap": 1.6618963655597234
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 137,
+          "bounds": {
+            "min": [
+              7.744055235928408,
+              0.11781527593679154,
+              -4.293236297858033
+            ],
+            "max": [
+              7.915505536981387,
+              0.2860826668308102,
+              -4.055709474413007
+            ]
+          },
+          "minimumGap": 1.6634768994580433
+        },
+        {
+          "batch": "meadow-rose-outer-rosette-instances",
+          "instance": 43,
+          "bounds": {
+            "min": [
+              7.897852390299883,
+              0.2736531604253287,
+              -4.230364211487056
+            ],
+            "max": [
+              8.05303405705311,
+              0.36177435561321625,
+              -4.072034530926201
+            ]
+          },
+          "minimumGap": 1.6913216421390538
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 137,
+          "bounds": {
+            "min": [
+              7.675200721285802,
+              0.06587118860311293,
+              -4.2583102846284735
+            ],
+            "max": [
+              7.902138236793523,
+              0.21901915197888064,
+              -4.05499737746007
+            ]
+          },
+          "minimumGap": 1.7007639815858817
+        },
+        {
+          "batch": "meadow-hanging-flared-bell-instances",
+          "instance": 19,
+          "bounds": {
+            "min": [
+              7.673261736095995,
+              0.2665756102455934,
+              -4.254005318920048
+            ],
+            "max": [
+              7.891350546655003,
+              0.4024837637134102,
+              -4.036220874064243
+            ]
+          },
+          "minimumGap": 1.7079964330812203
+        }
+      ],
+      "scope": "every actual current meadow instance geometry AABB transformed by its actual instance and world matrix, expanded .018 in all axes; current finite matrices and authored animation allowance, no all-frame proof"
+    },
+    "shoreline": {
+      "segments": 7,
+      "minimumGap": 1.2881529569625858,
+      "rows": [
+        {
+          "a": [
+            14.399999618530273,
+            -9.600000381469727
+          ],
+          "b": [
+            -14.399999618530273,
+            -9.600000381469727
+          ],
+          "footprintGap": 1.2881529569625858
+        },
+        {
+          "a": [
+            -14.399999618530273,
+            -9.600000381469727
+          ],
+          "b": [
+            -14.399999618530273,
+            9.600000381469727
+          ],
+          "footprintGap": 22.788152551651002
+        },
+        {
+          "a": [
+            -14.399999618530273,
+            9.600000381469727
+          ],
+          "b": [
+            5.5,
+            9.600000381469727
+          ],
+          "footprintGap": 15.755136554364745
+        },
+        {
+          "a": [
+            5.5,
+            9.600000381469727
+          ],
+          "b": [
+            10.699999809265137,
+            4.900000095367432
+          ],
+          "footprintGap": 10.788153266906738
+        },
+        {
+          "a": [
+            10.699999809265137,
+            4.900000095367432
+          ],
+          "b": [
+            12.800000190734863,
+            0.8999999761581421
+          ],
+          "footprintGap": 7.073314525069213
+        },
+        {
+          "a": [
+            12.800000190734863,
+            0.8999999761581421
+          ],
+          "b": [
+            14,
+            -4.099999904632568
+          ],
+          "footprintGap": 3.655381653328467
+        },
+        {
+          "a": [
+            14,
+            -4.099999904632568
+          ],
+          "b": [
+            14.399999618530273,
+            -9.600000381469727
+          ],
+          "footprintGap": 3.309460173756208
+        }
+      ],
+      "method": "every actual dry-land boundary segment against entire cushion XZ AABB"
+    },
+    "waterBacking": {
+      "topY": -0.05,
+      "soleAboveWaterBacking": 0.07500000000000158
+    },
+    "worldUnchanged": true,
+    "walkableSurfacesUnchanged": true,
+    "occludersUnchanged": true,
+    "notRegisteredAsTownSurface": true,
+    "normalPlacement": false,
+    "ownershipUnlockSave": false,
+    "bodyBinding": null,
+    "limits": "one fixed authored cushion pose at one synthetic current-default-world site;5 finite rays on the flat cushion base,63 finite walkability samples and conservative envelope clearances. Not a continuous placement/stability/physical/body or all-camera-visibility guarantee"
+  },
+  "compiledWorldScope": "Existing current Scene after its synchronous construction/tree-road correction; no DOM or original image bytes loaded in Node. Native art-ready Scene and display are separate gates.",
+  "worldJSONUnchanged": true
+}
