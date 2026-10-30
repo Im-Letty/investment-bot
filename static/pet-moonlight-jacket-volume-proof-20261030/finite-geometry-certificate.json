@@ -1,0 +1,6424 @@
+{
+  "schema_version": 1,
+  "model_id": "moonlight-jacket-garment-volume-v1",
+  "unit_id": "wardrobe:fit-prerequisite:moonlight-jacket:garment-volume-openings:v1",
+  "revision": 3,
+  "model_sha256": "32aad9803c8aef575e0aabc353d2a3013e43c836de18b01d6f18a80a75f4d193",
+  "audit_sha256": "9033f0f8fa562207650cdfbe1a8b8eb6908daae91ee7ee39ed6127c63138e1d8",
+  "source_original_sha256": "464f4259b93325e3224623325280ca285eeedf657614d681307309c233ecc654",
+  "bodyBinding": null,
+  "audit": {
+    "schema_version": 1,
+    "result": "pass",
+    "scope": "Fixed authored garment pose. Finite closed-material topology, strict edge/interior crossings, sampled lining pairs, all-visible-part opening rays, occupied wall controls, fixed front restrictions and shared material witnesses. No continuous collision/cloth guarantee, measured anatomy, wearing or all-growth fit.",
+    "topology": [
+      {
+        "name": "continuous-open-front-hollow-sleeve-shell",
+        "vertices": 20604,
+        "triangles": 6868,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.5876670771241054,
+        "faceNormals": {
+          "triangles": 6868,
+          "minimumFaceAverageNormalDot": 0.8900742912736281,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "ivory-rounded-binding-neck_front_hem",
+        "vertices": 49152,
+        "triangles": 16384,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.11644263111004102,
+        "faceNormals": {
+          "triangles": 16384,
+          "minimumFaceAverageNormalDot": 0.9883049996061455,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-binding-piping-neck_front_hem",
+        "vertices": 36864,
+        "triangles": 12288,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0054317616414515804,
+        "faceNormals": {
+          "triangles": 12288,
+          "minimumFaceAverageNormalDot": 0.9791627801092352,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "ivory-rounded-binding-left_cuff",
+        "vertices": 1248,
+        "triangles": 416,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.03508987259946411,
+        "faceNormals": {
+          "triangles": 416,
+          "minimumFaceAverageNormalDot": 0.9161425430253993,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-binding-piping-left_cuff",
+        "vertices": 780,
+        "triangles": 260,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0007981267508279566,
+        "faceNormals": {
+          "triangles": 260,
+          "minimumFaceAverageNormalDot": 0.9140446274652816,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "ivory-rounded-binding-right_cuff",
+        "vertices": 1248,
+        "triangles": 416,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.035089872599464084,
+        "faceNormals": {
+          "triangles": 416,
+          "minimumFaceAverageNormalDot": 0.9161425430253993,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-binding-piping-right_cuff",
+        "vertices": 780,
+        "triangles": 260,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0007981267508279564,
+        "faceNormals": {
+          "triangles": 260,
+          "minimumFaceAverageNormalDot": 0.9140446274652816,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "ivory-upper-petal-collar--1",
+        "vertices": 336,
+        "triangles": 112,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.013040781756417508,
+        "faceNormals": {
+          "triangles": 112,
+          "minimumFaceAverageNormalDot": 0.9625599315154378,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "ivory-lower-petal-collar--1",
+        "vertices": 288,
+        "triangles": 96,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.012631793989611234,
+        "faceNormals": {
+          "triangles": 96,
+          "minimumFaceAverageNormalDot": 0.9884447656263158,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-petal-piping-ivory-upper-petal-collar--1",
+        "vertices": 2340,
+        "triangles": 780,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.00031911968477654664,
+        "faceNormals": {
+          "triangles": 780,
+          "minimumFaceAverageNormalDot": 0.9527885260112545,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-petal-piping-ivory-lower-petal-collar--1",
+        "vertices": 2340,
+        "triangles": 780,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.00034114304146776094,
+        "faceNormals": {
+          "triangles": 780,
+          "minimumFaceAverageNormalDot": 0.9527831278955582,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "ivory-upper-petal-collar-1",
+        "vertices": 312,
+        "triangles": 104,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.013040781378103515,
+        "faceNormals": {
+          "triangles": 104,
+          "minimumFaceAverageNormalDot": 0.9625599315154378,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "ivory-lower-petal-collar-1",
+        "vertices": 300,
+        "triangles": 100,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.012631793659118123,
+        "faceNormals": {
+          "triangles": 100,
+          "minimumFaceAverageNormalDot": 0.9884447656263158,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-petal-piping-ivory-upper-petal-collar-1",
+        "vertices": 2340,
+        "triangles": 780,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0003191315394625736,
+        "faceNormals": {
+          "triangles": 780,
+          "minimumFaceAverageNormalDot": 0.9527889167346506,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-petal-piping-ivory-lower-petal-collar-1",
+        "vertices": 2340,
+        "triangles": 780,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.00034114322582011616,
+        "faceNormals": {
+          "triangles": 780,
+          "minimumFaceAverageNormalDot": 0.9527830462979512,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-fixed-button-bridge-0",
+        "vertices": 804,
+        "triangles": 268,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0010426715165094528,
+        "faceNormals": {
+          "triangles": 268,
+          "minimumFaceAverageNormalDot": 0.9527827922892027,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-round-pearl-setting-0",
+        "vertices": 425,
+        "triangles": 720,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.10131950804027,
+        "faceNormals": {
+          "triangles": 720,
+          "minimumFaceAverageNormalDot": 0.9983542358053258,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "round-pearl-button-0",
+        "vertices": 425,
+        "triangles": 720,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.10131950804027,
+        "faceNormals": {
+          "triangles": 720,
+          "minimumFaceAverageNormalDot": 0.9983542358053258,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-fixed-button-bridge-1",
+        "vertices": 804,
+        "triangles": 268,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0010426704448891792,
+        "faceNormals": {
+          "triangles": 268,
+          "minimumFaceAverageNormalDot": 0.9527824431263066,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-round-pearl-setting-1",
+        "vertices": 425,
+        "triangles": 720,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.10131950804027,
+        "faceNormals": {
+          "triangles": 720,
+          "minimumFaceAverageNormalDot": 0.9983542358053258,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "round-pearl-button-1",
+        "vertices": 425,
+        "triangles": 720,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.10131950804027,
+        "faceNormals": {
+          "triangles": 720,
+          "minimumFaceAverageNormalDot": 0.9983542358053258,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-fixed-button-bridge-2",
+        "vertices": 804,
+        "triangles": 268,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.00104267117318663,
+        "faceNormals": {
+          "triangles": 268,
+          "minimumFaceAverageNormalDot": 0.9527829611440124,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-round-pearl-setting-2",
+        "vertices": 425,
+        "triangles": 720,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.10131950804027,
+        "faceNormals": {
+          "triangles": 720,
+          "minimumFaceAverageNormalDot": 0.9983542358053258,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "round-pearl-button-2",
+        "vertices": 425,
+        "triangles": 720,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.10131950804027,
+        "faceNormals": {
+          "triangles": 720,
+          "minimumFaceAverageNormalDot": 0.9983542358053258,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "ivory-crescent-moon--1",
+        "vertices": 1032,
+        "triangles": 344,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0019102853498826984,
+        "faceNormals": {
+          "triangles": 344,
+          "minimumFaceAverageNormalDot": 0.9977277895570437,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-leaf-branch--1",
+        "vertices": 1956,
+        "triangles": 652,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.00026098191089478443,
+        "faceNormals": {
+          "triangles": 652,
+          "minimumFaceAverageNormalDot": 0.9527844292217653,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "ivory-leaf--1-0",
+        "vertices": 425,
+        "triangles": 720,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.10131950804027,
+        "faceNormals": {
+          "triangles": 720,
+          "minimumFaceAverageNormalDot": 0.9983542358053258,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "ivory-leaf--1-1",
+        "vertices": 425,
+        "triangles": 720,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.10131950804027,
+        "faceNormals": {
+          "triangles": 720,
+          "minimumFaceAverageNormalDot": 0.9983542358053258,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "ivory-leaf--1-2",
+        "vertices": 425,
+        "triangles": 720,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.10131950804027,
+        "faceNormals": {
+          "triangles": 720,
+          "minimumFaceAverageNormalDot": 0.9983542358053258,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "ivory-leaf--1-3",
+        "vertices": 425,
+        "triangles": 720,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.10131950804027,
+        "faceNormals": {
+          "triangles": 720,
+          "minimumFaceAverageNormalDot": 0.9983542358053258,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "ivory-crescent-moon-1",
+        "vertices": 1020,
+        "triangles": 340,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0019102853897547006,
+        "faceNormals": {
+          "triangles": 340,
+          "minimumFaceAverageNormalDot": 0.9977277895570437,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "gold-leaf-branch-1",
+        "vertices": 1956,
+        "triangles": 652,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.00026098193717472484,
+        "faceNormals": {
+          "triangles": 652,
+          "minimumFaceAverageNormalDot": 0.952783861165448,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "ivory-leaf-1-0",
+        "vertices": 425,
+        "triangles": 720,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.10131950804027,
+        "faceNormals": {
+          "triangles": 720,
+          "minimumFaceAverageNormalDot": 0.9983542358053258,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "ivory-leaf-1-1",
+        "vertices": 425,
+        "triangles": 720,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.10131950804027,
+        "faceNormals": {
+          "triangles": 720,
+          "minimumFaceAverageNormalDot": 0.9983542358053258,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "ivory-leaf-1-2",
+        "vertices": 425,
+        "triangles": 720,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.10131950804027,
+        "faceNormals": {
+          "triangles": 720,
+          "minimumFaceAverageNormalDot": 0.9983542358053258,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      },
+      {
+        "name": "ivory-leaf-1-3",
+        "vertices": 425,
+        "triangles": 720,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 4.10131950804027,
+        "faceNormals": {
+          "triangles": 720,
+          "minimumFaceAverageNormalDot": 0.9983542358053258,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "positiveFiniteTransform": true
+      }
+    ],
+    "crossings": [
+      {
+        "name": "continuous-open-front-hollow-sleeve-shell",
+        "triangles": 6868,
+        "candidateNonadjacentAABBPairs": 54142,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "ivory-rounded-binding-neck_front_hem",
+        "triangles": 16384,
+        "candidateNonadjacentAABBPairs": 103897,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "gold-binding-piping-neck_front_hem",
+        "triangles": 12288,
+        "candidateNonadjacentAABBPairs": 81444,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "ivory-rounded-binding-left_cuff",
+        "triangles": 416,
+        "candidateNonadjacentAABBPairs": 2828,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "gold-binding-piping-left_cuff",
+        "triangles": 260,
+        "candidateNonadjacentAABBPairs": 1913,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "ivory-rounded-binding-right_cuff",
+        "triangles": 416,
+        "candidateNonadjacentAABBPairs": 2828,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "gold-binding-piping-right_cuff",
+        "triangles": 260,
+        "candidateNonadjacentAABBPairs": 1913,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "ivory-upper-petal-collar--1",
+        "triangles": 112,
+        "candidateNonadjacentAABBPairs": 737,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "ivory-lower-petal-collar--1",
+        "triangles": 96,
+        "candidateNonadjacentAABBPairs": 645,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "gold-petal-piping-ivory-upper-petal-collar--1",
+        "triangles": 780,
+        "candidateNonadjacentAABBPairs": 4915,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "gold-petal-piping-ivory-lower-petal-collar--1",
+        "triangles": 780,
+        "candidateNonadjacentAABBPairs": 4967,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "ivory-upper-petal-collar-1",
+        "triangles": 104,
+        "candidateNonadjacentAABBPairs": 715,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "ivory-lower-petal-collar-1",
+        "triangles": 100,
+        "candidateNonadjacentAABBPairs": 663,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "gold-petal-piping-ivory-upper-petal-collar-1",
+        "triangles": 780,
+        "candidateNonadjacentAABBPairs": 4922,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "gold-petal-piping-ivory-lower-petal-collar-1",
+        "triangles": 780,
+        "candidateNonadjacentAABBPairs": 4978,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "gold-fixed-button-bridge-0",
+        "triangles": 268,
+        "candidateNonadjacentAABBPairs": 2238,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "ivory-leaf-1-3",
+        "triangles": 720,
+        "candidateNonadjacentAABBPairs": 795,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "gold-fixed-button-bridge-1",
+        "triangles": 268,
+        "candidateNonadjacentAABBPairs": 2238,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "gold-fixed-button-bridge-2",
+        "triangles": 268,
+        "candidateNonadjacentAABBPairs": 2238,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "ivory-crescent-moon--1",
+        "triangles": 344,
+        "candidateNonadjacentAABBPairs": 2924,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "gold-leaf-branch--1",
+        "triangles": 652,
+        "candidateNonadjacentAABBPairs": 4200,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "ivory-crescent-moon-1",
+        "triangles": 340,
+        "candidateNonadjacentAABBPairs": 2935,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "name": "gold-leaf-branch-1",
+        "triangles": 652,
+        "candidateNonadjacentAABBPairs": 4204,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      }
+    ],
+    "conditionedCloth": {
+      "outer": {
+        "triangles": 2076,
+        "adjacentPairs": 3015,
+        "minimumPlanarTriangleQuality": 0.3246454229703663,
+        "minimumAbsoluteFaceNormalZ": 0.9630194257797695,
+        "maximumAdjacentFaceDihedralDegrees": 10.083305445263559,
+        "pass": true,
+        "criterion": {
+          "minimumPlanarQuality": 0.2,
+          "minimumAbsoluteFaceNormalZ": 0.8,
+          "maximumAdjacentDihedralDegrees": 25
+        },
+        "scope": "Actual finite front/back graph triangles only, outer or lining; rim/connecting side charts excluded. Catches the previous near-collinear graph triangles and 150-degree front folds, no global smoothness or physical cloth guarantee."
+      },
+      "lining": {
+        "triangles": 2076,
+        "adjacentPairs": 3015,
+        "minimumPlanarTriangleQuality": 0.3246454229703663,
+        "minimumAbsoluteFaceNormalZ": 0.9630194257797695,
+        "maximumAdjacentFaceDihedralDegrees": 10.083305445263559,
+        "pass": true,
+        "criterion": {
+          "minimumPlanarQuality": 0.2,
+          "minimumAbsoluteFaceNormalZ": 0.8,
+          "maximumAdjacentDihedralDegrees": 25
+        },
+        "scope": "Actual finite front/back graph triangles only, outer or lining; rim/connecting side charts excluded. Catches the previous near-collinear graph triangles and 150-degree front folds, no global smoothness or physical cloth guarantee."
+      }
+    },
+    "bindingProfiles": [
+      {
+        "name": "ivory-rounded-binding-neck_front_hem",
+        "closed": true,
+        "sections": 513,
+        "radialSegments": 16,
+        "minimumActualSectionRadius": 0.05499988420664172,
+        "maximumActualSectionRadius": 0.05500011958994697,
+        "radiusRange": 2.3538330524985884e-7,
+        "maximumAdjacentCenterlineTurnDegrees": 12.64158599017879,
+        "endpointCenterGap": 0,
+        "scope": "Actual rendered ring vertex distances and finite adjacent centerline turns; no continuous or cloth physics guarantee."
+      },
+      {
+        "name": "gold-binding-piping-neck_front_hem",
+        "closed": true,
+        "sections": 513,
+        "radialSegments": 12,
+        "minimumActualSectionRadius": 0.01199988109186383,
+        "maximumActualSectionRadius": 0.012000109871393026,
+        "radiusRange": 2.2877952919608813e-7,
+        "maximumAdjacentCenterlineTurnDegrees": 12.641585990179022,
+        "endpointCenterGap": 0,
+        "scope": "Actual rendered ring vertex distances and finite adjacent centerline turns; no continuous or cloth physics guarantee."
+      }
+    ],
+    "independentPassages": {
+      "count": 46,
+      "blocked": 0,
+      "segments": [
+        {
+          "kind": "neck",
+          "from": [
+            -0.19,
+            2.7,
+            -0.13
+          ],
+          "to": [
+            -0.19,
+            1.77,
+            -0.13
+          ],
+          "hits": []
+        },
+        {
+          "kind": "neck",
+          "from": [
+            -0.19,
+            2.7,
+            0
+          ],
+          "to": [
+            -0.19,
+            1.77,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "neck",
+          "from": [
+            -0.19,
+            2.7,
+            0.13
+          ],
+          "to": [
+            -0.19,
+            1.77,
+            0.13
+          ],
+          "hits": []
+        },
+        {
+          "kind": "neck",
+          "from": [
+            -0.055,
+            2.7,
+            -0.13
+          ],
+          "to": [
+            -0.055,
+            1.77,
+            -0.13
+          ],
+          "hits": []
+        },
+        {
+          "kind": "neck",
+          "from": [
+            -0.055,
+            2.7,
+            0
+          ],
+          "to": [
+            -0.055,
+            1.77,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "neck",
+          "from": [
+            -0.055,
+            2.7,
+            0.13
+          ],
+          "to": [
+            -0.055,
+            1.77,
+            0.13
+          ],
+          "hits": []
+        },
+        {
+          "kind": "neck",
+          "from": [
+            0.085,
+            2.7,
+            -0.13
+          ],
+          "to": [
+            0.085,
+            1.77,
+            -0.13
+          ],
+          "hits": []
+        },
+        {
+          "kind": "neck",
+          "from": [
+            0.085,
+            2.7,
+            0
+          ],
+          "to": [
+            0.085,
+            1.77,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "neck",
+          "from": [
+            0.085,
+            2.7,
+            0.13
+          ],
+          "to": [
+            0.085,
+            1.77,
+            0.13
+          ],
+          "hits": []
+        },
+        {
+          "kind": "neck",
+          "from": [
+            0.19,
+            2.7,
+            -0.13
+          ],
+          "to": [
+            0.19,
+            1.77,
+            -0.13
+          ],
+          "hits": []
+        },
+        {
+          "kind": "neck",
+          "from": [
+            0.19,
+            2.7,
+            0
+          ],
+          "to": [
+            0.19,
+            1.77,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "neck",
+          "from": [
+            0.19,
+            2.7,
+            0.13
+          ],
+          "to": [
+            0.19,
+            1.77,
+            0.13
+          ],
+          "hits": []
+        },
+        {
+          "kind": "hem",
+          "from": [
+            -0.84,
+            0,
+            -0.14
+          ],
+          "to": [
+            -0.84,
+            0.78,
+            -0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "hem",
+          "from": [
+            -0.84,
+            0,
+            0
+          ],
+          "to": [
+            -0.84,
+            0.78,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "hem",
+          "from": [
+            -0.84,
+            0,
+            0.14
+          ],
+          "to": [
+            -0.84,
+            0.78,
+            0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "hem",
+          "from": [
+            -0.28,
+            0,
+            -0.14
+          ],
+          "to": [
+            -0.28,
+            0.78,
+            -0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "hem",
+          "from": [
+            -0.28,
+            0,
+            0
+          ],
+          "to": [
+            -0.28,
+            0.78,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "hem",
+          "from": [
+            -0.28,
+            0,
+            0.14
+          ],
+          "to": [
+            -0.28,
+            0.78,
+            0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "hem",
+          "from": [
+            0.27,
+            0,
+            -0.14
+          ],
+          "to": [
+            0.27,
+            0.78,
+            -0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "hem",
+          "from": [
+            0.27,
+            0,
+            0
+          ],
+          "to": [
+            0.27,
+            0.78,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "hem",
+          "from": [
+            0.27,
+            0,
+            0.14
+          ],
+          "to": [
+            0.27,
+            0.78,
+            0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "hem",
+          "from": [
+            0.83,
+            0,
+            -0.14
+          ],
+          "to": [
+            0.83,
+            0.78,
+            -0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "hem",
+          "from": [
+            0.83,
+            0,
+            0
+          ],
+          "to": [
+            0.83,
+            0.78,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "hem",
+          "from": [
+            0.83,
+            0,
+            0.14
+          ],
+          "to": [
+            0.83,
+            0.78,
+            0.14
+          ],
+          "hits": []
+        },
+        {
+          "kind": "front_between_fixed_buttons",
+          "from": [
+            0,
+            0.59,
+            1.2
+          ],
+          "to": [
+            0,
+            0.59,
+            0.02
+          ],
+          "hits": []
+        },
+        {
+          "kind": "front_between_fixed_buttons",
+          "from": [
+            0,
+            0.98,
+            1.2
+          ],
+          "to": [
+            0,
+            0.98,
+            0.02
+          ],
+          "hits": []
+        },
+        {
+          "kind": "front_between_fixed_buttons",
+          "from": [
+            0,
+            1.3,
+            1.2
+          ],
+          "to": [
+            0,
+            1.3,
+            0.02
+          ],
+          "hits": []
+        },
+        {
+          "kind": "front_between_fixed_buttons",
+          "from": [
+            0,
+            1.69,
+            1.2
+          ],
+          "to": [
+            0,
+            1.69,
+            0.02
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_cuff_to_torso",
+          "from": [
+            -2.19,
+            1.2000000000000002,
+            -0.13
+          ],
+          "to": [
+            -0.76,
+            1.885,
+            -0.13
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_cuff_to_torso",
+          "from": [
+            -2.19,
+            1.245,
+            -0.13
+          ],
+          "to": [
+            -0.76,
+            1.93,
+            -0.13
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_cuff_to_torso",
+          "from": [
+            -2.19,
+            1.29,
+            -0.13
+          ],
+          "to": [
+            -0.76,
+            1.9749999999999999,
+            -0.13
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_cuff_to_torso",
+          "from": [
+            -2.19,
+            1.2000000000000002,
+            0
+          ],
+          "to": [
+            -0.76,
+            1.885,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_cuff_to_torso",
+          "from": [
+            -2.19,
+            1.245,
+            0
+          ],
+          "to": [
+            -0.76,
+            1.93,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_cuff_to_torso",
+          "from": [
+            -2.19,
+            1.29,
+            0
+          ],
+          "to": [
+            -0.76,
+            1.9749999999999999,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_cuff_to_torso",
+          "from": [
+            -2.19,
+            1.2000000000000002,
+            0.13
+          ],
+          "to": [
+            -0.76,
+            1.885,
+            0.13
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_cuff_to_torso",
+          "from": [
+            -2.19,
+            1.245,
+            0.13
+          ],
+          "to": [
+            -0.76,
+            1.93,
+            0.13
+          ],
+          "hits": []
+        },
+        {
+          "kind": "left_cuff_to_torso",
+          "from": [
+            -2.19,
+            1.29,
+            0.13
+          ],
+          "to": [
+            -0.76,
+            1.9749999999999999,
+            0.13
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_cuff_to_torso",
+          "from": [
+            2.19,
+            1.2000000000000002,
+            -0.13
+          ],
+          "to": [
+            0.76,
+            1.885,
+            -0.13
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_cuff_to_torso",
+          "from": [
+            2.19,
+            1.245,
+            -0.13
+          ],
+          "to": [
+            0.76,
+            1.93,
+            -0.13
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_cuff_to_torso",
+          "from": [
+            2.19,
+            1.29,
+            -0.13
+          ],
+          "to": [
+            0.76,
+            1.9749999999999999,
+            -0.13
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_cuff_to_torso",
+          "from": [
+            2.19,
+            1.2000000000000002,
+            0
+          ],
+          "to": [
+            0.76,
+            1.885,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_cuff_to_torso",
+          "from": [
+            2.19,
+            1.245,
+            0
+          ],
+          "to": [
+            0.76,
+            1.93,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_cuff_to_torso",
+          "from": [
+            2.19,
+            1.29,
+            0
+          ],
+          "to": [
+            0.76,
+            1.9749999999999999,
+            0
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_cuff_to_torso",
+          "from": [
+            2.19,
+            1.2000000000000002,
+            0.13
+          ],
+          "to": [
+            0.76,
+            1.885,
+            0.13
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_cuff_to_torso",
+          "from": [
+            2.19,
+            1.245,
+            0.13
+          ],
+          "to": [
+            0.76,
+            1.93,
+            0.13
+          ],
+          "hits": []
+        },
+        {
+          "kind": "right_cuff_to_torso",
+          "from": [
+            2.19,
+            1.29,
+            0.13
+          ],
+          "to": [
+            0.76,
+            1.9749999999999999,
+            0.13
+          ],
+          "hits": []
+        }
+      ]
+    },
+    "openingRestrictions": {
+      "count": 5,
+      "missed": 0,
+      "segments": [
+        {
+          "name": "fixed-button-restriction-0",
+          "expectedPart": "gold-fixed-button-bridge-0",
+          "from": [
+            0,
+            1.49,
+            1.1
+          ],
+          "to": [
+            0,
+            1.49,
+            0.05
+          ],
+          "hits": [
+            {
+              "part": "gold-fixed-button-bridge-0",
+              "face": 121,
+              "distance": 0.7665800174311485
+            },
+            {
+              "part": "gold-fixed-button-bridge-0",
+              "face": 127,
+              "distance": 0.702580044643513
+            },
+            {
+              "part": "gold-round-pearl-setting-0",
+              "face": 325,
+              "distance": 0.6835800325979877
+            },
+            {
+              "part": "gold-round-pearl-setting-0",
+              "face": 349,
+              "distance": 0.7695800325979878
+            },
+            {
+              "part": "gold-round-pearl-setting-0",
+              "face": 372,
+              "distance": 0.6835800325979877
+            },
+            {
+              "part": "gold-round-pearl-setting-0",
+              "face": 396,
+              "distance": 0.7695800325979878
+            },
+            {
+              "part": "round-pearl-button-0",
+              "face": 325,
+              "distance": 0.6395800325979878
+            },
+            {
+              "part": "round-pearl-button-0",
+              "face": 349,
+              "distance": 0.7395800325979879
+            },
+            {
+              "part": "round-pearl-button-0",
+              "face": 372,
+              "distance": 0.6395800325979878
+            },
+            {
+              "part": "round-pearl-button-0",
+              "face": 396,
+              "distance": 0.7395800325979877
+            }
+          ]
+        },
+        {
+          "name": "fixed-button-restriction-1",
+          "expectedPart": "gold-fixed-button-bridge-1",
+          "from": [
+            0,
+            1.13,
+            1.1
+          ],
+          "to": [
+            0,
+            1.13,
+            0.05
+          ],
+          "hits": [
+            {
+              "part": "gold-fixed-button-bridge-1",
+              "face": 113,
+              "distance": 0.6859394987307211
+            },
+            {
+              "part": "gold-fixed-button-bridge-1",
+              "face": 119,
+              "distance": 0.7499395052708964
+            },
+            {
+              "part": "gold-round-pearl-setting-1",
+              "face": 325,
+              "distance": 0.6669394947362044
+            },
+            {
+              "part": "gold-round-pearl-setting-1",
+              "face": 349,
+              "distance": 0.7529394947362045
+            },
+            {
+              "part": "gold-round-pearl-setting-1",
+              "face": 372,
+              "distance": 0.6669394947362044
+            },
+            {
+              "part": "gold-round-pearl-setting-1",
+              "face": 396,
+              "distance": 0.7529394947362045
+            },
+            {
+              "part": "round-pearl-button-1",
+              "face": 325,
+              "distance": 0.6229394947362046
+            },
+            {
+              "part": "round-pearl-button-1",
+              "face": 349,
+              "distance": 0.7229394947362044
+            },
+            {
+              "part": "round-pearl-button-1",
+              "face": 372,
+              "distance": 0.6229394947362045
+            },
+            {
+              "part": "round-pearl-button-1",
+              "face": 396,
+              "distance": 0.7229394947362043
+            }
+          ]
+        },
+        {
+          "name": "fixed-button-restriction-2",
+          "expectedPart": "gold-fixed-button-bridge-2",
+          "from": [
+            0,
+            0.79,
+            1.1
+          ],
+          "to": [
+            0,
+            0.79,
+            0.05
+          ],
+          "hits": [
+            {
+              "part": "gold-fixed-button-bridge-2",
+              "face": 121,
+              "distance": 0.7289195627500387
+            },
+            {
+              "part": "gold-fixed-button-bridge-2",
+              "face": 127,
+              "distance": 0.6649195998380529
+            },
+            {
+              "part": "gold-round-pearl-setting-2",
+              "face": 325,
+              "distance": 0.6459195764185643
+            },
+            {
+              "part": "gold-round-pearl-setting-2",
+              "face": 349,
+              "distance": 0.7319195764185644
+            },
+            {
+              "part": "gold-round-pearl-setting-2",
+              "face": 372,
+              "distance": 0.6459195764185643
+            },
+            {
+              "part": "gold-round-pearl-setting-2",
+              "face": 396,
+              "distance": 0.7319195764185643
+            },
+            {
+              "part": "round-pearl-button-2",
+              "face": 325,
+              "distance": 0.6019195764185644
+            },
+            {
+              "part": "round-pearl-button-2",
+              "face": 349,
+              "distance": 0.7019195764185645
+            },
+            {
+              "part": "round-pearl-button-2",
+              "face": 372,
+              "distance": 0.6019195764185644
+            },
+            {
+              "part": "round-pearl-button-2",
+              "face": 396,
+              "distance": 0.7019195764185643
+            }
+          ]
+        },
+        {
+          "name": "left-front-binding-restriction",
+          "expectedPart": "ivory-rounded-binding-neck_front_hem",
+          "from": [
+            -0.075,
+            1.31,
+            1.1
+          ],
+          "to": [
+            -0.075,
+            1.31,
+            0.05
+          ],
+          "hits": [
+            {
+              "part": "ivory-rounded-binding-neck_front_hem",
+              "face": 1425,
+              "distance": 0.770538043257792
+            },
+            {
+              "part": "ivory-rounded-binding-neck_front_hem",
+              "face": 1438,
+              "distance": 0.6666487519531897
+            }
+          ]
+        },
+        {
+          "name": "right-front-binding-restriction",
+          "expectedPart": "ivory-rounded-binding-neck_front_hem",
+          "from": [
+            0.075,
+            1.31,
+            1.1
+          ],
+          "to": [
+            0.075,
+            1.31,
+            0.05
+          ],
+          "hits": [
+            {
+              "part": "ivory-rounded-binding-neck_front_hem",
+              "face": 7505,
+              "distance": 0.7705336180925506
+            },
+            {
+              "part": "ivory-rounded-binding-neck_front_hem",
+              "face": 7519,
+              "distance": 0.6666443353334226
+            }
+          ]
+        }
+      ],
+      "meaning": "Open front is narrowed by genuine thick binding and three fixed gold/pearl bridge assemblies. Clear rays between them do not establish unrestricted front entry or unfastening."
+    },
+    "independentAttachments": {
+      "count": 72,
+      "failed": 0,
+      "minimumClearance": 0.000012585822432940189,
+      "contacts": [
+        {
+          "part": "ivory-rounded-binding-neck_front_hem",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -0.4414142135623731,
+            0.34,
+            0.4013381995014652
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.04154774646559256,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00012969609462369798,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-neck_front_hem",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -0.09773398446389692,
+            1.5906512126030508,
+            0.37124283526878754
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.052107277492788914,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00116957433432973,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-neck_front_hem",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -0.5088737065257191,
+            2.3832573083639286,
+            0.22084938255059658
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.04957359059643974,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0010641721014253832,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-neck_front_hem",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -0.35766214881698355,
+            2.2622507554872633,
+            -0.3688540547367897
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.045263349673421875,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0011548619801249702,
+            "independentUniqueRayHitCounts": [
+              1,
+              3,
+              3
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-neck_front_hem",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            0.49884529946162076,
+            2.3488452994616207,
+            -0.3688521046099138
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.005198644325323358,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00039193111354960227,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              3
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-neck_front_hem",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            0.5,
+            2.348585786437627,
+            0.36859259158591995
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.007477224961823562,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0005722769095542158,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-neck_front_hem",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            0.09054322887460606,
+            1.2983481057301187,
+            0.3800027184194128
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.052072334966226354,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0011484388953234756,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-neck_front_hem",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            0.9769616769438241,
+            0.3440976476754998,
+            0.4016158760692133
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.05023785206071953,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00012100744215101635,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-neck_front_hem",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            1.2970553419270134,
+            0.3716263241219282,
+            -0.325220867375716
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.04230530427816065,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00012405239393797017,
+            "independentUniqueRayHitCounts": [
+              5,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-neck_front_hem",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -0.7514142135623731,
+            0.29141421356237307,
+            -0.39931906930463207
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.05326785497368803,
+            "independentUniqueRayHitCounts": [
+              3,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0000972407459154426,
+            "independentUniqueRayHitCounts": [
+              3,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-neck_front_hem",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -1.3283539240283162,
+            0.3756719853903049,
+            0.16048911334429836
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.05036656190722714,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.000026300821678692923,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-binding-piping-neck_front_hem",
+          "target": "ivory-rounded-binding-neck_front_hem",
+          "point": [
+            -0.29469561045155723,
+            2.245349147219326,
+            -0.3199070524162413
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.011481814594014154,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.004092917864416718,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-left_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -1.94,
+            1.5214142135623732,
+            0.41334592882565135
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03944127750571031,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.000281929406404038,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-left_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -1.8139659263309906,
+            1.2113607741615862,
+            0.41413642945451723
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03710498167491324,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0006558917498663701,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-left_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -1.726955460142626,
+            1.1034555757973588,
+            0.3322383483301828
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.026118218205378425,
+            "independentUniqueRayHitCounts": [
+              1,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00017120141980155767,
+            "independentUniqueRayHitCounts": [
+              3,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-left_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -1.7404978766720607,
+            1.076686135113189,
+            0.16541206738390485
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03457507661456354,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00008826656188687896,
+            "independentUniqueRayHitCounts": [
+              3,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-left_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -1.7459301325204903,
+            1.0676158191700396,
+            -0.0011547005383792518
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03945276234878888,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0005091122099839882,
+            "independentUniqueRayHitCounts": [
+              3,
+              1,
+              3
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-left_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -1.7404978766720607,
+            1.076686135113189,
+            -0.16541206738390482
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03457507661456334,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00009628978929934126,
+            "independentUniqueRayHitCounts": [
+              3,
+              1,
+              3
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-left_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -1.726955460142626,
+            1.1034555757973588,
+            -0.3322383483301828
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.026118179631250404,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0001949325724745712,
+            "independentUniqueRayHitCounts": [
+              3,
+              1,
+              3
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-left_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -1.8139659263309906,
+            1.211946560599213,
+            -0.4155506430168903
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03854159263381352,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              3
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00013635903391648208,
+            "independentUniqueRayHitCounts": [
+              3,
+              1,
+              3
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-left_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -1.94,
+            1.5214142135623732,
+            -0.41334592882565135
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03944127750571031,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0002824246864308819,
+            "independentUniqueRayHitCounts": [
+              3,
+              1,
+              5
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-left_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -1.9748305242078856,
+            1.5158821259339108,
+            -0.24744187187044162
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02941350800766003,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0001955234472106832,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              5
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-left_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -1.9963569720143348,
+            1.5124631077507782,
+            -0.08153781491523178
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03890153395244461,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00002256789058182971,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              7
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-left_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -1.9963569720143348,
+            1.5124631077507782,
+            0.08153781491523178
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.038901515890527684,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              3
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.000022529920015029503,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              3
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-left_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -1.9748305242078856,
+            1.5158821259339108,
+            0.24744187187044156
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02941352720042187,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              3
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00019528279287077898,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              3
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-binding-piping-left_cuff",
+          "target": "ivory-rounded-binding-left_cuff",
+          "point": [
+            -1.9502013415906836,
+            1.3409108674677335,
+            0.4549916008064803
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0019470636020844192,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.009699997944312824,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-right_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            1.7185857864376268,
+            1.12,
+            0.41565148880332176
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03905289796045465,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0001954602140047414,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-right_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            1.8949084121012836,
+            1.3656222096503976,
+            0.4138369002681011
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03796368216673096,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0004874514491198768,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-right_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            1.9571567896891249,
+            1.518246309957127,
+            0.33065341337204035
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.024615817995954425,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0009592619859383171,
+            "independentUniqueRayHitCounts": [
+              1,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-right_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            1.9867854032618881,
+            1.5135404351441013,
+            0.16474935641683056
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03343908984252023,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0009592897401743091,
+            "independentUniqueRayHitCounts": [
+              1,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-right_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            1.9981025266071473,
+            1.5117429509123275,
+            -0.0011547005383792518
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.04051918606624241,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0009592435499234835,
+            "independentUniqueRayHitCounts": [
+              1,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-right_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            1.9867854032618881,
+            1.5135404351441013,
+            -0.16705875749358898
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03339580699353208,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0009404275558605341,
+            "independentUniqueRayHitCounts": [
+              1,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-right_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            1.9571567896891249,
+            1.518246309957127,
+            -0.3329628144487988
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02465960319684547,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0008611147376483791,
+            "independentUniqueRayHitCounts": [
+              1,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-right_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            1.8946488990772896,
+            1.3653626966264036,
+            -0.41499160080648034
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03912811687804,
+            "independentUniqueRayHitCounts": [
+              3,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00010142909482444411,
+            "independentUniqueRayHitCounts": [
+              3,
+              3,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-right_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            1.7185857864376268,
+            1.12,
+            -0.41565148880332176
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03905289796045465,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00016152043494200056,
+            "independentUniqueRayHitCounts": [
+              3,
+              5,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-right_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            1.734505851870434,
+            1.0885306351074537,
+            -0.24882520785704387
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.030148421299384928,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00014408573844870378,
+            "independentUniqueRayHitCounts": [
+              3,
+              7,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-right_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            1.744344993411031,
+            1.0690814979994874,
+            -0.08199892691076587
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.03869811769726988,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.000012585822432940189,
+            "independentUniqueRayHitCounts": [
+              3,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-right_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            1.744344993411031,
+            1.0690814979994874,
+            0.08199892691076587
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.038698117697269586,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.000015085835779688774,
+            "independentUniqueRayHitCounts": [
+              3,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-rounded-binding-right_cuff",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            1.734505851870434,
+            1.0885306351074537,
+            0.24882520785704382
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.030148421299384928,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00015887585572586883,
+            "independentUniqueRayHitCounts": [
+              3,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-binding-piping-right_cuff",
+          "target": "ivory-rounded-binding-right_cuff",
+          "point": [
+            1.8681041552820115,
+            1.1840805178781697,
+            0.4555506430168903
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00208870823748129,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.010361280193672709,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-upper-petal-collar--1",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -0.7633333333333333,
+            2.103333333333333,
+            0.3645829858341474
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.007999800326848688,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.005999851317993426,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-lower-petal-collar--1",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -0.46166666666666667,
+            1.8616666666666666,
+            0.364394022182293
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00799862290512279,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.005999972414138353,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-petal-piping-ivory-upper-petal-collar--1",
+          "target": "ivory-upper-petal-collar--1",
+          "point": [
+            -0.73,
+            1.98,
+            0.45369660825590397
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.012852448700130343,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.001999929377409983,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-petal-piping-ivory-lower-petal-collar--1",
+          "target": "ivory-lower-petal-collar--1",
+          "point": [
+            -0.47,
+            1.8,
+            0.45059022819828853
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.01290814763671711,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0019999625883899614,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-upper-petal-collar-1",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            0.7633333333333333,
+            2.103333333333333,
+            0.36452588826602894
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.007957370886106053,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0059998153330982525,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-lower-petal-collar-1",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            0.46166666666666667,
+            1.8616666666666666,
+            0.36439426391624985
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.007999961545198778,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.005999972231778228,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-petal-piping-ivory-upper-petal-collar-1",
+          "target": "ivory-upper-petal-collar-1",
+          "point": [
+            0.73,
+            1.98,
+            0.45365313524173545
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.012851963830955694,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0019999464253989793,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-petal-piping-ivory-lower-petal-collar-1",
+          "target": "ivory-lower-petal-collar-1",
+          "point": [
+            0.47,
+            1.8,
+            0.4505911778226379
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.012908052662120528,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0019999625777744954,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-fixed-button-bridge-0",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -0.16,
+            1.49,
+            0.3654199674020123
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02000000715255737,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.008989526805691622,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-fixed-button-bridge-0",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            0.16,
+            1.49,
+            0.3654199674020123
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02000000715255737,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.009000903597048611,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-round-pearl-setting-0",
+          "target": "gold-fixed-button-bridge-0",
+          "point": [
+            0,
+            1.49,
+            0.37341996740201233
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.04290816066989352,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022173103079872945,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "round-pearl-button-0",
+          "target": "gold-round-pearl-setting-0",
+          "point": [
+            0,
+            1.49,
+            0.4024199674020123
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.041800295193760405,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.013970098822756096,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-fixed-button-bridge-1",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -0.16,
+            1.13,
+            0.38206050526379565
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02000000715255737,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.008988034442104586,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-fixed-button-bridge-1",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            0.16,
+            1.13,
+            0.38206050526379565
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02000000715255737,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00901844572222071,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-round-pearl-setting-1",
+          "target": "gold-fixed-button-bridge-1",
+          "point": [
+            0,
+            1.13,
+            0.39006050526379565
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.04290816066989352,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022173096543300123,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "round-pearl-button-1",
+          "target": "gold-round-pearl-setting-1",
+          "point": [
+            0,
+            1.13,
+            0.4190605052637956
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.041800295193760405,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.013970098822756096,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-fixed-button-bridge-2",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -0.16,
+            0.79,
+            0.4030804235814357
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02000000715255737,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.008948974925453476,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-fixed-button-bridge-2",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            0.16,
+            0.79,
+            0.4030804235814357
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.02000000715255737,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.008985518733412306,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-round-pearl-setting-2",
+          "target": "gold-fixed-button-bridge-2",
+          "point": [
+            0,
+            0.79,
+            0.4110804235814357
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.042908160669893516,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.022173093826246146,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "round-pearl-button-2",
+          "target": "gold-round-pearl-setting-2",
+          "point": [
+            0,
+            0.79,
+            0.4400804235814357
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.04180029519376041,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.013970098822756096,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-crescent-moon--1",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -0.7921637728970238,
+            0.7623223304703364,
+            0.4063503023299406
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0032746819990365906,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.006724898924777793,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-leaf-branch--1",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -0.64,
+            0.55,
+            0.41042845904339764
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.010943668302399366,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0029996050799335197,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-leaf--1-0",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -0.57,
+            0.53,
+            0.4087763996435285
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.019911258872243348,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0039962240555469425,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-leaf--1-1",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -0.7,
+            0.64,
+            0.41088938139415365
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.019911258872243348,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.003999474891614243,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-leaf--1-2",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -0.84,
+            0.55,
+            0.4094376194244673
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.019911258872243348,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.003999455791894096,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-leaf--1-3",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            -0.97,
+            0.7,
+            0.4103841956140699
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.019911258872243348,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00399961407004191,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-crescent-moon-1",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            0.7921637728970238,
+            0.7623223304703364,
+            0.4063573456979024
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0032775825795577137,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.006720597110937427,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "gold-leaf-branch-1",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            0.64,
+            0.55,
+            0.41042817180553703
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.010943869731474997,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00299960600503251,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-leaf-1-0",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            0.57,
+            0.53,
+            0.4087764308650397
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.019911258872243348,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.003996224400103929,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-leaf-1-1",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            0.7,
+            0.64,
+            0.41088969956851606
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.019911258872243348,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.003999474668763358,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-leaf-1-2",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            0.84,
+            0.55,
+            0.40943612562055387
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.019911258872243348,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.00399946656108055,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "ivory-leaf-1-3",
+          "target": "continuous-open-front-hollow-sleeve-shell",
+          "point": [
+            0.97,
+            0.7,
+            0.4103664203174424
+          ],
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.019911258872243348,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.003999621905382614,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "materialControls": [
+      {
+        "name": "left-front-wall",
+        "from": [
+          -0.7,
+          1.3,
+          1.2
+        ],
+        "to": [
+          -0.7,
+          1.3,
+          0
+        ],
+        "hits": [
+          {
+            "part": "continuous-open-front-hollow-sleeve-shell",
+            "face": 346,
+            "distance": 0.8184965859896958
+          },
+          {
+            "part": "continuous-open-front-hollow-sleeve-shell",
+            "face": 3622,
+            "distance": 0.8584965776450456
+          }
+        ],
+        "uniqueWallDistances": [
+          0.8184965859896958,
+          0.8584965776450456
+        ],
+        "firstWallThicknessAlongRay": 0.03999999165534984
+      },
+      {
+        "name": "right-front-wall",
+        "from": [
+          0.7,
+          1.3,
+          1.2
+        ],
+        "to": [
+          0.7,
+          1.3,
+          0
+        ],
+        "hits": [
+          {
+            "part": "continuous-open-front-hollow-sleeve-shell",
+            "face": 888,
+            "distance": 0.8184930736478796
+          },
+          {
+            "part": "continuous-open-front-hollow-sleeve-shell",
+            "face": 4164,
+            "distance": 0.8584930653032294
+          }
+        ],
+        "uniqueWallDistances": [
+          0.8184930736478796,
+          0.8584930653032294
+        ],
+        "firstWallThicknessAlongRay": 0.03999999165534984
+      },
+      {
+        "name": "rear-wall",
+        "from": [
+          0,
+          1.3,
+          -1.2
+        ],
+        "to": [
+          0,
+          1.3,
+          0
+        ],
+        "hits": [
+          {
+            "part": "continuous-open-front-hollow-sleeve-shell",
+            "face": 1801,
+            "distance": 0.8187418341724088
+          },
+          {
+            "part": "continuous-open-front-hollow-sleeve-shell",
+            "face": 5077,
+            "distance": 0.8587418491019403
+          }
+        ],
+        "uniqueWallDistances": [
+          0.8187418341724088,
+          0.8587418491019403
+        ],
+        "firstWallThicknessAlongRay": 0.040000014929531535
+      },
+      {
+        "name": "left-sleeve-wall",
+        "from": [
+          -1.58,
+          1.7,
+          1.2
+        ],
+        "to": [
+          -1.58,
+          1.7,
+          0
+        ],
+        "hits": [
+          {
+            "part": "continuous-open-front-hollow-sleeve-shell",
+            "face": 178,
+            "distance": 0.7103556762865687
+          },
+          {
+            "part": "continuous-open-front-hollow-sleeve-shell",
+            "face": 3454,
+            "distance": 0.7503556721993895
+          }
+        ],
+        "uniqueWallDistances": [
+          0.7103556762865687,
+          0.7503556721993895
+        ],
+        "firstWallThicknessAlongRay": 0.039999995912820774
+      },
+      {
+        "name": "right-sleeve-wall",
+        "from": [
+          1.58,
+          1.7,
+          1.2
+        ],
+        "to": [
+          1.58,
+          1.7,
+          0
+        ],
+        "hits": [
+          {
+            "part": "continuous-open-front-hollow-sleeve-shell",
+            "face": 649,
+            "distance": 0.7096830231630586
+          },
+          {
+            "part": "continuous-open-front-hollow-sleeve-shell",
+            "face": 3925,
+            "distance": 0.7496830423500613
+          }
+        ],
+        "uniqueWallDistances": [
+          0.7096830231630586,
+          0.7496830423500613
+        ],
+        "firstWallThicknessAlongRay": 0.04000001918700269
+      },
+      {
+        "name": "left-side-wall",
+        "from": [
+          -1.8,
+          0.75,
+          0
+        ],
+        "to": [
+          -0.7,
+          0.75,
+          0
+        ],
+        "hits": [
+          {
+            "part": "continuous-open-front-hollow-sleeve-shell",
+            "face": 2145,
+            "distance": 0.503666187401326
+          },
+          {
+            "part": "continuous-open-front-hollow-sleeve-shell",
+            "face": 2146,
+            "distance": 0.5036661874013262
+          },
+          {
+            "part": "continuous-open-front-hollow-sleeve-shell",
+            "face": 5421,
+            "distance": 0.5459535964858986
+          },
+          {
+            "part": "continuous-open-front-hollow-sleeve-shell",
+            "face": 5422,
+            "distance": 0.5459535964858986
+          }
+        ],
+        "uniqueWallDistances": [
+          0.503666187401326,
+          0.5459535964858986
+        ],
+        "firstWallThicknessAlongRay": 0.042287409084572625
+      },
+      {
+        "name": "right-side-wall",
+        "from": [
+          1.8,
+          0.75,
+          0
+        ],
+        "to": [
+          0.7,
+          0.75,
+          0
+        ],
+        "hits": [
+          {
+            "part": "continuous-open-front-hollow-sleeve-shell",
+            "face": 2745,
+            "distance": 0.503666187401326
+          },
+          {
+            "part": "continuous-open-front-hollow-sleeve-shell",
+            "face": 2746,
+            "distance": 0.503666187401326
+          },
+          {
+            "part": "continuous-open-front-hollow-sleeve-shell",
+            "face": 6021,
+            "distance": 0.5459535964858986
+          },
+          {
+            "part": "continuous-open-front-hollow-sleeve-shell",
+            "face": 6022,
+            "distance": 0.5459535964858986
+          }
+        ],
+        "uniqueWallDistances": [
+          0.503666187401326,
+          0.5459535964858986
+        ],
+        "firstWallThicknessAlongRay": 0.042287409084572625
+      }
+    ],
+    "liningPairDistances": {
+      "count": 774,
+      "minimum": 0.03359741663431921,
+      "maximum": 0.040000000000000216,
+      "scope": "Authored paired vertices only, not global minimum cloth thickness"
+    },
+    "connectedPartCount": 36,
+    "totalPartCount": 36,
+    "bodyBinding": null,
+    "wearingFit": false,
+    "rig": false,
+    "unfastening": false,
+    "clothPhysics": false,
+    "normalGame": false,
+    "ownershipUnlockSave": false
+  }
+}
