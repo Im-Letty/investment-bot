@@ -716,3 +716,14 @@ The same bounded review leaves 1826 Sata Construction unknown: its official FAQ
 contains placeholder text, and omission from stock information is not explicit
 absence. 1827 Nakano Corporation explicitly states in its current FAQ that no
 shareholder benefit is offered; this is a dated observation, not a future promise.
+
+
+### 2026-10-30 富士ピー・エス（1848）の公式制度確認
+
+掲載情報は既存37件を保持して38件（既存9件＋個別確認29件、過去の一回限り優待を含む）。全優待実施会社数や当日全上場会社数ではありません。明示的な購入締切の予定は既存12件のままです。
+
+富士ピー・エスは毎年9月30日基準、100株単元・100株以上。100〜999株は1年未満500円／1年以上1,000円、1,000株以上は1年未満1,500円／1年以上3,000円のQUOカードです。株数と保有条件に対応する1区分で、額面を加算しません。現行公式HTMLは3月末・9月末の同じ株主番号の連続記録3回以上を1年以上、2回以下を1年未満としています。短期区分の最低月数と途中各回の株数条件は推測していません。
+
+2019年8月28日発表の改定は2019年9月30日から適用。毎年12月に株主通信と同時の発送予定で、実発送・到着、申請や選択の手続き、券期限、次回購入締切は未確認。公式FAQの1848・東京スタンダード／福岡と現在ローカルStockSearchを照合しました。
+
+担当者の現行HTML実取得と、保存原PDF両頁の独立視覚レビュー・数値条件照合を区別しています。現行HTMLの独立再GETは自動承認拒否のため実行せず、保存原PDFと観測ノートのレビューを完了しました。IR一覧明細は静的応答で未露出であり、全将来改廃の不存在は保証しません。観測ノートSHAと元HTML／PDFのSHAは別です。画像・表・券面・原文の長文を転載していません。

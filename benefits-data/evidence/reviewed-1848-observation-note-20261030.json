@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "kind": "authored_primary_observation_note_not_original_page",
+  "issuer": "株式会社富士ピー・エス",
+  "code": "1848",
+  "verified_on": "2026-10-30",
+  "observed_at": "2026-10-30T20:17:46.270299+09:00",
+  "original_HTML_sha256": "42a4ef578c0395de55db7bcf748bdefc1f91fbc92b1608624b8cd3587aaf9fb2",
+  "original_HTML_bytes": 41293,
+  "source_url": "https://www.fujips.co.jp/ir/stock/shareholder/",
+  "additional_observations": [
+    {
+      "url": "https://www.fujips.co.jp/ir/disclaimer/",
+      "observed_at": "2026-10-30T20:18:13.191541+09:00",
+      "original_sha256": "2313493ad6789d66db0967c68f9e5561f4ce2a6607c8e984c45582acf12dd78a",
+      "bytes": 39251
+    },
+    {
+      "url": "https://www.fujips.co.jp/wp-content/themes/fujips/ir/pdf/2885d7efac9edb1e7d8c26e39c27606f.pdf",
+      "observed_at": "2026-10-30T20:19:34.885887+09:00",
+      "original_sha256": "bb44343fb2fa6603d6b5f34065574fcb6cece16e9ed0c0fd1a52cc9c850c95d0",
+      "bytes": 49905
+    },
+    {
+      "url": "https://www.fujips.co.jp/ir/faq/",
+      "observed_at": "2026-10-30T20:19:48.230631+09:00",
+      "original_sha256": "374f715af1e97afda76dfc1a07a2b6a4768882fdfc84c378438a1380c8541f5c",
+      "bytes": 43275
+    },
+    {
+      "url": "https://www.fujips.co.jp/ir/news/",
+      "observed_at": "2026-10-30T20:19:59.566718+09:00",
+      "original_sha256": "2fed4e6e4f4f7db49d331145c18cb959684fb4cd6510ed37bcaa7b9c8f5eaa62",
+      "bytes": 37291
+    }
+  ],
+  "identity": "現公式FAQの証券コード1848、東京スタンダード・福岡、100株単元を現在ローカルStockSearchと保存公式取引所snapshotに照合。保存全3797社の当日鮮度は未証明。2019年PDFの旧市場名は現在区分に流用しない。",
+  "independent_facts": {
+    "record_basis": "毎年9月30日の名簿、100株以上",
+    "tiers": "100〜999株は1年未満500円・1年以上1000円。1000株以上は1年未満1500円・1年以上3000円。QUOカードの額面で、区分を加算しない。",
+    "holding": "現行HTMLでは3月末と9月末の同一株主番号の連続記録3回以上が1年以上、2回以下が1年未満。途中各回の株数条件は確認できず、短期区分の最低保有月数を0としない。",
+    "delivery": "毎年12月に株主通信と同時の発送予定。実発送・到着日は未確認。",
+    "announcement": "2019-08-28",
+    "current_tiers_effective_from": "2019-09-30",
+    "programme_created_year": 2017,
+    "programme_created_exact_date": null
+  },
+  "PDF_review": {
+    "original_PDF_sha256": "bb44343fb2fa6603d6b5f34065574fcb6cece16e9ed0c0fd1a52cc9c850c95d0",
+    "pages": 2,
+    "both_pages_and_table_and_notes_visually_checked": true,
+    "rendering": "初期Popplerは日本語font mappingが欠けたため不採用。保存済み同一PDFをPDFiumで再描画して両頁を視覚照合。追加取得なし。",
+    "PDF_not_republished": true
+  },
+  "conditions_review": "IR免責・copyrightを確認。観測本文に独立した制度事実やリンクの全面禁止は見つからない。一般再利用許諾を主張せず、原文・表・画像・券面を転載せず短い独立事実だけを自作文で保存。",
+  "limits": [
+    "IR一覧の動的明細が静的応答で未露出のため全将来変更の不存在は保証しない",
+    "申請・選択の手続き・券期限は未確認",
+    "各途中基準日の最低保有株数は未確認",
+    "次回購入締切は取引日程と対象版の個別確認なし。日付を追加しない",
+    "現行HTMLの名簿3回定義の原本文観測は担当者のみ。独立担当者は保存PDFの両頁と当ノート・取得receiptの照合を行う。独立再GETは承認拒否を受け実行しない"
+  ]
+}
