@@ -1929,14 +1929,13 @@
         "exchange_id": "Q1188840"
       },
       "kind": "issuer_annual_dividend_forecast",
-      "status": "undetermined",
-      "value": null,
-      "reason": "issuer_states_undetermined",
-      "source_url": "https://www.nse.or.jp/listing/search/files/140120260731504336.pdf",
-      "source_title": "2027年３月期第１四半期決算短信〔日本基準〕(非連結)",
-      "announcement_date": "2026-07-31",
-      "checked_on": "2026-10-13",
-      "fetched_at": 1791819401.274871,
+      "status": "available",
+      "value": 11,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120261026556046.pdf",
+      "source_title": "業績予想及び配当予想に関するお知らせ",
+      "announcement_date": "2026-10-29",
+      "checked_on": "2026-10-30",
+      "fetched_at": 1793355529.8500428,
       "fiscal_period": {
         "start": "2026-04-01",
         "end": "2027-03-31"
@@ -1951,7 +1950,7 @@
         "source_security_code": "5386",
         "issuer_name": "鶴弥",
         "exchange": "Nagoya",
-        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260731504336.pdf",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120261026556046.pdf",
         "source_host": "www.nse.or.jp"
       }
     },
