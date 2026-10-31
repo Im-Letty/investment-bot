@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "run_id": "automation360-20261031-171339",
+  "unit_id": "village:asset-library:autumn-market-espalier-pear-tree:v1",
+  "model_id": "autumn-market-espalier-pear-tree-v1",
+  "actual_parent_reserve": {
+    "artifact": "owned-parent-reservation-readback.json",
+    "sha256": "d01f7ffc68971225a150bbbcf97d1b8380f6245ad9b74b21bba58a08d31ade48",
+    "bytes": 528,
+    "run_id": "automation360-20261031-171339",
+    "unit_id": "village:asset-library:autumn-market-espalier-pear-tree:v1",
+    "started_at_jst": "2026-10-31T17:25:14+09:00",
+    "shared_append_preceded_reserve": true
+  },
+  "authored_after_actual_parent_reserve": true,
+  "category": "trees_and_landscape",
+  "style": "atelier_market",
+  "season": "autumn",
+  "bodyBinding": null,
+  "style_originals": [
+    {
+      "role": "house",
+      "path": "static/pet-items-v1/house.webp",
+      "sha256": "69ce8c93823a50c5f2225414d4df8adcfe92fcd271ae113982e64f7ccd01cd60",
+      "bytes": 21548,
+      "actual_author_view_image": true,
+      "viewed_after_actual_parent_reserve": true
+    },
+    {
+      "role": "flower",
+      "path": "static/pet-items-v1/flower.webp",
+      "sha256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+      "bytes": 22012,
+      "actual_author_view_image": true,
+      "viewed_after_actual_parent_reserve": true
+    }
+  ],
+  "construction": "One low wide fixed espalier pear tree, four rounded wooden training ribs and two backrails, three broad true flat-bottom root pads, six trained branches, eighteen closed padded leaves and six asymmetric closed pear bodies with real fixed stems. Finite strict common-material witnesses connect the actual saved assembly. Different geometry/use/silhouette from the prior winter radial berry crown; no raster cards.",
+  "measured_counts": {
+    "parts": 71,
+    "triangles": 27376,
+    "stored_vertices": 15874,
+    "geometry_objects": 18,
+    "exact_typed_fingerprint_groups": 18,
+    "root_pads": 3,
+    "root_floor_pairs_diagnostic": 15,
+    "training_ribs": 4,
+    "backrails": 2,
+    "pear_fruits": 6,
+    "padded_leaves": 18,
+    "strict_joins": 82,
+    "selected_clear_fan_paths": 4,
+    "occupied_chords": 8
+  },
+  "geometryIdentity": {
+    "geometryObjects": 18,
+    "exactTypedPositionIndexFingerprintGroups": 18,
+    "objectFingerprints": [
+      "e1ba8bbe400677ffaf43b770ee2e865b70901ecea58fbc6874b57e0be4e9aebe",
+      "fb9100f7c8df0066243e4c9e97304a58cfe9e1927e9d3afd8bbe8b623b5b78c8",
+      "ca34f33f4e2f5608b76d07b9329f389be5b65e8926e4ba77859e2a729e6ed2d8",
+      "d52da0050772c19ae1c7d74f00fc24148a704c3c3faa3f2b90b2df826a958029",
+      "50f9e5d4fe514a552892fd5e4c6283bf4a547bef1359f500a2815f283ef22b9d",
+      "a8001c5d4a7ff251b9d87f19f3fb4ccb793affd1cbd11ebbde232885ee7d9318",
+      "80e479dacfbb5fd71592b1273a370fbe86a905d0f17cbc37d006411d84075620",
+      "c01630ae8af91dc533cc1ff4b791f8f08ce7ffcb0adecc11fae694011e0e30ca",
+      "9bba566e23a173ddab2f5315aafc95733bb981813b447a2b8635eefb2ea2c723",
+      "2e2a8971d0a3e62d75f608a44103aded61cfd96665b043a085240e769155fb31",
+      "777a61e9a5f6e5e8b9bdb0b8176bcbcc1e77d7a00828738f67e03a6c15317cc8",
+      "8b4562a7e77dd61c6be0e301b90a6d30b92dae52fd381b0dd01c255c8d5fefa6",
+      "49c87846fdffbfbb8e99cfd5b784948efa61d588ec40672e98d48cb935d7b8c5",
+      "2f0759e8f44a51b55a652711f481b34ee9c3398714175b3fae07389516b52f7f",
+      "99f414fe445ac24b2472e3ac201052f7e58a95b36a1773fd239f478ffa97fda3",
+      "5be37bc25064b2a7f66837404b114d93107ff371d4c4ba7860163a01d808baed",
+      "35957ad60455e6c17f1c3105c51a13b86fb84681a80121733c6d6327587608b6",
+      "adefa070b6539e4a4f49afbf2e5dbbe21feb624b77c9441a383f16f98307cca2"
+    ],
+    "method": "SHA256 of explicit typed position/index layout plus exact underlying bytes. Distinct from JSON numeric serialization and mathematical congruence."
+  },
+  "authored_dimensions_not_body_calibration": true,
+  "measured_bounds": {
+    "min": [
+      -1.3204489712066791,
+      -2.98023217215615e-10,
+      -0.7800000059604645
+    ],
+    "max": [
+      1.3204879069615363,
+      1.9544925689697266,
+      0.5000000059604645
+    ]
+  },
+  "finite_scope": "Actual indexed material, selected paths/sections/chords/joins and15sole/diagnosticplane pairs only. Current-world finite placement/native view is separate; no all-continuous or physical guarantee.",
+  "gates": {
+    "actualHorticulturalTraining": false,
+    "pruning": false,
+    "growth": false,
+    "fruitCollection": false,
+    "edibility": false,
+    "installation": false,
+    "loadWeatherStability": false,
+    "physics": false,
+    "rig": false,
+    "wearingFit": false,
+    "normalGame": false,
+    "contractorConstruction": false,
+    "ownershipUnlockSave": false
+  },
+  "new_raw_images": 0
+}
