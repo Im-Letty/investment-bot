@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "run_id": "automation360-20261031-133837",
+  "unit_id": "village:asset-library:summer-cottage-eave-corner-brace:v1",
+  "model_id": "summer-cottage-eave-corner-brace-v1",
+  "authored_on_jst": "2026-10-31",
+  "authored_after_actual_parent_reserve": true,
+  "actual_parent_reserve": {
+    "evidence_label": "parent-reserved.json / private actual parent-reservation receipt retained separately",
+    "sha256": "a05a7995ad919858efd2ce5aee642cda8595e1dfe9afe3fb57b432358b6c19ed",
+    "bytes": 255,
+    "run_id": "automation360-20261031-133837",
+    "unit_id": "village:asset-library:summer-cottage-eave-corner-brace:v1",
+    "started_at_jst": "2026-10-31T13:48:47+09:00",
+    "status_at_reservation": "in_progress"
+  },
+  "category": "construction_components",
+  "style": "warm_cottage_classic",
+  "season": "summer",
+  "construction": "One standalone warm-cottage summer building component: two perpendicular broad flat mounting pads form a rounded right-angle frame, a closed softly curved convex gusset leaves an open triangular gap, and three fixed rounded wood pegs connect at finite common-material witnesses. Actual wall/eave attachment, load/weather, body contact and ordinary contractor/placement/ownership/save remain unverified.",
+  "measured_counts": {
+    "spec": {
+      "id": "summer-cottage-eave-corner-brace-v1",
+      "unit_id": "village:asset-library:summer-cottage-eave-corner-brace:v1",
+      "category": "construction_components",
+      "style": "warm_cottage_classic",
+      "season": "summer",
+      "authored_on_jst": "2026-10-31",
+      "bodyBinding": null,
+      "wallEaveMounting": false,
+      "actualMountClearance": false,
+      "loadWeatherStability": false,
+      "physics": false,
+      "rig": false,
+      "wearingFit": false,
+      "normalGame": false,
+      "contractorConstruction": false,
+      "ownershipUnlockSave": false,
+      "newOriginalPNG": false
+    },
+    "closedParts": 6,
+    "triangles": 7928,
+    "geometryObjectCount": 4,
+    "materialCount": 3,
+    "textures": 0,
+    "mountingPads": 2,
+    "fixedWoodPegs": 3,
+    "openTriangularVoid": true,
+    "closedCurvedGusset": true,
+    "flatDisplaySupportFaces": 1,
+    "bounds": {
+      "min": [
+        -0.8900000059604645,
+        0,
+        -0.27300000190734863
+      ],
+      "max": [
+        0.9199999713897705,
+        2.0500000059604644,
+        0.27300000190734863
+      ]
+    },
+    "bodyBinding": null,
+    "wallEaveMounting": false,
+    "actualMountClearance": false,
+    "loadWeatherStability": false,
+    "physics": false,
+    "rig": false,
+    "wearingFit": false,
+    "normalGame": false,
+    "contractorConstruction": false,
+    "ownershipUnlockSave": false,
+    "scope": "One standalone warm-cottage summer building component: two perpendicular broad flat mounting pads form a rounded right-angle frame, a closed softly curved convex gusset leaves an open triangular gap, and three fixed rounded wood pegs connect at finite common-material witnesses. Actual wall/eave attachment, load/weather, body contact and ordinary contractor/placement/ownership/save remain unverified."
+  },
+  "geometryIdentity": {
+    "geometryObjectCount": 4,
+    "exactPositionIndexFingerprintCount": 4,
+    "metric": "Exact position/index typed-buffer bytes plus array type/item size/count. Object ownership and exact geometry content are separate; neither counts semantic shapes, designs or creation units.",
+    "parts": [
+      {
+        "name": "broad-flat-vertical-wall-mounting-pad",
+        "fingerprint": "0012d4ad4e9383dbe73c69ceea2b8f20a7930e6f2196a7f091c12243245764b2"
+      },
+      {
+        "name": "broad-flat-horizontal-eave-mounting-pad",
+        "fingerprint": "b1fb2898672a79ae24f850a326b75b3efba4a75293d89ae67316881d3200fcbe"
+      },
+      {
+        "name": "closed-soft-convex-curved-wood-gusset",
+        "fingerprint": "246d75f4d48019fb4958c9a25becc8a51056afbf8f41b5e17afe7a2d65b3e7b6"
+      },
+      {
+        "name": "fixed-rounded-wood-joint-peg-lower",
+        "fingerprint": "e1f5a85efa45655c20737f9737d186846d91bb6e29a4e9d2aeb0967fb8b6334a"
+      },
+      {
+        "name": "fixed-rounded-wood-joint-peg-upper",
+        "fingerprint": "e1f5a85efa45655c20737f9737d186846d91bb6e29a4e9d2aeb0967fb8b6334a"
+      },
+      {
+        "name": "fixed-rounded-wood-joint-peg-corner",
+        "fingerprint": "e1f5a85efa45655c20737f9737d186846d91bb6e29a4e9d2aeb0967fb8b6334a"
+      }
+    ]
+  },
+  "bodyBinding": null,
+  "style_originals": [
+    {
+      "path": "static/pet-items-v1/house.webp",
+      "sha256": "69ce8c93823a50c5f2225414d4df8adcfe92fcd271ae113982e64f7ccd01cd60",
+      "bytes": 21548,
+      "actual_author_view_image": true,
+      "viewed_after_actual_parent_reserve": true
+    },
+    {
+      "path": "static/pet-items-v1/flower.webp",
+      "sha256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+      "bytes": 22012,
+      "actual_author_view_image": true,
+      "viewed_after_actual_parent_reserve": true
+    }
+  ],
+  "authored_dimensions_not_body_calibration": true,
+  "new_raw_images": 0,
+  "opening_and_cavity_scope": "9 selected all-part triangular-void segments are clear;18 actual mounting-pad triangle rays demonstrate two broad perpendicular authored planes.5 actual lower-cap/floor pairs use one existing wood-pad end, not4addedfeet. Actual wall/eave fixture/load/weather remain unverified.",
+  "actual_wall_eave_mounting_load_weather_contractor_or_game_integration": false
+}
