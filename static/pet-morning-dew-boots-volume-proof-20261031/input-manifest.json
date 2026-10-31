@@ -1,0 +1,470 @@
+{
+  "schema_version": 1,
+  "run_id": "automation360-20261031-105905",
+  "unit_id": "wardrobe:fit-prerequisite:morning-dew-laceup-boots:closed-pair-openings-sole-support:v1",
+  "model_id": "morning-dew-laceup-boots-volume-v1",
+  "base_commit": "79814b8a24934f4abee802f8c33c81aac09e63d7",
+  "source_original": {
+    "asset_id": "prepared_clothing_03a_morning_dew_laceup_boots_v1",
+    "sha256": "4f2b8c9e04fd3665d122929ff0a5ff4e1200117c4270a9e57b1042824a2db093",
+    "bytes": 2098871,
+    "width": 1536,
+    "height": 1024,
+    "inspected": true,
+    "unchanged": true,
+    "repo_alias": "static/pet-morning-dew-boots-volume-proof-20261031/reference.png"
+  },
+  "artifacts": {
+    "boots.mjs": {
+      "sha256": "626e0b423d4eb12696e4e4da165db45a25b9451cc6b569dc56d7dbd70c020060",
+      "bytes": 16066
+    },
+    "audit.mjs": {
+      "sha256": "32c2b179d8356045a0601662d0897056f81ced770aa6983355ff1a94ea9f58e6",
+      "bytes": 11227
+    },
+    "viewer.mjs": {
+      "sha256": "d62c45ae28ef96de05748d915bf87b9f05366c0fa79c89aa89949416f72b3a38",
+      "bytes": 14947
+    },
+    "framing.mjs": {
+      "sha256": "5eee49672b93921ca02d1367ce56aa38e45a3459de0a91988d93bb18e6f04d35",
+      "bytes": 964
+    },
+    "entry.mjs": {
+      "sha256": "a8cdd8711ffc7e5f0d921009e501a88634b24e99680fe2a268043e8c174dfb01",
+      "bytes": 1858
+    },
+    "index.html": {
+      "sha256": "0949e1340b36dd23384f86e687290ad153f3387091d147df9e986d1541ce6406",
+      "bytes": 4774
+    },
+    "reference.png": {
+      "sha256": "4f2b8c9e04fd3665d122929ff0a5ff4e1200117c4270a9e57b1042824a2db093",
+      "bytes": 2098871
+    },
+    "mesh-geometry.json": {
+      "sha256": "6dc7d64b4335e52c492cadbb6d7a29bdfb4f1f8a3233a236dccc113399412431",
+      "bytes": 23393300
+    },
+    "finite-geometry-certificate.json": {
+      "sha256": "0d36c0c00c24415d2cdcab2724d2fc7e08bc66afd1b02bfb84adf7ece589559a",
+      "bytes": 322449
+    },
+    "SPEC.json": {
+      "sha256": "357d2a6927a2c3aee98943ac6152852777ce88f51917e49381c3b678907ddda1",
+      "bytes": 23124
+    }
+  },
+  "unchanged_dependencies": {
+    "static/vendor/three-0.160.1.module.js": {
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972,
+      "base_commit": "79814b8a24934f4abee802f8c33c81aac09e63d7"
+    },
+    "static/pet-scalloped-path-proof-20261027/framing.mjs": {
+      "sha256": "dba92c2f6dec2816ebcf25434ee07c3b699accb61b7e1961a11baf366edad08a",
+      "bytes": 1678,
+      "base_commit": "79814b8a24934f4abee802f8c33c81aac09e63d7"
+    },
+    "static/pet-breeze-cape-proof-20261029/geometry-audit.mjs": {
+      "sha256": "2dbe7723509ae914cb98153f133e2a2db9d15e5f4112cc184fa128a2df8e92c0",
+      "bytes": 6377,
+      "base_commit": "79814b8a24934f4abee802f8c33c81aac09e63d7"
+    },
+    "static/pet-breeze-cape-proof-20261029/audit.mjs": {
+      "sha256": "0295f409a2c7182069dd6023bf78d94c3a7d05e237fd244923ea3a4c29a4eb80",
+      "bytes": 5891,
+      "base_commit": "79814b8a24934f4abee802f8c33c81aac09e63d7"
+    }
+  },
+  "bodyBinding": null,
+  "authoredTrialDimensionsNotBodyMeasurements": true,
+  "canonicalFitPending": true,
+  "source_prior_saved_cutout_pass": true,
+  "source_cutout_quality_revalidated_this_unit": false,
+  "source_fit_visual_note_pending_unchanged": true,
+  "source_quality_history_unchanged": true,
+  "source_quality_hold_cleared_by_this_work": false,
+  "ownerIndividualAdoption": false,
+  "promptMargin12PercentVerified": false,
+  "new_designs": 0,
+  "raw_png_designs": 0,
+  "imagegen_calls": 0,
+  "body_calibrations": 0,
+  "fit_confirmations": 0,
+  "village_library_additions": 0,
+  "garment_prerequisite_candidates": 1,
+  "paid_calls": 0,
+  "normalGame": false,
+  "wearingFit": false,
+  "ownershipUnlockSave": false,
+  "geometryIdentity": {
+    "geometryObjectCount": 56,
+    "exactPositionIndexFingerprintCount": 24,
+    "parts": [
+      {
+        "name": "left-flat-closed-ivory-sole",
+        "fingerprint": "d1f8afe732e6cfd5e5fce4fa22896b1df926121fa67ea2a128d32fd1e1b5ba25"
+      },
+      {
+        "name": "left-closed-sage-padded-welt",
+        "fingerprint": "bba5f9f55c3fcee4728327a27667e25d77e9b2ef7c7c7d7e1f6ff65ade014395"
+      },
+      {
+        "name": "left-hollow-cream-boot-and-inner-well",
+        "fingerprint": "a1c460f91f3795e23ba3690e94deea0220a5930e97322cdd86531bf066c4c989"
+      },
+      {
+        "name": "left-padded-cream-toe-overlay",
+        "fingerprint": "ee0864334069a65e95db5b128a48bad5ea642cd2976da9a1fcc929223fd7a16f"
+      },
+      {
+        "name": "left-fixed-sage-heel-overlay",
+        "fingerprint": "de00edab0b1d6eeb48c5e06bc850a0d842e42b12297f345e31a3e4368e873582"
+      },
+      {
+        "name": "left-fixed-ivory-tongue",
+        "fingerprint": "970fa2d940b2426ddec726b28143ded8944386e82b3f040a9dadb5d7c9541022"
+      },
+      {
+        "name": "left-fixed-sage-lace-facing--1",
+        "fingerprint": "b6b964e1ebeb6d8ad1d4105e463bfa4c506464bd23b1a89aad2013470cb3e301"
+      },
+      {
+        "name": "left-fixed-sage-lace-facing-1",
+        "fingerprint": "617d375fca771e4565433527080ea190cc5b9329c88aa1647ba909cda56ae3b6"
+      },
+      {
+        "name": "left-fixed-gold-eyelet-0--1",
+        "fingerprint": "6a76f95371f6e45b4629eb4281d951a67f00f8b3c8d073efc6b4c9336ab77ad5"
+      },
+      {
+        "name": "left-fixed-gold-eyelet-0-1",
+        "fingerprint": "6a76f95371f6e45b4629eb4281d951a67f00f8b3c8d073efc6b4c9336ab77ad5"
+      },
+      {
+        "name": "left-fixed-gold-eyelet-1--1",
+        "fingerprint": "6a76f95371f6e45b4629eb4281d951a67f00f8b3c8d073efc6b4c9336ab77ad5"
+      },
+      {
+        "name": "left-fixed-gold-eyelet-1-1",
+        "fingerprint": "6a76f95371f6e45b4629eb4281d951a67f00f8b3c8d073efc6b4c9336ab77ad5"
+      },
+      {
+        "name": "left-fixed-gold-eyelet-2--1",
+        "fingerprint": "6a76f95371f6e45b4629eb4281d951a67f00f8b3c8d073efc6b4c9336ab77ad5"
+      },
+      {
+        "name": "left-fixed-gold-eyelet-2-1",
+        "fingerprint": "6a76f95371f6e45b4629eb4281d951a67f00f8b3c8d073efc6b4c9336ab77ad5"
+      },
+      {
+        "name": "left-fixed-gold-eyelet-3--1",
+        "fingerprint": "6a76f95371f6e45b4629eb4281d951a67f00f8b3c8d073efc6b4c9336ab77ad5"
+      },
+      {
+        "name": "left-fixed-gold-eyelet-3-1",
+        "fingerprint": "6a76f95371f6e45b4629eb4281d951a67f00f8b3c8d073efc6b4c9336ab77ad5"
+      },
+      {
+        "name": "left-fixed-cross-lace-0--1",
+        "fingerprint": "92ed696894a718dc22bcd6e85510a5e730c02dee3509e666e83c9447ab553d8c"
+      },
+      {
+        "name": "left-fixed-cross-lace-0-1",
+        "fingerprint": "15c4705d7abc56ba1d0528630357c8560794713ce7be299146f14142dc507c6f"
+      },
+      {
+        "name": "left-fixed-cross-lace-1--1",
+        "fingerprint": "c25e577856d100b3f09e1d9d50745af9a83cda16d5cbabb5ddc7270c4ad896a5"
+      },
+      {
+        "name": "left-fixed-cross-lace-1-1",
+        "fingerprint": "56e859822a75e5542823399b448daaec21382b85a9bbf832c3f4355a41185bda"
+      },
+      {
+        "name": "left-fixed-cross-lace-2--1",
+        "fingerprint": "e9a5aa4312a216ff61ac5865924e17eb81b0bb53f53854d7575a128f938caa2a"
+      },
+      {
+        "name": "left-fixed-cross-lace-2-1",
+        "fingerprint": "27bbebb969edf0132955ae39d73faf81d0d34d47c2be8db64feddb0d46103888"
+      },
+      {
+        "name": "left-fixed-upper-bow-anchor-lace",
+        "fingerprint": "1286e5b4ba5bbc5b45b6fbdd0ccbd5d927df51d1477f470b32f19c0b74219d55"
+      },
+      {
+        "name": "left-fixed-rounded-bow-knot",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "left-fixed-bow-loop--1",
+        "fingerprint": "8e37dad39fc784426193ec49341df9ab0898d75110903cf3de9b5a33c2daba27"
+      },
+      {
+        "name": "left-fixed-bow-tail--1",
+        "fingerprint": "fc7abb75f1fb1bf13cde5d9c53185ad3c293ff378884ce4bcbf16737f5fdd3a5"
+      },
+      {
+        "name": "left-fixed-gold-lace-tip--1",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "left-fixed-bow-loop-1",
+        "fingerprint": "7e9763825ece519de3fef4b1c4763982e468a39048e63e2282b1c51e6426cf6a"
+      },
+      {
+        "name": "left-fixed-bow-tail-1",
+        "fingerprint": "162adf0022ef8cef68bf01b38e00f9968461f8ab835b4bf793602f185c640ff1"
+      },
+      {
+        "name": "left-fixed-gold-lace-tip-1",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "left-closed-padded-sage-folded-cuff",
+        "fingerprint": "5e8f2b5f8293f0e35347403e9749d58723bb1e1242c5116937fb5a274c320710"
+      },
+      {
+        "name": "left-fixed-rounded-knit-rib-0",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "left-fixed-rounded-knit-rib-1",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "left-fixed-rounded-knit-rib-2",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "left-fixed-rounded-knit-rib-3",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "left-fixed-rounded-knit-rib-4",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "left-fixed-rounded-knit-rib-5",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "left-fixed-rounded-knit-rib-6",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "left-fixed-rounded-knit-rib-7",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "left-fixed-rounded-knit-rib-8",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "left-fixed-rounded-knit-rib-9",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "left-fixed-rounded-knit-rib-10",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "left-fixed-rounded-knit-rib-11",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "left-fixed-outer-ankle-leaf",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "left-fixed-small-leaf-stem",
+        "fingerprint": "f79acd7b1a7a091cf6a65af50a5f4cb5a2c5d08a9710ead9c1df951f448c8942"
+      },
+      {
+        "name": "right-flat-closed-ivory-sole",
+        "fingerprint": "d1f8afe732e6cfd5e5fce4fa22896b1df926121fa67ea2a128d32fd1e1b5ba25"
+      },
+      {
+        "name": "right-closed-sage-padded-welt",
+        "fingerprint": "bba5f9f55c3fcee4728327a27667e25d77e9b2ef7c7c7d7e1f6ff65ade014395"
+      },
+      {
+        "name": "right-hollow-cream-boot-and-inner-well",
+        "fingerprint": "a1c460f91f3795e23ba3690e94deea0220a5930e97322cdd86531bf066c4c989"
+      },
+      {
+        "name": "right-padded-cream-toe-overlay",
+        "fingerprint": "ee0864334069a65e95db5b128a48bad5ea642cd2976da9a1fcc929223fd7a16f"
+      },
+      {
+        "name": "right-fixed-sage-heel-overlay",
+        "fingerprint": "de00edab0b1d6eeb48c5e06bc850a0d842e42b12297f345e31a3e4368e873582"
+      },
+      {
+        "name": "right-fixed-ivory-tongue",
+        "fingerprint": "970fa2d940b2426ddec726b28143ded8944386e82b3f040a9dadb5d7c9541022"
+      },
+      {
+        "name": "right-fixed-sage-lace-facing--1",
+        "fingerprint": "b6b964e1ebeb6d8ad1d4105e463bfa4c506464bd23b1a89aad2013470cb3e301"
+      },
+      {
+        "name": "right-fixed-sage-lace-facing-1",
+        "fingerprint": "617d375fca771e4565433527080ea190cc5b9329c88aa1647ba909cda56ae3b6"
+      },
+      {
+        "name": "right-fixed-gold-eyelet-0--1",
+        "fingerprint": "6a76f95371f6e45b4629eb4281d951a67f00f8b3c8d073efc6b4c9336ab77ad5"
+      },
+      {
+        "name": "right-fixed-gold-eyelet-0-1",
+        "fingerprint": "6a76f95371f6e45b4629eb4281d951a67f00f8b3c8d073efc6b4c9336ab77ad5"
+      },
+      {
+        "name": "right-fixed-gold-eyelet-1--1",
+        "fingerprint": "6a76f95371f6e45b4629eb4281d951a67f00f8b3c8d073efc6b4c9336ab77ad5"
+      },
+      {
+        "name": "right-fixed-gold-eyelet-1-1",
+        "fingerprint": "6a76f95371f6e45b4629eb4281d951a67f00f8b3c8d073efc6b4c9336ab77ad5"
+      },
+      {
+        "name": "right-fixed-gold-eyelet-2--1",
+        "fingerprint": "6a76f95371f6e45b4629eb4281d951a67f00f8b3c8d073efc6b4c9336ab77ad5"
+      },
+      {
+        "name": "right-fixed-gold-eyelet-2-1",
+        "fingerprint": "6a76f95371f6e45b4629eb4281d951a67f00f8b3c8d073efc6b4c9336ab77ad5"
+      },
+      {
+        "name": "right-fixed-gold-eyelet-3--1",
+        "fingerprint": "6a76f95371f6e45b4629eb4281d951a67f00f8b3c8d073efc6b4c9336ab77ad5"
+      },
+      {
+        "name": "right-fixed-gold-eyelet-3-1",
+        "fingerprint": "6a76f95371f6e45b4629eb4281d951a67f00f8b3c8d073efc6b4c9336ab77ad5"
+      },
+      {
+        "name": "right-fixed-cross-lace-0--1",
+        "fingerprint": "92ed696894a718dc22bcd6e85510a5e730c02dee3509e666e83c9447ab553d8c"
+      },
+      {
+        "name": "right-fixed-cross-lace-0-1",
+        "fingerprint": "15c4705d7abc56ba1d0528630357c8560794713ce7be299146f14142dc507c6f"
+      },
+      {
+        "name": "right-fixed-cross-lace-1--1",
+        "fingerprint": "c25e577856d100b3f09e1d9d50745af9a83cda16d5cbabb5ddc7270c4ad896a5"
+      },
+      {
+        "name": "right-fixed-cross-lace-1-1",
+        "fingerprint": "56e859822a75e5542823399b448daaec21382b85a9bbf832c3f4355a41185bda"
+      },
+      {
+        "name": "right-fixed-cross-lace-2--1",
+        "fingerprint": "e9a5aa4312a216ff61ac5865924e17eb81b0bb53f53854d7575a128f938caa2a"
+      },
+      {
+        "name": "right-fixed-cross-lace-2-1",
+        "fingerprint": "27bbebb969edf0132955ae39d73faf81d0d34d47c2be8db64feddb0d46103888"
+      },
+      {
+        "name": "right-fixed-upper-bow-anchor-lace",
+        "fingerprint": "1286e5b4ba5bbc5b45b6fbdd0ccbd5d927df51d1477f470b32f19c0b74219d55"
+      },
+      {
+        "name": "right-fixed-rounded-bow-knot",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "right-fixed-bow-loop--1",
+        "fingerprint": "8e37dad39fc784426193ec49341df9ab0898d75110903cf3de9b5a33c2daba27"
+      },
+      {
+        "name": "right-fixed-bow-tail--1",
+        "fingerprint": "fc7abb75f1fb1bf13cde5d9c53185ad3c293ff378884ce4bcbf16737f5fdd3a5"
+      },
+      {
+        "name": "right-fixed-gold-lace-tip--1",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "right-fixed-bow-loop-1",
+        "fingerprint": "7e9763825ece519de3fef4b1c4763982e468a39048e63e2282b1c51e6426cf6a"
+      },
+      {
+        "name": "right-fixed-bow-tail-1",
+        "fingerprint": "162adf0022ef8cef68bf01b38e00f9968461f8ab835b4bf793602f185c640ff1"
+      },
+      {
+        "name": "right-fixed-gold-lace-tip-1",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "right-closed-padded-sage-folded-cuff",
+        "fingerprint": "5e8f2b5f8293f0e35347403e9749d58723bb1e1242c5116937fb5a274c320710"
+      },
+      {
+        "name": "right-fixed-rounded-knit-rib-0",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "right-fixed-rounded-knit-rib-1",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "right-fixed-rounded-knit-rib-2",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "right-fixed-rounded-knit-rib-3",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "right-fixed-rounded-knit-rib-4",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "right-fixed-rounded-knit-rib-5",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "right-fixed-rounded-knit-rib-6",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "right-fixed-rounded-knit-rib-7",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "right-fixed-rounded-knit-rib-8",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "right-fixed-rounded-knit-rib-9",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "right-fixed-rounded-knit-rib-10",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "right-fixed-rounded-knit-rib-11",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "right-fixed-outer-ankle-leaf",
+        "fingerprint": "33088ef307f93a5b1042f981e69dce7db47ab36577e0303d022dc74a91c4cd3b"
+      },
+      {
+        "name": "right-fixed-small-leaf-stem",
+        "fingerprint": "3447d7cabb47283dfd40d3a07b888c3fbc57f2291ac2df423b7a4fac6bc8bbd5"
+      }
+    ],
+    "metric": "Exact typed position/index bytes plus buffer layout. Geometry-object ownership and content fingerprints are distinct; neither means semantic shapes, source designs or independent new assets."
+  },
+  "scope": "Finite authored empty-footwear material and fixed-pose observations, not body dimensions, wearing/rig/all-growth fit, tying, gait, load/friction/stability, continuous collision/visibility or normal equipment/ownership/save. Probe counts are not unique-test counts."
+}
