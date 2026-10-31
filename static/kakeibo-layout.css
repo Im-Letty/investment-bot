@@ -63,21 +63,17 @@ body.kn-ledger-paper .kk-more-panel button:hover {background:var(--kn-ledger-chi
 body.kn-ledger-paper .kk-export-tools {margin-top:8px;padding-top:10px;border-top:1px solid var(--kn-ledger-line)}
 body.kn-ledger-paper .kk-export-tools>p {padding:4px 12px}
 body.kn-ledger-letter.kn-ledger-paper #ocr-bar {height:0;padding:0!important;overflow:hidden}
-/* Keep both shortcuts in normal flow, outside the summary card. */
+/* Keep the three controls in one row outside the summary card. */
 body.kn-ledger-letter.kn-ledger-paper .kk-page-heading {
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  display:flex;align-items:center;justify-content:flex-end;gap:10px;
   width:100%;max-width:720px;min-height:44px;margin:0 auto;
   padding:18px 24px 0;box-sizing:border-box;
 }
 body.kn-ledger-paper:is([data-kk-active-tab="calendar"],[data-kk-active-tab="records"]) .kk-page-heading {
   max-width:960px;
 }
-body.kn-ledger-paper .kk-page-title {
-  min-width:0;margin:0;color:var(--kn-ledger-ink);
-  font:500 calc(18px * var(--kn-ledger-scale,1))/1.5 var(--kn-ledger-sans);
-}
 body.kn-ledger-letter.kn-ledger-paper #kkBottomNav {
-  position:static;display:flex;flex-direction:row;align-items:center;
+  position:static;display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;
   justify-content:flex-end;flex:none;width:auto;max-width:none;
   margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;gap:6px;
 }
@@ -87,6 +83,8 @@ body.kn-ledger-letter.kn-ledger-paper #kkBottomNav .kk-nav-item {
   border:1px solid transparent;border-radius:10px;background:transparent;
   color:var(--kn-ledger-ink);box-shadow:none;line-height:1;
 }
+body.kn-ledger-paper #kkBottomNav .kk-more {margin:0}
+body.kn-ledger-paper #kkBottomNav .kk-more>summary {height:44px;box-sizing:border-box}
 body.kn-ledger-paper #kkBottomNav .kk-nav-item svg {
   display:block;width:26px;height:26px;flex:none;pointer-events:none;
 }
@@ -111,11 +109,6 @@ body.kn-ledger-letter.kn-ledger-paper #tab-home {max-width:720px}
 body.kn-ledger-paper .kk-paper-overview {
   padding:4px 20px 20px;border:1px solid var(--kn-ledger-line);border-radius:16px;
   background:var(--kn-ledger-paper);margin-bottom:26px;
-}
-body.kn-ledger-paper .kk-summary-heading {
-  display:flex;align-items:center;justify-content:space-between;gap:12px;
-  min-width:0;min-height:44px;color:var(--kn-ledger-muted);
-  font:400 calc(12px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans);
 }
 body.kn-ledger-paper .kk-paper-overview .month-nav {margin:0;padding:12px 0}
 body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview .mnav-lbl {font:500 calc(16px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-serif)}
