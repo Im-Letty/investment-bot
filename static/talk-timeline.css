@@ -415,20 +415,24 @@ body.kn-home-a #cpStockTalk.cw-embedded {
   min-height:0;overflow:hidden;display:flex;flex-direction:column;
 }
 body.kn-home-a #cpStockTalk.cw-embedded .cw-content {width:100%;max-width:none}
+/* Match the adopted Portfolio / ledger round tabs; keep the existing routes. */
 body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-view-tabs {
-  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px;
-  width:calc(100% - 48px);max-width:652px;margin:16px auto 0;padding:5px;border:1px solid var(--kn-sh-line);border-radius:12px;
-  background:var(--kn-talk-bg);flex:0 0 auto;
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:3px;
+  width:calc(100% - 48px);max-width:652px;margin:16px auto 0;padding:4px;border:0;border-radius:999px;
+  background:var(--kn-sh-chip);flex:0 0 auto;
 }
 body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-view-tab {
-  min-width:0;min-height:48px;padding:8px 7px;border:1px solid transparent;
-  border-radius:8px;background:transparent;color:var(--kn-sh-muted);
-  font:inherit;font-weight:400;line-height:1.5;white-space:normal;
+  display:flex;align-items:center;justify-content:center;
+  min-width:0;min-height:44px;padding:8px 9px;border:0;border-radius:999px;
+  background:transparent;color:var(--kn-sh-ink);box-shadow:none;
+  font:400 calc(var(--kn-type-control,14px) * var(--kn-type-scale,1))/1.4 var(--kn-a-sans,system-ui,sans-serif);
+  white-space:normal;overflow-wrap:anywhere;text-align:center;
 }
 body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-view-tab[aria-pressed="true"] {
-  border-color:var(--kn-sh-line);background:var(--kn-sh-chip);color:var(--kn-sh-ink);font-weight:500;
+  background:var(--kn-sh-paper);color:var(--kn-sh-ink);font-weight:500;
+  box-shadow:0 1px 4px color-mix(in srgb,var(--kn-sh-ink) 10%,transparent);
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-view-tab:focus-visible {outline:2px solid var(--kn-sh-button);outline-offset:2px}
+body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-view-tab:focus-visible {outline:2px solid var(--kn-sh-button);outline-offset:-2px}
 @media(max-width:480px){body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-view-tabs{width:calc(100% - 24px)}}
 
 body.kn-home-a #cpStockTalk.cw-embedded[hidden] {display:none!important}
