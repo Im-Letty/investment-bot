@@ -1,0 +1,3874 @@
+{
+  "schema_version": 1,
+  "model_id": "summer-cottage-eave-corner-brace-v1",
+  "unit_id": "village:asset-library:summer-cottage-eave-corner-brace:v1",
+  "model_sha256": "3cfa7f0bf6c531827890a51e01bdcc7b374819b3a86fc67a0a296622eeed8430",
+  "audit_sha256": "b6600e72049e7196c5b9ad5fdd6521f46a821226667daf82d13da1bcc8e5b9b2",
+  "mesh_json_sha256": "df93950b8676199b0fac8e70bafa25789bc05e2ff1a460c5a127d91086f9738b",
+  "mesh_json_bytes": 588132,
+  "geometryIdentity": {
+    "geometryObjectCount": 4,
+    "exactPositionIndexFingerprintCount": 4,
+    "metric": "Exact position/index typed-buffer bytes plus array type/item size/count. Object ownership and exact geometry content are separate; neither counts semantic shapes, designs or creation units.",
+    "parts": [
+      {
+        "name": "broad-flat-vertical-wall-mounting-pad",
+        "fingerprint": "0012d4ad4e9383dbe73c69ceea2b8f20a7930e6f2196a7f091c12243245764b2"
+      },
+      {
+        "name": "broad-flat-horizontal-eave-mounting-pad",
+        "fingerprint": "b1fb2898672a79ae24f850a326b75b3efba4a75293d89ae67316881d3200fcbe"
+      },
+      {
+        "name": "closed-soft-convex-curved-wood-gusset",
+        "fingerprint": "246d75f4d48019fb4958c9a25becc8a51056afbf8f41b5e17afe7a2d65b3e7b6"
+      },
+      {
+        "name": "fixed-rounded-wood-joint-peg-lower",
+        "fingerprint": "e1f5a85efa45655c20737f9737d186846d91bb6e29a4e9d2aeb0967fb8b6334a"
+      },
+      {
+        "name": "fixed-rounded-wood-joint-peg-upper",
+        "fingerprint": "e1f5a85efa45655c20737f9737d186846d91bb6e29a4e9d2aeb0967fb8b6334a"
+      },
+      {
+        "name": "fixed-rounded-wood-joint-peg-corner",
+        "fingerprint": "e1f5a85efa45655c20737f9737d186846d91bb6e29a4e9d2aeb0967fb8b6334a"
+      }
+    ]
+  },
+  "inspection": {
+    "spec": {
+      "id": "summer-cottage-eave-corner-brace-v1",
+      "unit_id": "village:asset-library:summer-cottage-eave-corner-brace:v1",
+      "category": "construction_components",
+      "style": "warm_cottage_classic",
+      "season": "summer",
+      "authored_on_jst": "2026-10-31",
+      "bodyBinding": null,
+      "wallEaveMounting": false,
+      "actualMountClearance": false,
+      "loadWeatherStability": false,
+      "physics": false,
+      "rig": false,
+      "wearingFit": false,
+      "normalGame": false,
+      "contractorConstruction": false,
+      "ownershipUnlockSave": false,
+      "newOriginalPNG": false
+    },
+    "closedParts": 6,
+    "triangles": 7928,
+    "geometryObjectCount": 4,
+    "materialCount": 3,
+    "textures": 0,
+    "mountingPads": 2,
+    "fixedWoodPegs": 3,
+    "openTriangularVoid": true,
+    "closedCurvedGusset": true,
+    "flatDisplaySupportFaces": 1,
+    "bounds": {
+      "min": [
+        -0.8900000059604645,
+        0,
+        -0.27300000190734863
+      ],
+      "max": [
+        0.9199999713897705,
+        2.0500000059604644,
+        0.27300000190734863
+      ]
+    },
+    "bodyBinding": null,
+    "wallEaveMounting": false,
+    "actualMountClearance": false,
+    "loadWeatherStability": false,
+    "physics": false,
+    "rig": false,
+    "wearingFit": false,
+    "normalGame": false,
+    "contractorConstruction": false,
+    "ownershipUnlockSave": false,
+    "scope": "One standalone warm-cottage summer building component: two perpendicular broad flat mounting pads form a rounded right-angle frame, a closed softly curved convex gusset leaves an open triangular gap, and three fixed rounded wood pegs connect at finite common-material witnesses. Actual wall/eave attachment, load/weather, body contact and ordinary contractor/placement/ownership/save remain unverified."
+  },
+  "audit": {
+    "schema_version": 1,
+    "result": "pass",
+    "scope": "One authored standalone right-angle eave brace with2true orthogonal broad mounting pads, closed curved gusset,3fixed rounded pegs and selected all-part triangular void. No actual wall/eave fixture exists.",
+    "topology": [
+      {
+        "part": "broad-flat-vertical-wall-mounting-pad",
+        "buffers": {
+          "valid": true,
+          "errors": [],
+          "positionCount": 266,
+          "indexCount": 1056
+        },
+        "vertices": 266,
+        "triangles": 352,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.3070137333818573,
+        "normals": {
+          "triangles": 352,
+          "minimumFaceAverageNormalDot": 0.8758993597146646,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "part": "broad-flat-horizontal-eave-mounting-pad",
+        "buffers": {
+          "valid": true,
+          "errors": [],
+          "positionCount": 266,
+          "indexCount": 1056
+        },
+        "vertices": 266,
+        "triangles": 352,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.2776112263818515,
+        "normals": {
+          "triangles": 352,
+          "minimumFaceAverageNormalDot": 0.8759024018106599,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "part": "closed-soft-convex-curved-wood-gusset",
+        "buffers": {
+          "valid": true,
+          "errors": [],
+          "positionCount": 2270,
+          "indexCount": 13608
+        },
+        "vertices": 2270,
+        "triangles": 4536,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.23923074658396273,
+        "normals": {
+          "triangles": 4536,
+          "minimumFaceAverageNormalDot": 0.5423393184334336,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "part": "fixed-rounded-wood-joint-peg-lower",
+        "buffers": {
+          "valid": true,
+          "errors": [],
+          "positionCount": 450,
+          "indexCount": 2688
+        },
+        "vertices": 450,
+        "triangles": 896,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0036848910658977734,
+        "normals": {
+          "triangles": 896,
+          "minimumFaceAverageNormalDot": 0.9981025951798772,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "part": "fixed-rounded-wood-joint-peg-upper",
+        "buffers": {
+          "valid": true,
+          "errors": [],
+          "positionCount": 450,
+          "indexCount": 2688
+        },
+        "vertices": 450,
+        "triangles": 896,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0036848910658977734,
+        "normals": {
+          "triangles": 896,
+          "minimumFaceAverageNormalDot": 0.9981025951798772,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      },
+      {
+        "part": "fixed-rounded-wood-joint-peg-corner",
+        "buffers": {
+          "valid": true,
+          "errors": [],
+          "positionCount": 450,
+          "indexCount": 2688
+        },
+        "vertices": 450,
+        "triangles": 896,
+        "closedEdges": true,
+        "badEdges": 0,
+        "degenerateTriangles": 0,
+        "invalidNormals": 0,
+        "signedVolume": 0.0036848910658977734,
+        "normals": {
+          "triangles": 896,
+          "minimumFaceAverageNormalDot": 0.9981025951798772,
+          "nonpositiveFaces": 0,
+          "scope": "actual indexed oriented face normal vs normalized average of its stored vertex normals"
+        },
+        "finitePositiveTransform": true
+      }
+    ],
+    "crossings": [
+      {
+        "geometryObject": 0,
+        "parts": [
+          "broad-flat-vertical-wall-mounting-pad"
+        ],
+        "triangles": 352,
+        "candidateNonadjacentAABBPairs": 892,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "geometryObject": 1,
+        "parts": [
+          "broad-flat-horizontal-eave-mounting-pad"
+        ],
+        "triangles": 352,
+        "candidateNonadjacentAABBPairs": 892,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "geometryObject": 2,
+        "parts": [
+          "closed-soft-convex-curved-wood-gusset"
+        ],
+        "triangles": 4536,
+        "candidateNonadjacentAABBPairs": 4121,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      },
+      {
+        "geometryObject": 3,
+        "parts": [
+          "fixed-rounded-wood-joint-peg-lower",
+          "fixed-rounded-wood-joint-peg-upper",
+          "fixed-rounded-wood-joint-peg-corner"
+        ],
+        "triangles": 896,
+        "candidateNonadjacentAABBPairs": 711,
+        "strictEdgeInteriorCrossings": 0,
+        "witnesses": [],
+        "scope": "fixed-pose strict nonadjacent edge/interior crossings; coplanar/adjacent contacts excluded, no continuous or physical guarantee"
+      }
+    ],
+    "attachments": {
+      "count": 9,
+      "failed": 0,
+      "rows": [
+        {
+          "part": "broad-flat-horizontal-eave-mounting-pad",
+          "target": "broad-flat-vertical-wall-mounting-pad",
+          "point": [
+            -0.74,
+            1.86,
+            0
+          ],
+          "producerFound": true,
+          "producerClearance": 0.11000000596046466,
+          "scope": "One finite fixed common-material witness, not a mechanical joint/load/fastening guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.11000000596046466,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.1399999999999999,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-soft-convex-curved-wood-gusset",
+          "target": "broad-flat-vertical-wall-mounting-pad",
+          "point": [
+            -0.7137615624999999,
+            0.33020734375,
+            0
+          ],
+          "producerFound": true,
+          "producerClearance": 0.050583873730802975,
+          "scope": "One finite fixed common-material witness, not a mechanical joint/load/fastening guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.050583873730802975,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.12376156846046438,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "closed-soft-convex-curved-wood-gusset",
+          "target": "broad-flat-horizontal-eave-mounting-pad",
+          "point": [
+            0.6928307199999999,
+            1.8815826399999998,
+            0
+          ],
+          "producerFound": true,
+          "producerClearance": 0.0506351611477193,
+          "scope": "One finite fixed common-material witness, not a mechanical joint/load/fastening guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.0506351611477193,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.13158264596046432,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-rounded-wood-joint-peg-lower",
+          "target": "closed-soft-convex-curved-wood-gusset",
+          "point": [
+            -0.69319808,
+            0.44024704000000003,
+            0
+          ],
+          "producerFound": true,
+          "producerClearance": 0.04769818449713876,
+          "scope": "One finite fixed common-material witness, not a mechanical joint/load/fastening guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.04769818449713876,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.1399378615110534,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-rounded-wood-joint-peg-lower",
+          "target": "broad-flat-vertical-wall-mounting-pad",
+          "point": [
+            -0.69319808,
+            0.44024704000000003,
+            0
+          ],
+          "producerFound": true,
+          "producerClearance": 0.04769818449713876,
+          "scope": "One finite fixed common-material witness, not a mechanical joint/load/fastening guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.04769818449713876,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.10319808596046454,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-rounded-wood-joint-peg-upper",
+          "target": "closed-soft-convex-curved-wood-gusset",
+          "point": [
+            0.5999254399999998,
+            1.84229128,
+            0
+          ],
+          "producerFound": true,
+          "producerClearance": 0.04769818449713876,
+          "scope": "One finite fixed common-material witness, not a mechanical joint/load/fastening guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.04769818449713876,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.13996863062422163,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-rounded-wood-joint-peg-upper",
+          "target": "broad-flat-horizontal-eave-mounting-pad",
+          "point": [
+            0.5999254399999998,
+            1.84229128,
+            0
+          ],
+          "producerFound": true,
+          "producerClearance": 0.04769818449713876,
+          "scope": "One finite fixed common-material witness, not a mechanical joint/load/fastening guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.04769818449713876,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.09229128596046454,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-rounded-wood-joint-peg-corner",
+          "target": "broad-flat-vertical-wall-mounting-pad",
+          "point": [
+            -0.74,
+            1.86,
+            0
+          ],
+          "producerFound": true,
+          "producerClearance": 0.04769818449713876,
+          "scope": "One finite fixed common-material witness, not a mechanical joint/load/fastening guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.04769818449713876,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.1399999999999999,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        },
+        {
+          "part": "fixed-rounded-wood-joint-peg-corner",
+          "target": "broad-flat-horizontal-eave-mounting-pad",
+          "point": [
+            -0.74,
+            1.86,
+            0
+          ],
+          "producerFound": true,
+          "producerClearance": 0.04769818449713876,
+          "scope": "One finite fixed common-material witness, not a mechanical joint/load/fastening guarantee",
+          "partAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.04769818449713876,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          },
+          "targetAudit": {
+            "strictInside": true,
+            "minimumSurfaceClearance": 0.11000000596046466,
+            "independentUniqueRayHitCounts": [
+              1,
+              1,
+              1
+            ],
+            "directions": [
+              [
+                0.173,
+                0.913,
+                0.367
+              ],
+              [
+                -0.683,
+                0.247,
+                0.687
+              ],
+              [
+                0.591,
+                -0.721,
+                0.363
+              ]
+            ]
+          }
+        }
+      ]
+    },
+    "connectedPartCount": 6,
+    "totalPartCount": 6,
+    "allPartVoidRoutes": [
+      {
+        "kind": "all_part_open_triangular_frame_void",
+        "from": [
+          -0.43,
+          1.58,
+          0.55
+        ],
+        "to": [
+          -0.43,
+          1.58,
+          -0.55
+        ],
+        "hits": []
+      },
+      {
+        "kind": "all_part_open_triangular_frame_void",
+        "from": [
+          -0.43,
+          1.65,
+          0.55
+        ],
+        "to": [
+          -0.43,
+          1.65,
+          -0.55
+        ],
+        "hits": []
+      },
+      {
+        "kind": "all_part_open_triangular_frame_void",
+        "from": [
+          -0.43,
+          1.7,
+          0.55
+        ],
+        "to": [
+          -0.43,
+          1.7,
+          -0.55
+        ],
+        "hits": []
+      },
+      {
+        "kind": "all_part_open_triangular_frame_void",
+        "from": [
+          -0.29,
+          1.58,
+          0.55
+        ],
+        "to": [
+          -0.29,
+          1.58,
+          -0.55
+        ],
+        "hits": []
+      },
+      {
+        "kind": "all_part_open_triangular_frame_void",
+        "from": [
+          -0.29,
+          1.65,
+          0.55
+        ],
+        "to": [
+          -0.29,
+          1.65,
+          -0.55
+        ],
+        "hits": []
+      },
+      {
+        "kind": "all_part_open_triangular_frame_void",
+        "from": [
+          -0.29,
+          1.7,
+          0.55
+        ],
+        "to": [
+          -0.29,
+          1.7,
+          -0.55
+        ],
+        "hits": []
+      },
+      {
+        "kind": "all_part_open_triangular_frame_void",
+        "from": [
+          -0.15,
+          1.58,
+          0.55
+        ],
+        "to": [
+          -0.15,
+          1.58,
+          -0.55
+        ],
+        "hits": []
+      },
+      {
+        "kind": "all_part_open_triangular_frame_void",
+        "from": [
+          -0.15,
+          1.65,
+          0.55
+        ],
+        "to": [
+          -0.15,
+          1.65,
+          -0.55
+        ],
+        "hits": []
+      },
+      {
+        "kind": "all_part_open_triangular_frame_void",
+        "from": [
+          -0.15,
+          1.7,
+          0.55
+        ],
+        "to": [
+          -0.15,
+          1.7,
+          -0.55
+        ],
+        "hits": []
+      }
+    ],
+    "occupiedThicknessChords": [
+      {
+        "part": "broad-flat-vertical-wall-mounting-pad",
+        "kind": "vertical_pad_width",
+        "from": [
+          -1.1,
+          0.8,
+          0.1
+        ],
+        "to": [
+          -0.4,
+          0.8,
+          0.1
+        ],
+        "expected": 0.3,
+        "tolerance": 0.002,
+        "hits": [
+          {
+            "part": "broad-flat-vertical-wall-mounting-pad",
+            "face": 131,
+            "distance": 0.20999999403953562
+          },
+          {
+            "part": "broad-flat-vertical-wall-mounting-pad",
+            "face": 175,
+            "distance": 0.5100000059604646
+          }
+        ],
+        "uniqueDistances": [
+          0.20999999403953562,
+          0.5100000059604646
+        ],
+        "actualThickness": 0.30000001192092896,
+        "midpoint": [
+          -0.74,
+          0.8,
+          0.1
+        ],
+        "occupied": true
+      },
+      {
+        "part": "broad-flat-vertical-wall-mounting-pad",
+        "kind": "vertical_pad_depth",
+        "from": [
+          -0.74,
+          0.7,
+          0.5
+        ],
+        "to": [
+          -0.74,
+          0.7,
+          -0.5
+        ],
+        "expected": 0.52,
+        "tolerance": 0.002,
+        "hits": [
+          {
+            "part": "broad-flat-vertical-wall-mounting-pad",
+            "face": 296,
+            "distance": 0.7599999904632568
+          },
+          {
+            "part": "broad-flat-vertical-wall-mounting-pad",
+            "face": 340,
+            "distance": 0.24000000953674316
+          }
+        ],
+        "uniqueDistances": [
+          0.24000000953674316,
+          0.7599999904632568
+        ],
+        "actualThickness": 0.5199999809265137,
+        "midpoint": [
+          -0.74,
+          0.7,
+          0
+        ],
+        "occupied": true
+      },
+      {
+        "part": "broad-flat-horizontal-eave-mounting-pad",
+        "kind": "horizontal_pad_height",
+        "from": [
+          0.35,
+          2.3,
+          0.1
+        ],
+        "to": [
+          0.35,
+          1.5,
+          0.1
+        ],
+        "expected": 0.3,
+        "tolerance": 0.002,
+        "hits": [
+          {
+            "part": "broad-flat-horizontal-eave-mounting-pad",
+            "face": 109,
+            "distance": 0.24999999403953543
+          },
+          {
+            "part": "broad-flat-horizontal-eave-mounting-pad",
+            "face": 153,
+            "distance": 0.5500000059604644
+          }
+        ],
+        "uniqueDistances": [
+          0.24999999403953543,
+          0.5500000059604644
+        ],
+        "actualThickness": 0.30000001192092896,
+        "midpoint": [
+          0.35,
+          1.9,
+          0.1
+        ],
+        "occupied": true
+      },
+      {
+        "part": "broad-flat-horizontal-eave-mounting-pad",
+        "kind": "horizontal_pad_depth",
+        "from": [
+          0.35,
+          1.9,
+          0.5
+        ],
+        "to": [
+          0.35,
+          1.9,
+          -0.5
+        ],
+        "expected": 0.52,
+        "tolerance": 0.002,
+        "hits": [
+          {
+            "part": "broad-flat-horizontal-eave-mounting-pad",
+            "face": 307,
+            "distance": 0.7599999904632568
+          },
+          {
+            "part": "broad-flat-horizontal-eave-mounting-pad",
+            "face": 351,
+            "distance": 0.24000000953674316
+          }
+        ],
+        "uniqueDistances": [
+          0.24000000953674316,
+          0.7599999904632568
+        ],
+        "actualThickness": 0.5199999809265137,
+        "midpoint": [
+          0.35,
+          1.9,
+          0
+        ],
+        "occupied": true
+      },
+      {
+        "part": "closed-soft-convex-curved-wood-gusset",
+        "kind": "curved_gusset_front_back_depth",
+        "from": [
+          -0.6171200000000001,
+          0.6769600000000002,
+          0.45
+        ],
+        "to": [
+          -0.6171200000000001,
+          0.6769600000000002,
+          -0.45
+        ],
+        "expected": 0.38,
+        "tolerance": 0.002,
+        "hits": [
+          {
+            "part": "closed-soft-convex-curved-wood-gusset",
+            "face": 908,
+            "distance": 0.2600000023841858
+          },
+          {
+            "part": "closed-soft-convex-curved-wood-gusset",
+            "face": 936,
+            "distance": 0.6399999976158142
+          }
+        ],
+        "uniqueDistances": [
+          0.2600000023841858,
+          0.6399999976158142
+        ],
+        "actualThickness": 0.37999999523162836,
+        "midpoint": [
+          -0.6171200000000001,
+          0.6769600000000002,
+          5.551115123125783e-17
+        ],
+        "occupied": true
+      },
+      {
+        "part": "closed-soft-convex-curved-wood-gusset",
+        "kind": "curved_gusset_front_back_depth",
+        "from": [
+          -0.26,
+          1.22875,
+          0.45
+        ],
+        "to": [
+          -0.26,
+          1.22875,
+          -0.45
+        ],
+        "expected": 0.38,
+        "tolerance": 0.002,
+        "hits": [
+          {
+            "part": "closed-soft-convex-curved-wood-gusset",
+            "face": 2252,
+            "distance": 0.2600000023841858
+          },
+          {
+            "part": "closed-soft-convex-curved-wood-gusset",
+            "face": 2280,
+            "distance": 0.6399999976158142
+          }
+        ],
+        "uniqueDistances": [
+          0.2600000023841858,
+          0.6399999976158142
+        ],
+        "actualThickness": 0.37999999523162836,
+        "midpoint": [
+          -0.26,
+          1.22875,
+          5.551115123125783e-17
+        ],
+        "occupied": true
+      },
+      {
+        "part": "closed-soft-convex-curved-wood-gusset",
+        "kind": "curved_gusset_front_back_depth",
+        "from": [
+          0.2915200000000001,
+          1.6806400000000001,
+          0.45
+        ],
+        "to": [
+          0.2915200000000001,
+          1.6806400000000001,
+          -0.45
+        ],
+        "expected": 0.38,
+        "tolerance": 0.002,
+        "hits": [
+          {
+            "part": "closed-soft-convex-curved-wood-gusset",
+            "face": 3596,
+            "distance": 0.2600000023841858
+          },
+          {
+            "part": "closed-soft-convex-curved-wood-gusset",
+            "face": 3624,
+            "distance": 0.6399999976158142
+          }
+        ],
+        "uniqueDistances": [
+          0.2600000023841858,
+          0.6399999976158142
+        ],
+        "actualThickness": 0.37999999523162836,
+        "midpoint": [
+          0.2915200000000001,
+          1.6806400000000001,
+          5.551115123125783e-17
+        ],
+        "occupied": true
+      }
+    ],
+    "actualMountFaces": [
+      {
+        "part": "broad-flat-vertical-wall-mounting-pad",
+        "name": "authored_vertical_mounting_face",
+        "expectedNormal": [
+          -1,
+          0,
+          0
+        ],
+        "samples": [
+          {
+            "from": [
+              -1.15,
+              0.4,
+              -0.14
+            ],
+            "to": [
+              -0.55,
+              0.4,
+              -0.14
+            ],
+            "expectedPlaneCoordinate": -0.89,
+            "coordinateAxis": 0,
+            "actualTriangle": 130,
+            "actualPoint": [
+              -0.8900000059604645,
+              0.4,
+              -0.14
+            ],
+            "actualNormal": [
+              -1,
+              0,
+              0
+            ],
+            "normalDotExpected": 1,
+            "planeError": 5.960464455334602e-9,
+            "pass": true
+          },
+          {
+            "from": [
+              -1.15,
+              0.4,
+              0
+            ],
+            "to": [
+              -0.55,
+              0.4,
+              0
+            ],
+            "expectedPlaneCoordinate": -0.89,
+            "coordinateAxis": 0,
+            "actualTriangle": 130,
+            "actualPoint": [
+              -0.8900000059604645,
+              0.4,
+              0
+            ],
+            "actualNormal": [
+              -1,
+              0,
+              0
+            ],
+            "normalDotExpected": 1,
+            "planeError": 5.960464455334602e-9,
+            "pass": true
+          },
+          {
+            "from": [
+              -1.15,
+              0.4,
+              0.14
+            ],
+            "to": [
+              -0.55,
+              0.4,
+              0.14
+            ],
+            "expectedPlaneCoordinate": -0.89,
+            "coordinateAxis": 0,
+            "actualTriangle": 130,
+            "actualPoint": [
+              -0.8900000059604645,
+              0.4,
+              0.14
+            ],
+            "actualNormal": [
+              -1,
+              0,
+              0
+            ],
+            "normalDotExpected": 1,
+            "planeError": 5.960464455334602e-9,
+            "pass": true
+          },
+          {
+            "from": [
+              -1.15,
+              1,
+              -0.14
+            ],
+            "to": [
+              -0.55,
+              1,
+              -0.14
+            ],
+            "expectedPlaneCoordinate": -0.89,
+            "coordinateAxis": 0,
+            "actualTriangle": 130,
+            "actualPoint": [
+              -0.8900000059604645,
+              1,
+              -0.14
+            ],
+            "actualNormal": [
+              -1,
+              0,
+              0
+            ],
+            "normalDotExpected": 1,
+            "planeError": 5.960464455334602e-9,
+            "pass": true
+          },
+          {
+            "from": [
+              -1.15,
+              1,
+              0
+            ],
+            "to": [
+              -0.55,
+              1,
+              0
+            ],
+            "expectedPlaneCoordinate": -0.89,
+            "coordinateAxis": 0,
+            "actualTriangle": 130,
+            "actualPoint": [
+              -0.8900000059604645,
+              1,
+              0
+            ],
+            "actualNormal": [
+              -1,
+              0,
+              0
+            ],
+            "normalDotExpected": 1,
+            "planeError": 5.960464455334602e-9,
+            "pass": true
+          },
+          {
+            "from": [
+              -1.15,
+              1,
+              0.14
+            ],
+            "to": [
+              -0.55,
+              1,
+              0.14
+            ],
+            "expectedPlaneCoordinate": -0.89,
+            "coordinateAxis": 0,
+            "actualTriangle": 131,
+            "actualPoint": [
+              -0.8900000059604645,
+              1,
+              0.14
+            ],
+            "actualNormal": [
+              -1,
+              0,
+              0
+            ],
+            "normalDotExpected": 1,
+            "planeError": 5.960464455334602e-9,
+            "pass": true
+          },
+          {
+            "from": [
+              -1.15,
+              1.6,
+              -0.14
+            ],
+            "to": [
+              -0.55,
+              1.6,
+              -0.14
+            ],
+            "expectedPlaneCoordinate": -0.89,
+            "coordinateAxis": 0,
+            "actualTriangle": 131,
+            "actualPoint": [
+              -0.8900000059604645,
+              1.6,
+              -0.14
+            ],
+            "actualNormal": [
+              -1,
+              0,
+              0
+            ],
+            "normalDotExpected": 1,
+            "planeError": 5.960464455334602e-9,
+            "pass": true
+          },
+          {
+            "from": [
+              -1.15,
+              1.6,
+              0
+            ],
+            "to": [
+              -0.55,
+              1.6,
+              0
+            ],
+            "expectedPlaneCoordinate": -0.89,
+            "coordinateAxis": 0,
+            "actualTriangle": 131,
+            "actualPoint": [
+              -0.8900000059604645,
+              1.6,
+              0
+            ],
+            "actualNormal": [
+              -1,
+              0,
+              0
+            ],
+            "normalDotExpected": 1,
+            "planeError": 5.960464455334602e-9,
+            "pass": true
+          },
+          {
+            "from": [
+              -1.15,
+              1.6,
+              0.14
+            ],
+            "to": [
+              -0.55,
+              1.6,
+              0.14
+            ],
+            "expectedPlaneCoordinate": -0.89,
+            "coordinateAxis": 0,
+            "actualTriangle": 131,
+            "actualPoint": [
+              -0.8900000059604645,
+              1.6,
+              0.14
+            ],
+            "actualNormal": [
+              -1,
+              0,
+              0
+            ],
+            "normalDotExpected": 1,
+            "planeError": 5.960464455334602e-9,
+            "pass": true
+          }
+        ],
+        "pass": true
+      },
+      {
+        "part": "broad-flat-horizontal-eave-mounting-pad",
+        "name": "authored_horizontal_mounting_face",
+        "expectedNormal": [
+          0,
+          1,
+          0
+        ],
+        "samples": [
+          {
+            "from": [
+              -0.45,
+              2.4,
+              -0.14
+            ],
+            "to": [
+              -0.45,
+              1.6,
+              -0.14
+            ],
+            "expectedPlaneCoordinate": 2.05,
+            "coordinateAxis": 1,
+            "actualTriangle": 108,
+            "actualPoint": [
+              -0.45,
+              2.0500000059604644,
+              -0.14
+            ],
+            "actualNormal": [
+              0,
+              1,
+              0
+            ],
+            "normalDotExpected": 1,
+            "planeError": 5.9604645663569045e-9,
+            "pass": true
+          },
+          {
+            "from": [
+              -0.45,
+              2.4,
+              0
+            ],
+            "to": [
+              -0.45,
+              1.6,
+              0
+            ],
+            "expectedPlaneCoordinate": 2.05,
+            "coordinateAxis": 1,
+            "actualTriangle": 108,
+            "actualPoint": [
+              -0.45,
+              2.0500000059604644,
+              0
+            ],
+            "actualNormal": [
+              0,
+              1,
+              0
+            ],
+            "normalDotExpected": 1,
+            "planeError": 5.9604645663569045e-9,
+            "pass": true
+          },
+          {
+            "from": [
+              -0.45,
+              2.4,
+              0.14
+            ],
+            "to": [
+              -0.45,
+              1.6,
+              0.14
+            ],
+            "expectedPlaneCoordinate": 2.05,
+            "coordinateAxis": 1,
+            "actualTriangle": 109,
+            "actualPoint": [
+              -0.45,
+              2.0500000059604644,
+              0.14
+            ],
+            "actualNormal": [
+              0,
+              1,
+              0
+            ],
+            "normalDotExpected": 1,
+            "planeError": 5.9604645663569045e-9,
+            "pass": true
+          },
+          {
+            "from": [
+              0.05,
+              2.4,
+              -0.14
+            ],
+            "to": [
+              0.05,
+              1.6,
+              -0.14
+            ],
+            "expectedPlaneCoordinate": 2.05,
+            "coordinateAxis": 1,
+            "actualTriangle": 108,
+            "actualPoint": [
+              0.05,
+              2.0500000059604644,
+              -0.14
+            ],
+            "actualNormal": [
+              0,
+              1,
+              0
+            ],
+            "normalDotExpected": 1,
+            "planeError": 5.9604645663569045e-9,
+            "pass": true
+          },
+          {
+            "from": [
+              0.05,
+              2.4,
+              0
+            ],
+            "to": [
+              0.05,
+              1.6,
+              0
+            ],
+            "expectedPlaneCoordinate": 2.05,
+            "coordinateAxis": 1,
+            "actualTriangle": 109,
+            "actualPoint": [
+              0.05,
+              2.0500000059604644,
+              0
+            ],
+            "actualNormal": [
+              0,
+              1,
+              0
+            ],
+            "normalDotExpected": 1,
+            "planeError": 5.9604645663569045e-9,
+            "pass": true
+          },
+          {
+            "from": [
+              0.05,
+              2.4,
+              0.14
+            ],
+            "to": [
+              0.05,
+              1.6,
+              0.14
+            ],
+            "expectedPlaneCoordinate": 2.05,
+            "coordinateAxis": 1,
+            "actualTriangle": 109,
+            "actualPoint": [
+              0.05,
+              2.0500000059604644,
+              0.14
+            ],
+            "actualNormal": [
+              0,
+              1,
+              0
+            ],
+            "normalDotExpected": 1,
+            "planeError": 5.9604645663569045e-9,
+            "pass": true
+          },
+          {
+            "from": [
+              0.55,
+              2.4,
+              -0.14
+            ],
+            "to": [
+              0.55,
+              1.6,
+              -0.14
+            ],
+            "expectedPlaneCoordinate": 2.05,
+            "coordinateAxis": 1,
+            "actualTriangle": 109,
+            "actualPoint": [
+              0.55,
+              2.0500000059604644,
+              -0.14
+            ],
+            "actualNormal": [
+              0,
+              1,
+              0
+            ],
+            "normalDotExpected": 1,
+            "planeError": 5.9604645663569045e-9,
+            "pass": true
+          },
+          {
+            "from": [
+              0.55,
+              2.4,
+              0
+            ],
+            "to": [
+              0.55,
+              1.6,
+              0
+            ],
+            "expectedPlaneCoordinate": 2.05,
+            "coordinateAxis": 1,
+            "actualTriangle": 109,
+            "actualPoint": [
+              0.55,
+              2.0500000059604644,
+              0
+            ],
+            "actualNormal": [
+              0,
+              1,
+              0
+            ],
+            "normalDotExpected": 1,
+            "planeError": 5.9604645663569045e-9,
+            "pass": true
+          },
+          {
+            "from": [
+              0.55,
+              2.4,
+              0.14
+            ],
+            "to": [
+              0.55,
+              1.6,
+              0.14
+            ],
+            "expectedPlaneCoordinate": 2.05,
+            "coordinateAxis": 1,
+            "actualTriangle": 109,
+            "actualPoint": [
+              0.55,
+              2.0500000059604644,
+              0.14
+            ],
+            "actualNormal": [
+              0,
+              1,
+              0
+            ],
+            "normalDotExpected": 1,
+            "planeError": 5.9604645663569045e-9,
+            "pass": true
+          }
+        ],
+        "pass": true
+      }
+    ],
+    "declaredMountNormalDot": 0,
+    "actualMountHalfspaces": {
+      "actualStoredVertices": 4152,
+      "minimumDistanceInsideVerticalAuthoredMountPlane": -5.960464455334602e-9,
+      "minimumDistanceBelowHorizontalAuthoredMountPlane": -5.9604645663569045e-9,
+      "planesAreNotActualBuildingGeometry": true
+    },
+    "actualLowerCapFloorPairs": [
+      {
+        "part": "broad-flat-vertical-wall-mounting-pad",
+        "declaredPoint": [
+          -0.74,
+          0,
+          0
+        ],
+        "actualSoleTriangle": 152,
+        "actualFloorTriangle": 0,
+        "actualSoleY": 0,
+        "actualFloorY": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "pass": true
+      },
+      {
+        "part": "broad-flat-vertical-wall-mounting-pad",
+        "declaredPoint": [
+          -0.77,
+          0,
+          0
+        ],
+        "actualSoleTriangle": 153,
+        "actualFloorTriangle": 0,
+        "actualSoleY": 0,
+        "actualFloorY": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "pass": true
+      },
+      {
+        "part": "broad-flat-vertical-wall-mounting-pad",
+        "declaredPoint": [
+          -0.71,
+          0,
+          0
+        ],
+        "actualSoleTriangle": 152,
+        "actualFloorTriangle": 0,
+        "actualSoleY": 0,
+        "actualFloorY": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "pass": true
+      },
+      {
+        "part": "broad-flat-vertical-wall-mounting-pad",
+        "declaredPoint": [
+          -0.74,
+          0,
+          -0.1
+        ],
+        "actualSoleTriangle": 152,
+        "actualFloorTriangle": 0,
+        "actualSoleY": 0,
+        "actualFloorY": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "pass": true
+      },
+      {
+        "part": "broad-flat-vertical-wall-mounting-pad",
+        "declaredPoint": [
+          -0.74,
+          0,
+          0.1
+        ],
+        "actualSoleTriangle": 153,
+        "actualFloorTriangle": 0,
+        "actualSoleY": 0,
+        "actualFloorY": 0,
+        "normal": [
+          0,
+          -1,
+          0
+        ],
+        "pass": true
+      }
+    ],
+    "lowerCapScope": "5 actual lower-cap/diagnostic-floor triangle pairs on one existing vertical wood pad, not4feet or actual building mounting. No full surface/stability/load claim.",
+    "actualCurvedGussetProfile": {
+      "pass": true,
+      "part": "closed-soft-convex-curved-wood-gusset",
+      "actualSections": 81,
+      "sectionVertices": 28,
+      "maximumAdjacentCenterlineAngle": 1.1141350478069574,
+      "rows": [
+        {
+          "center": [
+            -0.72,
+            0.28,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999998489910434,
+          "maximumU": 0.13999998277577674,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.7171272265625,
+            0.3051149804687501,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.1400000015900385,
+          "maximumU": 0.1400000168401041,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.7137615624999999,
+            0.33020734375,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999997639840708,
+          "maximumU": 0.13999998859782936,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.7099069921875001,
+            0.35527322265625005,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000000192705403,
+          "maximumU": 0.14000000622531672,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.7055674999999998,
+            0.38030875000000003,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.139999978003698,
+          "maximumU": 0.13999999997496915,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.7007470703125,
+            0.40531005859375,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999999544043853,
+          "maximumU": 0.14000000248013605,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.6954496875000001,
+            0.4302732812500001,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000001839187212,
+          "maximumU": 0.1400000031861532,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.6896793359374999,
+            0.45519455078125,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000002565759742,
+          "maximumU": 0.14000000225607767,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.68344,
+            0.4800700000000001,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000001340369075,
+          "maximumU": 0.14000001800692555,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.6767356640624997,
+            0.50489576171875,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000001048379368,
+          "maximumU": 0.14000001262948528,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.6695703125,
+            0.52966796875,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000000530256557,
+          "maximumU": 0.13999998686970053,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.6619479296875002,
+            0.5543827539062502,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999999421107406,
+          "maximumU": 0.1400000164124948,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.6538724999999999,
+            0.57903625,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999999651726597,
+          "maximumU": 0.13999998740577524,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.6453480078125,
+            0.60362458984375,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999997125845495,
+          "maximumU": 0.13999997492100172,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.6363784375,
+            0.6281439062499999,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000001865955133,
+          "maximumU": 0.1400000184901603,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.6269677734375,
+            0.65259033203125,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.1399999868552793,
+          "maximumU": 0.14000001521912273,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.6171200000000001,
+            0.6769600000000002,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999999850026998,
+          "maximumU": 0.1399999877902729,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.6068391015624999,
+            0.7012490429687499,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000001443222887,
+          "maximumU": 0.13999998653394535,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.5961290625000001,
+            0.7254535937500002,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000001137204948,
+          "maximumU": 0.1400000267011355,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.5849938671874999,
+            0.74956978515625,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999999961751664,
+          "maximumU": 0.14000001863905673,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.5734374999999999,
+            0.77359375,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.1399999917552269,
+          "maximumU": 0.14000001630987438,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.5614639453125001,
+            0.7975216210937501,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000001360140935,
+          "maximumU": 0.13999999898765325,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.5490771875,
+            0.8213495312500001,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999999124434204,
+          "maximumU": 0.14000000979401278,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.5362812109375,
+            0.84507361328125,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.1399999963983495,
+          "maximumU": 0.1400000237895485,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.5230799999999999,
+            0.8686899999999999,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000000561594828,
+          "maximumU": 0.13999997482248916,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.5094775390624999,
+            0.8921948242187501,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999998419422083,
+          "maximumU": 0.13999997489642113,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.4954778125000001,
+            0.9155842187500003,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999999817708245,
+          "maximumU": 0.13999998211183112,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.4810848046874999,
+            0.93885431640625,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000000370605858,
+          "maximumU": 0.14000003215287915,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.46630250000000006,
+            0.9620012499999999,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999999805413538,
+          "maximumU": 0.14000003701459843,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.4511348828124999,
+            0.9850211523437499,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999999165887125,
+          "maximumU": 0.1399999950236126,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.4355859375,
+            1.00791015625,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000001247623647,
+          "maximumU": 0.14000000844871224,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.41965964843750014,
+            1.0306643945312501,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.1400000046049406,
+          "maximumU": 0.14000002070715925,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.40336,
+            1.05328,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000000606919283,
+          "maximumU": 0.1399999568545313,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.38669097656250007,
+            1.0757531054687501,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000001797721637,
+          "maximumU": 0.14000003481801887,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.36965656249999995,
+            1.09807984375,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000004275358194,
+          "maximumU": 0.1399999904354391,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.3522607421875001,
+            1.12025634765625,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000002241685355,
+          "maximumU": 0.13999997505812845,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.3345075000000001,
+            1.1422787500000002,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000000706795196,
+          "maximumU": 0.13999998690910784,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.31640082031249994,
+            1.16414318359375,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000002254362187,
+          "maximumU": 0.1399999817106104,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.2979446875,
+            1.18584578125,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000000553709283,
+          "maximumU": 0.14000000837361187,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.2791430859374999,
+            1.2073826757812498,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999997908698966,
+          "maximumU": 0.13999998577224587,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.26,
+            1.22875,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999997819942672,
+          "maximumU": 0.13999996229187156,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.24051941406250013,
+            1.24994388671875,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999999031706695,
+          "maximumU": 0.1400000324942895,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.22070531249999997,
+            1.27096046875,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.1399999823231807,
+          "maximumU": 0.14000004867186783,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.20056167968750008,
+            1.29179587890625,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000002301483222,
+          "maximumU": 0.1399999932438875,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.18009249999999993,
+            1.31244625,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.1400000293756003,
+          "maximumU": 0.14000000325545897,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.1593017578125,
+            1.33290771484375,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000001245132188,
+          "maximumU": 0.14000003802994954,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.13819343750000004,
+            1.3531764062499998,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999998843851152,
+          "maximumU": 0.13999999641318628,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.11677152343749991,
+            1.37324845703125,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999999567429042,
+          "maximumU": 0.1399999975098733,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.09504000000000004,
+            1.3931200000000001,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999999483360676,
+          "maximumU": 0.139999984632255,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.07300285156249994,
+            1.4127871679687503,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999995682346383,
+          "maximumU": 0.14000000464530304,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.050664062499999996,
+            1.43224609375,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999995720801284,
+          "maximumU": 0.140000041696077,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.028027617187500103,
+            1.45149291015625,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999999575179767,
+          "maximumU": 0.13999998784013037,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            -0.005097499999999894,
+            1.47052375,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999999735555374,
+          "maximumU": 0.14000003195606864,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.018122304687499924,
+            1.48933474609375,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999998163450378,
+          "maximumU": 0.1400000071922945,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.04162781250000008,
+            1.5079220312500001,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999999722141174,
+          "maximumU": 0.14000003584224774,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.06541503906249999,
+            1.52628173828125,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.1400000079912603,
+          "maximumU": 0.13999997273879805,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.08947999999999989,
+            1.5444099999999998,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999999388611864,
+          "maximumU": 0.1399999754614906,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.11381871093750001,
+            1.56230294921875,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000002545674606,
+          "maximumU": 0.14000002444159435,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.13842718749999997,
+            1.57995671875,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000002954884924,
+          "maximumU": 0.1400000188355994,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.1633014453125001,
+            1.59736744140625,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000003057153648,
+          "maximumU": 0.13999996764544503,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.1884375,
+            1.61453125,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000004844539682,
+          "maximumU": 0.13999999388563394,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.2138313671874999,
+            1.6314442773437499,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.1400000417700973,
+          "maximumU": 0.14000004077231665,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.23947906250000006,
+            1.64810265625,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999998660669893,
+          "maximumU": 0.1399999665195859,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.2653766015625,
+            1.6645025195312497,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999996159854583,
+          "maximumU": 0.14000003623453044,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.2915200000000001,
+            1.6806400000000001,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.1399999647828889,
+          "maximumU": 0.14000004449085465,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.31790527343749997,
+            1.69651123046875,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000002750822732,
+          "maximumU": 0.13999998695540603,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.3445284374999999,
+            1.71211234375,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000003503740435,
+          "maximumU": 0.13999997320127033,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.3713855078125,
+            1.72743947265625,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999997905800876,
+          "maximumU": 0.13999995567716825,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.3984724999999999,
+            1.74248875,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999998597481073,
+          "maximumU": 0.13999996900622913,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.4257854296875001,
+            1.75725630859375,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000003786182247,
+          "maximumU": 0.1399999757211947,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.4533203125,
+            1.7717382812499998,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000003974757363,
+          "maximumU": 0.14000004570218216,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.4810731640624999,
+            1.7859308007812498,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999994739513658,
+          "maximumU": 0.13999997533124192,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.50904,
+            1.7998300000000003,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.1400000425345136,
+          "maximumU": 0.13999998527822594,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.5372168359374999,
+            1.8134320117187501,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.1400000337570872,
+          "maximumU": 0.13999996790751254,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.5655996875,
+            1.82673296875,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.1400000219721959,
+          "maximumU": 0.13999996433310838,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.5941845703125,
+            1.83972900390625,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.14000003617986526,
+          "maximumU": 0.14000004339077912,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.6229674999999999,
+            1.8524162499999999,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.1400000173577987,
+          "maximumU": 0.13999994832411153,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.6519444921875001,
+            1.86479083984375,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999994667248192,
+          "maximumU": 0.13999998102938566,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.6811115624999999,
+            1.87684890625,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.1399999529550397,
+          "maximumU": 0.13999999942824143,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.7104647265625,
+            1.88858658203125,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.1400000467542861,
+          "maximumU": 0.1400000303274691,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        },
+        {
+          "center": [
+            0.74,
+            1.9,
+            0
+          ],
+          "sectionVertices": 28,
+          "minimumU": -0.13999998158892638,
+          "maximumU": 0.1399999302398872,
+          "minimumZ": -0.1899999976158142,
+          "maximumZ": 0.1899999976158142
+        }
+      ],
+      "scope": "81 actual indexed rounded-rectangle gusset sections and finite centerline turns; not all-continuous curvature, structural strength or load performance"
+    },
+    "actualPlanarPadCapNormals": {
+      "pass": true,
+      "rows": [
+        {
+          "part": "broad-flat-vertical-wall-mounting-pad",
+          "frontCapTriangles": 44,
+          "backCapTriangles": 44,
+          "actualUsedCapVertices": 90,
+          "minimumCapVertexNormalDotGeometricFace": 0.9999999999999999,
+          "maximumNormalAngularDeviationDegrees": 8.537736462515939e-7,
+          "flatShading": false,
+          "pass": true
+        },
+        {
+          "part": "broad-flat-horizontal-eave-mounting-pad",
+          "frontCapTriangles": 44,
+          "backCapTriangles": 44,
+          "actualUsedCapVertices": 90,
+          "minimumCapVertexNormalDotGeometricFace": 0.9999999999999999,
+          "maximumNormalAngularDeviationDegrees": 8.537736462515939e-7,
+          "flatShading": false,
+          "pass": true
+        }
+      ],
+      "scope": "Every indexed vertex of both actual coplanar front/back pad cap triangles must agree with that cap geometric normal. Separate cap/bevel shading seam retains smooth rounded edges; not a flatShading-material shortcut or general lighting/continuous surface guarantee."
+    },
+    "bodyBinding": null,
+    "wallEaveMounting": false,
+    "actualMountClearance": false,
+    "physics": false,
+    "loadWeatherStability": false,
+    "rig": false,
+    "wearingFit": false,
+    "normalGame": false,
+    "contractorConstruction": false,
+    "ownershipUnlockSave": false,
+    "limits": "Selected finite actual triangle/vertex/chord/contact/section probes only. No continuous whole-domain collision/visibility/curvature, measured building/body dimensions, fastening/load/weather physics, actualwall/eave attachment or normal contractor/placement/acquisition/ownership/save. Witnesses and reruns are not unique tests."
+  },
+  "compiledWorldPlacement": {
+    "townPoint": {
+      "x": 2400,
+      "y": 250
+    },
+    "worldPosition": [
+      9.6,
+      0.0250000000000016,
+      -7.1
+    ],
+    "projectedFootprint": {
+      "minX": 8.709999994039535,
+      "maxX": 10.51999997138977,
+      "minZ": -7.373000001907348,
+      "maxZ": -6.826999998092651
+    },
+    "supports": [
+      {
+        "part": "broad-flat-vertical-wall-mounting-pad",
+        "authoredLowerCapSample": [
+          -0.74,
+          0,
+          0
+        ],
+        "x": 8.86,
+        "z": -7.1,
+        "soleLocalY": 0,
+        "actualLowerCapTriangle": 152,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.025000000000001577,
+        "requiredGroupY": 0.025000000000001577,
+        "soleMinusFloor": 2.42861286636753e-17
+      },
+      {
+        "part": "broad-flat-vertical-wall-mounting-pad",
+        "authoredLowerCapSample": [
+          -0.77,
+          0,
+          0
+        ],
+        "x": 8.83,
+        "z": -7.1,
+        "soleLocalY": 0,
+        "actualLowerCapTriangle": 153,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.025000000000001577,
+        "requiredGroupY": 0.025000000000001577,
+        "soleMinusFloor": 2.42861286636753e-17
+      },
+      {
+        "part": "broad-flat-vertical-wall-mounting-pad",
+        "authoredLowerCapSample": [
+          -0.71,
+          0,
+          0
+        ],
+        "x": 8.89,
+        "z": -7.1,
+        "soleLocalY": 0,
+        "actualLowerCapTriangle": 152,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.025000000000001577,
+        "requiredGroupY": 0.025000000000001577,
+        "soleMinusFloor": 2.42861286636753e-17
+      },
+      {
+        "part": "broad-flat-vertical-wall-mounting-pad",
+        "authoredLowerCapSample": [
+          -0.74,
+          0,
+          -0.1
+        ],
+        "x": 8.86,
+        "z": -7.199999999999999,
+        "soleLocalY": 0,
+        "actualLowerCapTriangle": 152,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.0250000000000016,
+        "requiredGroupY": 0.0250000000000016,
+        "soleMinusFloor": 0
+      },
+      {
+        "part": "broad-flat-vertical-wall-mounting-pad",
+        "authoredLowerCapSample": [
+          -0.74,
+          0,
+          0.1
+        ],
+        "x": 8.86,
+        "z": -7,
+        "soleLocalY": 0,
+        "actualLowerCapTriangle": 153,
+        "soleNormal": [
+          0,
+          -1,
+          0
+        ],
+        "actualFloorTriangle": 0,
+        "floorY": 0.025000000000001556,
+        "requiredGroupY": 0.025000000000001556,
+        "soleMinusFloor": 4.5102810375396984e-17
+      }
+    ],
+    "actualLowerCapSampleCount": 5,
+    "actualLowerCapFaces": 1,
+    "authoredMountingPads": 2,
+    "contactSupportKind": "one actual flat lower end cap of the vertical wood mount pad, not four added feet",
+    "entireLowerCapSurfaceContactVerified": false,
+    "stabilityOrLoadVerified": false,
+    "finiteWalkability": {
+      "samples": 63,
+      "blocked": 0
+    },
+    "roads": [
+      {
+        "name": "layout-plaza-border",
+        "triangles": 192,
+        "minimumGap": 8.802617708839328
+      },
+      {
+        "name": "layout-plaza-floor",
+        "triangles": 96,
+        "minimumGap": 9.09140932020804
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.08321623559314
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.935303330280155
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.840130604148257
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.802764589356823
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.802503096817441
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.829418809511644
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 8.91944320343032
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.071916976989002
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.283895606101886
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.550337848904038
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.864476094117823
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.218281683747145
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.602940859111175
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.00928174067257
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.428123403283422
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.821446959841772
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.198080735614438
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.563888950147128
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.91232748381759
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.237502078510582
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.534221231700075
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.798032590120643
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.025245813730027
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.21294358153
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.358981558612928
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.461977664711295
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.521290793385976
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.511974991978912
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.445133541751725
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.338576183318038
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.1946820288945
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 14.016252687475847
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.806438155208637
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.568662724157177
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.306554145580819
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 13.023879598979189
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.724492169110297
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.412291442189098
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 12.091201409282453
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.76516800982804
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.434187055892812
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 11.079774663623283
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.732581753178117
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.397185211326738
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 10.078489001848961
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.781803153129742
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.51288024059071
+      },
+      {
+        "name": "layout-plaza-border-paver",
+        "triangles": 6,
+        "minimumGap": 9.277878034434664
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 11.677151187812694
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 11.713628756279334
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 16.468703917333492
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 2.9850363994871953
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 3.022767292743139
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 2.9310412125760843
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 11.677173228453919
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 11.71364817669915
+      },
+      {
+        "name": "layout-porch-cream-connector",
+        "triangles": 2,
+        "minimumGap": 19.28672833572856
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 8.519658044508347
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 8.579657442863429
+      },
+      {
+        "name": "layout-curved-path-edge",
+        "triangles": 192,
+        "minimumGap": 11.60234743402805
+      },
+      {
+        "name": "layout-curved-cream-path",
+        "triangles": 96,
+        "minimumGap": 11.647771716323158
+      },
+      {
+        "name": "bridge-deck",
+        "triangles": 44,
+        "minimumGap": 7.927000021934509
+      }
+    ],
+    "minimumRoadGap": 2.9310412125760843,
+    "requiredMargin": 0.2,
+    "originalSpriteEnvelopeClearance": {
+      "checkedCards": 38,
+      "kinds": {
+        "shopTulip": 6,
+        "treeGrove": 12,
+        "flowers": 1,
+        "lantern": 4,
+        "treeApple": 5,
+        "treeBirch": 5,
+        "tree": 5
+      },
+      "minimumGap": 2.147018909542875,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            3.800391407986147,
+            0.025,
+            -10.014646520277676
+          ],
+          "fullQuadRadius": 3.428153984302411,
+          "envelopeDistance": 5.575172893845286,
+          "gap": 2.147018909542875
+        },
+        {
+          "kind": "shopTulip",
+          "sourceSHA256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+          "contact": [
+            6.8759999999999994,
+            0.025,
+            -4.894
+          ],
+          "fullQuadRadius": 0.43406919941234284,
+          "envelopeDistance": 2.664590957494828,
+          "gap": 2.230521758082485
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            3.018835793838979,
+            0.025,
+            -10.44966867454055
+          ],
+          "fullQuadRadius": 3.816913714481035,
+          "envelopeDistance": 6.469562587594851,
+          "gap": 2.652648873113816
+        },
+        {
+          "kind": "shopTulip",
+          "sourceSHA256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+          "contact": [
+            5.795999999999999,
+            0.025,
+            -4.894
+          ],
+          "fullQuadRadius": 0.43406919941234284,
+          "envelopeDistance": 3.4968392811063826,
+          "gap": 3.06277008169404
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            0.8327002596367137,
+            0.025,
+            -9.982363263208441
+          ],
+          "fullQuadRadius": 4.385813983669816,
+          "envelopeDistance": 8.29823039780474,
+          "gap": 3.912416414134925
+        },
+        {
+          "kind": "lantern",
+          "sourceSHA256": "fcddf79bb51dfd6c892e6f84101f2b59c2bd96b2085fc5339e727232f472a2da",
+          "contact": [
+            4.032,
+            0.025,
+            -3.4560000000000004
+          ],
+          "fullQuadRadius": 0.9909739577995439,
+          "envelopeDistance": 5.766049334802342,
+          "gap": 4.775075377002798
+        },
+        {
+          "kind": "treeGrove",
+          "sourceSHA256": "1501f8fda37d378db93fd9e960cd3ba702a71514b26c3b7c62fa8ec2773cbf3b",
+          "contact": [
+            -0.5760000000000014,
+            0.025,
+            -3.9520000000000004
+          ],
+          "fullQuadRadius": 3.816913714481035,
+          "envelopeDistance": 9.720875520154292,
+          "gap": 5.903961805673258
+        },
+        {
+          "kind": "treeApple",
+          "sourceSHA256": "ce7ef7adda439841a3fc36de04d5250eb01249ce653337f19b6d9520b028c45b",
+          "contact": [
+            -0.3355192961773006,
+            0.025,
+            -9.667760567754863
+          ],
+          "fullQuadRadius": 2.824426245157773,
+          "envelopeDistance": 9.332060077188407,
+          "gap": 6.507633832030634
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            -1.9396978898859323,
+            0.025,
+            -10.216135629486423
+          ],
+          "fullQuadRadius": 3.3722855420654474,
+          "envelopeDistance": 11.02268049140934,
+          "gap": 7.650394949343892
+        },
+        {
+          "kind": "treeBirch",
+          "sourceSHA256": "ed3a42025eab7a46069550b2b727bc08777053c67a76e2cd5d2b7008d2c51fb0",
+          "contact": [
+            -3.7735156195406474,
+            0.025,
+            -10.38942810991384
+          ],
+          "fullQuadRadius": 3.777696918707195,
+          "envelopeDistance": 12.842780096430516,
+          "gap": 9.065083177723322
+        }
+      ],
+      "method": "sphere enclosing all four full raw Sprite quad corners from actual world scale/center; sphere-to-conservative-3D-pose-envelope distance; includes faint/transparent corners without cropping",
+      "cameraOrientationIndependentGeometryEnvelope": true,
+      "physicalFixtureVolumes": false,
+      "allCameraProjectionOcclusionGuaranteed": false
+    },
+    "buildingProxyClearance": [
+      {
+        "place": "home",
+        "intersects": false,
+        "separation": 15.54311226032843
+      },
+      {
+        "place": "cafe",
+        "intersects": false,
+        "separation": 1.1653121451833979
+      },
+      {
+        "place": "shop",
+        "intersects": false,
+        "separation": 17.617662464252177
+      },
+      {
+        "place": "playground",
+        "intersects": false,
+        "separation": 8.593047695045442
+      },
+      {
+        "place": "tree",
+        "intersects": false,
+        "separation": null
+      },
+      {
+        "place": "flowers",
+        "intersects": false,
+        "separation": null
+      }
+    ],
+    "buildingProxyScope": "actual current place-group mesh AABBs only; not full building geometry or transparent original-art fixture volume clearance",
+    "meadowInstances": {
+      "instanceCount": 1102,
+      "batchCount": 10,
+      "siteCount": 40,
+      "animationPadding": 0.018,
+      "minimumGap": 2.473204154408629,
+      "requiredMargin": 0.2,
+      "nearest": [
+        {
+          "batch": "meadow-daisy-lobed-head-instances",
+          "instance": 19,
+          "bounds": {
+            "min": [
+              7.958820739835853,
+              0.26966038848726037,
+              -4.399957903835882
+            ],
+            "max": [
+              8.234389373794551,
+              0.48924224177269227,
+              -4.1378291572550845
+            ]
+          },
+          "minimumGap": 2.473204154408629
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 135,
+          "bounds": {
+            "min": [
+              7.977578815044441,
+              0.07105114515847945,
+              -4.3950632941515035
+            ],
+            "max": [
+              8.21403826324015,
+              0.22419910853424715,
+              -4.18908480159886
+            ]
+          },
+          "minimumGap": 2.481993990805307
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 135,
+          "bounds": {
+            "min": [
+              7.985089577379973,
+              0.12565921738691058,
+              -4.33268680280395
+            ],
+            "max": [
+              8.19508846259249,
+              0.2939266082809292,
+              -4.162581188564673
+            ]
+          },
+          "minimumGap": 2.546906398242477
+        },
+        {
+          "batch": "meadow-daisy-heart-instances",
+          "instance": 19,
+          "bounds": {
+            "min": [
+              8.064667348143331,
+              0.3707389938978198,
+              -4.31753558400345
+            ],
+            "max": [
+              8.167966242554911,
+              0.4668721449228284,
+              -4.218473250835417
+            ]
+          },
+          "minimumGap": 2.5673356292718235
+        },
+        {
+          "batch": "meadow-stem-instances",
+          "instance": 192,
+          "bounds": {
+            "min": [
+              8.067568068700785,
+              0.007000005960464479,
+              -4.295128576088361
+            ],
+            "max": [
+              8.118887038740318,
+              0.40940555262565614,
+              -4.243320091918379
+            ]
+          },
+          "minimumGap": 2.599959119579498
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 132,
+          "bounds": {
+            "min": [
+              7.901148489831921,
+              0.041575798950860735,
+              -4.264367702750147
+            ],
+            "max": [
+              8.09452233541299,
+              0.19472376232662844,
+              -4.025857540398
+            ]
+          },
+          "minimumGap": 2.635506977680159
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 132,
+          "bounds": {
+            "min": [
+              7.860408253295483,
+              0.08102512851304734,
+              -4.264202428528577
+            ],
+            "max": [
+              8.04857208160829,
+              0.24929251940706595,
+              -4.048723461221426
+            ]
+          },
+          "minimumGap": 2.6467750690050487
+        },
+        {
+          "batch": "meadow-rose-outer-rosette-instances",
+          "instance": 42,
+          "bounds": {
+            "min": [
+              7.872678861722074,
+              0.23156414085790836,
+              -4.255414189465224
+            ],
+            "max": [
+              8.078212702953188,
+              0.34142650297063937,
+              -4.046932128716306
+            ]
+          },
+          "minimumGap": 2.6480575432403657
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 137,
+          "bounds": {
+            "min": [
+              7.744055235928408,
+              0.11781527593679154,
+              -4.293236297858033
+            ],
+            "max": [
+              7.915505536981387,
+              0.2860826668308102,
+              -4.055709474413007
+            ]
+          },
+          "minimumGap": 2.655405794021461
+        },
+        {
+          "batch": "meadow-rose-outer-rosette-instances",
+          "instance": 43,
+          "bounds": {
+            "min": [
+              7.897852390299883,
+              0.2736531604253287,
+              -4.230364211487056
+            ],
+            "max": [
+              8.05303405705311,
+              0.36177435561321625,
+              -4.072034530926201
+            ]
+          },
+          "minimumGap": 2.6784550865454713
+        },
+        {
+          "batch": "meadow-leaf-instances",
+          "instance": 137,
+          "bounds": {
+            "min": [
+              7.675200721285802,
+              0.06587118860311293,
+              -4.2583102846284735
+            ],
+            "max": [
+              7.902138236793523,
+              0.21901915197888064,
+              -4.05499737746007
+            ]
+          },
+          "minimumGap": 2.692732341484629
+        },
+        {
+          "batch": "meadow-hanging-flared-bell-instances",
+          "instance": 19,
+          "bounds": {
+            "min": [
+              7.673261736095995,
+              0.2665756102455934,
+              -4.254005318920048
+            ],
+            "max": [
+              7.891350546655003,
+              0.4024837637134102,
+              -4.036220874064243
+            ]
+          },
+          "minimumGap": 2.700090468253522
+        }
+      ],
+      "scope": "every actual current meadow instance geometry AABB transformed by its actual instance and world matrix, expanded .018 in all axes; current finite matrices and authored animation allowance, no all-frame proof"
+    },
+    "shoreline": {
+      "segments": 7,
+      "minimumGap": 2.2270003795623783,
+      "rows": [
+        {
+          "a": [
+            14.399999618530273,
+            -9.600000381469727
+          ],
+          "b": [
+            -14.399999618530273,
+            -9.600000381469727
+          ],
+          "footprintGap": 2.2270003795623783
+        },
+        {
+          "a": [
+            -14.399999618530273,
+            -9.600000381469727
+          ],
+          "b": [
+            -14.399999618530273,
+            9.600000381469727
+          ],
+          "footprintGap": 23.10999961256981
+        },
+        {
+          "a": [
+            -14.399999618530273,
+            9.600000381469727
+          ],
+          "b": [
+            5.5,
+            9.600000381469727
+          ],
+          "footprintGap": 16.737695224608327
+        },
+        {
+          "a": [
+            5.5,
+            9.600000381469727
+          ],
+          "b": [
+            10.699999809265137,
+            4.900000095367432
+          ],
+          "footprintGap": 11.728381437080222
+        },
+        {
+          "a": [
+            10.699999809265137,
+            4.900000095367432
+          ],
+          "b": [
+            12.800000190734863,
+            0.8999999761581421
+          ],
+          "footprintGap": 8.056359575036694
+        },
+        {
+          "a": [
+            12.800000190734863,
+            0.8999999761581421
+          ],
+          "b": [
+            14,
+            -4.099999904632568
+          ],
+          "footprintGap": 4.421190983078937
+        },
+        {
+          "a": [
+            14,
+            -4.099999904632568
+          ],
+          "b": [
+            14.399999618530273,
+            -9.600000381469727
+          ],
+          "footprintGap": 3.668637735010429
+        }
+      ],
+      "method": "every actual dry-land boundary segment against entire brace XZ AABB"
+    },
+    "waterBacking": {
+      "topY": -0.05,
+      "soleAboveWaterBacking": 0.07500000000000161
+    },
+    "worldUnchanged": true,
+    "walkableSurfacesUnchanged": true,
+    "occludersUnchanged": true,
+    "notRegisteredAsTownSurface": true,
+    "normalPlacement": false,
+    "ownershipUnlockSave": false,
+    "bodyBinding": null,
+    "limits": "one fixed authored standalone brace pose at one synthetic current-default-world site;5 finite lower-cap/floor triangle pairs on one existing wood pad,63 finite walkability samples and conservative current road, original-card, meadow, shore and building-proxy envelope clearances. These finite witnesses do not verify full lower-cap surface contact, actual wall/eave mounting, support stability, load, physical behavior, body fit, whole-world placement or all-camera visibility"
+  },
+  "compiledWorldScope": "Existing current Scene after synchronous construction/tree-road correction. Node has no DOM or original-art decode; native originalArt-ready Scene/visual views remain separate.",
+  "worldJSONUnchanged": true,
+  "bodyBinding": null,
+  "wallEaveMounting": false,
+  "actualMountClearance": false,
+  "loadWeatherStability": false,
+  "physics": false,
+  "normalGame": false,
+  "ownershipUnlockSave": false
+}
