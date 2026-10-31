@@ -3066,12 +3066,12 @@
       },
       "kind": "issuer_annual_dividend_forecast",
       "status": "available",
-      "value": 114,
-      "source_url": "https://www.nse.or.jp/listing/search/files/140120260721596437.pdf",
-      "source_title": "2027年３月期 第１四半期決算短信〔日本基準〕(連結)",
-      "announcement_date": "2026-07-30",
-      "checked_on": "2026-10-13",
-      "fetched_at": 1791819436.10527,
+      "value": 115,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120261016552250.pdf",
+      "source_title": "2027年３月期第２四半期（中間期）連結業績予想と実績値との差異、 通期連結業績予想の修正及び配当予想の修正（増配）に関するお知らせ",
+      "announcement_date": "2026-10-29",
+      "checked_on": "2026-10-31",
+      "fetched_at": 1793446195.7583911,
       "fiscal_period": {
         "start": "2026-04-01",
         "end": "2027-03-31"
@@ -3086,7 +3086,7 @@
         "source_security_code": "8071",
         "issuer_name": "東海エレクトロニクス",
         "exchange": "Nagoya",
-        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260721596437.pdf",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120261016552250.pdf",
         "source_host": "www.nse.or.jp"
       }
     },
