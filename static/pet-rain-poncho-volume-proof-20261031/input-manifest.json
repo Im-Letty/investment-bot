@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "run_id": "automation360-20261031-223343",
+  "model_id": "rain-poncho-cutout-v3-garment-volume-v1",
+  "unit_id": "wardrobe:fit-prerequisite:rain-poncho:cutout-v3-garment-volume-openings:v1",
+  "source_main_sha": "22bc7861b7bbd6f708fd31ab3b7f7b8874863c8a",
+  "actual_parent_reserve": {
+    "run_id": "automation360-20261031-223343",
+    "unit_id": "wardrobe:fit-prerequisite:rain-poncho:cutout-v3-garment-volume-openings:v1",
+    "started_at_jst": "2026-10-31T22:47:12+09:00"
+  },
+  "selected_source_version": "v3",
+  "version_bound_input": {
+    "id": "rain-poncho-cutout-v3-fit-input-v1",
+    "sha256": "1e80e228df3b6990d084e742434c293434caa350cc9ea675cf1e3bd4be4d55df",
+    "bytes": 2695
+  },
+  "source_original": {
+    "path": "reference.png",
+    "sha256": "b06404edeb06f2ec3b9466e4877d433699dbdc0ed04fa9c51e8a148b0b562ed3",
+    "bytes": 1558555,
+    "width": 1254,
+    "height": 1254,
+    "unchanged": true
+  },
+  "bodyBinding": null,
+  "canonical_v1_input_and_hold_history_retained": true,
+  "new_original_designs": 0,
+  "new_raw_versions": 0,
+  "new_body": 0,
+  "new_fit": 0,
+  "new_library_candidate": 0,
+  "artifacts": {
+    "SPEC.json": {
+      "sha256": "52dc9754c046d6179cd5710252c53506d38c8d35cb48cd67354aa87d5fca2a85",
+      "bytes": 902
+    },
+    "audit.mjs": {
+      "sha256": "8e1cfee4ad4a49f2ff4383128d849097720a6d09bcea0bef317d23838e27a247",
+      "bytes": 7553
+    },
+    "entry.mjs": {
+      "sha256": "5ad4435d2d10aa9c408a870ff3f10cfe89b5870d10b0ca64d055a60ec2a58e0d",
+      "bytes": 1517
+    },
+    "finite-geometry-certificate.json": {
+      "sha256": "739a3f9903a8f890d80f0b26e07b4c7744f3785697be78265d426b84b280fcfc",
+      "bytes": 286983
+    },
+    "framing.mjs": {
+      "sha256": "37b2523352b252022c4b33d721299923588c74f871da6c049d57532443d2fb1b",
+      "bytes": 958
+    },
+    "index.html": {
+      "sha256": "2fb4e43510828be8cdaf03e736595748647f29ea434d355373746455dd0f522a",
+      "bytes": 4441
+    },
+    "mesh-geometry.json": {
+      "sha256": "e5e5e3d63f550d48ad255ab680b3d02f2a02d09e311cf9cc8bc4cb31ee2b4a6e",
+      "bytes": 22657494
+    },
+    "poncho.mjs": {
+      "sha256": "fa3ca58eb87b252d3312f7fa817b00228839e757e344ac720e96615188646fcc",
+      "bytes": 30277
+    },
+    "reference.png": {
+      "sha256": "b06404edeb06f2ec3b9466e4877d433699dbdc0ed04fa9c51e8a148b0b562ed3",
+      "bytes": 1558555
+    },
+    "viewer.mjs": {
+      "sha256": "6b5847994417bcee1868203d3ded984d5f8415e94108f8a2727f1b4d0e6df3a9",
+      "bytes": 16692
+    }
+  },
+  "unchanged_dependencies": {
+    "static/pet-breeze-cape-proof-20261029/geometry-audit.mjs": {
+      "sha256": "2dbe7723509ae914cb98153f133e2a2db9d15e5f4112cc184fa128a2df8e92c0",
+      "bytes": 6377
+    },
+    "static/pet-breeze-cape-proof-20261029/audit.mjs": {
+      "sha256": "0295f409a2c7182069dd6023bf78d94c3a7d05e237fd244923ea3a4c29a4eb80",
+      "bytes": 5891
+    },
+    "static/vendor/three-0.160.1.module.js": {
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972
+    },
+    "static/pet-scalloped-path-proof-20261027/framing.mjs": {
+      "sha256": "dba92c2f6dec2816ebcf25434ee07c3b699accb61b7e1961a11baf366edad08a",
+      "bytes": 1678
+    }
+  },
+  "formal_test": {
+    "path": "tests/test_pet_rain_poncho_volume.mjs",
+    "sha256": "e8d6a344968ca31bb2ce2aa3c4940599b56c7bec65ef69ff84fd545787e5b800",
+    "bytes": 35821
+  },
+  "finite_cases_not_unique_test_count": true
+}
