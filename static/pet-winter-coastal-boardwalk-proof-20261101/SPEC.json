@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "run_id": "automation360-20261101-005645",
+  "unit_id": "village:asset-library:winter-coastal-draining-boardwalk-panel:v1",
+  "model_id": "winter-coastal-draining-boardwalk-panel-v1",
+  "actual_parent_reserve": {
+    "artifact": "parent-reserved.json",
+    "sha256": "983bea8bb0b7897dc70b6faf85835ea5565aa553aabdce4c68e5ab67b1c6fe59",
+    "bytes": 262,
+    "run_id": "automation360-20261101-005645",
+    "unit_id": "village:asset-library:winter-coastal-draining-boardwalk-panel:v1",
+    "started_at_jst": "2026-11-01T01:06:08+09:00",
+    "shared_append_preceded_reserve": true
+  },
+  "authored_after_actual_parent_reserve": true,
+  "category": "paving_and_tiles",
+  "style": "coastal_clear",
+  "season": "winter",
+  "bodyBinding": null,
+  "style_originals": [
+    {
+      "role": "house",
+      "path": "static/pet-items-v1/house.webp",
+      "sha256": "69ce8c93823a50c5f2225414d4df8adcfe92fcd271ae113982e64f7ccd01cd60",
+      "bytes": 21548,
+      "actual_author_view_image_after_reserve": true
+    },
+    {
+      "role": "flower",
+      "path": "static/pet-items-v1/flower.webp",
+      "sha256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+      "bytes": 22012,
+      "actual_author_view_image_after_reserve": true
+    }
+  ],
+  "construction": "One low rounded coastal timber panel: seven independently closed slats, two broad closed stone bearers, fourteen fixed pegs seated below the top in genuine blind cups, open selected slat channels and explicitly bearer-blocked lower segments. No raster cards, working fasteners or actual hydraulic simulation.",
+  "measured_counts": {
+    "parts": 23,
+    "triangles": 7978,
+    "actual_transformed_mesh_vertex_instances": 6475,
+    "unique_geometry_stored_vertices": 886,
+    "geometry_objects": 3,
+    "exact_typed_position_index_fingerprint_groups": 3,
+    "slats": 7,
+    "bearers": 2,
+    "fixed_recessed_pegs": 14,
+    "strict_material_joins": 28,
+    "selected_clear_channel_segments": 24,
+    "intentionally_bearer_blocked_segments": 12,
+    "measured_channel_width_sections": 30,
+    "occupied_material_chords": 11,
+    "actual_stored_vertex_wall_pairs": 36,
+    "bearer_floor_pairs_diagnostic": 10
+  },
+  "geometryIdentity": {
+    "geometryObjects": 3,
+    "exactTypedPositionIndexFingerprintGroups": 3,
+    "objectFingerprints": [
+      "6a38db8360dc601f94636dfede975de76451ec7b2ae7047a0718187f108dc7b7",
+      "de7eff8eb3ccaf2666fe0ff0d9f5980e7e07dff57ac3627b543a8fc5bb1b11dc",
+      "4e3eac6d9ad971ba17f0e7f71efd711f88541fff77ee246da096fd668bb0066f"
+    ],
+    "partGeometryIDs": [
+      0,
+      0,
+      1,
+      2,
+      2,
+      1,
+      2,
+      2,
+      1,
+      2,
+      2,
+      1,
+      2,
+      2,
+      1,
+      2,
+      2,
+      1,
+      2,
+      2,
+      1,
+      2,
+      2
+    ],
+    "method": "SHA256 explicit typed position/index layout and underlying bytes. Object storage, exact content and rendered part instances are distinct counts."
+  },
+  "authored_dimensions_not_body_calibration": true,
+  "measured_bounds": {
+    "min": [
+      -1.399999976158142,
+      0,
+      -1.5
+    ],
+    "max": [
+      1.399999976158142,
+      0.41999998688697815,
+      1.5
+    ]
+  },
+  "finite_scope": "Actual indexed material, selected all-part routes, true blind cups, occupied chords, finite joins and ten diagnostic bottom/floor triangle pairs. Actual hydrology, installed/walking/physical/world adoption and gameplay/save remain separate.",
+  "gates": {
+    "actualDrainageWaterTransport": false,
+    "walkingCollisionNavigation": false,
+    "loadSlipWeatherStability": false,
+    "installation": false,
+    "physics": false,
+    "rig": false,
+    "wearingFit": false,
+    "normalGame": false,
+    "contractorConstruction": false,
+    "ownershipUnlockSave": false
+  },
+  "new_raw_images": 0
+}
