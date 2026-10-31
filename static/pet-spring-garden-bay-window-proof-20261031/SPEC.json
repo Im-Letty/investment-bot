@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "run_id": "automation360-20261031-094304",
+  "unit_id": "village:asset-library:spring-garden-bay-window:v1",
+  "model_id": "spring-garden-bay-window-v1",
+  "authored_on_jst": "2026-10-31",
+  "authored_after_actual_parent_reserve": true,
+  "actual_parent_reserve": {
+    "evidence_label": "parent-reserved.json / private actual parent-reservation receipt retained separately",
+    "sha256": "8c85690a546559f0f911a5f2d5ad59dbfa67c681d5d3e45639ac89010f9dd23f",
+    "bytes": 247,
+    "run_id": "automation360-20261031-094304",
+    "unit_id": "village:asset-library:spring-garden-bay-window:v1",
+    "started_at_jst": "2026-10-31T09:46:16+09:00",
+    "status_at_reservation": "in_progress"
+  },
+  "category": "house_exteriors_and_interiors",
+  "style": "natural_garden",
+  "season": "spring",
+  "construction": "Three-sided shallow projecting freestanding facade trial; closed wood, fixed thin glass, fixed lattice and relief on a deep sill/broad base. Wood-only openings are intentionally blocked by fixed glass; the rear cavity has separate finite all-part clear routes. No mounted building, operable window, seal, optics or contractor construction.",
+  "measured_counts": {
+    "spec": {
+      "id": "spring-garden-bay-window-v1",
+      "unit_id": "village:asset-library:spring-garden-bay-window:v1",
+      "category": "house_exteriors_and_interiors",
+      "style": "natural_garden",
+      "season": "spring",
+      "authored_on_jst": "2026-10-31",
+      "bodyBinding": null,
+      "wallMounting": false,
+      "openingMotion": false,
+      "latch": false,
+      "weather": false,
+      "optics": false,
+      "physics": false,
+      "loadOrStability": false,
+      "rig": false,
+      "wearingFit": false,
+      "normalGame": false,
+      "ownershipUnlockSave": false,
+      "newOriginalDesign": false
+    },
+    "closedParts": 26,
+    "triangles": 13584,
+    "geometryObjectCount": 19,
+    "materialCount": 4,
+    "textures": 0,
+    "windowFaces": 3,
+    "fixedGlassPanes": 3,
+    "fixedLatticeBars": 6,
+    "flatSupportPads": 4,
+    "leafReliefs": 5,
+    "bounds": {
+      "min": [
+        -1.4500000476837158,
+        1.341104505225843e-9,
+        -0.5800000071525574
+      ],
+      "max": [
+        1.4500000476837158,
+        2.325000000298023,
+        0.808
+      ]
+    },
+    "bodyBinding": null,
+    "wallMounting": false,
+    "openingMotion": false,
+    "latch": false,
+    "weather": false,
+    "optics": false,
+    "physics": false,
+    "loadOrStability": false,
+    "rig": false,
+    "wearingFit": false,
+    "normalGame": false,
+    "ownershipUnlockSave": false,
+    "scope": "Three-sided shallow projecting freestanding facade trial; closed wood, fixed thin glass, fixed lattice and relief on a deep sill/broad base. Wood-only openings are intentionally blocked by fixed glass; the rear cavity has separate finite all-part clear routes. No mounted building, operable window, seal, optics or contractor construction."
+  },
+  "geometryIdentity": {
+    "geometryObjectCount": 19,
+    "exactPositionIndexFingerprintCount": 13,
+    "metric": "Exact position/index typed-buffer bytes plus array type/item size/count. Object ownership and exact geometry content are separate; neither counts semantic shapes, designs or creation units.",
+    "parts": [
+      {
+        "name": "low-broad-rounded-wood-plinth",
+        "fingerprint": "385049c35c00c1ec2d1fd673d79d3b92b31d1762c2c01822e84b43cac6c389a8"
+      },
+      {
+        "name": "deep-rounded-window-sill",
+        "fingerprint": "ba662ad298c9f60329b5652f749377c9f9ff5352c70e7199f96a33c59a09c6d9"
+      },
+      {
+        "name": "flat-fixed-wood-support-0",
+        "fingerprint": "77f587c3cda15955b885fd60a41fc94e811e70cb02e7052b36be761ba3c07969"
+      },
+      {
+        "name": "flat-fixed-wood-support-1",
+        "fingerprint": "77f587c3cda15955b885fd60a41fc94e811e70cb02e7052b36be761ba3c07969"
+      },
+      {
+        "name": "flat-fixed-wood-support-2",
+        "fingerprint": "77f587c3cda15955b885fd60a41fc94e811e70cb02e7052b36be761ba3c07969"
+      },
+      {
+        "name": "flat-fixed-wood-support-3",
+        "fingerprint": "77f587c3cda15955b885fd60a41fc94e811e70cb02e7052b36be761ba3c07969"
+      },
+      {
+        "name": "closed-front-warmwood-window-frame",
+        "fingerprint": "8c82334a34cb08f4a6786ba51a9baf7801838f94f8cd639171bc1250efae2638"
+      },
+      {
+        "name": "fixed-front-rounded-glass-pane",
+        "fingerprint": "27485d92dc65886e4591b2459e398b87223cea585c68808a568348a295f8a08f"
+      },
+      {
+        "name": "fixed-front-vertical-lattice",
+        "fingerprint": "2c9c09b50b82ad9a882d8ac12f97a5affd001d67c0b94a4bb1b6539adcdd775b"
+      },
+      {
+        "name": "fixed-front-horizontal-lattice",
+        "fingerprint": "b2a64c21151bea4d10330f7cd99b94a233593b2b36b58db77a0e1722e2fe8e73"
+      },
+      {
+        "name": "fixed-front-rounded-top-cap",
+        "fingerprint": "739e06269448fda688e003226980b1dbcf6a9d27dfe3f77dcf99e1e7d127c1bc"
+      },
+      {
+        "name": "closed-left-warmwood-window-frame",
+        "fingerprint": "852367bb1eb70ed9891e1e9eb7edec2bbac195501efd3e514a883dcf36c6a3b2"
+      },
+      {
+        "name": "fixed-left-rounded-glass-pane",
+        "fingerprint": "76776bf08f7f2d802bf7c29e5fc67f084cce6a4e0ccd2d5488301f3ea765b2da"
+      },
+      {
+        "name": "fixed-left-vertical-lattice",
+        "fingerprint": "2c9c09b50b82ad9a882d8ac12f97a5affd001d67c0b94a4bb1b6539adcdd775b"
+      },
+      {
+        "name": "fixed-left-horizontal-lattice",
+        "fingerprint": "55317a3eac0b1ba3cc10e57e02a05b0690fa217713606c03eccab1867de22886"
+      },
+      {
+        "name": "fixed-left-rounded-top-cap",
+        "fingerprint": "faea5fbde3fa2aa6aaac752a150e7a6415f11039ebe85b1cb91c32229ba52b68"
+      },
+      {
+        "name": "closed-right-warmwood-window-frame",
+        "fingerprint": "852367bb1eb70ed9891e1e9eb7edec2bbac195501efd3e514a883dcf36c6a3b2"
+      },
+      {
+        "name": "fixed-right-rounded-glass-pane",
+        "fingerprint": "76776bf08f7f2d802bf7c29e5fc67f084cce6a4e0ccd2d5488301f3ea765b2da"
+      },
+      {
+        "name": "fixed-right-vertical-lattice",
+        "fingerprint": "2c9c09b50b82ad9a882d8ac12f97a5affd001d67c0b94a4bb1b6539adcdd775b"
+      },
+      {
+        "name": "fixed-right-horizontal-lattice",
+        "fingerprint": "55317a3eac0b1ba3cc10e57e02a05b0690fa217713606c03eccab1867de22886"
+      },
+      {
+        "name": "fixed-right-rounded-top-cap",
+        "fingerprint": "faea5fbde3fa2aa6aaac752a150e7a6415f11039ebe85b1cb91c32229ba52b68"
+      },
+      {
+        "name": "fixed-small-sage-leaf-relief-21",
+        "fingerprint": "bef263b90342086c717aae0083a191e61f5f4bc81bef9d811778b98d4cb8da7b"
+      },
+      {
+        "name": "fixed-small-sage-leaf-relief-22",
+        "fingerprint": "bef263b90342086c717aae0083a191e61f5f4bc81bef9d811778b98d4cb8da7b"
+      },
+      {
+        "name": "fixed-small-sage-leaf-relief-23",
+        "fingerprint": "bef263b90342086c717aae0083a191e61f5f4bc81bef9d811778b98d4cb8da7b"
+      },
+      {
+        "name": "fixed-small-sage-leaf-relief-24",
+        "fingerprint": "bef263b90342086c717aae0083a191e61f5f4bc81bef9d811778b98d4cb8da7b"
+      },
+      {
+        "name": "fixed-small-sage-leaf-relief-25",
+        "fingerprint": "bef263b90342086c717aae0083a191e61f5f4bc81bef9d811778b98d4cb8da7b"
+      }
+    ]
+  },
+  "bodyBinding": null,
+  "style_originals": [
+    {
+      "path": "static/pet-items-v1/house.webp",
+      "sha256": "69ce8c93823a50c5f2225414d4df8adcfe92fcd271ae113982e64f7ccd01cd60",
+      "bytes": 21548,
+      "actual_author_view_image": true,
+      "viewed_after_actual_parent_reserve": true
+    },
+    {
+      "path": "static/pet-items-v1/flower.webp",
+      "sha256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+      "bytes": 22012,
+      "actual_author_view_image": true,
+      "viewed_after_actual_parent_reserve": true
+    }
+  ],
+  "authored_dimensions_not_body_calibration": true,
+  "new_raw_images": 0,
+  "opening_and_cavity_scope": "12 wood/lattice-only pane aperture segments are intentionally blocked by fixed glass in the assembled model;9 separate rear-cavity all-part segments are clear. Neither means an operable window or a weather seal.",
+  "wall_mounting_or_opening_latch_weather_optics_load_or_game_integration": false
+}
