@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "run_id": "automation360-20261101-070519",
+  "unit_id": "village:asset-library:all-season-glasswood-sprout-planter:v1",
+  "model_id": "all-season-glasswood-sprout-planter-v1",
+  "actual_parent_reserve": {
+    "artifact": "parent-reserved.json",
+    "sha256": "a1e95cf28fb29cf546f7cd6ee43fcc43b9a7e685c4b2c374469c723273afd54d",
+    "bytes": 258,
+    "run_id": "automation360-20261101-070519",
+    "unit_id": "village:asset-library:all-season-glasswood-sprout-planter:v1",
+    "started_at_jst": "2026-11-01T07:15:17+09:00",
+    "shared_append_preceded_reserve": true
+  },
+  "authored_after_actual_parent_reserve": true,
+  "category": "flowers_and_planters",
+  "style": "winter_glass_and_wood",
+  "season": "all_season",
+  "bodyBinding": null,
+  "style_originals": [
+    {
+      "role": "house",
+      "path": "static/pet-items-v1/house.webp",
+      "sha256": "69ce8c93823a50c5f2225414d4df8adcfe92fcd271ae113982e64f7ccd01cd60",
+      "bytes": 21548,
+      "actual_author_view_image_after_reserve": true
+    },
+    {
+      "role": "flower",
+      "path": "static/pet-items-v1/flower.webp",
+      "sha256": "f3303351c1e33b84905225edff5dcb361cf049542ad4289b324c4ff588551ab6",
+      "bytes": 22012,
+      "actual_author_view_image_after_reserve": true
+    }
+  ],
+  "construction": "One fixed rounded glass nursery trough with an actual inner wall, floor, open mouth and closed thick glass material; low pale pine cradle, four closed feet and three fixed sprouts with integrated rounded stem endings and six padded closed leaves. No raster cards, soil simulation, growth, working drainage or physical botanical claim.",
+  "measured_counts": {
+    "parts": 18,
+    "triangles": 8568,
+    "actual_transformed_mesh_vertex_instances": 5490,
+    "unique_geometry_stored_vertices": 2275,
+    "geometry_objects": 8,
+    "exact_typed_position_index_fingerprint_groups": 8,
+    "closed_hollow_glass_troughs": 1,
+    "pine_cradle_rails": 4,
+    "fixed_sprouts": 3,
+    "padded_closed_leaves": 6,
+    "closed_feet": 4,
+    "rounded_stem_endings": 3,
+    "strict_material_joins": 21,
+    "selected_all_part_cavity_routes": 10,
+    "selected_empty_cavity_points": 24,
+    "inner_floor_first_hit_rays": 4,
+    "occupied_material_chords": 18,
+    "actual_stored_vertex_wall_pairs": 13,
+    "foot_floor_pairs_diagnostic": 20
+  },
+  "geometryIdentity": {
+    "geometryObjects": 8,
+    "exactTypedPositionIndexFingerprintGroups": 8,
+    "objectFingerprints": [
+      "fdd087eaadcecda5ab84474617e35b61d971b9e92db381e2503f4862d530880f",
+      "8bebcf9f9466810b008b3f27c9c7271f7db8764ad9020438d3ecd6021ce26fcd",
+      "2f179c63669347872d6b42beea7a870fcdd152e6831d2fe5c6d2ecabaa84fa94",
+      "745dcb7e330d1df47296bdde7c89a6e63c53374d15fae63438f8d69325c7543b",
+      "749980e94f3e65a33517bea1c0ef4dab2430914f7d572f760154470381a19f8c",
+      "bef263b90342086c717aae0083a191e61f5f4bc81bef9d811778b98d4cb8da7b",
+      "a37a1217474cb3d2ecf286d92eace3591d21f1c2e6fde346ec99a198ba181b57",
+      "c334d3fe00f5273b0f53cd0c492f023f43cbb52eb35767413b8bdbed3e2edc92"
+    ],
+    "partGeometryIDs": [
+      0,
+      1,
+      1,
+      2,
+      2,
+      3,
+      3,
+      3,
+      3,
+      4,
+      5,
+      5,
+      6,
+      5,
+      5,
+      7,
+      5,
+      5
+    ],
+    "method": "SHA256 explicit typed position/index layout and underlying bytes. Object storage, exact content and rendered part instances are distinct counts."
+  },
+  "authored_dimensions_not_body_calibration": true,
+  "measured_bounds": {
+    "min": [
+      -1.5299999713897705,
+      0,
+      -0.7099999785423279
+    ],
+    "max": [
+      1.5299999713897705,
+      1.700850782565745,
+      0.7099999785423279
+    ]
+  },
+  "finite_scope": "Actual indexed material, selected all-part cavity routes and samples, actual inner-floor first hits, occupied chords, finite joins and twenty diagnostic bottom/floor triangle pairs. Actual planting, growth, hydrology, installed physical/world adoption and gameplay/save remain separate.",
+  "gates": {
+    "actualPlanting": false,
+    "growth": false,
+    "watering": false,
+    "waterDrainage": false,
+    "lightPhysics": false,
+    "loadStability": false,
+    "weatherStability": false,
+    "installation": false,
+    "physics": false,
+    "rig": false,
+    "wearingFit": false,
+    "normalGame": false,
+    "contractorConstruction": false,
+    "ownershipUnlockSave": false
+  },
+  "new_raw_images": 0
+}
