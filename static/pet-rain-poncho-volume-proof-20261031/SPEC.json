@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "model_id": "rain-poncho-cutout-v3-garment-volume-v1",
+  "unit_id": "wardrobe:fit-prerequisite:rain-poncho:cutout-v3-garment-volume-openings:v1",
+  "scope": "Standalone authored empty garment structure and finite selected openings; body wearing/rig/physics/ordinary game remain unverified.",
+  "selected_source_version": "v3",
+  "source_original_sha256": "b06404edeb06f2ec3b9466e4877d433699dbdc0ed04fa9c51e8a148b0b562ed3",
+  "version_bound_input_sha256": "1e80e228df3b6990d084e742434c293434caa350cc9ea675cf1e3bd4be4d55df",
+  "counts": {
+    "parts": 33,
+    "triangles": 71124,
+    "geometry_objects": 33,
+    "exact_typed_position_index_groups": 29,
+    "actual_stored_mesh_vertices": 92768,
+    "separate_box_corners": 8
+  },
+  "bodyBinding": null,
+  "new_raw_PNGs": 0,
+  "new_original_designs": 0,
+  "new_body": 0,
+  "new_canonical_fit": 0,
+  "new_library_candidate": 0
+}
