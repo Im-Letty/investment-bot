@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "run_id": "automation360-20261101-030916",
+  "unit_id": "wardrobe:fit-prerequisite:morning-garden-sunbonnet:hollow-crown-brim-chin-ties:v1",
+  "model_id": "morning-garden-sunbonnet-v1",
+  "scope": "wardrobe.structural_prerequisite.empty_sunbonnet",
+  "actual_authoring_date_jst": "2026-11-01",
+  "current_base_commit": "43f3d7da4569db34ecfbdfa96d968ddd16a8e7a6",
+  "actual_parent_reserve": {
+    "artifact": "parent-reserved.json",
+    "sha256": "78b4395b5f2d03979f3bd2afa0adb0db3948b6da92703d01494749213621892a",
+    "bytes": 279,
+    "run_id": "automation360-20261101-030916",
+    "unit_id": "wardrobe:fit-prerequisite:morning-garden-sunbonnet:hollow-crown-brim-chin-ties:v1",
+    "started_at_jst": "2026-11-01T03:24:51+09:00",
+    "shared_append_preceded_reserve": true
+  },
+  "source_original": {
+    "asset_id": "prepared_clothing_03b_morning_garden_sunbonnet_v1",
+    "path": "reference.png",
+    "sha256": "121e9843b73e49daa0b8c0b3f2f0b9660a2268ea5d34d9157cd464670808fad5",
+    "bytes": 1469610,
+    "dimensions": [
+      1254,
+      1254
+    ]
+  },
+  "selected_source_version": "original_v1",
+  "raw_quality_hold_retained": true,
+  "prior_bounded_matte_review_repeated_this_unit": false,
+  "bodyBinding": null,
+  "new_original_designs": 0,
+  "new_raw_PNGs": 0,
+  "paid_calls": 0,
+  "new_body_references": 0,
+  "new_canonical_fit_success": 0,
+  "new_village_library_candidates": 0,
+  "normal_game_changes": 0,
+  "artifacts": {
+    "sunbonnet.mjs": {
+      "sha256": "19192a06a8cc71070f4fb54815fa2a729465b16412f70565d504effc8e411194",
+      "bytes": 19780
+    },
+    "audit.mjs": {
+      "sha256": "9ca84d5243a12eb3cd167e7b9a71a8c46e5d6f8962ebf0f4ca0e05aa9736ddc5",
+      "bytes": 9839
+    },
+    "index.html": {
+      "sha256": "76054dccd1d0a5be1995c63edacf862478cbf509c2cd5832fd9e58fb4cf0459f",
+      "bytes": 4625
+    },
+    "entry.mjs": {
+      "sha256": "d558c18cc51f531c197555de7e3245885583698faa6c19fa8a45efb84ef08899",
+      "bytes": 1523
+    },
+    "viewer.mjs": {
+      "sha256": "e48ea4d90b482b7923afcfcccbfd09f42eb21a29ca49fc4a5634f8ba98e55abb",
+      "bytes": 20598
+    },
+    "framing-adapter.mjs": {
+      "sha256": "c6df5f376c8d5a38fa999c695b9436199e4200029a589fd7e86dc894df1aaec9",
+      "bytes": 970
+    },
+    "reference.png": {
+      "sha256": "121e9843b73e49daa0b8c0b3f2f0b9660a2268ea5d34d9157cd464670808fad5",
+      "bytes": 1469610
+    },
+    "mesh-geometry.json": {
+      "sha256": "6533e78c14eb9ec366e1c7043a73c3cb4014f1bc903472ad9720cc667df9bcf0",
+      "bytes": 8771066
+    },
+    "finite-geometry-certificate.json": {
+      "sha256": "66c8b13ca9385af16dfe4d4382d9317e856d4f572a7de0b022c9c0e4e7372cc2",
+      "bytes": 717714
+    },
+    "SPEC.json": {
+      "sha256": "64d93d853982929ee0c917bf5c4f19070453e1133da79866ba89948353b52ef3",
+      "bytes": 4567
+    }
+  },
+  "unchanged_dependencies": {
+    "static/pet-breeze-cape-proof-20261029/geometry-audit.mjs": {
+      "sha256": "2dbe7723509ae914cb98153f133e2a2db9d15e5f4112cc184fa128a2df8e92c0",
+      "bytes": 6377,
+      "matches_current_base": true
+    },
+    "static/pet-breeze-cape-proof-20261029/audit.mjs": {
+      "sha256": "0295f409a2c7182069dd6023bf78d94c3a7d05e237fd244923ea3a4c29a4eb80",
+      "bytes": 5891,
+      "matches_current_base": true
+    },
+    "static/vendor/three-0.160.1.module.js": {
+      "sha256": "76dea8151bc9352aef3528b4262e249b2604f62543828328db978d060d61a495",
+      "bytes": 1272972,
+      "matches_current_base": true
+    },
+    "static/pet-scalloped-path-proof-20261027/framing.mjs": {
+      "sha256": "dba92c2f6dec2816ebcf25434ee07c3b699accb61b7e1961a11baf366edad08a",
+      "bytes": 1678,
+      "matches_current_base": true
+    }
+  },
+  "formal_test_source": {
+    "path": "tests/test_pet_morning_garden_sunbonnet_volume.mjs",
+    "sha256": "6bd36ec7dfb1edf17225652cd241703ae70b1783009526138f901c5e0c35a0bd",
+    "bytes": 40088,
+    "actual_unique_definitions": 18,
+    "actual_TAP_is_separate": true
+  },
+  "tests_are_separate_from_witness_counts": true,
+  "gates": {
+    "allScaleRawCutoutQuality": false,
+    "headEarEyeSproutClearance": false,
+    "measuredWearingFit": false,
+    "tying": false,
+    "textilePhysics": false,
+    "rig": false,
+    "normalGame": false,
+    "ownershipUnlockSave": false,
+    "floorOrWorldPlacement": false
+  }
+}

@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "run_id": "automation360-20261101-030916",
+  "unit_id": "wardrobe:fit-prerequisite:morning-garden-sunbonnet:hollow-crown-brim-chin-ties:v1",
+  "model_id": "morning-garden-sunbonnet-v1",
+  "source_original": {
+    "asset_id": "prepared_clothing_03b_morning_garden_sunbonnet_v1",
+    "path": "reference.png",
+    "sha256": "121e9843b73e49daa0b8c0b3f2f0b9660a2268ea5d34d9157cd464670808fad5",
+    "bytes": 1469610,
+    "dimensions": [
+      1254,
+      1254
+    ]
+  },
+  "selected_source_version": "original_v1",
+  "raw_quality_hold_retained": true,
+  "bodyBinding": null,
+  "construction": "One standalone empty sunbonnet: thick six-panel cream domed crown, mint scalloped annular brim and green lining, rounded gold bindings, fixed top button/leaf badge and two separate capped fixed chin ties with knot/end forms.",
+  "measured_counts": {
+    "parts": 23,
+    "triangles": 58136,
+    "actual_transformed_mesh_vertex_instances": 30574,
+    "unique_geometry_stored_vertices": 30574,
+    "geometry_objects": 23,
+    "exact_typed_position_index_fingerprint_groups": 20,
+    "strict_material_joins": 63,
+    "all_part_clear_opening_routes": 13,
+    "occupied_material_chords": 7,
+    "actual_stored_vertex_wall_pairs": 72,
+    "rounded_binding_profiles": 14,
+    "separate_fixed_ties": 2,
+    "crown_panel_seams": 6,
+    "finite_roof_cavity_empty_samples": 30,
+    "finite_roof_cavity_first_wall_rays": 15,
+    "stored_negative_zero_components": 264
+  },
+  "geometryIdentity": {
+    "geometryObjects": 23,
+    "exactTypedPositionIndexFingerprintGroups": 20,
+    "objectFingerprints": [
+      "b6e47375c4d553d36d09225e614dcf5bae118fdb5e20aa28b71db233288d15c9",
+      "b1c15fc1016157af56eeb52beb2fde32eeb118ac855f9fcda89a4cc0cfb9d7bc",
+      "4aaf5a6ffd21d0852e29fde8075435d2ddc48070def12ce772384457fd598ab8",
+      "0ff9b64c69a69e77c70237ee737ecfded65e955aa3311eba568d89e14d6e9d21",
+      "8c04d8d8861c717a9452b2ee14f2f1b867137dcb51b73586a4ca0e4602802f15",
+      "b93c577765d41ad9d9dce2325dab939f99c41eb05196134c7e4291373776c9bc",
+      "6c07d4caab1c297d23644a16aeb5b7aa49bff83ffd036c967cd2745daf53b500",
+      "3f87245c260bfe19538fbaa88686ea93613082c67a9d5d022ebb88c6f50547da",
+      "7d677b423a952603d97713bcd9628aa1aa72e19324b496828d82c35d8a28c8f0",
+      "73f13e7524ddc1ff3960dd978402f98f3efb43e48d05439980a594d12559aeee",
+      "30d8970ed8b09734dcc4db1b9a2a8d4cdb8b416febd05b5223c90c0d69849bc2",
+      "9417db0917bb6261801452f17175b68bca9ba57fc2b415c943f283afccb0faf0",
+      "c99725a57103d45b2fc968795b27e0b00c1722678d8cab85cc973b2e6e8731d7",
+      "413aada50c964d8e1acf728965708239c2a705a74fa90f024b3130cea10edf5d",
+      "c99725a57103d45b2fc968795b27e0b00c1722678d8cab85cc973b2e6e8731d7",
+      "c26344835965f2320033b02c2bb39637264400cf3686a65c2877a0f0592b452e",
+      "483178c8dfa6e809c42c523563ceb611c2ebf642ee3df0c0ca2ab4571f432651",
+      "0fd82814d8b4ceed9d80cc31895e607302cabe2ac453dfe308c7775b8bc23b6a",
+      "c99725a57103d45b2fc968795b27e0b00c1722678d8cab85cc973b2e6e8731d7",
+      "c236ca98ffd9403850ebb07e8480c6ceacf7ec16fd6d02942e50434106d77c0c",
+      "6d6989709d071338a95c92b3a988f03ca5836a25b96f8cb6cba2624c073f1bc3",
+      "c99725a57103d45b2fc968795b27e0b00c1722678d8cab85cc973b2e6e8731d7",
+      "705476f68e8288f219669a014ff104133f50e570dc190d93a7d369cf92da64bf"
+    ],
+    "partGeometryIDs": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22
+    ],
+    "method": "Exact typed position/index layout and raw bytes. Geometry objects, exact content groups and per-Mesh instances are separate counts."
+  },
+  "authored_dimensions_not_head_calibration": true,
+  "measured_bounds": {
+    "min": [
+      -1.6979999542236328,
+      -0.48100000619888306,
+      -1.4579999446868896
+    ],
+    "max": [
+      1.6979999542236328,
+      2.45,
+      1.4579999446868896
+    ]
+  },
+  "finite_scope": "Closed fixed material, strict material contact graph, selected all-part underside/crown paths, actual stored wall pairs and occupied triangle chords. No wearer, head/ear/eye/sprout fit, cloth/tying simulation, floor, world or gameplay/save success.",
+  "gates": {
+    "allScaleRawCutoutQuality": false,
+    "headEarEyeSproutClearance": false,
+    "measuredWearingFit": false,
+    "tying": false,
+    "textilePhysics": false,
+    "rig": false,
+    "normalGame": false,
+    "ownershipUnlockSave": false,
+    "floorOrWorldPlacement": false
+  },
+  "new_raw_images": 0
+}
