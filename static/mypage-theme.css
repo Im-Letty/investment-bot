@@ -66,7 +66,7 @@ body.kn-home-a #myPageOv .mp-toptabs {
   /* The floating menu now shares the first row with these tabs. */
   padding-left: max(var(--mypage-gutter), calc(var(--kn-a-menu-left) + 48px));
   background: var(--kn-sh-bg, #f0eedf) !important;
-  border-bottom: 1px solid var(--kn-sh-line, #d5d6c3);
+  border-bottom: 0;
   overflow-x: auto;
   overscroll-behavior-x: contain;
 }
