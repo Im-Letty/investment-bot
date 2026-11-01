@@ -4376,7 +4376,7 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
 })();
 </script>
 <!-- Independent pet game: legacy records are migrated once; household and study remain separate. -->
-<link rel="stylesheet" href="/static/pet-game.css?v=20261028-market-art1">
+<link rel="stylesheet" href="/static/pet-game.css?v=20261102-bag1">
 <link rel="stylesheet" href="/static/pet-cozy-room.css?v=20261024-cozy-room1">
 <link rel="stylesheet" href="/static/pet-home-interior.css?v=20261025-life1">
 <link rel="stylesheet" href="/static/pet-village-life.css?v=20261027-mobile-framing1">
@@ -4514,7 +4514,7 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
       loadRequired(shopEntryStyle,function(){return !!styleLoads[shopEntryStyle];},true),
       // UI registration has no eager core access. Fetch it in parallel while
       // retaining economy/layout -> core and walking engine -> scene execution order.
-      loadRequired('/static/pet-game.js?v=20261102-edge-icons1',uiReady)
+      loadRequired('/static/pet-game.js?v=20261102-bag1',uiReady)
     ]).then(function(){if(!apiReady())throw assetFailure('invalid');});
     loadScript('/static/pet-lilac-motion.js?v=20261028-gentle-walk1',function(){return !!window.PetLilacMotion;},5000,enhanceOptional).catch(function(){});
     loadScript('/static/pet-room-behavior.js?v=4306c88f116b',function(){return !!window.PetRoomBehavior;},5000,enhanceOptional).catch(function(){});

@@ -914,6 +914,7 @@ test('only the four retained game tabs are reachable and ordinary care play rema
   assert.equal(f.host.querySelector('[data-focus-key="tab-play"]'),null);
   for(const key of ['shop','market','care']){
     await f.click(f.focusButton('tab-'+key));assert.equal(f.host.querySelector('.ipg-catch-board'),null);assert.equal(f.host.querySelector('.ipg-cafe-activity'),null);
+    assert.equal(f.host.querySelector('.ipg-bag'),null,'developer preview keeps its existing catalogue instead of the player bag');
     assert.doesNotMatch(f.host.textContent,/ミニゲーム|25秒|結果の保存を再試行|前の回を終了/);
   }
   assert.deepEqual(f.saved(),before);await f.click(f.focusButton('care-play'));
@@ -4146,6 +4147,61 @@ test('a fully NPC-funded open shop still offers shares to a player with no previ
 async function lifeFixture(config = {}) {
   return fixture({ species: 'lilac', developerPreview: false, startAtVillage: true, legacyCarePreview: false, rendererMode: 'ready', townScene: true, ...config });
 }
+function bagRows(f, category) {
+  const bag = f.host.querySelector('.ipg-bag'); assert.ok(bag, 'current player bag');
+  return bag.querySelectorAll('.ipg-bag-item').filter(row => !category || row.dataset.bagCategory === category);
+}
+function bagItem(f, id, category) {
+  const rows = bagRows(f, category).filter(row => row.dataset.bagItem === id);
+  assert.equal(rows.length, 1, 'one bag entry for ' + id); return rows[0];
+}
+test('a new player bag contains only owned items and opening, rendering or reopening it never saves', async () => {
+  const f = await lifeFixture({ fresh: true, species: undefined, setup: s => starterSetup(s) });
+  const raw = f.data.get(Core.KEY), writes = f.writes.length;
+  await f.click(f.focusButton('tab-shop'));
+  assert.match(f.host.querySelector('.ipg-bag').textContent, /^バッグ/);
+  assert.deepEqual(bagRows(f, 'food'), []); assert.deepEqual(bagRows(f, 'fish'), []);
+  assert.match(f.host.querySelector('.ipg-bag').textContent, /釣った魚は、ここに入ります/);
+  assert.equal(f.host.querySelector('.ipg-bag-shop').open, false);
+  assert.equal(f.host.querySelector('.ipg-bag-shop summary').textContent, 'お店を見る');
+  for (const food of Core.items.filter(item => item.type === 'food')) {
+    assert.equal(bagRows(f).some(row => row.dataset.bagItem === food.id), false, 'unowned food stays outside the bag');
+  }
+  f.ui.render(); await flush(); await f.ui.close(); await f.ui.open(); await flush();
+  await f.click(f.focusButton('tab-shop'));
+  assert.deepEqual(bagRows(f, 'fish'), []); assert.equal(f.host.querySelector('.ipg-bag-shop').open, false);
+  assert.equal(f.data.get(Core.KEY), raw); assert.equal(f.writes.length, writes); f.ui.close();
+});
+test('saved fish and legacy possessions appear in the bag without migrating totals or treating sea observations as captured items', async () => {
+  const f = await lifeFixture({ setup: async store => {
+    const backup = JSON.parse(store.exportBackup());
+    backup.state.riverFishing = { version: 1, catches: { river_silverfish: 7 }, active: null, nextCastAt: 0 };
+    backup.state.inventory.apple = 3; backup.state.inventory.cake = 0; backup.state.inventory.old_shell = 4; backup.state.inventory.flower = 2;
+    backup.state.wardrobe.owned.cloth_cream_vest = true; backup.state.decorations.owned.flower = {};
+    backup.state.decorations.owned.old_keepsake = {}; backup.state.decorations.owned.berry = {}; backup.state.decorations.backgrounds.push('beach', 'legacy_sky');
+    backup.state.oceanDiscoveries = { version: 1, entries: [{ creatureId: 'reef_fish', discoveredAt: backup.state.updatedAt }] };
+    assert.equal((await store.importBackup(JSON.stringify(backup))).ok, true);
+  } });
+  const before = f.saved(), raw = f.data.get(Core.KEY), writes = f.writes.length;
+  await f.click(f.focusButton('tab-shop'));
+  assert.equal(bagItem(f, 'river_silverfish', 'fish').querySelector('.ipg-bag-count').textContent, '7尾');
+  assert.equal(bagRows(f, 'fish').length, 1);
+  assert.equal(bagItem(f, 'apple', 'food').querySelector('.ipg-bag-count').textContent, '3個');
+  assert.equal(bagRows(f).some(row => row.dataset.bagItem === 'cake'), false);
+  assert.ok(bagItem(f, 'cloth_cream_vest', 'clothing')); assert.ok(bagItem(f, 'flower', 'decoration'));
+  assert.ok(bagItem(f, 'bg_beach', 'background'));
+  assert.deepEqual(bagRows(f, 'furniture').map(row => row.dataset.bagItem), Core.getHomeFurnishingsView(before).rows.filter(row => row.owned).map(row => row.id));
+  assert.equal(bagItem(f, 'old_shell', 'carried').querySelector('.ipg-bag-count').textContent, '4個');
+  assert.equal(bagItem(f, 'flower', 'carried').querySelector('.ipg-bag-count').textContent, '2個');
+  assert.ok(bagItem(f, 'old_keepsake', 'carried')); assert.ok(bagItem(f, 'legacy_sky', 'carried'));
+  assert.ok(bagItem(f, 'berry', 'carried')); assert.equal(bagRows(f, 'food').some(row => row.dataset.bagItem === 'berry'), false);
+  assert.equal(bagRows(f).some(row => row.dataset.bagItem === 'reef_fish'), false);
+  assert.equal(Object.hasOwn(f.saved().inventory, 'river_silverfish'), false, 'existing catch totals do not silently become consumable inventory');
+  f.ui.render(); await flush(); await f.ui.close(); await f.ui.open(); await flush();
+  await f.click(f.focusButton('tab-shop'));
+  assert.equal(bagItem(f, 'river_silverfish', 'fish').querySelector('.ipg-bag-count').textContent, '7尾');
+  assert.deepEqual(f.saved(), before); assert.equal(f.data.get(Core.KEY), raw); assert.equal(f.writes.length, writes); f.ui.close();
+});
 function homeView(f, editing = false) {
   const result = f.homeMounts.findLast(row => !row.destroyed && row.options.host.isConnected && row.options.editing === editing);
   assert.ok(result, editing ? 'current own-home editor' : 'current own-home scene'); return result;
@@ -4188,6 +4244,11 @@ test('village harvest credits the same bag once, and giving it consumes one item
   const f = await lifeFixture(), before = f.saved(); await f.click(f.focusButton('village-life-open'));
   await f.click(f.focusButton('village-harvest-orchard')); const harvested = f.saved();
   assert.equal(harvested.inventory.apple, (before.inventory.apple || 0) + 1); assert.equal(harvested.pet.exp, before.pet.exp); assert.equal(harvested.coins, before.coins);
+  const harvestRaw = f.data.get(Core.KEY), harvestWrites = f.writes.length;
+  await f.click(f.focusButton('tab-shop'));
+  assert.equal(bagItem(f, 'apple', 'food').querySelector('.ipg-bag-count').textContent, harvested.inventory.apple + '個');
+  assert.equal(f.data.get(Core.KEY), harvestRaw); assert.equal(f.writes.length, harvestWrites);
+  await f.click(f.focusButton('tab-village'));
   assert.equal(f.focusButton('village-harvest-orchard').disabled, true); const old = f.focusButton('village-gift-apple'), writes = f.writes.length;
   f.control.pending = deferred(); await f.click(old); assert.deepEqual(f.saved(), harvested); assert.equal(f.focusButton('village-gift-apple').disabled, true);
   f.control.pending.resolve(); f.control.pending = null; await flush();
@@ -4335,14 +4396,23 @@ test('river fishing stays near-only, credits a collectible only after bite and d
  f.advance(Fishing.WAIT);await f.fireTimers();assert.equal(f.focusButton('river-fishing-reel').disabled,false);
  const old=f.focusButton('river-fishing-reel'),writes=f.writes.length;f.control.pending=deferred();await f.click(old);old.emit('click');await flush();
  assert.deepEqual(f.saved(),cast);assert.equal(f.focusButton('river-fishing-reel').disabled,true);
+ assert.doesNotMatch(f.host.textContent,/バッグにしまいました/);
  f.control.pending.resolve();f.control.pending=null;await flush();assert.equal(f.saved().riverFishing.catches.river_silverfish,1);assert.equal(f.writes.length,writes+1);
  for(const key of ['pet','coins','inventory','care','wardrobe','decorations','villageLife'])assert.deepEqual(f.saved()[key],before[key],key);
- assert.match(f.host.textContent,/保存しました/);assert.equal(f.townScenes.at(-1).fishing.phase,'caught');f.ui.close();
+ assert.match(f.host.textContent,/バッグにしまいました/);assert.equal(f.townScenes.at(-1).fishing.phase,'caught');
+ const caughtRaw=f.data.get(Core.KEY);await f.click(f.focusButton('tab-shop'));
+ assert.equal(bagItem(f,'river_silverfish','fish').querySelector('.ipg-bag-count').textContent,'1尾');
+ f.ui.render();await flush();await f.ui.close();await f.ui.open();await flush();await f.click(f.focusButton('tab-shop'));
+ assert.equal(bagItem(f,'river_silverfish','fish').querySelector('.ipg-bag-count').textContent,'1尾');
+ assert.equal(f.data.get(Core.KEY),caughtRaw);assert.equal(f.writes.length,writes+1);f.ui.close();
 });
 for(const mode of ['false','throw'])test('river '+mode+' persistence denial preserves pending fish and enables one deliberate retry',async()=>{
  const f=await riverFixture();await walkToRiver(f);await f.click(f.focusButton('river-fishing-cast'));f.advance(Fishing.WAIT);await f.fireTimers();const raw=f.data.get(Core.KEY),writes=f.writes.length;
  f.control.outcome=mode;await f.click(f.focusButton('river-fishing-reel'));assert.equal(f.data.get(Core.KEY),raw);assert.equal(f.writes.length,writes);assert.equal(f.saved().riverFishing.catches.river_silverfish,0);
- f.control.outcome='ok';await f.click(f.focusButton('river-fishing-reel'));assert.equal(f.saved().riverFishing.catches.river_silverfish,1);f.ui.close();
+ assert.doesNotMatch(f.host.textContent,/バッグにしまいました/);await f.click(f.focusButton('tab-shop'));
+ assert.deepEqual(bagRows(f,'fish'),[]);assert.equal(f.data.get(Core.KEY),raw);assert.equal(f.writes.length,writes);
+ await f.click(f.focusButton('tab-village'));f.control.outcome='ok';await f.click(f.focusButton('river-fishing-reel'));assert.equal(f.saved().riverFishing.catches.river_silverfish,1);
+ await f.click(f.focusButton('tab-shop'));assert.equal(bagItem(f,'river_silverfish','fish').querySelector('.ipg-bag-count').textContent,'1尾');assert.equal(f.writes.length,writes+1);f.ui.close();
 });
 test('moving away cancels a cast, and detached reel handlers cannot credit a fish after closing/reopening',async()=>{
  const f=await riverFixture();await walkToRiver(f);await f.click(f.focusButton('river-fishing-cast'));const old=f.focusButton('river-fishing-reel'),view=f.host.querySelector('.ipg-town-viewport');
