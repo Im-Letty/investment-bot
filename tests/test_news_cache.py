@@ -7,12 +7,14 @@ from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from threading import Event, Lock
+from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock, patch
 from urllib.parse import quote
 
 from flask import Flask
 from news_copy_policy import COPY_LENGTH_POLICY
+from news_update_status import economic_update_status
 from news_cache import (HeadlineTranslations, LEAD_OTHER_NEWS_STRUCTURE, NEWS_FEEDS, WEB_NEWS_SOURCES,
                         _validated_digest,
                         NewsCache, fetch_feed, load_reviewed_digests,
@@ -874,6 +876,9 @@ class RouteCompatibilityTests(unittest.TestCase):
         translator = Mock(); translator.snapshot.side_effect = lambda news, lang: (news, False)
         context = dict(app=app, request=request, jsonify=jsonify, datetime=datetime,
                        website_news=website, news_translations=translator,
+                       _daily_news=SimpleNamespace(snapshot=lambda: {}),
+                       economic_update_status=economic_update_status,
+                       time=SimpleNamespace(time=lambda: now),
                        PUBLISHED_NEWS_SOURCES=WEB_NEWS_SOURCES,
                        load_reviewed_supplements=lambda: [], load_reviewed_digests=lambda: [reviewed],
                        select_daily_news=lambda data, **kwargs: select_daily_news(data, now=now, **kwargs))
@@ -882,8 +887,14 @@ class RouteCompatibilityTests(unittest.TestCase):
             response = app.test_client().get('/api/morning-news?lang=' + lang)
             self.assertEqual(response.status_code, 200)
             data = response.get_json()
+            self.assertNotIn('error', data)
             self.assertEqual(data['delivery'], 'published')
             self.assertEqual(data['digest'], reviewed)
+            self.assertEqual(data['update_status']['version'], 1)
+            self.assertEqual(data['update_status']['edition_date'], '2026-09-22')
+            self.assertEqual(data['update_status']['expected_edition_date'], '2026-09-22')
+            self.assertEqual(data['update_status']['display_checked_at'], now)
+            self.assertEqual(data['update_status']['intraday_result']['state'], 'unavailable')
             self.assertEqual(reviewed, original)
 
     def test_html_revalidates_and_only_fixed_features_get_long_cache(self):
@@ -893,6 +904,7 @@ class RouteCompatibilityTests(unittest.TestCase):
         from news_initial import news_index_response
         from startup_assets import StartupAssets
         root = Path(__file__).parents[1]
+        now = timestamp('2026-09-22T04:00:00Z')
         tree = ast.parse((root / 'line_bot.py').read_text())
         nodes = [node for node in tree.body if isinstance(node, ast.FunctionDef)
                  and node.name in ('index', 'cache_versioned_features')]
@@ -901,8 +913,10 @@ class RouteCompatibilityTests(unittest.TestCase):
         exec(compile(ast.Module(body=nodes, type_ignores=[]), 'file-routes', 'exec'),
              dict(app=app, request=request, send_file=send_file, re=re, os=os,
                   startup_assets=StartupAssets(root),
+                  _daily_news=SimpleNamespace(snapshot=lambda: {}),
                   initial_market_payload=lambda: {'market': {}},
-                  news_index_response=news_index_response, website_news=cache))
+                  news_index_response=lambda path, cache, req, **kwargs: news_index_response(
+                      path, cache, req, now=now, **kwargs), website_news=cache))
         client = app.test_client()
         first = client.get('/')
         try:
@@ -944,6 +958,9 @@ class RouteCompatibilityTests(unittest.TestCase):
         reviewed_digest = digest_for(raw_items[:1])
         context = dict(app=app, request=request, jsonify=jsonify, datetime=datetime,
                        news_cache=cache, news_translations=translator, NEWS_FEEDS=NEWS_FEEDS,
+                       _daily_news=SimpleNamespace(snapshot=lambda: {}),
+                       economic_update_status=economic_update_status,
+                       time=SimpleNamespace(time=lambda: now),
                        website_news=website, PUBLISHED_NEWS_SOURCES=WEB_NEWS_SOURCES,
                        load_reviewed_supplements=lambda: approvals,
                        load_reviewed_digests=lambda: [reviewed_digest],
@@ -954,7 +971,9 @@ class RouteCompatibilityTests(unittest.TestCase):
         self.assertTrue(all(report[source] == '' for source in NEWS_FEEDS if source != 'NHK経済'))
         cache.snapshot.reset_mock()
         response = app.test_client().get('/api/morning-news?lang=unknown')
+        self.assertEqual(response.status_code, 200)
         data = response.get_json()
+        self.assertNotIn('error', data)
         self.assertEqual(data['lang'], 'ja')
         self.assertEqual(data['fetched_at'], 1000)
         self.assertTrue(data['refreshing'])
@@ -962,6 +981,12 @@ class RouteCompatibilityTests(unittest.TestCase):
         self.assertEqual(data['policy_version'], 4)
         self.assertEqual(data['digest'], reviewed_digest)
         self.assertEqual(data['edition_date'], '2026-09-22')
+        self.assertEqual(data['update_status']['version'], 1)
+        self.assertEqual(data['update_status']['edition_date'], '2026-09-22')
+        self.assertEqual(data['update_status']['expected_edition_date'], '2026-09-22')
+        self.assertEqual(data['update_status']['display_checked_at'], now)
+        self.assertEqual(data['update_status']['morning_result']['state'], 'unavailable')
+        self.assertIsNone(data['update_status']['morning_result']['observed_at'])
         self.assertEqual([item['title'] for item in data['news']], ['見出し'])
         self.assertEqual([item['title'] for item in data['supplements']], ['Earlier 0'])
         self.assertEqual(data['selection_counts']['received'], 8)
