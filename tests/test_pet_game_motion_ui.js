@@ -4163,7 +4163,16 @@ async function starterSetup(store, purchases = 0, care = false) {
 
 test('production village-life has three tabs, no retired care screen, and its first movement is not blocked by greeting', async () => {
   const f = await lifeFixture(), before = f.saved(), viewport = f.host.querySelector('.ipg-town-viewport'), avatar = f.host.querySelector('.ipg-town-avatar');
-  assert.deepEqual(f.host.querySelector('.ipg-tabs').children.map(b => b.dataset.focusKey), ['tab-village', 'tab-shop', 'tab-market']);
+  const nav = f.host.querySelector('.ipg-tabs');
+  assert.ok(nav.className.includes('ipg-edge-nav'));
+  assert.deepEqual(nav.children.map(b => b.dataset.focusKey), ['tab-village', 'tab-shop', 'tab-market']);
+  assert.deepEqual(nav.children.map(b => b.getAttribute('aria-label')), ['村', 'もちもの', '仮想マーケット']);
+  assert.deepEqual(nav.children.map(b => b.getAttribute('title')), ['村', 'もちもの', '仮想マーケット']);
+  assert.deepEqual(nav.children.map(b => b.getAttribute('aria-current')), ['page', 'false', 'false']);
+  for (const b of nav.children) {
+    const icon = b.children.find(n => n.tagName === 'SVG');
+    assert.ok(icon); assert.equal(icon.getAttribute('aria-hidden'), 'true'); assert.equal(icon.getAttribute('focusable'), 'false');
+  }
   assert.equal(f.host.querySelector('.ipg-care-room'), null); assert.equal(f.host.querySelector('.ipg-life-panel').hidden, true);
   const position = [avatar.style.left, avatar.style.top]; viewport.focus(); f.window.emit('keydown', { key: 'ArrowUp', target: viewport }); await f.frame(); await f.frame(50); f.window.emit('keyup', { key: 'ArrowUp' });
   assert.notDeepEqual([avatar.style.left, avatar.style.top], position); assert.deepEqual(f.saved(), before); f.ui.close();

@@ -31,6 +31,22 @@
   var stageLabels = { egg: 'たまご', baby: 'あかちゃん', child: 'こども', final: 'さいしゅうしんか' };
   var tabLabels = { village: '村', care: 'そだてる', shop: 'お店・もちもの', market: '仮想マーケット' };
 
+  function navigationIcon(key) {
+    var paths = {
+      village: ['M3 10 12 3l9 7', 'M5 9v12h14V9', 'M10 21v-7h4v7'],
+      shop: ['M8 7V6a4 4 0 0 1 8 0v1', 'M7 7h10a3 3 0 0 1 3 3v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-9a3 3 0 0 1 3-3Z', 'M8 14h8v4H8Z', 'M9 10h6'],
+      market: ['M3 10 5 4h14l2 6', 'M3 10v1a3 3 0 0 0 6 0v-1m0 0v1a3 3 0 0 0 6 0v-1m0 0v1a3 3 0 0 0 6 0v-1', 'M5 14v7h14v-7', 'M10 21v-5h4v5']
+    };
+    var svg = villageSvg('svg', 'ipg-nav-icon');
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.setAttribute('fill', 'none'); svg.setAttribute('stroke', 'currentColor');
+    svg.setAttribute('stroke-width', '1.8'); svg.setAttribute('stroke-linecap', 'round');
+    svg.setAttribute('stroke-linejoin', 'round'); svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('focusable', 'false');
+    (paths[key] || []).forEach(function (value) { var path = villageSvg('path'); path.setAttribute('d', value); svg.appendChild(path); });
+    return svg;
+  }
+
   function node(tag, cls, text) {
     var n = d.createElement(tag);
     if (cls) n.className = cls;
@@ -2903,13 +2919,19 @@
       if (focused) { var choiceFocus = host.querySelector('[data-focus-key="' + focused + '"]'); if (choiceFocus && !choiceFocus.disabled) choiceFocus.focus({ preventScroll: true }); }
       return;
     }
-    var nav = node('nav', 'ipg-tabs'); nav.setAttribute('aria-label', '育成ゲーム');
+    var edgeNavigation = !developerPreview() && !legacyCarePreview();
+    var nav = node('nav', 'ipg-tabs' + (edgeNavigation ? ' ipg-edge-nav' : '')); nav.setAttribute('aria-label', '育成ゲーム');
     Object.keys(tabLabels).forEach(function (key) {
       if (key === 'care' && !developerPreview() && !legacyCarePreview()) return;
-      var b = button(!developerPreview() && !legacyCarePreview() && key === 'shop' ? 'もちもの' : tabLabels[key], function () {
+      var label = edgeNavigation && key === 'shop' ? 'もちもの' : tabLabels[key];
+      var b = button(edgeNavigation ? '' : label, function () {
         if (busy || roomEdit || shopEdit) return;
         tab = key; if (key !== 'shop') { fittingOpen = false; fittingOutfit = null; } render();
       }, true, !!roomEdit || !!shopEdit);
+      if (edgeNavigation) {
+        b.setAttribute('aria-label', label); b.setAttribute('title', label);
+        append(b, navigationIcon(key), node('span', 'ipg-nav-label', label));
+      }
       var current = tab === key || (tab === 'interior' || tab === 'home') && key === 'village';
       b.className += current ? ' is-active' : '';
       b.setAttribute('aria-current', current ? 'page' : 'false');
