@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>未提出の下書きと渡された配置を比べる見本</title>
+<style>
+:root{color-scheme:light;font-family:system-ui,sans-serif;line-height:1.75;color:#263f35;background:#f3f0e6}*{box-sizing:border-box}body{margin:0}main{max-width:58rem;margin:auto;padding:1.2rem}h1{font-size:clamp(1.4rem,5vw,2rem);line-height:1.4}h2{font-size:1.1rem}.card{background:#fffdf6;border:1px solid #819585;border-radius:1rem;padding:1rem;margin:1rem 0}.notice{border-left:5px solid #8a4b12;padding-left:.8rem;font-weight:600}.actions{display:flex;flex-wrap:wrap;gap:.6rem}button{font:inherit;border:2px solid #315942;border-radius:.65rem;padding:.65rem .85rem;background:#315942;color:white;cursor:pointer;min-height:44px}button:disabled{background:#e0e3da;color:#48534a;border-color:#7d897f;cursor:default}:focus-visible{outline:3px solid #8a4b12;outline-offset:3px}pre{font:.85rem/1.6 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;background:#edf1e9;border:1px solid #819585;padding:.8rem;border-radius:.6rem;max-width:100%;min-height:9rem}.small{font-size:.9rem}.status{font-weight:600}@media(max-width:390px){main{padding:.75rem}.card{padding:.8rem}button{width:100%}}
+</style></head><body><main>
+<h1>未提出の下書きと<br>渡された配置を比べる見本</h1>
+<p class="notice">照合するのは、このページが明示して渡した見本の配置です。本人の現在のゲーム状態、所有権、最新の保存内容との一致を保証しません。</p>
+<section class="card" aria-labelledby="examples-label"><h2 id="examples-label">手動で七つの例を確かめる</h2>
+<p>ボタンごとにページ内の別の見本を使います。一つの未提出下書きを読み、保存時の版と配置全体を渡された文脈と比較します。ページを開いただけでは実行しません。</p>
+<div class="actions"><button id="match" type="button">同じ版・同じ配置の例</button><button id="stale" type="button">版が違う例</button><button id="layoutchanged" type="button">同じ版で配置が違う例</button><button id="empty" type="button">空の枠の例</button><button id="corrupt" type="button">壊れた記録の例</button><button id="readfail" type="button">読めない例</button><button id="malformed" type="button">不正な読取応答の例</button></div>
+<p id="status" class="status" role="status" aria-live="polite">ボタンで見本を実行できます。</p>
+</section>
+<section class="card" aria-labelledby="report-label"><h2 id="report-label">今回の観測記録</h2>
+<p class="small">外から渡したjournalの読取回数と、記録を検証する独立したメモリ内読取回数を分けて示します。観測数は実際に押した回数です。正式テストの合格数には数えません。</p>
+<pre id="report" tabindex="0" aria-labelledby="report-label">まだ見本を実行していません。</pre></section>
+<section class="card"><h2>この見本の範囲</h2><p>ページ専用のメモリだけを使い、通常のゲームや本人の保存領域には接続しません。下書きは未提出のままです。見積り、価格、日数、NPC、解放、報酬、依頼の受理、工事、配置の衝突判定は扱いません。</p></section>
+<script src="../pet-village-economy.js"></script><script src="../pet-shop-layout.js"></script><script src="../pet-river-fishing.js"></script><script src="../pet-ocean-discoveries.js"></script><script src="../pet-game-core.js"></script><script src="../pet-contractor-intent.js"></script><script src="../pet-contractor-draft-journal.js"></script><script src="../pet-contractor-draft-review.js"></script><script src="proof.js"></script>
+</main></body></html>
