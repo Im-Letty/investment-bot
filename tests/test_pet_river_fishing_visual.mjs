@@ -22,3 +22,9 @@ test('all dedicated geometries and materials are disposed once without modifying
  const v=Fishing.createVisual(THREE,Town.createWorld());let g=0,m=0;v.geometries.forEach(x=>x.addEventListener('dispose',()=>g++));v.materials.forEach(x=>x.addEventListener('dispose',()=>m++));const n=v.geometries.size,k=v.materials.size;
  v.dispose();v.dispose();assert.equal(g,n);assert.equal(m,k);
 });
+
+test('the existing caught-fish mesh uses each pinned species palette without creating or disposing a second visual',()=>{
+ const world=Town.createWorld(),v=Fishing.createVisual(THREE,world),caught=v.group.getObjectByName('reeled-fish'),geometry=caught.geometry,n=v.geometries.size;
+ try{for(const row of Fishing.catalogue){v.update({phase:'caught',fishId:row.id},Fishing.site().position,1000,true);assert.equal(caught.visible,true);assert.equal(caught.material.color.getHexString(),row.color.slice(1));assert.equal(caught.geometry,geometry);assert.equal(v.geometries.size,n);}}
+ finally{v.dispose();}
+});

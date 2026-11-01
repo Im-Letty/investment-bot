@@ -4432,7 +4432,7 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
   function section(){return document.getElementById('sect-pet');}
   function host(){return document.getElementById('pet-game-root');}
   function uiReady(){return !!(window.IndependentPetGame&&typeof window.IndependentPetGame.mount==='function'&&typeof window.IndependentPetGame.close==='function');}
-  function apiReady(){return !!(window.PetVillageEconomy&&window.PetShopLayout&&window.PetGameCore&&window.PetRiverFishing&&window.PetTownWalk&&window.PetOceanDiscoveries&&window.PetOceanSnorkeling&&window.PetVillageEconomyScene&&typeof window.PetVillageEconomyScene.mount==='function'&&window.PetCozyRoom&&typeof window.PetCozyRoom.mount==='function'&&uiReady());}
+  function apiReady(){return !!(window.PetVillageEconomy&&window.PetShopLayout&&window.PetGameCore&&window.PetGameCore.seasonalLifeRevision==='annual-life1'&&window.PetRiverFishing&&window.PetRiverFishing.lifeRevision==='annual-life1'&&window.PetJapanSeasons&&window.PetJapanSeasons.lifeRevision==='annual-life1'&&window.PetTownWalk&&window.PetOceanDiscoveries&&window.PetOceanSnorkeling&&window.PetVillageEconomyScene&&typeof window.PetVillageEconomyScene.mount==='function'&&window.PetCozyRoom&&typeof window.PetCozyRoom.mount==='function'&&uiReady());}
   function assetFailure(kind){var error=new Error('Game unavailable');error.petAssetFailure=kind;return error;}
   function enhanceOptional(){
     var pane=section(),target=host();
@@ -4491,16 +4491,18 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
     if(apiReady()&&styleLoads[shopEntryStyle])return Promise.resolve();
     if(moduleLoading)return moduleLoading;
     function loadGameCore(){
-      function coreReady(){return loadRequired('/static/pet-game-core.js?v=20261029-contractor-layout1',function(){return !!window.PetGameCore;});}
+      function coreReady(){return loadRequired('/static/pet-game-core.js?v=20261102-annual-life1',function(){return !!window.PetGameCore&&window.PetGameCore.seasonalLifeRevision==='annual-life1';});}
       function oceanReady(){
         if(window.PetOceanDiscoveries&&window.PetOceanSnorkeling)return coreReady();
         return loadRequired('/static/pet-ocean-discoveries.js?v=20261029-snorkeling1',function(){return !!window.PetOceanDiscoveries;}).then(function(){
           return loadRequired('/static/pet-ocean-snorkeling.js?v=20261029-snorkeling1',function(){return !!window.PetOceanSnorkeling;});
         }).then(coreReady);
       }
-      if(window.PetRiverFishing)return oceanReady();
-      return loadRequired('/static/pet-town-walk.js?v=20261029-snorkeling1',function(){return !!window.PetTownWalk;}).then(function(){
-        return loadRequired('/static/pet-river-fishing.js?v=20261025-fishing1',function(){return !!window.PetRiverFishing;});
+      if(window.PetJapanSeasons&&window.PetJapanSeasons.lifeRevision==='annual-life1'&&window.PetRiverFishing&&window.PetRiverFishing.lifeRevision==='annual-life1')return oceanReady();
+      return loadRequired('/static/pet-japan-seasons.js?v=20261102-annual-life1',function(){return !!window.PetJapanSeasons&&window.PetJapanSeasons.lifeRevision==='annual-life1';}).then(function(){
+        return loadRequired('/static/pet-town-walk.js?v=20261029-snorkeling1',function(){return !!window.PetTownWalk;});
+      }).then(function(){
+        return loadRequired('/static/pet-river-fishing.js?v=20261102-annual-life1',function(){return !!window.PetRiverFishing&&window.PetRiverFishing.lifeRevision==='annual-life1';});
       }).then(oceanReady);
     }
     function loadVillageScene(){return loadRequired('/static/pet-village-economy-scene.js?v=20261024-village-economy1',function(){return !!window.PetVillageEconomyScene&&typeof window.PetVillageEconomyScene.mount==='function';});}
@@ -4514,7 +4516,7 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
       loadRequired(shopEntryStyle,function(){return !!styleLoads[shopEntryStyle];},true),
       // UI registration has no eager core access. Fetch it in parallel while
       // retaining economy/layout -> core and walking engine -> scene execution order.
-      loadRequired('/static/pet-game.js?v=20261102-clear-night1',uiReady)
+      loadRequired('/static/pet-game.js?v=20261102-annual-life1',uiReady)
     ]).then(function(){if(!apiReady())throw assetFailure('invalid');});
     loadScript('/static/pet-lilac-motion.js?v=20261028-gentle-walk1',function(){return !!window.PetLilacMotion;},5000,enhanceOptional).catch(function(){});
     loadScript('/static/pet-room-behavior.js?v=4306c88f116b',function(){return !!window.PetRoomBehavior;},5000,enhanceOptional).catch(function(){});

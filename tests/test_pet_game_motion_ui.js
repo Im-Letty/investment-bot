@@ -74,7 +74,7 @@ class Element {
 // Only drawing is stubbed. All durable actions and action-to-cue mapping use the
 // shipped modules, with the same asynchronous storage boundary as the product.
 async function fixture(config = {}) {
-  let clock = new Date(2026, 9, 21, 12).getTime(), sequence = 0, store;
+  let clock = config.now === undefined ? new Date(2026, 9, 21, 12).getTime() : config.now, sequence = 0, store;
   const data = new Map(Object.entries({ ...(config.fresh ? {} : { pg_exp: '30', pg_coins: '500', pg_name: 'もとの子', pg_path: 'cool', pg_px: '1',
     pg_items: '{"rice":2}', pg_ach: '["old-ach"]' }), ...(config.seed || {}) }));
   const writes = [], control = { outcome: 'ok', pending: null };
@@ -4241,22 +4241,22 @@ test('a real scene pet hit opens in-village care without movement, rewards, or a
   assert.equal(f.activeMotions().length, 1); assert.deepEqual(f.saved(), before); f.ui.close();
 });
 test('village harvest credits the same bag once, and giving it consumes one item only after durable confirmation', async () => {
-  const f = await lifeFixture(), before = f.saved(); await f.click(f.focusButton('village-life-open'));
+  const f = await lifeFixture(), before = f.saved(), fruit=Core.getVillageHarvestView(before,f.now).plots[0].itemId; await f.click(f.focusButton('village-life-open'));
   await f.click(f.focusButton('village-harvest-orchard')); const harvested = f.saved();
-  assert.equal(harvested.inventory.apple, (before.inventory.apple || 0) + 1); assert.equal(harvested.pet.exp, before.pet.exp); assert.equal(harvested.coins, before.coins);
+  assert.equal(harvested.inventory[fruit], (before.inventory[fruit] || 0) + 1); assert.equal(harvested.pet.exp, before.pet.exp); assert.equal(harvested.coins, before.coins);
   const harvestRaw = f.data.get(Core.KEY), harvestWrites = f.writes.length;
   await f.click(f.focusButton('tab-shop'));
-  assert.equal(bagItem(f, 'apple', 'food').querySelector('.ipg-bag-count').textContent, harvested.inventory.apple + '個');
+  assert.equal(bagItem(f, fruit, 'food').querySelector('.ipg-bag-count').textContent, harvested.inventory[fruit] + '個');
   assert.equal(f.data.get(Core.KEY), harvestRaw); assert.equal(f.writes.length, harvestWrites);
   await f.click(f.focusButton('tab-village'));
-  assert.equal(f.focusButton('village-harvest-orchard').disabled, true); const old = f.focusButton('village-gift-apple'), writes = f.writes.length;
-  f.control.pending = deferred(); await f.click(old); assert.deepEqual(f.saved(), harvested); assert.equal(f.focusButton('village-gift-apple').disabled, true);
+  assert.equal(f.focusButton('village-harvest-orchard').disabled, true); const old = f.focusButton('village-gift-'+fruit), writes = f.writes.length;
+  f.control.pending = deferred(); await f.click(old); assert.deepEqual(f.saved(), harvested); assert.equal(f.focusButton('village-gift-'+fruit).disabled, true);
   f.control.pending.resolve(); f.control.pending = null; await flush();
-  const after = f.saved(), food = Core.items.find(row => row.id === 'apple');
-  assert.equal(after.inventory.apple || 0, (harvested.inventory.apple || 0) - 1); assert.equal(after.pet.exp, harvested.pet.exp + food.exp); assert.equal(f.writes.length, writes + 1);
+  const after = f.saved(), food = Core.items.find(row => row.id === fruit);
+  assert.equal(after.inventory[fruit] || 0, (harvested.inventory[fruit] || 0) - 1); assert.equal(after.pet.exp, harvested.pet.exp + food.exp); assert.equal(f.writes.length, writes + 1);
   assert.equal(f.activeMotions()[0].options.situation, 'feeding'); f.townScenes.at(-1).options.onFacing({ walking: false, yawDeg: 180, distance: 0 }); assert.equal(f.activeMotions()[0].locomotion.at(-1), null);
   old.emit('click'); await flush(); assert.deepEqual(f.saved(), after); assert.equal(f.writes.length, writes + 1);
-  assert.equal(f.host.querySelector('.ipg-care-room'), null); assert.match(f.host.querySelector('.ipg-notice').textContent, /りんごを渡しました/); f.ui.close();
+  assert.equal(f.host.querySelector('.ipg-care-room'), null); assert.match(f.host.querySelector('.ipg-notice').textContent, new RegExp(food.name+'を渡しました')); f.ui.close();
 });
 for (const outcome of ['false', 'throw']) test('denied ' + outcome + ' village food save keeps inventory, growth and finite reaction uncommitted', async () => {
   const f = await lifeFixture(), before = f.saved(), mapped = f.actionCues.length; await f.click(f.focusButton('village-life-open')); f.control.outcome = outcome;
@@ -4391,40 +4391,40 @@ async function walkToRiver(f) {
 test('river fishing stays near-only, credits a collectible only after bite and durable reel confirmation, and keeps old economy',async()=>{
  const f=await riverFixture(),before=f.saved();assert.equal(f.focusButton('river-fishing-cast').disabled,true);
  await walkToRiver(f);await f.click(f.focusButton('river-fishing-cast'));const cast=f.saved();
- assert.ok(cast.riverFishing.active);assert.equal(cast.riverFishing.catches.river_silverfish,0);assert.equal(f.focusButton('river-fishing-reel').disabled,true);
+ assert.ok(cast.riverFishing.active);assert.equal(cast.riverFishing.catches[Fishing.seasonFish(f.now).id],0);assert.equal(f.focusButton('river-fishing-reel').disabled,true);
  assert.equal(f.focusButton('river-fishing-open').hidden,true,'open fishing panel removes duplicate floating toggle so it cannot cover the bobber');assert.equal(f.host.querySelector('.ipg-fishing-panel').hidden,false);
  f.advance(Fishing.WAIT);await f.fireTimers();assert.equal(f.focusButton('river-fishing-reel').disabled,false);
  const old=f.focusButton('river-fishing-reel'),writes=f.writes.length;f.control.pending=deferred();await f.click(old);old.emit('click');await flush();
  assert.deepEqual(f.saved(),cast);assert.equal(f.focusButton('river-fishing-reel').disabled,true);
  assert.doesNotMatch(f.host.textContent,/バッグにしまいました/);
- f.control.pending.resolve();f.control.pending=null;await flush();assert.equal(f.saved().riverFishing.catches.river_silverfish,1);assert.equal(f.writes.length,writes+1);
+ f.control.pending.resolve();f.control.pending=null;await flush();assert.equal(f.saved().riverFishing.catches[Fishing.seasonFish(f.now).id],1);assert.equal(f.writes.length,writes+1);
  for(const key of ['pet','coins','inventory','care','wardrobe','decorations','villageLife'])assert.deepEqual(f.saved()[key],before[key],key);
  assert.match(f.host.textContent,/バッグにしまいました/);assert.equal(f.townScenes.at(-1).fishing.phase,'caught');
  const caughtRaw=f.data.get(Core.KEY);await f.click(f.focusButton('tab-shop'));
- assert.equal(bagItem(f,'river_silverfish','fish').querySelector('.ipg-bag-count').textContent,'1尾');
+ assert.equal(bagItem(f,Fishing.seasonFish(f.now).id,'fish').querySelector('.ipg-bag-count').textContent,'1尾');
  f.ui.render();await flush();await f.ui.close();await f.ui.open();await flush();await f.click(f.focusButton('tab-shop'));
- assert.equal(bagItem(f,'river_silverfish','fish').querySelector('.ipg-bag-count').textContent,'1尾');
+ assert.equal(bagItem(f,Fishing.seasonFish(f.now).id,'fish').querySelector('.ipg-bag-count').textContent,'1尾');
  assert.equal(f.data.get(Core.KEY),caughtRaw);assert.equal(f.writes.length,writes+1);f.ui.close();
 });
 for(const mode of ['false','throw'])test('river '+mode+' persistence denial preserves pending fish and enables one deliberate retry',async()=>{
  const f=await riverFixture();await walkToRiver(f);await f.click(f.focusButton('river-fishing-cast'));f.advance(Fishing.WAIT);await f.fireTimers();const raw=f.data.get(Core.KEY),writes=f.writes.length;
- f.control.outcome=mode;await f.click(f.focusButton('river-fishing-reel'));assert.equal(f.data.get(Core.KEY),raw);assert.equal(f.writes.length,writes);assert.equal(f.saved().riverFishing.catches.river_silverfish,0);
+ f.control.outcome=mode;await f.click(f.focusButton('river-fishing-reel'));assert.equal(f.data.get(Core.KEY),raw);assert.equal(f.writes.length,writes);assert.equal(f.saved().riverFishing.catches[Fishing.seasonFish(f.now).id],0);
  assert.doesNotMatch(f.host.textContent,/バッグにしまいました/);await f.click(f.focusButton('tab-shop'));
  assert.deepEqual(bagRows(f,'fish'),[]);assert.equal(f.data.get(Core.KEY),raw);assert.equal(f.writes.length,writes);
- await f.click(f.focusButton('tab-village'));f.control.outcome='ok';await f.click(f.focusButton('river-fishing-reel'));assert.equal(f.saved().riverFishing.catches.river_silverfish,1);
- await f.click(f.focusButton('tab-shop'));assert.equal(bagItem(f,'river_silverfish','fish').querySelector('.ipg-bag-count').textContent,'1尾');assert.equal(f.writes.length,writes+1);f.ui.close();
+ await f.click(f.focusButton('tab-village'));f.control.outcome='ok';await f.click(f.focusButton('river-fishing-reel'));assert.equal(f.saved().riverFishing.catches[Fishing.seasonFish(f.now).id],1);
+ await f.click(f.focusButton('tab-shop'));assert.equal(bagItem(f,Fishing.seasonFish(f.now).id,'fish').querySelector('.ipg-bag-count').textContent,'1尾');assert.equal(f.writes.length,writes+1);f.ui.close();
 });
 test('moving away cancels a cast, and detached reel handlers cannot credit a fish after closing/reopening',async()=>{
  const f=await riverFixture();await walkToRiver(f);await f.click(f.focusButton('river-fishing-cast'));const old=f.focusButton('river-fishing-reel'),view=f.host.querySelector('.ipg-town-viewport');
  f.townScenes.at(-1).hit={x:2100,y:1500};view.emit('pointerdown',{pointerId:92,button:0,clientX:100,clientY:100});view.emit('pointerup',{pointerId:92,button:0,clientX:100,clientY:100});
  for(let i=0;i<30&&f.saved().riverFishing.active;i++)await f.frame(50);
- assert.equal(f.saved().riverFishing.active,null);assert.equal(f.saved().riverFishing.catches.river_silverfish,0);
+ assert.equal(f.saved().riverFishing.active,null);assert.equal(f.saved().riverFishing.catches[Fishing.seasonFish(f.now).id],0);
  const raw=f.data.get(Core.KEY);await f.ui.close();f.advance(3000);old.emit('click');await f.fireTimers();await f.ui.open();await flush();assert.equal(f.data.get(Core.KEY),raw);f.ui.close();
 });
 test('reopening a saved cast does not auto-catch and gives an explicit cancel action; old timers never write',async()=>{
  const f=await riverFixture();await walkToRiver(f);await f.click(f.focusButton('river-fishing-cast'));const raw=f.data.get(Core.KEY),id=f.saved().riverFishing.active.id;
  await f.ui.close();f.advance(Fishing.WAIT);await f.fireTimers();assert.equal(f.data.get(Core.KEY),raw);
- await f.ui.open();await flush();assert.equal(f.saved().riverFishing.active.id,id);assert.equal(f.saved().riverFishing.catches.river_silverfish,0);
+ await f.ui.open();await flush();assert.equal(f.saved().riverFishing.active.id,id);assert.equal(f.saved().riverFishing.catches[Fishing.seasonFish(f.now).id],0);
  await f.click(f.focusButton('river-fishing-open'));assert.equal(f.focusButton('river-fishing-cancel').disabled,false);await f.click(f.focusButton('river-fishing-cancel'));assert.equal(f.saved().riverFishing.active,null);f.ui.close();
 });
 
@@ -4432,7 +4432,7 @@ test('fallback keeps explicit cancellation of a previously saved cast available 
  const f=await riverFixture();await walkToRiver(f);await f.click(f.focusButton('river-fishing-cast'));const raw=f.saved();
  f.townScenes.at(-1).fail();await flush();assert.equal(f.host.querySelector('.ipg-town-viewport').dataset.sceneState,'fallback');
  assert.equal(f.focusButton('river-fishing-open').disabled,false);assert.equal(f.focusButton('river-fishing-reel').disabled,true);assert.equal(f.focusButton('river-fishing-cancel').disabled,false);
- await f.click(f.focusButton('river-fishing-cancel'));assert.equal(f.saved().riverFishing.active,null);assert.equal(f.saved().riverFishing.catches.river_silverfish,0);assert.deepEqual(f.saved().inventory,raw.inventory);f.ui.close();
+ await f.click(f.focusButton('river-fishing-cancel'));assert.equal(f.saved().riverFishing.active,null);assert.equal(f.saved().riverFishing.catches[Fishing.seasonFish(f.now).id],0);assert.deepEqual(f.saved().inventory,raw.inventory);f.ui.close();
 });
 
 test('fishing aria-live status remains unchanged across waiting ticks and announces the bite boundary once',async()=>{
@@ -4592,4 +4592,24 @@ test('opening ocean controls during partial depth motion keeps a safe stop and e
   await f.click(f.focusButton('ocean-surface')); await until(() => ocean.controller.snapshot().depth === 0, 'a fresh surface command resumes to the waterline');
   assert.equal(ocean.controller.snapshot().depth, 0); assert.equal(f.focusButton('ocean-surface').hidden, true);
   await f.ui.close();
+});
+
+
+test('JST season edge refreshes visible harvest without writing possessions, and all seasonal foods and distinct fish survive reopening', async () => {
+ const start=Date.UTC(2026,10,30,14,59,59), f=await lifeFixture({now:start,setup:async app=>{
+   const backup=JSON.parse(app.exportBackup());
+   for(const x of Core.items.filter(x=>x.harvestOnly))backup.state.inventory[x.id]=2;
+   backup.state.inventory.berry=3;
+   backup.state.riverFishing={version:2,catches:{river_silverfish:7,river_cherry_salmon:1,river_ayu:2,river_salmon:3,river_smelt:4},active:null,nextCastAt:0};
+   assert.equal((await app.importBackup(JSON.stringify(backup))).ok,true);
+ }});
+ await f.click(f.focusButton('village-life-open'));assert.equal(f.host.querySelector('.ipg-life-harvest').dataset.harvestSeason,'autumn');
+ const raw=f.data.get(Core.KEY),writes=f.writes.length;f.advance(2000);for(const tick of f.intervals.values())tick();await flush();
+ assert.equal(f.host.querySelector('.ipg-life-harvest').dataset.harvestSeason,'winter');assert.match(f.host.querySelector('.ipg-life-harvest').textContent,/みかん.*だいこん.*ワカサギ/);
+ assert.equal(f.data.get(Core.KEY),raw);assert.equal(f.writes.length,writes);
+ await f.click(f.focusButton('tab-shop'));
+ for(const x of Core.items.filter(x=>x.harvestOnly)){const row=bagItem(f,x.id,'food');assert.equal(row.querySelector('.ipg-bag-count').textContent,'2個');assert.equal(row.querySelector('.ipg-item-art').dataset.artReady,'true');assert.ok(row.querySelector('svg'));}
+ for(const [id,count] of Object.entries(f.saved().riverFishing.catches))assert.equal(bagItem(f,id,'fish').querySelector('.ipg-bag-count').textContent,count+'尾');
+ assert.equal(bagItem(f,'river_silverfish','fish').querySelector('strong').textContent,'川の小魚');
+ await f.ui.close();await f.ui.open();await flush();await f.click(f.focusButton('tab-shop'));assert.equal(f.data.get(Core.KEY),raw);assert.equal(f.writes.length,writes);assert.equal(bagItem(f,'river_salmon','fish').querySelector('strong').textContent,'サケ');f.ui.close();
 });
