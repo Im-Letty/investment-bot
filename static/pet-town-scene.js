@@ -213,7 +213,7 @@
   function environmentReady(ground, water, environment) {
     return ground && ground.revision === 'ground-finish2' && typeof ground.create === 'function' && typeof ground.groundTexture === 'function' &&
       water && water.revision === 'water-finish2' && typeof water.create === 'function' &&
-      environment && environment.revision === 'shop-environment2' && typeof environment.create === 'function' && typeof environment.skyTexture === 'function' && typeof environment.profile === 'function';
+      environment && environment.revision === 'shop-environment2' && environment.clearNightRevision === 'clear-night1' && typeof environment.skyPhase === 'function' && typeof environment.watchSky === 'function' && typeof environment.create === 'function' && typeof environment.skyTexture === 'function' && typeof environment.profile === 'function';
   }
   function loadEnvironment() {
     var ground = GroundFinish || globalThis.PetTownGroundFinish, water = WaterFinish || globalThis.PetTownWaterFinish, environment = Environment || globalThis.PetTownEnvironment;
@@ -221,7 +221,7 @@
     if (!environmentLoading) environmentLoading = Promise.all([
       import('/static/pet-town-ground-finish.js?v=20261028-tree-family1'),
       import('/static/pet-town-water-finish.js?v=20261028-tree-family1'),
-      import('/static/pet-town-environment.js?v=20261028-tree-family1')
+      import('/static/pet-town-environment.js?v=20261102-clear-night1')
     ]).then(function () {
       GroundFinish = globalThis.PetTownGroundFinish; WaterFinish = globalThis.PetTownWaterFinish; Environment = globalThis.PetTownEnvironment;
       if (!environmentReady(GroundFinish, WaterFinish, Environment)) throw new Error('town_environment_unavailable');
@@ -275,9 +275,9 @@
   }
   // A small equirectangular sky is a world background only: never a screen wash.
   // It has no game clock, reflection/environment role, or effect on sprite colors.
-  function skyTexture(THREE, doc, palette) {
+  function skyTexture(THREE, doc, palette, phase) {
     var environment = Environment || globalThis.PetTownEnvironment;
-    if (environment && environment.revision === 'shop-environment2' && typeof environment.skyTexture === 'function') return environment.skyTexture(THREE, doc, palette);
+    if (environment && environment.revision === 'shop-environment2' && typeof environment.skyTexture === 'function') return environment.skyTexture(THREE, doc, palette, phase);
     if (!doc || !doc.createElement || !palette || !palette.sky) return null;
     var canvas = doc.createElement('canvas'); canvas.width = 256; canvas.height = 128;
     var ctx = canvas.getContext && canvas.getContext('2d');
@@ -320,7 +320,7 @@
     // planting until both helpers are ready. Normal mount awaits loadMeadow.
     var meadowEnabled = meadowReady(meadowSiteAPI, meadowFlowerAPI), meadowLife = null;
     var scene = new THREE.Scene(), group = new THREE.Group(), geometries = new Set(), materials = new Set(), textures = new Set();
-    var surfaces = [], occluders = [], pickables = [], trees = [], droplets = [], placeGroups = [], seasonalSites = [], seasonGroups = {}, seasonBatches = [], activeSeason = null, disposed = false, fountainWaterTexture = null;
+    var surfaces = [], occluders = [], pickables = [], trees = [], droplets = [], placeGroups = [], seasonalSites = [], seasonGroups = {}, seasonBatches = [], activeSeason = null, activeSkyPhase = 'day', skyBackground = null, disposed = false, fountainWaterTexture = null;
     scene.add(group); group.name = 'saved-town-geometry';
     scene.userData.treeVarietyRevision = treeAPI ? treeAPI.revision : null; scene.userData.treeVarietyKinds = treeKinds;
     var originalAPI=Originals||globalThis.PetTownPlacementOriginals;
@@ -1322,6 +1322,31 @@
         batch.computeBoundingSphere(); decor.add(batch); seasonBatches.push({ mesh: batch, rows: rows, dynamic: false });
       });
     });
+    function replaceSky(palette) {
+      var nextSky = skyTexture(THREE, doc, palette, activeSkyPhase);
+      if (nextSky) {
+        textures.add(nextSky);
+        // Retain the older isolated previews' background.set(color) operation.
+        // That explicit request selects their flat background; the game itself
+        // keeps the authored gradient until its next actual season transition.
+        nextSky.set = function (color) {
+          scene.background = new THREE.Color(color); skyBackground = scene.background;
+          if(waterFinish&&typeof waterFinish.setSkyTexture==='function')waterFinish.setSkyTexture(null);
+          if(waterFinish&&typeof waterFinish.setHorizonColor==='function')waterFinish.setHorizonColor('#'+scene.background.getHexString());
+          return scene.background;
+        };
+      }
+      scene.background = nextSky || new THREE.Color(activeSkyPhase === 'clear-night' ? '#001127' : palette.sky);
+      if(waterFinish&&typeof waterFinish.setSkyTexture==='function')waterFinish.setSkyTexture(nextSky);
+      if (skyMap) { textures.delete(skyMap); skyMap.dispose(); }
+      skyMap = nextSky; skyBackground = scene.background; scene.userData.skyPhase = activeSkyPhase;
+    }
+    function setSkyPhase(phase) {
+      if (disposed || ['day', 'clear-night'].indexOf(phase) < 0) return false;
+      if (phase === activeSkyPhase) return true;
+      var api = Seasons || globalThis.PetJapanSeasons, palette = api ? api.profile(activeSeason || seasonKey || 'summer') : { sky: '#cbe7e8' };
+      activeSkyPhase = phase; replaceSky(palette); return true;
+    }
     function setSeason(key) {
       var api = Seasons || globalThis.PetJapanSeasons, palette = api ? api.profile(key) :
         key === 'summer' ? { ground: '#b1cf83', sky: '#cbe7e8' } : null;
@@ -1354,23 +1379,7 @@
         var accent=seasonGroups[k],visible=k===key,index=aboveWaterRoots.indexOf(accent);
         if(snorkelingWorldMode==='underwater'&&index>=0){aboveWaterVisibility[index]=visible;accent.visible=false;}else accent.visible=visible;
       });
-      var nextSky = skyTexture(THREE, doc, palette);
-      if (nextSky) {
-        textures.add(nextSky);
-        // Retain the older isolated previews' background.set(color) operation.
-        // That explicit request selects their flat background; the game itself
-        // keeps the authored gradient until its next actual season transition.
-        nextSky.set = function (color) {
-          scene.background = new THREE.Color(color);
-          if(waterFinish&&typeof waterFinish.setSkyTexture==='function')waterFinish.setSkyTexture(null);
-          if(waterFinish&&typeof waterFinish.setHorizonColor==='function')waterFinish.setHorizonColor('#'+scene.background.getHexString());
-          return scene.background;
-        };
-      }
-      scene.background = nextSky || new THREE.Color(palette.sky);
-      if(waterFinish&&typeof waterFinish.setSkyTexture==='function')waterFinish.setSkyTexture(nextSky);
-      if (skyMap) { textures.delete(skyMap); skyMap.dispose(); }
-      skyMap = nextSky;
+      replaceSky(palette);
       activeSeason = key; scene.userData.season = key;
       scene.updateMatrixWorld(true);
       return true;
@@ -1410,7 +1419,7 @@
     scene.userData.environmentStyle={revision:scene.userData.environmentStyleRevision,ground:groundFinish?groundFinish.summary():null,water:waterFinish?waterFinish.metrics:null,environment:environmentLife?environmentLife.summary():null};
     function dispose() { if (disposed) return; disposed = true; if(snorkelingWorld)snorkelingWorld.dispose(); if(environmentLife)environmentLife.dispose(); if(meadowLife)meadowLife.dispose(); if(originalArt)originalArt.dispose(); if(oceanLife&&oceanLife.instanceMeshes)oceanLife.instanceMeshes.forEach(function(m){m.dispose();}); batches.forEach(function (b) { b.mesh.dispose(); }); geometries.forEach(function (g) { g.dispose(); }); materials.forEach(function (m) { m.dispose(); }); textures.forEach(function (t) { t.dispose(); }); sun.shadow.dispose(); scene.clear(); }
     return { scene: scene, surfaces: surfaces, occluders: occluders, pickables: pickables, placeGroups: placeGroups, solidLifeRevision:solidLifeRevision, windowRooms:windowRooms, windowLifeMaterials:windowLifeMaterials, waterLife:waterLife, oceanLife:oceanLife, snorkelingWorld:snorkelingWorld, setSnorkelingWorld:setSnorkelingWorld, shoreTransition:shoreTransition, meadowLife:meadowLife, groundFinish:groundFinish, waterFinish:waterFinish, environment:environmentLife, animate: animate, dispose: dispose,
-      loadOriginalArt:loadOriginalArt, originalHit:originalHit, originalDoorHit:originalDoorHit, originalArt:originalArt, setSeason: setSeason, seasonGroups: seasonGroups, styleLimits: style ? style.limits : null, layoutArtRevision: scene.userData.layoutArtRevision,
+      loadOriginalArt:loadOriginalArt, originalHit:originalHit, originalDoorHit:originalDoorHit, originalArt:originalArt, setSeason: setSeason, setSkyPhase: setSkyPhase, skyBackground: function () { return skyBackground; }, seasonGroups: seasonGroups, styleLimits: style ? style.limits : null, layoutArtRevision: scene.userData.layoutArtRevision,
       treeVarietyRevision: treeAPI ? treeAPI.revision : null, treeVarietyKinds: treeKinds, treeRoadClearance: treeRoadClearance,
       geometries: geometries, materials: materials, textures: textures, batches: batches, people: people(world, view, avoid) };
   }
@@ -1418,7 +1427,7 @@
     options = options || {};
     var host = options.viewport, doc = host && host.ownerDocument, win = doc && doc.defaultView;
     var dead = false, failed = false, ready = false, dirty = false, rendering = false, renderer = null, observer = null, raf = null, lastPaint = -Infinity, lastSourceUpload = -Infinity;
-    var removers = [], seasonWatch = null, texture = null, source = null, sourceCoverage = null, sourceFrame = null, cameraView = cameraState(options.camera), actualYaw = cameraView.yaw, drag = null, intervals = [];
+    var removers = [], seasonWatch = null, skyWatch = null, texture = null, source = null, sourceCoverage = null, sourceFrame = null, cameraView = cameraState(options.camera), actualYaw = cameraView.yaw, drag = null, intervals = [];
     var world = options.world, position = Town.spawn(world, options.position), model = null, motion = { walking: false, dx: 0, dy: 0 }, heading = cameraView.yaw, travelled = 0, snorkelingState = null;
     var media = win && win.matchMedia ? win.matchMedia('(prefers-reduced-motion: reduce)') : null, reduced = !!(media && media.matches);
     function active() { if (dead || failed || !host || host.isConnected === false || !doc || doc.hidden) return false; try { return !options.canRun || !!options.canRun(); } catch (_) { return false; } }
@@ -1429,11 +1438,12 @@
       if (dead) return; cancel(); dead = true; drag = null; sourceCoverage = null;
       function release(fn) { try { fn(); } catch (_) {} }
       if (seasonWatch) release(function () { seasonWatch.destroy(); });
+      if (skyWatch) release(function () { skyWatch.destroy(); });
       if (observer) release(function () { observer.disconnect(); }); removers.forEach(release); removers = [];
       if (fishingVisual) release(function () { fishingVisual.dispose(); });
       if (model) release(function () { model.dispose(); }); if (texture) release(function () { texture.dispose(); });
       if (renderer) { release(function () { renderer.renderLists.dispose(); }); release(function () { renderer.dispose(); }); release(function () { renderer.forceContextLoss(); }); release(function () { renderer.domElement.remove(); }); }
-      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; delete host.dataset.townOriginalArt; delete host.dataset.townSolidLife; delete host.dataset.townShoreTransition; delete host.dataset.townTreeVariety; delete host.dataset.townTreeKinds; delete host.dataset.townTreeRoots; delete host.dataset.townFountainReference; delete host.dataset.townShopStyle; delete host.dataset.townMeadowFlowers; delete host.dataset.townEnvironmentStyle; delete host.dataset.townArtFamily; delete host.dataset.townSnorkeling; delete host.dataset.townSnorkelingDepth; delete host.dataset.townSnorkelingRevision; }
+      if (host) { host.dataset.visualMode = 'flat'; delete host.dataset.townCamera; delete host.dataset.fishingPhase; delete host.dataset.townSeason; delete host.dataset.townSeasonDate; delete host.dataset.townSkyPhase; delete host.dataset.townStyle; delete host.dataset.townLayoutArt; delete host.dataset.townOriginalArt; delete host.dataset.townSolidLife; delete host.dataset.townShoreTransition; delete host.dataset.townTreeVariety; delete host.dataset.townTreeKinds; delete host.dataset.townTreeRoots; delete host.dataset.townFountainReference; delete host.dataset.townShopStyle; delete host.dataset.townMeadowFlowers; delete host.dataset.townEnvironmentStyle; delete host.dataset.townArtFamily; delete host.dataset.townSnorkeling; delete host.dataset.townSnorkelingDepth; delete host.dataset.townSnorkelingRevision; }
     }
     function fail(code) { if (dead || failed) return; failed = true; destroy(); report('onFailure', code); }
     var THREE;
@@ -1657,14 +1667,27 @@
           if (!active()) return;
           try {
             var changed = model.scene.userData.season !== value.key;
-            model.setSeason(value.key);normalBackground=model.scene.background;if(snorkelingState&&snorkelingState.mode==='underwater')model.scene.background=underwaterBackground; host.dataset.townSeason = value.key; host.dataset.townSeasonDate = value.dateJst;
+            model.setSeason(value.key);normalBackground=model.skyBackground();if(snorkelingState&&snorkelingState.mode==='underwater')model.scene.background=underwaterBackground; host.dataset.townSeason = value.key; host.dataset.townSeasonDate = value.dateJst;
             if (changed) { renderer.shadowMap.needsUpdate = true; requestRender(); }
           } catch (_) { fail('town_season_unavailable'); }
         }
       });
       if (dead || failed) { seasonWatch.destroy(); return null; }
-      listen(win, 'focus', function () { if (seasonWatch) seasonWatch.check(); schedule(); });
-      listen(doc, 'visibilitychange', function () { cancel(); drag = null; if (!doc.hidden && active()) { if (seasonWatch) seasonWatch.check(); requestRender(); } });
+      var skyNow = typeof options.skyNow === 'function' ? options.skyNow : seasonNow;
+      skyWatch = Environment.watchSky({ now: skyNow, subscribe: options.skySubscribe, enabled: active,
+        setTimeout: function (fn, ms) { return win.setTimeout(fn, ms); }, clearTimeout: function (id) { win.clearTimeout(id); },
+        onChange: function (value) {
+          if (!active()) return;
+          try {
+            model.setSkyPhase(value.phase); normalBackground = model.skyBackground();
+            if (snorkelingState && snorkelingState.mode === 'underwater') model.scene.background = underwaterBackground;
+            host.dataset.townSkyPhase = value.phase; requestRender();
+          } catch (_) { fail('town_sky_unavailable'); }
+        }
+      });
+      if (dead || failed) { skyWatch.destroy(); return null; }
+      listen(win, 'focus', function () { if (seasonWatch) seasonWatch.check(); if (skyWatch) skyWatch.check(); schedule(); });
+      listen(doc, 'visibilitychange', function () { cancel(); drag = null; if (!doc.hidden && active()) { if (seasonWatch) seasonWatch.check(); if (skyWatch) skyWatch.check(); requestRender(); } });
       if (media) listen(media, 'change', function () { reduced = !!media.matches; cancel(); requestRender(); });
       if (win.ResizeObserver) { observer = new win.ResizeObserver(resize); observer.observe(host); } else listen(win, 'resize', resize);
       resize(); schedule(); return dead || failed ? null : controller;

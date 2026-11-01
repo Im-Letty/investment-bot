@@ -5,7 +5,7 @@
  if(typeof module==='object'&&module.exports)module.exports=api;else root.PetTownEnvironment=api;
 }(typeof window!=='undefined'?window:globalThis,function(){
  'use strict';
- var REVISION='shop-environment2',SKY_WIDTH=512,SKY_HEIGHT=256,TAU=Math.PI*2,SEASONS={
+ var REVISION='shop-environment2',SKY_WIDTH=512,SKY_HEIGHT=256,NIGHT_WIDTH=2048,NIGHT_HEIGHT=1024,NIGHT_STARS=7000,TAU=Math.PI*2,SEASONS={
   spring:{key:'spring',sky:'#a1c9d6',horizon:'#e4e2cc',hills:['#78975d','#a3b77a','#8aa36b']},
   summer:{key:'summer',sky:'#94c2d3',horizon:'#e1e2c9',hills:['#6f925b','#98af70','#809e64']},
   autumn:{key:'autumn',sky:'#a8c7cf',horizon:'#e7dec6',hills:['#85975e','#a9b177','#94a36a']},
@@ -60,27 +60,79 @@
   }
   return pixels;
  }
- function skyTexture(T,doc,value){
+ // Authored village hours, not observed weather or an astronomical sunset.
+ function skyPhase(ms){
+  if(typeof ms!=='number'||!Number.isFinite(ms))return null;
+  var shifted=new Date(ms+32400000);if(!Number.isFinite(shifted.getTime()))return null;
+  var hour=shifted.getUTCHours(),phase=hour>=18||hour<6?'clear-night':'day';
+  var date=shifted.toISOString().slice(0,10),next=new Date(shifted.getTime());
+  next.setUTCHours(hour<6?6:hour<18?18:30,0,0,0);
+  var boundary=next.getTime()-32400000;if(!Number.isFinite(boundary)||boundary<=ms)return null;
+  return Object.freeze({phase:phase,dateJst:date,nextChangeAt:boundary});
+ }
+ function watchSky(options){
+  options=options||{};var now=options.now||Date.now,set=options.setTimeout||setTimeout,clear=options.clearTimeout||clearTimeout;
+  var timer=null,dead=false,last=null,unsubscribe=null;
+  function cancel(){if(timer!==null){clear(timer);timer=null;}}
+  function check(){
+   if(dead)return null;cancel();var state=null,ms;
+   try{ms=now();if(!options.enabled||options.enabled())state=skyPhase(ms);}catch(_){}
+   if(state&&state.phase!==last){last=state.phase;if(typeof options.onChange==='function')options.onChange(state);}
+   if(!dead)timer=set(check,state?Math.max(1,Math.min(60000,state.nextChangeAt-ms)):60000);
+   return state;
+  }
+  if(typeof options.subscribe==='function')unsubscribe=options.subscribe(check);
+  check();return Object.freeze({check:check,destroy:function(){if(dead)return;dead=true;cancel();if(typeof unsubscribe==='function')unsubscribe();}});
+ }
+ function nightPixels(){
+  var pixels=new Uint8ClampedArray(NIGHT_WIDTH*NIGHT_HEIGHT*4),top=rgb('#001127'),horizon=rgb('#0e315a'),bottom=rgb('#06162e');
+  for(var y=0;y<NIGHT_HEIGHT;y++){
+   var v=y/(NIGHT_HEIGHT-1),t=smooth(.02,.54,v),low=smooth(.52,.68,v),row=(y*NIGHT_WIDTH)*4;
+   var channels=top.map(function(c,i){return Math.round((c*(1-t)+horizon[i]*t)*(1-low)+bottom[i]*low);});
+   for(var x=0;x<NIGHT_WIDTH;x++){var at=row+x*4;pixels[at]=channels[0];pixels[at+1]=channels[1];pixels[at+2]=channels[2];pixels[at+3]=255;}
+  }
+  var seed=7143702;
+  function random(){seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;}
+  for(var star=0;star<NIGHT_STARS;star++){
+   var sx=Math.floor(random()*(NIGHT_WIDTH-1)),sy=Math.floor((.018+random()*.475)*(NIGHT_HEIGHT-1)),brightness=.40+.60*Math.pow(random(),3),radius=.30+brightness*.55;
+   var warm=random()<.12,color=warm?[255,235,205]:[238,245,255],extent=Math.ceil(radius*2),fade=1-smooth(.47,.51,sy/NIGHT_HEIGHT);
+   for(var dy=-extent;dy<=extent;dy++)for(var dx=-extent;dx<=extent;dx++){
+    var px=(Math.floor(sx)+dx+NIGHT_WIDTH-1)%(NIGHT_WIDTH-1),py=Math.floor(sy)+dy;if(py<0||py>=NIGHT_HEIGHT)continue;
+    var distance=Math.pow((Math.floor(sx)+dx-sx)/radius,2)+Math.pow((py-sy)/radius,2);
+    var alpha=Math.exp(-distance*1.9)*brightness*fade,at=(py*NIGHT_WIDTH+px)*4;
+    for(var c=0;c<3;c++)pixels[at+c]=Math.round(pixels[at+c]*(1-alpha)+color[c]*alpha);
+   }
+  }
+  // The first and last samples are exactly the same meridian, including stars.
+  for(y=0;y<NIGHT_HEIGHT;y++)for(var c=0;c<4;c++)pixels[(y*NIGHT_WIDTH+NIGHT_WIDTH-1)*4+c]=pixels[y*NIGHT_WIDTH*4+c];
+  return pixels;
+ }
+ function skyTexture(T,doc,value,phase){
+  phase=phase===undefined?'day':phase;if(phase!=='day'&&phase!=='clear-night')throw new TypeError('sky_phase_invalid');
   if(!doc||typeof doc.createElement!=='function'||!value)return null;
-  var p=profile(value),canvas=doc.createElement('canvas');canvas.width=SKY_WIDTH;canvas.height=SKY_HEIGHT;
+  var p=profile(value),night=phase==='clear-night',width=night?NIGHT_WIDTH:SKY_WIDTH,height=night?NIGHT_HEIGHT:SKY_HEIGHT;
+  var canvas=doc.createElement('canvas');canvas.width=width;canvas.height=height;
   var ctx=canvas.getContext&&canvas.getContext('2d');if(!ctx)return null;
   var pixelPaint=typeof ctx.createImageData==='function'&&typeof ctx.putImageData==='function';
   if(pixelPaint){
-   var image=ctx.createImageData(SKY_WIDTH,SKY_HEIGHT);image.data.set(skyPixels(p));ctx.putImageData(image,0,0);
+   var image=ctx.createImageData(width,height);image.data.set(night?nightPixels():skyPixels(p));ctx.putImageData(image,0,0);
   }else{
    // Keep lightweight canvas callers useful without pretending they rendered
    // the detailed cloud field when ImageData is unavailable.
    if(typeof ctx.createLinearGradient!=='function'||typeof ctx.fillRect!=='function')return null;
-   var g=ctx.createLinearGradient(0,0,0,SKY_HEIGHT);
-   g.addColorStop(0,p.sky);g.addColorStop(.40,p.sky);g.addColorStop(.56,mix(p.sky,p.horizon,.48));
-   g.addColorStop(.73,p.horizon);g.addColorStop(1,p.horizon);ctx.fillStyle=g;ctx.fillRect(0,0,SKY_WIDTH,SKY_HEIGHT);
+   var g=ctx.createLinearGradient(0,0,0,height);
+   if(night){g.addColorStop(0,'#001127');g.addColorStop(.52,'#0e315a');g.addColorStop(1,'#06162e');}
+   else{g.addColorStop(0,p.sky);g.addColorStop(.40,p.sky);g.addColorStop(.56,mix(p.sky,p.horizon,.48));g.addColorStop(.73,p.horizon);g.addColorStop(1,p.horizon);}
+   ctx.fillStyle=g;ctx.fillRect(0,0,width,height);
   }
   var texture=new T.CanvasTexture(canvas);texture.colorSpace=T.SRGBColorSpace;texture.mapping=T.EquirectangularReflectionMapping;
+  if(night){texture.magFilter=T.NearestFilter;texture.minFilter=T.NearestFilter;texture.generateMipmaps=false;}
   texture.wrapS=T.RepeatWrapping;texture.wrapT=T.ClampToEdgeWrapping;
   texture.userData.presentationRole='bounded-seasonal-sky-background';texture.userData.environmentRevision=REVISION;
-  texture.userData.environmentSeason=p.key;texture.userData.codeAuthored=true;texture.userData.cloudBanks=pixelPaint?CLOUDS.length:0;
-  texture.userData.paintMode=pixelPaint?'periodic-layered-cloud-pigment':'gradient-fallback';
-  texture.userData.textureBytes=SKY_WIDTH*SKY_HEIGHT*4;return texture;
+  texture.userData.environmentSeason=p.key;texture.userData.codeAuthored=true;texture.userData.cloudBanks=pixelPaint&&!night?CLOUDS.length:0;
+  texture.userData.skyPhase=phase;texture.userData.starCount=night&&pixelPaint?NIGHT_STARS:0;
+  texture.userData.paintMode=pixelPaint?night?'deterministic-clear-night-stars':'periodic-layered-cloud-pigment':'gradient-fallback';
+  texture.userData.textureBytes=width*height*4;return texture;
  }
  function hillGeometry(T){
   var g=new T.SphereGeometry(1,32,16),p=g.attributes.position;
@@ -151,6 +203,6 @@
   function dispose(){if(disposed)return false;disposed=true;root.removeFromParent();root.clear();return true;}
   return {revision:REVISION,group:root,hills:Object.freeze(hills),setSeason:setSeason,summary:summary,dispose:dispose};
  }
- return Object.freeze({revision:REVISION,profile:profile,skyTexture:skyTexture,hillGeometry:hillGeometry,create:create,
-  limits:Object.freeze({skyWidth:SKY_WIDTH,skyHeight:SKY_HEIGHT,skyTextureBytes:SKY_WIDTH*SKY_HEIGHT*4,cloudBanks:CLOUDS.length,hillGeometries:1,hillMaterials:3})});
+ return Object.freeze({revision:REVISION,clearNightRevision:'clear-night1',profile:profile,skyTexture:skyTexture,skyPhase:skyPhase,watchSky:watchSky,hillGeometry:hillGeometry,create:create,
+  limits:Object.freeze({skyWidth:SKY_WIDTH,skyHeight:SKY_HEIGHT,skyTextureBytes:SKY_WIDTH*SKY_HEIGHT*4,nightSkyWidth:NIGHT_WIDTH,nightSkyHeight:NIGHT_HEIGHT,nightSkyTextureBytes:NIGHT_WIDTH*NIGHT_HEIGHT*4,nightStars:NIGHT_STARS,cloudBanks:CLOUDS.length,hillGeometries:1,hillMaterials:3})});
 }));
