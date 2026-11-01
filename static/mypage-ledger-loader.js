@@ -94,6 +94,7 @@
   }
   function unload(keepParentScroll) {
     owner='';ready=false;loaded=false;
+    hideFrame(frame);
     if(!keepParentScroll){personalScroll=0;if(body)body.scrollTop=0;}
     if(frame&&frame.getAttribute('src')){
       // Detach the old browsing context immediately, including pending save
@@ -101,20 +102,28 @@
       pane.removeChild(frame);frame=createFrame();
     }
   }
+  function hideFrame(item) {
+    if(!item)return;
+    // Keep the layout box for the child charts without painting its default
+    // ledger view before the requested MyPage surface has been applied.
+    item.style.visibility='hidden';item.setAttribute('aria-busy','true');
+  }
   function createFrame() {
     var item=document.createElement('iframe');item.className='kb-frame';item.dataset.kbsrc='/kakeibo';
+    hideFrame(item);
     item.setAttribute('title','資産管理・家計簿');item.addEventListener('load',function(){
       if(item!==frame)return;
-      loaded=true;ready=false;item.setAttribute('aria-busy','true');markReady();
+      loaded=true;ready=false;hideFrame(item);markReady();
     });pane.appendChild(item);
     return item;
   }
   function markReady() {
+    hideFrame(frame);
     if(!frame||!owner||owner!==account())return;
     try {
       var doc=frame.contentDocument;
       if(!doc||doc.documentElement.getAttribute('data-kn-ledger-ready')!=='true')return;
-      ready=true;pane.classList.remove('mp-memo-warming');applyFrameView();frame.removeAttribute('aria-busy');
+      ready=true;pane.classList.remove('mp-memo-warming');applyFrameView();
     } catch(ignore) {}
   }
   function portfolioSelected() {
@@ -122,11 +131,18 @@
     return !!(first&&first.classList.contains('on'));
   }
   function applyFrameView() {
-    if(!ready||!owner||owner!==account())return;
+    var item=frame,currentOwner=owner;
+    hideFrame(item);
+    if(!item||!ready||!currentOwner||currentOwner!==account())return false;
     var view=group===1?'ledger':portfolioSelected()?'assets':null;
-    if(!view)return;
-    var child=frame.contentWindow;
-    if(typeof child.kkSetMyPageView==='function')child.kkSetMyPageView(view);
+    if(!view)return false;
+    try {
+      var child=item.contentWindow;
+      if(typeof child.kkSetMyPageView!=='function'||child.kkSetMyPageView(view)!==true)return false;
+      if(item!==frame||owner!==currentOwner||currentOwner!==account())return false;
+      item.style.visibility='';item.removeAttribute('aria-busy');
+      return true;
+    } catch(ignore) {return false;}
   }
   function prepare(allowHidden) {
     if(!page||!page.classList.contains('open')&&allowHidden!==true)return;
@@ -135,7 +151,7 @@
     if(owner&&owner!==current)unload();
     if(owner===current)return;
     owner=current;ready=false;
-    frame.setAttribute('aria-busy','true');
+    hideFrame(frame);
     // An authorized MyPage visit warms this document once. Hidden lazy frames
     // would otherwise defer the request until the household-ledger tab is tapped.
     frame.setAttribute('loading','eager');
