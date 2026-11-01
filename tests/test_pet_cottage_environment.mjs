@@ -5,6 +5,7 @@ import Scene from '../static/pet-town-scene.js';
 import Town from '../static/pet-town-walk.js';
 import Seasons from '../static/pet-japan-seasons.js';
 import Environment from '../static/pet-town-environment.js';
+import {assertDerivedWorld} from './helpers/pet-town-derived-world.mjs';
 function document(){
  const canvases=[];
  return {canvases,createElement(){const c={width:0,height:0,stops:[]},ctx={
@@ -29,6 +30,7 @@ test('sky uses a bounded world background gradient and safe non-canvas fallback'
 });
 test('season transitions replace only bounded presentation maps and dispose each sky once',()=>{
  const doc=document(),world=Town.createWorld(),saved=JSON.stringify(world),m=Scene.buildWorld(THREE,world,{},null,doc,'autumn'),geometries=[...m.geometries];
+ assertDerivedWorld(world,saved,m);const presented=JSON.stringify(world);
  const disposed=new Map();
  function sky(){return [...m.textures].filter(t=>t.userData.presentationRole==='bounded-seasonal-sky-background');}
  try{
@@ -36,7 +38,7 @@ test('season transitions replace only bounded presentation maps and dispose each
    const old=sky();assert.equal(old.length,1);disposed.set(old[0],0);old[0].addEventListener('dispose',()=>disposed.set(old[0],disposed.get(old[0])+1));
    assert.equal(m.setSeason(key),true);assert.equal(disposed.get(old[0]),1);assert.equal(sky().length,1);
    assert.equal(m.scene.background,sky()[0]);assert.equal(m.scene.environment,null);assert.equal(m.scene.fog,null);
-   assert.deepEqual([...m.geometries],geometries);assert.equal(JSON.stringify(world),saved);
+   assert.deepEqual([...m.geometries],geometries);assert.equal(JSON.stringify(world),presented);
    const same=sky()[0];m.setSeason(key);assert.equal(sky()[0],same);
   }
   const last=sky()[0];disposed.set(last,0);last.addEventListener('dispose',()=>disposed.set(last,disposed.get(last)+1));

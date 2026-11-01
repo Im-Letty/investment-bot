@@ -100,7 +100,7 @@ async function fixture(options={}){
   forceContextLoss(){this.lost=true;}
  }
  if(options.configureHost)options.configureHost(host);
- const world=options.world||Town.createWorld(),controller=await (options.sceneAPI||Scene).mount({viewport:host,world,position:options.position||{x:1100,y:1100},camera:options.camera,view:options.view,canRun:()=>allowed,three:{...THREE,TextureLoader:textureLoaderFixture(originalLoads,{...options,loadedTextures:originalTextures}),WebGLRenderer:Renderer},onReady:()=>ready++,onFailure:c=>failures.push(c),onFacing:options.onFacing,seasonNow:options.seasonNow,seasonSubscribe:options.seasonSubscribe});
+ const world=options.world||Town.createWorld(),controller=await (options.sceneAPI||Scene).mount({viewport:host,world,position:options.position||{x:1100,y:1100},camera:options.camera,view:options.view,canRun:()=>allowed,three:{...THREE,TextureLoader:textureLoaderFixture(originalLoads,{...options,loadedTextures:originalTextures}),WebGLRenderer:Renderer},onReady:()=>ready++,onFailure:c=>failures.push(c),onFacing:options.onFacing,seasonNow:options.seasonNow,seasonSubscribe:options.seasonSubscribe,skyNow:options.skyNow,skySubscribe:options.skySubscribe});
  const source=new Element(doc,'CANVAS');source.getContext=()=>({RGBA:1,UNSIGNED_BYTE:2,readPixels(x,y,w,h,format,type,pixels){pixels[(2*w+8)*4+3]=255;}});
  return {doc,win,host,media,frames,renderers,images,observers,timers,originalLoads,originalTextures,world,source,controller,failures,get ready(){return ready;},get now(){return stamp;},allow:v=>{allowed=v;},time:v=>{stamp=v;},frame(ms=16){stamp+=ms;const callbacks=[...frames.values()];frames.clear();callbacks.forEach(fn=>fn(stamp));},project(p){const camera=renderers[0].calls.at(-1).camera,g=Scene.groundPoint(world,p),v=new THREE.Vector3(g.x,Scene.heightAt(p),g.z).project(camera);return {clientX:(v.x+1)*195,clientY:(1-v.y)*350};}};
 }
@@ -483,7 +483,7 @@ test('same-scene JST changes preserve the selected frame, player position, camer
  try{
   f.controller.setFrame(f.source);f.controller.setFishing({phase:'waiting'});f.frame(40);
   const r=f.renderers[0],oldScene=r.calls.at(-1).scene,pet=oldScene.getObjectByName('current-pet-2d-frame'),map=pet.material.map,position=pet.position.clone(),camera=f.controller.camera(),calls=r.calls.length;
-  assert.equal(f.host.dataset.townSeason,'spring');assert.equal(f.host.dataset.townSeasonDate,'2026-05-31');assert.equal(f.timers.size,1);
+  assert.equal(f.host.dataset.townSeason,'spring');assert.equal(f.host.dataset.townSeasonDate,'2026-05-31');assert.equal(f.timers.size,2);
   now=Date.parse('2026-05-31T15:00:00Z');notify();assert.equal(f.host.dataset.townSeason,'summer');assert.equal(f.host.dataset.townSeasonDate,'2026-06-01');f.frame(40);
   assert.equal(r.calls.at(-1).scene,oldScene);assert.equal(pet.material.map,map);assert.deepEqual(pet.position,position);assert.deepEqual(f.controller.camera(),camera);assert.equal(f.host.dataset.fishingPhase,'waiting');assert.equal(r.calls.length,calls+1);assert.equal(f.frames.size,0);
   now+=86400000;const after=r.calls.length;notify();assert.equal(f.host.dataset.townSeasonDate,'2026-06-02');assert.equal(f.frames.size,0);assert.equal(r.calls.length,after,'a new day in one season does not redraw or allocate decorative geometry');
@@ -778,4 +778,27 @@ test('water mode changes invalidate cached island shadows once and restore norma
   assert.equal(f.controller.setSnorkeling(surface),true);assert.equal(shadowMap.needsUpdate,true,'visible island casters get their normal shadow map back');
   shadowMap.needsUpdate=false;assert.equal(f.controller.setSnorkeling(null),true);assert.equal(shadowMap.needsUpdate,true);shadowMap.needsUpdate=false;f.frame(40);assert.equal(shadowMap.needsUpdate,false);assert.deepEqual(f.failures,[]);
  }finally{f.controller.destroy();}
+});
+
+
+test('same-day sky boundaries preserve underwater presentation and return to the latest sky in reduced motion',async()=>{
+ let now=Date.parse('2026-11-01T08:59:59Z'),notify,unsubscribed=0;
+ const f=await fixture({reduced:true,seasonNow:()=>Date.parse('2026-11-01T03:00:00Z'),skyNow:()=>now,skySubscribe:fn=>{notify=fn;return()=>{unsubscribed++;};}});
+ try{
+  f.controller.setFrame(f.source);f.frame(40);
+  const scene=f.renderers[0].calls.at(-1).scene,day=scene.background,pet=scene.getObjectByName('current-pet-2d-frame'),source=pet.material.map,camera=f.controller.camera(),world=JSON.stringify(f.world);
+  const lights=()=>scene.children.filter(o=>o.isLight).map(o=>[o.type,o.color.getHex(),o.intensity]);const beforeLights=lights();
+  let dayDisposed=0,nightDisposed=0;day.addEventListener('dispose',()=>dayDisposed++);
+  assert.equal(f.host.dataset.townSkyPhase,'day');
+  const encounter=OceanDiscoveries.encounters[0];f.controller.setSnorkeling({mode:'underwater',phase:'underwater',position:encounter.position,depth:1.15,moving:false});f.frame(40);const water=scene.background;
+  now=Date.parse('2026-11-01T09:00:00Z');notify();f.frame(40);
+  assert.equal(scene.background,water);assert.equal(f.host.dataset.townSkyPhase,'clear-night');assert.equal(dayDisposed,1);
+  f.controller.setSnorkeling(null);f.frame(40);const night=scene.background;assert.equal(night.userData.skyPhase,'clear-night');night.addEventListener('dispose',()=>nightDisposed++);
+  notify();f.frame(40);assert.equal(scene.background,night);assert.equal(nightDisposed,0);
+  f.doc.hidden=true;now=Date.parse('2026-11-01T21:00:00Z');notify();assert.equal(scene.background,night);
+  f.doc.hidden=false;f.doc.emit('visibilitychange');f.frame(40);
+  assert.equal(f.host.dataset.townSkyPhase,'day');assert.equal(scene.background.userData.skyPhase,'day');assert.equal(nightDisposed,1);
+  assert.equal(pet.material.map,source);assert.deepEqual(f.controller.camera(),camera);assert.deepEqual(lights(),beforeLights);assert.equal(JSON.stringify(f.world),world);assert.equal(scene.environment,null);assert.equal(scene.fog,null);assert.deepEqual(f.failures,[]);
+ }finally{f.controller.destroy();}
+ assert.equal(unsubscribed,1);assert.equal(f.timers.size,0);assert.equal(f.frames.size,0);notify();assert.equal(f.timers.size,0);assert.equal(f.host.dataset.townSkyPhase,undefined);
 });
