@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>業者への希望を下書きに残す・技術見本</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,"Hiragino Kaku Gothic ProN",sans-serif;color:#354640;background:#f5f6ef;line-height:1.75}
+    *{box-sizing:border-box}body{margin:0;padding:20px 14px 48px}main{max-width:780px;margin:auto}
+    h1{font-size:clamp(1.35rem,4.4vw,1.9rem);line-height:1.5;margin:.3em 0 .7em}h2{font-size:1.05rem;margin:0 0 .6em}
+    p{margin:.65em 0}.card{background:#fffef9;border:1px solid #dce3d7;border-radius:18px;padding:18px;margin:16px 0}
+    .tag{display:inline-block;background:#e5ede2;border:1px solid #cfdbcb;border-radius:999px;padding:2px 11px;font-size:.82rem}
+    .controls{display:flex;flex-wrap:wrap;gap:9px;margin:13px 0}button{font:inherit;line-height:1.5;color:#365548;background:#eaf1e5;border:1px solid #b8cbb3;border-radius:12px;padding:10px 13px;cursor:pointer;max-width:100%}
+    button:hover{background:#dfead9}button:focus-visible{outline:3px solid #879f77;outline-offset:3px}button:disabled{opacity:.5;cursor:default}
+    #status{min-height:3.5em;font-weight:600}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f3f5ee;padding:13px;border-radius:12px;font-size:.78rem;line-height:1.65;max-height:38em;overflow:auto}
+    .small{font-size:.88rem;color:#58685f}ul{padding-left:1.3em}
+  </style>
+  <script defer src="../pet-village-economy.js"></script>
+  <script defer src="../pet-shop-layout.js"></script>
+  <script defer src="../pet-river-fishing.js"></script>
+  <script defer src="../pet-ocean-discoveries.js"></script>
+  <script defer src="../pet-game-core.js"></script>
+  <script defer src="../pet-contractor-intent.js"></script>
+  <script defer src="../pet-contractor-draft-journal.js"></script>
+  <script defer src="proof.js"></script>
+</head>
+<body><main>
+  <span class="tag">下書き記録だけの技術見本</span>
+  <h1>同じ希望を、重ねて記録しないために</h1>
+  <p>渡した見本の配置と保存版を照合し、業者への希望を「未提出の下書き」として1枠に残す仕組みを確認します。以前の入力チェックを利用し、記録の競合や応答が分からない場合を新しく扱う見本です。</p>
+  <section class="card" aria-labelledby="scope-title">
+    <h2 id="scope-title">この見本で確認する範囲</h2>
+    <p>使うのは、このページ専用に渡したメモリ内の見本データだけです。実際の村・保存データを読み書きせず、工事の受付・着工・完了は行いません。費用・日数・業者の姿や解放条件も設定しません。</p>
+    <p class="small">「見本を開き直す」は同じメモリを読み直します。ブラウザのページ全体を読み直すと見本は消えます。端末をまたぐ保存や、本人の暗号化保存が確認できたという意味ではありません。</p>
+  </section>
+  <section class="card" aria-labelledby="record-title">
+    <h2 id="record-title">1つの希望を、未提出のまま残す</h2>
+    <div class="controls">
+      <button id="record" disabled>見本の下書きを記録</button>
+      <button id="replay" disabled>同じ内容をもう一度確認</button>
+      <button id="conflict" disabled>内容を変えて競合を確認</button>
+      <button id="reopen" disabled>見本を開き直す</button>
+    </div>
+    <p class="small">同じIDと同じ内容なら前の記録を返します。違う内容で、記録済みの枠を上書きする機能はありません。</p>
+  </section>
+  <section class="card" aria-labelledby="edge-title">
+    <h2 id="edge-title">同時の記録と、応答が不明な場合</h2>
+    <div class="controls">
+      <button id="compete" disabled>2つの記録要求を競合させる</button>
+      <button id="unknown" disabled>記録後に応答が途切れる見本</button>
+      <button id="reconcile" disabled>応答不明の記録を手動で読み戻す</button>
+    </div>
+    <p class="small">競合用・応答不明用には、それぞれ独立した見本の枠を使います。応答が不明なら成功とも未記録とも決めず、追加の書き込み前に同じIDと内容を読み戻します。</p>
+  </section>
+  <section class="card" aria-labelledby="result-title">
+    <h2 id="result-title">操作した結果</h2>
+    <p id="status" role="status" aria-live="polite">見本を読み込んでいます。</p>
+    <pre id="report" data-observations="0" tabindex="0" aria-label="下書き記録の操作結果。上下キーでスクロールできます。">まだ操作していません。</pre>
+    <p class="small">以下の結果は固定の見本操作だけの確認です。実際の業者依頼の受理、工事の開始、村の配置変更を示すものではありません。</p>
+  </section>
+</main></body></html>
