@@ -114,10 +114,10 @@
   }
   function loadSeasons() {
     var current = Seasons || globalThis.PetJapanSeasons;
-    if (current && current.artRevision === 'shop-cottage-match2' && typeof current.watch === 'function') { Seasons = current; return Promise.resolve(current); }
-    if (!seasonsLoading) seasonsLoading = import('/static/pet-japan-seasons.js?v=20261026-shop-cottage-match2').then(function () {
+    if (current && current.artRevision === 'shop-cottage-match2' && current.lifeRevision === 'annual-life1' && typeof current.watch === 'function') { Seasons = current; return Promise.resolve(current); }
+    if (!seasonsLoading) seasonsLoading = import('/static/pet-japan-seasons.js?v=20261102-annual-life1').then(function () {
       var api = globalThis.PetJapanSeasons;
-      if (!api || api.artRevision !== 'shop-cottage-match2' || typeof api.watch !== 'function') throw new Error('seasons_unavailable');
+      if (!api || api.artRevision !== 'shop-cottage-match2' || api.lifeRevision !== 'annual-life1' || typeof api.watch !== 'function') throw new Error('seasons_unavailable');
       Seasons = api; return api;
     }).catch(function (error) { seasonsLoading = null; throw error; });
     return seasonsLoading;
@@ -1605,7 +1605,7 @@
         var p=townPoint(world,waterHit);
         return model.snorkelingWorld.isWater(p)?p:null;
       },
-      setFishing: function (value) { if (!active()) return false; fishingState = value && ['waiting','bite','caught'].indexOf(value.phase) >= 0 ? { phase: value.phase } : null; host.dataset.fishingPhase = fishingState ? fishingState.phase : 'idle'; requestRender(); return true; },
+      setFishing: function (value) { if (!active()) return false; fishingState = value && ['waiting','bite','caught'].indexOf(value.phase) >= 0 ? { phase: value.phase, fishId:value.fishId } : null; host.dataset.fishingPhase = fishingState ? fishingState.phase : 'idle'; requestRender(); return true; },
       setPosition: function (p) { if (active() && p && Town.isWalkable(world, p.x, p.y)) { travelled += Math.hypot(p.x-position.x,p.y-position.y)/UNIT; position = { x: p.x, y: p.y }; requestRender(); } },
       setMotion: function (m) { if (active()) {
         var valid = m && finite(m.dx) && finite(m.dy) && Math.hypot(m.dx, m.dy) > .001;

@@ -4,7 +4,7 @@
   var host = null, store = null, options = null, mounting = null, unsubscribe = null;
   var tab = 'village', busy = false, runAttempt = null;
   var notice = '', failure = '', nameDraft = null, quantities = {};
-  var lifecycleEpoch = 0, suspended = false, renderedDay = '', roomCarryX = 0;
+  var lifecycleEpoch = 0, suspended = false, renderedDay = '', renderedSeasonDay = '', roomCarryX = 0;
   var motionControllers = [], motionRequests = [], reaction = null, greeted = false;
   var appearancePreview = false, previewSituation = 'idle', previewStartedAt = 0;
   var emotionBrowse = { pet: { group: 'bright', query: '', page: 0 }, preview: { group: 'bright', query: '', page: 0 }, growth: { group: 'bright', query: '', page: 0 } };
@@ -136,10 +136,29 @@
     apl: 'pet-items-v1/apple.webp', rkt: 'pet-market-v1/rocket.webp', grn: 'pet-items-v1/tree.webp',
     gam: 'pet-market-v1/controller.webp', bnk: 'pet-market-v1/bank.webp', fud: 'pet-items-v1/feast.webp'
   });
-  function hasItemArtwork(id) { return typeof id === 'string' && Object.prototype.hasOwnProperty.call(itemArtworkSources, id); }
+  var seasonalFoodArt = Object.freeze({
+    peach:{color:'#e3a2a6',path:'M32 18C18 7 8 23 13 38c4 14 17 18 19 17 3 1 17-3 20-17 5-15-6-31-20-20Z',detail:'M32 19c-6 10-5 24 0 34'},
+    pear:{color:'#d4bd77',path:'M29 12c-5 2-4 12-10 20C8 48 18 57 32 57s24-9 13-25c-6-8-5-18-10-20Z',detail:'M32 12V5'},
+    mandarin:{color:'#e6ac69',path:'M8 35c0-14 12-20 24-20s24 6 24 20-10 22-24 22S8 49 8 35Z',detail:'M32 18V9m0 3c9-7 13-3 16-1-7 6-10 6-16 1'},
+    asparagus:{color:'#8eae75',path:'M16 55V22l4-12 5 12v33Zm15 0V17l5-12 5 12v38Zm15 0V24l4-11 5 11v31Z',detail:'M16 28h9m6-5h10m5 7h9'},
+    cucumber:{color:'#83a16a',path:'M12 49C7 40 34 9 46 9c15 0 5 16-4 27S18 61 12 49Z',detail:'m22 39 3 2m6-12 3 2m5-12 3 2'},
+    sweet_potato:{color:'#b58095',path:'M9 47c0-12 22-29 39-33 12-3 9 10 0 23S15 63 9 47Z',detail:'m22 43 4-3m9-12 4-3'},
+    daikon:{color:'#ede8d1',path:'M21 19c-9 10-2 34 10 40 12-9 19-30 9-40Z',detail:'m23 31 7 2m-6 8 7 2'}
+  });
+  function seasonalArtwork(id,extra,onState){
+    var spec=Object.prototype.hasOwnProperty.call(seasonalFoodArt,id)?seasonalFoodArt[id]:null;if(!spec)return null;
+    var shell=node('span','ipg-item-art'+(extra?' '+extra:''));shell.setAttribute('aria-hidden','true');shell.dataset.itemArt=id;shell.dataset.artReady='true';shell.dataset.artState='ready';
+    var svg=villageSvg('svg','ipg-item-art-image');svg.setAttribute('viewBox','0 0 64 64');svg.setAttribute('width','64');svg.setAttribute('height','64');svg.setAttribute('focusable','false');
+    function path(d,fill,stroke,width){var p=villageSvg('path');p.setAttribute('d',d);p.setAttribute('fill',fill);p.setAttribute('stroke',stroke);p.setAttribute('stroke-width',String(width));p.setAttribute('stroke-linecap','round');p.setAttribute('stroke-linejoin','round');svg.appendChild(p);}
+    path(spec.path,spec.color,'#7e8066',1.5);path(spec.detail,'none','#7e8066',1.5);
+    if(id==='peach'||id==='pear')path('M33 13c7-9 14-7 17-6-3 7-12 9-17 6Z','#91ae7d','#7e8066',1);
+    if(id==='daikon')path('M23 20 18 8l9 7 4-12 4 12 11-8-7 14Z','#91ae7d','#7e8066',1);
+    shell.appendChild(svg);if(onState)Promise.resolve().then(function(){onState(true);});return shell;
+  }
+  function hasItemArtwork(id) { return typeof id === 'string' && (Object.prototype.hasOwnProperty.call(itemArtworkSources, id)||Object.prototype.hasOwnProperty.call(seasonalFoodArt,id)); }
   function foodArtworkId(id) { var entry = item(id); return entry && entry.type === 'food' && hasItemArtwork(id) ? id : null; }
   function itemArtwork(id, extra, onState) {
-    return catalogueArtwork(id, itemArtworkSources, 'itemArt', extra, onState);
+    return seasonalArtwork(id,extra,onState)||catalogueArtwork(id, itemArtworkSources, 'itemArt', extra, onState);
   }
   function stockArtwork(id) { return catalogueArtwork(id, stockArtworkSources, 'stockArt', 'ipg-stock-art'); }
   function catalogueArtwork(id, sources, dataKey, extra, onState) {
@@ -205,6 +224,7 @@
     var dt = new Date((options && options.now || Date.now)());
     return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
   }
+  function seasonalDay(){var life=typeof core().getSeasonalLife==='function'?core().getSeasonalLife((options&&options.now||Date.now)()):null;return life?life.dateJst:'';}
   function petMood(s) {
     if (s.care.lastCareAt == null) return 'はじめまして。いっしょに過ごそう。';
     var elapsed = Math.max(0, (options && options.now || Date.now)() - s.care.lastCareAt);
@@ -1007,7 +1027,7 @@
       if (!current()) return { ok: false, error: { code: 'view_changed' } };
       if (result && result.ok) {
         failure = ''; notice = (message || '保存しました。') + rewardText(result.reward);
-        if (action.type === 'reelRiverFishing') fishingCelebration = { owner: owner, until: (options && options.now || Date.now)() + 1800 };
+        if (action.type === 'reelRiverFishing') fishingCelebration = { owner: owner, fishId:result.reward&&result.reward.fishId, until: (options && options.now || Date.now)() + 1800 };
         var afterStage = stage(result.state || state());
         rememberReaction(action, before, result.state || state(), result);
         if (grew(before, result.state || state())) notice += ' ' + afterStage.label + 'へ進化しました！';
@@ -1052,7 +1072,7 @@
     }
   }
   function foodEvolutionHint(id) {
-    if (id === 'apple' || id === 'berry') return 'Bの育ち方：桃色の「はなほっぺ」につながるごはん。';
+    if (id === 'apple' || id === 'berry' || item(id) && item(id).foodGroup === 'fruit') return 'Bの育ち方：桃色の「はなほっぺ」につながるごはん。';
     if (id === 'rice' || id === 'feast') return 'Bの育ち方：はちみつ色の「ぽかぽか」につながるごはん。';
     if (id === 'cake') return 'Bの育ち方：杏色の「おやつっこ」につながるおやつ。';
     return '';
@@ -1927,7 +1947,7 @@
       append(b, node('small', '', used >= cap ? '今日はお世話済み' : '+' + x[2] + ' EXP')); care.appendChild(b);
     }); panel.appendChild(care);
     var bag = node('div', 'ipg-life-foods'); bag.appendChild(node('h4', '', 'もちものから、どうぞ'));
-    items().filter(function (row) { return row.type === 'food'; }).forEach(function (row) {
+    items().filter(function (row) { return row.type === 'food' && (!row.harvestOnly || owned(s,row)>0); }).forEach(function (row) {
       var count = owned(s, row), gift = button('あげる', function () {
         if (canUse()) run({ type: 'useItem', itemId: row.id, expectedRevision: s.revision }, row.name + 'を渡しました。');
       }, false, s.readOnly || count < 1);
@@ -1936,19 +1956,20 @@
     }); panel.appendChild(bag);
     if (typeof core().getRiverFishingView === 'function') {
       var fishCollection = core().getRiverFishingView(s, (options && options.now || Date.now)());
-      panel.appendChild(text('バッグの川の小魚 · ' + number(fishCollection.caught) + '尾', 'ipg-small'));
+      panel.appendChild(text('バッグの魚 · ' + number(fishCollection.caught) + '尾', 'ipg-small'));
     }
     if (typeof core().getVillageHarvestView === 'function') {
       var harvest = core().getVillageHarvestView(s, (options && options.now || Date.now)()), plots = node('div', 'ipg-life-harvest');
-      plots.appendChild(node('h4', '', '村の実り'));
+      plots.dataset.harvestSeason=harvest.season.key;plots.appendChild(node('h4', '', harvest.season.label+'の実り'));
+      plots.appendChild(text('くだもの：'+harvest.season.fruit.name+' · 野菜：'+harvest.season.vegetable.name+' · 魚：'+harvest.season.fish.name,'ipg-small'));
       harvest.plots.forEach(function (plot) {
         var pick = button(plot.available ? '収穫する' : plot.claimed ? '今日の収穫済み' : '今は収穫できません', function () {
-          if (canUse()) run({ type: 'harvestVillageFood', plotId: plot.id, expectedRevision: s.revision }, plot.itemName + 'を' + plot.quantity + '個、バッグにしまいました。');
+          if (canUse()) run({ type: 'harvestVillageFood', plotId: plot.id, expectedRevision: s.revision }, '収穫したものをバッグにしまいました。');
         }, true, s.readOnly || !plot.available);
         pick.dataset.focusKey = 'village-harvest-' + plot.id;
         append(plots, append(node('div', 'ipg-life-harvest-row'), node('span', '', plot.name + ' · ' + plot.itemName + ' ' + plot.quantity + '個'), pick));
       });
-      plots.appendChild(text('実りは1日ごと。収穫したものを渡すと、この子の成長につながります。', 'ipg-small')); panel.appendChild(plots);
+      plots.appendChild(text('日本時間の春3〜5月・夏6〜8月・秋9〜11月・冬12〜2月で毎年切り替わります。各収穫は1日1回。バッグの中身は季節が変わっても残ります。', 'ipg-small')); panel.appendChild(plots);
     }
     panel.appendChild(button('バッグを開く', function () { if (!canUse()) return; lifePanelOpen = false; bagShopOpen = false; tab = 'shop'; render(); }, true));
     var growth = node('details', 'ipg-life-growth'); growth.appendChild(node('summary', '', 'この子の成長と名前'));
@@ -1980,7 +2001,7 @@
     if (townSceneLoading) return townSceneLoading;
     if (!d.head) return Promise.resolve(null);
     townSceneLoading = new Promise(function (resolve) {
-      var script = d.createElement('script'); script.src = '/static/pet-town-scene.js?v=20261102-clear-night1'; script.async = true;
+      var script = d.createElement('script'); script.src = '/static/pet-town-scene.js?v=20261102-annual-life1'; script.async = true;
       script.onload = function () { resolve(w.PetTownScene && typeof w.PetTownScene.mount === 'function' ? w.PetTownScene : null); };
       script.onerror = function () { townSceneLoading = null; script.remove(); resolve(null); };
       d.head.appendChild(script);
@@ -2019,7 +2040,7 @@
     var reel = button('引き上げる', function () {
       if (!usable()) return;
       var v = current(); if (!v.active || !v.canReel) return;
-      run({ type: 'reelRiverFishing', attemptId: v.active.id, position: position(), expectedRevision: state().revision }, '川の小魚を1尾、バッグにしまいました。');
+      run({ type: 'reelRiverFishing', attemptId: v.active.id, position: position(), expectedRevision: state().revision }, v.fishName+'を1尾、バッグにしまいました。');
     });
     reel.dataset.focusKey = 'river-fishing-reel';
     var cancel = button('釣りをやめる', function () { abandon(false); }, true); cancel.dataset.focusKey = 'river-fishing-cancel';
@@ -2060,7 +2081,7 @@
       var label;
       if (s.readOnly) label = '保存内容を確認できないため、今は釣りを始められません。';
       else if (!ready) label = viewport.dataset.sceneState === 'fallback' ? '簡易表示では新しい釣りはできません。前の釣りはやめられます。' : '村の表示を準備しています。';
-      else if (celebrate) label = '川の小魚が釣れました。バッグに1尾しまいました。';
+      else if (celebrate) label = '魚が釣れました。バッグに1尾しまいました。';
       else if (v.phase === 'waiting') label = v.nearBank ? '浮きを見よう。もうすぐ食いつきます…' : '前の釣りが残っています。南の川岸へ戻るか、やめられます。';
       else if (v.phase === 'bite') label = v.nearBank ? '食いついた！ 今なら引き上げられます。' : '川岸に戻るか、釣りをやめよう。';
       else if (v.phase === 'escaped') label = '魚が離れました。釣りをやめて、もう一度投げよう。';
@@ -2068,8 +2089,9 @@
       else if (!v.nearBank) label = '南東の川岸まで歩いて近づこう。橋の上や水の中からは釣れません。';
       else if (v.remainingMs > 0) label = '少し待ってから、また竿を投げよう。';
       else label = 'この川岸から竿を投げられます。';
+      setLabel(detail,'この季節の魚：'+v.fishName+'。南東の川岸の札が目印。季節は日本時間のカレンダーで毎年切り替わります。');
       setLabel(status, label);
-      if (townVisual && typeof townVisual.setFishing === 'function') townVisual.setFishing({ phase: celebrate ? 'caught' : ready ? v.phase : 'idle' });
+      if (townVisual && typeof townVisual.setFishing === 'function') townVisual.setFishing({ phase: celebrate ? 'caught' : ready ? v.phase : 'idle', fishId:celebrate?fishingCelebration.fishId:v.fishId });
       if (ready && (v.phase === 'waiting' || v.phase === 'bite' || v.phase === 'idle' && v.remainingMs > 0 || celebrate)) timer = w.setTimeout(refresh, 250);
     }
     function pause() { if (d.hidden && timer != null) { w.clearTimeout(timer); timer = null; } else if (!d.hidden) refresh(); }
@@ -2501,10 +2523,13 @@
     });
     group('food', '食べもの', food, '食べものはまだありません。収穫したり、お店で買うとここに入ります。');
     var fish = typeof core().getRiverFishingView === 'function' ? core().getRiverFishingView(s, (options && options.now || Date.now)(), townPosition) : null;
-    var fishArt = villageSvg('svg', 'ipg-bag-fish'); fishArt.setAttribute('viewBox', '0 0 64 48'); fishArt.setAttribute('aria-hidden', 'true'); fishArt.setAttribute('focusable', 'false');
-    var shape = villageSvg('path'); shape.setAttribute('d', 'M46 24 58 13v22L46 24C35 8 14 10 5 24c9 14 30 16 41 0Z'); fishArt.appendChild(shape);
-    var eye = villageSvg('circle'); eye.setAttribute('cx', '17'); eye.setAttribute('cy', '21'); eye.setAttribute('r', '2'); fishArt.appendChild(eye);
-    group('fish', '釣った魚', fish && fish.caught > 0 ? [{ id: fish.fishId, name: fish.fishName, count: number(fish.caught) + '尾', art: fishArt }] : [], '釣った魚は、ここに入ります。');
+    var caughtFish=fish&&fish.fishCollection?fish.fishCollection:fish&&fish.caught>0?[{id:fish.fishId,name:fish.fishName,count:fish.caught}]:[];
+    group('fish', '釣った魚', caughtFish.filter(function(x){return x.count>0;}).map(function(x){
+      var art=villageSvg('svg','ipg-bag-fish');art.setAttribute('viewBox','0 0 64 48');art.setAttribute('aria-hidden','true');art.setAttribute('focusable','false');
+      var shape=villageSvg('path');shape.setAttribute('d','M46 24 58 13v22L46 24C35 8 14 10 5 24c9 14 30 16 41 0Z');if(x.color)shape.setAttribute('fill',x.color);art.appendChild(shape);
+      var eye=villageSvg('circle');eye.setAttribute('cx','17');eye.setAttribute('cy','21');eye.setAttribute('r','2');art.appendChild(eye);
+      return {id:x.id,name:x.name,count:number(x.count)+'尾',art:art};
+    }), '釣った魚は、ここに入ります。');
     group('clothing', 'お洋服', clothingItems().filter(function (x) { return owned(s, x); }).map(function (x) {
       var wearing = outfit(s) === x.id;
       var wear = button(wearing ? '着用中' : '着る', function () { run({ type: 'equipClothing', itemId: x.id }, x.name + 'に着替えました。'); }, true, wearing);
@@ -2554,7 +2579,7 @@
     var c = card('お店ともちもの');
     append(c, text('毎日の育成で集めたコインを使えます。食べものは、もちものから使うとEXPになります。'));
     var grid = node('div', 'ipg-shop-grid');
-    items().filter(function (x) { return x.type !== 'clothing'; }).forEach(function (x) {
+    items().filter(function (x) { return x.type !== 'clothing' && !x.harvestOnly; }).forEach(function (x) {
       var count = owned(s, x), row = node('article', 'ipg-shop-item');
       row.dataset.itemId = x.id;
       append(row, shopItemArtwork(x), node('h4', '', x.name),
@@ -2979,7 +3004,7 @@
     var s = state(), choosing = !developerPreview() && needsEggChoice(s), root = node('div', 'ipg ipg-view-' + tab);
     if (!developerPreview() && !legacyCarePreview()) root.dataset.villageLife = 'true';
     if (!needsEggChoice(s)) { eggDraft = null; eggConfirm = false; }
-    renderedDay = currentDay();
+    renderedDay = currentDay(); renderedSeasonDay = seasonalDay();
     var head = node('header', 'ipg-header');
     if (!choosing && tab !== 'care' && tab !== 'village' && tab !== 'interior' && tab !== 'home' && displaySpecies(s) === 'lilac') head.appendChild(petVisual(s, 'ipg-lilac-compact'));
     append(head, append(node('div'), node('p', 'ipg-eyebrow', '小さな毎日を、いっしょに。'), node('h2', '', developerPreview() || legacyCarePreview() ? tab === 'village' || tab === 'interior' ? 'カフェとお店の村' : 'そだてる' : '村のくらし')),
@@ -3092,7 +3117,7 @@
   w.addEventListener('pagehide', suspend);
   w.addEventListener('pageshow', function () { suspended = false; if (store && !busy) render(); });
   w.addEventListener('focus', function () { if (store && !busy && !(roomEdit && roomEdit.cozy) && !shopEdit && tab !== 'interior' && tab !== 'village' && tab !== 'home') render(); });
-  w.setInterval(function () { if (store && !busy && !shopEdit && !(roomEdit && roomEdit.home) && renderedDay !== currentDay()) render(); }, 60000);
+  w.setInterval(function () { if (store && !busy && !shopEdit && !(roomEdit && roomEdit.home) && (renderedDay !== currentDay() || renderedSeasonDay !== seasonalDay())) render(); }, 60000);
   w.IndependentPetGame = {
     mount: mount,
     open: function () { return mount(host || d.getElementById('pet-game-root'), options); },

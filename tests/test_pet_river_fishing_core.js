@@ -37,8 +37,8 @@ test('persisted cast requires real elapsed time and the same attempt once; catch
  assert.equal((await reel(g)).error.code,'fishing_wait');assert.equal(g.raw(),castRaw);
  g.advance(Fishing.WAIT);const rev=g.app.getState().revision;
  const results=await Promise.all([g.act('reelRiverFishing',{attemptId:active.id,position:Fishing.site().position},rev),g.act('reelRiverFishing',{attemptId:active.id,position:Fishing.site().position},rev)]);
- assert.equal(results[0].ok,true);assert.deepEqual(results[0].reward,{fishId:'river_silverfish',quantity:1});assert.equal(results[1].error.code,'stale_state');
- const after=g.state();assert.equal(after.riverFishing.catches.river_silverfish,1);assert.equal(after.riverFishing.active,null);
+ assert.equal(results[0].ok,true);assert.deepEqual(results[0].reward,{fishId:'river_salmon',quantity:1});assert.equal(results[1].error.code,'stale_state');
+ const after=g.state();assert.equal(after.riverFishing.catches.river_salmon,1);assert.equal(after.riverFishing.active,null);
  for(const key of ['pet','coins','care','inventory','wardrobe','decorations','achievements','villageLife','market','legacyReserve'])assert.deepEqual(after[key],before[key],key);
  assert.equal((await g.act('reelRiverFishing',{attemptId:active.id,position:Fishing.site().position})).error.code,'invalid_fishing');
  assert.equal((await start(g)).error.code,'fishing_cooldown');g.advance(Fishing.COOLDOWN);assert.equal((await start(g)).ok,true);
@@ -53,14 +53,14 @@ test('leaving bank, expired window, wrong attempt and clock rollback cannot cred
 for(const mode of ['false','throw','object'])test('denied '+mode+' start/reel leaves durable bytes and in-memory ownership untouched, then same attempt can retry',async()=>{
  const g=await game(),before=g.raw();g.mode(mode);assert.equal((await start(g)).ok,false);assert.equal(g.raw(),before);assert.equal(g.app.getState().riverFishing,undefined);
  g.mode('ok');await start(g);g.advance(Fishing.WAIT);const cast=g.raw(),v=g.app.getState().riverFishing;g.mode(mode);assert.equal((await reel(g)).ok,false);assert.equal(g.raw(),cast);assert.deepEqual(g.app.getState().riverFishing,v);
- g.mode('ok');assert.equal((await reel(g)).ok,true);assert.equal(g.state().riverFishing.catches.river_silverfish,1);
+ g.mode('ok');assert.equal((await reel(g)).ok,true);assert.equal(g.state().riverFishing.catches.river_salmon,1);
 });
 test('reload preserves a pending attempt without autocatch and backup round-trips collection',async()=>{
  const g=await game();await start(g);const raw=g.raw(),n=g.writes.length,second=Core.create(g.opts);await second.ready;
  assert.equal(g.raw(),raw);assert.equal(g.writes.length,n);assert.equal(second.getState().riverFishing.active.id,g.state().riverFishing.active.id);
  g.advance(Fishing.WAIT);assert.equal(second.getRiverFishingView(g.now,Fishing.site().position).phase,'bite');assert.equal(g.state().riverFishing.catches.river_silverfish,0);
  const id=second.getState().riverFishing.active.id;assert.equal((await second.dispatch({type:'reelRiverFishing',attemptId:id,position:Fishing.site().position,expectedRevision:second.getState().revision})).ok,true);
- const backup=second.exportBackup(),third=Core.create(g.opts);await third.ready;assert.equal(third.getState().riverFishing.catches.river_silverfish,1);assert.equal((await third.importBackup(backup)).ok,true);
+ const backup=second.exportBackup(),third=Core.create(g.opts);await third.ready;assert.equal(third.getState().riverFishing.catches.river_salmon,1);assert.equal((await third.importBackup(backup)).ok,true);
 });
 test('corrupt fishing extensions are blocked while raw old data is retained',async()=>{
  for(const bad of [{...Fishing.empty(),extra:true},{...Fishing.empty(),catches:{river_silverfish:-1}},{...Fishing.empty(),active:{id:'x'}}]){

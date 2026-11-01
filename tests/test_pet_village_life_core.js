@@ -44,24 +44,24 @@ test('unchosen eggs cannot harvest, acquire furniture or receive food and invali
 });
 
 test('both finite harvest plots credit real inventory once per JST day without granting EXP, care or currency', async () => {
-  const g = await game({}, { now: Date.UTC(2026, 9, 25, 14, 59, 59) }), before = g.state();
+  const g = await game({}, { now: Date.UTC(2026, 9, 25, 14, 59, 59) }), before = g.state(), forecast = Core.getVillageHarvestView(g.app.getState(), g.options.now()).plots;
   assert.equal(Core.getVillageHarvestView(g.app.getState(), g.options.now()).day, '2026-10-25');
   assert.equal((await g.act('harvestVillageFood', { plotId: 'orchard' })).ok, true); assert.equal((await g.act('harvestVillageFood', { plotId: 'berry' })).ok, true);
-  assert.deepEqual(g.state().inventory, { apple: 1, berry: 1 }); assert.deepEqual(g.state().pet, before.pet); assert.deepEqual(g.state().care, before.care); assert.equal(g.state().coins, before.coins);
+  assert.deepEqual(g.state().inventory, Object.fromEntries(forecast.map(row => [row.itemId, 1]))); assert.deepEqual(g.state().pet, before.pet); assert.deepEqual(g.state().care, before.care); assert.equal(g.state().coins, before.coins);
   const raw = g.raw(); assert.equal((await g.act('harvestVillageFood', { plotId: 'orchard' })).error.code, 'harvest_wait'); assert.equal(g.raw(), raw);
   assert.ok(Core.getVillageHarvestView(g.app.getState(), g.options.now()).plots.every(x => x.claimed && !x.available));
   g.advance(1000); assert.equal(Core.getVillageHarvestView(g.app.getState(), g.options.now()).day, '2026-10-26');
-  assert.equal((await g.act('harvestVillageFood', { plotId: 'orchard' })).ok, true); assert.equal(g.state().inventory.apple, 2);
+  assert.equal((await g.act('harvestVillageFood', { plotId: 'orchard' })).ok, true); assert.equal(g.state().inventory[forecast[0].itemId], 2);
   const later = g.raw(); g.advance(-1001); assert.equal((await g.act('harvestVillageFood', { plotId: 'berry' })).error.code, 'clock_moved_back'); assert.equal(g.raw(), later);
   assert.ok(Core.getVillageHarvestView(g.app.getState(), g.options.now()).plots.every(x => !x.available && x.reason === 'clock_moved_back'));
 });
 
 test('a harvested or bought gift consumes exactly one stored food and follows existing EXP and revision rules', async () => {
-  const g = await game(); await g.act('harvestVillageFood', { plotId: 'orchard' }); await g.act('buyItem', { itemId: 'berry' });
+  const g = await game(), fruitId = Core.getVillageHarvestView(g.app.getState(), g.options.now()).plots[0].itemId; await g.act('harvestVillageFood', { plotId: 'orchard' }); await g.act('buyItem', { itemId: 'berry' });
   const before = g.state(), rev = before.revision;
-  const results = await Promise.all([g.act('useItem', { itemId: 'apple' }, rev), g.act('useItem', { itemId: 'apple' }, rev)]);
+  const results = await Promise.all([g.act('useItem', { itemId: fruitId }, rev), g.act('useItem', { itemId: fruitId }, rev)]);
   assert.equal(results[0].ok, true); assert.equal(results[0].reward.exp, 3); assert.equal(results[1].error.code, 'stale_state');
-  assert.equal(g.state().inventory.apple, 0); assert.equal(g.state().pet.exp, before.pet.exp + 3); assert.equal(g.state().coins, before.coins); assert.deepEqual(g.state().care.counts, before.care.counts);
+  assert.equal(g.state().inventory[fruitId], 0); assert.equal(g.state().pet.exp, before.pet.exp + 3); assert.equal(g.state().coins, before.coins); assert.deepEqual(g.state().care.counts, before.care.counts);
   const raw = g.raw(); assert.equal((await g.act('useItem', { itemId: 'unknown' })).error.code, 'invalid_item'); assert.equal(g.raw(), raw);
   assert.equal((await g.act('useItem', { itemId: 'berry' })).reward.exp, 2); assert.equal(g.state().inventory.berry, 0); assert.equal(g.state().pet.exp, before.pet.exp + 5);
   const careRev = g.app.getState().revision, care = await g.act('care', { kind: 'rest' }, careRev); assert.equal(care.reward.exp, 4); assert.equal(care.reward.coins, 10);

@@ -1,12 +1,31 @@
 /* One manual river activity. Time and durable ownership remain in PetGameCore. */
 (function(root,factory){
   'use strict';
-  if(typeof module==='object'&&module.exports)module.exports=factory(require('./pet-town-walk.js'));
-  else root.PetRiverFishing=factory(root.PetTownWalk);
-}(typeof globalThis!=='undefined'?globalThis:this,function(Town){
+  if(typeof module==='object'&&module.exports)module.exports=factory(require('./pet-town-walk.js'),require('./pet-japan-seasons.js'));
+  else root.PetRiverFishing=factory(root.PetTownWalk,root.PetJapanSeasons);
+}(typeof globalThis!=='undefined'?globalThis:this,function(Town,Seasons){
   'use strict';
   var WAIT=2200,WINDOW=10000,COOLDOWN=5000,MAX=9000000000000;
   var FISH_ID='river_silverfish',SPOT_ID='south-bank';
+  // Existing catches keep their original identity. Calendar species are authored
+  // game collectibles, not a local forecast, fishing season or permit advice.
+  var FISHES=Object.freeze([
+    {id:FISH_ID,name:'川の小魚',color:'#bbd6ce'},
+    {id:'river_cherry_salmon',name:'サクラマス',color:'#d7b7ae'},
+    {id:'river_ayu',name:'アユ',color:'#b6c9a4'},
+    {id:'river_salmon',name:'サケ',color:'#c3aaa0'},
+    {id:'river_smelt',name:'ワカサギ',color:'#c2d6da'}
+  ].map(function(row){return Object.freeze(row);}));
+  var FISH_IDS=Object.freeze(FISHES.map(function(row){return row.id;}));
+  function fishProfile(id){return FISHES.find(function(row){return row.id===id;})||null;}
+  function seasonFish(ms){
+    var calendar=Seasons||(typeof globalThis!=='undefined'&&globalThis.PetJapanSeasons),life;
+    if(!integer(ms)||!calendar||typeof calendar.life!=='function')return null;
+    try{life=calendar.life(ms);}catch(_){return null;}
+    return life&&life.fish&&life.fish.id!==FISH_ID?fishProfile(life.fish.id):null;
+  }
+  function demand(ok,code){if(!ok){var e=new Error(code);e.code=code;throw e;}}
+
   var shore=[[0,2880],[550,2840],[1050,2720],[1450,2510],[1920,1990]];
   function finite(n){return typeof n==='number'&&Number.isFinite(n);}
   function integer(n){return Number.isSafeInteger(n)&&n>=0&&n<=MAX;}
@@ -23,19 +42,48 @@
   }
   function empty(){return {version:1,catches:{river_silverfish:0},active:null,nextCastAt:0};}
   function valid(value){
-    if(!exact(value,['version','catches','active','nextCastAt'])||value.version!==1||!exact(value.catches,[FISH_ID])||!integer(value.catches[FISH_ID])||!integer(value.nextCastAt))return false;
+    if(!exact(value,['version','catches','active','nextCastAt'])||(value.version!==1&&value.version!==2)||!integer(value.nextCastAt))return false;
+    var keys=value.version===1?[FISH_ID]:FISH_IDS;
+    if(!exact(value.catches,keys)||!keys.every(function(id){return integer(value.catches[id]);}))return false;
     var a=value.active;if(a===null)return true;
-    return exact(a,['id','spotId','startedAt','biteAt','expiresAt'])&&typeof a.id==='string'&&/^river-[0-9]+-[0-9]+$/.test(a.id)&&a.id.length<=80&&a.spotId===SPOT_ID&&integer(a.startedAt)&&a.biteAt===a.startedAt+WAIT&&a.expiresAt===a.startedAt+WINDOW&&integer(a.expiresAt)&&value.nextCastAt>=a.startedAt+COOLDOWN;
+    var activeKeys=['id','spotId','startedAt','biteAt','expiresAt'];if(value.version===2)activeKeys.push('fishId');
+    return exact(a,activeKeys)&&typeof a.id==='string'&&/^river-[0-9]+-[0-9]+$/.test(a.id)&&a.id.length<=80&&a.spotId===SPOT_ID&&integer(a.startedAt)&&a.biteAt===a.startedAt+WAIT&&a.expiresAt===a.startedAt+WINDOW&&integer(a.expiresAt)&&value.nextCastAt>=a.startedAt+COOLDOWN&&(value.version===1||!!fishProfile(a.fishId));
   }
   function phase(state,ms){
     if(!valid(state)||!integer(ms))return 'unavailable';
     var a=state.active;
     return !a?'idle':ms<a.startedAt?'clock_moved_back':ms<a.biteAt?'waiting':ms<=a.expiresAt?'bite':'escaped';
   }
+  function activeFishId(state){return valid(state)&&state.active?(state.version===1?FISH_ID:state.active.fishId):null;}
+  function collection(state){
+    demand(valid(state),'corrupt_data');
+    return FISHES.filter(function(row){return (state.catches[row.id]||0)>0;}).map(function(row){return {id:row.id,name:row.name,color:row.color,count:state.catches[row.id]};});
+  }
+  // These pure helpers produce candidates only. Core owns all location, revision,
+  // time and durable-write checks; no caller-visible state changes before ACK.
+  function start(state,ms,attemptId){
+    demand(valid(state),'corrupt_data');demand(integer(ms)&&integer(ms+WINDOW),'invalid_clock');
+    demand(!state.active,'fishing_active');demand(ms>=state.nextCastAt,'fishing_cooldown');
+    demand(typeof attemptId==='string'&&/^river-[0-9]+-[0-9]+$/.test(attemptId)&&attemptId.length<=80,'invalid_fishing');
+    var selected=seasonFish(ms);demand(!!selected,'invalid_fishing');
+    var next=copy(state);next.version=2;
+    FISH_IDS.forEach(function(id){if(!Object.prototype.hasOwnProperty.call(next.catches,id))next.catches[id]=0;});
+    next.active={id:attemptId,spotId:SPOT_ID,startedAt:ms,biteAt:ms+WAIT,expiresAt:ms+WINDOW,fishId:selected.id};
+    next.nextCastAt=ms+COOLDOWN;demand(valid(next),'corrupt_data');return next;
+  }
+  function reel(state,ms){
+    demand(valid(state)&&!!state.active,'invalid_fishing');demand(integer(ms),'invalid_clock');
+    demand(ms>=state.active.startedAt,'clock_moved_back');demand(ms>=state.active.biteAt,'fishing_wait');demand(ms<=state.active.expiresAt,'fishing_escaped');
+    var id=activeFishId(state),next=copy(state);
+    demand(next.catches[id]<MAX,'amount_overflow');next.catches[id]++;next.active=null;return {state:next,reward:{fishId:id,quantity:1}};
+  }
+  function cancel(state,ms){demand(valid(state)&&!!state.active,'invalid_fishing');demand(integer(ms),'invalid_clock');demand(ms>=state.active.startedAt,'clock_moved_back');var next=copy(state);next.active=null;return next;}
   function view(state,ms,world,p){
-    var s=state||empty(),stage=phase(s,ms),a=s.active,eligible=legal(world,p);
-    return {version:1,phase:stage,site:site(),nearBank:eligible,active:a?copy(a):null,caught:s.catches[FISH_ID],fishId:FISH_ID,fishName:'川の小魚',
-      canCast:stage==='idle'&&eligible&&ms>=s.nextCastAt,canReel:stage==='bite'&&eligible,remainingMs:a?Math.max(0,(stage==='waiting'?a.biteAt:a.expiresAt)-ms):Math.max(0,s.nextCastAt-ms)};
+    var s=state||empty(),stage=phase(s,ms);
+    if(stage==='unavailable')return {version:2,phase:stage,site:site(),nearBank:false,active:null,caught:null,fishId:null,fishName:null,fishCollection:[],canCast:false,canReel:false,remainingMs:0};
+    var a=s.active,eligible=legal(world,p),selected=fishProfile(activeFishId(s))||seasonFish(ms),rows=collection(s);
+    return {version:2,phase:stage,site:site(),nearBank:eligible,active:a?copy(a):null,caught:rows.reduce(function(total,row){return total+row.count;},0),fishId:selected?selected.id:null,fishName:selected?selected.name:null,fishColor:selected?selected.color:null,fishCollection:rows,
+      canCast:stage==='idle'&&eligible&&!!selected&&ms>=s.nextCastAt,canReel:stage==='bite'&&eligible,remainingMs:a?Math.max(0,(stage==='waiting'?a.biteAt:a.expiresAt)-ms):Math.max(0,s.nextCastAt-ms)};
   }
   function createVisual(THREE,world){
     var group=new THREE.Group();group.name='manual-river-fishing';
@@ -62,6 +110,7 @@
     function update(value,position,ms,reduced){
       if(dead)return;
       state=value;var active=value&&['waiting','bite','caught'].indexOf(value.phase)>=0&&legal(world,position);
+      var selected=value&&fishProfile(value.fishId);caught.material.color.set(selected?selected.color:'#bbd6ce');
       [rod,holder,grip,spool,line,bobber,ring,fish,caught].forEach(function(m){m.visible=!!active;});
       if(active){
         var p=new THREE.Vector3((position.x-world.width/2)/100,.025,(position.y-world.height/2)/100),t=site().target;
@@ -82,5 +131,5 @@
     update(null,site().position,0,true);
     return {group:group,update:update,geometries:geometries,materials:materials,dispose:function(){if(dead)return;dead=true;geometries.forEach(function(g){g.dispose();});materials.forEach(function(m){m.dispose();});group.removeFromParent();},state:function(){return state;}};
   }
-  return Object.freeze({site:site,legal:legal,createWorld:Town.createWorld,empty:empty,valid:valid,phase:phase,view:view,WAIT:WAIT,WINDOW:WINDOW,COOLDOWN:COOLDOWN,fishId:FISH_ID,createVisual:createVisual});
+  return Object.freeze({lifeRevision:'annual-life1',site:site,legal:legal,createWorld:Town.createWorld,empty:empty,valid:valid,phase:phase,view:view,WAIT:WAIT,WINDOW:WINDOW,COOLDOWN:COOLDOWN,fishId:FISH_ID,fishIds:FISH_IDS,catalogue:FISHES,seasonFish:seasonFish,activeFishId:activeFishId,collection:collection,start:start,reel:reel,cancel:cancel,createVisual:createVisual});
 }));

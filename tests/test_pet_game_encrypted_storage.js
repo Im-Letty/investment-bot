@@ -103,7 +103,7 @@ test('river cast, rejected catch and confirmed collectible round-trip the real e
  assert.equal((await blocked.dispatch(action)).ok,false);assert.equal(denied.values.get('knenc:'+Core.KEY),ciphertext);assert.equal(blocked.getState().riverFishing.catches.river_silverfish,0);assert.deepEqual(blocked.getState().riverFishing.active,cast.riverFishing.active);
  assert.equal((await app.dispatch(action)).ok,true);const confirmed=app.getState(),saved=first.values.get('knenc:'+Core.KEY);
  const restored=gate(Object.fromEntries(first.values));await restored.context.__knGateReady;const reopened=Core.create({storage:gameAdapter(restored.context),now});assert.equal((await reopened.ready).ok,true);
- assert.deepEqual(reopened.getState().riverFishing,confirmed.riverFishing);assert.equal(confirmed.riverFishing.catches.river_silverfish,1);assert.equal(restored.values.get('knenc:'+Core.KEY),saved,'read-only restore does not rewrite ciphertext');
+ assert.deepEqual(reopened.getState().riverFishing,confirmed.riverFishing);assert.equal(confirmed.riverFishing.catches.river_salmon,1);assert.equal(restored.values.get('knenc:'+Core.KEY),saved,'read-only restore does not rewrite ciphertext');
  for(const k of ['pet','coins','inventory','wardrobe','decorations','care','market','achievements','villageLife'])assert.deepEqual(reopened.getState()[k],before[k],k);
  assert.equal(restored.values.get('private_account'),'synthetic-unchanged');
 });

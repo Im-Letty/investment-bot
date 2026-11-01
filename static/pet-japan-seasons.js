@@ -1,4 +1,4 @@
-/* Japanese calendar seasons are presentation only; no storage or game clock. */
+/* Annual Japanese calendar profiles. Pure reads never modify storage or the game clock. */
 (function(root,factory){
   'use strict';
   var api=factory();
@@ -147,6 +147,16 @@
     if(!Number.isFinite(next)||next<=ms)return null;
     return Object.freeze({key:key,label:profiles[key].label,dateJst:String(y).padStart(4,'0')+'-'+String(m).padStart(2,'0')+'-'+String(d).padStart(2,'0'),nextDayAt:next});
   }
+  // A recurring authored game calendar, not a local harvest/weather forecast.
+  // Existing strawberry ownership keeps its original ID; all other produce is additive.
+  var lifeProfiles={
+    spring:{fruit:{id:'berry',name:'いちご',emoji:'🍓'},vegetable:{id:'asparagus',name:'アスパラガス',emoji:'🌱'},fish:{id:'river_cherry_salmon',name:'サクラマス',color:'#d7b7ae'}},
+    summer:{fruit:{id:'peach',name:'もも',emoji:'🍑'},vegetable:{id:'cucumber',name:'きゅうり',emoji:'🥒'},fish:{id:'river_ayu',name:'アユ',color:'#b6c9a4'}},
+    autumn:{fruit:{id:'pear',name:'なし',emoji:'🍐'},vegetable:{id:'sweet_potato',name:'さつまいも',emoji:'🍠'},fish:{id:'river_salmon',name:'サケ',color:'#c3aaa0'}},
+    winter:{fruit:{id:'mandarin',name:'みかん',emoji:'🍊'},vegetable:{id:'daikon',name:'だいこん',emoji:'🌿'},fish:{id:'river_smelt',name:'ワカサギ',color:'#c2d6da'}}
+  };
+  Object.keys(lifeProfiles).forEach(function(k){var p=lifeProfiles[k];Object.keys(p).forEach(function(t){Object.freeze(p[t]);});Object.freeze(p);});Object.freeze(lifeProfiles);
+  function life(ms){var current=resolve(ms);if(!current)return null;var p=lifeProfiles[current.key];return Object.freeze({key:current.key,label:current.label,dateJst:current.dateJst,nextDayAt:current.nextDayAt,fruit:p.fruit,vegetable:p.vegetable,fish:p.fish});}
   function watch(options){
     options=options||{};
     var now=typeof options.now==='function'?options.now:Date.now;
@@ -169,5 +179,5 @@
     check();
     return Object.freeze({check:check,destroy:function(){if(dead)return;dead=true;cancel();if(typeof unsubscribe==='function')unsubscribe();unsubscribe=null;}});
   }
-  return Object.freeze({artRevision:'shop-cottage-match2',resolve:resolve,profile:profile,profiles:profiles,watch:watch,timezone:'Asia/Tokyo',dayMs:DAY});
+  return Object.freeze({artRevision:'shop-cottage-match2',lifeRevision:'annual-life1',life:life,lifeProfiles:lifeProfiles,resolve:resolve,profile:profile,profiles:profiles,watch:watch,timezone:'Asia/Tokyo',dayMs:DAY});
 }));

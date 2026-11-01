@@ -1,8 +1,8 @@
 (function (root, factory) {
   'use strict';
-  if (typeof module === 'object' && module.exports) module.exports = factory(require('./pet-village-economy.js'), require('./pet-shop-layout.js'), require('./pet-river-fishing.js'), require('./pet-ocean-discoveries.js'));
-  else root.PetGameCore = factory(root.PetVillageEconomy, root.PetShopLayout, root.PetRiverFishing, root.PetOceanDiscoveries);
-}(typeof globalThis !== 'undefined' ? globalThis : this, function (VillageEconomy, ShopLayout, RiverFishing, OceanDiscoveries) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./pet-village-economy.js'), require('./pet-shop-layout.js'), require('./pet-river-fishing.js'), require('./pet-ocean-discoveries.js'), require('./pet-japan-seasons.js'));
+  else root.PetGameCore = factory(root.PetVillageEconomy, root.PetShopLayout, root.PetRiverFishing, root.PetOceanDiscoveries, root.PetJapanSeasons);
+}(typeof globalThis !== 'undefined' ? globalThis : this, function (VillageEconomy, ShopLayout, RiverFishing, OceanDiscoveries, Seasons) {
   'use strict';
 
   // One record contains the entire economy. A rejected write never publishes a
@@ -63,6 +63,13 @@
     {id:'berry',name:'いちご',emoji:'🍓',type:'food',price:6,exp:2},
     {id:'rice',name:'おにぎり',emoji:'🍙',type:'food',price:12,exp:4},
     {id:'feast',name:'ごちそう',emoji:'🍗',type:'food',price:15,exp:20},
+    {id:'peach',name:'もも',emoji:'🍑',type:'food',price:0,exp:3,harvestOnly:true,foodGroup:'fruit'},
+    {id:'pear',name:'なし',emoji:'🍐',type:'food',price:0,exp:3,harvestOnly:true,foodGroup:'fruit'},
+    {id:'mandarin',name:'みかん',emoji:'🍊',type:'food',price:0,exp:3,harvestOnly:true,foodGroup:'fruit'},
+    {id:'asparagus',name:'アスパラガス',emoji:'🌱',type:'food',price:0,exp:2,harvestOnly:true,foodGroup:'vegetable'},
+    {id:'cucumber',name:'きゅうり',emoji:'🥒',type:'food',price:0,exp:2,harvestOnly:true,foodGroup:'vegetable'},
+    {id:'sweet_potato',name:'さつまいも',emoji:'🍠',type:'food',price:0,exp:2,harvestOnly:true,foodGroup:'vegetable'},
+    {id:'daikon',name:'だいこん',emoji:'🌿',type:'food',price:0,exp:2,harvestOnly:true,foodGroup:'vegetable'},
     {id:'house',name:'おうち',emoji:'🏠',type:'decoration',price:40},
     {id:'tree',name:'き',emoji:'🌳',type:'decoration',price:25},
     {id:'flower',name:'はな',emoji:'🌷',type:'decoration',price:15},
@@ -125,9 +132,16 @@
     {id:'cupboard',price:95,minExp:400,purchases:7},{id:'counter',price:140,minExp:800,purchases:10}
   ].map(function(row){return Object.freeze(row);}));
   var VILLAGE_HARVEST = Object.freeze([
-    Object.freeze({id:'orchard',name:'りんごの木',itemId:'apple'}),
-    Object.freeze({id:'berry',name:'いちご畑',itemId:'berry'})
+    Object.freeze({id:'orchard',name:'くだものの収穫',kind:'fruit'}),
+    Object.freeze({id:'berry',name:'野菜の収穫',kind:'vegetable'})
   ]);
+  function seasonalLife(ms){var calendar=Seasons||(typeof globalThis!=='undefined'&&globalThis.PetJapanSeasons);return calendar&&typeof calendar.life==='function'?calendar.life(ms):null;}
+  function harvestPlots(ms){
+    var season=seasonalLife(ms);
+    check(!!season,'invalid_clock');
+    return VILLAGE_HARVEST.map(function(p){return {id:p.id,name:p.name,itemId:season[p.kind].id};});
+  }
+
   var COZY_ROOM_SOURCES = {room_window:'legacy_window',room_shelf:'cupboard',room_rug:'rug',room_bed:'bed',room_bowl:'legacy_bowl',room_toy:'legacy_toy',
     house:'decor_house',tree:'decor_tree',flower:'decor_flower',fountain:'decor_fountain',sunflower:'decor_sunflower',mushroom:'decor_mushroom',lantern:'decor_lantern'};
   // Village places are free entrances, distinct from owned room decorations.
@@ -228,7 +242,7 @@
   }
   function getVillageHarvestView(s,ms) {
     check(integer(ms),'invalid_clock');var life=villageLife(s),day=harvestDay(ms),back=!!(s&&ms<s.updatedAt)||life.harvest.day!==''&&day<life.harvest.day;
-    return {day:day,nextAt:(Math.floor((ms+32400000)/86400000)+1)*86400000-32400000,plots:VILLAGE_HARVEST.map(function(p){
+    return {day:day,nextAt:(Math.floor((ms+32400000)/86400000)+1)*86400000-32400000,season:seasonalLife(ms),plots:harvestPlots(ms).map(function(p){
       var done=life.harvest.day===day&&life.harvest.claimed.indexOf(p.id)>=0,available=!!s&&!needsEggChoice(s)&&!back&&!done;
       return {id:p.id,name:p.name,itemId:p.itemId,itemName:item(p.itemId).name,quantity:1,owned:s&&s.inventory?s.inventory[p.itemId]||0:0,claimed:done,available:available,reason:back?'clock_moved_back':done?'harvest_wait':needsEggChoice(s)?'egg_required':null};
     })};
@@ -718,24 +732,21 @@
         if(a.type==='startRiverFishing') {
           check(!attempt,'fishing_active');check(view.nearBank&&a.spotId===view.site.id,'invalid_fishing');
           check(ms>=fishing.nextCastAt,'fishing_cooldown');check(integer(ms+RiverFishing.WINDOW),'invalid_clock');
-          fishing.active={id:'river-'+(next.revision+1)+'-'+ms,spotId:view.site.id,startedAt:ms,biteAt:ms+RiverFishing.WAIT,expiresAt:ms+RiverFishing.WINDOW};
-          fishing.nextCastAt=ms+RiverFishing.COOLDOWN;
+          fishing=RiverFishing.start(fishing,ms,'river-'+(next.revision+1)+'-'+ms);
         } else {
           check(attempt&&typeof a.attemptId==='string'&&a.attemptId===attempt.id,'invalid_fishing');
           check(ms>=attempt.startedAt,'clock_moved_back');
           if(a.type==='reelRiverFishing') {
             check(view.nearBank,'invalid_fishing');check(ms>=attempt.biteAt,'fishing_wait');check(ms<=attempt.expiresAt,'fishing_escaped');
-            check(fishing.catches[RiverFishing.fishId]<MAX,'amount_overflow');
-            fishing.catches[RiverFishing.fishId]++;
-            reward={fishId:RiverFishing.fishId,quantity:1};
+            var catchResult=RiverFishing.reel(fishing,ms);fishing=catchResult.state;reward=catchResult.reward;
           }
-          fishing.active=null;
+          if(a.type==='cancelRiverFishing')fishing=RiverFishing.cancel(fishing,ms);
         }
         next.riverFishing=fishing;return reward;
       }
       if(a.type==='harvestVillageFood') {
         check(integer(a.expectedRevision)&&a.expectedRevision===next.revision,'stale_state');
-        var plot=VILLAGE_HARVEST.find(function(p){return p.id===a.plotId;});check(!!plot,'invalid_harvest');
+        var plot=harvestPlots(ms).find(function(p){return p.id===a.plotId;});check(!!plot,'invalid_harvest');
         check(ms>=next.updatedAt,'clock_moved_back');var life=ensureVillageLife(next),harvest=life.harvest,today=harvestDay(ms);
         check(!harvest.day||today>=harvest.day,'clock_moved_back');
         if(harvest.day!==today){harvest.day=today;harvest.claimed=[];}
@@ -801,7 +812,7 @@
         check(next.pet.exp>=110,'appearance_locked');check(['cute','cool'].indexOf(a.path)>=0&&typeof a.pixel==='boolean','invalid_appearance');
         next.pet.path=a.path;next.pet.pixel=a.pixel;
       } else if(a.type==='buyItem') {
-        var it=item(a.itemId);check(!!it,'invalid_item');
+        var it=item(a.itemId);check(!!it&&!it.harvestOnly,'invalid_item');
         if(it.type==='clothing') {
           var wardrobe=next.wardrobe||{owned:{},equipped:null};
           check(!own(wardrobe.owned,it.id),'already_owned');check(next.coins>=it.price,'insufficient_coins');
@@ -816,7 +827,7 @@
         if(it.price>0)paidPurchase(next);
       } else if(a.type==='useItem') {
         var food=item(a.itemId);check(food&&food.type==='food','invalid_item');check(next.inventory[a.itemId]>0,'not_owned');next.inventory[a.itemId]--;next.pet.exp+=food.exp;next.care.lastCareAt=ms;reward.exp=food.exp;
-        evolutionKind=food.id==='apple'||food.id==='berry'?'fruit':food.id==='cake'?'sweet':'hearty';
+        evolutionKind=food.id==='apple'||food.id==='berry'||food.foodGroup==='fruit'?'fruit':food.id==='cake'?'sweet':'hearty';
       } else if(a.type==='equip') {
         var previousEquipped=next.decorations.equipped;
         if(a.itemId===null) {
@@ -897,7 +908,7 @@
   return {create:create,getStage:getStage,getLilacGrowth:getLilacGrowth,lilacGrowthStages:lilacGrowthStages,getLilacAppearance:getLilacAppearance,lilacAppearanceStages:lilacAppearanceStages,getLilacEvolution:getLilacEvolution,lilacEvolutionPaths:lilacEvolutionPaths,getMarketSummary:summary,eggCatalogue:eggCatalogue,eggProfile:eggProfile,getEggOrigin:getEggOrigin,needsEggChoice:needsEggChoice,KEY:KEY,STORAGE_KEY:KEY,
     roomFurniture:clone(ROOM_FURNITURE),defaultRoomLayout:defaultRoomLayout,getRoomLayout:getRoomLayout,
     cozyRoomFurniture:clone(COZY_ROOM_FURNITURE),cozyRoomTypes:clone(COZY_ROOM_TYPES),defaultCozyRoomLayout:defaultCozyRoomLayout,getCozyRoomLayout:getCozyRoomLayout,
-    getHomeFurnishingsView:getHomeFurnishingsView,getCozyRoomFurniture:getCozyRoomFurniture,getVillageHarvestView:getVillageHarvestView,getRiverFishingView:getRiverFishingView,getOceanDiscoveryView:getOceanDiscoveryView,
+    getHomeFurnishingsView:getHomeFurnishingsView,getCozyRoomFurniture:getCozyRoomFurniture,seasonalLifeRevision:'annual-life1',getSeasonalLife:seasonalLife,getVillageHarvestView:getVillageHarvestView,getRiverFishingView:getRiverFishingView,getOceanDiscoveryView:getOceanDiscoveryView,
     getShopInteriorLayout:getShopInteriorLayout,
     villagePlaces:VILLAGE_PLACES,defaultVillageLayout:defaultVillageLayout,getVillageLayout:getVillageLayout,getOpeningStoryView:getOpeningStoryView,
     getVillageEconomyView:function(s,ms){return VillageEconomy.view(s,ms===undefined?Date.now():ms);},
