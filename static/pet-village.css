@@ -92,3 +92,18 @@
  .ipg-view-village:has(.ipg-village:not(.ipg-village-editor))>.ipg-tabs .ipg-button{min-height:44px;padding:6px 8px;font-size:12px}
  .ipg-village:not(.ipg-village-editor)>.ipg-village-hint{display:none}
 }
+
+/* Keep player navigation at the edge without covering the walking surface. */
+.ipg[data-village-life="true"]>.ipg-tabs.ipg-edge-nav{display:flex;justify-content:flex-end;gap:6px;overflow:visible;margin:0 0 12px;padding:0;border:0;background:transparent;border-radius:0}
+.ipg[data-village-life="true"]>.ipg-tabs.ipg-edge-nav>.ipg-button{position:relative;display:grid;place-items:center;flex:0 0 44px;width:44px;min-width:44px;height:44px;min-height:44px;padding:0;border-radius:50%;background:var(--ipg-paper);color:var(--ipg-ink);border:1px solid var(--ipg-line);box-shadow:none}
+.ipg[data-village-life="true"]>.ipg-tabs.ipg-edge-nav>.is-active{background:var(--ipg-bg);border-color:var(--ipg-line);color:var(--ipg-ink)}
+.ipg-nav-icon{display:block;width:24px;height:24px;pointer-events:none}
+.ipg-nav-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;pointer-events:none}
+.ipg-edge-nav>.ipg-button::after{content:attr(aria-label);position:absolute;top:calc(100% + 6px);right:0;z-index:1;padding:5px 8px;border:1px solid var(--ipg-line);border-radius:8px;background:var(--ipg-paper);color:var(--ipg-ink);font-size:12px;line-height:1.4;white-space:nowrap;visibility:hidden;pointer-events:none}
+.ipg-edge-nav>.ipg-button:hover::after,.ipg-edge-nav>.ipg-button:focus-visible::after{visibility:visible}
+.ipg[data-village-life="true"].ipg-view-village>.ipg-tabs.ipg-edge-nav,.ipg[data-village-life="true"].ipg-view-home>.ipg-tabs.ipg-edge-nav{position:absolute;top:calc(72px + env(safe-area-inset-top,0px));left:auto;right:max(12px,env(safe-area-inset-right,0px));transform:none;z-index:10;width:max-content;max-width:calc(100% - 24px);margin:0}
+.ipg[data-village-life="true"]:has(>.ipg-edge-nav) .ipg-life-title{max-width:calc(100% - 178px - env(safe-area-inset-right,0px))}
+@media(orientation:landscape) and (max-height:480px){
+ .ipg[data-village-life="true"].ipg-view-village>.ipg-tabs.ipg-edge-nav,.ipg[data-village-life="true"].ipg-view-home>.ipg-tabs.ipg-edge-nav{top:max(8px,env(safe-area-inset-top,0px));right:calc(164px + env(safe-area-inset-right,0px))}
+ .ipg[data-village-life="true"]:has(>.ipg-edge-nav) .ipg-life-title{max-width:140px}
+}
