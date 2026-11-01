@@ -53,7 +53,7 @@ function fixture(user={id:'account-A'},options={}) {
   const card=el('');card.tagName='BUTTON';
   const morning=el(''),drawer=el(''),menuClose=drawer.appendChild(el('kn-menu-close')),morningButton=el('');morning.id='morning-section';morning.style.display='block';drawer.id='sideDrawer';drawer.inert=true;drawer.dataset.menuView='display';menuClose.tagName=morningButton.tagName='BUTTON';
   morningButton.onclick=()=>{morningOpens++;doc.body.classList.remove('kn-mypage-active');doc.body.classList.add('view-asaletter');morning.style.display='block';};
-  function documentInFrame(n){n.contentDocument={readyState:'complete',documentElement:{getAttribute:()=> 'true'}};n.contentWindow={location:{origin:'https://local.test',protocol:'https:',pathname:'/kakeibo'},kkRefreshRecords(){refreshes++;},kkSetMyPageView(view){views.push(view);}};}
+  function documentInFrame(n){n.contentDocument={readyState:'complete',documentElement:{getAttribute:()=> 'true'}};n.contentWindow={location:{origin:'https://local.test',protocol:'https:',pathname:'/kakeibo'},kkRefreshRecords(){refreshes++;},kkSetMyPageView(view){views.push(view);return true;}};}
   const doc={readyState:options.readyState||'complete',body:el(''),querySelector:selector=>selector==='#knBottomNav [data-act="morning"]'&&!options.noMorningControl?morningButton:null,getElementById:id=>({myPageOv:pageAvailable?page:null,myPageCard:card,'morning-section':morning,sideDrawer:drawer}[id]),createElement:tag=>{const n=el('');n.tagName=tag.toUpperCase();if(tag==='iframe')documentInFrame(n);return n;},addEventListener:(name,fn,settings)=>{events[name]=fn;registrations.push({target:'document',name,settings});}};
   doc.body.appendChild(morning);doc.body.appendChild(drawer);doc.body.appendChild(morningButton);doc.body.appendChild(page);doc.body.appendChild(card);doc.body.classList.add('view-asaletter');
   const context={document:doc,knUser:user,location:{origin:'https://local.test',search:options.search||''},URLSearchParams,getComputedStyle(node){return {display:node.style.display||((node.classList.contains('mo-pane')&&!node.classList.contains('on'))?'none':'block'),visibility:node.style.visibility||'visible'};},setTimeout(fn,ms){if(!options.deferPage)throw Error('setup should be immediate');fallbacks.push({fn,ms});return fallbacks.length;},MutationObserver:class {constructor(fn){mutations.push(fn);}observe(){}},addEventListener:(name,fn)=>{messages[name]=fn;registrations.push({target:'window',name});}};context.window=context;
@@ -112,6 +112,40 @@ test('readiness accepts only the owned same-origin household-ledger frame',()=>{
   const h=fixture();h.frame.contentDocument.documentElement.getAttribute=()=>null;h.context.knOpenLedger();assert.equal(h.frame.getAttribute('aria-busy'),'true');
   h.ready({origin:'https://other.test'});h.ready({source:{}});assert.equal(h.frame.getAttribute('aria-busy'),'true');
   h.frame.contentDocument.documentElement.getAttribute=()=> 'true';h.ready();assert.equal(h.frame.getAttribute('aria-busy'),null);
+});
+test('initial portfolio never exposes the ledger while readiness or the child view API is delayed',()=>{
+  const h=fixture(),frame=h.frame;
+  frame.contentDocument.documentElement.getAttribute=()=>null;
+  delete frame.contentWindow.kkSetMyPageView;
+  frame.draft='synthetic unfinished asset';
+  h.context.knOpenAssets();
+  assert.equal(h.page.getAttribute('data-mp-view'),'assets');
+  assert.equal(frame.style.visibility,'hidden');assert.equal(frame.getAttribute('aria-busy'),'true');
+  frame.contentDocument.documentElement.getAttribute=()=> 'true';
+  h.ready();
+  assert.equal(frame.style.visibility,'hidden','the early inline ready marker cannot reveal the default ledger');
+  assert.equal(frame.getAttribute('aria-busy'),'true');
+  let appliedWhileHidden=false;
+  frame.contentWindow.kkSetMyPageView=view=>{appliedWhileHidden=frame.style.visibility==='hidden';h.views.push(view);return true;};
+  h.ready({origin:'https://other.test'});h.ready({source:{}});
+  assert.equal(frame.style.visibility,'hidden');
+  frame.listeners.load();
+  assert.equal(appliedWhileHidden,true);assert.equal(h.views.at(-1),'assets');
+  assert.equal(frame.style.visibility,'');assert.equal(frame.getAttribute('aria-busy'),null);
+  assert.equal(h.frame,frame);assert.equal(frame.draft,'synthetic unfinished asset');assert.deepEqual(h.navigations,['/kakeibo']);
+});
+test('switching from a retained ledger hides it until the requested asset view is acknowledged',()=>{
+  for(const outcome of [false,undefined,'throw']){
+    const h=fixture();h.context.knOpenLedger();const frame=h.frame;
+    frame.draft='synthetic unfinished household entry';frame.scroll=415;
+    frame.contentWindow.kkSetMyPageView=()=>{if(outcome==='throw')throw Error('synthetic view unavailable');return outcome;};
+    h.personal.click();
+    assert.equal(h.page.getAttribute('data-mp-view'),'assets');
+    assert.equal(frame.style.visibility,'hidden');assert.equal(frame.getAttribute('aria-busy'),'true');
+    frame.contentWindow.kkSetMyPageView=view=>{h.views.push(view);return true;};h.ready();
+    assert.equal(frame.style.visibility,'');assert.equal(frame.getAttribute('aria-busy'),null);assert.equal(h.views.at(-1),'assets');
+    assert.equal(h.frame,frame);assert.equal(frame.draft,'synthetic unfinished household entry');assert.equal(frame.scroll,415);assert.deepEqual(h.navigations,['/kakeibo']);
+  }
 });
 test('home navigation retains the existing MyPage entry and never removes the private ledger source',()=>{
   const html=read('index.html');
