@@ -18,6 +18,7 @@ import time
 
 import requests
 from urllib3.exceptions import HTTPError as UpstreamReadError
+from bounded_json import dump_bounded_json
 
 JST = timezone(timedelta(hours=9))
 TTL = 6 * 3600
@@ -458,15 +459,29 @@ class CompanyProfiles:
                 self.cache_path.parent.mkdir(parents=True, exist_ok=True)
                 with open(str(self.cache_path) + '.lock', 'a') as shared_lock:
                     fcntl.flock(shared_lock, fcntl.LOCK_EX)
-                    with self._condition:
-                        self._read_disk()
-                        rows = deepcopy(list(self._records.values()))
-                    encoded = json.dumps({'items': rows}, ensure_ascii=False, allow_nan=False)
-                    if len(encoded.encode('utf-8')) > MAX_PROFILE_CACHE_BYTES:
-                        return  # Keep the last readable snapshot instead of replacing it with an oversized file.
-                    temp = self.cache_path.with_name(self.cache_path.name + '.' + str(os.getpid()) + '.tmp')
-                    temp.write_text(encoded, encoding='utf-8')
-                    temp.replace(self.cache_path)
+                    temp = None
+                    try:
+                        with self._condition:
+                            self._read_disk()
+                            rows = deepcopy(list(self._records.values()))
+                        temp = self.cache_path.with_name(self.cache_path.name + '.' + str(os.getpid()) + '.tmp')
+                        with temp.open('wb') as output:
+                            dump_bounded_json({'items': rows}, output,
+                                              max_bytes=MAX_PROFILE_CACHE_BYTES,
+                                              ensure_ascii=False, allow_nan=False)
+                            output.flush()
+                            own_mtime = os.fstat(output.fileno()).st_mtime_ns
+                        with self._condition:
+                            temp.replace(self.cache_path)
+                            self._file_mtime = own_mtime
+                    finally:
+                        # Keep cleanup under the file lock: another cache
+                        # instance in this process uses the same staged name.
+                        if temp is not None:
+                            try:
+                                temp.unlink(missing_ok=True)
+                            except OSError:
+                                pass
             except (OSError, ValueError):
                 pass
 

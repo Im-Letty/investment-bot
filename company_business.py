@@ -20,6 +20,7 @@ import unicodedata
 
 import requests
 from urllib3.exceptions import HTTPError as UpstreamReadError
+from bounded_json import dump_bounded_json
 
 
 API_URL = 'https://www.wikidata.org/w/api.php'
@@ -668,13 +669,26 @@ class CompanyBusinesses:
                 self.cache_path.parent.mkdir(parents=True, exist_ok=True)
                 with open(str(self.cache_path) + '.lock', 'a') as shared_lock:
                     fcntl.flock(shared_lock, fcntl.LOCK_EX)
-                    with self._condition:
-                        self._read_disk(); rows = deepcopy(list(self._records.values()))
-                    text = json.dumps({'version': 1, 'items': rows}, ensure_ascii=False, allow_nan=False)
-                    if len(text.encode('utf-8')) > MAX_CACHE_BYTES:
-                        return
-                    temporary = self.cache_path.with_name(self.cache_path.name + '.' + str(os.getpid()) + '.tmp')
-                    temporary.write_text(text, encoding='utf-8'); temporary.replace(self.cache_path)
+                    temporary = None
+                    try:
+                        with self._condition:
+                            self._read_disk(); rows = deepcopy(list(self._records.values()))
+                        temporary = self.cache_path.with_name(self.cache_path.name + '.' + str(os.getpid()) + '.tmp')
+                        with temporary.open('wb') as output:
+                            dump_bounded_json({'version': 1, 'items': rows}, output,
+                                              max_bytes=MAX_CACHE_BYTES,
+                                              ensure_ascii=False, allow_nan=False)
+                            output.flush()
+                            own_mtime = os.fstat(output.fileno()).st_mtime_ns
+                        with self._condition:
+                            temporary.replace(self.cache_path)
+                            self._file_mtime = own_mtime
+                    finally:
+                        if temporary is not None:
+                            try:
+                                temporary.unlink(missing_ok=True)
+                            except OSError:
+                                pass
             except (OSError, ValueError):
                 pass
 

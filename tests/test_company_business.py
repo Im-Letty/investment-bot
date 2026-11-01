@@ -3,6 +3,7 @@ from copy import deepcopy
 from datetime import date, datetime, timezone
 from email.utils import formatdate
 import json
+import os
 from pathlib import Path
 import tempfile
 import threading
@@ -659,6 +660,48 @@ class CacheTests(unittest.TestCase):
         self.assertEqual(len(restarted._records), 600)
         self.assertEqual(restarted.get('1000.T', company('1000'))['field_status'], 'available')
         loader.assert_not_called()
+
+    def test_saved_unicode_bytes_match_previous_format_without_own_reload(self):
+        cache = self.cache(); cache._merge(saved()); cache._save()
+        expected = json.dumps({'version': 1, 'items': list(cache._records.values())},
+                              ensure_ascii=False, allow_nan=False).encode('utf-8')
+        self.assertEqual(self.path.read_bytes(), expected)
+        self.assertEqual(cache._file_mtime, self.path.stat().st_mtime_ns)
+        with patch.object(cache, '_load', wraps=cache._load) as load:
+            self.assertEqual(cache.get('7203.T', company())['field_status'], 'available')
+        load.assert_not_called()
+
+    def test_external_writer_is_still_merged_after_own_snapshot(self):
+        first = self.cache(); first._merge(saved()); first._save()
+        previous_mtime = first._file_mtime
+        other = self.cache(); other._merge(saved('9432.T', name='NTT')); other._save()
+        os.utime(self.path, ns=(previous_mtime + 1_000_000, previous_mtime + 1_000_000))
+        first._merge(saved('9433.T', name='KDDI')); first._save()
+        rows = json.loads(self.path.read_bytes())['items']
+        self.assertEqual({row['symbol'] for row in rows}, {'7203.T', '9432.T', '9433.T'})
+        self.assertEqual(first.get('9432.T', company('9432', 'NTT'))['field_status'], 'available')
+
+    def test_oversized_new_snapshot_preserves_prior_file_and_removes_stage(self):
+        cache = self.cache(); cache._merge(saved()); cache._save()
+        before = self.path.read_bytes()
+        with patch('company_business.MAX_CACHE_BYTES', 100):
+            cache._merge(saved('9432.T', name='NTT')); cache._save()
+        self.assertEqual(self.path.read_bytes(), before)
+        self.assertEqual(list(self.path.parent.glob(self.path.name + '.*.tmp')), [])
+
+    def test_interrupted_staging_preserves_complete_prior_json_and_cleans_temp(self):
+        cache = self.cache(); cache._merge(saved()); cache._save()
+        before = self.path.read_bytes()
+        before_mtime = cache._file_mtime
+        def failed_write(value, output, **kwargs):
+            output.write(b'{"items":[')
+            raise OSError('test disk write failure')
+        with patch('company_business.dump_bounded_json', side_effect=failed_write):
+            cache._merge(saved('9432.T', name='NTT')); cache._save()
+        self.assertEqual(self.path.read_bytes(), before)
+        self.assertEqual(cache._file_mtime, before_mtime)
+        self.assertEqual(len(json.loads(self.path.read_bytes())['items']), 1)
+        self.assertEqual(list(self.path.parent.glob(self.path.name + '.*.tmp')), [])
 
     def test_refresh_remains_pending_until_verified_facts_are_persisted(self):
         loader = Mock(side_effect=lambda symbol, row: saved(symbol, now=self.now))

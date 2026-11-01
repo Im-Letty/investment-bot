@@ -7,12 +7,14 @@ import base64
 from copy import deepcopy
 from datetime import date
 from hashlib import sha256
+import io
 import json
 import math
 import re
 import time
 import zlib
 
+from bounded_json import JsonSizeLimitError, dump_bounded_json
 from daily_news_runtime import BUCKET, StorageUnavailable
 from regional_edinet import _DESCRIPTOR_FIELDS, _date, _stamp, safe_edinet_diagnostic
 
@@ -33,6 +35,30 @@ FACT_KEYS = {'value', 'currency', 'unit', 'fiscal_period', 'tag', 'context_id', 
              'filing_submitted_at', 'fetched_at', 'doc_id', 'edinet_code', 'security_code',
              'source_url', 'source_title', 'kind', 'split_adjustment', 'latest_filing_guaranteed',
              'doc_type_code', 'base_doc_id', 'xbrl_body_sha256'}
+
+
+class _CompressedCheckpoint:
+    """Hash and compress the canonical JSON without retaining its raw bytes."""
+
+    def __init__(self):
+        self.digest = sha256()
+        self.compressor = zlib.compressobj()
+        self.compressed = bytearray()
+
+    def _append(self, part):
+        # A compressed payload this large cannot fit its base64 JSON wrapper.
+        if len(part) > MAX_STORED_BYTES - len(self.compressed):
+            raise JsonSizeLimitError('checkpoint compressed size limit exceeded')
+        self.compressed.extend(part)
+
+    def write(self, part):
+        self.digest.update(part)
+        self._append(self.compressor.compress(part))
+        return len(part)
+
+    def finish(self):
+        self._append(self.compressor.flush())
+        return self.digest.hexdigest(), base64.b64encode(self.compressed).decode('ascii')
 
 
 def _keys(value, allowed):
@@ -266,16 +292,14 @@ class EdinetCheckpointStore:
             self.last_save_error = 'checkpoint_schema_invalid'
             return False
         try:
-            raw = json.dumps(cache, ensure_ascii=False, separators=(',', ':'), allow_nan=False).encode()
-            if len(raw) > MAX_RAW_BYTES:
-                self.last_save_error = 'checkpoint_size_limit'
-                return False
-            wrapper = {'version': 1, 'encoding': 'zlib-base64', 'sha256': sha256(raw).hexdigest(),
-                       'data': base64.b64encode(zlib.compress(raw)).decode('ascii')}
-            body = json.dumps(wrapper, separators=(',', ':')).encode()
-            if len(body) > MAX_STORED_BYTES:
-                self.last_save_error = 'checkpoint_size_limit'
-                return False
+            encoded = _CompressedCheckpoint()
+            dump_bounded_json(cache, encoded, max_bytes=MAX_RAW_BYTES, ensure_ascii=False,
+                              separators=(',', ':'), allow_nan=False)
+            digest, data = encoded.finish()
+            wrapper = {'version': 1, 'encoding': 'zlib-base64', 'sha256': digest, 'data': data}
+            output = io.BytesIO()
+            dump_bounded_json(wrapper, output, max_bytes=MAX_STORED_BYTES, separators=(',', ':'))
+            body = output.getvalue()
             deadline = self.clock() + 8
             self._check_private(deadline)
             response = self.transport._request('POST', '/object/' + BUCKET + '/' + CHECKPOINT_PATH,
@@ -285,6 +309,9 @@ class EdinetCheckpointStore:
             if not success:
                 self.last_save_error = 'storage_write'
             return success
+        except JsonSizeLimitError:
+            self.last_save_error = 'checkpoint_size_limit'
+            return False
         except Exception as error:
             code = str(error) if isinstance(error, StorageUnavailable) else None
             self.last_save_error = code if code in CHECKPOINT_ERROR_CODES else 'checkpoint_save_failed'

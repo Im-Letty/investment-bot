@@ -2,6 +2,7 @@
 from copy import deepcopy
 from datetime import datetime
 import json
+import os
 from pathlib import Path
 import tempfile
 import threading
@@ -531,6 +532,41 @@ class CacheTests(unittest.TestCase):
         with patch('company_profile.MAX_PROFILE_CACHE_BYTES', 100):
             cache._merge(record('9432.T')); cache._save()
         self.assertEqual(self.path.read_text(), saved)
+        self.assertEqual(list(self.path.parent.glob(self.path.name + '.*.tmp')), [])
+
+    def test_saved_unicode_bytes_match_previous_format_without_own_reload(self):
+        cache = self.cache(); cache._merge(record()); cache._save()
+        expected = json.dumps({'items': list(cache._records.values())},
+                              ensure_ascii=False, allow_nan=False).encode('utf-8')
+        self.assertEqual(self.path.read_bytes(), expected)
+        self.assertEqual(cache._file_mtime, self.path.stat().st_mtime_ns)
+        with patch.object(cache, '_load', wraps=cache._load) as load:
+            self.assertEqual(cache.get('7203.T', 'テスト会社')['data']['price'], 3000)
+        load.assert_not_called()
+
+    def test_external_writer_is_still_merged_after_own_snapshot(self):
+        first = self.cache(); first._merge(record()); first._save()
+        previous_mtime = first._file_mtime
+        other = self.cache(); other._merge(record('9432.T')); other._save()
+        os.utime(self.path, ns=(previous_mtime + 1_000_000, previous_mtime + 1_000_000))
+        first._merge(record('9433.T')); first._save()
+        rows = json.loads(self.path.read_bytes())['items']
+        self.assertEqual({row['symbol'] for row in rows}, {'7203.T', '9432.T', '9433.T'})
+        self.assertEqual(first.get('9432.T', 'テスト会社')['data']['price'], 3000)
+
+    def test_interrupted_staging_preserves_complete_prior_json_and_cleans_temp(self):
+        cache = self.cache(); cache._merge(record()); cache._save()
+        before = self.path.read_bytes()
+        before_mtime = cache._file_mtime
+        def failed_write(value, output, **kwargs):
+            output.write(b'{"items":[')
+            raise OSError('test disk write failure')
+        with patch('company_profile.dump_bounded_json', side_effect=failed_write):
+            cache._merge(record('9432.T')); cache._save()
+        self.assertEqual(self.path.read_bytes(), before)
+        self.assertEqual(cache._file_mtime, before_mtime)
+        self.assertEqual(len(json.loads(self.path.read_bytes())['items']), 1)
+        self.assertEqual(list(self.path.parent.glob(self.path.name + '.*.tmp')), [])
 
 
 if __name__=='__main__':unittest.main()
