@@ -6,6 +6,47 @@
 }(typeof window !== 'undefined' ? window : globalThis, function () {
   'use strict';
   var REVISION = 'placement-originals1', ALPHA_TEST = 8 / 255;
+  var CANOPY_REVISION='seasonal-canopy1', TREE_KINDS=Object.freeze(['tree','treeApple','treeBirch','treeGrove']);
+  // Presentation hues operate on sampled linear RGB only. The source PNG,
+  // alpha, sprite envelope and non-selected pixels are untouched. Brown/red
+  // controls are tested finitely; this chroma classifier is not semantic segmentation.
+  var canopyProfiles=Object.freeze({
+    spring:Object.freeze({key:'spring',tint:'#b4ce88',blend:.48,gain:1.12}),
+    summer:Object.freeze({key:'summer',tint:'#88aa66',blend:0,gain:1}),
+    autumn:Object.freeze({key:'autumn',tint:'#cf955c',blend:.92,gain:1.16}),
+    winter:Object.freeze({key:'winter',tint:'#d6dfd0',blend:.92,gain:1.45})
+  });
+  function canopyProfile(key){return Object.prototype.hasOwnProperty.call(canopyProfiles,key)?canopyProfiles[key]:null;}
+  function smooth(a,b,x){var t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t);}
+  function validChannels(v,n){return Array.isArray(v)&&v.length===n&&v.every(function(x){return typeof x==='number'&&Number.isFinite(x)&&x>=0&&x<=1;});}
+  function foliageMaskLinear(rgb){
+    if(!validChannels(rgb,3))throw new Error('placement_canopy_color');
+    // Yellow-green leaves in the saved grove have g slightly below r. Brown
+    // wood has a substantially smaller g/r ratio; neutral/blue pixels fail g-b.
+    return smooth(.55,.85,rgb[1]/Math.max(rgb[0],.0001))*smooth(.40,.65,(rgb[1]-rgb[2])/Math.max(rgb[1],.0001));
+  }
+  function linearTint(profile){
+    var c=[1,3,5].map(function(i){var v=parseInt(profile.tint.slice(i,i+2),16)/255;return v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4);});
+    var l=c[0]*.2126+c[1]*.7152+c[2]*.0722;return c.map(function(v){return v/l*profile.gain;});
+  }
+  // Finite diagnostic projection of the shader's linear RGB operation. It does
+  // not certify every image pixel or replace the actual WebGL shader check.
+  function projectFoliageLinear(rgba,key){
+    var p=canopyProfile(key);if(!p||!validChannels(rgba,4))throw new Error('placement_canopy_color');
+    if(p.blend===0)return rgba.slice();var m=foliageMaskLinear(rgba.slice(0,3))*p.blend,t=linearTint(p),l=rgba[0]*.2126+rgba[1]*.7152+rgba[2]*.0722;
+    return rgba.map(function(v,i){return i===3?v:v+(Math.min(1,t[i]*l)-v)*m;});
+  }
+  var canopyFragment=[
+    '#include <map_fragment>',
+    '#ifdef USE_MAP',
+    'if ( originalLeafBlend > 0.0 ) {',
+    ' vec3 originalLeafRGB = diffuseColor.rgb;',
+    ' float originalLeafMask = smoothstep( 0.55, 0.85, originalLeafRGB.g / max( originalLeafRGB.r, 0.0001 ) ) * smoothstep( 0.40, 0.65, ( originalLeafRGB.g - originalLeafRGB.b ) / max( originalLeafRGB.g, 0.0001 ) );',
+    ' float originalLeafLuma = dot( originalLeafRGB, vec3( 0.2126, 0.7152, 0.0722 ) );',
+    ' diffuseColor.rgb = mix( originalLeafRGB, min( vec3( 1.0 ), originalLeafTint * originalLeafLuma ), originalLeafMask * originalLeafBlend );',
+    '}',
+    '#endif'
+  ].join('\n');
   function asset(url, sha256, width, height, bounds, rootPixels) {
     var spec = { url: '/static/' + url, sha256: sha256, width: width, height: height,
       alphaBounds: Object.freeze(bounds), alphaThreshold: 8 };
@@ -51,6 +92,12 @@
         typeof ctx.materials.add !== 'function' || typeof ctx.materials.delete !== 'function') throw new Error('placement_originals_context');
     var state = 'idle', failure = null, pending = null, rejectPending = null;
     var textures = new Map(), materials = new Map(), sprites = new Set(), ownedTextures = new Set(), ownedMaterials = new Set();
+    var treeSeason='summer',seasonUniforms={originalLeafBlend:{value:0},originalLeafTint:{value:new T.Color(1,1,1)}};
+    function setSeason(key){
+      var p=canopyProfile(key);if(state==='disposed'||!p)return false;
+      treeSeason=key;seasonUniforms.originalLeafBlend.value=p.blend;var tint=linearTint(p);seasonUniforms.originalLeafTint.value.setRGB(tint[0],tint[1],tint[2]);return true;
+    }
+    function summary(){var p=canopyProfile(treeSeason);return {revision:CANOPY_REVISION,treeSeason:treeSeason,foliageTint:p.tint,blend:p.blend,maskedTreeMaterials:Array.from(materials.keys()).filter(function(k){return TREE_KINDS.indexOf(k)>=0;}).length};}
     function alive() { if (state === 'disposed') throw new Error('placement_originals_disposed'); }
     function validate(texture, kind) {
       var size = texture && texture.isTexture ? imageSize(texture.image) : null, spec = catalog[kind];
@@ -92,6 +139,15 @@
           fog: false, toneMapped: false, rotation: 0 });
         material.name = 'placement-original-material-' + kind;
         material.userData = { originalArt: true, originalArtKind: kind, sourceSHA256: catalog[kind].sha256 };
+        if(TREE_KINDS.indexOf(kind)>=0){
+          material.userData.seasonalCanopyRevision=CANOPY_REVISION;
+          material.onBeforeCompile=function(shader){
+            if(typeof shader.fragmentShader!=='string'||shader.fragmentShader.indexOf('#include <map_fragment>')<0)throw new Error('placement_canopy_shader');
+            shader.uniforms.originalLeafBlend=seasonUniforms.originalLeafBlend;shader.uniforms.originalLeafTint=seasonUniforms.originalLeafTint;
+            shader.fragmentShader='uniform float originalLeafBlend;\n'+'uniform vec3 originalLeafTint;\n'+shader.fragmentShader.replace('#include <map_fragment>',canopyFragment);
+          };
+          material.customProgramCacheKey=function(){return CANOPY_REVISION;};
+        }
         materials.set(kind, material); ownedMaterials.add(material); ctx.materials.add(material);
       }
       return materials.get(kind);
@@ -156,12 +212,12 @@
       ownedMaterials.clear(); materials.clear(); sprites.clear();
       if (rejectPending) { var reject = rejectPending; rejectPending = null; reject(new Error('placement_originals_disposed')); }
     }
-    var api = Object.freeze({ revision: REVISION, createSprite: createSprite, preload: preload, dispose: dispose,
+    var api = Object.freeze({ revision: REVISION, seasonalCanopyRevision:CANOPY_REVISION,setSeason:setSeason,summary:summary,createSprite: createSprite, preload: preload, dispose: dispose,
       has: function (kind) { return state === 'ready' && textures.has(canonical(kind)); },
       textureFor: function (kind) { alive(); return state === 'ready' ? textures.get(canonical(kind)) : null; },
       get state() { return state; }, get ready() { return state === 'ready'; }, get error() { return failure; } });
     return api;
   }
-  return Object.freeze({ revision: REVISION, treeVarietyRevision:'tree-variety1', shopStyleRevision:'shop-style1', treeRootsRevision:'soft-roots2', catalog: catalog, aliases: aliases, kinds: kinds, alphaTest: ALPHA_TEST,
+  return Object.freeze({ revision: REVISION, seasonalCanopyRevision:CANOPY_REVISION,canopyProfiles:canopyProfiles,foliageMaskLinear:foliageMaskLinear,projectFoliageLinear:projectFoliageLinear,treeVarietyRevision:'tree-variety1', shopStyleRevision:'shop-style1', treeRootsRevision:'soft-roots2', catalog: catalog, aliases: aliases, kinds: kinds, alphaTest: ALPHA_TEST,
     resolve: function (kind) { return catalog[canonical(kind)]; }, create: create });
 }));
