@@ -2001,7 +2001,7 @@
     if (townSceneLoading) return townSceneLoading;
     if (!d.head) return Promise.resolve(null);
     townSceneLoading = new Promise(function (resolve) {
-      var script = d.createElement('script'); script.src = '/static/pet-town-scene.js?v=20261102-annual-life1'; script.async = true;
+      var script = d.createElement('script'); script.src = '/static/pet-town-scene.js?v=20261102-seasonal-canopy1'; script.async = true;
       script.onload = function () { resolve(w.PetTownScene && typeof w.PetTownScene.mount === 'function' ? w.PetTownScene : null); };
       script.onerror = function () { townSceneLoading = null; script.remove(); resolve(null); };
       d.head.appendChild(script);

@@ -145,10 +145,10 @@
   }
   function loadOriginals() {
     var current = Originals || globalThis.PetTownPlacementOriginals;
-    if (current && current.revision === 'placement-originals1' && current.treeVarietyRevision === 'tree-variety1' && current.shopStyleRevision === 'shop-style1' && current.treeRootsRevision === 'soft-roots2') { Originals=current; return Promise.resolve(current); }
-    if (!originalsLoading) originalsLoading=import('/static/pet-town-placement-originals.js?v=20261028-soft-roots2').then(function () {
+    if (current && current.revision === 'placement-originals1' && current.treeVarietyRevision === 'tree-variety1' && current.shopStyleRevision === 'shop-style1' && current.treeRootsRevision === 'soft-roots2' && current.seasonalCanopyRevision === 'seasonal-canopy1') { Originals=current; return Promise.resolve(current); }
+    if (!originalsLoading) originalsLoading=import('/static/pet-town-placement-originals.js?v=20261102-seasonal-canopy1').then(function () {
       Originals=globalThis.PetTownPlacementOriginals;
-      if (!Originals || Originals.revision !== 'placement-originals1' || Originals.treeVarietyRevision !== 'tree-variety1' || Originals.shopStyleRevision !== 'shop-style1' || Originals.treeRootsRevision !== 'soft-roots2') throw new Error('town_originals_unavailable');
+      if (!Originals || Originals.revision !== 'placement-originals1' || Originals.treeVarietyRevision !== 'tree-variety1' || Originals.shopStyleRevision !== 'shop-style1' || Originals.treeRootsRevision !== 'soft-roots2' || Originals.seasonalCanopyRevision !== 'seasonal-canopy1') throw new Error('town_originals_unavailable');
       return Originals;
     }).catch(function(error){ originalsLoading=null; throw error; });
     return originalsLoading;
@@ -1351,6 +1351,7 @@
       var api = Seasons || globalThis.PetJapanSeasons, palette = api ? api.profile(key) :
         key === 'summer' ? { ground: '#b1cf83', sky: '#cbe7e8' } : null;
       if (disposed || !palette) return false;
+      if(originalArt&&typeof originalArt.setSeason==='function'){originalArt.setSeason(key);scene.userData.treeSeason=originalArt.summary().treeSeason;}
       if (activeSeason === key) return true;
       if(shoreTransition)shoreTransition.setGroundColor(palette.ground);
       if(environmentLife)environmentLife.setSeason(palette);
