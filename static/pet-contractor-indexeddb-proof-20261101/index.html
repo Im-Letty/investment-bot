@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>未送信の下書き — IndexedDBの技術見本</title>
+<style>
+:root{color-scheme:light;font-family:system-ui,sans-serif;color:#263f35;background:#f3f0e6;line-height:1.7}*{box-sizing:border-box}body{margin:0}main{max-width:58rem;margin:auto;padding:1.2rem}h1{font-size:clamp(1.45rem,5vw,2rem);line-height:1.4}h2{font-size:1.1rem}.card{background:#fffdf6;border:1px solid #819585;border-radius:1rem;padding:1rem;margin:1rem 0}button,a.button{font:inherit;border:2px solid #315942;border-radius:.65rem;padding:.6rem .85rem;background:#315942;color:#fff;cursor:pointer;display:inline-block;margin:.3rem .25rem .3rem 0;text-decoration:none}button:disabled{background:#e0e3da;color:#48534a;border-color:#7d897f;cursor:default}a{color:#234f42;overflow-wrap:anywhere}:focus-visible{outline:3px solid #8a4b12;outline-offset:3px}.actions{display:flex;flex-wrap:wrap;align-items:center}pre{font: .85rem/1.6 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;background:#edf1e9;border:1px solid #819585;padding:.8rem;border-radius:.6rem;max-width:100%;min-height:10rem}#partner-link{display:block}.small{font-size:.9rem}.status{font-weight:600}code{overflow-wrap:anywhere}@media(max-width:390px){main{padding:.75rem}.card{padding:.8rem}button{width:100%;margin:.3rem 0}}
+</style></head><body><main>
+<h1>未送信の下書き<br>ブラウザ内の保存を確かめる技術見本</h1>
+<p>この見本だけのデータベースを明示して使います。村の配置や本人のゲーム保存を読み書きせず、業者へ依頼を送信しません。</p>
+<section class="card" aria-labelledby="steps"><h2 id="steps">二つのタブで確かめる</h2>
+<ol><li>主タブで専用の見本を作り、表示されたリンクを別タブで開きます。</li><li>相手タブで「既存の見本を開く」を押します。主タブから競合確認を始めます。</li><li>主タブで接続を閉じて開き直し、再読込の準備をします。通常の再読込後に既存の見本を開きます。</li><li>確認を終えたら主タブで、この見本だけを片付けます。</li></ol>
+<p class="small">一方の保存だけが完了し、もう一方は競合します。どちらが先になるかは固定しません。保存完了・開き直し・再読込は有限の観測です。電源断、削除、容量制限、全ブラウザや本人の実保存の保証ではありません。</p>
+<p id="status" class="status" role="status" aria-live="polite">明示操作を待っています。</p>
+<div class="actions"><button id="create">専用の見本を新しく作る</button><button id="connect">既存の見本を開く</button><button id="race">二つのタブで競合を確認</button><button id="negative">未作成・所有確認の拒否を確認</button><button id="reopen">接続を閉じて開き直す</button><button id="reload-ready">再読込の準備</button><button id="cleanup">この見本だけを片付ける</button></div>
+<p>相手タブのリンク：<a id="partner-link" aria-disabled="true">見本を作ると表示されます</a></p>
+</section>
+<section class="card"><h2 id="report-label">今回の実行記録</h2><p class="small">二つのタブの結果、接続、再読込、片付けの観測をここに表示します。再読込を挟む場合、前半の記録は別に保存して比較します。</p><pre id="report" tabindex="0" aria-labelledby="report-label">{}</pre></section>
+<section class="card"><h2>この見本の範囲</h2><p>既存の未提出journalと入力検証を再利用し、明示したIndexedDBの一つの領域へ接続する前提だけです。見積り・費用・日数・NPC・解放・報酬・工事や通常ゲームへの入口は追加していません。名前や所有情報を自由入力する欄はありません。</p></section>
+<script src="../pet-village-economy.js"></script><script src="../pet-shop-layout.js"></script><script src="../pet-river-fishing.js"></script><script src="../pet-ocean-discoveries.js"></script><script src="../pet-game-core.js"></script><script src="../pet-contractor-intent.js"></script><script src="../pet-contractor-draft-journal.js"></script><script src="../pet-contractor-indexeddb-repository.js"></script><script src="proof.js"></script>
+</main></body></html>
