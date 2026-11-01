@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>風がとどく、小さな村 ― 物語の見本</title>
+  <link rel="stylesheet" href="./style.css">
+  <script defer src="../pet-village-economy.js"></script>
+  <script defer src="../pet-shop-layout.js"></script>
+  <script defer src="../pet-river-fishing.js"></script>
+  <script defer src="../pet-ocean-discoveries.js"></script>
+  <script defer src="../pet-game-core.js?v=opening-story-20261101-v1"></script>
+  <script defer src="./story.js"></script>
+  <script defer src="./viewer.js"></script>
+</head>
+<body>
+  <main>
+    <header class="intro">
+      <p class="label">小さな村の、はじまりの見本</p>
+      <h1>風がとどく、<br>小さな村</h1>
+      <p>まだ、だれにも出会っていない日の物語。</p>
+    </header>
+    <div class="landscape" role="img" aria-label="淡い空と海、風に揺れる草のある静かな景色"><span class="sun"></span><span class="horizon"></span><span class="hill one"></span><span class="hill two"></span><span class="grass"></span></div>
+    <section class="book" aria-labelledby="chapter-title">
+      <p id="eyebrow" class="eyebrow">物語を準備しています</p>
+      <p id="page-count" class="page-count"></p>
+      <h2 id="chapter-title" tabindex="-1">しばらくお待ちください</h2>
+      <div id="prose"></div>
+      <nav aria-label="物語のページ">
+        <button id="previous" type="button" disabled>前のページ</button>
+        <button id="next" class="primary" type="button" disabled>次のページへ</button>
+      </nav>
+      <p id="status" role="status" aria-live="polite"></p>
+    </section>
+    <footer>
+      <button id="reopen" type="button" disabled>しおりから開き直す</button>
+      <p>物語としおりの見本です。住人は登場しません。</p>
+      <p>読んだページの記録は、この見本を開いている間だけ残ります。ページを再読み込みすると、最初に戻ります。</p>
+    </footer>
+    <noscript>この見本のページ操作には JavaScript を使います。</noscript>
+  </main>
+</body>
+</html>
