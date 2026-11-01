@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>業者依頼の入力検証 ― 技術見本</title>
+<style>
+:root{font-family:system-ui,"Hiragino Kaku Gothic ProN",sans-serif;background:#f5f3eb;color:#344d43;line-height:1.85;font-size:16px}*{box-sizing:border-box}body{margin:0}main{max-width:760px;margin:auto;padding:36px 22px}h1{font-size:clamp(1.4rem,5vw,1.9rem);font-weight:600;line-height:1.5}.tag{font-size:.78rem;letter-spacing:.08em;color:#526b5b}p{overflow-wrap:anywhere}section{background:#fffef8;border:1px solid #dce3d3;border-radius:18px;padding:22px;margin:24px 0}button{font:inherit;color:#344d43;background:#e2ecd8;border:1px solid #b6c9aa;border-radius:999px;padding:11px 20px;min-height:44px;cursor:pointer}button:focus-visible{outline:2px solid #688167;outline-offset:4px}button:disabled{opacity:.55;cursor:default}ul{list-style:none;padding:0;margin:18px 0 0}li{padding:12px 0;border-top:1px solid #e1e6d8;display:flex;gap:14px;align-items:start}li span:first-child{flex:1}li strong{white-space:nowrap;font-size:.85rem}.note{font-size:.82rem;color:#526b5b}#status{min-height:2em;font-weight:600}details{margin-top:16px}summary{cursor:pointer}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.75rem;background:#eef1e8;padding:14px;border-radius:10px}footer{font-size:.8rem;color:#526b5b}@media(max-width:420px){main{padding:24px 14px}section{padding:18px}li{font-size:.88rem;gap:8px}}
+</style>
+<script defer src="../pet-village-economy.js"></script>
+<script defer src="../pet-shop-layout.js"></script>
+<script defer src="../pet-river-fishing.js"></script>
+<script defer src="../pet-ocean-discoveries.js"></script>
+<script defer src="../pet-game-core.js"></script>
+<script defer src="../pet-contractor-intent.js"></script>
+<script defer src="./proof.js"></script>
+</head>
+<body>
+<main>
+  <p class="tag">村づくりの前提・技術見本</p>
+  <h1>業者へ相談する前の、<br>依頼内容の入力チェック</h1>
+  <p>希望する配置のデータ形式と、参照した保存版が一致するかを確認する、小さな前提の見本です。</p>
+  <section aria-labelledby="examples">
+    <h2 id="examples">保存した検証例</h2>
+    <p class="note">架空の配置データで入力チェックだけを実行します。現在の村や本人の保存内容は読み書きしません。</p>
+    <button id="run" type="button" disabled>検証例を実行</button>
+    <p id="status" role="status" aria-live="polite">準備しています</p>
+    <ul id="results" aria-label="検証例の結果"></ul>
+    <details><summary>入力と結果の構造を確認する</summary><pre id="report">まだ実行していません。</pre></details>
+  </section>
+  <footer>ここでは、依頼の受付・見積り・工事・配置変更を行いません。費用、日数、業者の姿や解放条件は、この入力チェックでは決めていません。</footer>
+</main>
+</body>
+</html>
