@@ -19,10 +19,11 @@ from pathlib import Path
 import threading
 import time
 
+from bounded_json import dump_bounded_json
 from regional_edinet import (EdinetAnnualDividends, JST, _date, _descriptor_valid,
                             _issuer_valid, _active, _stamp, _DESCRIPTOR_FIELDS, TAG, load_identity_seed, load_filing_hints, match_identity,
                             parse_daily_filings, select_annual_filing, safe_edinet_diagnostic)
-from regional_edinet_storage import CHECKPOINT_ERROR_CODES
+from regional_edinet_storage import CHECKPOINT_ERROR_CODES, EdinetCheckpointStore
 
 MAX_CACHE_BYTES = 16_000_000
 MAX_CACHE_ROWS = 25_000
@@ -64,6 +65,7 @@ class RegionalEdinetDividends:
         self._snapshots, self._records = {}, OrderedDict()
         self._jobs, self._worker, self._closed = OrderedDict(), None, False
         self._last_load, self._persistence_failed = 0, False
+        self._file_stamp = None
         self._checkpoint_restored = False
         self._checkpoint_restore_retry_at = 0
         self._checkpoint_save_allowed = False
@@ -257,10 +259,25 @@ class RegionalEdinetDividends:
 
     def _load(self):
         try:
-            if self.cache_path.exists() and self.cache_path.stat().st_size <= MAX_CACHE_BYTES:
-                self._merge_cache(json.loads(self.cache_path.read_bytes()))
+            with self.cache_path.open('rb') as source:
+                info = os.fstat(source.fileno())
+                stamp = (info.st_dev, info.st_ino, info.st_mtime_ns, info.st_size)
+                if info.st_size > MAX_CACHE_BYTES or stamp == self._file_stamp:
+                    return
+                raw = source.read(MAX_CACHE_BYTES + 1)
+                after = os.fstat(source.fileno())
+                if (len(raw) > MAX_CACHE_BYTES or
+                        stamp != (after.st_dev, after.st_ino, after.st_mtime_ns, after.st_size)):
+                    return
+            if self._merge_cache(json.loads(raw)):
+                self._file_stamp = stamp
         except (OSError, ValueError, TypeError):
             pass
+        finally:
+            # This is a local file-check clock, never an EDINET observation or
+            # restore timestamp. An unchanged checkpoint need not be parsed
+            # and merged again on each selected-company request.
+            self._last_load = self.clock()
 
     def _restore_checkpoint(self):
         if (self._checkpoint_restored or not self.checkpoint_store or not self.configured
@@ -377,14 +394,20 @@ class RegionalEdinetDividends:
 
     def _write_local_cache(self, cache):
         try:
-            raw = json.dumps(cache, ensure_ascii=False, separators=(',', ':'))
-            if len(raw.encode()) > MAX_CACHE_BYTES or sum(len(value['rows']) for value in cache['snapshots'].values()) > MAX_CACHE_ROWS:
+            if sum(len(value['rows']) for value in cache['snapshots'].values()) > MAX_CACHE_ROWS:
                 raise ValueError('cache_full')
             self.cache_path.parent.mkdir(parents=True, exist_ok=True)
             temporary = self.cache_path.with_name(self.cache_path.name + '.' + str(os.getpid()) + '.tmp')
             try:
-                temporary.write_text(raw)
+                with temporary.open('wb') as output:
+                    dump_bounded_json(cache, output, max_bytes=MAX_CACHE_BYTES,
+                                      ensure_ascii=False, separators=(',', ':'))
+                    output.flush()
+                    info = os.fstat(output.fileno())
+                    stamp = (info.st_dev, info.st_ino, info.st_mtime_ns, info.st_size)
                 os.replace(temporary, self.cache_path)
+                with self._condition:
+                    self._file_stamp = stamp
             finally:
                 temporary.unlink(missing_ok=True)
             self._persistence_failed = False
@@ -397,7 +420,11 @@ class RegionalEdinetDividends:
         with self._condition:
             days = set(self._days())
             self._snapshots = {day: value for day, value in self._snapshots.items() if day in days}
-            cache = {'version': 1, 'snapshots': deepcopy(self._snapshots),
+            # Published day snapshots are replaced as a whole; neither the
+            # service nor the built-in store mutates their rows. Capture the
+            # outer mapping so a concurrent replacement keeps this save's
+            # complete 400-day view without cloning every filing descriptor.
+            cache = {'version': 1, 'snapshots': dict(self._snapshots),
                      'records': {code: cleaned for code, record in list(self._records.items())[-MAX_FACTS:]
                                 for cleaned in [self._clean_record(code, record)] if cleaned},
                      'next_request': self.provider.next_request_at() if hasattr(self.provider, 'next_request_at') else 0}
@@ -445,7 +472,11 @@ class RegionalEdinetDividends:
         if (self.checkpoint_store and self.configured and self._checkpoint_save_allowed
                 and self.clock() >= self._checkpoint_retry_at):
             try:
-                success = self.checkpoint_store.save(deepcopy(cache)) is True
+                # Keep the defensive copy for injected/custom stores, which
+                # may mutate their input. The built-in store only validates
+                # and encodes it and does not need another full-index copy.
+                checkpoint = cache if type(self.checkpoint_store) is EdinetCheckpointStore else deepcopy(cache)
+                success = self.checkpoint_store.save(checkpoint) is True
                 self._checkpoint_status = 'saved' if success else 'save_failed'
                 code = getattr(self.checkpoint_store, 'last_save_error', None)
                 self._checkpoint_save_error = (None if success else
