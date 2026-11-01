@@ -12,7 +12,7 @@
   var directionDrawerOpen = { pet: false, preview: false, growth: false };
   var emotionCacheKey, emotionCacheRows;
   var growthAlbumOpen = false, growthPreviewStage = null, growthPreviewPath = null, growthEmotionOpen = false;
-  var fittingOpen = false, fittingOutfit = null;
+  var fittingOpen = false, fittingOutfit = null, bagShopOpen = false;
   var eggDraft = null, eggConfirm = false;
   var roomEdit = null, roomSurfaceCleanup = null, roomSurfaceGeneration = 0, roomSaveAttempt = null;
   var cozyPending = null;
@@ -1936,21 +1936,21 @@
     }); panel.appendChild(bag);
     if (typeof core().getRiverFishingView === 'function') {
       var fishCollection = core().getRiverFishingView(s, (options && options.now || Date.now)());
-      panel.appendChild(text('川の小魚 · ' + number(fishCollection.caught) + '尾（釣果コレクション）', 'ipg-small'));
+      panel.appendChild(text('バッグの川の小魚 · ' + number(fishCollection.caught) + '尾', 'ipg-small'));
     }
     if (typeof core().getVillageHarvestView === 'function') {
       var harvest = core().getVillageHarvestView(s, (options && options.now || Date.now)()), plots = node('div', 'ipg-life-harvest');
       plots.appendChild(node('h4', '', '村の実り'));
       harvest.plots.forEach(function (plot) {
         var pick = button(plot.available ? '収穫する' : plot.claimed ? '今日の収穫済み' : '今は収穫できません', function () {
-          if (canUse()) run({ type: 'harvestVillageFood', plotId: plot.id, expectedRevision: s.revision }, plot.itemName + 'を' + plot.quantity + '個、もちものに入れました。');
+          if (canUse()) run({ type: 'harvestVillageFood', plotId: plot.id, expectedRevision: s.revision }, plot.itemName + 'を' + plot.quantity + '個、バッグにしまいました。');
         }, true, s.readOnly || !plot.available);
         pick.dataset.focusKey = 'village-harvest-' + plot.id;
         append(plots, append(node('div', 'ipg-life-harvest-row'), node('span', '', plot.name + ' · ' + plot.itemName + ' ' + plot.quantity + '個'), pick));
       });
       plots.appendChild(text('実りは1日ごと。収穫したものを渡すと、この子の成長につながります。', 'ipg-small')); panel.appendChild(plots);
     }
-    panel.appendChild(button('マルシェのもちものを見る', function () { if (!canUse()) return; lifePanelOpen = false; tab = 'shop'; render(); }, true));
+    panel.appendChild(button('バッグを開く', function () { if (!canUse()) return; lifePanelOpen = false; bagShopOpen = false; tab = 'shop'; render(); }, true));
     var growth = node('details', 'ipg-life-growth'); growth.appendChild(node('summary', '', 'この子の成長と名前'));
     renderEvolutionStatus(s, growth); renderGrowthAlbum(s, growth); renderPetSettings(s, growth); panel.appendChild(growth);
     viewport.appendChild(panel);
@@ -2019,7 +2019,7 @@
     var reel = button('引き上げる', function () {
       if (!usable()) return;
       var v = current(); if (!v.active || !v.canReel) return;
-      run({ type: 'reelRiverFishing', attemptId: v.active.id, position: position(), expectedRevision: state().revision }, '川の小魚を1尾、釣果コレクションに保存しました。');
+      run({ type: 'reelRiverFishing', attemptId: v.active.id, position: position(), expectedRevision: state().revision }, '川の小魚を1尾、バッグにしまいました。');
     });
     reel.dataset.focusKey = 'river-fishing-reel';
     var cancel = button('釣りをやめる', function () { abandon(false); }, true); cancel.dataset.focusKey = 'river-fishing-cancel';
@@ -2060,7 +2060,7 @@
       var label;
       if (s.readOnly) label = '保存内容を確認できないため、今は釣りを始められません。';
       else if (!ready) label = viewport.dataset.sceneState === 'fallback' ? '簡易表示では新しい釣りはできません。前の釣りはやめられます。' : '村の表示を準備しています。';
-      else if (celebrate) label = '川の小魚が釣れました。1尾を保存済みです。';
+      else if (celebrate) label = '川の小魚が釣れました。バッグに1尾しまいました。';
       else if (v.phase === 'waiting') label = v.nearBank ? '浮きを見よう。もうすぐ食いつきます…' : '前の釣りが残っています。南の川岸へ戻るか、やめられます。';
       else if (v.phase === 'bite') label = v.nearBank ? '食いついた！ 今なら引き上げられます。' : '川岸に戻るか、釣りをやめよう。';
       else if (v.phase === 'escaped') label = '魚が離れました。釣りをやめて、もう一度投げよう。';
@@ -2472,7 +2472,84 @@
     });
     section.appendChild(grid); body.appendChild(section);
   }
+  function renderBag(s, body) {
+    var bag = card('バッグ', 'ipg-bag');
+    if (s.readOnly) { bag.appendChild(text('保存したもちものを確認できません。記録の読み込みを確認してください。', 'ipg-small')); body.appendChild(bag); return; }
+    bag.appendChild(text('釣った魚や収穫した食べもの、持っているものをまとめてしまっています。', 'ipg-small'));
+    function group(key, title, entries, empty) {
+      var section = node('section', 'ipg-bag-section'); section.dataset.bagCategory = key;
+      section.appendChild(node('h4', '', title));
+      if (!entries.length) section.appendChild(text(empty, 'ipg-small'));
+      else {
+        var grid = node('div', 'ipg-bag-grid');
+        entries.forEach(function (entry) {
+          var row = node('article', 'ipg-bag-item'); row.dataset.bagItem = entry.id; row.dataset.bagCategory = key;
+          var art = entry.art || (item(entry.id) ? shopItemArtwork(item(entry.id)) : null);
+          var words = node('div', 'ipg-bag-item-words');
+          append(words, node('strong', '', entry.name), node('span', 'ipg-bag-count', entry.count));
+          append(row, art, words);
+          if (entry.action) row.appendChild(entry.action);
+          grid.appendChild(row);
+        }); section.appendChild(grid);
+      }
+      bag.appendChild(section);
+    }
+    var food = items().filter(function (x) { return x.type === 'food' && owned(s, x) > 0; }).map(function (x) {
+      var give = button('村で渡す', function () { tab = 'village'; lifePanelOpen = true; notice = x.name + 'を、もちものから渡そう。'; render(); }, true);
+      give.dataset.focusKey = 'bag-give-' + x.id; give.setAttribute('aria-label', x.name + 'を村で渡す');
+      return { id: x.id, name: x.name, count: number(owned(s, x)) + '個', action: give };
+    });
+    group('food', '食べもの', food, '食べものはまだありません。収穫したり、お店で買うとここに入ります。');
+    var fish = typeof core().getRiverFishingView === 'function' ? core().getRiverFishingView(s, (options && options.now || Date.now)(), townPosition) : null;
+    var fishArt = villageSvg('svg', 'ipg-bag-fish'); fishArt.setAttribute('viewBox', '0 0 64 48'); fishArt.setAttribute('aria-hidden', 'true'); fishArt.setAttribute('focusable', 'false');
+    var shape = villageSvg('path'); shape.setAttribute('d', 'M46 24 58 13v22L46 24C35 8 14 10 5 24c9 14 30 16 41 0Z'); fishArt.appendChild(shape);
+    var eye = villageSvg('circle'); eye.setAttribute('cx', '17'); eye.setAttribute('cy', '21'); eye.setAttribute('r', '2'); fishArt.appendChild(eye);
+    group('fish', '釣った魚', fish && fish.caught > 0 ? [{ id: fish.fishId, name: fish.fishName, count: number(fish.caught) + '尾', art: fishArt }] : [], '釣った魚は、ここに入ります。');
+    group('clothing', 'お洋服', clothingItems().filter(function (x) { return owned(s, x); }).map(function (x) {
+      var wearing = outfit(s) === x.id;
+      var wear = button(wearing ? '着用中' : '着る', function () { run({ type: 'equipClothing', itemId: x.id }, x.name + 'に着替えました。'); }, true, wearing);
+      wear.dataset.focusKey = 'bag-wear-' + x.id; wear.setAttribute('aria-label', x.name + (wearing ? 'を着用中' : 'を着る'));
+      return { id: x.id, name: x.name, count: wearing ? '着用中' : '1着', action: wear };
+    }), 'お洋服はまだありません。');
+    var decorations = items().filter(function (x) { return x.type === 'decoration' && owned(s, x); }).map(function (x) {
+      var placed = customRoom(s) && s.roomLayout.items.some(function (entry) { return entry.id === x.id; });
+      var use = button(placed ? '配置済み' : customRoom(s) ? 'お部屋に置く' : 'かざる', function () { run({ type: 'equip', itemId: x.id }, 'かざりを保存しました。'); }, true, placed);
+      use.dataset.focusKey = 'bag-decorate-' + x.id;
+      return { id: x.id, name: x.name, count: placed ? '配置済み' : '1個', action: use };
+    });
+    group('decoration', 'かざり', decorations, 'かざりはまだありません。');
+    var furnishings = typeof core().getHomeFurnishingsView === 'function' ? core().getHomeFurnishingsView(s).rows.filter(function (x) { return x.owned; }) : [];
+    group('furniture', 'おうちの家具', furnishings.map(function (x) { return { id: x.id, name: x.name, count: 'おうちで使えます' }; }), '家具はまだありません。');
+    group('background', '背景', items().filter(function (x) { return x.type === 'background' && owned(s, x); }).map(function (x) {
+      return { id: x.id, name: x.name, count: '持っています' };
+    }), '背景はまだありません。');
+    var carried = Object.keys(s.inventory).filter(function (id) { return (!item(id) || item(id).type !== 'food') && s.inventory[id] > 0; }).map(function (id) {
+      return { id: id, name: '引き継いだもちもの · ' + id, count: number(s.inventory[id]) + '個' };
+    });
+    Object.keys(s.decorations.owned).filter(function (id) { return !item(id) || item(id).type !== 'decoration'; }).forEach(function (id) {
+      carried.push({ id: id, name: '引き継いだかざり · ' + id, count: '持っています' });
+    });
+    s.decorations.backgrounds.filter(function (id) { return !item(id.indexOf('bg_') === 0 ? id : 'bg_' + id); }).forEach(function (id) {
+      carried.push({ id: id, name: '引き継いだ背景 · ' + id, count: '持っています' });
+    });
+    if (carried.length) group('carried', '引き継いだもの', carried, '');
+    body.appendChild(bag);
+  }
   function renderShop(s, body) {
+    if (!developerPreview() && !legacyCarePreview()) {
+      renderBag(s, body);
+      var catalogue = node('details', 'ipg-bag-shop'), owner = store, target = host, epoch = lifecycleEpoch; catalogue.open = bagShopOpen;
+      var summary = node('summary', '', 'お店を見る'); summary.dataset.focusKey = 'bag-shop-open'; catalogue.appendChild(summary);
+      catalogue.addEventListener('toggle', function () {
+        if (!catalogue.isConnected || store !== owner || host !== target || lifecycleEpoch !== epoch || suspended || tab !== 'shop') return;
+        bagShopOpen = catalogue.open;
+        if (!bagShopOpen && fittingOpen) { fittingOpen = false; fittingOutfit = null; render(); }
+      });
+      renderItemShop(s, catalogue); body.appendChild(catalogue); return;
+    }
+    renderItemShop(s, body);
+  }
+  function renderItemShop(s, body) {
     renderClothesShop(s, body);
     var c = card('お店ともちもの');
     append(c, text('毎日の育成で集めたコインを使えます。食べものは、もちものから使うとEXPになります。'));
@@ -2926,6 +3003,7 @@
       var label = edgeNavigation && key === 'shop' ? 'もちもの' : tabLabels[key];
       var b = button(edgeNavigation ? '' : label, function () {
         if (busy || roomEdit || shopEdit) return;
+        if (key === 'shop' && tab !== 'shop') bagShopOpen = false;
         tab = key; if (key !== 'shop') { fittingOpen = false; fittingOutfit = null; } render();
       }, true, !!roomEdit || !!shopEdit);
       if (edgeNavigation) {
@@ -2975,7 +3053,7 @@
     if (mounting) return mounting;
     discardRoomEdit(); discardShopEdit(); lifecycleEpoch++;
     host = target; townPosition = null; townCamera = null; shopMemory = {}; homeMemory = {}; lifePanelOpen = false; runAttempt = null; oceanSaveAttempt = null; busy = false; nameDraft = null; shopRoomId = 'shop'; villageListingDraft = null; villageTradeDrafts = {}; options = opts || options || {};
-    tab = developerPreview() ? 'care' : 'village';
+    tab = developerPreview() ? 'care' : 'village'; bagShopOpen = false;
     loading('ゲームの記録を読み込んでいます…');
     mounting = (async function () {
       await Promise.resolve();
