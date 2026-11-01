@@ -155,6 +155,7 @@
     daily_limit:'今日の回数を使い切りました。また明日あそぼう。',clock_moved_back:'日付が以前に戻っています。端末の日付を確認してください。',
     invalid_clock:'端末の日時を確認してください。',invalid_random:'値動きを作成できませんでした。',invalid_action:'この操作には対応していません。',
     invalid_ocean_discovery:'海の中で、近くの生きものを見つけてから記録してください。',ocean_already_discovered:'この生きものは記録済みです。',
+    invalid_opening_story:'物語のページを順番に確認してください。しおりは変更していません。',
     invalid_fishing:'川岸の釣り場を確認してください。',fishing_active:'前の釣りを続けるか、やめてから始めてください。',
     fishing_wait:'浮きが沈んでから引き上げよう。',fishing_escaped:'魚が離れました。もう一度投げてみよう。',
     fishing_cooldown:'少し待ってから、もう一度投げよう。',
@@ -372,6 +373,7 @@
     check(s.pet.path===undefined||['cute','cool'].indexOf(s.pet.path)>=0,'corrupt_data');check(s.pet.pixel===undefined||typeof s.pet.pixel==='boolean','corrupt_data');
     check(integer(s.coins),'corrupt_data');counts(s.inventory);
     if(own(s,'evolution'))validateEvolution(s.evolution,s);
+    if(own(s,'openingStory'))validateOpeningStory(s.openingStory,'corrupt_data');
     // Older v3 records/backups need no write merely to add an empty wardrobe.
     if(own(s,'wardrobe')) {
       var wardrobe=s.wardrobe;
@@ -616,6 +618,19 @@
     if(s&&own(s,'villageLayout'))return clone(validateVillageLayout(s.villageLayout,'corrupt_data'));
     return defaultVillageLayout();
   }
+  // This optional candidate bookmark carries no adoption, resident, reward or
+  // unlock authority. Merely reading an older save never initializes it.
+  function validateOpeningStory(value,code) {
+    check(exactKeys(value,['version','candidateId','readThrough'])&&value.version===1&&
+      value.candidateId==='quiet-arrival-v1'&&integer(value.readThrough)&&value.readThrough<=3,code);
+    return value;
+  }
+  function getOpeningStoryView(s) {
+    var bookmark=s&&own(s,'openingStory')?validateOpeningStory(s.openingStory,'corrupt_data'):
+      {version:1,candidateId:'quiet-arrival-v1',readThrough:0};
+    return {version:1,candidateId:bookmark.candidateId,readThrough:bookmark.readThrough,
+      pageCount:3,complete:bookmark.readThrough===3};
+  }
   function achievement(s,id) {if(s.achievements.indexOf(id)<0)s.achievements.push(id);}
   function history(m,event) {m.history.push(event);if(m.history.length>100)m.history.shift();}
   function summary(s) {
@@ -664,6 +679,18 @@
     });
     function act(next,a,ms) {
       check(plain(a)&&text(a.type,40),'invalid_action');var day=dayKey(ms),reward={},beforeExp=next.pet.exp,evolutionKind=null;
+      if(a.type==='readOpeningStory') {
+        check(exactKeys(a,['type','expectedRevision','candidateId','page'])&&integer(a.expectedRevision),'invalid_opening_story');
+        check(a.expectedRevision===next.revision,'stale_state');
+        check(ms>=next.updatedAt&&ms>=next.createdAt,'clock_moved_back');
+        var opening=getOpeningStoryView(next);
+        check(a.candidateId===opening.candidateId&&integer(a.page)&&a.page>=1&&a.page<=opening.pageCount&&
+          a.page===opening.readThrough+1,'invalid_opening_story');
+        next.openingStory={version:1,candidateId:opening.candidateId,readThrough:a.page};
+        // Reading may precede egg selection. It must bypass care, evolution and
+        // the generic achievement tail, including incidental wealth awards.
+        return;
+      }
       if(a.type==='chooseEgg') {
         check(validEggKey(a.eggOrigin),'invalid_egg');check(needsEggChoice(next),'egg_already_chosen');
         next.pet.eggOrigin=a.eggOrigin;
@@ -862,6 +889,7 @@
       });
     }
     api={ready:ready,getState:visible,dispatch:dispatch,getStage:getStage,getLilacGrowth:getLilacGrowth,getLilacAppearance:getLilacAppearance,getLilacEvolution:getLilacEvolution,getEggOrigin:getEggOrigin,needsEggChoice:needsEggChoice,getVillageLayout:function(){return getVillageLayout(state);},getCozyRoomLayout:function(){return getCozyRoomLayout(state);},getHomeFurnishingsView:function(){return getHomeFurnishingsView(state);},getCozyRoomFurniture:function(){return getCozyRoomFurniture(state);},getVillageHarvestView:function(ms){return getVillageHarvestView(state,ms===undefined?Number(clock()):ms);},getRiverFishingView:function(ms,position){return getRiverFishingView(state,ms===undefined?Number(clock()):ms,position);},getOceanDiscoveryView:function(){return getOceanDiscoveryView(state);},getVillageEconomyView:function(ms){return VillageEconomy.view(state,ms===undefined?Number(clock()):ms);},
+      getOpeningStoryView:function(){return getOpeningStoryView(state);},
       subscribe:function(fn){check(typeof fn==='function','invalid_listener');listeners.push(fn);return function(){listeners=listeners.filter(function(x){return x!==fn;});};},
       exportBackup:function(){check(!loading&&!blocked,'read_only');return JSON.stringify({format:'PetGameBackup',version:3,exportedAt:time(),state:clone(state)});},
       importBackup:importBackup};return api;
@@ -871,7 +899,7 @@
     cozyRoomFurniture:clone(COZY_ROOM_FURNITURE),cozyRoomTypes:clone(COZY_ROOM_TYPES),defaultCozyRoomLayout:defaultCozyRoomLayout,getCozyRoomLayout:getCozyRoomLayout,
     getHomeFurnishingsView:getHomeFurnishingsView,getCozyRoomFurniture:getCozyRoomFurniture,getVillageHarvestView:getVillageHarvestView,getRiverFishingView:getRiverFishingView,getOceanDiscoveryView:getOceanDiscoveryView,
     getShopInteriorLayout:getShopInteriorLayout,
-    villagePlaces:VILLAGE_PLACES,defaultVillageLayout:defaultVillageLayout,getVillageLayout:getVillageLayout,
+    villagePlaces:VILLAGE_PLACES,defaultVillageLayout:defaultVillageLayout,getVillageLayout:getVillageLayout,getOpeningStoryView:getOpeningStoryView,
     getVillageEconomyView:function(s,ms){return VillageEconomy.view(s,ms===undefined?Date.now():ms);},
     STOCKS:clone(STOCKS),stocks:clone(STOCKS),ITEMS:clone(ITEMS),items:clone(ITEMS),catalogue:clone(ITEMS),
     LIMITS:clone(LIMITS),limits:clone(LIMITS),LEGACY_KEYS:LEGACY_KEYS.slice()};
