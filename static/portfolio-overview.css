@@ -8,11 +8,11 @@
 #tab-assets #kkAssetTotalLabel{margin:0}
 #tab-assets .po-hero .kk-asset-info{position:relative;inset:auto;display:inline-block;margin:0}
 #tab-assets .po-hero .kk-asset-info-content{position:absolute;z-index:5;top:100%;left:0;width:min(290px,65vw);max-width:290px;padding:14px;background:var(--kn-ledger-paper,#fffdf6);border:1px solid var(--kn-ledger-line,#d9d8c3);border-radius:9px;box-shadow:0 8px 20px rgb(0 0 0 / .08)}
-#tab-assets .po-hero #totalAssetVal{margin:10px 0 8px;font:500 calc(36px * var(--kn-ledger-scale,1))/1.35 var(--kn-ledger-sans,sans-serif);overflow-wrap:anywhere;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+#tab-assets .po-hero #totalAssetVal{margin:10px 0 8px;font:400 calc(36px * var(--kn-ledger-scale,1))/1.35 var(--kn-ledger-sans,sans-serif);overflow-wrap:anywhere;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 #tab-assets .po-muted,#tab-assets .po-asof{font-size:calc(12px * var(--kn-ledger-scale,1));color:var(--kn-ledger-muted,#72785b);overflow-wrap:anywhere}
 #tab-assets .po-profit{display:flex;gap:7px 16px;align-items:baseline;flex-wrap:wrap;border-top:1px solid var(--kn-ledger-line,#d9d8c3);margin-top:16px;padding-top:13px}
 #tab-assets .po-profit-label{font-size:calc(13px * var(--kn-ledger-scale,1));color:var(--kn-ledger-muted,#72785b)}
-#tab-assets .po-profit-value{font-size:calc(19px * var(--kn-ledger-scale,1));font-weight:500;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#tab-assets .po-profit-value{font-size:calc(19px * var(--kn-ledger-scale,1));font-weight:400;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 #tab-assets .po-profit-note{flex-basis:100%;margin:0;font-size:calc(12px * var(--kn-ledger-scale,1));color:var(--kn-ledger-muted,#72785b)}
 #tab-assets .po-up{color:var(--kn-ledger-income,#3d7357)}
 #tab-assets .po-down{color:var(--kn-ledger-expense,#a15f54)}
@@ -21,7 +21,7 @@
 #tab-assets .po-button:disabled{opacity:.5;cursor:wait}
 #tab-assets .po-columns{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:18px}
 #tab-assets .po-heading{margin-bottom:14px}
-#tab-assets .po-heading h3{margin:0;font:500 calc(16px * var(--kn-ledger-scale,1))/1.7 var(--kn-ledger-sans,sans-serif)}
+#tab-assets .po-heading h3{margin:0;font:400 calc(16px * var(--kn-ledger-scale,1))/1.7 var(--kn-ledger-sans,sans-serif)}
 #tab-assets .po-stack{display:flex;width:100%;height:12px;gap:3px;border-radius:4px;overflow:hidden;background:var(--kn-ledger-chip,#f4f2e7);margin:16px 0 20px}
 #tab-assets .po-segment{height:100%;min-width:0}
 #tab-assets .po-legend-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:baseline;gap:5px 12px;padding-block:6px}
@@ -30,7 +30,7 @@
 #tab-assets .po-legend-value{text-align:right;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;color:var(--kn-ledger-ink,#505538)}
 #tab-assets .po-legend-value small{display:inline-block;margin-left:7px;font-size:calc(12px * var(--kn-ledger-scale,1));color:var(--kn-ledger-muted,#72785b)}
 #tab-assets .po-goal-name{font-size:calc(13px * var(--kn-ledger-scale,1));overflow-wrap:anywhere;color:var(--kn-ledger-muted,#72785b)}
-#tab-assets .po-goal-rate{font-size:calc(14px * var(--kn-ledger-scale,1));line-height:1.5;font-weight:500;margin:20px 0 10px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#tab-assets .po-goal-rate{font-size:calc(14px * var(--kn-ledger-scale,1));line-height:1.5;font-weight:400;margin:20px 0 10px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
 #tab-assets #poGoalForm{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 10px;align-items:end;margin-top:22px;padding-top:18px;border-top:1px solid var(--kn-ledger-line,#d9d8c3)}
 #tab-assets #poGoalForm .po-field{min-width:0}
 #tab-assets #poGoalSave{grid-column:2;grid-row:1}
@@ -42,21 +42,21 @@
 #tab-assets .po-goal-current-target p{margin:0;min-width:0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
 #tab-assets .po-goal-target{text-align:right}
 #tab-assets .po-goal-label{display:block;font-size:calc(13px * var(--kn-ledger-scale,1));font-weight:400;line-height:1.7;color:var(--kn-ledger-muted,#72785b)}
-#tab-assets .po-goal-current-target strong{display:block;margin-top:5px;font-size:calc(22px * var(--kn-ledger-scale,1));line-height:1.5;font-weight:500}
+#tab-assets .po-goal-current-target strong{display:block;margin-top:5px;font-size:calc(22px * var(--kn-ledger-scale,1));line-height:1.5;font-weight:400}
 #tab-assets .po-track{height:7px;background:var(--kn-ledger-chip,#f4f2e7);border-radius:4px;overflow:hidden;margin-bottom:12px}
 #tab-assets .po-goal-hero .po-track{height:11px;margin:0}
 #tab-assets .po-fill{height:100%;background:var(--kn-ledger-button,#74784b);border-radius:4px}
 #tab-assets .po-goal-gap{margin:0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
-#tab-assets .po-goal-amount{display:block;font:500 calc(42px * var(--kn-ledger-scale,1))/1.45 var(--kn-ledger-sans,sans-serif);letter-spacing:-.03em;margin-top:6px}
-#tab-assets .po-goal-achieved{font:500 calc(29px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans,sans-serif)}
+#tab-assets .po-goal-amount{display:block;font:400 calc(42px * var(--kn-ledger-scale,1))/1.45 var(--kn-ledger-sans,sans-serif);letter-spacing:-.03em;margin-top:6px}
+#tab-assets .po-goal-achieved{font:400 calc(29px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans,sans-serif)}
 #tab-assets .po-list{border-top:1px solid var(--kn-ledger-line,#d9d8c3)}
 #tab-assets .po-holding{display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--kn-ledger-line,#d9d8c3)}
 #tab-assets .po-holding:last-child{border-bottom:0}
 #tab-assets .po-asset{flex:1;min-width:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(80px,auto);gap:12px;align-items:center;min-height:76px;padding:14px 0;text-align:left;border:0;background:transparent;color:var(--kn-ledger-ink,#505538);font:inherit;cursor:pointer}
-#tab-assets .po-asset-name{display:block;font-weight:500;overflow-wrap:anywhere;font-size:calc(15px * var(--kn-ledger-scale,1))}
+#tab-assets .po-asset-name{display:block;font-weight:400;overflow-wrap:anywhere;font-size:calc(15px * var(--kn-ledger-scale,1))}
 #tab-assets .po-asset-meta{display:block;color:var(--kn-ledger-muted,#72785b);font-size:calc(12px * var(--kn-ledger-scale,1));margin-top:3px;overflow-wrap:anywhere}
 #tab-assets .po-asset-values{text-align:right;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;min-width:0}
-#tab-assets .po-asset-values strong{display:block;font-weight:500;font-size:calc(16px * var(--kn-ledger-scale,1))}
+#tab-assets .po-asset-values strong{display:block;font-weight:400;font-size:calc(16px * var(--kn-ledger-scale,1))}
 #tab-assets .po-asset-values small{display:block;font-size:calc(12px * var(--kn-ledger-scale,1));margin-top:3px}
 #tab-assets .po-delete{flex:none;min-height:44px;padding:8px 5px;background:transparent;border:0;color:var(--kn-ledger-muted,#72785b);font:inherit;font-size:calc(12px * var(--kn-ledger-scale,1));cursor:pointer}
 #tab-assets .po-fields{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px 12px}
@@ -112,14 +112,14 @@
 
 /* The saved target and its editor share one place. No form stays open after saving. */
 #tab-assets .po-goal-display{display:flex;align-items:center;gap:8px;min-width:0}
-#tab-assets .po-target-amount{font:500 calc(38px * var(--kn-ledger-scale,1))/1.4 var(--kn-ledger-sans,sans-serif);letter-spacing:-.03em;overflow-wrap:anywhere;font-variant-numeric:tabular-nums;min-width:0}
+#tab-assets .po-target-amount{font:400 calc(38px * var(--kn-ledger-scale,1))/1.4 var(--kn-ledger-sans,sans-serif);letter-spacing:-.03em;overflow-wrap:anywhere;font-variant-numeric:tabular-nums;min-width:0}
 #tab-assets .po-icon-button{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;flex:none;width:44px;height:44px;min-height:44px;padding:0;border:1px solid var(--kn-ledger-line,#d9d8c3);border-radius:50%;background:transparent;color:var(--kn-ledger-ink,#505538);font:300 27px/1 var(--kn-ledger-sans,sans-serif);cursor:pointer;touch-action:manipulation}
 #tab-assets .po-icon-button:focus-visible,#tab-assets .po-button:focus-visible,#tab-assets .po-asset:focus-visible{outline:2px solid var(--kn-ledger-button,#74784b);outline-offset:3px}
 #tab-assets .po-icon-button:disabled{opacity:.5;cursor:wait}
 #tab-assets .po-pencil{border-color:transparent}
 #tab-assets #poGoalForm{max-width:none;margin:0;grid-template-columns:minmax(0,1fr);gap:12px}
 #tab-assets #poGoalForm .po-goal-input-value{border-width:0 0 1px;border-radius:0;padding:0;min-height:58px}
-#tab-assets #poGoalForm #poGoalAmount{font-size:max(16px,calc(38px * var(--kn-ledger-scale,1)))!important;font-weight:500}
+#tab-assets #poGoalForm #poGoalAmount{font-size:max(16px,calc(38px * var(--kn-ledger-scale,1)))!important;font-weight:400}
 #tab-assets .po-target-actions{grid-row:2;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 #tab-assets #poGoalForm #poGoalSave{grid-column:auto;grid-row:auto}
 #tab-assets .po-goal-current-target{grid-template-columns:1fr}
