@@ -67,11 +67,59 @@
   // Production mounting, saved preferences and URLs never enable this preview.
   function legacyCarePreview() { return !!options && options.developerLegacyCarePreview === true; }
   function displaySpecies(s) { return s.pet.species === 'dragon' ? 'lilac' : s.pet.species; }
+  // Historical birth/save identifiers remain intact. The retired purple
+  // presentation is replaced only at the visual boundary, never by a save edit.
+  var milneCapabilities = Object.freeze({ staticFront: true, directional: false, rig: false, fitting: false });
+  var milneStages = Object.freeze({
+    egg: Object.freeze({ stage: 'egg', anchor: .0671875 }),
+    newborn: Object.freeze({ stage: 'newborn', anchor: .0640625 }),
+    baby: Object.freeze({ stage: 'baby', anchor: .05 }),
+    child: Object.freeze({ stage: 'child', anchor: .0703125 }),
+    adult: Object.freeze({ stage: 'adult', anchor: .0421875 })
+  });
+  function archivedLilacPreview() { return !!options && options.developerLegacyLilacPreview === true; }
+  function mainCharacterProfile(s) {
+    if (!s || !s.pet || ['lilac', 'dragon'].indexOf(s.pet.species) < 0 || eggOrigin(s) !== 'lilac') return null;
+    // Explicit regression fixtures can retain the archived renderer. Normal
+    // mounting, URLs and saved preferences never enable this inspection mode.
+    if (archivedLilacPreview()) return null;
+    var key = typeof core().getLilacAppearance === 'function' ? core().getLilacAppearance(s.pet.exp).key : canonicalStage(s).key;
+    var family = ['egg','egg_cracked','hatching'].indexOf(key) >= 0 ? 'egg' : key === 'newborn' ? 'newborn' :
+      ['baby','toddler'].indexOf(key) >= 0 ? 'baby' : ['adult','companion'].indexOf(key) >= 0 ? 'adult' : 'child';
+    var art = milneStages[family];
+    return Object.freeze({ characterId: 'milne', stage: family, src: '/static/pet-characters/milne-original8-v1/' + family + '.webp',
+      anchor: art.anchor, capabilities: milneCapabilities });
+  }
+  var staticFrameCopies = new WeakMap();
+  function staticFrameSource(visual) {
+    if (!visual || !visual.dataset || visual.dataset.characterId !== 'milne') return visual;
+    if (!visual.complete || !(visual.naturalWidth > 0) || !(visual.naturalHeight > 0)) return null;
+    var cached = staticFrameCopies.get(visual);
+    if (cached && cached.width === visual.naturalWidth && cached.height === visual.naturalHeight) return cached;
+    try {
+      // A displayed HTMLImage.width follows CSS. Borrow an unscaled full-pixel
+      // copy so Three allocates the actual texture size, independently of layout.
+      var canvas = d.createElement('canvas'); canvas.width = visual.naturalWidth; canvas.height = visual.naturalHeight;
+      var context = canvas.getContext && canvas.getContext('2d');
+      if (!context || typeof context.drawImage !== 'function') return null;
+      context.drawImage(visual, 0, 0); staticFrameCopies.set(visual, canvas); return canvas;
+    } catch (_) { return null; }
+  }
+  function deliverStillFrame(controller, visual) {
+    var frame = staticFrameSource(visual);
+    return frame ? controller.setFrame(frame, frameOptions(visual)) : false;
+  }
+  function frameOptions(visual) {
+    var n = visual && visual.dataset && Number(visual.dataset.frameAnchor);
+    return { anchor: Number.isFinite(n) && n >= 0 && n <= 1 ? n : .08 };
+  }
   function core() { return w.PetGameCore; }
   function needsEggChoice(s) { return typeof core().needsEggChoice === 'function' && core().needsEggChoice(s); }
   function eggOrigin(s) { return typeof core().getEggOrigin === 'function' ? core().getEggOrigin(s) : 'lilac'; }
   function eggProfile(key) {
-    return typeof core().eggProfile === 'function' ? core().eggProfile(key) : { key: 'lilac', eggLabel: 'すみれのたまご', characterName: 'ふわり', colorName: '薄紫', color: '#b5a0d9', description: 'ふわっとした耳と、ふっくらしたほっぺのこ。' };
+    var row = typeof core().eggProfile === 'function' ? core().eggProfile(key) : { key: 'lilac', eggLabel: 'すみれのたまご', characterName: 'ふわり', colorName: '薄紫', color: '#b5a0d9', description: 'ふわっとした耳と、ふっくらしたほっぺのこ。' };
+    if (row.key !== 'lilac' || archivedLilacPreview()) return row;
+    return Object.assign({}, row, { eggLabel: 'ミルネのたまご', characterName: 'ミルネ', colorName: 'ミルク色', color: '#f0ddd6', description: '白くやわらかな毛と、長いたれ耳のうさぎのこ。' });
   }
   function chosenEgg(s) { return s.pet && Object.prototype.hasOwnProperty.call(s.pet, 'eggOrigin') && s.pet.eggOrigin !== null; }
   function eggIcon(profile) {
@@ -80,7 +128,7 @@
     return icon;
   }
   function renderEggChoice(s, body) {
-    var box = card('', 'ipg-egg-welcome'), rows = Array.isArray(core().eggCatalogue) ? core().eggCatalogue : [];
+    var box = card('', 'ipg-egg-welcome'), rows = Array.isArray(core().eggCatalogue) ? core().eggCatalogue.map(function (row) { return eggProfile(row.key); }) : [];
     append(box, node('p', 'ipg-eyebrow', 'はじめての出会い'), node('h3', '', eggConfirm ? 'このたまごと、暮らそうか。' : 'いっしょに暮らすたまごを選ぼう'),
       text('たまごによって、うまれてくるこの色や耳、体つきが変わります。お世話を重ねて、少しずつ育てていこう。'));
     var selected = rows.filter(function (row) { return row.key === eggDraft; })[0];
@@ -388,6 +436,17 @@
     return patch;
   }
   function petVisual(s, extraClass, preview, fittingOverride, evolutionOverride) {
+    var replacement = mainCharacterProfile(s);
+    if (replacement) {
+      // Use the saved original artwork as a whole image. Lilac facial masks,
+      // turnaround atlas, rig, tint and clothing bindings do not apply to Milne.
+      var original = node('img', (extraClass || 'ipg-pet-image') + ' ipg-original8-character');
+      original.src = replacement.src; original.alt = (s.pet.name || 'ミルネ') + ' · ミルネ（' + stage(s).label + '）';
+      original.width = original.height = 300; original.draggable = false;
+      original.dataset.characterId = replacement.characterId; original.dataset.characterStage = replacement.stage;
+      original.dataset.presentation = 'static-front'; original.dataset.frameAnchor = String(replacement.anchor);
+      return original;
+    }
     if (displaySpecies(s) !== 'lilac') {
       var old = node('img', extraClass || 'ipg-pet-image');
       old.src = petImage(s); old.alt = (s.pet.name || 'ペット') + '（' + stage(s).label + '）';
@@ -1103,7 +1162,7 @@
     }
     if (view.current.key !== 'balanced') {
       var unavailable = text('育ち方の記録は保存されています。この環境では育ち方の色・姿を表示できません。', 'ipg-evolution-unavailable ipg-small');
-      unavailable.hidden = !!(w.PetLilacMotion && typeof w.PetLilacMotion.mount === 'function');
+      unavailable.hidden = !mainCharacterProfile(s) && !!(w.PetLilacMotion && typeof w.PetLilacMotion.mount === 'function');
       var request = motionRequests.filter(function (request) { return !request.preview; }).slice(-1)[0];
       if (request) request.evolutionNotice = unavailable; section.appendChild(unavailable);
     }
@@ -1128,22 +1187,24 @@
       var viewing = node('div', 'ipg-growth-gallery');
       var sample = Object.assign({}, s, { pet: Object.assign({}, s.pet, { exp: selected.min }) });
       var visual = petVisual(sample, 'ipg-growth-sample', 'growth', undefined, growthPreviewPath);
-      var request = motionRequests[motionRequests.length - 1];
+      var request = motionRequests.filter(function (entry) { return entry.wrap === visual; })[0];
       var preview = node('div', 'ipg-growth-preview');
       var caption = text(selected.label + (selectedPath ? '・' + selectedPath.label + '・' + evolutionLook(s, selectedPath).colorName : '') + ' · ' + (future ? 'これからの姿・見本' : currentView ? 'いまの姿の見本' : growthPreviewPath !== actualPath ? '育ち方・色の見本' : '育った姿の見本'), 'ipg-growth-caption');
       caption.setAttribute('aria-live', 'polite'); caption.tabIndex = -1;
-      request.growthCaption = caption;
-      if (!w.PetLilacMotion || typeof w.PetLilacMotion.mount !== 'function') caption.textContent = '成長の動きを表示できないため、基準の絵を表示しています。' + (request.evolutionPath !== 'balanced' ? '育ち方の色・姿は表示できません。' : '') + (request.outfit ? 'この環境では服の見た目を表示できません。' : '');
+      if (request) request.growthCaption = caption;
+      if (!request) caption.textContent = selected.label + ' · ミルネの成長の基準絵';
+      if (request && (!w.PetLilacMotion || typeof w.PetLilacMotion.mount !== 'function')) caption.textContent = '成長の動きを表示できないため、基準の絵を表示しています。' + (request.evolutionPath !== 'balanced' ? '育ち方の色・姿は表示できません。' : '') + (request.outfit ? 'この環境では服の見た目を表示できません。' : '');
       append(preview, visual, caption);
       var motions = node('details', 'ipg-growth-motions'); motions.open = growthEmotionOpen; motions.dataset.focusKey = 'growth-motions-toggle';
       motions.appendChild(node('summary', '', 'この姿のしぐさを見る'));
       var motionPalette = null;
       function ensureMotionPalette() {
+        if (!request) return;
         if (!motionPalette) { motionPalette = emotionPalette(request, true); motions.appendChild(motionPalette); }
       }
       if (growthEmotionOpen) ensureMotionPalette();
       motions.addEventListener('toggle', function () {
-        if (!motions.isConnected) return;
+        if (!motions.isConnected || !request) return;
         growthEmotionOpen = motions.open;
         if (motions.open) {
           ensureMotionPalette();
@@ -1167,7 +1228,7 @@
         choices.appendChild(choice);
       });
       var selectors = node('div', 'ipg-growth-selectors'); selectors.appendChild(choices);
-      var branches = evolutionPaths();
+      var branches = mainCharacterProfile(s) ? [] : evolutionPaths();
       if (branches.length) {
         var branchChoices = node('div', 'ipg-evolution-choices'); branchChoices.setAttribute('role', 'group'); branchChoices.setAttribute('aria-label', '育ち方と色・6つの見本');
         selectors.appendChild(text('育ち方・色の見本', 'ipg-small'));
@@ -1180,7 +1241,7 @@
         });
         selectors.appendChild(branchChoices);
       }
-      append(viewing, preview, selectors, motions); album.appendChild(viewing);
+      append(viewing, preview, selectors, request ? motions : null); album.appendChild(viewing);
       album.appendChild(text('これからの姿も、見本で見られます。', 'ipg-small'));
     }
     parent.appendChild(album);
@@ -1451,7 +1512,7 @@
     var info = stage(s), pet = card('', 'ipg-pet-card');
     var scene = node('div', 'ipg-scene' + (!developerPreview() ? ' ipg-care-room' : '') + ' ipg-scene-' + (s.decorations.background || 'meadow').replace(/^bg_/, ''));
     var img = petVisual(s);
-    var careRequest = displaySpecies(s) === 'lilac' ? motionRequests[motionRequests.length - 1] : null;
+    var careRequest = motionRequests.filter(function (entry) { return entry.wrap === img; })[0] || null;
     var equipped = s.decorations.equipped, decor = item(equipped);
     var decoration = equipped && (developerPreview() || !customRoom(s) || !decor || decor.type !== 'decoration') ? node('span', 'ipg-pet-decoration') : null;
     if (decoration) {
@@ -1547,7 +1608,7 @@
       settings.appendChild(origin);
     } else {
       var species = node('div', 'ipg-row');
-      [['lilac', '薄紫のこ（B）'], ['bunny', 'うさぎ']].forEach(function (x) {
+      [['lilac', archivedLilacPreview() ? '薄紫のこ（B）' : 'ミルネ（白いうさぎ）'], ['bunny', 'うさぎ']].forEach(function (x) {
         var b = button(x[1] + (displaySpecies(s) === x[0] ? ' · 選択中' : ''), function () {
           run({ type: 'chooseSpecies', species: x[0] }, 'ペットの種類を保存しました。');
         }, true, displaySpecies(s) === x[0]);
@@ -1555,7 +1616,7 @@
       });
       append(settings, text('ペットの種類'), species);
     }
-    if (developerPreview()) {
+    if (developerPreview() && !mainCharacterProfile(s)) {
     var previewToggle = button(appearancePreview ? 'しぐさの見本を閉じる' : '薄紫のこのしぐさを見る', function () {
       appearancePreview = !appearancePreview; previewSituation = 'idle'; previewStartedAt = Date.now(); render();
     }, true);
@@ -1567,11 +1628,11 @@
       var preview = node('div', 'ipg-appearance-preview');
       var sample = Object.assign({}, s, { pet: Object.assign({}, s.pet, { species: 'lilac', exp: 45 }) });
       var visual = petVisual(sample, 'ipg-lilac-sample', true, undefined, evolutionPath(s));
-      var request = motionRequests[motionRequests.length - 1];
+      var request = motionRequests.filter(function (entry) { return entry.wrap === visual; })[0];
       append(preview, visual, emotionPalette(request, true)); settings.appendChild(preview);
     }
     }
-    if (displaySpecies(s) === 'lilac') {
+    if (displaySpecies(s) === 'lilac' && !mainCharacterProfile(s)) {
       settings.appendChild(text('たまごで出会い、赤ちゃんから少しずつ育っていきます。孵化したら、ごはんをもぐもぐ、うれしくてぴょん！' + '幼いころから、表情や手足・耳・しっぽの動きで気持ちを伝えてくれます。'));
     }
     var appearance = node('div', 'ipg-row'), unlocked = s.pet.exp >= 110;
@@ -1769,7 +1830,7 @@
           if (request.failed) { failedView(); return; }
           if (request.controller && typeof request.controller.refreshFrame === 'function') request.controller.refreshFrame();
         } else if (visual) {
-          var stillFrame = function () { if (active() && mounted === controller && !failed && !controller.setFrame(visual, { anchor: .08 })) failedView(); };
+          var stillFrame = function () { if (active() && mounted === controller && !failed && !deliverStillFrame(controller, visual)) failedView(); };
           if (visual.complete) stillFrame(); else { visual.addEventListener('load', stillFrame, { once: true }); visual.addEventListener('error', failedView, { once: true }); }
         }
         if (!ready) frameTimer = w.setTimeout(failedView, 15000);
@@ -1894,7 +1955,7 @@
           if (request.failed) { fail(); return; }
           if (request.controller && typeof request.controller.refreshFrame === 'function') request.controller.refreshFrame();
         } else if (visual) {
-          var still = function () { if (alive() && !failed && mounted === controller && !controller.setFrame(visual, { anchor: .08 })) fail(); };
+          var still = function () { if (alive() && !failed && mounted === controller && !deliverStillFrame(controller, visual)) fail(); };
           if (visual.complete) still(); else { visual.addEventListener('load', still, { once: true }); visual.addEventListener('error', fail, { once: true }); }
         }
       }).catch(fail);
@@ -2367,7 +2428,7 @@
           if (request.failed) { fallback(); return; }
           if (request.controller && typeof request.controller.refreshFrame === 'function') request.controller.refreshFrame();
         } else {
-          function stillFrame() { if (active() && townVisual === mounted) mounted.setFrame(visual, { anchor: .08 }); }
+          function stillFrame() { if (active() && townVisual === mounted && deliverStillFrame(mounted, visual) === false) fallback(); }
           if (visual.complete && visual.naturalWidth === 0) fallback();
           else if (visual.complete) stillFrame();
           else { visual.addEventListener('load', stillFrame, { once: true }); visual.addEventListener('error', fallback, { once: true }); }
@@ -2437,7 +2498,7 @@
       remove.dataset.focusKey = 'outfit-remove'; row.appendChild(remove);
       if (displaySpecies(s) === 'lilac') {
         var unavailable = text('着用設定は保存されています。この環境では服の見た目を表示できません。', 'ipg-outfit-unavailable ipg-small');
-        unavailable.hidden = !!(w.PetLilacMotion && typeof w.PetLilacMotion.mount === 'function');
+        unavailable.hidden = !mainCharacterProfile(s) && !!(w.PetLilacMotion && typeof w.PetLilacMotion.mount === 'function');
         var current = motionRequests.filter(function (request) { return !request.preview && request.outfit === worn; }).slice(-1)[0];
         if (current) current.outfitNotice = unavailable; row.appendChild(unavailable);
       }
@@ -2447,7 +2508,7 @@
   function renderClothesShop(s, body) {
     var clothes = clothingItems(); if (!clothes.length) return;
     var section = card('お洋服', 'ipg-clothes-shop');
-    append(section, text('薄紫のこ（B）のお洋服です。まずは試着して、お気に入りを見つけよう。', 'ipg-small'));
+    append(section, text(mainCharacterProfile(s) ? 'ミルネの着せ替え表示は準備中です。買った服や着用の記録は、そのまま残ります。' : 'まずは試着して、お気に入りを見つけよう。', 'ipg-small'));
     renderWornOutfit(s, section);
     if (fittingOpen) {
       var selected = item(fittingOutfit);
@@ -2456,11 +2517,12 @@
         var fitting = node('div', 'ipg-outfit-fitting');
         var sample = Object.assign({}, s, { pet: Object.assign({}, s.pet, { species: 'lilac', exp: Math.max(15, s.pet.exp) }) });
         var visual = petVisual(sample, 'ipg-fitting-sample', 'fitting', selected.id);
-        var request = motionRequests[motionRequests.length - 1];
+        var request = motionRequests.filter(function (entry) { return entry.wrap === visual; })[0];
         var fittingInfo = node('div', 'ipg-fitting-info');
         var caption = text(selected.name + ' · ' + (s.pet.exp < 15 ? '孵化後の姿・' : '') + (owned(s, selected) ? '購入済み・試着の見本' : '未購入・試着の見本'), 'ipg-fitting-caption');
-        caption.setAttribute('aria-live', 'polite'); caption.tabIndex = -1; request.fittingCaption = caption;
-        if (!w.PetLilacMotion || typeof w.PetLilacMotion.mount !== 'function') caption.textContent = 'この画面では試着の動きを表示できないため、服を描かない基準の絵を表示しています。' + (request.evolutionPath !== 'balanced' ? '育ち方の色・姿は表示できません。' : '');
+        caption.setAttribute('aria-live', 'polite'); caption.tabIndex = -1; if (request) request.fittingCaption = caption;
+        if (!request) caption.textContent = 'ミルネの着せ替え表示は準備中です。選んだ服の絵を確認できます。';
+        if (request && (!w.PetLilacMotion || typeof w.PetLilacMotion.mount !== 'function')) caption.textContent = 'この画面では試着の動きを表示できないため、服を描かない基準の絵を表示しています。' + (request.evolutionPath !== 'balanced' ? '育ち方の色・姿は表示できません。' : '');
         append(fittingInfo, itemArtwork(selected.id, 'ipg-fitting-item-art'), caption, text('試着ではコインを使いません。', 'ipg-small'), button('試着を閉じる', function () {
           fittingOpen = false; fittingOutfit = null; render();
         }, true));
@@ -3123,6 +3185,7 @@
     open: function () { return mount(host || d.getElementById('pet-game-root'), options); },
     render: render,
     refreshVisuals: refreshVisuals,
+    mainCharacterProfile: mainCharacterProfile,
     close: suspend,
     suspend: suspend
   };

@@ -71,8 +71,9 @@ class Element {
   querySelector(selector) { return this.querySelectorAll(selector)[0] || null; }
 }
 
-// Only drawing is stubbed. All durable actions and action-to-cue mapping use the
-// shipped modules, with the same asynchronous storage boundary as the product.
+// Archived Lilac renderer regressions opt into its private inspection mode.
+// Drawing is stubbed; durable actions retain the shipped asynchronous boundary.
+// Explicit legacyLilacPreview:false cases below exercise normal Milne presentation.
 async function fixture(config = {}) {
   let clock = config.now === undefined ? new Date(2026, 9, 21, 12).getTime() : config.now, sequence = 0, store;
   const data = new Map(Object.entries({ ...(config.fresh ? {} : { pg_exp: '30', pg_coins: '500', pg_name: 'もとの子', pg_path: 'cool', pg_px: '1',
@@ -88,6 +89,7 @@ async function fixture(config = {}) {
     }
   };
   const coreOptions = { storage, now: () => clock, random: () => .5, developerPreview: config.developerPreview !== false,
+    developerLegacyLilacPreview: config.legacyLilacPreview !== false,
     developerLegacyCarePreview: config.legacyCarePreview ?? (!config.startAtVillage && config.developerPreview === false) };
   coreOptions.seasonNow=config.seasonNow;coreOptions.seasonSubscribe=config.seasonSubscribe;
   const setup = Core.create(coreOptions); assert.equal((await setup.ready).ok, true);
@@ -95,7 +97,17 @@ async function fixture(config = {}) {
   if (config.setup) await config.setup(setup);
   const beforeMountRaw = data.get(Core.KEY), writesBeforeMount = writes.length;
   const document = events({ hidden: !!config.hidden, activeElement: null });
-  document.createElement = tag => new Element(tag, document);
+  document.createElement = tag => {
+    const element = new Element(tag, document);
+    if (String(tag).toLowerCase() === 'canvas') {
+      element.drawCalls = [];
+      element.getContext = kind => kind !== '2d' || config.staticCanvasUnavailable ? null : {
+        clearRect() {},
+        drawImage(...args) { if (config.staticCanvasThrow) throw Error('synthetic unavailable 2D drawing'); element.drawCalls.push(args); }
+      };
+    }
+    return element;
+  };
   document.createElementNS = (namespace, tag) => {
     const element = new Element(tag, document); element.namespaceURI = namespace;
     const setAttribute = element.setAttribute.bind(element);
@@ -190,8 +202,8 @@ async function fixture(config = {}) {
   } };
   if (!config.homeModuleDeferred) coreOptions.homeInteriorAPI = homeInteriorAPI;
   const townSceneAPI={async mount(options){
-    const controller={options,destroyed:false,destroyCount:0,frames:[],positions:[],motions:[],destroy(){if(this.destroyed)return;this.destroyed=true;this.destroyCount++;options.viewport.dataset.visualMode='flat';},
-      setFrame(canvas){if(this.destroyed||!options.canRun()||!townSceneControl.acceptFrame)return false;this.frames.push(canvas);options.viewport.dataset.visualMode='three';options.onReady();return true;},
+    const controller={options,destroyed:false,destroyCount:0,frames:[],frameOptions:[],positions:[],motions:[],destroy(){if(this.destroyed)return;this.destroyed=true;this.destroyCount++;options.viewport.dataset.visualMode='flat';},
+      setFrame(canvas,detail){if(this.destroyed||!options.canRun()||!townSceneControl.acceptFrame)return false;this.frames.push(canvas);this.frameOptions.push(detail?copy(detail):null);options.viewport.dataset.visualMode='three';options.onReady();return true;},
       setSnorkeling(value){this.snorkeling=value;return true;},resolveWaterTap(){return this.waterHit||null;},setFishing(value){this.fishing=value;return true;},setPosition(p){this.positions.push({...p});},setMotion(m){this.motions.push({...m});},direction(x,y){return{x:-y,y:x};},resolveTap(){return this.hit||null;},
       fail(){this.destroy();options.onFailure('synthetic_context_lost');}};
     townScenes.push(controller);if(townSceneControl.failBeforeReturn)controller.fail();if(townSceneControl.pending)await townSceneControl.pending.promise;
@@ -465,7 +477,7 @@ test('a pending old 3D controller cannot project or save into a different host a
   const otherRecord = copy(before); otherRecord.pet.name = '別の保存先のこ'; otherRecord.cozyRoomLayout = changedCozy(Core.defaultCozyRoomLayout(), 'mint');
   const values = new Map([[Core.KEY, JSON.stringify(otherRecord)]]), otherWrites = [], storage = { getItem: key => values.get(key) ?? null, setItem(key, text) { values.set(key, text); otherWrites.push([key, text]); } };
   const target = f.document.createElement('div'); f.pane.appendChild(target);
-  assert.equal(await f.ui.mount(target, { storage, developerPreview: false, developerLegacyCarePreview: true, now: () => new Date(2026, 9, 21, 12).getTime(), random: () => .5 }), true);
+  assert.equal(await f.ui.mount(target, { storage, developerPreview: false, developerLegacyLilacPreview: true, developerLegacyCarePreview: true, now: () => new Date(2026, 9, 21, 12).getTime(), random: () => .5 }), true);
   target.querySelector('[data-focus-key="tab-care"]').emit('click'); await flush(); const current = f.cozyMounts.at(-1);
   assert.notEqual(current, old); assert.equal(current.options.editable, false); assert.equal(old.options.canRun(), false);
   old.options.onProjectPet({ left: 1, top: 1, scale: 99 }); old.options.onDraftChange(changedCozy(old.options.layout)); old.options.onCancel(); old.options.onError();
@@ -1759,7 +1771,7 @@ test('the clothes shop preserves old absent wardrobe records and fits all six un
   await f.click(f.focusButton('tab-shop'));
   const clothes = Core.items.filter(entry => entry.type === 'clothing'); assert.equal(clothes.length, 6);
   assert.equal(f.host.querySelectorAll('.ipg-clothing-item').length, 6); assert.equal(f.host.querySelector('.ipg-outfit-fitting'), null);
-  assert.ok(f.host.querySelector('.ipg-clothes-shop').textContent.includes('薄紫のこ（B）のお洋服'));
+  assert.ok(f.host.querySelector('.ipg-clothes-shop').textContent.includes('まずは試着して、お気に入りを見つけよう。'));
   assert.ok(f.host.querySelectorAll('.ipg-shop-item').every(row => !clothes.some(entry => row.textContent.includes(entry.name))));
   for (const entry of clothes) {
     const oldControllers = f.activeMotions(); await f.click(f.focusButton('outfit-try-' + entry.id));
@@ -3030,9 +3042,56 @@ test('room arrangement is available for eggs and bunnies, stays free, and does n
 });
 
 
-// Archived town/room routing regressions retain their explicit legacy screen.
-// New village-life cases below exercise production without this preview option.
+// Archived routing/animation regressions retain explicit legacy inspection modes.
+// Normal Milne cases below disable Lilac inspection and use the ordinary village.
 async function villageFixture(config={}) { return fixture({species:'lilac',developerPreview:false,startAtVillage:true,legacyCarePreview:true,...config}); }
+
+test('normal legacy-save presentation uses original Milne without a Lilac canvas, renderer or initialization save', async()=>{
+ const f=await fixture({developerPreview:false,legacyLilacPreview:false,startAtVillage:true,seed:{pg_exp:'400'},rendererMode:'ready'});
+ const before=f.saved(),writes=f.writes.length,actor=f.host.querySelector('.ipg-town-character');
+ assert.ok(actor);assert.equal(actor.tagName,'IMG');assert.equal(actor.dataset.characterId,'milne');assert.equal(actor.dataset.characterStage,'adult');assert.equal(actor.dataset.presentation,'static-front');
+ assert.equal(actor.src,'/static/pet-characters/milne-original8-v1/adult.webp');assert.match(actor.alt,/もとの子.*ミルネ/);
+ assert.equal(f.host.querySelectorAll('.ipg-lilac-canvas').length,0);assert.equal(f.host.querySelectorAll('.ipg-lilac-visual').length,0);assert.equal(f.mounts.length,0);
+ assert.equal(f.data.get(Core.KEY),f.beforeMountRaw);assert.equal(f.writes.length,f.writesBeforeMount);
+ f.ui.render();await flush();assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);assert.equal(f.mounts.length,0);f.ui.close();
+});
+
+test('normal Milne image readiness supplies its measured Town anchor while manual camera-relative movement preserves saved position data', async()=>{
+ const f=await fixture({developerPreview:false,legacyLilacPreview:false,startAtVillage:true,seed:{pg_exp:'400'},townScene:true,rendererMode:'ready'});
+ const before=f.saved(),writes=f.writes.length,scene=f.townScenes[0],actor=f.host.querySelector('.ipg-town-character');
+ assert.ok(scene);townPresentationState(f,'loading');assert.equal(scene.frames.length,0);
+ actor.width=actor.height=145;actor.complete=true;actor.naturalWidth=actor.naturalHeight=640;actor.emit('load');await flush();townPresentationState(f,'ready');
+ const frame=scene.frames[0];assert.equal(frame.tagName,'CANVAS');assert.equal(frame.width,640);assert.equal(frame.height,640);assert.equal(frame.isConnected,false);
+ assert.equal(frame.drawCalls.length,1);assert.equal(frame.drawCalls[0][0],actor);assert.deepEqual(frame.drawCalls[0].slice(1),[0,0],'copy the whole natural image once without a crop or CSS-size resampling');
+ assert.equal(scene.frameOptions[0].anchor,.0421875);assert.equal(f.mounts.length,0);assert.equal(actor.src,'/static/pet-characters/milne-original8-v1/adult.webp');
+ const avatar=f.host.querySelector('.ipg-town-avatar'),viewport=f.host.querySelector('.ipg-town-viewport'),x=parseFloat(avatar.style.left),y=parseFloat(avatar.style.top);
+ viewport.focus();f.window.emit('keydown',{key:'ArrowUp',target:viewport});await f.frame();await f.frame(50);f.window.emit('keyup',{key:'ArrowUp'});
+ assert.ok(parseFloat(avatar.style.left)>x,'manual movement still uses the existing camera-relative walking engine');assert.equal(parseFloat(avatar.style.top),y);
+ const current={x:parseFloat(avatar.style.left),y:parseFloat(avatar.style.top)};assert.deepEqual(scene.positions.at(-1),current);
+ assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);assert.equal(f.mounts.length,0);f.ui.close();
+});
+
+test('unavailable or rejected Milne 2D frame copying retains the original static image in labelled Town fallback', async()=>{
+ for(const canvasConfig of [{staticCanvasUnavailable:true},{staticCanvasThrow:true}]){
+  const f=await fixture({developerPreview:false,legacyLilacPreview:false,startAtVillage:true,seed:{pg_exp:'400'},townScene:true,...canvasConfig});
+  const before=f.saved(),writes=f.writes.length,scene=f.townScenes[0],actor=f.host.querySelector('.ipg-town-character');
+  actor.complete=true;actor.naturalWidth=actor.naturalHeight=640;actor.emit('load');await flush();townPresentationState(f,'fallback');
+  assert.equal(scene.frames.length,0,'an absent frame must never be accepted as ready');assert.equal(actor.isConnected,true);assert.equal(actor.dataset.characterId,'milne');assert.equal(actor.src,'/static/pet-characters/milne-original8-v1/adult.webp');
+  assert.equal(f.host.querySelectorAll('.ipg-lilac-canvas').length,0);assert.equal(f.mounts.length,0);assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);f.ui.close();
+ }
+});
+
+test('normal Milne fitting and unavailable drawing retain static original artwork without claiming rendered clothes or falling back to Lilac', async()=>{
+ for(const rendererConfig of [{rendererUnavailable:true},{rendererMode:'throw'}]){
+  const f=await fixture({developerPreview:false,legacyLilacPreview:false,startAtVillage:true,...rendererConfig}),before=f.saved(),writes=f.writes.length;
+  await f.click(f.focusButton('tab-shop'));await f.click(f.focusButton('outfit-try-cloth_flower_dress'));
+  const fitting=f.host.querySelector('.ipg-outfit-fitting'),actor=fitting.querySelector('.ipg-fitting-sample');
+  assert.ok(actor);assert.equal(actor.tagName,'IMG');assert.equal(actor.dataset.characterId,'milne');assert.equal(actor.dataset.presentation,'static-front');
+  assert.match(actor.src,/\/pet-characters\/milne-original8-v1\/baby\.webp$/);assert.match(fitting.querySelector('.ipg-fitting-caption').textContent,/着せ替え表示は準備中/);
+  assert.equal(fitting.querySelectorAll('.ipg-lilac-canvas').length,0);assert.equal(fitting.querySelectorAll('.ipg-lilac-mouth-patch').length,0);assert.equal(f.mounts.length,0);
+  f.ui.refreshVisuals(f.host);await flush();assert.equal(f.mounts.length,0);assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);f.ui.close();
+ }
+});
 
 function townPresentationState(f, expected, host = f.host) {
   const viewport = host.querySelector('.ipg-town-viewport'), loading = host.querySelector('.ipg-town-loading');
@@ -3210,7 +3269,7 @@ test('village first frame late results from a still-connected old owner cannot r
   const other = copy(before); other.pet.name = '別の保存先のこ'; other.coins = 1234;
   const data = new Map([[Core.KEY, JSON.stringify(other)]]), otherWrites = [], storage = { getItem: k => data.get(k) ?? null, setItem(k, v) { data.set(k, v); otherWrites.push([k, v]); } };
   const nextGate = deferred(); f.townSceneControl.pending = nextGate; const target = f.document.createElement('div'); f.pane.appendChild(target);
-  assert.equal(await f.ui.mount(target, { storage, developerPreview: false, now: () => f.now, random: () => .5, shopInteriorAPI: f.shopInteriorAPI }), true); await flush();
+  assert.equal(await f.ui.mount(target, { storage, developerPreview: false, developerLegacyLilacPreview: true, now: () => f.now, random: () => .5, shopInteriorAPI: f.shopInteriorAPI }), true); await flush();
   const current = f.townScenes.at(-1); townPresentationState(f, 'loading', target); assert.equal(oldViewport.isConnected, true);
   oldGate.resolve(); await flush(); old.options.onReady(); old.options.onFailure('private old owner'); oldSource.options.onFrame(oldSource.canvas); await flush();
   assert.equal(old.destroyed, true); assert.equal(current.destroyed, false); townPresentationState(f, 'loading', target);
@@ -3433,7 +3492,7 @@ test('new owner mounting isolates a pending shop save and even still-connected o
   const other = copy(before); other.pet.name = '別の保存先のこ'; other.coins = 1234;
   const data = new Map([[Core.KEY, JSON.stringify(other)]]), writes = [], storage = { getItem: k => data.get(k) ?? null, setItem(k, v) { data.set(k, v); writes.push([k, v]); } };
   const target = f.document.createElement('div'); f.pane.appendChild(target);
-  const opening = f.ui.mount(target, { storage, developerPreview: false, now: () => f.now, random: () => .5, shopInteriorAPI: f.shopInteriorAPI }); await flush();
+  const opening = f.ui.mount(target, { storage, developerPreview: false, developerLegacyLilacPreview: true, now: () => f.now, random: () => .5, shopInteriorAPI: f.shopInteriorAPI }); await flush();
   assert.equal(oldSave.isConnected, true); const text = target.textContent; oldSave.emit('click'); oldCancel.emit('click'); old.options.onDraft(draft); old.options.onFailure(); old.options.onReady(); old.options.onExit();
   assert.equal(target.textContent, text); held.resolve(); f.control.pending = null; assert.equal(await opening, true); await flush();
   assert.equal(old.destroyed, true); assert.equal(old.options.canRun(), false); assert.ok(target.querySelector('.ipg-town')); assert.equal(target.getAttribute('aria-busy'), 'false');
@@ -4083,7 +4142,7 @@ test('a pending village save remains in its original owner and connected old con
   const other=copy(before);other.pet.name='別の保存先のこ';other.coins=1234;
   const data=new Map([[Core.KEY,JSON.stringify(other)]]),otherWrites=[],storage={getItem:key=>data.get(key)??null,setItem(key,value){data.set(key,value);otherWrites.push([key,value]);}};
   const target=f.document.createElement('div');f.pane.appendChild(target);
-  const opening=f.ui.mount(target,{storage,developerPreview:false,now:()=>f.now,random:()=>.5});await flush();
+  const opening=f.ui.mount(target,{storage,developerPreview:false,developerLegacyLilacPreview:true,now:()=>f.now,random:()=>.5});await flush();
   held.resolve();assert.equal(await opening,true);await flush();f.control.pending=null;
   target.querySelector('[data-focus-key="tab-market"]').emit('click');await flush();
   assert.equal(old.isConnected,true,'the old owner may remain attached to its old host');old.emit('click');await flush();
@@ -4365,7 +4424,7 @@ test('still-connected old life controls and furniture catalogue cannot touch a n
   const f = await lifeFixture({ fresh: true, species: undefined, setup: s => starterSetup(s, 2) }); await f.click(f.focusButton('village-life-open')); const close = f.focusButton('village-life-close');
   await f.click(close); await enterOwnHome(f); const buy = f.focusButton('home-furniture-buy-chair'), oldHost = f.host;
   const target = f.document.createElement('div'); f.pane.appendChild(target); const map = new Map([['pg_exp', '30'], ['pg_coins', '1000'], ['pg_name', '別の子']]), storage = { getItem: k => map.get(k) || null, setItem: async (k, v) => map.set(k, v) };
-  await f.ui.mount(target, { storage, developerPreview: false, now: () => f.now, random: () => .5, homeInteriorAPI: f.homeInteriorAPI, shopInteriorAPI: f.shopInteriorAPI }); await flush();
+  await f.ui.mount(target, { storage, developerPreview: false, developerLegacyLilacPreview: true, now: () => f.now, random: () => .5, homeInteriorAPI: f.homeInteriorAPI, shopInteriorAPI: f.shopInteriorAPI }); await flush();
   assert.equal(oldHost.isConnected, true); const current = f.store.getState(), root = target.children[0]; buy.emit('click'); close.emit('click'); await flush(); assert.deepEqual(f.store.getState(), current); assert.equal(target.children[0], root); f.ui.close();
 });
 test('late rename completion cannot clear a new owner name draft or rebuild its current village', { timeout: 2000 }, async () => {
@@ -4373,7 +4432,7 @@ test('late rename completion cannot clear a new owner name draft or rebuild its 
   input.value = '前の子の名前'; input.emit('input'); f.control.pending = deferred(); form.emit('submit'); await flush(); const pending = f.control.pending;
   const target = f.document.createElement('div'); f.pane.appendChild(target); const map = new Map([['pg_exp', '30'], ['pg_coins', '1000'], ['pg_name', '別の子']]), storage = { getItem: k => map.get(k) || null, setItem: async (k, v) => map.set(k, v) };
   const presented = [], replace = target.replaceChildren.bind(target); target.replaceChildren = (...nodes) => { presented.push(nodes.map(n => n.textContent).join('')); return replace(...nodes); };
-  const opening = f.ui.mount(target, { storage, developerPreview: false, now: () => f.now, random: () => .5, homeInteriorAPI: f.homeInteriorAPI }); await flush();
+  const opening = f.ui.mount(target, { storage, developerPreview: false, developerLegacyLilacPreview: true, now: () => f.now, random: () => .5, homeInteriorAPI: f.homeInteriorAPI }); await flush();
   pending.resolve(); f.control.pending = null; await opening; await flush();
   const nextInput = target.querySelector('.ipg-pet-settings input'), root = target.children[0]; nextInput.value = '新しい下書き'; nextInput.emit('input');
   await flush(); assert.equal(target.children[0], root); assert.equal(nextInput.value, '新しい下書き'); assert.equal(f.store.getState().pet.name, '別の子'); assert.ok(presented.every(text => !text.includes('前の子の名前'))); f.ui.close();
@@ -4538,7 +4597,7 @@ test('an old ocean save response cannot clear another host and store busy state 
   assert.equal(f.host.getAttribute('aria-busy'), 'true'); await f.ui.close();
   f.window.PetGameCore.create = () => nextStore;
   const target = f.document.createElement('div'); f.pane.appendChild(target);
-  assert.equal(await f.ui.mount(target, { storage, developerPreview: true, now: () => f.now, random: () => .5 }), true);
+  assert.equal(await f.ui.mount(target, { storage, developerPreview: true, developerLegacyLilacPreview: true, now: () => f.now, random: () => .5 }), true);
   const rest = target.querySelector('[data-focus-key="care-rest"]'); assert.ok(rest);
   rest.emit('click'); await flush(); assert.equal(target.getAttribute('aria-busy'), 'true'); assert.equal(rest.disabled, true);
   const focused = f.document.activeElement;
