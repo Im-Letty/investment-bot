@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect x='7' y='8' width='26' height='25' rx='6' fill='%23788b74'/%3E%3Cpath d='M13 5h14v15H13z' fill='%23f4efdc'/%3E%3C/svg%3E">
+<title>待ち控えの専用保存先を確かめる 見本</title>
+<style>
+:root{font:16px/1.75 system-ui,-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",sans-serif;color:#293d36;background:#f5f3eb;color-scheme:light}*{box-sizing:border-box}body{margin:0;padding:26px 18px 48px}main{max-width:900px;margin:auto}h1{font-size:clamp(1.5rem,4.5vw,2.05rem);line-height:1.5;margin:12px 0}h2{font-size:1.12rem;margin:0 0 12px}p{margin:12px 0}.badge{display:inline-block;background:#e2e9dc;border:1px solid #b1beaa;border-radius:99px;padding:4px 12px;font-size:.9rem}.panel{background:#fffef9;border:1px solid #c4cbbd;border-radius:18px;padding:20px;margin:18px 0}.actions{display:flex;flex-wrap:wrap;gap:10px}button,.join{font:inherit;line-height:1.5;min-height:46px;background:#e7eddf;color:#263c32;border:1px solid #869b7e;border-radius:11px;padding:10px 14px;max-width:100%;text-align:left;overflow-wrap:anywhere}button{cursor:pointer}button:hover,.join:hover{background:#dbe5d1}button:disabled{cursor:default;opacity:.58}button:focus-visible,a:focus-visible,summary:focus-visible,pre:focus-visible{outline:3px solid #24645c;outline-offset:4px}.join{display:inline-flex;align-items:center;text-decoration:none}.join[aria-disabled=true]{opacity:.58;pointer-events:none}.hint{font-size:.92rem;color:#41564a}#status{padding:14px 16px;background:#e9eee1;border-radius:12px;min-height:68px}#count,#setup{font-size:.92rem}summary{cursor:pointer;min-height:44px;padding:8px 0;font-weight:600}pre{font:12px/1.65 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;margin-bottom:0}ol{padding-left:24px}code{overflow-wrap:anywhere}@media(max-width:420px){body{padding:16px 12px 32px}.panel{padding:16px}.actions button,.actions .join{width:100%}}
+</style>
+<main>
+<span class="badge">明示した架空QA領域だけ</span>
+<h1>待ち控えの専用保存先を確かめる</h1>
+<p>未提出の下書きから作る待ち控えを、専用のIndexedDB領域に置き、同じ内容と確認できたときだけ空にする技術見本です。</p>
+<p class="hint">業者への送信・受付・取り消しや工事ではありません。実際の村や本人の保存内容には接続しません。ページを開いた時や再読込時には、保存先を自動で開きません。</p>
+<p id="setup">見本の指定を確認しています。</p>
+<section class="panel" aria-labelledby="store-title">
+<h2 id="store-title">1. 明示した保存先を開く</h2>
+<div class="actions"><button id="create" disabled>専用領域を新しく作る</button><button id="open" disabled>同じ専用領域を開く</button><button id="read" disabled>今の待ち控えを読む</button><button id="reopen" disabled>接続を閉じて開き直す</button><button id="close" disabled>このタブの接続を閉じる</button></div>
+<p class="hint">最初のタブで作成し、2つ目のタブでは「開く」を使います。開く処理は所有情報を確認し、待ち控えの本文は別の「読む」で確認します。</p>
+<p><a id="join" class="join" aria-disabled="true" target="_blank" rel="noopener">同じ指定で2つ目のタブを開く</a></p>
+</section>
+<section class="panel" aria-labelledby="draft-title">
+<h2 id="draft-title">2. 架空の下書きを待ち控えへ渡す</h2>
+<div class="actions"><button id="draft" disabled>ページ内に未提出の下書きを用意</button><button id="enqueue" disabled>下書きを照合して待ち控えへ渡す</button><button id="inspect" disabled>取り下げる対象を明示して読む</button><button id="withdraw" disabled>同じ対象だけを取り下げる</button></div>
+<p class="hint">下書きはページ専用Map、待ち控えは専用IndexedDBです。既存の照合・待ち控え・取り下げ処理をそのまま使います。下書きの控えは未提出のまま残ります。同じ架空下書きを再び渡す操作は、外部依頼の再送ではありません。</p>
+</section>
+<section class="panel" aria-labelledby="race-title">
+<h2 id="race-title">3. 2つのタブで同じ元の内容を使う</h2>
+<div class="actions"><button id="cache" disabled>今の本文を競合実験用に記憶</button><button id="cas-delete" disabled>記憶した本文との一致で空にする</button></div>
+<p class="hint">両タブで同じ空でない本文を記憶してから、各タブで1回ずつ空にします。これは保存先の直接CAS実験です。毎回新しく読む通常の取り下げ処理とは、結果と回数を分けます。</p>
+</section>
+<section class="panel" aria-labelledby="unknown-title">
+<h2 id="unknown-title">4. 完了の返事を受け取れなかった例</h2>
+<div class="actions"><button id="unknown" disabled>空にした後の返事だけを不明にする</button><button id="unknown-read" disabled>その後の状態を別操作で読む</button><button id="unknown-retry" disabled>同じ対象を別操作で再確認</button></div>
+<p class="hint">実際の削除完了後に見本のラッパーが返事を止めます。取り下げ側は結果不明を返し、自動で再試行しません。後の空欄は、その削除の成功証明や対象の識別には使いません。</p>
+</section>
+<section class="panel" aria-labelledby="cleanup-title">
+<h2 id="cleanup-title">5. 所有確認と片付け</h2>
+<div class="actions"><button id="wrong-owner" disabled>違うQA所有指定で開く例</button><button id="cleanup" disabled>専用領域を所有確認して片付ける</button><button id="missing" disabled>片付けた領域を開く例</button><button id="clear-fragment" disabled>このタブのQA指定をURLから消す</button></div>
+<p class="hint">先に両タブの接続を手動で閉じてください。片付けは、この指定の領域だけを所有確認して行います。他のデータベースの一覧取得や削除はしません。</p>
+</section>
+<p id="status" role="status" aria-live="polite" aria-atomic="true">見本を準備しています。</p>
+<p id="count">この文書での手動観測 0 回</p>
+<details id="technical"><summary>有限の観測記録と確認範囲</summary>
+<p class="hint">CAS呼出、put/delete要求の成功、トランザクション完了、呼出側に見えた返事は別計数です。strictの要求と実際のdurability表示も分けます。物理flush・停電耐性・全端末・本人の実保存の保証ではありません。再読込後はページ内の下書きと観測記録が初期化されます。保存先を開く操作は、再読込後も手動です。</p>
+<pre id="report" tabindex="0" aria-label="この文書の観測記録">{}</pre></details>
+</main>
+<script src="../pet-japan-seasons.js"></script><script src="../pet-ocean-discoveries.js"></script><script src="../pet-river-fishing.js"></script><script src="../pet-shop-layout.js"></script><script src="../pet-village-economy.js"></script><script src="../pet-game-core.js"></script><script src="../pet-contractor-intent.js"></script><script src="../pet-contractor-draft-journal.js"></script><script src="../pet-contractor-draft-review.js"></script><script src="../pet-contractor-request-outbox.js"></script><script src="../pet-contractor-queue-withdrawal.js"></script><script src="../pet-contractor-outbox-indexeddb-repository.js"></script><script src="proof.js"></script>
+</html>
