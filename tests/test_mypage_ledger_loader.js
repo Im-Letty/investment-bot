@@ -13,7 +13,7 @@ function pageFunctionSource(name){
   throw Error('The actual MyPage '+name+' handler must be complete');
 }
 function fixture(user={id:'account-A'},options={}) {
-  const events={},messages={},mutations=[],navigations=[],views=[],registrations=[],fallbacks=[];let refreshes=0,closes=0,menuOpens=0,morningOpens=0,pageAvailable=!options.deferPage;
+  const events={},messages={},mutations=[],navigations=[],views=[],registrations=[],fallbacks=[];let refreshes=0,closes=0,menuOpens=0,morningOpens=0,pageAvailable=!options.deferPage,now=100000,authChecks=0;
   class Element {
     constructor(){this.children=[];this.dataset={};this.style={overflow:''};this.attributes={};this.listeners={};this.captureListeners={};this.listenerCounts={};this.srcChanges=[];this.scrollTop=0;this.hidden=false;this.inert=false;this.tagName='DIV';}
     set className(value){this.classes=new Set(value.split(' '));}
@@ -53,28 +53,30 @@ function fixture(user={id:'account-A'},options={}) {
   const card=el('');card.tagName='BUTTON';
   const morning=el(''),drawer=el(''),menuClose=drawer.appendChild(el('kn-menu-close')),morningButton=el('');morning.id='morning-section';morning.style.display='block';drawer.id='sideDrawer';drawer.inert=true;drawer.dataset.menuView='display';menuClose.tagName=morningButton.tagName='BUTTON';
   morningButton.onclick=()=>{morningOpens++;doc.body.classList.remove('kn-mypage-active');doc.body.classList.add('view-asaletter');morning.style.display='block';};
-  function documentInFrame(n){n.contentDocument={readyState:'complete',documentElement:{getAttribute:()=> 'true'}};n.contentWindow={location:{origin:'https://local.test',protocol:'https:',pathname:'/kakeibo'},kkRefreshRecords(){refreshes++;},kkSetMyPageView(view){views.push(view);return true;}};}
+  function documentInFrame(n){n.contentDocument={readyState:'complete',documentElement:{getAttribute:()=> 'true'}};n.contentWindow={location:{origin:'https://local.test',protocol:'https:',pathname:'/kakeibo'},kkRefreshRecords(){refreshes++;return options.refresh?.();},kkSetMyPageView(view){views.push(view);return true;}};}
   const doc={readyState:options.readyState||'complete',body:el(''),querySelector:selector=>selector==='#knBottomNav [data-act="morning"]'&&!options.noMorningControl?morningButton:null,getElementById:id=>({myPageOv:pageAvailable?page:null,myPageCard:card,'morning-section':morning,sideDrawer:drawer}[id]),createElement:tag=>{const n=el('');n.tagName=tag.toUpperCase();if(tag==='iframe')documentInFrame(n);return n;},addEventListener:(name,fn,settings)=>{events[name]=fn;registrations.push({target:'document',name,settings});}};
   doc.body.appendChild(morning);doc.body.appendChild(drawer);doc.body.appendChild(morningButton);doc.body.appendChild(page);doc.body.appendChild(card);doc.body.classList.add('view-asaletter');
-  const context={document:doc,knUser:user,location:{origin:'https://local.test',search:options.search||''},URLSearchParams,getComputedStyle(node){return {display:node.style.display||((node.classList.contains('mo-pane')&&!node.classList.contains('on'))?'none':'block'),visibility:node.style.visibility||'visible'};},setTimeout(fn,ms){if(!options.deferPage)throw Error('setup should be immediate');fallbacks.push({fn,ms});return fallbacks.length;},MutationObserver:class {constructor(fn){mutations.push(fn);}observe(){}},addEventListener:(name,fn)=>{messages[name]=fn;registrations.push({target:'window',name});}};context.window=context;
-  context.knRequireAuth=()=>!!(context.knUser&&(!context.knUser.is_anonymous||options.allowAnonymous));
+  const context={document:doc,knUser:user,location:{origin:'https://local.test',search:options.search||''},URLSearchParams,Date:{now:()=>now},getComputedStyle(node){return {display:node.style.display||((node.classList.contains('mo-pane')&&!node.classList.contains('on'))?'none':'block'),visibility:node.style.visibility||'visible'};},setTimeout(fn,ms){if(!options.deferPage)throw Error('setup should be immediate');fallbacks.push({fn,ms});return fallbacks.length;},MutationObserver:class {constructor(fn){mutations.push(fn);}observe(){}},addEventListener:(name,fn)=>{messages[name]=fn;registrations.push({target:'window',name});}};context.window=context;
+  context.knRequireAuth=()=>{authChecks++;return !!(context.knUser&&(!context.knUser.is_anonymous||options.allowAnonymous));};
+  context.knEnsureGuest=()=>assert.fail('warming must never initiate or refresh identity');
   context.KNMenuSheet={openMain(){menuOpens++;drawer.dataset.menuView='main';drawer.classList.add('open');drawer.inert=false;menuClose.focus();}};
   card.listeners.click=()=>context.openMy();
   vm.runInNewContext(pageFunctionSource('openMy')+'\n'+pageFunctionSource('closeMy'),context);
   vm.runInNewContext(read('static/mypage-ledger-loader.js'),context);
   close.onclick=()=>{closes++;context.closeMy();};
   const frame=page.querySelector('.kb-frame');if(frame)documentInFrame(frame);
-  return {context,page,head,title,tabs,body,close,card,noteLibrary,noteHeading,morning,morningButton,drawer,menuClose,menuOpens:()=>menuOpens,morningOpens:()=>morningOpens,get backdrop(){return doc.body.querySelector('.mp-memo-backdrop');},get frame(){return page.querySelector('.kb-frame');},get personal(){return page.querySelector('.mp-toptabs')?.children[0]||null;},get ledger(){return page.querySelector('.mp-toptabs')?.children[1]||null;},mutations,navigations,views,registrations,fallbacks,refreshes:()=>refreshes,closes:()=>closes,publishPage(){pageAvailable=true;},domReady(){doc.readyState='interactive';const listener=events.DOMContentLoaded;if(listener){const registration=registrations.find(item=>item.target==='document'&&item.name==='DOMContentLoaded');if(registration?.settings?.once)delete events.DOMContentLoaded;listener();}},runFallbacks(){while(fallbacks.length)fallbacks.shift().fn();},auth(user){context.knUser=user;events.knAuthChange();},ready(event={}){messages.message({origin:context.location.origin,source:page.querySelector('.kb-frame').contentWindow,data:{type:'kn-kakeibo-ready'},...event});}};
+  return {context,page,head,title,tabs,body,close,card,noteLibrary,noteHeading,morning,morningButton,drawer,menuClose,menuOpens:()=>menuOpens,morningOpens:()=>morningOpens,get backdrop(){return doc.body.querySelector('.mp-memo-backdrop');},get frame(){return page.querySelector('.kb-frame');},get personal(){return page.querySelector('.mp-toptabs')?.children[0]||null;},get ledger(){return page.querySelector('.mp-toptabs')?.children[1]||null;},mutations,navigations,views,registrations,fallbacks,refreshes:()=>refreshes,closes:()=>closes,authChecks:()=>authChecks,advance(ms){now+=ms;},focus(){messages.focus?.();},visibility(hidden){doc.hidden=hidden;events.visibilitychange?.();},publishPage(){pageAvailable=true;},domReady(){doc.readyState='interactive';const listener=events.DOMContentLoaded;if(listener){const registration=registrations.find(item=>item.target==='document'&&item.name==='DOMContentLoaded');if(registration?.settings?.once)delete events.DOMContentLoaded;listener();}},runFallbacks(){while(fallbacks.length)fallbacks.shift().fn();},auth(user){context.knUser=user;events.knAuthChange();},ready(event={}){messages.message({origin:context.location.origin,source:page.querySelector('.kb-frame').contentWindow,data:{type:'kn-kakeibo-ready'},...event});}};
 }
-test('no household ledger request before an authorized MyPage visit',()=>{
-  const h=fixture();assert.equal(h.frame.getAttribute('src'),null);h.context.knPrepareLedger();assert.equal(h.frame.getAttribute('src'),null);
+test('an already established owner warms one hidden ledger without opening MyPage or initiating identity',()=>{
+  const h=fixture();assert.equal(h.frame.getAttribute('src'),'/kakeibo');h.context.knPrepareLedger();assert.deepEqual(h.navigations,['/kakeibo']);
+  assert.equal(h.page.classList.contains('open'),false);assert.equal(h.authChecks(),0);assert.equal(h.refreshes(),0);
   const anonymous=fixture(null);anonymous.context.knOpenLedger();assert.equal(anonymous.frame.getAttribute('src'),null);assert.equal(anonymous.page.classList.contains('open'),false);
 });
 test('same-account tab and screen changes preserve one document, its draft and scroll',()=>{
   const h=fixture();h.context.knOpenLedger();assert.deepEqual(h.frame.srcChanges,['/kakeibo']);
   h.frame.draft='unfinished';h.frame.scroll=400;h.ready();
   h.personal.click();h.ledger.click();h.page.classList.remove('open');h.mutations.forEach(fn=>fn());h.context.knOpenLedger();
-  assert.deepEqual(h.frame.srcChanges,['/kakeibo']);assert.equal(h.frame.draft,'unfinished');assert.equal(h.frame.scroll,400);assert.ok(h.refreshes()>0);
+  assert.deepEqual(h.frame.srcChanges,['/kakeibo']);assert.equal(h.frame.draft,'unfinished');assert.equal(h.frame.scroll,400);assert.equal(h.refreshes(),0);
   assert.equal(h.frame.getAttribute('loading'),'eager');
 });
 test('switching groups reserves the personal subtab row while disabling its hidden controls only in the ledger',()=>{
@@ -91,7 +93,7 @@ test('long personal-page scroll is restored after repeated switches without relo
   assert.equal(h.body.scrollTop,0);h.ledger.click();h.ledger.click();assert.equal(h.body.scrollTop,0);
   h.personal.click();assert.equal(h.body.scrollTop,740);h.body.scrollTop=1065;h.personal.click();assert.equal(h.body.scrollTop,1065,'reselecting Personal must not restore a stale position');
   for(let i=0;i<3;i++){h.ledger.click();assert.equal(h.body.scrollTop,0);h.ledger.click();h.personal.click();assert.equal(h.body.scrollTop,1065);}
-  assert.equal(h.frame,frame);assert.equal(frame.contentDocument,doc);assert.equal(frame.contentWindow,child);assert.deepEqual(doc.draft,{amount:'12345.67',memo:'synthetic unfinished memo'});assert.equal(doc.documentElement.scrollTop,415);assert.equal(child.scrollY,415);assert.deepEqual(h.navigations,['/kakeibo']);assert.ok(h.refreshes()>0);
+  assert.equal(h.frame,frame);assert.equal(frame.contentDocument,doc);assert.equal(frame.contentWindow,child);assert.deepEqual(doc.draft,{amount:'12345.67',memo:'synthetic unfinished memo'});assert.equal(doc.documentElement.scrollTop,415);assert.equal(child.scrollY,415);assert.deepEqual(h.navigations,['/kakeibo']);assert.equal(h.refreshes(),0);
 });
 test('account changes reset the remembered parent position while replacing the private ledger context',()=>{
   const h=fixture();h.body.scrollTop=1230;h.context.knOpenLedger();const old=h.frame;old.contentDocument.draft='account A only';
@@ -272,7 +274,7 @@ test('interactive startup catches a MyPage created at DOM ready before the 300ms
   const ready=h.registrations.filter(item=>item.target==='document'&&item.name==='DOMContentLoaded');
   assert.equal(ready.length,1);assert.equal(ready[0].settings.once,true);
   h.publishPage();h.domReady();assert.ok(h.frame,'DOM ready initializes the newly created page without waiting for the retry timer');
-  const frame=h.frame;assert.equal(frame.getAttribute('src'),null);assert.equal(h.fallbacks.length,1);
+  const frame=h.frame;assert.equal(frame.getAttribute('src'),'/kakeibo');assert.equal(h.fallbacks.length,1);
   h.context.knOpenLedger();frame.draft='synthetic unfinished input';h.runFallbacks();h.domReady();
   assert.equal(h.frame,frame);assert.equal(frame.draft,'synthetic unfinished input');assert.deepEqual(h.navigations,['/kakeibo']);
   assert.equal(h.page.querySelectorAll('.kb-frame').length,1);assert.equal(h.page.querySelectorAll('.kb-pane').length,1);assert.equal(h.page.querySelectorAll('.mp-toptabs').length,1);
@@ -293,7 +295,7 @@ test('interactive startup uses an existing MyPage immediately and DOM ready does
 test('loading startup waits for DOM ready without starting a private iframe request',()=>{
   const h=fixture({id:'account-A'},{readyState:'loading'});
   assert.equal(h.frame,null);assert.equal(h.fallbacks.length,0);assert.deepEqual(h.navigations,[]);
-  h.domReady();assert.ok(h.frame);assert.equal(h.frame.getAttribute('src'),null);assert.equal(h.mutations.length,1);
+  h.domReady();assert.ok(h.frame);assert.equal(h.frame.getAttribute('src'),'/kakeibo');assert.equal(h.mutations.length,1);
   assert.equal(h.registrations.find(item=>item.target==='document'&&item.name==='DOMContentLoaded').settings.once,true);
 });
 
@@ -372,13 +374,14 @@ test('the actual ordinary MyPage opener leaves memo mode and returns to assets w
   h.context.knOpenMemo();assert.equal(h.page.getAttribute('data-mp-view'),'memo');assert.equal(h.frame,frame);
 });
 
-test('a denied memo entry starts no iframe request and creates no deferred memo intent after authentication',()=>{
+test('a denied memo entry adds no iframe request or deferred memo intent beyond normal identity warming',()=>{
   for(const user of [null,{id:'guest-A',is_anonymous:true},{id:'account-A'}]){
-    const h=fixture(user),frame=h.frame;h.context.knRequireAuth=()=>false;
+    const h=fixture(user),frame=h.frame,before=h.navigations.slice();h.context.knRequireAuth=()=>false;
     assert.equal(h.context.knOpenMemo(),false);assert.equal(h.page.classList.contains('open'),false);assert.equal(h.frame,frame);
-    assert.equal(frame.getAttribute('src'),null);assert.deepEqual(h.navigations,[]);assert.equal(h.page.querySelectorAll('.kb-frame').length,1);assert.deepEqual(h.fallbacks,[]);
-    h.auth({id:'account-A'});assert.equal(h.page.classList.contains('open'),false);assert.notEqual(h.page.getAttribute('data-mp-view'),'memo');assert.deepEqual(h.navigations,[]);
-    h.context.knRequireAuth=()=>true;assert.equal(h.context.knOpenMemo(),true);assert.equal(h.page.getAttribute('data-mp-view'),'memo');assert.deepEqual(h.navigations,['/kakeibo']);
+    assert.deepEqual(h.navigations,before);assert.equal(h.page.querySelectorAll('.kb-frame').length,1);assert.deepEqual(h.fallbacks,[]);
+    h.auth({id:'account-A'});assert.equal(h.page.classList.contains('open'),false);assert.notEqual(h.page.getAttribute('data-mp-view'),'memo');
+    const warmed=user&&user.id!=='account-A'?['/kakeibo','/kakeibo']:['/kakeibo'];assert.deepEqual(h.navigations,warmed);
+    h.context.knRequireAuth=()=>true;assert.equal(h.context.knOpenMemo(),true);assert.equal(h.page.getAttribute('data-mp-view'),'memo');assert.deepEqual(h.navigations,warmed);
   }
 });
 
@@ -387,7 +390,7 @@ test('memo mode survives a same-owner refresh but signout destroys its private f
   h.auth({id:'account-A'});assert.equal(h.page.getAttribute('data-mp-view'),'memo');assert.equal(h.frame,frame);assert.equal(frame.contentDocument.noteDraft,'所有者Aの下書き');assert.deepEqual(h.navigations,['/kakeibo']);
   h.auth(null);assert.equal(h.page.classList.contains('open'),false);assert.notEqual(h.frame,frame);assert.equal(frame.parentNode,null);assert.equal(h.frame.getAttribute('src'),null);
   assert.equal(h.context.knOpenMemo(),false);h.auth({id:'account-A'});
-  assert.equal(h.page.classList.contains('open'),false);assert.notEqual(h.page.getAttribute('data-mp-view'),'memo');assert.deepEqual(h.navigations,['/kakeibo']);
+  assert.equal(h.page.classList.contains('open'),false);assert.notEqual(h.page.getAttribute('data-mp-view'),'memo');assert.deepEqual(h.navigations,['/kakeibo','/kakeibo']);
 });
 
 test('changing owners from memo mode detaches the old save context and returns the new owner to ordinary MyPage',()=>{
@@ -501,10 +504,53 @@ test('memo close without an ordinary close control restores the hidden backgroun
 });
 
 test('explicit memory preparation warms the same private document without opening MyPage or changing views',()=>{
- const h=fixture();const frame=h.frame,group=h.page.getAttribute('data-mp-view'),scroll=h.body.scrollTop;assert.equal(h.frame.getAttribute('src'),null);h.context.knPrepareAssistantMemory();assert.equal(h.frame,frame);assert.deepEqual(h.navigations,['/kakeibo']);assert.equal(h.page.classList.contains('open'),false);assert.equal(h.body.scrollTop,scroll);assert.equal(h.page.getAttribute('data-mp-view'),group);assert.equal(h.morning.style.display,'block');
+ const h=fixture();const frame=h.frame,group=h.page.getAttribute('data-mp-view'),scroll=h.body.scrollTop;assert.equal(h.frame.getAttribute('src'),'/kakeibo');h.context.knPrepareAssistantMemory();assert.equal(h.frame,frame);assert.deepEqual(h.navigations,['/kakeibo']);assert.equal(h.page.classList.contains('open'),false);assert.equal(h.body.scrollTop,scroll);assert.equal(h.page.getAttribute('data-mp-view'),group);assert.equal(h.morning.style.display,'block');
  h.context.knPrepareAssistantMemory();assert.equal(h.frame,frame);assert.deepEqual(h.navigations,['/kakeibo']);h.card.click();assert.equal(h.frame,frame);assert.deepEqual(h.navigations,['/kakeibo']);
 });
-test('memory preparation never creates an account and owner change discards its old frame before another explicit warm',()=>{
+test('memory preparation never creates an account and owner change discards its old frame before normal warming',()=>{
  const absent=fixture(null);absent.context.knPrepareAssistantMemory();assert.equal(absent.frame.getAttribute('src'),null);assert.deepEqual(absent.navigations,[]);assert.equal(absent.page.classList.contains('open'),false);
- const h=fixture();h.context.knPrepareAssistantMemory();const old=h.frame;h.auth({id:'account-B'});assert.notEqual(h.frame,old);assert.equal(h.frame.getAttribute('src'),null);assert.equal(h.page.classList.contains('open'),false);h.context.knPrepareAssistantMemory();assert.deepEqual(h.navigations,['/kakeibo','/kakeibo']);assert.equal(h.page.classList.contains('open'),false);
+ const h=fixture();h.context.knPrepareAssistantMemory();const old=h.frame;h.auth({id:'account-B'});assert.notEqual(h.frame,old);assert.equal(h.frame.getAttribute('src'),'/kakeibo');assert.equal(h.page.classList.contains('open'),false);h.context.knPrepareAssistantMemory();assert.deepEqual(h.navigations,['/kakeibo','/kakeibo']);assert.equal(h.page.classList.contains('open'),false);
+});
+
+test('normal identity arrival including an existing anonymous owner warms once without forcing an entry',()=>{
+  const h=fixture(null);assert.deepEqual(h.navigations,[]);
+  h.auth({id:'guest-A',is_anonymous:true});const frame=h.frame;
+  assert.deepEqual(h.navigations,['/kakeibo']);assert.equal(h.page.classList.contains('open'),false);assert.equal(h.authChecks(),0);assert.equal(h.refreshes(),0);
+  h.auth({id:'guest-A',is_anonymous:true});assert.equal(h.frame,frame);assert.deepEqual(h.navigations,['/kakeibo']);
+  h.auth(null);assert.notEqual(h.frame,frame);assert.equal(frame.parentNode,null);assert.equal(h.frame.getAttribute('src'),null);
+});
+
+test('an owned layout-ready message reveals assets before window load while missing or foreign view APIs stay hidden',()=>{
+  const h=fixture(),frame=h.frame,child=frame.contentWindow;delete child.kkSetMyPageView;
+  h.context.knOpenAssets();h.ready();assert.equal(frame.style.visibility,'hidden');assert.equal(frame.getAttribute('aria-busy'),'true');
+  child.kkSetMyPageView=view=>{h.views.push(view);return true;};
+  child.location.pathname='/other';h.ready();assert.equal(frame.style.visibility,'hidden');
+  child.location.pathname='/kakeibo';child.location.origin='https://other.test';h.ready();assert.equal(frame.style.visibility,'hidden');
+  child.location.origin='https://local.test';h.ready();
+  assert.equal(h.views.at(-1),'assets');assert.equal(frame.style.visibility,'');assert.equal(frame.getAttribute('aria-busy'),null);
+  assert.equal(h.frame,frame);assert.deepEqual(h.navigations,['/kakeibo']);assert.equal(h.refreshes(),0);
+});
+
+test('quick reopen and repeated view selections reuse the warm model while visible returns revalidate after thirty seconds',()=>{
+  const h=fixture();h.context.knOpenAssets();const frame=h.frame;frame.draft='synthetic unfinished draft';
+  for(let i=0;i<3;i++){h.context.knOpenAssets();h.personal.click();h.ledger.click();h.personal.click();h.close.click();h.card.click();}
+  assert.equal(h.refreshes(),0);assert.equal(h.frame,frame);assert.equal(frame.draft,'synthetic unfinished draft');
+  h.advance(29999);h.focus();assert.equal(h.refreshes(),0);
+  h.advance(1);h.personal.click();assert.equal(h.refreshes(),1);h.context.knOpenAssets();h.focus();h.visibility(false);assert.equal(h.refreshes(),1);
+  h.close.click();h.advance(30000);h.focus();h.visibility(false);assert.equal(h.refreshes(),1,'a hidden MyPage never polls');
+  h.card.click();assert.equal(h.refreshes(),2);assert.equal(h.frame,frame);assert.deepEqual(h.navigations,['/kakeibo']);
+  h.advance(30000);h.visibility(true);h.focus();assert.equal(h.refreshes(),2);h.visibility(false);assert.equal(h.refreshes(),3);
+});
+
+test('visible refreshes share one pending attempt and a failure does not replace the child retry or private context',async()=>{
+  let reject;const h=fixture(undefined,{refresh:()=>new Promise((resolve,no)=>reject=no)});h.context.knOpenAssets();const frame=h.frame;
+  frame.contentDocument.restoreError='synthetic restore failure';frame.contentWindow.retry=()=> 'existing explicit retry';
+  h.advance(30000);h.focus();assert.equal(h.refreshes(),1);h.advance(60000);h.ledger.click();h.visibility(false);h.focus();assert.equal(h.refreshes(),1);
+  reject(Error('synthetic unavailable'));
+  // The fixture returns a host-realm promise to a VM-realm loader. Drain its
+  // assimilation and settled callback before checking the next visible retry.
+  await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(frame.contentDocument.restoreError,'synthetic restore failure');assert.equal(frame.contentWindow.retry(),'existing explicit retry');assert.equal(h.frame,frame);
+  h.focus();assert.equal(h.refreshes(),2);h.auth({id:'account-B'});assert.notEqual(h.frame,frame);assert.equal(frame.parentNode,null);
+  reject(Error('old owner unavailable'));await new Promise(resolve=>setImmediate(resolve));assert.equal(h.frame.contentDocument.restoreError,undefined);
 });
