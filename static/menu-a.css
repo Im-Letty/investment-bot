@@ -87,7 +87,7 @@ body.kn-home-a #sideDrawer.kn-menu-a .kn-menu-row{background:transparent!importa
 #sideDrawer.kn-menu-a .kn-menu-language .lang-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin:0}
 #sideDrawer.kn-menu-a .kn-menu-language .lang-btn{width:100%;box-sizing:border-box;white-space:normal;overflow-wrap:anywhere}
 body:has(#sideDrawer.kn-menu-a.open) #knChatFab{visibility:hidden;pointer-events:none;}
-body.kn-home-a[data-kn-a-custom-color] #sideDrawer.kn-menu-a{--kn-a-paper:color-mix(in srgb,var(--brand-color) 3%,#fffdf6);--kn-a-ink:color-mix(in srgb,var(--brand-color) 30%,#303c30);--kn-a-muted:color-mix(in srgb,var(--brand-color) 20%,#606b57);--kn-a-button:color-mix(in srgb,var(--brand-color) 45%,#4c6150);--kn-a-line:color-mix(in srgb,var(--brand-color) 12%,#dedccf);--kn-a-chip:color-mix(in srgb,var(--brand-color) 6%,#f0eedf);}
+body.kn-home-a[data-kn-a-custom-color] #sideDrawer.kn-menu-a{--kn-a-paper:color-mix(in srgb,var(--brand-color) 3%,#fffdf6);--kn-a-ink:#343331;--kn-a-muted:#625d58;--kn-a-button:color-mix(in srgb,var(--brand-color) 45%,#4c6150);--kn-a-line:color-mix(in srgb,var(--brand-color) 12%,#dedccf);--kn-a-chip:color-mix(in srgb,var(--brand-color) 6%,#f0eedf);}
 @media(prefers-reduced-motion:reduce){body.kn-home-a #sideDrawer.kn-menu-a{transition:none;}}
 
 #sideDrawer.kn-menu-a .kn-menu-view h2{font:500 calc(18px * var(--kn-a-scale,1))/1.5 var(--kn-a-sans);margin:6px 0 22px;color:var(--kn-a-ink);overflow-wrap:anywhere;}

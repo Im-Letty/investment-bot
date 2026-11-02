@@ -3,21 +3,21 @@ body.kn-home-a #morning-section,
 body.kn-home-a #knMarketPicker {
   --kn-a-bg:#f0eedf;
   --kn-a-paper:#faf9ef;
-  --kn-a-ink:#3d4b3c;
-  --kn-a-muted:#606b57;
+  --kn-a-ink:#343331;
+  --kn-a-muted:#625d58;
   --kn-a-line:#d5d6c3;
   --kn-a-button:#607765;
   --kn-a-chip:#eeeddf;
   --kn-orbit-pale:var(--kn-a-paper);
 }
 body.kn-home-a #morning-section {background:var(--kn-a-bg)!important}
-/* Tint the large surfaces as well as text and controls when a color is chosen. */
+/* Tint surfaces and controls while keeping light-mode reading text neutral. */
 body.kn-home-a[data-kn-a-custom-color] #morning-section,
 body.kn-home-a[data-kn-a-custom-color] #knMarketPicker {
   --kn-a-bg:color-mix(in srgb,var(--brand-color) 10%,#f5f2e9);
   --kn-a-paper:color-mix(in srgb,var(--brand-color) 3%,#fffdf6);
-  --kn-a-ink:color-mix(in srgb,var(--brand-color) 30%,#303c30);
-  --kn-a-muted:color-mix(in srgb,var(--brand-color) 20%,#606b57);
+  --kn-a-ink:#343331;
+  --kn-a-muted:#625d58;
   --kn-a-button:color-mix(in srgb,var(--brand-color) 45%,#4c6150);
   --kn-a-line:color-mix(in srgb,var(--brand-color) 12%,#dedccf);
   --kn-a-chip:color-mix(in srgb,var(--brand-color) 6%,#f0eedf);

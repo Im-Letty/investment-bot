@@ -15,8 +15,8 @@ body.kn-ledger-letter[data-kn-ledger-dark="true"] .submit-btn.inv {background:#2
 body.kn-ledger-letter {
   --kn-ledger-bg:var(--kn-sh-bg,#f2f3eb);
   --kn-ledger-paper:var(--kn-sh-paper,#fffdf6);
-  --kn-ledger-ink:var(--kn-sh-ink,#184b3c);
-  --kn-ledger-muted:var(--kn-sh-muted,#547467);
+  --kn-ledger-ink:var(--kn-sh-ink,#343331);
+  --kn-ledger-muted:var(--kn-sh-muted,#625d58);
   --kn-ledger-line:var(--kn-sh-line,#dce6d7);
   --kn-ledger-button:var(--kn-sh-button,#446b52);
   --kn-ledger-chip:var(--kn-sh-chip,#edf0e5);

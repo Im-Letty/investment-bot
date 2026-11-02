@@ -2,7 +2,7 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const source=fs.readFileSync(path.join(__dirname,'..','static/mypage-kakeibo-theme.js'),'utf8');
-const defaults={bg:'#f0eedf',paper:'#fdfcf6',ink:'#3d4b3c',muted:'#606b57',line:'#d5d6c3',button:'#607765',chip:'#eeeddf'};
+const defaults={bg:'#f0eedf',paper:'#fdfcf6',ink:'#343331',muted:'#625d58',line:'#d5d6c3',button:'#607765',chip:'#eeeddf'};
 function channels(value){
   const hex=value.match(/^#([0-9a-f]{6})$/i);
   if(hex)return [0,2,4].map(i=>parseInt(hex[1].slice(i,i+2),16));
@@ -114,7 +114,7 @@ test('financial line and bar presentation follows the palette without changing v
   const before=[line,bar].map(c=>({labels:copy(c.data.labels),series:c.data.datasets.map(d=>({label:d.label,data:copy(d.data)}))}));
   h.event('kkChartsReady');h.flush();
   assert.equal(line.data.datasets[0].borderColor,defaults.button);assert.equal(line.data.datasets[1].pointBackgroundColor,defaults.muted);
-  assert.deepEqual(copy(line.data.datasets[1].borderDash),[4,3]);assert.equal(bar.data.datasets[2].backgroundColor,'rgba(61,75,60,0.75)');
+  assert.deepEqual(copy(line.data.datasets[1].borderDash),[4,3]);assert.equal(bar.data.datasets[2].backgroundColor,'rgba(52,51,49,0.75)');
   assert.deepEqual([line,bar].map(c=>({labels:copy(c.data.labels),series:c.data.datasets.map(d=>({label:d.label,data:copy(d.data)}))})),before);
   assert.ok([...line.updates,...bar.updates].every(mode=>mode==='none'));
 });
@@ -124,7 +124,9 @@ test('concrete canvas colors and all numeric line styles update after a local co
   h.root.style.setProperty('--brand-color','#4477cc');h.root.setAttribute('data-custom-brand-color','');h.flush();
   const first=line.data.datasets[0];assert.notEqual(first.borderColor,previous);assert.match(first.borderColor,/^rgba\(/);
   for(const name of ['borderColor','backgroundColor','pointBackgroundColor','pointBorderColor','pointHoverBackgroundColor','pointHoverBorderColor'])assert.doesNotMatch(first[name],/var\(|color-mix\(|color\(srgb/);
-  assert.equal(first.pointHoverBackgroundColor,first.borderColor);assert.match(line.options.scales.x.ticks.color,/^rgba\(/);
+  assert.equal(first.pointHoverBackgroundColor,first.borderColor);
+  assert.equal(line.options.plugins.legend.labels.color,defaults.muted);
+  assert.equal(line.options.scales.x.ticks.color,defaults.muted);
 });
 test('parent dark token changes repaint numeric charts while preserving category palettes',()=>{
   const h=fixture({embedded:true}),line=h.chart('lineChart','line',[{data:[100]},{data:[40]}]);

@@ -1,7 +1,7 @@
 (function () {
   'use strict';
   var colors=['bg','paper','ink','muted','line','button','chip'];
-  var defaults=['#f0eedf','#fdfcf6','#3d4b3c','#606b57','#d5d6c3','#607765','#eeeddf'];
+  var defaults=['#f0eedf','#fdfcf6','#343331','#625d58','#d5d6c3','#607765','#eeeddf'];
   var fonts={gothic:'"Noto Sans JP",sans-serif',round:'"Hiragino Maru Gothic ProN","M PLUS Rounded 1c","Noto Sans JP",sans-serif',mincho:'"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif',klee:'"Klee One",cursive',pop:'"Shippori Mincho",serif'};
   var chartFrame, variableColors=new WeakMap(), colorProbe, colorCanvas, lastBrandSource;
   function setToken(root,name,value) {
@@ -134,8 +134,8 @@
     var custom=/^#[0-9a-f]{6}$/i.test(color)&&(color.toLowerCase()!=='#3da060'||customFlag==='1');
     var values=custom?[
       'color-mix(in srgb,'+color+' 10%,#f5f2e9)',defaults[1],
-      'color-mix(in srgb,'+color+' 30%,#303c30)',
-      'color-mix(in srgb,'+color+' 20%,#606b57)',
+      defaults[2],
+      defaults[3],
       'color-mix(in srgb,'+color+' 12%,#dedccf)',
       'color-mix(in srgb,'+color+' 45%,#4c6150)',
       'color-mix(in srgb,'+color+' 6%,#f0eedf)'
