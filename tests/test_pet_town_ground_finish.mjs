@@ -49,7 +49,35 @@ test('layered ground is deterministic and opposite tile-edge texels are byte-ide
   assert.equal(data[(k*512)*4+c],data[(k*512+511)*4+c]);
   assert.equal(data[k*4+c],data[(511*512+k)*4+c]);
  }
+ let seam=0,interior=0,interiorSamples=0;
+ for(let k=0;k<511;k++)seam+=Math.abs(data[(k*512)*4]-data[(k*512+510)*4])+Math.abs(data[k*4]-data[(510*512+k)*4]);
+ for(let y=0;y<511;y++)for(let x=1;x<511;x++){interior+=Math.abs(data[(y*512+x)*4]-data[(y*512+x-1)*4]);interiorSamples++;}
+ assert.ok(seam/1022<interior/interiorSamples*1.5+.1,'wrapped strokes do not create a derivative ridge at the repeated seam');
  a.dispose();b.dispose();
+});
+
+test('painted short grass has off-center detail and quiet gaps within one unchanged bump canvas',()=>{
+ const doc=documentFixture();let allocations=0;
+ class CountedTexture extends T.CanvasTexture{constructor(...args){super(...args);allocations++;}}
+ const texture=Ground.groundTexture({...T,CanvasTexture:CountedTexture},doc,'summer');
+ try{
+  const pixels=texture.image.pixels,counts=Array(256).fill(0);let detail=0,outside=0;
+  // A finite high-pass probe isolates painted strokes from broad moss and
+  // tiny grain. The former centered single blades never reached this outer
+  // part of their 16-by-16 planting lattice; jittered fans cross it naturally.
+  for(let y=1;y<511;y++)for(let x=1;x<511;x++){
+   const at=(y*512+x)*4,edge=4*pixels[at]-pixels[at-4]-pixels[at+4]-pixels[at-2048]-pixels[at+2048];
+   if(edge<=10)continue;
+   detail++;const cx=Math.floor(x/511*16),cy=Math.floor(y/511*16),dx=x/511*16-cx-.5,dy=y/511*16-cy-.5;
+   counts[cy*16+cx]++;if(dx*dx+dy*dy>.41*.41)outside++;
+  }
+  assert.ok(detail>1000&&detail<4000,'short strokes remain sparse instead of covering the lawn in sharp grain');
+  assert.ok(outside/detail>.12,'detail is no longer constrained to equal centered blade marks');
+  const quiet=counts.filter(n=>n===0).length;assert.ok(quiet>=8&&quiet<96,'varied fans retain small quiet patches');
+  assert.equal(allocations,1);assert.equal(doc.canvases.length,1);assert.equal(pixels.byteLength,512*512*4);
+  assert.equal(texture.anisotropy,4);assert.equal(texture.generateMipmaps,true);
+  const material=new T.MeshStandardMaterial();try{Ground.applyGround(material,texture);assert.equal(material.map,texture);assert.equal(material.bumpMap,texture);assert.equal(material.bumpScale,.012);assert.equal(material.displacementMap,null);}finally{material.dispose();}
+ }finally{texture.dispose();}
 });
 
 test('local ivory paths and house-like wood finishes share only their two caller-owned maps',()=>{

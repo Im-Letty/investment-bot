@@ -3063,7 +3063,7 @@ test('normal Milne image readiness supplies its measured Town anchor while manua
  actor.width=actor.height=145;actor.complete=true;actor.naturalWidth=actor.naturalHeight=640;actor.emit('load');await flush();townPresentationState(f,'ready');
  const frame=scene.frames[0];assert.equal(frame.tagName,'CANVAS');assert.equal(frame.width,640);assert.equal(frame.height,640);assert.equal(frame.isConnected,false);
  assert.equal(frame.drawCalls.length,1);assert.equal(frame.drawCalls[0][0],actor);assert.deepEqual(frame.drawCalls[0].slice(1),[0,0],'copy the whole natural image once without a crop or CSS-size resampling');
- assert.equal(scene.frameOptions[0].anchor,.0421875);assert.equal(f.mounts.length,0);assert.equal(actor.src,'/static/pet-characters/milne-original8-v1/adult.webp');
+ assert.deepEqual(scene.frameOptions[0],{anchor:.0421875,characterId:'milne',presentation:'static-front',stillStep:true});assert.equal(f.mounts.length,0);assert.equal(actor.src,'/static/pet-characters/milne-original8-v1/adult.webp');
  const avatar=f.host.querySelector('.ipg-town-avatar'),viewport=f.host.querySelector('.ipg-town-viewport'),x=parseFloat(avatar.style.left),y=parseFloat(avatar.style.top);
  viewport.focus();f.window.emit('keydown',{key:'ArrowUp',target:viewport});await f.frame();await f.frame(50);f.window.emit('keyup',{key:'ArrowUp'});
  assert.ok(parseFloat(avatar.style.left)>x,'manual movement still uses the existing camera-relative walking engine');assert.equal(parseFloat(avatar.style.top),y);

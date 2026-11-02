@@ -111,7 +111,14 @@
   }
   function frameOptions(visual) {
     var n = visual && visual.dataset && Number(visual.dataset.frameAnchor);
-    return { anchor: Number.isFinite(n) && n >= 0 && n <= 1 ? n : .08 };
+    var result = { anchor: Number.isFinite(n) && n >= 0 && n <= 1 ? n : .08 };
+    if (visual && visual.dataset && visual.dataset.characterId === 'milne') {
+      result.characterId = 'milne'; result.presentation = 'static-front';
+      // This moves the existing picture only. Eggs and all other artwork keep
+      // their current presentation; no limb rig or directional frames are implied.
+      result.stillStep = visual.dataset.characterStage !== 'egg';
+    }
+    return result;
   }
   function core() { return w.PetGameCore; }
   function needsEggChoice(s) { return typeof core().needsEggChoice === 'function' && core().needsEggChoice(s); }
@@ -1707,7 +1714,7 @@
     }
     shopLoading = Promise.all([
       resource('link', '/static/pet-shop-interior.css?v=20261025-shop1'),
-      resource('script', '/static/pet-shop-interior.js?v=20261025-resize1', function () { return !!w.PetShopInterior && typeof w.PetShopInterior.mount === 'function'; })
+      resource('script', '/static/pet-shop-interior.js?v=20261103-village-step1', function () { return !!w.PetShopInterior && typeof w.PetShopInterior.mount === 'function'; })
     ]).then(function () { return w.PetShopInterior; }).catch(function () { shopLoading = null; return null; });
     return shopLoading;
   }
@@ -1843,7 +1850,7 @@
     if (homeLoading) return homeLoading;
     if (!d.head) return Promise.resolve(null);
     homeLoading = new Promise(function (resolve) {
-      var script = node('script'); script.src = '/static/pet-home-interior.js?v=20261025-resize1'; script.async = true;
+      var script = node('script'); script.src = '/static/pet-home-interior.js?v=20261103-village-step1'; script.async = true;
       script.onload = function () { resolve(w.PetHomeInterior || null); };
       script.onerror = function () { homeLoading = null; script.remove(); resolve(null); };
       d.head.appendChild(script);
@@ -2062,7 +2069,7 @@
     if (townSceneLoading) return townSceneLoading;
     if (!d.head) return Promise.resolve(null);
     townSceneLoading = new Promise(function (resolve) {
-      var script = d.createElement('script'); script.src = '/static/pet-town-scene.js?v=20261103-clear-colors1'; script.async = true;
+      var script = d.createElement('script'); script.src = '/static/pet-town-scene.js?v=20261103-village-step1'; script.async = true;
       script.onload = function () { resolve(w.PetTownScene && typeof w.PetTownScene.mount === 'function' ? w.PetTownScene : null); };
       script.onerror = function () { townSceneLoading = null; script.remove(); resolve(null); };
       d.head.appendChild(script);

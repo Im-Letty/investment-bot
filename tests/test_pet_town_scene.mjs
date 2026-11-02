@@ -6,6 +6,7 @@ import Scene from '../static/pet-town-scene.js';
 import Town from '../static/pet-town-walk.js';
 import Fishing from '../static/pet-river-fishing.js';
 import FrameFit from '../static/pet-frame-fit.js';
+import StillStep from '../static/pet-still-step.js';
 import Seasons from '../static/pet-japan-seasons.js';
 import TownStyle from '../static/pet-town-style.js';
 import LayoutArt from '../static/pet-town-layout-art.js';
@@ -105,6 +106,30 @@ async function fixture(options={}){
  return {doc,win,host,media,frames,renderers,images,observers,timers,originalLoads,originalTextures,world,source,controller,failures,get ready(){return ready;},get now(){return stamp;},allow:v=>{allowed=v;},time:v=>{stamp=v;},frame(ms=16){stamp+=ms;const callbacks=[...frames.values()];frames.clear();callbacks.forEach(fn=>fn(stamp));},project(p){const camera=renderers[0].calls.at(-1).camera,g=Scene.groundPoint(world,p),v=new THREE.Vector3(g.x,Scene.heightAt(p),g.z).project(camera);return {clientX:(v.x+1)*195,clientY:(1-v.y)*350};}};
 }
 
+test('opted-in Milne Town stepping follows accepted distance without frame uploads, scale or world edits',async()=>{
+ const f=await fixture(),before=JSON.stringify(f.world);try{
+  f.controller.setFrame(f.source,{anchor:.2,characterId:'milne',presentation:'static-front',stillStep:true});
+  const r=f.renderers[0],sprite=r.calls.at(-1).scene.getObjectByName('current-pet-2d-frame'),scale=sprite.scale.toArray(),texture=sprite.material.map,uploads=r.uploads.length;
+  f.controller.setPosition({x:1110,y:1100});f.controller.setMotion({walking:true,dx:1,dy:0});f.frame(40);
+  const pose=JSON.parse(f.host.dataset.stillStep);assert.equal(pose.active,true);assert.ok(pose.bob>0&&pose.bob<=.025);assert.ok(Math.abs(pose.roll)>0&&Math.abs(pose.roll)<=.035);
+  assert.ok(Math.abs(sprite.position.y-Scene.heightAt({x:1110,y:1100})-pose.bob)<1e-10);assert.equal(sprite.material.rotation,pose.roll);assert.deepEqual(sprite.scale.toArray(),scale);assert.equal(sprite.center.y,.2);
+  f.frame(200);assert.deepEqual(JSON.parse(f.host.dataset.stillStep),pose,'elapsed time alone cannot advance a step');
+  f.controller.setPosition({x:-100,y:-100});f.controller.setMotion({walking:true,dx:1,dy:0});f.frame(40);assert.equal(JSON.parse(f.host.dataset.stillStep).active,false,'a door-dwell walking packet without accepted displacement is neutral');assert.equal(sprite.material.rotation,0);
+  assert.equal(r.uploads.length,uploads);assert.equal(sprite.material.map,texture);assert.equal(JSON.stringify(f.world),before);
+  f.controller.setMotion({walking:false,dx:0,dy:0});f.frame(40);assert.equal(sprite.material.rotation,0);assert.equal(JSON.parse(f.host.dataset.stillStep).bob,0);
+ }finally{f.controller.destroy();}
+});
+test('Milne Town stepping is neutral for unmarked sources, reduced motion, fishing and hidden visits',async()=>{
+ const f=await fixture();try{
+  f.controller.setFrame(f.source,{anchor:.2});const sprite=f.renderers[0].calls.at(-1).scene.getObjectByName('current-pet-2d-frame');
+  f.controller.setPosition({x:1110,y:1100});f.controller.setMotion({walking:true,dx:1,dy:0});f.frame(40);assert.equal(sprite.material.rotation,0);assert.equal(JSON.parse(f.host.dataset.stillStep).enabled,false);
+  f.controller.setFrame(f.source,{anchor:.2,characterId:'milne',presentation:'static-front',stillStep:true});f.controller.setPosition({x:1112,y:1100});f.controller.setMotion({walking:true,dx:1,dy:0});f.frame(40);assert.equal(JSON.parse(f.host.dataset.stillStep).active,true);
+  f.controller.setFishing({phase:'waiting'});f.frame(40);assert.equal(JSON.parse(f.host.dataset.stillStep).active,false);assert.equal(sprite.material.rotation,0);
+  f.controller.setFishing(null);f.controller.setPosition({x:1114,y:1100});f.controller.setMotion({walking:true,dx:1,dy:0});f.frame(40);assert.equal(JSON.parse(f.host.dataset.stillStep).active,true);
+  f.media.matches=true;f.media.emit('change');f.frame(40);assert.equal(sprite.material.rotation,0);assert.equal(JSON.parse(f.host.dataset.stillStep).bob,0);assert.equal(f.frames.size,0);
+  f.media.matches=false;f.media.emit('change');f.controller.setPosition({x:1116,y:1100});f.controller.setMotion({walking:true,dx:1,dy:0});f.frame(40);f.doc.hidden=true;f.doc.emit('visibilitychange');assert.equal(sprite.material.rotation,0);assert.equal(JSON.parse(f.host.dataset.stillStep).active,false);assert.equal(f.frames.size,0);
+ }finally{f.controller.destroy();assert.equal(f.host.dataset.stillStep,undefined);}
+});
 test('world coordinates round-trip and camera settings are bounded without touching the input',()=>{
  const world=Town.createWorld();for(const p of [{x:28,y:28},{x:1500,y:1100},{x:2770,y:1160}]){const back=Scene.townPoint(world,Scene.groundPoint(world,p));assert.ok(Math.hypot(p.x-back.x,p.y-back.y)<1e-9);}
  const raw={yaw:8,pitch:-Infinity,distance:100},before=JSON.stringify(raw),c=Scene.cameraState(raw);assert.equal(JSON.stringify(raw),before);assert.equal(c.distance,10);assert.equal(c.pitch,Math.PI/6);assert.ok(c.yaw>=-Math.PI&&c.yaw<=Math.PI);
@@ -121,7 +146,7 @@ test('browser registration can precede the visual-only helper and mount adopts t
  assert.equal(context.PetTownScene.alphaAnchor({tagName:'CANVAS',width:16,height:16,getContext:()=>null}),null);
  const painted={tagName:'CANVAS',width:16,height:16,getContext:()=>({RGBA:1,UNSIGNED_BYTE:2,readPixels(x,y,w,h,a,b,p){p[(2*w+8)*4+3]=255;}})};
  assert.equal(context.PetTownScene.alphaAnchor(painted),.125,'the existing public diagnostics work synchronously before any mount or helper import');
- context.PetFrameFit=FrameFit;context.PetJapanSeasons=Seasons;context.PetTownStyle=TownStyle;context.PetTownLayoutArt=LayoutArt;context.PetTownPlacementOriginals=Originals;context.PetTownWaterLife=WaterLife;context.PetTownOceanLife=OceanLife;context.PetTownShoreTransition=ShoreTransition;context.PetTownTreeVariety=TreeVariety;context.PetTownMeadowSites=MeadowSites;context.PetTownMeadowFlowers=MeadowFlowers;context.PetTownGroundFinish=GroundFinish;context.PetTownWaterFinish=WaterFinish;context.PetTownEnvironment=Environment;context.PetOceanSnorkelingWorld=SnorkelingWorld;
+ context.PetFrameFit=FrameFit;context.PetStillStep=StillStep;context.PetJapanSeasons=Seasons;context.PetTownStyle=TownStyle;context.PetTownLayoutArt=LayoutArt;context.PetTownPlacementOriginals=Originals;context.PetTownWaterLife=WaterLife;context.PetTownOceanLife=OceanLife;context.PetTownShoreTransition=ShoreTransition;context.PetTownTreeVariety=TreeVariety;context.PetTownMeadowSites=MeadowSites;context.PetTownMeadowFlowers=MeadowFlowers;context.PetTownGroundFinish=GroundFinish;context.PetTownWaterFinish=WaterFinish;context.PetTownEnvironment=Environment;context.PetOceanSnorkelingWorld=SnorkelingWorld;
  const f=await fixture({sceneAPI:context.PetTownScene});try{assert.ok(f.controller);assert.equal(f.controller.setFrame(f.source,{anchor:.3}),true);const scene=f.renderers[0].calls.at(-1).scene;assert.equal(scene.getObjectByName('current-pet-2d-frame').center.y,.3);assert.equal(f.host.dataset.townLayoutArt,LayoutArt.revision);assert.equal(f.host.dataset.townTreeRoots,'soft-roots2');assert.equal(scene.userData.treeRootsRevision,'soft-roots2');assert.equal(f.host.dataset.townArtFamily,'tree-family1');assert.equal(scene.userData.treeFamilyRevision,'tree-family1');assert.equal(f.host.dataset.townMeadowFlowers,'meadow-flowers4');assert.equal(f.host.dataset.townEnvironmentStyle,'shop-environment2');assert.equal(scene.userData.environmentStyleRevision,'shop-environment2');assert.equal(scene.userData.meadowFlowersRevision,'meadow-flowers4');assert.equal(scene.userData.layoutArtRevision,LayoutArt.revision);assert.ok(scene.getObjectByName('layout-art-native-landscape'));assert.equal(scene.getObjectByName('bridge-deck').userData.layoutBoardCount,11);assert.deepEqual(f.failures,[]);}finally{f.controller?.destroy();assert.equal(f.host.dataset.townMeadowFlowers,undefined);assert.equal(f.host.dataset.townEnvironmentStyle,undefined);assert.equal(f.host.dataset.townTreeRoots,undefined);assert.equal(f.host.dataset.townArtFamily,undefined);}
 });
 
