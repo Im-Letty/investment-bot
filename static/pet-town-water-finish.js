@@ -11,7 +11,7 @@
   var REVISION = 'water-finish2', SIZE = 128, TAU = Math.PI * 2;
   var entries = new WeakMap();
   var PALETTE = Object.freeze({
-    sea: '#79bdb2', foam: '#f4edda', glint: '#deeee0', shallowTint: '#edf3df'
+    sea: '#36b9c2', foam: '#fff6e1', glint: '#d5f6f0', shallowTint: '#b2e5dd'
   });
   function finite(n) { return typeof n === 'number' && Number.isFinite(n); }
   function material(value) {

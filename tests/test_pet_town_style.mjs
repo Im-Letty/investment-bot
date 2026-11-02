@@ -21,6 +21,17 @@ function closed(g){
  const normal=g.attributes.normal;for(let i=0;i<normal.count;i++)assert.ok(Math.abs(Math.hypot(normal.getX(i),normal.getY(i),normal.getZ(i))-1)<1e-5);
  for(const n of g.attributes.uv.array)assert.ok(n>=-1e-6&&n<=1+1e-6);
 }
+test('retained ceramic authoring pigments keep their glaze or terracotta finish while adopting the current palette',()=>{
+ const families={glaze:['#785897','#9572ae','#ae8bc5','#c5a5d8','#dfcbea'],terracotta:['#8e4e35','#a55e3e','#bc7650','#cf946d','#dfb18c']};
+ for(const [family,pigments]of Object.entries(families))for(const pigment of pigments){
+  const mapped=Style.paletteColor(pigment,'ceramic');
+  assert.ok(Style.collection.palette[family].includes(mapped),pigment+' must resolve within its retained family');
+  assert.notEqual(mapped,pigment,'the authored input must adopt a new display tone');
+  assert.equal(Style.materialFinish('ceramic',pigment),Style.materialFinish(family,pigment),'palette replacement must not change the material finish');
+ }
+ assert.equal(Style.paletteColor('#ae8bc5','ceramic'),'#aa7ac9','the normal home roof uses the new purple glaze');
+ assert.equal(Style.paletteColor('#c5a5d8','ceramic'),'#c399de','the normal home roof highlights keep the same family');
+});
 test('pointed foliage is a closed thin bowed volume with finite smooth normals and bounded UVs',()=>{
  const g=Style.leafGeometry(THREE);try{closed(g);assert.equal(g.boundingBox.min.y,-1);assert.equal(g.boundingBox.max.y,1);
   assert.ok(g.boundingBox.max.x-g.boundingBox.min.x<1.5);assert.ok(g.boundingBox.max.z-g.boundingBox.min.z<.3);assert.ok(g.index.count/3<=64);

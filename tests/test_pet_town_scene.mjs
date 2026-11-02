@@ -580,7 +580,7 @@ test('a cached old detailing API cannot satisfy new bowl/arch readiness; concurr
  const source=readFileSync(new URL('../static/pet-town-scene.js',import.meta.url),'utf8'),start=source.indexOf('  function styleReady('),end=source.indexOf('  function groundTexture(',start);
  assert.ok(start>=0&&end>start);
  let imports=0,release;
- const context=vm.createContext({Style:{leafGeometry(){},surfaceTexture(){}},styleLoading:null,importer:specifier=>{imports++;assert.equal(specifier,'/static/pet-town-style.js?v=20261027-layout-art3d1');return new Promise(r=>{release=r;});}});
+ const context=vm.createContext({Style:{leafGeometry(){},surfaceTexture(){}},styleLoading:null,importer:specifier=>{imports++;assert.equal(specifier,'/static/pet-town-style.js?v=20261103-clear-colors1');return new Promise(r=>{release=r;});}});
  vm.runInContext(source.slice(start,end).replace(/import\(/g,'importer(')+';globalThis.loadUnderTest=loadStyle;',context);
  const first=context.loadUnderTest(),same=context.loadUnderTest();assert.equal(first,same);assert.equal(imports,1,'old cached helper must download the revision rather than silently constructing a fallback bowl');
  context.PetTownStyle=Object.assign({},TownStyle,{paletteColor:undefined});release();

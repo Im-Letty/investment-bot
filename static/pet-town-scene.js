@@ -115,7 +115,7 @@
   function loadSeasons() {
     var current = Seasons || globalThis.PetJapanSeasons;
     if (current && current.artRevision === 'shop-cottage-match2' && current.lifeRevision === 'annual-life1' && typeof current.watch === 'function') { Seasons = current; return Promise.resolve(current); }
-    if (!seasonsLoading) seasonsLoading = import('/static/pet-japan-seasons.js?v=20261102-annual-life1').then(function () {
+    if (!seasonsLoading) seasonsLoading = import('/static/pet-japan-seasons.js?v=20261103-clear-colors1').then(function () {
       var api = globalThis.PetJapanSeasons;
       if (!api || api.artRevision !== 'shop-cottage-match2' || api.lifeRevision !== 'annual-life1' || typeof api.watch !== 'function') throw new Error('seasons_unavailable');
       Seasons = api; return api;
@@ -126,7 +126,7 @@
   function loadStyle() {
     var current = Style || globalThis.PetTownStyle;
     if (styleReady(current)) { Style = current; return Promise.resolve(current); }
-    if (!styleLoading) styleLoading = import('/static/pet-town-style.js?v=20261027-layout-art3d1').then(function () {
+    if (!styleLoading) styleLoading = import('/static/pet-town-style.js?v=20261103-clear-colors1').then(function () {
       var api = globalThis.PetTownStyle;
       if (!styleReady(api)) throw new Error('town_style_unavailable');
       Style = api; return api;
@@ -220,8 +220,8 @@
     if (environmentReady(ground, water, environment)) { GroundFinish = ground; WaterFinish = water; Environment = environment; return Promise.resolve(true); }
     if (!environmentLoading) environmentLoading = Promise.all([
       import('/static/pet-town-ground-finish.js?v=20261028-tree-family1'),
-      import('/static/pet-town-water-finish.js?v=20261028-tree-family1'),
-      import('/static/pet-town-environment.js?v=20261102-clear-night1')
+      import('/static/pet-town-water-finish.js?v=20261103-clear-colors1'),
+      import('/static/pet-town-environment.js?v=20261103-clear-colors1')
     ]).then(function () {
       GroundFinish = globalThis.PetTownGroundFinish; WaterFinish = globalThis.PetTownWaterFinish; Environment = globalThis.PetTownEnvironment;
       if (!environmentReady(GroundFinish, WaterFinish, Environment)) throw new Error('town_environment_unavailable');
