@@ -2471,6 +2471,82 @@
           "schedules": []
         }
       ]
+    },
+    {
+      "code": "1997",
+      "symbol": "1997.T",
+      "name": "暁飯島工業",
+      "category": "カタログギフト",
+      "versions": [
+        {
+          "id": "introduced-20250929-reviewed-20261103",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": "2025-09-29",
+          "verified_on": "2026-11-03",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://www.eazima.co.jp/%e6%a0%aa%e4%b8%bb%e5%84%aa%e5%be%85%e5%88%b6%e5%ba%a6%e3%81%ae%e5%b0%8e%e5%85%a5%e3%81%ab%e9%96%a2%e3%81%99%e3%82%8b%e3%81%8a%e7%9f%a5%e3%82%89%e3%81%9b/",
+            "title": "暁飯島工業 株主優待制度の導入に関するお知らせ（2025年9月29日）",
+            "link_label": "暁飯島工業",
+            "security_code": "1997",
+            "issuer_name": "暁飯島工業",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-11-03T08:38:32.169362+09:00",
+            "evidence_path": "evidence/reviewed-1997-observation-note-20261103.json",
+            "evidence_sha256": "c480dcd6d2a233682862bfe6c11e76db98433b52ce6b7405a0c524354b9e07a6"
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "root-official-source-observer-and-independent-complete-PDF-visual-numeric-review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "all_future_amendments_verified_absent": false,
+            "independent_complete_PDF_visual_numeric_review": true,
+            "general_reuse_licence_claimed": false,
+            "note_SHA_is_not_original_page_SHA": true,
+            "scope": "制度導入記事と原PDF全1頁の全3区分・条件を独立視覚照合。現在の開示一覧は見出しの有限確認で、全将来改廃の不存在や基準日からの制度有効期間は推測しない。"
+          },
+          "period": "毎年2月末日が基準日です。初回は2026年2月末の株主名簿からです。制度の暦日有効期間は未確認です。",
+          "conditions": "基準日の株主名簿に300株（3単元、1単元100株）以上が記録された株主が対象です。最低保有期間・同一株主番号・連続名簿回数・途中各回の株数条件は明記未確認です。導入目的の中長期保有を資格条件へ変えません。",
+          "use": "茨城県産品のカタログギフトです。株数に対応する1区分で、金額を加算しません。商品選択・申込の詳しい手順や期限、券の有効期限は未確認です。",
+          "delivery": "4月上旬頃に株主名簿の住所へ優待案内を発送する予定です。商品の発送予定・実際の発送日・到着日は未確認です。",
+          "grant_summary": "4月上旬頃に優待案内を発送予定（商品到着日ではありません）",
+          "tiers": [
+            {
+              "id": "300-999",
+              "shares_min": 300,
+              "shares_max": 999,
+              "holding_months_min": null,
+              "holding_requirement": "最低保有期間・同一番号・名簿継続条件は記載未確認",
+              "reward": "茨城県産品カタログギフト4,000円相当",
+              "conditions": "株数に対応する1区分です。商品選択・申込の手順や期限、券の有効期限は未確認です。"
+            },
+            {
+              "id": "1000-4999",
+              "shares_min": 1000,
+              "shares_max": 4999,
+              "holding_months_min": null,
+              "holding_requirement": "最低保有期間・同一番号・名簿継続条件は記載未確認",
+              "reward": "茨城県産品カタログギフト8,000円相当",
+              "conditions": "株数に対応する1区分です。商品選択・申込の手順や期限、券の有効期限は未確認です。"
+            },
+            {
+              "id": "5000plus",
+              "shares_min": 5000,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "最低保有期間・同一番号・名簿継続条件は記載未確認",
+              "reward": "茨城県産品カタログギフト12,000円相当",
+              "conditions": "株数に対応する1区分です。商品選択・申込の手順や期限、券の有効期限は未確認です。"
+            }
+          ],
+          "schedules": []
+        }
+      ]
     }
   ]
 }
