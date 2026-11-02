@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ローカル待ち控えの再確認</title>
+  <style>
+    :root{color-scheme:light;font-family:system-ui,-apple-system,"Hiragino Sans",sans-serif;color:#263b32;background:#f4f2e9;line-height:1.7}
+    *{box-sizing:border-box}body{margin:0;padding:24px 16px 40px}main{max-width:940px;margin:auto}h1{font-size:clamp(1.45rem,4vw,2rem);line-height:1.4;margin:8px 0 16px}p{margin:12px 0}.eyebrow{font-size:.9rem;font-weight:700;color:#496555}.card{background:#fffef9;border:1px solid #c3d0c3;border-radius:16px;padding:20px;margin:20px 0}.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}button,summary{font:inherit}button{min-height:48px;padding:10px 12px;border-radius:10px;border:1px solid #738b78;background:#e9f1e8;color:#213f2d;font-weight:650;text-align:left;cursor:pointer}button:hover{background:#dcebdc}button:disabled{opacity:.65;cursor:wait}button:focus-visible,summary:focus-visible{outline:3px solid #805515;outline-offset:3px}#status{border-left:4px solid #5a8061;padding:10px 14px;min-height:76px;background:#edf3e8}summary{min-height:48px;padding:10px 0;cursor:pointer;font-weight:650}pre{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;max-height:32rem;overflow:auto;font:12px/1.6 ui-monospace,monospace;padding:12px;background:#f0f3ee;border-radius:8px;margin-bottom:0}.note{font-size:.95rem;color:#43584b}.count{font-weight:650;font-variant-numeric:tabular-nums}@media(max-width:390px){body{padding:16px 12px 32px}.card{padding:16px}.controls{grid-template-columns:1fr}#status{min-height:100px}}
+  </style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">独立したローカル技術見本</p>
+  <h1>待ち控えと、渡した配置を照合する</h1>
+  <p>保存済みの待ち控えを読み、今回明示した版と配置全体を照合します。各ボタンはページ専用の架空データを使います。</p>
+  <p class="note">控えの段階は「確認待ち」のままです。業者への送信や受付、工事の開始には進みません。</p>
+  <section class="card" aria-label="手動で照合する見本">
+    <p id="status" role="status" aria-live="polite">例を選ぶと、読取と照合の結果がここに表示されます。</p>
+    <div class="controls">
+      <button id="match" disabled>同じ版と配置</button>
+      <button id="stale" disabled>版が変わった</button>
+      <button id="layoutchanged" disabled>同じ版で配置が変わった</button>
+      <button id="empty" disabled>待ち控えが空</button>
+      <button id="corrupt" disabled>控えが壊れている</button>
+      <button id="readfail" disabled>控えを読めない</button>
+      <button id="malformed" disabled>読取応答が不正</button>
+      <button id="invalid" disabled>渡した配置が不正</button>
+      <button id="accessor" disabled>応答に実行可能な getter</button>
+    </div>
+  </section>
+  <section class="card" aria-label="見本の確認範囲">
+    <p class="count" id="count">手動の観測 0 回</p>
+    <p class="note">この見本では、元の下書きや待ち控えへの書込メソッドを呼びません。最初から入れた架空の控えは、ページを閉じると失われます。本人のゲーム保存や最新配置との接続はありません。</p>
+    <details id="details"><summary>観測記録を開く</summary><pre id="report" tabindex="0"></pre></details>
+  </section>
+</main>
+<script src="../pet-japan-seasons.js"></script>
+<script src="../pet-village-economy.js"></script>
+<script src="../pet-shop-layout.js"></script>
+<script src="../pet-river-fishing.js"></script>
+<script src="../pet-ocean-discoveries.js"></script>
+<script src="../pet-game-core.js"></script>
+<script src="../pet-contractor-intent.js"></script>
+<script src="../pet-contractor-draft-journal.js"></script>
+<script src="../pet-contractor-draft-review.js"></script>
+<script src="../pet-contractor-request-outbox.js"></script>
+<script src="../pet-contractor-queued-review.js"></script>
+<script src="proof.js"></script>
+</body>
+</html>
