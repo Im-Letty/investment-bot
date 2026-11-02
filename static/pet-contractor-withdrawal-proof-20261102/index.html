@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect x='8' y='4' width='24' height='32' rx='6' fill='%23788b74'/%3E%3C/svg%3E">
+<title>ローカルの待ち控えを取り下げる 見本</title>
+<style>
+:root{font:16px/1.7 system-ui,-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",sans-serif;color:#293d36;background:#f5f3eb;color-scheme:light}*{box-sizing:border-box}body{margin:0;padding:26px 18px 48px}main{max-width:880px;margin:auto}h1{font-size:clamp(1.5rem,4.5vw,2.1rem);line-height:1.5;margin:12px 0}h2{font-size:1.15rem;margin-top:0}p{margin:12px 0}.badge{display:inline-block;background:#e2e9dc;border:1px solid #b1beaa;border-radius:99px;padding:4px 12px;font-size:.9rem}.panel{background:#fffef9;border:1px solid #c4cbbd;border-radius:18px;padding:20px;margin:20px 0}.actions{display:flex;flex-wrap:wrap;gap:12px}button{font:inherit;line-height:1.5;min-height:48px;background:#e7eddf;color:#263c32;border:1px solid #869b7e;border-radius:12px;padding:11px 15px;max-width:100%;text-align:left;cursor:pointer;overflow-wrap:anywhere}button:hover{background:#dbe5d1}button:disabled{cursor:default;opacity:.58}button:focus-visible,summary:focus-visible{outline:3px solid #24645c;outline-offset:4px}.hint{font-size:.94rem;color:#41564a}#status{padding:14px 16px;background:#e9eee1;border-radius:12px;min-height:64px}#count{font-size:.9rem}summary{cursor:pointer;min-height:44px;padding:8px 0;font-weight:600}pre{font:12px/1.65 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere;margin-bottom:0}a{color:#225f58}ul{padding-left:24px}@media(max-width:420px){body{padding:16px 12px 32px}.panel{padding:16px}.actions button{width:100%}}
+</style>
+<main>
+<span class="badge">このページ専用の架空の控え</span>
+<h1>ローカルの待ち控えを取り下げる</h1>
+<p>まだ提出していない待ち控えについて、選んだ内容と今の控えがすべて同じときだけ、ページ内の控えを空にする見本です。元の下書きは残ります。</p>
+<p class="hint">業者への送信や依頼の取り消しではありません。実際の村の保存内容には接続していません。</p>
+<section class="panel" aria-labelledby="normal-title">
+<h2 id="normal-title">控えを確認して取り下げる</h2>
+<div class="actions"><button id="inspect" disabled>架空の控えを読み取る</button><button id="withdraw" disabled>同じ控えだけを取り下げる</button></div>
+<p class="hint">各ボタンは、それぞれ新しく用意した架空の例を使います。別のIDや内容の控えを上書きしません。</p>
+</section>
+<section class="panel" aria-labelledby="negative-title">
+<h2 id="negative-title">条件が違う例</h2>
+<div class="actions">
+<button id="differentid" disabled>別のIDの控え</button><button id="differentpayload" disabled>同じIDで内容が違う控え</button>
+<button id="empty" disabled>すでに空の控え</button><button id="corrupt" disabled>壊れた控え</button>
+<button id="readfail" disabled>読み取りに失敗する例</button><button id="casconflict" disabled>操作の途中で控えが変わる例</button>
+<button id="invalid" disabled>指定した控えの形式が違う例</button><button id="malformed" disabled>読み取り応答の形式が違う例</button>
+<button id="unsupported" disabled>空にする操作を受け付けない保存先</button>
+</div>
+</section>
+<section class="panel" aria-labelledby="unknown-title">
+<h2 id="unknown-title">結果の返事が届かなかったとき</h2>
+<div class="actions"><button id="unknown" disabled>返事が届かない例</button><button id="read-empty" disabled>その後の空欄を手動で読む</button><button id="retry-empty" disabled>同じ対象をもう一度手動で確認</button></div>
+<p>返事が不明なら、取り下げ成功とは扱わず、自動でやり直しません。後で空欄が見えても、その操作で空になったことや、どの控えを取り下げたかの証明にはなりません。</p>
+</section>
+<p id="status" role="status" aria-live="polite">見本を準備しています。</p><p id="count">手動の観測 0 回</p>
+<details id="technical"><summary>見本の観測記録と範囲</summary><p class="hint">この見本は、空欄を原子的に書き込めるページ専用Mapを使います。既存のIndexedDB用アダプターは空欄への書き込みに対応しておらず、接続していません。任意の保存先の原子性や耐久性を証明するものではありません。別の明示操作で空欄へ控えを入れ直すことはできます。</p><pre id="report" tabindex="0" aria-label="観測記録">{}</pre></details>
+</main>
+<script src="../pet-japan-seasons.js"></script><script src="../pet-ocean-discoveries.js"></script><script src="../pet-river-fishing.js"></script><script src="../pet-shop-layout.js"></script><script src="../pet-village-economy.js"></script><script src="../pet-game-core.js"></script><script src="../pet-contractor-intent.js"></script><script src="../pet-contractor-draft-journal.js"></script><script src="../pet-contractor-draft-review.js"></script><script src="../pet-contractor-request-outbox.js"></script><script src="../pet-contractor-queue-withdrawal.js"></script><script src="proof.js"></script>
+</html>
