@@ -62,8 +62,24 @@ body.kn-home-a #sideDrawer.kn-menu-a .kn-menu-row{background:transparent!importa
 #sideDrawer.kn-menu-a .kn-menu-sizes,#sideDrawer.kn-menu-a .kn-menu-styles{display:flex;gap:8px;margin:8px 0 16px;}
 #sideDrawer.kn-menu-a :is(.kn-menu-sizes,.kn-menu-styles) button,#sideDrawer.kn-menu-a .lang-btn{flex:1;min-width:0;min-height:44px;border:1px solid var(--kn-a-line)!important;border-radius:6px;background:transparent!important;color:var(--kn-a-ink)!important;font:400 calc(14px * var(--kn-a-scale,1))/1.5 var(--kn-a-sans)!important;padding:8px 5px!important;cursor:pointer;}
 #sideDrawer.kn-menu-a :is(.kn-menu-sizes,.kn-menu-styles) [aria-pressed=true],#sideDrawer.kn-menu-a .lang-btn.active{background:var(--kn-a-chip)!important;border-color:var(--kn-a-muted)!important;}
-#sideDrawer.kn-menu-a .kn-menu-font{display:flex;flex-direction:column;gap:8px;color:var(--kn-a-muted);font-size:calc(13px * var(--kn-a-scale,1));margin:16px 0;}
-#sideDrawer.kn-menu-a #knMenuFont{min-height:44px;width:100%;padding:8px;border:1px solid var(--kn-a-line);border-radius:6px;background:var(--kn-a-paper);color:var(--kn-a-ink);font:400 calc(15px * var(--kn-a-scale,1))/1.5 var(--kn-a-sans);}
+#sideDrawer.kn-menu-a .kn-menu-font{min-width:0;padding:0;border:0;margin:20px 0;color:var(--kn-a-muted);}
+#sideDrawer.kn-menu-a .kn-menu-font legend{padding:0;margin:0 0 10px;font:400 calc(13px * var(--kn-a-scale,1))/1.6 var(--kn-a-sans);}
+#sideDrawer.kn-menu-a .kn-menu-font-options{display:grid;gap:7px;}
+#sideDrawer.kn-menu-a .kn-menu-font-choice{box-sizing:border-box;display:grid;grid-template-columns:34px minmax(0,1fr) 18px;align-items:center;gap:10px;min-height:56px;padding:9px 12px;border:1px solid var(--kn-a-line);border-radius:12px;background:var(--kn-a-paper);color:var(--kn-a-ink);cursor:pointer;}
+#sideDrawer.kn-menu-a .kn-menu-font-choice:hover,#sideDrawer.kn-menu-a .kn-menu-font-choice:has(input:checked){background:var(--kn-a-chip);}
+#sideDrawer.kn-menu-a .kn-menu-font-choice:has(input:checked){border-color:var(--kn-a-button);}
+#sideDrawer.kn-menu-a .kn-menu-font-sample{font-size:calc(22px * var(--kn-a-scale,1));line-height:1.2;color:var(--kn-a-muted);letter-spacing:-.04em;}
+#sideDrawer.kn-menu-a .kn-menu-font-name{min-width:0;font-size:max(16px,calc(16px * var(--kn-a-scale,1)));line-height:1.5;overflow-wrap:anywhere;}
+#sideDrawer.kn-menu-a [data-font-preview="gothic"]{font-family:"Noto Sans JP",sans-serif!important;}
+#sideDrawer.kn-menu-a [data-font-preview="round"]{font-family:"Hiragino Maru Gothic ProN","M PLUS Rounded 1c","Noto Sans JP",sans-serif!important;}
+#sideDrawer.kn-menu-a [data-font-preview="mincho"]{font-family:"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif!important;}
+#sideDrawer.kn-menu-a [data-font-preview="klee"]{font-family:"Klee One",cursive!important;}
+#sideDrawer.kn-menu-a [data-font-preview="pop"]{font-family:"Shippori Mincho",serif!important;}
+#sideDrawer.kn-menu-a .kn-menu-font-choice input{appearance:none;-webkit-appearance:none;display:grid;place-content:center;box-sizing:border-box;flex:none;width:18px;height:18px;margin:0;padding:0;border:1px solid var(--kn-a-line);border-radius:50%;background:var(--kn-a-paper);cursor:pointer;}
+#sideDrawer.kn-menu-a .kn-menu-font-choice input:checked{border-color:var(--kn-a-button);}
+#sideDrawer.kn-menu-a .kn-menu-font-choice input:checked:after{content:"";width:8px;height:8px;border-radius:50%;background:var(--kn-a-button);}
+#sideDrawer.kn-menu-a .kn-menu-font-choice:has(input:focus-visible){outline:2px solid var(--kn-a-button);outline-offset:3px;}
+#sideDrawer.kn-menu-a .kn-menu-font-choice input:focus-visible{outline:0;}
 #sideDrawer.kn-menu-a .kn-menu-motion{display:block;background:transparent;color:var(--kn-a-ink);border:1px solid var(--kn-a-line);border-radius:6px;min-height:44px;width:100%;padding:8px;font:400 calc(14px * var(--kn-a-scale,1))/1.5 var(--kn-a-sans);cursor:pointer;}
 #sideDrawer.kn-menu-a .lang-grid{margin:6px 0 12px;padding:0!important;gap:8px!important;}
 #sideDrawer.kn-menu-a .kn-menu-language{margin:8px 0 14px;padding:15px 0 0;border-top:0;min-width:0}

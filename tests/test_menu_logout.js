@@ -3,8 +3,9 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const read=file=>fs.readFileSync(path.join(__dirname,'..',file),'utf8');
 
 // Execute the production drawer and confirmation code against synthetic DOM and auth objects.
-function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true,colorModule=true,realColors=false,realLanguage=false,brandColor='#3da060',customColor=false,blockedColorStorage=false}={}){
+function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true,colorModule=true,realColors=false,realLanguage=false,brandColor='#3da060',customColor=false,blockedColorStorage=false,savedFont}={}){
   const calls=[],timers=[],observers=[],themeWrites=[],entryColors=[],windowListeners=new Map(),storage=new Map([['app_lang',language],['userBrandColor',brandColor],['userBrandColorCustom',customColor?'1':'0']]);let document,clock=0;
+  if(savedFont!==undefined)storage.set('ui_font',savedFont);
   const dataKey=key=>key.slice(5).replace(/-([a-z])/g,(_,letter)=>letter.toUpperCase());
   function matches(node,selector){
     if(selector.includes(':has(')){const found=selector.match(/:has\(([^)]+)\)/);if(!found||!node.querySelector(found[1]))return false;selector=selector.replace(found[0],'');}
@@ -17,7 +18,7 @@ function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true,col
   }
   function node(tag){
     const styles=new Map();
-    const n={tagName:tag.toLowerCase(),parentElement:null,children:[],dataset:{},attrs:{},className:'',hidden:false,style:{removeProperty(k){styles.delete(k);},setProperty(k,v){styles.set(k,String(v));},getPropertyValue(k){return styles.get(k)||'';}},listeners:new Map(),_text:'',_html:'',
+    const n={tagName:tag.toLowerCase(),parentElement:null,children:[],dataset:{},attrs:{},className:'',hidden:false,checked:false,style:{removeProperty(k){styles.delete(k);},setProperty(k,v){styles.set(k,String(v));},getPropertyValue(k){return styles.get(k)||'';}},listeners:new Map(),_text:'',_html:'',
       appendChild(child){child.remove();child.parentElement=this;this.children.push(child);return child;},
       insertBefore(child,before){child.remove();child.parentElement=this;const i=this.children.indexOf(before);this.children.splice(i<0?this.children.length:i,0,child);return child;},
       replaceChildren(...children){this.children.forEach(child=>child.parentElement=null);this.children=[];children.forEach(child=>this.appendChild(child));},
@@ -76,7 +77,7 @@ function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true,col
   add('div',{id:'morning-news-content'});const stock=add('div',{id:'knTabWrap'});add('button',{'data-kn-tab':'div_cal'},stock).onclick=()=>calls.push(['tab','div_cal']);
   const mypage=add('div',{id:'myPageOv'});for(let i=0;i<2;i++)add('button',{class:'mp-toptab'},mypage).onclick=()=>calls.push(['mypage-tab',i]);
   add('button',{class:'mo-tab','data-i18n':'g2_mp_tab_memo'},mypage).onclick=()=>calls.push(['memo-tab']);
-  const w={knUser:user,KNUserProfile:{mount(panel){const section=add('details',{id:'knProfile'},panel);add('summary',{},section).textContent='プロフィール';mounted.push(panel);return section;}},dsSetSize:value=>{storage.set('ui_fontscale',value);calls.push(['size',value]);},dsSetFont:value=>{storage.set('ui_font',value);calls.push(['font',value]);},dsReset:()=>calls.push(['reset']),closeDrawer:()=>{calls.push(['close']);drawer.classList.remove('open');},__knSetSub:value=>calls.push(['stock-view',value]),matchMedia:()=>({matches:false})};
+  const w={knUser:user,KNUserProfile:{mount(panel){const section=add('details',{id:'knProfile'},panel);add('summary',{},section).textContent='プロフィール';mounted.push(panel);return section;}},dsSetSize:value=>{storage.set('ui_fontscale',value);calls.push(['size',value]);},dsSetFont:value=>{storage.set('ui_font',value);calls.push(['font',value]);},dsReset:()=>{storage.delete('ui_fontscale');storage.delete('ui_font');calls.push(['reset']);},closeDrawer:()=>{calls.push(['close']);drawer.classList.remove('open');},__knSetSub:value=>calls.push(['stock-view',value]),matchMedia:()=>({matches:false})};
   w.document=document;document.defaultView=w;w.addEventListener=(type,fn)=>{if(!windowListeners.has(type))windowListeners.set(type,[]);windowListeners.get(type).push(fn);};
   w.applyBrandColor=(hex,customSelection)=>{themeWrites.push([hex,customSelection]);custom.value=hex;root.toggleAttribute('data-custom-brand-color',customSelection);};
   w.knOpenMemo=()=>{calls.push(['open','memo']);if(mypageAllowed)mypage.classList.add('open');return mypageAllowed;};
@@ -111,11 +112,20 @@ function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true,col
   };
 }
 
+const FONT_KEYS=['gothic','round','mincho','klee','pop'];
+function fontInputs(h){return h.document.getElementById('knMenuFont').querySelectorAll('input[data-menu-font]');}
+function chooseFont(h,key){
+  const inputs=fontInputs(h),selected=inputs.find(input=>input.dataset.menuFont===key);assert.ok(selected);
+  // Native radio preactivation updates checked state before click bubbles; the
+  // browser then emits change. Test the actual drawer listener in that order.
+  inputs.forEach(input=>input.checked=input===selected);selected.fire('click');selected.fire('change');return selected;
+}
+
 test('logout exists once directly after inline language and colors, without the old personal-page injector',()=>{
   const h=fixture({user:{id:'synthetic-member',is_anonymous:false}}),group=h.group();
   assert.ok(group);assert.equal(group.parentElement.className,'knAccPanel kn-menu-content');const order=group.parentElement.children;assert.equal(order.at(-3),h.languageGrid.parentElement);assert.equal(order.at(-2),h.colors);assert.equal(order.at(-1),group);
   assert.equal(h.nav.querySelectorAll('[data-menu-page="logout"]').length,1);assert.equal(h.button('logout').textContent,'ログアウト');assert.equal(group.hidden,false);
-  const html=read('index.html');assert.equal(/ensureLogout|knLogoutBtn/.test(html),false);const menuLoader=html.match(/menu-a\.js\?v=[a-zA-Z0-9_-]+/)?.[0];assert.equal(menuLoader,'menu-a.js?v=20261028-single-color-panel1');assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
+  const html=read('index.html');assert.equal(/ensureLogout|knLogoutBtn/.test(html),false);const menuLoader=html.match(/menu-a\.js\?v=[a-zA-Z0-9_-]+/)?.[0];assert.equal(menuLoader,'menu-a.js?v=20261103-font-choices1');assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
 });
 test('signed-out and guest users cannot invoke logout even through a programmatic menu click',()=>{
   for(const user of [null,undefined,{id:'synthetic-guest',is_anonymous:true}]){
@@ -311,8 +321,44 @@ test('retained inline language buttons execute the actual index handler and clos
 });
 test('display settings keep the existing setters and synchronize saved selections',()=>{
   const h=fixture();h.activate('display');const xl=h.drawer.querySelector('[data-menu-size="xl"]');xl.click();assert.deepEqual(h.calls,[['size','xl']]);assert.equal(xl.getAttribute('aria-pressed'),'true');
-  const font=h.document.getElementById('knMenuFont');font.value='round';font.fire('change');assert.deepEqual(h.calls.at(-1),['font','round']);assert.equal(font.value,'round');
-  h.drawer.querySelector('[data-menu-reset]').click();assert.deepEqual(h.calls.at(-1),['reset']);
+  const font=chooseFont(h,'round');assert.deepEqual(h.calls.at(-1),['font','round']);assert.equal(font.checked,true);assert.equal(h.storage.get('ui_font'),'round');
+  h.drawer.querySelector('[data-menu-reset]').click();assert.deepEqual(h.calls.at(-1),['reset']);assert.equal(h.storage.has('ui_font'),false);assert.equal(h.storage.has('ui_fontscale'),false);assert.deepEqual(fontInputs(h).filter(input=>input.checked).map(input=>input.dataset.menuFont),['gothic']);
+});
+
+test('the font fieldset restores one saved choice with native labels and previews without rewriting preferences',()=>{
+  for(const savedFont of [undefined,...FONT_KEYS,'future-font']){
+    const h=fixture({savedFont}),before=[...h.storage];h.activate('display');
+    const field=h.document.getElementById('knMenuFont'),inputs=fontInputs(h),labels=field.querySelectorAll('label');
+    assert.equal(field.tagName,'fieldset');assert.equal(field.querySelector('legend').textContent,'字体');assert.equal(field.querySelector('select'),null);
+    assert.deepEqual(inputs.map(input=>input.dataset.menuFont),FONT_KEYS);assert.deepEqual(inputs.map(input=>input.getAttribute('value')),FONT_KEYS);assert.ok(inputs.every(input=>input.getAttribute('type')==='radio'&&input.getAttribute('name')==='kn-menu-font'));
+    const selected=FONT_KEYS.includes(savedFont)?savedFont:'gothic';assert.deepEqual(inputs.filter(input=>input.checked).map(input=>input.dataset.menuFont),[selected]);
+    assert.equal(labels.length,5);for(const label of labels){const input=label.querySelector('[data-menu-font]'),sample=label.querySelector('.kn-menu-font-sample'),name=label.querySelector('.kn-menu-font-name');assert.ok(input&&sample&&name);assert.equal(sample.getAttribute('aria-hidden'),'true');assert.equal(name.getAttribute('data-font-preview'),input.dataset.menuFont);assert.equal(name.dataset.menuCopy,input.dataset.menuFont);}
+    assert.deepEqual([...h.storage],before);assert.deepEqual(h.calls,[]);assert.deepEqual(h.themeWrites,[]);
+  }
+});
+
+test('native font activation reaches the current setter once and changes only the existing font key',()=>{
+  const h=fixture({savedFont:'pop',brandColor:'#2196f3',customColor:true}),before=Object.fromEntries(h.storage),wrapper=[];h.activate('display');
+  const original=h.w.dsSetFont;h.w.dsSetFont=key=>{wrapper.push(key);return original(key);};
+  for(const [index,key]of FONT_KEYS.entries()){
+    const input=chooseFont(h,key);assert.equal(input.checked,true);assert.deepEqual(fontInputs(h).filter(input=>input.checked).map(input=>input.dataset.menuFont),[key]);
+    assert.deepEqual(h.calls.filter(call=>call[0]==='font'),FONT_KEYS.slice(0,index+1).map(value=>['font',value]));assert.deepEqual(wrapper,FONT_KEYS.slice(0,index+1));assert.deepEqual(Object.fromEntries(h.storage),{...before,ui_font:key});
+  }
+  const unchecked=fontInputs(h).find(input=>!input.checked),count=wrapper.length;unchecked.fire('change');assert.equal(wrapper.length,count,'an unchecked change cannot commit another font');
+  assert.deepEqual(h.themeWrites,[]);assert.equal(h.drawer.dataset.menuView,'display');
+});
+
+test('font reset style notifications and all four language labels keep selection synchronized without extra writes',()=>{
+  const h=fixture({savedFont:'mincho',brandColor:'#725799',customColor:true});h.activate('display');chooseFont(h,'klee');
+  h.storage.set('ui_font','round');h.document.dispatch('styleChanged');assert.deepEqual(fontInputs(h).filter(input=>input.checked).map(input=>input.dataset.menuFont),['round']);assert.deepEqual(h.calls,[['font','klee']]);
+  h.drawer.querySelector('[data-menu-reset]').click();assert.deepEqual(fontInputs(h).filter(input=>input.checked).map(input=>input.dataset.menuFont),['gothic']);
+  h.storage.set('ui_font','pop');h.document.dispatch('styleChanged');
+  const names={ja:['ゴシック','丸ゴシック','明朝','かわいい','かっこいい'],en:['Sans serif','Rounded','Serif','Handwritten','Stylish'],ko:['고딕','둥근 글꼴','명조','손글씨','스타일 글꼴'],zh:['黑体','圆体','明朝体','手写体','个性字体']};
+  for(const language of Object.keys(names)){
+    h.storage.set('app_lang',language);h.document.dispatch('langChanged');const field=h.document.getElementById('knMenuFont');
+    assert.deepEqual(field.querySelectorAll('.kn-menu-font-name').map(name=>name.textContent),names[language]);assert.equal(field.getAttribute('aria-label'),({ja:'字体',en:'Font',ko:'글꼴',zh:'字体'})[language]);assert.deepEqual(fontInputs(h).filter(input=>input.checked).map(input=>input.dataset.menuFont),['pop']);assert.equal(h.drawer.dataset.menuView,'display');
+  }
+  assert.deepEqual(h.calls,[['font','klee'],['reset']]);assert.equal(h.storage.get('userBrandColor'),'#725799');assert.equal(h.storage.get('userBrandColorCustom'),'1');assert.deepEqual(h.themeWrites,[]);
 });
 test('all language changes update the visible language heading and preserve the current menu view',()=>{
   const h=fixture();h.storage.set('app_lang','en');h.document.dispatch('langChanged');
