@@ -4,6 +4,8 @@ body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] {
   display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);
   position:relative;isolation:isolate;align-items:stretch;gap:3px;
   min-width:0;min-height:72px;box-sizing:border-box;
+  /* Talk: 64px header + 16px gap; this track has a 10px top inset. */
+  margin-top:70px;
   padding:10px var(--mypage-gutter) 10px var(--mp-tabs-left);
   overflow:visible;
 }
@@ -29,6 +31,10 @@ body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab.on 
 }
 body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab:focus-visible {
   outline:2px solid var(--kn-sh-button,#607765)!important;outline-offset:-2px;
+}
+@media(max-width:640px) {
+  /* Talk's compact header is 60px tall. */
+  body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] {margin-top:66px}
 }
 @media(max-width:360px) {
   body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab {padding-right:5px;padding-left:5px}
