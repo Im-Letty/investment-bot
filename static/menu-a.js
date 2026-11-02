@@ -77,7 +77,7 @@
     else if(key==='sim'&&window.openSimulatorSection)window.openSimulatorSection();
     else if(key==='saved'&&window.openSaved)window.openSaved();
     else if(key==='alert'&&window.openAlertSection)window.openAlertSection();
-    else if(key==='guide'&&window.openBeginnerGuide)window.openBeginnerGuide();
+    else if(key==='guide'&&window.openBeginnerGuide)window.openBeginnerGuide({returnToMenu:true});
     else if(key==='memo'){
       if(typeof window.knOpenMemo==='function')window.knOpenMemo();
     }

@@ -35,7 +35,8 @@
   chat.setAttribute('role','region');
   sheet.appendChild(header);sheet.appendChild(tabs);sheet.appendChild(guideView);sheet.appendChild(chatHost);
   modal.classList.add('kn-guide-hub');modal.setAttribute('role','dialog');modal.setAttribute('aria-modal','true');modal.setAttribute('aria-labelledby',title.id);
-  var active='guide',origin=null,chatTop=0,guideTop=0;
+  var active='guide',origin=null,chatTop=0,guideTop=0,returnToMenu=false,menuOwner='';
+  function owner(){var user=w.knUser,id=user&&user.id;return typeof id==='string'?id:'';}
   function refreshLabels(){var text=words();title.textContent=text.title;guideTab.textContent=text.guide;chatTab.textContent=text.chat;tabs.setAttribute('aria-label',text.tabs);exit.setAttribute('aria-label',text.close);chat.setAttribute('aria-label',text.chat);}
   function reflect(){var isGuide=active==='guide';guideView.hidden=!isGuide;chatHost.hidden=isGuide;guideTab.setAttribute('aria-selected',String(isGuide));chatTab.setAttribute('aria-selected',String(!isGuide));guideTab.setAttribute('tabindex',isGuide?'0':'-1');chatTab.setAttribute('tabindex',isGuide?'-1':'0');}
   function rememberChat(){var body=doc.getElementById('knChatBody');if(body)chatTop=body.scrollTop;}
@@ -52,10 +53,13 @@
     if(!(options&&options.focusInput))(view==='chat'?chatTab:guideTab).focus({preventScroll:true});
     return true;
   }
-  function open(view){
+  function open(view,options){
     view=view==='chat'?'chat':'guide';
     if(!modal.classList.contains('bg-open')){
-      origin=doc.activeElement;nativeOpen();active='guide';reflect();guideView.scrollTop=guideTop;
+      origin=doc.activeElement;nativeOpen();
+      if(!modal.classList.contains('bg-open'))return false;
+      returnToMenu=!!(options&&options.returnToMenu===true);menuOwner=owner();
+      active='guide';reflect();guideView.scrollTop=guideTop;
     }
     modal.setAttribute('aria-hidden','false');refreshLabels();
     select(view,{focusInput:view==='chat'});
@@ -73,8 +77,12 @@
   }
   function close(){
     if(!modal.classList.contains('bg-open'))return;
+    var returnOwner=menuOwner,reopen=returnToMenu;
+    returnToMenu=false;menuOwner='';
     if(active==='chat')rememberChat();else guideTop=guideView.scrollTop;
     assistant.close();nativeClose();modal.setAttribute('aria-hidden','true');
+    var menu=w.KNMenuSheet;
+    if(reopen&&returnOwner===owner()&&menu&&typeof menu.openMain==='function'&&menu.openMain()===true)return;
     var target=[origin,doc.querySelector('.kn-orbit-guide'),doc.getElementById('knFloatHam'),doc.getElementById('knHomeAMenu')].find(visible);if(target)target.focus({preventScroll:true});
   }
   exit.addEventListener('click',close);
@@ -93,8 +101,11 @@
     else if(!event.shiftKey&&doc.activeElement===last){event.preventDefault();first.focus();}
   });
   doc.addEventListener('langChanged',refreshLabels);
+  doc.addEventListener('knAuthChange',function(){
+    if(returnToMenu&&menuOwner!==owner()){returnToMenu=false;menuOwner='';}
+  });
   var api={installed:true,open:open,select:select,close:close};w.KNSiteGuide=api;
-  w.openSiteGuide=open;w.openBeginnerGuide=function(){return open('guide');};w.closeBeginnerGuide=close;
+  w.openSiteGuide=open;w.openBeginnerGuide=function(options){return open('guide',options);};w.closeBeginnerGuide=close;
   reflect();refreshLabels();modal.setAttribute('aria-hidden',String(!modal.classList.contains('bg-open')));
   if(priorChatOpen&&!priorGuideOpen)open('chat');
   return api;
