@@ -2464,12 +2464,12 @@
       },
       "kind": "issuer_annual_dividend_forecast",
       "status": "available",
-      "value": 280,
-      "source_url": "https://www.nse.or.jp/listing/search/files/140120260730503091.pdf",
-      "source_title": "2027年3月期 第1四半期決算短信〔日本基準〕（連結）",
-      "announcement_date": "2026-07-31",
-      "checked_on": "2026-10-13",
-      "fetched_at": 1791819417.281547,
+      "value": 320,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120261029558868.pdf",
+      "source_title": "通期業績予想の修正及び配当予想の修正に関するお知らせ",
+      "announcement_date": "2026-10-30",
+      "checked_on": "2026-11-02",
+      "fetched_at": 1793619023.7451131,
       "fiscal_period": {
         "start": "2026-04-01",
         "end": "2027-03-31"
@@ -2484,7 +2484,7 @@
         "source_security_code": "6623",
         "issuer_name": "愛知電機",
         "exchange": "Nagoya",
-        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260730503091.pdf",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120261029558868.pdf",
         "source_host": "www.nse.or.jp"
       }
     },
