@@ -89,18 +89,18 @@
     if(hint)hint.hidden=homeMode;
     panel.setAttribute('aria-label',homeMode?words().title:words().send);
   }
-  function showHome(){
-    if(!modal.classList.contains('bg-open'))originalOpen('guide');
+  function showHome(options){
+    if(!modal.classList.contains('bg-open')&&!originalOpen('guide',options))return false;
     originalSelect('chat',{focusInput:false});mode(true);heading.focus({preventScroll:true});return true;
   }
   function select(view,options){
     if(!modal.classList.contains('bg-open'))return false;
-    if(view==='home')return showHome();
+    if(view==='home')return showHome(options);
     mode(false);return originalSelect(view,options);
   }
-  function open(view){
-    if(!view||view==='home')return showHome();
-    mode(false);return originalOpen(view);
+  function open(view,options){
+    if(!view||view==='home')return showHome(options);
+    mode(false);return originalOpen(view,options);
   }
   function refreshTopics(){
     var text=words();topicButtons.forEach(function(x,i){x.label.textContent=text.topics[i];x.button.setAttribute('aria-pressed',String(i===topic));});
@@ -120,7 +120,7 @@
   send.addEventListener('click',beforeSend,true);
   input.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing)beforeSend();},true);
   d.addEventListener('langChanged',refresh);
-  hub.open=open;hub.select=select;w.openSiteGuide=open;w.openBeginnerGuide=function(){return open('home');};
+  hub.open=open;hub.select=select;w.openSiteGuide=open;w.openBeginnerGuide=function(options){return open('home',options);};
   refresh();mode(true);modal.classList.add('kn-concern-guide');
   var api={installed:true,open:open,select:select,close:hub.close};w.KNConcernGuide=api;
   return api;

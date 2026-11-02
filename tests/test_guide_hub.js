@@ -8,8 +8,8 @@ const {install}=require('../static/guide-hub.js');
 
 // This fixture models DOM identity, native listener dispatch and focus. It does
 // not recreate the hub's selection, opening or closing implementation.
-function harness({ready=true,chatReady=true,language='ja'}={}) {
-  const events=new Map(),scheduled=[],log=[],storage=new Map([
+function harness({ready=true,chatReady=true,language='ja',owner='synthetic-guide-owner'}={}) {
+  const events=new Map(),scheduled=[],log=[],menuCalls=[],storage=new Map([
     ['bg_guide_v1','{"s0":true}'],
     ['knChatHist_v1','[{"role":"user","content":"existing question"}]'],
     ['knChatInterests_v1','[{"t":"existing interest","ts":1}]'],
@@ -87,7 +87,7 @@ function harness({ready=true,chatReady=true,language='ja'}={}) {
   make('button','knChatSend',panel);make('button','knChatX',panel);make('div','knChatBody',panel);
   const chatCalls=[];const chatAPI={open(options){chatCalls.push({action:'open',options});panel.classList.add('open');if(options?.focusInput)input.focus();},close(){chatCalls.push({action:'close'});panel.classList.remove('open');}};
   function forbidden(){network++;throw new Error('Guide integration must not fetch or send public AI');}
-  window={document,localStorage:{getItem:key=>storage.get(key)||null,setItem(key,value){storageWrites++;storage.set(key,String(value));}},fetch:forbidden,
+  window={document,knUser:{id:owner},KNMenuSheet:{openMain(){menuCalls.push({guideOpen:modal.classList.contains('bg-open'),chatOpen:panel.classList.contains('open'),ariaHidden:modal.getAttribute('aria-hidden')});log.push(['menu','openMain']);return true;}},localStorage:{getItem:key=>storage.get(key)||null,setItem(key,value){storageWrites++;storage.set(key,String(value));}},fetch:forbidden,
     setTimeout(fn){scheduled.push(fn);return scheduled.length;},clearTimeout(){},requestAnimationFrame(fn){scheduled.push(fn);return scheduled.length;},
     getComputedStyle(node){return{display:node.hidden?'none':'block',visibility:'visible'};}};
   window.window=window;
@@ -97,13 +97,17 @@ function harness({ready=true,chatReady=true,language='ja'}={}) {
   const oldGuide=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(match=>match[1]).find(source=>source.includes('window.openBeginnerGuide=function()'));
   assert.ok(oldGuide,'Retain the original beginner-guide controller');
   vm.runInNewContext(oldGuide,window);
+  const backdropSource=html.match(/<div\b[^>]*\bid="bgModal"[^>]*\bonclick="([^"]*)"/)?.[1];
+  assert.ok(backdropSource,'Retain the actual native backdrop handler');
+  const backdropHandler=vm.runInNewContext('(function(event){'+backdropSource+'})',window);
+  modal.addEventListener('click',event=>backdropHandler.call(modal,event));
   const originalOpen=window.openBeginnerGuide,originalClose=window.closeBeginnerGuide;
   window.openBeginnerGuide=function(){oldOpenCalls++;return originalOpen.apply(window,arguments);};
   window.closeBeginnerGuide=function(){oldCloseCalls++;return originalClose.apply(window,arguments);};
   if(chatReady)window.KNAssistChat=chatAPI;
-  return {window,document,modal,sheet,panel,input,entrance,morning,chatAPI,chatCalls,storage,originalGuideNodes,log,
+  return {window,document,modal,sheet,panel,input,entrance,morning,chatAPI,chatCalls,menuCalls,storage,originalGuideNodes,log,
     node(id){const n=document.getElementById(id);assert.ok(n,id);return n;},nodes(selector){return document.querySelectorAll(selector);},
-    dispatch,flush(){for(let i=0;scheduled.length&&i<20;i++){const jobs=scheduled.splice(0);jobs.forEach(fn=>fn());}assert.equal(scheduled.length,0,'No unbounded initialization loop');},
+    dispatch,setOwner(id){window.knUser={id};},flush(){for(let i=0;scheduled.length&&i<20;i++){const jobs=scheduled.splice(0);jobs.forEach(fn=>fn());}assert.equal(scheduled.length,0,'No unbounded initialization loop');},
     oldOpenCalls:()=>oldOpenCalls,oldCloseCalls:()=>oldCloseCalls,network:()=>network,storageWrites:()=>storageWrites,
     eventListeners:type=>(events.get(type)||new Set()).size};
 }
@@ -171,8 +175,50 @@ test('Escape and the existing global backdrop close route clean up chat and rest
   assert.equal(h.modal.classList.contains('bg-open'),false);assert.equal(h.modal.getAttribute('aria-hidden'),'true');
   assert.equal(h.oldCloseCalls(),1);assert.equal(h.chatCalls.at(-1).action,'close');assert.equal(h.document.activeElement,h.entrance);
   assert.deepEqual(h.log.at(-1),['focus','question-entry',{preventScroll:true}]);assert.equal(h.morning.scrollTop,431);
-  api.open('guide');h.window.closeBeginnerGuide();assert.equal(h.oldCloseCalls(),2);assert.equal(h.document.activeElement,h.entrance);
+  api.open('guide');h.modal.click();assert.equal(h.oldCloseCalls(),2);assert.equal(h.document.activeElement,h.entrance);
   assert.equal(h.chatCalls.filter(call=>call.action==='close').length,2);assert.equal(h.network(),0);
+});
+
+test('menu entry returns once after native X Escape or retained backdrop cleanup without preference writes',()=>{
+  const closers={X:h=>h.node('knGuideHubClose').click(),Escape:h=>h.input.emit('keydown',{key:'Escape'}),backdrop:h=>h.modal.click()};
+  for(const [name,close]of Object.entries(closers)){
+    const h=harness(),saved=new Map(h.storage),api=install(h.window);assert.equal(api.open('chat',{returnToMenu:true}),true);
+    h.sheet.click();assert.equal(h.modal.classList.contains('bg-open'),true,'a sheet click is not the native backdrop');assert.equal(h.menuCalls.length,0);
+    close(h);assert.deepEqual(h.menuCalls,[{guideOpen:false,chatOpen:false,ariaHidden:'true'}],name);
+    assert.equal(h.oldOpenCalls(),1);assert.equal(h.oldCloseCalls(),1);assert.deepEqual(h.log.at(-1),['menu','openMain']);
+    api.close();h.window.closeBeginnerGuide();h.modal.click();assert.equal(h.menuCalls.length,1,'closed routes cannot consume the return twice');assert.equal(h.oldCloseCalls(),1);
+    assert.deepEqual(h.storage,saved);assert.equal(h.storageWrites(),0);assert.equal(h.network(),0);assert.equal(h.morning.scrollTop,431);
+  }
+});
+
+test('menu return follows current owner and observed account changes without rejecting matching empty identity',()=>{
+  const cases=[
+    {from:'owner-A',visits:['owner-B'],notify:false,returns:false},
+    {from:'owner-A',visits:[''],returns:false},
+    {from:'',visits:['owner-A'],returns:false},
+    {from:'',visits:[''],returns:true},
+    {from:'owner-A',visits:['owner-B','owner-A'],returns:false},
+    {from:'owner-A',visits:['owner-A'],returns:true}
+  ];
+  for(const item of cases){
+    const h=harness({owner:item.from}),saved=new Map(h.storage),api=install(h.window);api.open('guide',{returnToMenu:true});
+    for(const id of item.visits){h.setOwner(id);if(item.notify!==false)h.dispatch('knAuthChange');}
+    h.node('knGuideHubClose').click();assert.equal(h.menuCalls.length,item.returns?1:0,JSON.stringify(item));
+    assert.equal(h.modal.classList.contains('bg-open'),false);assert.equal(h.oldCloseCalls(),1);api.close();assert.equal(h.menuCalls.length,item.returns?1:0);
+    if(!item.returns)assert.equal(h.document.activeElement,h.entrance,'a stale menu request retains normal opener focus');
+    assert.deepEqual(h.storage,saved);assert.equal(h.storageWrites(),0);assert.equal(h.network(),0);
+  }
+});
+
+test('only a fresh explicit open captures menu return and later direct orbit opening preserves native focus',()=>{
+  const h=harness(),saved=new Map(h.storage),api=install(h.window),options={returnToMenu:true};
+  assert.equal(api.open('guide',options),true);options.returnToMenu=false;
+  h.node('knGuideTabChat').click();api.open('guide',{returnToMenu:false});h.node('knGuideHubClose').click();assert.equal(h.menuCalls.length,1,'view switches cannot clear the captured explicit return');
+  h.entrance.focus();api.open('guide');api.open('chat',{returnToMenu:true});h.node('knGuideHubClose').click();
+  assert.equal(h.menuCalls.length,1,'a menu request cannot be injected into an already open direct guide');assert.equal(h.document.activeElement,h.entrance);
+  h.entrance.focus();h.window.openBeginnerGuide();h.modal.click();assert.equal(h.menuCalls.length,1,'the consumed return does not leak into a new orbit/direct opening');
+  assert.deepEqual(h.log.at(-1),['focus','question-entry',{preventScroll:true}]);assert.equal(h.oldOpenCalls(),3);assert.equal(h.oldCloseCalls(),3);
+  assert.deepEqual(h.storage,saved);assert.equal(h.storageWrites(),0);assert.equal(h.network(),0);
 });
 
 test('dialog keyboard focus loops only over visible controls and closing has a safe connected question fallback',()=>{
@@ -385,6 +431,15 @@ test('concern return, native Escape, reopening and repeated install reuse one mo
   h.input.emit('keydown',{key:'Escape'});assert.equal(h.modal.classList.contains('bg-open'),false);assert.equal(h.document.activeElement,h.entrance);
   h.window.openBeginnerGuide();assert.equal(h.node('knConcernHome').hidden,false);assert.equal(h.input.value,'keep after closing');
   assert.equal(h.node('bgBar').style.width,'40%');assert.equal(h.storageWrites(),1);assert.equal(h.network(),0);
+});
+test('concern entry forwards fresh menu options and retains them through landing guide and chat transitions',()=>{
+  const h=concernHarness(),saved=new Map(h.storage);assert.equal(h.window.openBeginnerGuide({returnToMenu:true}),true);
+  assert.equal(h.node('knConcernHome').hidden,false);h.node('knConcernRead').click();h.node('knGuideTabChat').click();h.node('knGuideTabGuide').click();h.node('knConcernBack').click();
+  h.api.open('home',{returnToMenu:false});assert.equal(h.node('knConcernHome').hidden,false);h.input.emit('keydown',{key:'Escape'});
+  assert.deepEqual(h.menuCalls,[{guideOpen:false,chatOpen:false,ariaHidden:'true'}]);assert.equal(h.oldCloseCalls(),1);h.api.close();assert.equal(h.menuCalls.length,1);
+  h.entrance.focus();h.window.openSiteGuide('home');h.window.openSiteGuide('chat',{returnToMenu:true});h.modal.click();
+  assert.equal(h.menuCalls.length,1,'concern wrappers cannot inject menu return after a direct opening');assert.equal(h.document.activeElement,h.entrance);
+  assert.equal(h.nodes('#knConcernHome').length,1);assert.equal(h.nodes('#knChatInput').length,1);assert.deepEqual(h.storage,saved);assert.equal(h.storageWrites(),0);assert.equal(h.network(),0);
 });
 test('new concern attachment is inert when required original controls are unavailable',()=>{
   const h=harness();const children=[...h.panel.children];assert.equal(installConcern(h.window),null);

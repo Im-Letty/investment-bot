@@ -125,7 +125,7 @@ test('logout exists once directly after inline language and colors, without the 
   const h=fixture({user:{id:'synthetic-member',is_anonymous:false}}),group=h.group();
   assert.ok(group);assert.equal(group.parentElement.className,'knAccPanel kn-menu-content');const order=group.parentElement.children;assert.equal(order.at(-3),h.languageGrid.parentElement);assert.equal(order.at(-2),h.colors);assert.equal(order.at(-1),group);
   assert.equal(h.nav.querySelectorAll('[data-menu-page="logout"]').length,1);assert.equal(h.button('logout').textContent,'ログアウト');assert.equal(group.hidden,false);
-  const html=read('index.html');assert.equal(/ensureLogout|knLogoutBtn/.test(html),false);const menuLoader=html.match(/menu-a\.js\?v=[a-zA-Z0-9_-]+/)?.[0];assert.equal(menuLoader,'menu-a.js?v=20261103-font-choices1');assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
+  const html=read('index.html');assert.equal(/ensureLogout|knLogoutBtn/.test(html),false);const menuLoader=html.match(/menu-a\.js\?v=[a-zA-Z0-9_-]+/)?.[0];assert.equal(menuLoader,'menu-a.js?v=20261103-menu-return1');assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
 });
 test('signed-out and guest users cannot invoke logout even through a programmatic menu click',()=>{
   for(const user of [null,undefined,{id:'synthetic-guest',is_anonymous:true}]){
@@ -163,6 +163,23 @@ test('only confirmation invokes the synthetic signOut and then reloads',async()=
   assert.equal(flow.signouts(),0);assert.equal(flow.reloads(),0);const ok=flow.dialog().querySelectorAll('button')[1];assert.equal(ok.textContent,'ログアウト');ok.click();
   assert.equal(flow.dialog(),null);assert.equal(h.w.knUser,null);assert.equal(flow.signouts(),1);assert.equal(flow.reloads(),0);
   await Promise.resolve();assert.equal(flow.reloads(),1);
+});
+
+test('the guide menu entry explicitly requests menu return after the drawer has synchronously closed',()=>{
+  const h=fixture({user:{id:'synthetic-member'}});let opened=0;
+  h.w.openBeginnerGuide=options=>{
+    opened++;
+    assert.equal(h.drawer.classList.contains('open'),false);
+    assert.equal(h.drawer.inert,true);
+    assert.equal(h.drawer.getAttribute('aria-hidden'),'true');
+    assert.equal(options.returnToMenu,true);
+    assert.deepEqual(Object.keys(options),['returnToMenu']);
+  };
+  h.route('guide');
+  assert.equal(opened,1);assert.deepEqual(h.calls,[['close']]);
+  assert.deepEqual(h.pendingTimers(),[]);
+  h.notifyDrawerState();h.advance(1000);
+  assert.equal(opened,1);assert.equal(h.drawer.classList.contains('open'),false);
 });
 
 const destinations={
