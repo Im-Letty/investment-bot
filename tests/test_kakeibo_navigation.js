@@ -20,7 +20,7 @@ function fixture({embedded=false,helper,result=true,otherOrigin=false,throwOnOri
 test('household header omits the retired back link and keeps its layout script',()=>{
   const html=read('kakeibo.html');
   assert.doesNotMatch(html,/<a\b[^>]*class="[^"]*\bback-btn\b/);
-  assert.match(html,/kakeibo-layout\.js\?v=20261017-assets1/);
+  assert.match(html,/kakeibo-layout\.js\?v=20261103-fast-open1/);
 });
 test('standalone and unsupported-parent back clicks keep the native top-level home fallback',()=>{
   for(const options of [{},{embedded:true,helper:false}]){

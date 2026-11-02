@@ -3,6 +3,7 @@
   var page, body, tabs, pane, frame, personal, ledger, owner='', ready=false, loaded=false, personalScroll=0;
   var group=0, pendingAssets=false, pendingGoals=false;
   var memoSession=null, memoBackdrop=null, memoLastFocus=null;
+  var refreshAt=0, refreshPending=null, refreshInterval=30000;
   function account() {
     var user=window.knUser;
     return user&&user.id?String(user.id):'';
@@ -94,6 +95,7 @@
   }
   function unload(keepParentScroll) {
     owner='';ready=false;loaded=false;
+    refreshAt=0;refreshPending=null;
     hideFrame(frame);
     if(!keepParentScroll){personalScroll=0;if(body)body.scrollTop=0;}
     if(frame&&frame.getAttribute('src')){
@@ -118,13 +120,33 @@
     return item;
   }
   function markReady() {
+    ready=false;
     hideFrame(frame);
     if(!frame||!owner||owner!==account())return;
     try {
-      var doc=frame.contentDocument;
-      if(!doc||doc.documentElement.getAttribute('data-kn-ledger-ready')!=='true')return;
+      var child=frame.contentWindow,doc=frame.contentDocument,where=child.location;
+      if(where.origin!==location.origin||where.pathname!=='/kakeibo'||
+          !doc||doc.documentElement.getAttribute('data-kn-ledger-ready')!=='true'||
+          typeof child.kkSetMyPageView!=='function')return;
       ready=true;pane.classList.remove('mp-memo-warming');applyFrameView();
     } catch(ignore) {}
+  }
+  function refreshVisible() {
+    if(!ready||!owner||owner!==account()||!page.classList.contains('open')||document.hidden||
+        group===2||group===0&&!portfolioSelected()||refreshPending)return;
+    var now=Date.now();if(now-refreshAt<refreshInterval)return;
+    var item=frame,who=owner;
+    refreshAt=now;
+    try {
+      var child=item.contentWindow;
+      var result=typeof child.kkRefreshRecords==='function'?child.kkRefreshRecords():
+        typeof child.renderAll==='function'?child.renderAll():null;
+      if(result&&typeof result.then==='function'){
+        refreshPending=result;
+        function finished(){if(frame===item&&owner===who&&refreshPending===result)refreshPending=null;}
+        Promise.resolve(result).then(finished,finished);
+      }
+    } catch(ignore) { /* The child keeps restoration failures unavailable and exposes its retry control. */ }
   }
   function portfolioSelected() {
     var first=tabs&&tabs.querySelector('.mo-tab');
@@ -149,11 +171,14 @@
     var current=account();
     if(!current){unload();return;}
     if(owner&&owner!==current)unload();
-    if(owner===current)return;
+    if(owner===current){refreshVisible();return;}
     owner=current;ready=false;
+    // The child's normal authenticated startup restores records itself. Do not
+    // start another read when this warmed document is first made visible.
+    refreshAt=Date.now();refreshPending=null;
     hideFrame(frame);
-    // An authorized MyPage visit warms this document once. Hidden lazy frames
-    // would otherwise defer the request until the household-ledger tab is tapped.
+    // Reuse the already established identity; never create or refresh one here.
+    // Eager loading lets the shared document warm before its first visible visit.
     frame.setAttribute('loading','eager');
     frame.setAttribute('src',frame.dataset.kbsrc);
   }
@@ -189,11 +214,7 @@
       recoverWrongDocument();
       prepare();
       markReady();
-      if(ready)try {
-        var child=frame.contentWindow;
-        if(child.kkRefreshRecords)child.kkRefreshRecords();
-        else if(child.renderAll)child.renderAll();
-      } catch(ignore) {}
+      refreshVisible();
     }
     if(group===1&&!wasLedger)personalScroll=body.scrollTop;
     personal.classList.toggle('on',group===0);ledger.classList.toggle('on',group===1);
@@ -222,16 +243,14 @@
     var card=document.getElementById('myPageCard');if(card)card.click();
     if(!page.classList.contains('open')||!account())return false;
     pendingAssets=false;
-    var first=tabs.querySelector('.mo-tab');if(first)first.click();
-    show(0);
+    var first=tabs.querySelector('.mo-tab');if(first)first.click();else show(0);
     return true;
   }
   function openGoals() {
     return openAssets();
   }
   function showMyPage() {
-    var first=tabs.querySelector('.mo-tab');if(first)first.click();
-    show(0);
+    var first=tabs.querySelector('.mo-tab');if(first)first.click();else show(0);
   }
   function openMemo() {
     var origin=document.activeElement;
@@ -287,8 +306,10 @@
       if(memoSession&&memoSession.owner!==account()){endMemo(false);memoLastFocus=null;}
       if(owner&&owner!==account()){unload();show(0);}
       if(!account())page.classList.remove('open');
-      else {show(group);prepare();if(pendingAssets)openAssets();else if(pendingGoals)openGoals();}
+      else {prepare(true);show(group);if(pendingAssets)openAssets();else if(pendingGoals)openGoals();}
     });
+    window.addEventListener('focus',refreshVisible);
+    document.addEventListener('visibilitychange',refreshVisible);
     new MutationObserver(syncMemo).observe(page,{attributes:true,attributeFilter:['class','data-mp-view']});
     window.knPrepareLedger=prepare;
     // Explicit summary-memory setup reuses this one owner-scoped document
@@ -304,6 +325,7 @@
       if(page.classList.contains('open')&&account())show(1);
     };
     show(0);
+    prepare(true);
     if(typeof URLSearchParams==='function'){var entry=new URLSearchParams(location.search||'').get('mypage');if(entry==='assets')openAssets();else if(entry==='goals')openGoals();}
   }
   if(document.readyState!=='complete')document.addEventListener('DOMContentLoaded',setup,{once:true});

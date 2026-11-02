@@ -4,7 +4,7 @@ const read=name=>fs.readFileSync(path.join(__dirname,'..',name),'utf8');
 const source=read('static/kakeibo-layout.js'),html=read('kakeibo.html'),css=read('static/kakeibo-layout.css');
 
 function fixture({embedded=false,parentResult=true,foreign=false,throws=false}={}){
-  const attrs=new Map(),events={},calls=[],frames=[],scrolls=[];
+  const attrs=new Map(),events={},calls=[],frames=[],scrolls=[],messages=[];
   const draft={name:{value:'架空の未保存資産'},amount:{value:'１２３.４５'},income:{value:'４５６'}};
   const more={open:false,contains:()=>false,addEventListener(){}},toggle={setAttribute(){}};
   const body={scrollTop:0,setAttribute:(name,value)=>attrs.set(name,String(value))};
@@ -12,13 +12,21 @@ function fixture({embedded=false,parentResult=true,foreign=false,throws=false}={
   const context={document,location:{origin:'https://local.test',href:'https://local.test/kakeibo'},scrollY:0,requestAnimationFrame:fn=>frames.push(fn),
     scrollTo(x,y){scrolls.push([x,y]);context.scrollY=y;},localStorage:{getItem(){throw Error('view switching must not read or migrate storage');},setItem(){throw Error('view switching must not save');}}};
   context.window=context;context.parent=context;context.top=context;
-  if(embedded)context.parent={location:{origin:foreign?'https://foreign.test':'https://local.test'},knOpenAssets(){calls.push('parent assets');if(throws)throw Error('parent unavailable');return parentResult;}};
+  if(embedded)context.parent={location:{origin:foreign?'https://foreign.test':'https://local.test'},knOpenAssets(){calls.push('parent assets');if(throws)throw Error('parent unavailable');return parentResult;},
+    postMessage(data,origin){messages.push({data,origin,viewReady:typeof context.kkSetMyPageView==='function',tabReady:typeof context.kkLayoutTabChanged==='function'});}};
   vm.runInNewContext(source,context);
   context.switchTab=tab=>{calls.push(tab);context.kkLayoutTabChanged(tab);};
-  return {context,attrs,events,calls,scrolls,more,frames,draft,
+  return {context,attrs,events,calls,scrolls,more,frames,draft,messages,
     flush(){while(frames.length)frames.shift()();},
     clickAssets(){events.click({target:{closest:selector=>selector==='[data-kk-open-assets]'?{}:null}});}};
 }
+test('the same-origin parent hears layout readiness after the view API exists without waiting for window load',()=>{
+  const h=fixture({embedded:true});
+  assert.deepEqual(JSON.parse(JSON.stringify(h.messages)),[{data:{type:'kn-kakeibo-ready'},origin:'https://local.test',viewReady:true,tabReady:true}]);
+  assert.equal(h.events.load,undefined);assert.equal(h.frames.length,0);
+  assert.equal(h.context.kkSetMyPageView('assets'),true);h.flush();assert.deepEqual(h.calls,['assets']);
+  for(const options of [{},{embedded:true,foreign:true}])assert.deepEqual(fixture(options).messages,[]);
+});
 test('one document switches between assets and the previous ledger tab without changing inputs or touching storage',()=>{
   const h=fixture(),draft=JSON.stringify(h.draft);assert.equal(h.attrs.get('data-kk-mypage-view'),'ledger');
   h.context.kkLayoutTabChanged('calendar');h.context.scrollY=432;

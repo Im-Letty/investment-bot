@@ -24,7 +24,7 @@
   <link rel="stylesheet" href="/static/site-typography.css?v=20261011-type1">
   <script defer src="/static/mypage-kakeibo-theme.js?v=20261015-homegraphs1"></script>
   <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261031-toolbar-outside1">
-  <script defer src="/static/kakeibo-layout.js?v=20261017-assets1"></script>
+  <script defer src="/static/kakeibo-layout.js?v=20261103-fast-open1"></script>
   <link rel="stylesheet" href="/static/kakeibo-calendar-designs.css?v=20261028-remove-planner-divider1">
   <script defer src="/static/kakeibo-investment-categories.js?v=20261016-investmentcats1"></script>
   <script defer src="/static/kakeibo-income-categories.js?v=20261016-incomecats1"></script>
@@ -1760,6 +1760,13 @@ function kkTrendRender(){
   _renderChart('lineChart','line',lc,{type:'line',data:{kkTrendPeriod:[trend.from,trend.to,trend.unit],labels:trend.labels,datasets:[{label:kkT("kk_js_income"),data:trend.income,borderColor:'var(--brand-color)',backgroundColor:'rgba(93,184,122,0.1)',fill:true,tension:0.4,pointRadius:trend.labels.length>36?2:5,pointBackgroundColor:'var(--brand-color)',borderWidth:2.5},{label:kkT("kk_js_expense"),data:trend.expense,borderColor:'#e05050',backgroundColor:'rgba(224,80,80,0.07)',fill:true,tension:0.4,pointRadius:trend.labels.length>36?2:5,pointBackgroundColor:'#e05050',borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{tooltip:{callbacks:{label:function(context){return context.dataset.label+': '+kkTrendYen(context.parsed.y);}}},legend:{position:'bottom',labels:{font:{family:'Noto Sans JP'},boxWidth:10,padding:10,color:'#4a7c5f'}}},scales:{x:{grid:{display:false},ticks:{includeBounds:true,maxTicksLimit:trend.unit==='day'?8:12,font:{size:11},color:'#7aaa8a'}},y:{beginAtZero:true,suggestedMax:hasAmount?undefined:1000,grid:{color:'var(--brand-haze)'},ticks:{maxTicksLimit:5,callback:kkTrendYen,font:{size:11},color:'#7aaa8a'}}}}});
 }
 function renderAll(){
+  // The portfolio restores and renders its own owner-checked data. Refresh
+  // hidden household history when returning to the ledger instead of here.
+  var assetPane=document.getElementById('tab-assets');
+  if(assetPane&&assetPane.classList.contains('active')&&document.getElementById('poStatus')){
+    if(typeof kkPortfolioRender==='function')kkPortfolioRender();
+    return;
+  }
   kkEntryDateSync();
   kkTrendRender();
   var data=getData(),assets=[];try{assets=getAssets();if(!Array.isArray(assets)||assets.some(function(a){return !a||typeof a.amount!=='number'||!Number.isFinite(a.amount);}))assets=[];}catch(ignore){}kkLedgerShowNotice(data._kkUnreadable);

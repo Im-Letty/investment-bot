@@ -94,6 +94,43 @@ test('summary, list, calendar and editable records initialize even when graph lo
   assert.equal(h.nodes.get('d-expense').textContent,'¥2,000');assert.equal(JSON.parse(h.context.localStorage.getItem(monthKey)).at(-1).name,'食費');assert.match(h.nodes.get('rec-list-el').innerHTML,/食費/);
   h.context.deleteRecord(2);assert.equal(h.nodes.get('d-expense').textContent,'¥800');
 });
+test('the assets view waits for its own renderer without scanning hidden household history',()=>{
+  const initial={[monthKey]:JSON.stringify(records)};
+  for(let year=2016;year<2026;year++)for(let month=1;month<=12;month++)
+    initial['kbday_'+year+'_'+String(month).padStart(2,'0')+'_01']=JSON.stringify([{type:'exp',name:'架空の過去の支出',cat:'食費',amount:100}]);
+  const h=fixture(initial),read=h.context.localStorage.getItem,key=h.context.localStorage.key;
+  let reads=0,scans=0,renders=0;
+  h.context.localStorage.getItem=name=>{if(/^kb(?:2_|day_)/.test(name))reads++;return read(name);};
+  h.context.localStorage.key=index=>{scans++;return key(index);};
+  h.nodes.get('tab-home').classList.remove('active');h.nodes.get('tab-assets').classList.add('active');
+  const status=h.nodes.get('poStatus').textContent;
+  h.core();
+  assert.equal(reads,0);assert.equal(scans,0);
+  assert.equal(h.nodes.get('poStatus').textContent,status,'the connection status stays until the owner-checked renderer is ready');
+  h.context.kkPortfolioRender=()=>renders++;
+  h.context.renderAll();h.context.renderAll();
+  assert.equal(renders,2);assert.equal(reads,0);assert.equal(scans,0);
+  assert.deepEqual(JSON.parse(read(monthKey)),records);
+});
+test('returning from assets renders current household records and keeps unfinished inputs',()=>{
+  const h=fixture({[monthKey]:JSON.stringify(records)});h.core();
+  const name=h.nodes.get('m-inv-name'),amount=h.nodes.get('inc-amount');
+  name.value='保存前の架空メモ';amount.value='１２３.４５';
+  let renders=0;h.context.kkPortfolioRender=()=>renders++;
+  h.context.switchTab('assets');
+  const updated=[...records,{id:3,type:'exp',name:'架空の更新した支出',cat:'食費',amount:300}];
+  h.context.localStorage.setItem(monthKey,JSON.stringify(updated));
+  const read=h.context.localStorage.getItem,key=h.context.localStorage.key;let reads=0,scans=0;
+  h.context.localStorage.getItem=value=>{if(/^kb(?:2_|day_)/.test(value))reads++;return read(value);};
+  h.context.localStorage.key=index=>{scans++;return key(index);};
+  h.context.renderAll();assert.equal(renders,2);assert.equal(reads,0);assert.equal(scans,0);
+  assert.equal(h.nodes.get('d-expense').textContent,'¥1,200','hidden household totals are deferred');
+  h.context.switchTab('home');
+  assert.ok(reads>0);assert.ok(scans>0);assert.equal(h.nodes.get('d-expense').textContent,'¥1,500');
+  assert.equal(h.nodes.get('d-balance').textContent,'¥48,500');assert.match(h.nodes.get('rec-list-el').innerHTML,/架空の更新した支出/);
+  assert.equal(name.value,'保存前の架空メモ');assert.equal(amount.value,'１２３.４５');
+  assert.deepEqual(JSON.parse(read(monthKey)),updated);
+});
 test('late local graph loading preserves draft, selected month and canvas after an initially empty ledger',()=>{
   const h=fixture();h.core();h.loader();assert.equal(h.scripts.length,0,'graphs wait until critical HTML and theme are ready');
   const canvas=h.nodes.get('donutChart');assert.equal(canvas.hidden,true);assert.ok(canvas.parentElement.querySelector('.kk-chart-empty'));
@@ -226,13 +263,16 @@ function syncFixture(initial={},usePrototype=false){
     setItem(k,v){this.values.set(String(k),String(v));}
     removeItem(k){this.values.delete(k);}
   }
-  const ls=usePrototype?new FixtureStorage({lineUserId:'fixture-user',...initial}):storage({lineUserId:'fixture-user',...initial});
+  // The real session bridge establishes this owner before restoring records.
+  // A token alone must not authorize an unrelated local namespace for saves.
+  const seed={lineUserId:'fixture-user',kn_ledger_owner:'fixture-user',...initial};
+  const ls=usePrototype?new FixtureStorage(seed):storage(seed);
   const requests=[],renders=[],timers=new Map(),events=new Map();let reloads=0,seq=0;
   const context={console,knLedgerSession:initial.lineUserId===''?null:{user:{id:'fixture-user'},access_token:'fixture-token'},localStorage:ls,document:{readyState:'interactive',addEventListener(){}},
     setTimeout(fn,ms){timers.set(++seq,{fn,ms});return seq;},clearTimeout:id=>timers.delete(id),addEventListener:(name,fn)=>events.set(name,fn),
-    fetch(url,init){const req={url,init,resolved:false};requests.push(req);return new Promise(resolve=>{req.resolve=resolve;});},location:{reload(){reloads++;}},
+    fetch(url,init){const req={url,init,resolved:false};requests.push(req);return new Promise(resolve=>{req.resolve=resolve;});},location:{origin:'https://example.test',reload(){reloads++;}},
     renderAll:()=>renders.push('summary'),renderCalendar:()=>renders.push('calendar'),renderDayModal:()=>renders.push('modal'),kkRenderCustomCats:()=>renders.push('categories')};
-  context.window=context;if(usePrototype){context.Storage=FixtureStorage;context.sessionStorage=new FixtureStorage();}
+  context.window=context;context.parent=context;if(usePrototype){context.Storage=FixtureStorage;context.sessionStorage=new FixtureStorage();}
   const start=html.indexOf('/* ==== Kakeibo <-> Supabase sync'),end=html.indexOf('</script>',start);
   vm.runInNewContext(html.slice(start,end),context);
   return {context,ls,requests,renders,timers,events,get reloads(){return reloads;},
@@ -284,7 +324,7 @@ test('retained local refresh redraws changes from another ledger window and dela
   h.ls.values.set(monthKey,JSON.stringify(records));const before=h.renders.length;
   const refresh=h.context.kkRefreshRecords();assert.equal(h.renders.length,before+4);await h.respond({[monthKey]:JSON.stringify(records)});await refresh;
   const delayed=syncFixture({lineUserId:''});assert.equal(delayed.requests.length,0);
-  delayed.context.knLedgerSession={user:{id:'later-fixture-user'},access_token:'later-token'};delayed.events.get('knLedgerAuth')();
+  delayed.ls.setItem('kn_ledger_owner','later-fixture-user');delayed.context.knLedgerSession={user:{id:'later-fixture-user'},access_token:'later-token'};delayed.events.get('knLedgerAuth')();
   assert.equal(delayed.requests.length,1);await delayed.respond({[monthKey]:'[]'});
 });
 test('a successful response without ok true does not clear local write protection',async()=>{

@@ -116,4 +116,10 @@
 
   languageChanged();
   tabChanged('home');
+  // The view API is ready now. Do not make the parent wait for window.load
+  // (including unrelated fonts, charts and other document resources).
+  try {
+    if (window.parent !== window && window.parent.location.origin === location.origin)
+      window.parent.postMessage({type: 'kn-kakeibo-ready'}, location.origin);
+  } catch (ignore) { /* Standalone and foreign parents keep the normal view. */ }
 })();
