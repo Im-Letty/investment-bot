@@ -2413,6 +2413,64 @@
           "schedules": []
         }
       ]
+    },
+    {
+      "code": "1992",
+      "symbol": "1992.T",
+      "name": "神田通信機",
+      "category": "金券",
+      "versions": [
+        {
+          "id": "current-html-reviewed-20261103",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-11-03",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://www.kandt.co.jp/ir/stock/",
+            "title": "神田通信機 公式株式案内（株主優待）",
+            "link_label": "神田通信機",
+            "security_code": "1992",
+            "issuer_name": "神田通信機",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-11-03T02:11:07.829959+09:00",
+            "evidence_path": "evidence/reviewed-1992-observation-note-20261103.json",
+            "evidence_sha256": "46422b78c5d82c077a2e30d5c4565496a7a840a0bdb443056478aac07faf185c"
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "root-primary-observer-and-independent-current-HTML-numeric-and-source-review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "all_future_amendments_verified_absent": false,
+            "independent_current_HTML_GET": true,
+            "general_reuse_licence_claimed": false,
+            "note_SHA_is_not_original_page_SHA": true,
+            "scope": "Current stock programme independently read twice; corporate profile, terms, bounded current IR entry and 2018-2026 topic headings reviewed. Original announcement PDFs unread; no exact announcement/start/current-tier-effective date or universal future-change absence inferred."
+          },
+          "period": "毎年3月31日が基準日です。制度開始日と現行区分の適用開始日は未確認です。",
+          "conditions": "基準日に100株（1単元）以上を保有する株主が対象です。最低保有期間・同一株主番号・連続名簿回数・途中各回の株数条件は本文に記載未確認です。",
+          "use": "QUOカード1,000円分。100株以上は一律の1区分です。申請・選択の要否や手順、券の有効期限は未確認です。",
+          "delivery": "6月の定時株主総会終了後に送る決議通知へ同封する予定です。実際の発送日・到着日は未確認です。",
+          "grant_summary": "6月の定時株主総会終了後、決議通知に同封予定",
+          "tiers": [
+            {
+              "id": "100plus",
+              "shares_min": 100,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "最低保有期間・同一番号・名簿継続条件は記載未確認",
+              "reward": "QUOカード1,000円分",
+              "conditions": "100株以上の一律1区分です。申請・選択の要否や手順、券の有効期限は未確認です。"
+            }
+          ],
+          "schedules": []
+        }
+      ]
     }
   ]
 }

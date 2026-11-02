@@ -199,3 +199,20 @@ test('one-time pagination and favorites are independent from ordinary pending an
  assert.equal(h.mount.find('bc-one-time-more').hidden,true);assert.equal(h.mount.find('bc-pending').hidden,true);
  assert.equal(h.mount.find('bc-more').hidden,true);
 });
+
+// Synthetic source-link presentation cases; not real catalogue facts.
+test('an explicit issuer source label is exact on scheduled and undated cards',()=>{
+ const name='試験用株式会社',programmeSource={url:'https://example.com/issuer',title:'公式の制度案内',verified_on:'2026-09-24',link_label:name};
+ const data=[company('130A',{programmeSource}),company('131A',{programmeSource,schedules:[]})];
+ const h=harness(data),scheduled=h.cards()[0].find('dc-help-source'),pending=h.mount.find('bc-pending-body').children[0].find('dc-help-source');
+ assert.equal(scheduled.textContent,name);assert.equal(pending.textContent,name);
+ assert.equal(scheduled.href,data[0].url);assert.equal(pending.href,data[1].url);
+ assert.equal(scheduled.target,'_blank');assert.equal(scheduled.rel,'noopener noreferrer');
+ assert.doesNotMatch(scheduled.textContent,/↗/);assert.equal(h.cards()[0].find('bc-date-source').textContent,'購入締切の日程資料 ↗');
+});
+test('existing source titles and missing labels retain the generic benefit link label',()=>{
+ for(const programmeSource of [undefined,{title:'既存の長い制度資料名',url:'https://example.com/old'},{link_label:''},{link_label:null}]){
+  const row=company('130A',{programmeSource}),h=harness([row]),link=h.cards()[0].find('dc-help-source');
+  assert.equal(link.textContent,'会社の優待案内 ↗');assert.equal(link.href,row.url);
+ }
+});

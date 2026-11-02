@@ -94,7 +94,8 @@ function create(w,mount,cal){
     if(row.lastConfirmed)box.appendChild(el('p','dc-coverage','前回掲載した締切：'+row.lastConfirmed.replaceAll('-','/')+'。次回の日程は未確認です。'));
     const verified=dates.label(row.programmeVerified||row.verified,'確認');
     if(verified)box.appendChild(el('p','dc-coverage bc-verified',verified));
-    const link=el('a','dc-help-source','会社の優待案内 ↗');link.href=row.url;link.target='_blank';link.rel='noopener noreferrer';box.appendChild(link);
+    const linkLabel=row.programmeSource&&row.programmeSource.link_label;
+    const link=el('a','dc-help-source',typeof linkLabel==='string'&&linkLabel.trim()?linkLabel:'会社の優待案内 ↗');link.href=row.url;link.target='_blank';link.rel='noopener noreferrer';box.appendChild(link);
     const source=row.source,sourceUrl=typeof source==='string'?source:source&&source.url;
     if(sourceUrl&&sourceUrl!==row.url){if(row.programmeVerified&&row.date){const scheduleVerified=dates.label(row.verified,'購入締切日程の確認');if(scheduleVerified)box.appendChild(el('p','dc-coverage bc-schedule-verified',scheduleVerified));}const dateSource=el('a','dc-help-source bc-date-source','購入締切の日程資料 ↗');dateSource.href=sourceUrl;dateSource.target='_blank';dateSource.rel='noopener noreferrer';box.appendChild(dateSource);}
     return box;

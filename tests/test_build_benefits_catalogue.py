@@ -224,6 +224,34 @@ class BuildTests(unittest.TestCase):
         self.source["citation_url"] = "http://example.com/"
         self.rejected("invalid_source_url")
 
+    def test_optional_issuer_link_label_is_projected_without_changing_old_source_metadata(self):
+        original_rows, _ = self.build()
+        self.assertNotIn("link_label", original_rows[9]["programmeSource"])
+        self.source["link_label"] = "試験用株式会社"
+        source_before = deepcopy(self.additions)
+        rows, _ = self.build()
+        self.assertEqual(rows[:9], self.legacy)
+        self.assertEqual(rows[9]["programmeSource"], {**original_rows[9]["programmeSource"], "link_label": "試験用株式会社"})
+        row_without_label = deepcopy(rows[9])
+        del row_without_label["programmeSource"]["link_label"]
+        self.assertEqual(row_without_label, original_rows[9])
+        self.assertEqual(self.additions, source_before)
+
+    def test_issuer_link_label_accepts_only_a_matching_issuer_name(self):
+        self.source["link_label"] = "試験用 株式会社"
+        rows, _ = self.build()
+        self.assertEqual(rows[9]["programmeSource"]["link_label"], "試験用 株式会社")
+        self.source["link_label"] = "別会社株式会社"
+        self.rejected("source_link_label_issuer")
+
+    def test_issuer_link_label_rejects_empty_multiline_markup_and_oversized_text(self):
+        for value in (None, "", " ", " 試験用株式会社", "試験用株式会社\n", "試験用\t株式会社", "あ" * 201):
+            with self.subTest(value=value):
+                self.source["link_label"] = value
+                self.rejected("source_link_label")
+        self.source["link_label"] = "<b>試験用株式会社</b>"
+        self.rejected("source_link_label_issuer")
+
     def test_unsafe_url_and_future_verification_are_rejected(self):
         self.source["url"] = "javascript:alert(1)"
         self.rejected("invalid_source_url")
