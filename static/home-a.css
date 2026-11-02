@@ -5,7 +5,7 @@ body.kn-home-a {
   --kn-a-header-min-inset:22px;
   --kn-a-header-content-width:1010px;
   --kn-a-menu-left:max(var(--kn-a-header-min-inset),calc((100% - var(--kn-a-header-scrollbar,0px) - var(--kn-a-header-content-width))/2));
-  --kn-a-ink:#184b3c; --kn-a-muted:#547467; --kn-a-paper:#fffdf6;
+  --kn-a-ink:#343331; --kn-a-muted:#625d58; --kn-a-paper:#fffdf6;
   --kn-a-bg:#f7fbf6; --kn-a-line:#dce6d7; --kn-a-button:#205c49;
   --kn-a-mint:#b0ddc7; --kn-a-pale:#def1e3; --kn-a-chip:#edf5e9;
   /* Use the same default Gothic face on desktop and mobile. */
@@ -13,8 +13,8 @@ body.kn-home-a {
   --kn-a-sans:"Noto Sans JP",sans-serif;
 }
 body.kn-home-a[data-kn-a-custom-color] {
-  --kn-a-ink:color-mix(in srgb,var(--brand-color) 38%,#10251d);
-  --kn-a-muted:color-mix(in srgb,var(--brand-color) 32%,#5e7067);
+  --kn-a-ink:#343331;
+  --kn-a-muted:#625d58;
   --kn-a-button:color-mix(in srgb,var(--brand-color) 53%,#173e2f);
   --kn-a-mint:color-mix(in srgb,var(--brand-color) 35%,#e7f4eb);
   --kn-a-pale:color-mix(in srgb,var(--brand-color) 13%,#f4faf3);
