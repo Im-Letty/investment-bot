@@ -3,6 +3,7 @@ from copy import deepcopy
 import gzip
 import io
 import json
+import math
 from datetime import datetime, timezone
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -476,6 +477,84 @@ class ReviewedDigestTests(unittest.TestCase):
     def details_for(self, items):
         return [{**{field: item[field] for field in ('source', 'url', 'published_at', 'title')},
                  'headline': '読みやすい記事の見出し', 'summary': '文' * 240} for item in items]
+
+    def precise_official_issue(self):
+        published = timestamp('2026-09-22T10:00:00+09:00') + .1234567
+        verified = timestamp('2026-09-22T11:00:00+09:00') + .7485352
+        ref = {'source': '財務省', 'title': '精度を保つ公式発表',
+               'url': 'https://www.mof.go.jp/policy/precision.html',
+               'published_at': published, 'published_date': '2026-09-22',
+               'publication_precision': 'second', 'body_sha256': 'a' * 64,
+               'body_verified_at': verified, 'selection_route': 'intraday'}
+        window = {'version': 2, 'kind': 'intraday', 'edition_date': '2026-09-22',
+                  'window_start': timestamp('2026-09-22T07:30:00+09:00'),
+                  'cutoff_at': verified}
+        return self.curated([ref], source_window=window,
+            copy_length_policy=COPY_LENGTH_POLICY,
+            reviewed_at=verified, publish_at=verified,
+            article_refs=[ref], article_summaries=[{**ref,
+                'headline': '元の発表を説明', 'summary': '確認した事実を説明します。'}])
+
+    def test_official_fractional_timestamps_survive_normalization_and_public_selection(self):
+        issue = self.precise_official_issue()
+        before = deepcopy(issue)
+        for key in ('published_at', 'body_verified_at'):
+            value = issue['article_refs'][0][key]
+            self.assertNotEqual(datetime.fromtimestamp(value, timezone.utc).timestamp(), value)
+        normalized = _validated_digest(issue)
+        self.assertEqual(normalized, issue)
+        encoded = json.dumps(normalized, ensure_ascii=False, allow_nan=False)
+        self.assertEqual(_validated_digest(json.loads(encoded)), normalized)
+        selected = select_daily_news({'news': deepcopy(issue['article_refs'])},
+            now=issue['publish_at'] + 60, reviewed_digests=[json.loads(encoded)])
+        self.assertEqual(selected['delivery'], 'published')
+        self.assertEqual(selected['digest'], issue)
+        self.assertEqual(selected['news'], issue['article_refs'])
+        self.assertEqual(issue, before)
+
+    def test_official_fractional_boundaries_are_exact_not_datetime_rounded(self):
+        issue = self.precise_official_issue()
+        self.assertIsNotNone(_validated_digest(issue))
+        cutoff = issue['source_window']['cutoff_at']
+        start = issue['source_window']['window_start']
+        published = issue['article_refs'][0]['published_at']
+        cases = [
+            ('verification_after_cutoff', {'body_verified_at': math.nextafter(cutoff, math.inf)}),
+            ('publication_before_start', {'published_at': math.nextafter(start, -math.inf)}),
+            ('publication_after_cutoff', {'published_at': math.nextafter(cutoff, math.inf)}),
+            ('publication_after_verification', {'body_verified_at': published,
+                'published_at': math.nextafter(published, math.inf)}),
+        ]
+        for label, changes in cases:
+            with self.subTest(boundary=label):
+                value = deepcopy(issue)
+                for ref in (value['article_refs'][0], value['article_summaries'][0]):
+                    ref.update(changes)
+                self.assertIsNone(_validated_digest(value))
+        for key in ('reviewed_at', 'publish_at'):
+            with self.subTest(boundary=key):
+                value = deepcopy(issue)
+                value[key] = math.nextafter(cutoff, -math.inf)
+                self.assertIsNone(_validated_digest(value))
+        value = deepcopy(issue)
+        for ref in (value['article_refs'][0], value['article_summaries'][0]):
+            ref.update(publication_precision='day', published_at=None,
+                       body_verified_at=math.nextafter(start, -math.inf))
+        self.assertIsNone(_validated_digest(value))
+
+    def test_official_detail_timestamp_difference_of_one_ulp_is_rejected(self):
+        issue = self.precise_official_issue()
+        for key in ('published_at', 'body_verified_at'):
+            with self.subTest(field=key):
+                value = deepcopy(issue)
+                old = value['article_summaries'][0][key]
+                value['article_summaries'][0][key] = math.nextafter(old, -math.inf)
+                self.assertIsNone(_validated_digest(value))
+            for malformed in ([], {}, True, 'invalid', None, math.nan, math.inf):
+                with self.subTest(field=key, malformed=repr(malformed)):
+                    value = deepcopy(issue)
+                    value['article_summaries'][0][key] = malformed
+                    self.assertIsNone(_validated_digest(value))
 
     def test_new_reading_structure_is_versioned_and_bound_to_official_ordered_full_copy(self):
         refs = [{'source': '財務省', 'title': f'独立した公式発表{i}',

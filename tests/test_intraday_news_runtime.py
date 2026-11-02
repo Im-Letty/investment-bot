@@ -3,6 +3,7 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 from hashlib import sha256
 import json
+import math
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from threading import Barrier, Lock
@@ -15,7 +16,7 @@ from intraday_news_runtime import (PREFIX, article_identity, importance, intrada
 from morning_news_window import JST
 from news_copy_policy import COPY_LENGTH_POLICY
 from news_cache import OFFICIAL_NEWS_SOURCES
-from news_review_receipt import completed_receipt
+from news_review_receipt import completed_receipt, valid_receipt
 from tests.test_news_review_diagnostics import diagnostic
 
 
@@ -133,6 +134,58 @@ class IntradayTests(unittest.TestCase):
         self.assertNotIn("days/2026-10-11/edition.json", self.storage.created)
         self.assertTrue(report["review_receipt"]["gemini_approved"])
         self.assertTrue(report["review_receipt"]["openai_approved"])
+
+    def test_submicrosecond_source_times_publish_once_without_losing_exact_identity(self):
+        row = source(published=math.nextafter(at(10), math.inf),
+                     verified=math.nextafter(at(10, 1), math.inf))
+        for field in ("published_at", "body_verified_at"):
+            # These actual floats cannot survive a datetime microsecond round-trip.
+            self.assertNotEqual(datetime.fromtimestamp(row[field], JST).timestamp(), row[field])
+        report = self.job(cache=Cache([row]))
+        self.assertEqual((report["status"], report["published_count"]), ("published", 1))
+        keys = self.storage.reviewed_keys("2026-10-11")
+        self.assertEqual(len(keys), 1)
+        saved = self.storage.read(keys[0])
+        for field in ("published_at", "body_verified_at"):
+            self.assertEqual(saved["article_refs"][0][field], row[field])
+            self.assertEqual(saved["article_summaries"][0][field], row[field])
+        self.assertTrue(valid_receipt(saved["review_receipt"], saved))
+        self.assertEqual(report["review_receipt"], saved["review_receipt"])
+        repeated = self.job(cache=Cache([row]))
+        self.assertEqual((repeated["status"], repeated["published_count"]), ("no_new_release", 0))
+        self.generator.assert_called_once()
+        self.assertEqual([path for path in self.storage.created if "/reviewed-" in path], keys)
+        self.assertEqual(len([path for path in self.storage.created if "/attempt-" in path]), 1)
+
+    def test_one_ulp_source_time_change_in_both_references_is_not_rounded_into_a_match(self):
+        for field in ("body_verified_at", "published_at"):
+            with self.subTest(reference_field=field):
+                row, storage = source(), Storage()
+                changed = math.nextafter(row[field], math.inf)
+                self.assertNotEqual(changed, row[field])
+
+                def different_reference(now, *, articles, source_window):
+                    value = issue_for(articles[0], source_window, now)
+                    value["article_refs"][0][field] = changed
+                    value["article_summaries"][0][field] = changed
+                    value["review_receipt"] = completed_receipt(value, {"draft": "fixed changed-reference draft"})
+                    return value
+
+                generator = Mock(side_effect=different_reference)
+                report = self.job(storage=storage, cache=Cache([row]), generator=generator)
+                expected = {"schema_version": 1, "stage": "edition_validation",
+                            "reason": "source_reference_mismatch", "reference_field": field}
+                self.assertEqual(report["status"], "review_failed")
+                self.assertEqual(report["last_error"], "invalid_edition")
+                self.assertEqual(report["edition_validation_diagnostics"], expected)
+                saved = storage.read(f"{PREFIX}/days/2026-10-11/result-1.json")
+                self.assertEqual(saved["edition_validation_diagnostics"], expected)
+                self.assertNotIn("review_receipt", saved)
+                self.assertEqual(storage.reviewed_keys("2026-10-11"), [])
+                self.assertEqual(self.job(storage=storage, cache=Cache([row]), generator=generator)["status"],
+                                 "no_new_release")
+                generator.assert_called_once()
+                self.assertEqual(len([path for path in storage.created if "/attempt-" in path]), 1)
 
     def test_same_source_is_not_repaid_after_restart_or_failed_review(self):
         self.generator.side_effect = ValueError("secret provider response")
