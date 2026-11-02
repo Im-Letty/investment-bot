@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "code": "1965",
+  "issuer": "テクノ菱和",
+  "official_citation_URL": "https://www.techno-ryowa.co.jp/",
+  "evidence_kind": "authored_primary_page_observation_note",
+  "observed_at": "2026-11-02T13:13:38.697505+09:00",
+  "note_SHA_is_not_original_page_SHA": true,
+  "primary_responses": [
+    {
+      "role": "現行制度",
+      "observed_at": "2026-11-02T13:07:04.512045+09:00",
+      "original_response_sha256": "ff46c1647c3fb5d633eaab50c17419736867d039f046763d05d9507275c043e4",
+      "original_response_bytes": 68347
+    },
+    {
+      "role": "株主メモ",
+      "observed_at": "2026-11-02T13:11:21.752594+09:00",
+      "original_response_sha256": "3c0aa4c9727caafab4ccdced958c2906ed29812f7ba5c87dfb11ff1394453373",
+      "original_response_bytes": 69450
+    },
+    {
+      "role": "IRトップ表示5件",
+      "observed_at": "2026-11-02T13:12:14.841407+09:00",
+      "original_response_sha256": "275cc78776818435b113fd5ad75c579fffd1f5525e46fd4b8bae399c556f00f8",
+      "original_response_bytes": 73278
+    },
+    {
+      "role": "2026-08-05改定PDF",
+      "observed_at": "2026-11-02T13:13:38.697505+09:00",
+      "original_response_sha256": "0bdcbb02f8de4932c0a79c9d4b53d54dfe0c25ea0c8ffba897ed256c1092b42b",
+      "original_response_bytes": 143993
+    },
+    {
+      "role": "利用規約",
+      "observed_at": "2026-11-02T13:17:26.595914+09:00",
+      "original_response_sha256": "50ab51d8a1a1a74b85e35fed55623ed2678da6b0b1d8667ecb75c6af0715da0c",
+      "original_response_bytes": 51838
+    }
+  ],
+  "authored_facts": {
+    "record_basis": "毎年の事業年度末（3月31日）。制度ページの事業年度末という対象条件と株主メモの4月1日～翌3月31日を照合。配当基準日から優待日を作ったものではない。",
+    "minimum_shares": 100,
+    "trading_unit": 100,
+    "current_tiers": [
+      {
+        "shares_min": 100,
+        "shares_max": 1999,
+        "reward": "静岡の新茶1パック"
+      },
+      {
+        "shares_min": 2000,
+        "shares_max": null,
+        "reward": "静岡の新茶2パック"
+      }
+    ],
+    "one_applicable_tier_not_sum": true,
+    "holding_months_min": null,
+    "same_number_continuity_register_counts": "明記未確認",
+    "intermediate_register_share_requirements": "明記未確認",
+    "application_choice": "要否・手続きは明記未確認",
+    "delivery": "発送予定・実発送・実到着は未確認",
+    "expiry": "食品の期限等は明記未確認",
+    "purchase_schedule": [],
+    "original_programme_inception": null,
+    "announcement_on": "2026-08-05",
+    "current_benefit_tiers_apply_from": "2027年3月期",
+    "exact_current_tier_effective_date_field": null,
+    "split_ratio": "1株を3株",
+    "split_record_on": "2026-09-30",
+    "split_effective_on": "2026-10-01",
+    "split_effective_is_not_benefit_tier_start": true,
+    "old_pre_split_tiers": "100～999株で1パック、1,000株以上で2パック。現行制度へ流用しない。",
+    "limited_latest_IR_review": "IRトップの表示5件を観測し8/5改定PDFへ実リンクを追った限定確認。全改廃の不存在保証ではない。"
+  },
+  "source_conditions": "原文・画像・表を転載せず、独立した短い制度事実のみ自作文。URL表記の指定に合わせ、公開出典URLは公式トップのみ。包括的再利用許諾は主張しない。",
+  "review_scope": "現行制度・株主メモ・IRトップの表示5件と実リンクの2026-08-05改定PDF全3頁を担当者が確認。全改廃の不存在や将来継続は保証しない。",
+  "identity": "現在ローカルStockSearchの1965.T・テクノ菱和・東証スタンダードと改定PDFの印字を照合。保存会社一覧は2026-09-30で、当日全市場の鮮度保証ではない。"
+}
