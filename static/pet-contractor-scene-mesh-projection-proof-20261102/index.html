@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>村の立体データの平面投影</title>
+  <style>
+    :root{color-scheme:light;font-family:system-ui,-apple-system,sans-serif;color:#243a34;background:#f7f5ed}
+    *{box-sizing:border-box}body{margin:0}main{max-width:1100px;margin:0 auto;padding:24px 20px 40px}
+    h1{font-size:clamp(1.45rem,4vw,2rem);line-height:1.45;margin:4px 0 12px}h2{font-size:1.13rem;margin:0 0 12px}
+    p{line-height:1.8;margin:8px 0 14px}.eyebrow{font-size:.86rem;color:#425c53;margin-bottom:2px}
+    .intro{max-width:78ch}.controls,.card{background:#fffef9;border:1px solid #b8c7ba;border-radius:15px;padding:18px}
+    .controls{margin:18px 0;display:flex;gap:12px;flex-wrap:wrap;align-items:end}
+    label{display:flex;flex-direction:column;gap:6px;font-weight:650;min-width:0}
+    select,button{font:inherit;line-height:1.4;min-height:44px;border:1px solid #80998c;border-radius:10px;background:#fffef9;color:#243a34;padding:10px 13px;max-width:100%}
+    button{cursor:pointer;font-weight:650;background:#e6f0e5}button.secondary{background:#f1eee5}
+    button:hover{background:#d7e8d7}button:disabled{cursor:wait;opacity:.65}
+    :focus-visible{outline:3px solid #68501d;outline-offset:3px}
+    .grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:18px}.grid>*{min-width:0}
+    .plot{width:100%;height:auto;aspect-ratio:4/3;display:block;background:#f0f4ec;border:1px solid #c1d1c2;border-radius:10px}
+    .legend{display:flex;flex-wrap:wrap;gap:6px 15px;margin-top:10px;font-size:.9rem}
+    .dot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:5px;background:#385e4f}
+    .water{background:#246c96}.window{background:#80511c}
+    .stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:10px 0 15px}
+    .stat{border:1px solid #d0d9cd;border-radius:9px;padding:10px;overflow-wrap:anywhere}.stat strong{display:block;font-size:1.2rem}
+    .caption,.small{font-size:.9rem;color:#425c53;overflow-wrap:anywhere}.notice{padding:10px 12px;border-radius:9px;background:#edf2e7}
+    #status{font-weight:650;min-height:1.8em;overflow-wrap:anywhere}
+    details{margin-top:18px}summary{cursor:pointer;font-weight:650;line-height:1.8}
+    pre{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;max-height:420px;overflow:auto;background:#f2f2e9;padding:12px;border-radius:10px;line-height:1.6;font-size:.82rem}
+    ul{padding-left:1.35em;line-height:1.75}li{margin:5px 0}
+    @media(max-width:720px){main{padding:18px 12px 30px}.grid{grid-template-columns:minmax(0,1fr)}.controls,.card{padding:14px}.controls{gap:10px}label{width:100%}select{width:100%}.controls button{flex:1 1 130px}}
+  </style>
+</head>
+<body>
+<main>
+  <p class="eyebrow">業者への依頼に向けた形の読取見本</p>
+  <h1>村の立体データの平面投影</h1>
+  <div class="intro">
+    <p>架空の配置から既存コードが作る立体パーツを読み、真上から見た線にします。元の位置と、コードが調整した位置も確認できます。</p>
+    <p class="small">対象は6つの場所に属する Mesh の格納データです。木と花の原画は読み込まず、絵の要素を範囲の一覧に残します。衝突・移設の可否や工事は未判定です。</p>
+  </div>
+  <section class="controls" aria-label="架空の読取例">
+    <label>配置の例
+      <select id="scenario">
+        <option value="base">基本の6か所</option>
+        <option value="edge">端の配置とコードの調整</option>
+        <option value="tree">木を道の近くにした例</option>
+      </select>
+    </label>
+    <button id="capture" type="button" disabled>立体データを読む</button>
+    <button id="invalid" class="secondary" type="button" disabled>欠けた入力の例</button>
+    <button id="reset" class="secondary" type="button" disabled>表示をクリア</button>
+  </section>
+  <p id="status" role="status" aria-live="polite">読取のコードを準備しています。</p>
+  <div class="grid">
+    <section class="card" aria-labelledby="plot-title">
+      <h2 id="plot-title">真上からの投影</h2>
+      <label>見る場所
+        <select id="place">
+          <option value="home">家</option><option value="cafe">カフェ</option>
+          <option value="shop">店</option><option value="playground">広場</option>
+          <option value="tree">木の場所</option><option value="flowers">花の場所</option>
+        </select>
+      </label>
+      <p id="plot-description" class="caption">読取後に、選んだ場所の X/Z 座標を表示します。</p>
+      <canvas id="plot" class="plot" width="800" height="600" role="img" aria-label="読取前の平面投影"></canvas>
+      <div class="legend"><span><i class="dot"></i>通常の Mesh</span><span><i class="dot water"></i>水の区分</span><span><i class="dot window"></i>窓の区分</span></div>
+      <p class="small">線は格納された三角形の投影です。高さ Y は読取記録に含みます。表示用の非表示フラグだけで、まとめ描画用の元パーツを除いていません。</p>
+    </section>
+    <section class="card" aria-labelledby="record-title">
+      <h2 id="record-title">読取範囲</h2>
+      <div id="stats" class="stats"></div>
+      <p id="mapping" class="small">位置の対応は読取後に表示します。</p>
+      <p class="notice small">原画は未読込です。絵の厚み、範囲外の地形、歩行経路や干渉、本人の保存内容はこの見本の対象に含みません。</p>
+      <ul id="coverage" class="small"></ul>
+    </section>
+  </div>
+  <details>
+    <summary>座標と範囲の読取記録</summary>
+    <p class="small">ここには各場所の総数と位置、先頭3パーツの例を表示します。各例の材質区分も先頭3件までです。全頂点・三角形と区分は、切り離して凍結した読取結果に保持します。</p>
+    <p class="small">記録中の drawRange.count の null は、描画数に上限指定がないという符号です。</p>
+    <pre id="report" tabindex="0" aria-label="読取記録">未読取</pre>
+  </details>
+  <p class="small">通常の村への入口追加、保存内容の変更、業者への送信、受付、見積りや工事の開始は行いません。</p>
+</main>
+<script type="module">
+document.documentElement.dataset.moduleState='loading';
+import('./proof.mjs').catch(()=>{
+  document.documentElement.dataset.moduleState='failed';
+  for(const id of ['capture','invalid','reset'])document.getElementById(id).disabled=true;
+  document.getElementById('status').textContent='読取のコードを準備できませんでした。読取は開始していません。';
+  document.getElementById('report').textContent=JSON.stringify({ok:false,error:'module_initialization_failed'},null,2);
+});
+</script>
+</body>
+</html>
