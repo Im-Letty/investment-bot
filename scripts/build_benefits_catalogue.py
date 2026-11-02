@@ -108,6 +108,11 @@ def validate_source(source, identity, verified, as_of, evidence_root):
     if "citation_url" in source:
         safe_url(source["citation_url"])
     text(source.get("title"), "source_title", 200)
+    if "link_label" in source:
+        label = text(source["link_label"], "source_link_label", 200)
+        need(label == source["link_label"] and not any(ord(char) < 32 or ord(char) == 127 for char in label), "source_link_label")
+        need(isinstance(source.get("issuer_name"), str) and
+             normalized_name(label) == normalized_name(source["issuer_name"]), "source_link_label_issuer")
     need(source.get("security_code") == identity["code"], "source_issuer_code")
     need(isinstance(source.get("issuer_name"), str) and
          normalized_name(source["issuer_name"]) == normalized_name(identity["name"]), "source_issuer_name")
@@ -257,6 +262,8 @@ def project(company, version):
     public_tiers = [{key: copy.deepcopy(tier[key]) for key in tier_fields} for tier in version["tiers"]]
     citation_url = version["source"].get("citation_url", version["source"]["url"])
     public_source = {"url": citation_url, "title": version["source"]["title"], "verified_on": version["verified_on"]}
+    if "link_label" in version["source"]:
+        public_source["link_label"] = version["source"]["link_label"]
     row = {"code": company["code"], "symbol": company["symbol"], "name": company["name"],
            "category": company["category"], "reward": first["reward"], "shares": shares_label(first),
            "holding": first["holding_requirement"], "period": version["period"],

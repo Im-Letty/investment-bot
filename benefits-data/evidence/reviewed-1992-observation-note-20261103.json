@@ -1,0 +1,182 @@
+{
+  "schema_version": 1,
+  "code": "1992",
+  "issuer": "神田通信機",
+  "verified_on": "2026-11-03",
+  "evidence_kind": "primary_page_observation_note",
+  "recorded_at_jst": "2026-11-03T02:30:17.852211+09:00",
+  "authored_facts": [
+    "毎年3月31日の株主名簿に100株以上の記載がある株主が対象。100株は1単元。100株以上を一律1区分としてQUOカード1,000円分を案内している。株数倍の加算とはしない。",
+    "6月の定時株主総会後に送る決議通知へ同封する予定。発送実績・到着日ではない。",
+    "保有期間、同一株主番号、連続名簿回数、各回の過去株数、申請、選択、有効期限は、読んだ現行案内では確定しない。保有月数はnullであり0か月とはしない。",
+    "会社概要は神田通信機株式会社・東京スタンダードを確認できる。読んだ会社概要に1992の印字確認はなく、保存済み公式JPX会社一覧と現行StockSearch identityの同名・市場でコードを照合した。",
+    "IR入口と2018〜2026年のトピックス見出しを有限確認した。2019年9月26日の制度導入と分割関連の告知見出し、2020年4月8日の優待ページ掲載見出しは観測したが、原告知PDFは未読。見出しの日付を制度開始日や現行区分の適用開始へ転用しない。"
+  ],
+  "minimum_shares": 100,
+  "trading_unit": 100,
+  "record_month_days": [
+    "03-31"
+  ],
+  "tiers": [
+    {
+      "min_shares": 100,
+      "max_shares": null,
+      "benefit": "QUOカード1,000円分",
+      "value_yen": 1000,
+      "additive": false
+    }
+  ],
+  "holding_months": null,
+  "holding_status": "unknown",
+  "announced_on": null,
+  "programme_start_on": null,
+  "effective_from": null,
+  "schedules": [],
+  "shipping_plan": "6月の定時株主総会後に発送する決議通知へ同封予定",
+  "actual_dispatch_confirmed": false,
+  "actual_arrival_confirmed": false,
+  "unresolved": [
+    "制度開始日・現行区分の適用開始日・原告知本文は未確認。",
+    "次回購入締切日は対象版、取引日程、継続条件を個別に確定しておらず追加しない。",
+    "すべての告知PDFや将来の制度維持までを確認した保証ではない。"
+  ],
+  "source_use": {
+    "kind": "short_independent_facts_and_conditional_free_incoming_link",
+    "source_terms_URL": "https://www.kandt.co.jp/terms/",
+    "incoming_links_principally_free": true,
+    "link_label_exact": "神田通信機",
+    "accepted_link_labels": [
+      "神田通信機",
+      "神田通信機(株)",
+      "神田通信機株式会社"
+    ],
+    "href_prefix": "https://www.kandt.co.jp/",
+    "frame_link_prohibited": true,
+    "prior_contact_required_on_read_terms": false,
+    "general_IP_licence_claimed": false,
+    "copyright_alone_is_not_blanket_factual_ban": true,
+    "publication_requires_exact_label_implementation": true
+  },
+  "source_observations": [
+    {
+      "ticket": "7",
+      "url": "https://www.kandt.co.jp/ir/stock/",
+      "http_status": 200,
+      "observed_start_at_jst": "2026-11-03T02:11:07.548906+09:00",
+      "observed_finish_at_jst": "2026-11-03T02:11:07.829959+09:00",
+      "original_page_body_sha256": "290264b9969d5f20051627abe540488cc69aeb24634c8bfbe890471ebe115de9",
+      "original_page_body_bytes": 15663,
+      "body_observed": true,
+      "automatic_retries": 0,
+      "automatic_redirects": 0,
+      "receipt_reference": {
+        "sha256": "e0b5861e2f6086234d8c33b7d448a33428ae46698f71a3eb02cb0ba8f2f4a46a",
+        "bytes": 8950
+      }
+    },
+    {
+      "ticket": "10",
+      "url": "https://www.kandt.co.jp/terms/",
+      "http_status": 200,
+      "observed_start_at_jst": "2026-11-03T02:12:41.765147+09:00",
+      "observed_finish_at_jst": "2026-11-03T02:12:41.919291+09:00",
+      "original_page_body_sha256": "6e81d0251c836a775408e83ed56e843d017f1bd2d98b61446057273b0a9829ac",
+      "original_page_body_bytes": 23034,
+      "body_observed": true,
+      "automatic_retries": 0,
+      "automatic_redirects": 0,
+      "receipt_reference": {
+        "sha256": "c8f5a99c1c2715e99fb82a12e7f428234d6f8826f3b0b3b5287445340a3d3115",
+        "bytes": 9379
+      }
+    },
+    {
+      "ticket": "11",
+      "url": "https://www.kandt.co.jp/about/profile/",
+      "http_status": 200,
+      "observed_start_at_jst": "2026-11-03T02:13:06.230291+09:00",
+      "observed_finish_at_jst": "2026-11-03T02:13:06.399349+09:00",
+      "original_page_body_sha256": "45873727c04b2b4daad2e0cab389345837edd04c693cbc7118530437a323ba0a",
+      "original_page_body_bytes": 26009,
+      "body_observed": true,
+      "automatic_retries": 0,
+      "automatic_redirects": 0,
+      "receipt_reference": {
+        "sha256": "b1a640b78210693373adb63a206101d23826a752609765ad666764066ac64e40",
+        "bytes": 9079
+      }
+    },
+    {
+      "ticket": "12",
+      "url": "https://www.kandt.co.jp/ir/",
+      "http_status": 200,
+      "observed_start_at_jst": "2026-11-03T02:13:21.423165+09:00",
+      "observed_finish_at_jst": "2026-11-03T02:13:21.592902+09:00",
+      "original_page_body_sha256": "56e2132f350e2b26d916067a66252f6d10a5dac6df7109ffe65576ade37ad228",
+      "original_page_body_bytes": 17090,
+      "body_observed": true,
+      "automatic_retries": 0,
+      "automatic_redirects": 0,
+      "receipt_reference": {
+        "sha256": "c6924209f4709dce0e79bb1bd89463a14e41b94131cd9a3490efa4e4a8da3b4e",
+        "bytes": 12500
+      }
+    },
+    {
+      "ticket": "13",
+      "url": "https://www.kandt.co.jp/ir/topics/",
+      "http_status": 200,
+      "observed_start_at_jst": "2026-11-03T02:15:29.696205+09:00",
+      "observed_finish_at_jst": "2026-11-03T02:15:29.890652+09:00",
+      "original_page_body_sha256": "e9226ae5803932d7638623db7fc2942b9c96c5f4a8ba20c2537c52ec5debfd67",
+      "original_page_body_bytes": 73643,
+      "body_observed": true,
+      "automatic_retries": 0,
+      "automatic_redirects": 0,
+      "receipt_reference": {
+        "sha256": "045c5144cba64a5f3b22676621841135bd0ba36d3d9b18b3bda6e32de7e2eac7",
+        "bytes": 67158
+      }
+    },
+    {
+      "ticket": "14",
+      "url": "https://www.kandt.co.jp/ir/stock/",
+      "http_status": 200,
+      "observed_start_at_jst": "2026-11-03T02:18:04.357445+09:00",
+      "observed_finish_at_jst": "2026-11-03T02:18:04.509526+09:00",
+      "original_page_body_sha256": "290264b9969d5f20051627abe540488cc69aeb24634c8bfbe890471ebe115de9",
+      "original_page_body_bytes": 15663,
+      "body_observed": true,
+      "automatic_retries": 0,
+      "automatic_redirects": 0,
+      "receipt_reference": {
+        "sha256": "32bb792bfa5f95b7d5933688de25f3b36cab6de1bee0e0188035d2d8c3cd54a5",
+        "bytes": 8951
+      }
+    }
+  ],
+  "root_authored_note_reference": {
+    "sha256": "5d88f959c0712fb8167ebae3fb0b947bbce265f02f1e5d4b9454aae9bfc4d4cf",
+    "bytes": 8856,
+    "kind": "authored_observation_note_not_original_HTML"
+  },
+  "independent_numeric_review_reference": {
+    "sha256": "6e299829f4747767e284e9a716ddb8943dcc76d779d2060ab0eba0ec1ad7cfe8",
+    "bytes": 8999,
+    "decision": "GO",
+    "reviewed_at_jst": "2026-11-03T02:19:15.735584+09:00",
+    "independent_current_HTML_GET": true
+  },
+  "prepublication_source_review_reference": {
+    "sha256": "507bf0308c0bf5bee1d9dd0bf8d039b365531abcd5706132b585e00b4d167789",
+    "bytes": 19749,
+    "decision": "GO",
+    "reviewed_at_jst": "2026-11-03T02:27:26.990664+09:00"
+  },
+  "identity_crosscheck_basis": "Current local StockSearch and dated official JPX company catalogue joined by name, code and market; corporate profile confirms full issuer name and Tokyo Standard, but printed code 1992 was not observed on the read profile.",
+  "raw_HTML_images_tables_or_source_prose_republished": false,
+  "PDFs_fetched_or_adopted": 0,
+  "all_future_amendments_verified_absent": false,
+  "observation_note_SHA_is_not_original_page_SHA": true,
+  "adoption_or_publication_success_claimed_by_this_note": false
+}
