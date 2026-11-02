@@ -303,9 +303,10 @@ def _official_ref(ref, window):
     if (not expected_host or not isinstance(title, str) or not title.strip() or len(title) > 1000
             or not url or not allowed_url):
         return None
-    stamp, verified = _publication_time(ref.get("published_at")), _publication_time(ref.get("body_verified_at"))
+    published_at, verified_at = ref.get("published_at"), ref.get("body_verified_at")
+    stamp, verified = _publication_time(published_at), _publication_time(verified_at)
     digest = ref.get("body_sha256")
-    if (verified is None or verified.timestamp() > window.get("snapshot_at", window["cutoff_at"])
+    if (verified is None or verified_at > window.get("snapshot_at", window["cutoff_at"])
             or not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest)):
         return None
     try:
@@ -324,7 +325,7 @@ def _official_ref(ref, window):
     precision, route = ref.get("publication_precision"), ref.get("selection_route")
     intraday = window.get("kind") == "intraday"
     if intraday and (route != "intraday" or published_day != edition_day or "published_at" not in ref
-            or verified.timestamp() < window["window_start"]
+            or verified_at < window["window_start"]
             or "deferred_from" in ref or "deferred_reason" in ref):
         return None
     deferred = route == "deferred"
@@ -332,7 +333,7 @@ def _official_ref(ref, window):
         if (ref.get("deferred_from") != previous_day.isoformat()
                 or ref.get("deferred_reason") not in ("late_verification", "review_failed", "omitted")
                 or (ref.get("deferred_reason") == "late_verification"
-                    and verified.timestamp() <= window["carryover_start"])):
+                    and verified_at <= window["carryover_start"])):
             return None
     elif "deferred_from" in ref or "deferred_reason" in ref:
         return None
@@ -344,28 +345,30 @@ def _official_ref(ref, window):
             return None
     elif precision == "second":
         if (stamp is None or stamp.astimezone(JST).date() != published_day
-                or stamp > verified or stamp.timestamp() > window["cutoff_at"]):
+                or published_at > verified_at or published_at > window["cutoff_at"]):
             return None
         if intraday:
-            if not window["window_start"] <= stamp.timestamp() <= window["cutoff_at"]:
+            if not window["window_start"] <= published_at <= window["cutoff_at"]:
                 return None
         elif deferred:
-            if not window["window_start"] - 86400 <= stamp.timestamp() <= window["carryover_start"]:
+            if not window["window_start"] - 86400 <= published_at <= window["carryover_start"]:
                 return None
         elif route == "main":
-            if not window["window_start"] <= stamp.timestamp() <= window["cutoff_at"]:
+            if not window["window_start"] <= published_at <= window["cutoff_at"]:
                 return None
         elif route == "carryover":
-            if not window["carryover_start"] < stamp.timestamp() < window["window_start"]:
+            if not window["carryover_start"] < published_at < window["window_start"]:
                 return None
         else:
             return None
     else:
         return None
+    # Datetimes validate calendar dates, but only retain microsecond precision.
+    # Preserve the validated numeric provenance and compare its exact values.
     result = {"source": source, "title": title, "url": url,
-              "published_at": stamp.timestamp() if stamp else None,
+              "published_at": published_at,
               "published_date": published_day.isoformat(), "publication_precision": precision,
-              "body_sha256": digest, "body_verified_at": verified.timestamp(), "selection_route": route}
+              "body_sha256": digest, "body_verified_at": verified_at, "selection_route": route}
     if deferred:
         result.update(deferred_from=ref["deferred_from"], deferred_reason=ref["deferred_reason"])
     return result
@@ -419,7 +422,8 @@ def _validated_digest(value):
                 or not title.strip() or len(title) > 1000 or not url or published is None
                 or published.astimezone(JST).date().isoformat() != edition):
             return None
-        identity = (source, url, published.timestamp() if published else None, title)
+        identity = (source, url, official["published_at"] if official is not None
+                    else published.timestamp() if published else None, title)
         if identity in identities:
             return None
         identities.add(identity)
@@ -447,12 +451,16 @@ def _validated_digest(value):
                     or not 1 <= len(heading.strip()) <= 80 or not isinstance(body, str)
                     or not article_min <= len(body.strip()) <= article_max):
                 return None
-            identity = (source, url, published.timestamp() if published else None, title)
+            normalized = _official_ref(detail, window) if window else None
+            if window and normalized is None:
+                return None
+            identity = (source, url, normalized["published_at"] if window
+                        else published.timestamp() if published else None, title)
             if identity not in identities or identity in covered:
                 return None
             covered.add(identity)
-            normalized = _official_ref(detail, window) if window else dict(zip(("source", "url", "published_at", "title"), identity))
-            if normalized is None or (window and normalized not in articles):
+            normalized = normalized if window else dict(zip(("source", "url", "published_at", "title"), identity))
+            if window and normalized not in articles:
                 return None
             validated.append({**normalized,
                               "headline": heading.strip(), "summary": body.strip()})
@@ -467,27 +475,28 @@ def _validated_digest(value):
     if structure is not None:
         result["reading_structure"] = structure
     if curated:
-        reviewed = _publication_time(value.get("reviewed_at"))
+        reviewed_at = value.get("reviewed_at")
+        reviewed = _publication_time(reviewed_at)
         titles = {" ".join(unicodedata.normalize("NFKC", ref["title"]).casefold().split())
                   for ref in articles}
         if (reviewed is None or reviewed.astimezone(JST).date().isoformat() != edition
-                or reviewed.timestamp() < max(ref.get("body_verified_at", ref["published_at"]) for ref in articles)
-                or (window and reviewed.timestamp() < window.get("snapshot_at", window["cutoff_at"]))
+                or reviewed_at < max(ref.get("body_verified_at", ref["published_at"]) for ref in articles)
+                or (window and reviewed_at < window.get("snapshot_at", window["cutoff_at"]))
                 or len({ref["url"] for ref in articles}) != len(articles)
                 or len(titles) != len(articles)):
             return None
-        result.update(publication_mode="curated", reviewed_at=reviewed.timestamp())
+        result.update(publication_mode="curated", reviewed_at=reviewed_at)
         if window and "publish_at" not in value:
             return None
         if "publish_at" in value:
             release = _publication_time(value["publish_at"])
             earliest_release = (window["cutoff_at"] + (0 if window.get("kind") == "intraday" else 1800)
                                 if window else None)
-            if (release is None or release < reviewed
+            if (release is None or value["publish_at"] < reviewed_at
                     or release.astimezone(JST).date().isoformat() != edition
-                    or (window and release.timestamp() < earliest_release)):
+                    or (window and value["publish_at"] < earliest_release)):
                 return None
-            result["publish_at"] = release.timestamp()
+            result["publish_at"] = value["publish_at"]
     return result
 
 
