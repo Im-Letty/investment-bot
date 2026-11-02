@@ -4499,7 +4499,7 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
         }).then(coreReady);
       }
       if(window.PetJapanSeasons&&window.PetJapanSeasons.lifeRevision==='annual-life1'&&window.PetRiverFishing&&window.PetRiverFishing.lifeRevision==='annual-life1')return oceanReady();
-      return loadRequired('/static/pet-japan-seasons.js?v=20261102-annual-life1',function(){return !!window.PetJapanSeasons&&window.PetJapanSeasons.lifeRevision==='annual-life1';}).then(function(){
+      return loadRequired('/static/pet-japan-seasons.js?v=20261103-clear-colors1',function(){return !!window.PetJapanSeasons&&window.PetJapanSeasons.lifeRevision==='annual-life1';}).then(function(){
         return loadRequired('/static/pet-town-walk.js?v=20261029-snorkeling1',function(){return !!window.PetTownWalk;});
       }).then(function(){
         return loadRequired('/static/pet-river-fishing.js?v=20261102-annual-life1',function(){return !!window.PetRiverFishing&&window.PetRiverFishing.lifeRevision==='annual-life1';});
@@ -4516,7 +4516,7 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
       loadRequired(shopEntryStyle,function(){return !!styleLoads[shopEntryStyle];},true),
       // UI registration has no eager core access. Fetch it in parallel while
       // retaining economy/layout -> core and walking engine -> scene execution order.
-      loadRequired('/static/pet-game.js?v=20261102-seasonal-canopy1',uiReady)
+      loadRequired('/static/pet-game.js?v=20261103-clear-colors1',uiReady)
     ]).then(function(){if(!apiReady())throw assetFailure('invalid');});
     loadScript('/static/pet-lilac-motion.js?v=20261028-gentle-walk1',function(){return !!window.PetLilacMotion;},5000,enhanceOptional).catch(function(){});
     loadScript('/static/pet-room-behavior.js?v=4306c88f116b',function(){return !!window.PetRoomBehavior;},5000,enhanceOptional).catch(function(){});

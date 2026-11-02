@@ -9,13 +9,13 @@
  // Geometry, bitmap originals, seasonal leaf indexing and texture allocation
  // stay independent. No canvas-wide color filter or exposure is applied.
  var palette={
-  wood:['#765034','#9a693f','#bd8d58','#d5ad79','#e9cba0'],
+  wood:['#70452c','#995d33','#bd8045','#d9a35f','#efc887'],
   bark:['#62432d','#795236','#906540','#a57b51','#b9956a'],
   plaster:['#c7b38f','#d9c7a7','#e6d6b9','#f0e4cf','#f8efdf'],
   ceramic:['#c4af89','#d6c4a3','#e3d4b8','#eee2cc','#f7eedb'],
-  glaze:['#785897','#9572ae','#ae8bc5','#c5a5d8','#dfcbea'],
-  terracotta:['#8e4e35','#a55e3e','#bc7650','#cf946d','#dfb18c'],
-  stone:['#9e8b6d','#b7a384','#ccba9b','#dfd1b5','#eee4cd'],
+  glaze:['#704393','#9160b0','#aa7ac9','#c399de','#dfc4f1'],
+  terracotta:['#97442d','#b75a35','#d17849','#e59664','#f0b582'],
+  stone:['#97876f','#b3a28a','#ccb99b','#e0cfb1','#f1e4cc'],
   metal:['#76613d','#937b4c','#ae925b','#c6ad76','#ddc79a']
  };
  Object.keys(palette).forEach(function(k){Object.freeze(palette[k]);});Object.freeze(palette);
@@ -39,8 +39,8 @@
  Object.keys(finishDefinitions).forEach(function(k){Object.freeze(finishDefinitions[k]);});Object.freeze(finishDefinitions);
  var pigmentFamilies={};
  function pigment(family,colors){colors.concat(palette[family]||[]).forEach(function(c){pigmentFamilies[c]=family;});}
- pigment('glaze',['#ad94be','#9b7cb5','#b39bc9','#ad8fbe','#c1a5cf','#9983b0','#b5a0c6','#ab91b8','#c2a7cc']);
- pigment('terracotta',['#d6a18b','#e7b49b','#c7ab88','#ccae8f']);
+ pigment('glaze',['#785897','#9572ae','#ae8bc5','#c5a5d8','#dfcbea','#ad94be','#9b7cb5','#b39bc9','#ad8fbe','#c1a5cf','#9983b0','#b5a0c6','#ab91b8','#c2a7cc']);
+ pigment('terracotta',['#8e4e35','#a55e3e','#bc7650','#cf946d','#dfb18c','#d6a18b','#e7b49b','#c7ab88','#ccae8f']);
  pigment('ceramic',['#eadbc3','#f2e4cd','#f6e7bc','#f9e6b5','#f2e5cf','#f3e7d3']);
  Object.freeze(pigmentFamilies);
  function hex(color){if(typeof color!=='string'||!/^#(?:[a-f0-9]{3}|[a-f0-9]{6})$/i.test(color))return null;var h=color.toLowerCase();return h.length===4?'#'+h[1]+h[1]+h[2]+h[2]+h[3]+h[3]:h;}

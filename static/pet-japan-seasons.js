@@ -11,28 +11,28 @@
   "spring": {
     "key": "spring",
     "label": "春",
-    "ground": "#a4c88d",
+    "ground": "#7cc65a",
     "light": "rgba(230,240,210,.14)",
     "shade": "rgba(65,112,67,.15)",
     "grain": "rgba(111,156,88,.17)",
     "spark": "rgba(238,238,202,.16)",
-    "clear": "rgba(164,200,141,0)",
-    "sky": "#b9dceb",
-    "horizon": "#f2eee0",
+    "clear": "rgba(124,198,90,0)",
+    "sky": "#7eb9f1",
+    "horizon": "#dceef8",
     "foliage": [
-      "#577842",
-      "#779952",
-      "#a8bb7c",
-      "#69864a"
+      "#397b3d",
+      "#5ca448",
+      "#91c65b",
+      "#498f3e"
     ],
     "hills": [
-      "#91b17e",
-      "#b6c99c",
-      "#a2bc8a"
+      "#70ac50",
+      "#a3cf71",
+      "#86ba5d"
     ],
     "flowers": [
-      "#e6a9bf",
-      "#fff0dc"
+      "#ef9bb9",
+      "#fff1d8"
     ],
     "accents": [
       "#c2d69a",
@@ -42,28 +42,28 @@
   "summer": {
     "key": "summer",
     "label": "夏",
-    "ground": "#90bc7a",
+    "ground": "#66bb4b",
     "light": "rgba(223,238,198,.14)",
     "shade": "rgba(49,101,57,.16)",
     "grain": "rgba(90,145,74,.17)",
     "spark": "rgba(235,240,201,.15)",
-    "clear": "rgba(144,188,122,0)",
-    "sky": "#acd3e8",
-    "horizon": "#f0edda",
+    "clear": "rgba(102,187,75,0)",
+    "sky": "#69adf0",
+    "horizon": "#d7eef9",
     "foliage": [
-      "#4c733b",
-      "#6b9250",
-      "#a2b977",
-      "#5c8543"
+      "#28733b",
+      "#469643",
+      "#85bb4e",
+      "#36873c"
     ],
     "hills": [
-      "#86aa74",
-      "#aac68e",
-      "#96b77e"
+      "#5ba044",
+      "#91c85f",
+      "#74af4f"
     ],
     "flowers": [
-      "#dfb96a",
-      "#fff0cb"
+      "#f0be4f",
+      "#fff1b8"
     ],
     "accents": [
       "#b3cd89",
@@ -73,28 +73,28 @@
   "autumn": {
     "key": "autumn",
     "label": "秋",
-    "ground": "#a3bf89",
+    "ground": "#8dc24e",
     "light": "rgba(234,238,208,.14)",
     "shade": "rgba(66,109,61,.15)",
     "grain": "rgba(121,156,92,.16)",
     "spark": "rgba(240,234,204,.16)",
-    "clear": "rgba(163,191,137,0)",
-    "sky": "#bddce9",
-    "horizon": "#f3ebdc",
+    "clear": "rgba(141,194,78,0)",
+    "sky": "#7eb4ee",
+    "horizon": "#dfedf7",
     "foliage": [
-      "#5e7e45",
-      "#7f9a57",
-      "#a7bb7e",
-      "#6c8a4c"
+      "#4b8236",
+      "#78a33f",
+      "#b3c95a",
+      "#5e9138"
     ],
     "hills": [
-      "#93b17d",
-      "#b3c69a",
-      "#a0b889"
+      "#80ae49",
+      "#b0cc6a",
+      "#97bb54"
     ],
     "flowers": [
-      "#dcac9d",
-      "#f6dfb1"
+      "#e99b87",
+      "#f8d485"
     ],
     "accents": [
       "#bc9868",
@@ -104,24 +104,24 @@
   "winter": {
     "key": "winter",
     "label": "冬",
-    "ground": "#e4e9e0",
+    "ground": "#e4edf0",
     "light": "rgba(248,247,237,.20)",
     "shade": "rgba(162,181,172,.16)",
     "grain": "rgba(182,198,186,.16)",
     "spark": "rgba(248,247,237,.23)",
-    "clear": "rgba(228,233,224,0)",
-    "sky": "#c6dfed",
-    "horizon": "#f4f0e9",
+    "clear": "rgba(228,237,240,0)",
+    "sky": "#9bc4ed",
+    "horizon": "#e6f2fa",
     "foliage": [
-      "#617c6b",
-      "#809c83",
-      "#a2b7a4",
-      "#708d77"
+      "#4e7e6a",
+      "#6d9a7e",
+      "#a2bfab",
+      "#608d76"
     ],
     "hills": [
-      "#b7c9bb",
-      "#cbd6c9",
-      "#c0cec2"
+      "#aac7b9",
+      "#cadfd3",
+      "#b8d2c3"
     ],
     "flowers": [
       "#d3aab7",

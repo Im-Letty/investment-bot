@@ -6,10 +6,10 @@
 }(typeof window!=='undefined'?window:globalThis,function(){
  'use strict';
  var REVISION='shop-environment2',SKY_WIDTH=512,SKY_HEIGHT=256,NIGHT_WIDTH=2048,NIGHT_HEIGHT=1024,NIGHT_STARS=7000,TAU=Math.PI*2,SEASONS={
-  spring:{key:'spring',sky:'#a1c9d6',horizon:'#e4e2cc',hills:['#78975d','#a3b77a','#8aa36b']},
-  summer:{key:'summer',sky:'#94c2d3',horizon:'#e1e2c9',hills:['#6f925b','#98af70','#809e64']},
-  autumn:{key:'autumn',sky:'#a8c7cf',horizon:'#e7dec6',hills:['#85975e','#a9b177','#94a36a']},
-  winter:{key:'winter',sky:'#b7ced9',horizon:'#e7e5d7',hills:['#92aa97','#b5c2aa','#a2b39e']}
+  spring:{key:'spring',sky:'#7eb9f1',horizon:'#dceef8',hills:['#70ac50','#a3cf71','#86ba5d']},
+  summer:{key:'summer',sky:'#69adf0',horizon:'#d7eef9',hills:['#5ba044','#91c85f','#74af4f']},
+  autumn:{key:'autumn',sky:'#7eb4ee',horizon:'#dfedf7',hills:['#80ae49','#b0cc6a','#97bb54']},
+  winter:{key:'winter',sky:'#9bc4ed',horizon:'#e6f2fa',hills:['#aac7b9','#cadfd3','#b8d2c3']}
  };
  Object.keys(SEASONS).forEach(function(k){Object.freeze(SEASONS[k].hills);Object.freeze(SEASONS[k]);});Object.freeze(SEASONS);
  function color(v){return typeof v==='string'&&/^#[a-f0-9]{6}$/i.test(v);}
@@ -52,7 +52,7 @@
    var at=(y*SKY_WIDTH+x)*4;
    for(var channel=0;channel<3;channel++){
     var base=sky[channel]*(1-blend)+horizon[channel]*blend;
-    var cloudTop=[247,242,221][channel],cloudBottom=[207,216,203][channel];
+    var cloudTop=[252,253,255][channel],cloudBottom=[213,230,244][channel];
     var pigment=cloudTop*(1-under*.48)+cloudBottom*under*.48;
     pixels[at+channel]=Math.max(0,Math.min(255,Math.round(base*(1-cloud)+pigment*cloud+grain*(1-blend))));
    }

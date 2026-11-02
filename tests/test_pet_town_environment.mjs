@@ -8,7 +8,7 @@ function fixture(){const group=new T.Group(),sentinel=new T.Mesh(new T.BoxGeomet
 function release(f){f.helper.dispose();for(const g of f.geometries)g.dispose();for(const m of f.materials)m.dispose();f.sentinel.geometry.dispose();f.sentinel.material.dispose();}
 test('portable API is deterministic without timers, randomness or I/O',()=>{
  const guarded=Object.create(Math);guarded.random=()=>{throw Error('random')};const c={Math:guarded,Date:class{constructor(){throw Error('clock')}}};vm.runInNewContext(fs.readFileSync(new URL('../static/pet-town-environment.js',import.meta.url),'utf8'),c);
- assert.equal(c.PetTownEnvironment.revision,'shop-environment2');assert.ok(Object.isFrozen(Env));assert.equal(Env.profile(Seasons.profile('spring')).sky,'#a1c9d6');assert.ok(Object.isFrozen(Env.profile(Seasons.profile('spring')).hills));
+ assert.equal(c.PetTownEnvironment.revision,'shop-environment2');assert.ok(Object.isFrozen(Env));assert.equal(Env.profile(Seasons.profile('spring')).sky,'#7eb9f1');assert.ok(Object.isFrozen(Env.profile(Seasons.profile('spring')).hills));
 });
 test('one normalized irregular geometry is closed, outward, smooth and bounded by the old sphere',()=>{
  const g=Env.hillGeometry(T);try{const p=g.attributes.position,n=g.attributes.normal,idx=g.index,edges=new Map(),normals=new Map(),pigment=g.attributes.color;let volume=0,different=0;
@@ -64,7 +64,7 @@ test('opaque painted sky has soft cloud detail, exact panorama seams, stable sea
   assert.equal(a.wrapS,T.RepeatWrapping);assert.equal(a.wrapT,T.ClampToEdgeWrapping);
   for(let y=0;y<256;y++)for(let channel=0;channel<3;channel++)assert.equal(pixels[(y*512)*4+channel],pixels[(y*512+511)*4+channel],'panorama seam remains exact');
   let widest=0;for(let y=72;y<133;y++){let lo=255,hi=0;for(let x=0;x<512;x++){const at=(y*512+x)*4;lo=Math.min(lo,pixels[at]);hi=Math.max(hi,pixels[at]);}widest=Math.max(widest,hi-lo);}
-  assert.ok(widest>=10&&widest<50,'horizontal cloud variation is visible but bounded instead of a global veil');
+  assert.ok(widest>=10&&widest<65,'white clouds retain bounded contrast over the clearer blue sky without a global veil');
   for(let i=3;i<pixels.length;i+=4)assert.equal(pixels[i],255);
   const horizon=Env.profile(Seasons.profile(key)).horizon;for(let channel=0;channel<3;channel++)assert.equal(pixels[((256-1)*512)*4+channel],parseInt(horizon.slice(1+channel*2,3+channel*2),16));
  }assert.equal(JSON.stringify(Seasons.profiles),saved);assert.equal(Env.limits.skyTextureBytes,524288);
