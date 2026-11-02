@@ -32,7 +32,43 @@
     var h=Math.imul(x,73856093)^Math.imul(y,19349663);
     h=Math.imul(h^(h>>>13),1274126177);return (h>>>0)/4294967295;
   }
-  // Broad moss patches, tiny grain and short curved blades share one seasonal
+  // Rasterize small curved strokes into the existing tone buffer. Wrapped
+  // samples carry a tuft across the tile seam instead of clipping its blades.
+  function grassStroke(tones,x,y,angle,length,width,bend,strength){
+    var period=SIZE-1,cos=Math.cos(angle),sin=Math.sin(angle),reach=length+Math.abs(bend)+width*3;
+    var minX=Math.floor(x-reach),maxX=Math.ceil(x+reach),minY=Math.floor(y-reach),maxY=Math.ceil(y+reach);
+    for(var py=minY;py<=maxY;py++)for(var px=minX;px<=maxX;px++){
+      var dx=px-x,dy=py-y,t=(dx*cos+dy*sin)/length;
+      if(t<=0||t>=1)continue;
+      var taper=Math.sin(t*Math.PI),radius=width*(.45+.55*taper);
+      var across=-dx*sin+dy*cos-bend*taper,edge=across/radius;
+      if(Math.abs(edge)>3)continue;
+      var light=Math.exp(-edge*edge*2),shade=Math.exp(-Math.pow((across-radius*1.3)/(radius*1.2),2)*2);
+      var sx=(px%period+period)%period,sy=(py%period+period)%period;
+      tones[sy*SIZE+sx]+=strength*Math.sqrt(taper)*(light-shade*.42);
+    }
+  }
+  function grassFans(tones){
+    var period=SIZE-1,cell=period/16,tau=Math.PI*2;
+    for(var cy=0;cy<16;cy++)for(var cx=0;cx<16;cx++){
+      var a=seed(cx+17,cy+29),b=seed(cx+41,cy+7),c=seed(cx+5,cy+61);
+      var x=(cx+.18+a*.64)*cell,y=(cy+.18+b*.64)*cell,angle=c*tau;
+      // Leave small gaps and vary the root, reach and spread. These are low
+      // painted fans, not additional grass geometry or a second height map.
+      if(seed(cx+83,cy+13)>.20){
+        var length=6.5+seed(cx+11,cy+97)*6,spread=.32+seed(cx+53,cy+23)*.22;
+        for(var blade=-1;blade<=1;blade++){
+          var variation=seed(cx+blade+109,cy+47),reach=length*(blade===0?1:.68+variation*.20);
+          grassStroke(tones,x,y,angle+blade*spread,reach,.85+variation*.28,(variation-.5)*reach*.26,7+variation*1.4);
+        }
+      }
+      if(seed(cx+131,cy+79)>.77){
+        var markX=(cx+.15+seed(cx+43,cy+139)*.70)*cell,markY=(cy+.15+seed(cx+157,cy+37)*.70)*cell;
+        grassStroke(tones,markX,markY,angle+1.1,3.5+seed(cx+71,cy+173)*2,.85,.6,4.5);
+      }
+    }
+  }
+  // Broad moss patches, tiny grain and irregular short fans share one seasonal
   // albedo/height map. Periodic coordinates include both identical tile edges.
   // Mean removal retains the calendar base instead of grading the whole world.
   function groundTexture(T,doc,season){
@@ -44,22 +80,14 @@
     ctx.fillStyle=p.ground;ctx.fillRect(0,0,SIZE,SIZE);
     if(ctx.createImageData&&ctx.putImageData){
       var image=ctx.createImageData(SIZE,SIZE),pixels=image.data,base=rgb(p.ground),tau=Math.PI*2;
-      var tones=new Float32Array(SIZE*SIZE),mean=0;
+      var tones=new Float32Array(SIZE*SIZE),mean=0;grassFans(tones);
       for(var y=0;y<SIZE;y++)for(var x=0;x<SIZE;x++){
-        var nx=x/(SIZE-1),ny=y/(SIZE-1),u=nx*tau,v=ny*tau;
+        var sx=x===SIZE-1?0:x,sy=y===SIZE-1?0:y,nx=sx/(SIZE-1),ny=sy/(SIZE-1),u=nx*tau,v=ny*tau;
+        if(x===SIZE-1||y===SIZE-1){tones[y*SIZE+x]=tones[sy*SIZE+sx];mean+=tones[y*SIZE+x];continue;}
         var moss=Math.sin(u*2+Math.sin(v*3)*.5)*6.8+Math.cos(v*3+Math.sin(u*2)*.4)*4.2+
           Math.sin(u*7+v*5)*2.5+Math.sin(u*19-v*13)*.7;
-        var cellX=Math.floor(nx*16)%16,cellY=Math.floor(ny*16)%16,r=seed(cellX,cellY);
-        var fx=(nx*16)%1-.5,fy=(ny*16)%1-.5,angle=r*tau;
-        var across=fx*Math.cos(angle)+fy*Math.sin(angle),along=-fx*Math.sin(angle)+fy*Math.cos(angle);
-        var bow=.12*Math.sin((along+.35)/.70*Math.PI),width=.037*Math.sqrt(Math.max(0,1-Math.pow(along/.35,2)));
-        var blade=0;
-        if(Math.abs(along)<.35&&width>0){
-          var center=across-bow,edge=Math.abs(center)/width;
-          blade=9*Math.exp(-edge*edge*2)-5.4*Math.exp(-Math.pow((center-.045)/.045,2)*2);
-        }
-        var grain=(seed(x===SIZE-1?0:x,y===SIZE-1?0:y)-.5)*2.2;
-        var tone=18*Math.tanh((moss+blade+grain)/18);
+        var grass=tones[sy*SIZE+sx],grain=(seed(sx,sy)-.5)*2.2;
+        var tone=18*Math.tanh((moss+grass+grain)/18);
         tones[y*SIZE+x]=tone;mean+=tone;
       }
       mean/=SIZE*SIZE;

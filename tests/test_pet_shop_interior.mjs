@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import * as THREE from '../static/vendor/three-0.160.1.module.js';
 import FrameFit from '../static/pet-frame-fit.js';
+import StillStep from '../static/pet-still-step.js';
 import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 import Interior from '../static/pet-shop-interior.js';
@@ -46,9 +47,27 @@ async function fixture(opts={}){
  };
 }
 
+test('Milne shop stepping preserves its frame, shadow, layout and accepted manual position without extra uploads',async()=>{
+ const f=await fixture({camera:{yaw:0}});try{
+  f.controller.setFrame(f.source,{anchor:.2,characterId:'milne',presentation:'static-front',stillStep:true});
+  const r=f.renderers[0],scene=r.calls.at(-1).scene,sprite=scene.getObjectByName('canonical-shop-pet-frame'),shadow=scene.getObjectByName('shop-pet-contact-shadow'),scale=sprite.scale.toArray(),layout=f.controller.getLayout(),uploads=r.uploads.length;
+  f.key('a');f.frame();f.frame();const pose=JSON.parse(f.stage.dataset.stillStep),position=f.controller.position();
+  assert.equal(pose.active,true);assert.ok(pose.bob>0&&pose.bob<=.025);assert.ok(Math.abs(pose.roll)>0&&Math.abs(pose.roll)<=.035);assert.equal(sprite.material.rotation,pose.roll);assert.ok(Math.abs(sprite.position.y-.04-pose.bob)<1e-10);assert.equal(shadow.position.y,.045);assert.equal(sprite.position.x,position.x);assert.equal(sprite.position.z,position.z);assert.deepEqual(sprite.scale.toArray(),scale);assert.equal(sprite.center.y,.2);assert.equal(r.uploads.length,uploads);assert.deepEqual(f.controller.getLayout(),layout);assert.equal(f.drafts.length,0);
+  f.walkAllow(false);f.frame();assert.equal(sprite.material.rotation,0);assert.equal(JSON.parse(f.stage.dataset.stillStep).active,false);const stopped=f.controller.position();f.walkAllow(true);f.frame();assert.deepEqual(f.controller.position(),stopped);
+  f.key('a',false);f.key('a');f.frame();f.frame();f.controller.setEditing(true);f.frame();assert.equal(sprite.material.rotation,0);assert.equal(JSON.parse(f.stage.dataset.stillStep).bob,0);assert.equal(sprite.visible,false);
+ }finally{f.controller.destroy();}
+});
+test('shop reduced motion and hidden visits reset whole-artwork pose without transferring opt-in to another frame',async()=>{
+ const f=await fixture({camera:{yaw:0},reduced:true});try{
+  f.controller.setFrame(f.source,{anchor:.2,characterId:'milne',presentation:'static-front',stillStep:true});
+  const r=f.renderers[0],sprite=r.calls.at(-1).scene.getObjectByName('canonical-shop-pet-frame'),uploads=r.uploads.length;f.key('a');f.frame();f.frame();assert.equal(JSON.parse(f.stage.dataset.stillStep).active,false);assert.equal(sprite.material.rotation,0);assert.equal(r.uploads.length,uploads);f.key('a',false);f.frame();f.frame();assert.equal(f.frames.size,0);
+  f.media.matches=false;f.media.emit('change');f.key('a');f.frame();f.frame();assert.equal(JSON.parse(f.stage.dataset.stillStep).active,true);f.doc.hidden=true;f.doc.emit('visibilitychange');assert.equal(sprite.material.rotation,0);assert.equal(JSON.parse(f.stage.dataset.stillStep).bob,0);assert.equal(f.frames.size,0);
+  f.doc.hidden=false;f.doc.emit('visibilitychange');const other={...f.source};other.getContext=f.source.getContext;assert.equal(f.controller.setFrame(other,{anchor:.2}),true);f.key('a');f.frame();f.frame();assert.equal(JSON.parse(f.stage.dataset.stillStep).enabled,false);assert.equal(sprite.material.rotation,0);
+ }finally{f.controller.destroy();}
+});
 test('browser shop registration tolerates a later shared frame helper without making it a game boot dependency',async()=>{
  const context=vm.createContext({});vm.runInContext(readFileSync(new URL('../static/pet-shop-layout.js',import.meta.url),'utf8'),context);vm.runInContext(readFileSync(new URL('../static/pet-shop-interior.js',import.meta.url),'utf8'),context);
- assert.equal(context.PetFrameFit,undefined);assert.equal(typeof context.PetShopInterior.mount,'function');context.PetFrameFit=FrameFit;
+ assert.equal(context.PetFrameFit,undefined);assert.equal(typeof context.PetShopInterior.mount,'function');context.PetFrameFit=FrameFit;context.PetStillStep=StillStep;
  const f=await fixture({interiorAPI:context.PetShopInterior});try{assert.ok(f.controller);assert.equal(f.controller.setFrame(f.source,{anchor:.3}),true);assert.equal(f.renderers[0].calls.at(-1).scene.getObjectByName('canonical-shop-pet-frame').center.y,.3);assert.deepEqual(f.failures,[]);}finally{f.controller?.destroy();}
 });
 
