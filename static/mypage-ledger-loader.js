@@ -110,9 +110,14 @@
     // ledger view before the requested MyPage surface has been applied.
     item.style.visibility='hidden';item.setAttribute('aria-busy','true');
   }
+  function readyStage(item,value) {
+    // Fixed presentation diagnostics only: never owner IDs, URLs or errors.
+    if(item&&item.getAttribute('data-ready-stage')!==value)item.setAttribute('data-ready-stage',value);
+  }
   function createFrame() {
     var item=document.createElement('iframe');item.className='kb-frame';item.dataset.kbsrc='/kakeibo';
     hideFrame(item);
+    readyStage(item,'created');
     item.setAttribute('title','資産管理・家計簿');item.addEventListener('load',function(){
       if(item!==frame)return;
       loaded=true;ready=false;hideFrame(item);markReady();
@@ -122,14 +127,15 @@
   function markReady() {
     ready=false;
     hideFrame(frame);
-    if(!frame||!owner||owner!==account())return;
+    if(!frame||!owner||owner!==account()){readyStage(frame,'owner');return;}
     try {
       var child=frame.contentWindow,doc=frame.contentDocument,where=child.location;
-      if(where.origin!==location.origin||where.pathname!=='/kakeibo'||
-          !doc||doc.documentElement.getAttribute('data-kn-ledger-ready')!=='true'||
-          typeof child.kkSetMyPageView!=='function')return;
+      if(where.origin!==location.origin){readyStage(frame,'origin');return;}
+      if(where.pathname!=='/kakeibo'){readyStage(frame,'path');return;}
+      if(!doc||doc.documentElement.getAttribute('data-kn-ledger-ready')!=='true'){readyStage(frame,'document');return;}
+      if(typeof child.kkSetMyPageView!=='function'){readyStage(frame,'layout');return;}
       ready=true;pane.classList.remove('mp-memo-warming');applyFrameView();
-    } catch(ignore) {}
+    } catch(ignore) {readyStage(frame,'unreadable');}
   }
   function refreshVisible() {
     if(!ready||!owner||owner!==account()||!page.classList.contains('open')||document.hidden||
@@ -155,16 +161,18 @@
   function applyFrameView() {
     var item=frame,currentOwner=owner;
     hideFrame(item);
-    if(!item||!ready||!currentOwner||currentOwner!==account())return false;
+    if(!item||!ready||!currentOwner||currentOwner!==account()){readyStage(item,'view_owner');return false;}
     var view=group===1?'ledger':portfolioSelected()?'assets':null;
-    if(!view)return false;
+    if(!view){readyStage(item,'view_unselected');return false;}
     try {
       var child=item.contentWindow;
-      if(typeof child.kkSetMyPageView!=='function'||child.kkSetMyPageView(view)!==true)return false;
-      if(item!==frame||owner!==currentOwner||currentOwner!==account())return false;
+      if(typeof child.kkSetMyPageView!=='function'){readyStage(item,'view_layout');return false;}
+      if(child.kkSetMyPageView(view)!==true){readyStage(item,'view_rejected');return false;}
+      if(item!==frame||owner!==currentOwner||currentOwner!==account()){readyStage(item,'view_owner');return false;}
       item.style.visibility='';item.removeAttribute('aria-busy');
+      readyStage(item,view==='assets'?'applied_assets':'applied_ledger');
       return true;
-    } catch(ignore) {return false;}
+    } catch(ignore) {readyStage(item,'view_error');return false;}
   }
   function prepare(allowHidden) {
     if(!page||!page.classList.contains('open')&&allowHidden!==true)return;
@@ -177,6 +185,7 @@
     // start another read when this warmed document is first made visible.
     refreshAt=Date.now();refreshPending=null;
     hideFrame(frame);
+    readyStage(frame,'warming');
     // Reuse the already established identity; never create or refresh one here.
     // Eager loading lets the shared document warm before its first visible visit.
     frame.setAttribute('loading','eager');

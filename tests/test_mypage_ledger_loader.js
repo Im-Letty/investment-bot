@@ -112,8 +112,9 @@ test('account switch destroys the old document before the next account can load'
 });
 test('readiness accepts only the owned same-origin household-ledger frame',()=>{
   const h=fixture();h.frame.contentDocument.documentElement.getAttribute=()=>null;h.context.knOpenLedger();assert.equal(h.frame.getAttribute('aria-busy'),'true');
-  h.ready({origin:'https://other.test'});h.ready({source:{}});assert.equal(h.frame.getAttribute('aria-busy'),'true');
-  h.frame.contentDocument.documentElement.getAttribute=()=> 'true';h.ready();assert.equal(h.frame.getAttribute('aria-busy'),null);
+  assert.equal(h.frame.getAttribute('data-ready-stage'),'document');
+  h.ready({origin:'https://other.test'});h.ready({source:{}});assert.equal(h.frame.getAttribute('aria-busy'),'true');assert.equal(h.frame.getAttribute('data-ready-stage'),'document');
+  h.frame.contentDocument.documentElement.getAttribute=()=> 'true';h.ready();assert.equal(h.frame.getAttribute('aria-busy'),null);assert.equal(h.frame.getAttribute('data-ready-stage'),'applied_ledger');
 });
 test('initial portfolio never exposes the ledger while readiness or the child view API is delayed',()=>{
   const h=fixture(),frame=h.frame;
@@ -522,12 +523,19 @@ test('normal identity arrival including an existing anonymous owner warms once w
 
 test('an owned layout-ready message reveals assets before window load while missing or foreign view APIs stay hidden',()=>{
   const h=fixture(),frame=h.frame,child=frame.contentWindow;delete child.kkSetMyPageView;
-  h.context.knOpenAssets();h.ready();assert.equal(frame.style.visibility,'hidden');assert.equal(frame.getAttribute('aria-busy'),'true');
+  h.context.knOpenAssets();h.ready();assert.equal(frame.style.visibility,'hidden');assert.equal(frame.getAttribute('aria-busy'),'true');assert.equal(frame.getAttribute('data-ready-stage'),'layout');
   child.kkSetMyPageView=view=>{h.views.push(view);return true;};
-  child.location.pathname='/other';h.ready();assert.equal(frame.style.visibility,'hidden');
-  child.location.pathname='/kakeibo';child.location.origin='https://other.test';h.ready();assert.equal(frame.style.visibility,'hidden');
+  child.location.pathname='/other';h.ready();assert.equal(frame.style.visibility,'hidden');assert.equal(frame.getAttribute('data-ready-stage'),'path');
+  child.location.pathname='/kakeibo';child.location.origin='https://other.test';h.ready();assert.equal(frame.style.visibility,'hidden');assert.equal(frame.getAttribute('data-ready-stage'),'origin');
   child.location.origin='https://local.test';h.ready();
-  assert.equal(h.views.at(-1),'assets');assert.equal(frame.style.visibility,'');assert.equal(frame.getAttribute('aria-busy'),null);
+  assert.equal(h.views.at(-1),'assets');assert.equal(frame.style.visibility,'');assert.equal(frame.getAttribute('aria-busy'),null);assert.equal(frame.getAttribute('data-ready-stage'),'applied_assets');
+  h.tabs.children[0].classList.remove('on');h.ready();assert.equal(frame.getAttribute('data-ready-stage'),'view_unselected');assert.equal(frame.style.visibility,'hidden');h.tabs.children[0].classList.add('on');
+  child.kkSetMyPageView=()=>false;h.ready();assert.equal(frame.getAttribute('data-ready-stage'),'view_rejected');assert.equal(frame.style.visibility,'hidden');
+  child.kkSetMyPageView=()=>{throw Error('synthetic-secret-owner-or-URL');};h.ready();assert.equal(frame.getAttribute('data-ready-stage'),'view_error');assert.equal(frame.style.visibility,'hidden');
+  const where=child.location;Object.defineProperty(child,'location',{configurable:true,get(){throw Error('synthetic-private-origin');}});h.ready();assert.equal(frame.getAttribute('data-ready-stage'),'unreadable');Object.defineProperty(child,'location',{configurable:true,writable:true,value:where});
+  h.context.knUser={id:'synthetic-private-owner'};h.ready();assert.equal(frame.getAttribute('data-ready-stage'),'owner');h.context.knUser={id:'account-A'};
+  child.kkSetMyPageView=view=>{h.views.push(view);return true;};h.ready();assert.equal(frame.getAttribute('data-ready-stage'),'applied_assets');
+  assert.doesNotMatch(frame.getAttribute('data-ready-stage'),/synthetic|account|https|URL|secret/);
   assert.equal(h.frame,frame);assert.deepEqual(h.navigations,['/kakeibo']);assert.equal(h.refreshes(),0);
 });
 
