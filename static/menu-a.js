@@ -95,7 +95,8 @@
     // The drawer follows the home scale; legacy per-node sizing must not compound it.
     drawer.querySelectorAll('[data-bfs]').forEach(function(n){n.style.removeProperty('font-size');});
     drawer.querySelectorAll('[data-menu-size]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.menuSize===stored('ui_fontscale','m')));});
-    var font=drawer.querySelector('#knMenuFont');if(font)font.value=stored('ui_font','gothic');
+    var selected=stored('ui_font','gothic');if(['gothic','round','mincho','klee','pop'].indexOf(selected)<0)selected='gothic';
+    drawer.querySelectorAll('[data-menu-font]').forEach(function(input){input.checked=input.dataset.menuFont===selected;});
     drawer.querySelectorAll('[data-menu-style]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.menuStyle===stored('ui_style','pro')));});
     drawer.querySelectorAll('.drawer-color-preset').forEach(function(b){b.setAttribute('aria-pressed',String(b.classList.contains('active')&&document.documentElement.hasAttribute('data-custom-brand-color')));});
     if(colorController)colorController.sync();
@@ -139,7 +140,7 @@
       var colorHeading=document.createElement('p');colorHeading.id='knMenuColorTitle';colorHeading.className='kn-menu-label';colorHeading.dataset.menuCopy='color';colorHeading.textContent=text('color');colors.insertBefore(colorHeading,colors.firstChild);
       var colorReset=colors.querySelector('#drawerColorReset');if(colorReset){colorReset.removeAttribute('data-i18n');colorReset.dataset.menuCopy='resetColor';colorReset.textContent=text('resetColor');}
     }
-    var display=view('display');var displayControls=document.createElement('div');displayControls.innerHTML='<p class="kn-menu-label" data-menu-copy="size">'+text('size')+'</p><div class="kn-menu-sizes">'+[['s','small'],['m','medium'],['l','large'],['xl','largest']].map(function(v){return '<button type="button" data-menu-size="'+v[0]+'" data-menu-copy="'+v[1]+'">'+text(v[1])+'</button>';}).join('')+'</div><label class="kn-menu-font"><span data-menu-copy="font">'+text('font')+'</span><select id="knMenuFont" aria-label="'+text('font')+'">'+['gothic','round','mincho','klee','pop'].map(function(key){return '<option value="'+key+'" data-menu-copy="'+key+'">'+text(key)+'</option>';}).join('')+'</select></label>';
+    var display=view('display');var displayControls=document.createElement('div');displayControls.innerHTML='<p class="kn-menu-label" data-menu-copy="size">'+text('size')+'</p><div class="kn-menu-sizes">'+[['s','small'],['m','medium'],['l','large'],['xl','largest']].map(function(v){return '<button type="button" data-menu-size="'+v[0]+'" data-menu-copy="'+v[1]+'">'+text(v[1])+'</button>';}).join('')+'</div><fieldset class="kn-menu-font" id="knMenuFont"><legend data-menu-copy="font">'+text('font')+'</legend><div class="kn-menu-font-options">'+['gothic','round','mincho','klee','pop'].map(function(key){return '<label class="kn-menu-font-choice"><span class="kn-menu-font-sample" data-font-preview="'+key+'" aria-hidden="true">Aa</span><span class="kn-menu-font-name" data-font-preview="'+key+'" data-menu-copy="'+key+'">'+text(key)+'</span><input type="radio" name="kn-menu-font" value="'+key+'" data-menu-font="'+key+'"></label>';}).join('')+'</div></fieldset>';
     while(displayControls.firstChild)display.appendChild(displayControls.firstChild);
     var motion=document.getElementById('knHomeOrbitMotion');if(motion){motion.classList.add('kn-menu-motion');display.appendChild(motion);}
     var reset=document.createElement('button');reset.type='button';reset.className='kn-menu-reset';reset.dataset.menuReset='1';reset.dataset.menuCopy='reset';reset.textContent=text('reset');display.appendChild(reset);nav.appendChild(display);var displayTrigger=row('display');displayTrigger.setAttribute('aria-controls','knMenuView-display');viewTriggers.display=displayTrigger;panel.appendChild(displayTrigger);
@@ -160,8 +161,13 @@
     drawer.querySelectorAll(':scope > .drawer-section-label,:scope > .drawer-color-wrap,:scope > .drawer-footer').forEach(function(n){n.remove();});
     var oldSettings=document.getElementById('drawerSettingsBtn');if(oldSettings)oldSettings.parentElement.remove();
     nav.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.dataset.menuPage)navigate(b.dataset.menuPage);if(b.dataset.menuSize&&window.dsSetSize)window.dsSetSize(b.dataset.menuSize);if(b.dataset.menuStyle&&window._setUIStyle)window._setUIStyle(b.dataset.menuStyle);if(b.dataset.menuReset&&window.dsReset)window.dsReset();syncPreferences();});
-    display.querySelector('select').addEventListener('change',function(e){if(window.dsSetFont)window.dsSetFont(e.target.value);syncPreferences();});
-    drawer.addEventListener('click',function(){syncPreferences();});
+    display.querySelector('#knMenuFont').addEventListener('change',function(e){var input=e.target,key=input&&input.dataset&&input.dataset.menuFont;if(!input.checked||['gothic','round','mincho','klee','pop'].indexOf(key)<0)return;if(window.dsSetFont)window.dsSetFont(key);syncPreferences();});
+    drawer.addEventListener('click',function(e){
+      // Native radios dispatch change after click. Let that change commit the
+      // new font before syncing the group from the saved preference.
+      if(e.target.closest('.kn-menu-font-choice'))return;
+      syncPreferences();
+    });
     var observer=new MutationObserver(function(){Array.from(nav.children).forEach(function(n){if(n!==panel&&Object.keys(views).every(function(key){return views[key]!==n;}))n.remove();});});observer.observe(nav,{childList:true});
     wasOpen=drawer.classList.contains('open');
     syncDrawerState=function(){var open=drawer.classList.contains('open');if(!open&&colorController)colorController.close(false);drawer.inert=!open;drawer.setAttribute('aria-hidden',String(!open));syncOpeners(open);if(open===wasOpen)return;wasOpen=open;if(open){lastOpener=document.activeElement;showView('main',false);header.querySelector('.kn-menu-close').focus({preventScroll:true});}else if(lastOpener&&lastOpener.isConnected)lastOpener.focus({preventScroll:true});};
