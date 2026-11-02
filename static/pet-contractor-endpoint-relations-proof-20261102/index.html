@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ja">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="data:,">
+<title>渡された配置座標と矩形の関係</title>
+<style>
+:root{color-scheme:light;font-family:system-ui,-apple-system,sans-serif;color:#253d38;background:#f6f4ed;line-height:1.65}*{box-sizing:border-box}body{margin:0}main{max-width:960px;margin:auto;padding:24px 18px 48px}h1{font-size:clamp(1.5rem,4vw,2.1rem);line-height:1.4;margin:0 0 12px}h2{font-size:1.25rem;margin:0 0 12px}p{margin:10px 0}.eyebrow{font-size:.85rem;color:#47635b;letter-spacing:.06em}.panel{background:#fffef9;border:1px solid #d1d9cc;border-radius:18px;padding:18px;margin-top:18px}.notice{border-left:4px solid #748c70;padding-left:14px}.fixtures{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}button{font:inherit;text-align:left;line-height:1.45;color:#233d34;background:#edf2e7;border:1px solid #b9c8b2;border-radius:12px;min-height:48px;padding:10px 12px;cursor:pointer}button[aria-pressed=true]{background:#dce9d2;font-weight:700;border-color:#637c57}button:hover{background:#e1ebd8}button:focus-visible,summary:focus-visible,#result-title:focus-visible,pre:focus-visible{outline:3px solid #7460a1;outline-offset:4px}button:disabled{cursor:wait}.state{font-weight:700;min-height:1.7em}.views{display:grid;grid-template-columns:1fr 1fr;gap:12px}figure{margin:0;min-width:0}figcaption{font-weight:650}svg{display:block;width:100%;height:auto;background:#f3f5ef;border:1px solid #d2d9ce;border-radius:12px;margin-top:6px}svg text{font-size:5px;fill:#223e37;font-weight:600}.legend{font-size:.9rem;color:#4c635c}.table-wrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.9rem}caption{text-align:left;margin-bottom:10px}th,td{text-align:left;vertical-align:top;padding:8px 5px;border-bottom:1px solid #dce3d7;overflow-wrap:anywhere}th:first-child{width:25%}td small{display:block;color:#425e53}summary{cursor:pointer;font-weight:650;padding:6px 0}pre{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;font-size:.8rem;max-height:420px;overflow:auto;background:#f0f3ec;padding:12px;border-radius:10px}.empty{color:#50675d}.limits{font-size:.94rem}a{color:#355e8b}.visually-hidden{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}@media(max-width:560px){main{padding:20px 12px 36px}.panel{padding:14px}.fixtures,.views{grid-template-columns:1fr}th,td{font-size:.82rem;padding:8px 4px}.notice{padding-left:10px}}
+</style>
+<main>
+<p class="eyebrow">業者依頼に向けた技術見本</p>
+<h1>渡された配置座標と矩形の関係</h1>
+<p>同じ版の配置と希望する配置に、明示した6つの矩形を重ねて、変更前後の「重なる・触れる・離れる」を比べます。下の例はすべて架空です。</p>
+<p class="notice">図の単位は保存用の配置座標です。村の実際の位置や大きさへ変換した図ではありません。矩形の寸法も、この見本に渡した値だけを使います。</p>
+<section class="panel" aria-labelledby="cases-title">
+<h2 id="cases-title">例を手動で確認する</h2>
+<p>各ボタンを押したときだけ検査します。ページを開くだけでは実行しません。</p>
+<div id="fixtures" class="fixtures"></div>
+<p id="status" class="state" role="status" aria-live="polite">準備中</p>
+</section>
+<section class="panel" aria-labelledby="result-title">
+<h2 id="result-title" tabindex="-1">変更前後</h2>
+<p id="case-description" class="empty">上の例を選んでください。</p>
+<p id="summary"></p>
+<div class="views">
+<figure><figcaption>変更前の矩形</figcaption><svg id="before" viewBox="-15 -15 110 100" role="img" aria-label="変更前の保存座標の矩形"><text x="5" y="15">未実行</text></svg></figure>
+<figure><figcaption>変更後の矩形</figcaption><svg id="after" viewBox="-15 -15 110 100" role="img" aria-label="変更後の保存座標の矩形"><text x="5" y="15">未実行</text></svg></figure>
+</div>
+<p class="legend">色は場所IDを見分けるためのものです。図は全矩形を収めるために表示倍率を変えます。数値は下の一覧と詳細に残します。</p>
+<p class="legend">図の番号：1 home ／ 2 cafe ／ 3 shop ／ 4 playground ／ 5 tree ／ 6 flowers</p>
+<div class="table-wrap"><table><caption>6つの場所の全15組　各軸の重なり幅 × 高さ ／ 面積</caption><thead><tr><th scope="col">場所の組</th><th scope="col">変更前</th><th scope="col">変更後</th></tr></thead><tbody id="pairs"><tr><td colspan="3">未実行</td></tr></tbody></table></div>
+<p class="legend">離れた組でも、一方の軸だけで区間が重なる場合があります。その幅・高さの変化も一覧の数値として比べます。面積が0でも、触れる場合と離れる場合を区別します。</p>
+</section>
+<section class="panel limits" aria-labelledby="scope-title">
+<h2 id="scope-title">この確認の範囲</h2>
+<p>6つの場所すべてと配置の版を既存の入力検証で照合し、その後に明示した整数の矩形寸法を検査します。辺・角で触れる場合は、面積のある重なりと区別します。変更の途中の経路は調べません。</p>
+<p>実際の村の投影位置、立体の形や高さ、通行、衝突の安全、身体や服の適合は未確認です。この結果は配置や工事の承認ではありません。業者への送信・受付・見積り・価格・日数・工事には接続していません。</p>
+<p>本人のゲーム保存・所持品・装備・経験値・コイン・住人は読み書きしません。例と結果はこのページ内だけで、再読込すると消えます。</p>
+<details><summary>入力と観測の詳細</summary><pre id="report" tabindex="0" aria-label="入力と観測の詳細JSON">{"status":"not_run","observations":[]}</pre></details>
+</section>
+</main>
+<script src="../pet-village-economy.js"></script>
+<script src="../pet-shop-layout.js"></script>
+<script src="../pet-river-fishing.js"></script>
+<script src="../pet-ocean-discoveries.js"></script>
+<script src="../pet-japan-seasons.js"></script>
+<script src="../pet-game-core.js"></script>
+<script src="../pet-contractor-intent.js"></script>
+<script src="../pet-contractor-endpoint-relations.js"></script>
+<script src="proof.js"></script>
+</html>
