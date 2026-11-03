@@ -3059,7 +3059,7 @@ test('normal legacy-save presentation uses original Milne without a Lilac canvas
 test('normal Milne image readiness supplies its measured Town anchor while manual camera-relative movement preserves saved position data', async()=>{
  const f=await fixture({developerPreview:false,legacyLilacPreview:false,startAtVillage:true,seed:{pg_exp:'400'},townScene:true,rendererMode:'ready'});
  const before=f.saved(),writes=f.writes.length,scene=f.townScenes[0],actor=f.host.querySelector('.ipg-town-character');
- assert.ok(scene);townPresentationState(f,'loading');assert.equal(scene.frames.length,0);
+ assert.ok(scene);assert.equal(scene.options.artworkPath,'/static/pet-characters/milne-original8-v1/adult.webp');townPresentationState(f,'loading');assert.equal(scene.frames.length,0);
  actor.width=actor.height=145;actor.complete=true;actor.naturalWidth=actor.naturalHeight=640;actor.emit('load');await flush();townPresentationState(f,'ready');
  const frame=scene.frames[0];assert.equal(frame.tagName,'CANVAS');assert.equal(frame.width,640);assert.equal(frame.height,640);assert.equal(frame.isConnected,false);
  assert.equal(frame.drawCalls.length,1);assert.equal(frame.drawCalls[0][0],actor);assert.deepEqual(frame.drawCalls[0].slice(1),[0,0],'copy the whole natural image once without a crop or CSS-size resampling');
@@ -3069,6 +3069,24 @@ test('normal Milne image readiness supplies its measured Town anchor while manua
  assert.ok(parseFloat(avatar.style.left)>x,'manual movement still uses the existing camera-relative walking engine');assert.equal(parseFloat(avatar.style.top),y);
  const current={x:parseFloat(avatar.style.left),y:parseFloat(avatar.style.top)};assert.deepEqual(scene.positions.at(-1),current);
  assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);assert.equal(f.mounts.length,0);f.ui.close();
+});
+
+test('normal bunny Town delivers the natural-size image even when CSS reports a small element', async()=>{
+ const f=await fixture({species:'bunny',developerPreview:false,startAtVillage:true,seed:{pg_exp:'45'},townScene:true});
+ try {
+  const before=f.saved(),writes=f.writes.length,scene=f.townScenes[0],actor=f.host.querySelector('.ipg-town-character');
+  assert.equal(scene.options.artworkPath,'/static/pet_bimg_child.webp');
+  assert.equal(actor.src,scene.options.artworkPath);
+  actor.width=70;actor.height=114;actor.complete=true;actor.naturalWidth=177;actor.naturalHeight=288;
+  actor.emit('load');await flush();townPresentationState(f,'ready');
+  const frame=scene.frames[0];
+  assert.equal(frame.tagName,'CANVAS');
+  assert.deepEqual([frame.width,frame.height],[177,288]);
+  assert.deepEqual(frame.drawCalls,[[actor,0,0]]);
+  assert.deepEqual(scene.frameOptions[0],{anchor:.08});
+  assert.equal(f.mounts.length,0);
+  assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
+ } finally { f.ui.close(); }
 });
 
 test('unavailable or rejected Milne 2D frame copying retains the original static image in labelled Town fallback', async()=>{

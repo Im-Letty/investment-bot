@@ -101,7 +101,7 @@ async function fixture(options={}){
   forceContextLoss(){this.lost=true;}
  }
  if(options.configureHost)options.configureHost(host);
- const world=options.world||Town.createWorld(),controller=await (options.sceneAPI||Scene).mount({viewport:host,world,position:options.position||{x:1100,y:1100},camera:options.camera,view:options.view,canRun:()=>allowed,three:{...THREE,TextureLoader:textureLoaderFixture(originalLoads,{...options,loadedTextures:originalTextures}),WebGLRenderer:Renderer},onReady:()=>ready++,onFailure:c=>failures.push(c),onFacing:options.onFacing,seasonNow:options.seasonNow,seasonSubscribe:options.seasonSubscribe,skyNow:options.skyNow,skySubscribe:options.skySubscribe});
+ const world=options.world||Town.createWorld(),controller=await (options.sceneAPI||Scene).mount({viewport:host,world,position:options.position||{x:1100,y:1100},camera:options.camera,view:options.view,artworkPath:options.artworkPath,canRun:()=>allowed,three:{...THREE,TextureLoader:textureLoaderFixture(originalLoads,{...options,loadedTextures:originalTextures}),WebGLRenderer:Renderer},onReady:()=>ready++,onFailure:c=>failures.push(c),onFacing:options.onFacing,seasonNow:options.seasonNow,seasonSubscribe:options.seasonSubscribe,skyNow:options.skyNow,skySubscribe:options.skySubscribe});
  const source=new Element(doc,'CANVAS');source.getContext=()=>({RGBA:1,UNSIGNED_BYTE:2,readPixels(x,y,w,h,format,type,pixels){pixels[(2*w+8)*4+3]=255;}});
  return {doc,win,host,media,frames,renderers,images,observers,timers,originalLoads,originalTextures,world,source,controller,failures,get ready(){return ready;},get now(){return stamp;},allow:v=>{allowed=v;},time:v=>{stamp=v;},frame(ms=16){stamp+=ms;const callbacks=[...frames.values()];frames.clear();callbacks.forEach(fn=>fn(stamp));},project(p){const camera=renderers[0].calls.at(-1).camera,g=Scene.groundPoint(world,p),v=new THREE.Vector3(g.x,Scene.heightAt(p),g.z).project(camera);return {clientX:(v.x+1)*195,clientY:(1-v.y)*350};}};
 }
@@ -130,6 +130,40 @@ test('Milne Town stepping is neutral for unmarked sources, reduced motion, fishi
   f.media.matches=false;f.media.emit('change');f.controller.setPosition({x:1116,y:1100});f.controller.setMotion({walking:true,dx:1,dy:0});f.frame(40);f.doc.hidden=true;f.doc.emit('visibilitychange');assert.equal(sprite.material.rotation,0);assert.equal(JSON.parse(f.host.dataset.stillStep).active,false);assert.equal(f.frames.size,0);
  }finally{f.controller.destroy();assert.equal(f.host.dataset.stillStep,undefined);}
 });
+test('the village updates the selected artwork shader on its existing render loop', async () => {
+ const path='/static/pet-characters/milne-original8-v1/adult.webp';
+ const f=await fixture({artworkPath:path}), before=JSON.stringify(f.world);
+ try {
+  const renderer=f.renderers[0];
+  assert.equal(f.controller.setFrame(f.source,{anchor:.0421875}),true);
+  const sprite=renderer.calls.at(-1).scene.getObjectByName('current-pet-2d-frame');
+  const shader={uniforms:{},fragmentShader:'#include <map_fragment>'};
+  sprite.material.onBeforeCompile(shader);
+  assert.match(shader.fragmentShader,/texture2D\( map, artworkUv\( vMapUv \) \)/);
+  const uploads=renderer.uploads.length, texture=sprite.material.map;
+  const read=()=>JSON.parse(f.host.dataset.artworkMotion);
+  assert.equal(read().profile,'milne-adult');
+  assert.equal(read().state,'idle');
+  f.time(3580); f.frame(40);
+  assert.equal(read().blink,1);
+  assert.ok(shader.uniforms.artworkMoves.value[0].z>0);
+  f.controller.setPosition({x:1110,y:1100});
+  f.controller.setMotion({walking:true,dx:1,dy:0});
+  f.frame(40);
+  assert.equal(read().state,'walking');
+  assert.notEqual(read().step,0);
+  assert.equal(renderer.uploads.length,uploads);
+  assert.equal(sprite.material.map,texture);
+  assert.equal(sprite.center.y,.0421875);
+  assert.equal(JSON.stringify(f.world),before);
+  f.media.matches=true; f.media.emit('change'); f.frame(40);
+  assert.equal(read().state,'neutral');
+  assert.equal(shader.uniforms.artworkEnabled.value,0);
+  assert.equal(f.frames.size,0);
+ } finally { f.controller.destroy(); }
+ assert.equal(f.host.dataset.artworkMotion,undefined);
+});
+
 test('world coordinates round-trip and camera settings are bounded without touching the input',()=>{
  const world=Town.createWorld();for(const p of [{x:28,y:28},{x:1500,y:1100},{x:2770,y:1160}]){const back=Scene.townPoint(world,Scene.groundPoint(world,p));assert.ok(Math.hypot(p.x-back.x,p.y-back.y)<1e-9);}
  const raw={yaw:8,pitch:-Infinity,distance:100},before=JSON.stringify(raw),c=Scene.cameraState(raw);assert.equal(JSON.stringify(raw),before);assert.equal(c.distance,10);assert.equal(c.pitch,Math.PI/6);assert.ok(c.yaw>=-Math.PI&&c.yaw<=Math.PI);
