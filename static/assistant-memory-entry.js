@@ -13,7 +13,12 @@
       if(typeof w.knEnsureGuest!=='function'||typeof w.knPrepareAssistantMemory!=='function')throw Error('memory_not_ready');
       await w.knEnsureGuest();w.knPrepareAssistantMemory();
     }});w.knAssistantMemory=controller;
-    function attach(){[['knChatPanel','knChatBody'],['teachOv','teachBody']].forEach(function(ids){var host=d.getElementById(ids[0]),before=d.getElementById(ids[1]);if(!host||seen.has(host))return;seen.add(host);var box=controller.mount(host);if(box&&before&&before.parentNode===host)host.insertBefore(box,before);});}
+    function attach(){
+      var host=d.getElementById('knAssistantMemorySettings');
+      if(!host||seen.has(host))return;
+      seen.add(host);
+      controller.mount(host);
+    }
     attach();if(typeof w.MutationObserver==='function')new w.MutationObserver(attach).observe(d.body,{childList:true,subtree:true});return controller;
   }
   return Object.freeze({start:start});

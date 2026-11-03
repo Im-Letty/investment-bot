@@ -49,10 +49,10 @@ test('frame adapter refuses wrong origin missing auth different owner and change
 test('owner switch or frame replacement while restore awaits prevents any memory write',async()=>{
  for(const replace of [false,true]){const h=frameFixture();let resolve;h.setLoad(()=>new Promise(r=>resolve=r));const pending=h.adapter.write('A',null,encoded(true,'Aの候補'));if(replace)h.setFrame({contentWindow:{...h.c}});else h.setOwner('B');resolve({});await assert.rejects(pending);assert.equal(h.sets.length,0);}
 });
-function controllerFixture(raw=null){const h=memoryFixture(raw),calls=[],events={},docEvents={};let response={reply:'通常の返事'},fetchHook=null;
+function controllerFixture(raw=null,{frame=()=>null}={}){const h=memoryFixture(raw),calls=[],events={},docEvents={};let response={reply:'通常の返事'},fetchHook=null;
  const d={addEventListener:(name,fn)=>docEvents[name]=fn,removeEventListener:name=>delete docEvents[name],querySelector:()=>null};
  const w={document:d,location:{origin:'https://site.test'},addEventListener:(name,fn)=>events[name]=fn,removeEventListener:name=>delete events[name],fetch:async(url,options)=>{calls.push({url,options});if(fetchHook)return fetchHook(url,options);return {ok:true,status:200,text:async()=>JSON.stringify(response)};}};
- const controller=api.createController(w,{adapter:h.adapter,frame:()=>null});return {...h,w,d,calls,controller,setResponse:v=>response=v,setFetch:v=>fetchHook=v,ownerChanged(){docEvents.knAuthChange();}};
+ const controller=api.createController(w,{adapter:h.adapter,frame});return {...h,w,d,calls,controller,setResponse:v=>response=v,setFetch:v=>fetchHook=v,ownerChanged(){docEvents.knAuthChange();},recordsReady(event){events.message(event);}};
 }
 test('memory off sends the original anonymous chat without context or an auth header',async()=>{
  const h=controllerFixture();await settle();const r=await h.controller.fetchChat({messages:[{role:'user',content:'質問'}],shared_context:{summary:'caller injected'}});assert.deepEqual(JSON.parse(h.calls[0].options.body),{messages:[{role:'user',content:'質問'}]});assert.equal(h.calls[0].options.headers.Authorization,undefined);assert.equal(JSON.parse(await r.text()).reply,'通常の返事');assert.equal(h.writes.length,0);
@@ -96,13 +96,60 @@ test('actual dismiss control drops a candidate and closing settings itself does 
 test('fixed owner-change error code lets callers stop their old-conversation retry loops',async()=>{
  const h=controllerFixture(encoded(true,'A'));await settle();let resolve;h.setFetch(()=>new Promise(r=>resolve=r));const pending=h.controller.fetchChat({messages:[]});h.setOwner('B');h.ownerChanged();resolve({ok:true,status:200,text:async()=>'{"reply":"old"}'});await assert.rejects(pending,e=>e.code==='assistant_owner_changed');
 });
-test('entry mounts once in normal chat and lazily created teacher without starting auth or frame preparation',async()=>{
+test('memory controls mount once in settings and never mount inside either chat',async()=>{
  const entry=require('../static/assistant-memory-entry.js'),nodes=new Map(),mounted=[],calls={auth:0,prepare:0,create:0};let callback,options;
- function host(id){const n={id,children:[],appendChild(c){n.children.push(c);c.parentNode=n;},insertBefore(c,b){n.children=n.children.filter(x=>x!==c);n.children.splice(n.children.indexOf(b),0,c);c.parentNode=n;}};nodes.set(id,n);return n;}
- const chat=host('knChatPanel'),body=host('knChatBody');chat.appendChild(body);const controller={mount(n){mounted.push(n.id);const box={};n.appendChild(box);return box;}};
+ function host(id){const n={id};nodes.set(id,n);return n;}
+ host('knChatPanel');host('knChatBody');host('teachOv');host('teachBody');
+ const controller={mount(n){mounted.push(n.id);}};
  const w={document:{body:{},getElementById:id=>nodes.get(id)},KNSharedAssistantContext:{createController(_w,o){calls.create++;options=o;return controller;}},MutationObserver:class{constructor(fn){callback=fn;}observe(){}},async knEnsureGuest(){calls.auth++;},knPrepareAssistantMemory(){calls.prepare++;}};
- assert.equal(entry.start(w),controller);assert.equal(calls.auth,0);assert.equal(calls.prepare,0);assert.deepEqual(mounted,['knChatPanel']);assert.equal(chat.children[1],body);entry.start(w);callback();assert.equal(calls.create,1);assert.deepEqual(mounted,['knChatPanel']);
- const teacher=host('teachOv'),teacherBody=host('teachBody');teacher.appendChild(teacherBody);callback();assert.deepEqual(mounted,['knChatPanel','teachOv']);assert.equal(teacher.children[1],teacherBody);await options.ensureReady();assert.equal(calls.auth,1);assert.equal(calls.prepare,1);
+ assert.equal(entry.start(w),controller);assert.deepEqual(mounted,[]);assert.equal(calls.auth,0);assert.equal(calls.prepare,0);
+ host('knAssistantMemorySettings');callback();entry.start(w);callback();assert.equal(calls.create,1);assert.deepEqual(mounted,['knAssistantMemorySettings']);
+ await options.ensureReady();assert.equal(calls.auth,1);assert.equal(calls.prepare,1);
+});
+test('verified expanded capacity permits an edit and downgrade keeps the saved text',async()=>{
+ const h=uiFixture();await settle();
+ const long='あ'.repeat(2000);
+ await assert.rejects(h.controller.session.update(true,long));
+ h.setResponse({summary_limit:3600});await h.controller.refreshCapacity();
+ assert.equal(h.calls.length,1);assert.equal(h.calls[0].url,'/api/chat/memory-capacity');
+ assert.equal(h.calls[0].options.headers.Authorization,'Bearer synthetic-A');
+ assert.equal(h.textarea()[0].maxLength,3600);
+ await h.controller.session.update(true,long);
+ h.setResponse({summary_limit:1200});await h.controller.refreshCapacity();
+ assert.equal(h.textarea()[0].maxLength,1200);
+ assert.equal(h.controller.state().summary,long);
+ assert.equal(h.writes.length,1);
+ await assert.rejects(h.controller.session.update(true,long+'新'));
+ await h.controller.session.update(false,long);
+ assert.equal(api.decode(h.getRaw()).summary,long);
+ assert.equal(api.decode(h.getRaw()).enabled,false);
+});
+test('first private restore loads capacity once in the open settings view and a downgrade discards an old proposal',async()=>{
+ const frame={contentWindow:{},addEventListener(){}},h=controllerFixture(encoded(true,'保存済み'),{frame:()=>frame});
+ h.setRead(async()=>{throw Error('memory_not_ready');});
+ await settle();
+ h.d.querySelector=selector=>selector==='#sideDrawer.open[data-menu-view="memory"]'?{}:null;
+ await h.controller.refreshCapacity();
+ assert.equal(h.calls.length,0);
+ h.setRead(null);h.setResponse({summary_limit:3600});
+ const ready={origin:h.w.location.origin,source:frame.contentWindow,data:{type:'kn-mypage-records-ready'}};
+ h.recordsReady(ready);await settle();
+ assert.equal(h.calls.length,1);
+ assert.equal(h.controller.state().limit,3600);
+ h.recordsReady(ready);await settle();assert.equal(h.calls.length,1);
+ const paid=h.controller.state();
+ assert.equal(h.controller.session.propose('有料時の候補',paid),true);
+ h.setResponse({summary_limit:1200});await h.controller.refreshCapacity();
+ assert.equal(h.controller.state().proposal,null);
+ assert.equal(h.controller.session.propose('到着が遅れた候補',paid),false);
+});
+test('unavailable capacity and late results cannot give expanded capacity to the next owner',async()=>{
+ const h=controllerFixture();await settle();
+ h.setResponse({summary_limit:3600});await h.controller.refreshCapacity();assert.equal(h.controller.state().limit,3600);
+ h.setFetch(async()=>{throw Error('unavailable');});await h.controller.refreshCapacity();assert.equal(h.controller.state().limit,1200);
+ let resolve;h.setFetch(()=>new Promise(r=>{resolve=r;}));const pending=h.controller.refreshCapacity();await settle();
+ h.setOwner('B');h.ownerChanged();resolve({ok:true,text:async()=>JSON.stringify({summary_limit:3600})});
+ await pending;assert.equal(h.controller.state().owner,'B');assert.equal(h.controller.state().limit,1200);
 });
 const now=Date.parse('2026-10-30T12:00:00Z');
 test('fresh site facts include only safe aggregates with fixed category kinds and never names or transaction text',()=>{

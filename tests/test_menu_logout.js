@@ -125,7 +125,25 @@ test('logout exists once directly after inline language and colors, without the 
   const h=fixture({user:{id:'synthetic-member',is_anonymous:false}}),group=h.group();
   assert.ok(group);assert.equal(group.parentElement.className,'knAccPanel kn-menu-content');const order=group.parentElement.children;assert.equal(order.at(-3),h.languageGrid.parentElement);assert.equal(order.at(-2),h.colors);assert.equal(order.at(-1),group);
   assert.equal(h.nav.querySelectorAll('[data-menu-page="logout"]').length,1);assert.equal(h.button('logout').textContent,'ログアウト');assert.equal(group.hidden,false);
-  const html=read('index.html');assert.equal(/ensureLogout|knLogoutBtn/.test(html),false);const menuLoader=html.match(/menu-a\.js\?v=[a-zA-Z0-9_-]+/)?.[0];assert.equal(menuLoader,'menu-a.js?v=20261103-menu-return1');assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
+  const html=read('index.html');assert.equal(/ensureLogout|knLogoutBtn/.test(html),false);const menuLoader=html.match(/menu-a\.js\?v=[a-zA-Z0-9_-]+/)?.[0];assert.equal(menuLoader,'menu-a.js?v=20261104-memory-tier1');assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
+});
+test('conversation memory opens its own menu settings and returns focus to its row',()=>{
+  const h=fixture();let lookups=0;
+  h.w.knAssistantMemory={refreshCapacity(){lookups++;}};
+  const button=h.button('memory'),view=h.document.getElementById('knMenuView-memory');
+  assert.equal(button.textContent,'会話の記憶設定');
+  assert.equal(button.getAttribute('aria-controls'),view.id);
+  assert.equal(view.hidden,true);
+  assert.equal(lookups,0);
+  h.activate('memory',{nested:true});
+  assert.equal(view.hidden,false);
+  assert.equal(h.document.getElementById('knAssistantMemorySettings').parentElement,view);
+  assert.equal(h.document.activeElement,view.querySelector('h2'));
+  assert.equal(lookups,1);
+  assert.deepEqual(h.calls,[]);
+  h.drawer.querySelector('.kn-menu-back').click();
+  assert.equal(view.hidden,true);
+  assert.equal(h.document.activeElement,button);
 });
 test('signed-out and guest users cannot invoke logout even through a programmatic menu click',()=>{
   for(const user of [null,undefined,{id:'synthetic-guest',is_anonymous:true}]){
@@ -286,7 +304,7 @@ test('an explicit close without navigation still restores the existing opener on
 test('menu shows four language frames and colors with the existing logout group directly below colors',()=>{
   const h=fixture({user:{id:'synthetic-member'}}),panel=h.mounted[0];
   assert.equal(panel.className,'knAccPanel kn-menu-content');assert.equal(h.document.getElementById('knProfile').parentElement,panel);
-  assert.deepEqual(panel.querySelectorAll('[data-menu-page]').map(n=>n.dataset.menuPage),['memo','guide','display','logout']);
+  assert.deepEqual(panel.querySelectorAll('[data-menu-page]').map(n=>n.dataset.menuPage),['memo','guide','memory','display','logout']);
   assert.equal(h.document.getElementById('knMenuView-display').hidden,true);assert.equal(h.document.getElementById('knMenuView-language'),null);assert.equal(h.button('language'),null);
   assert.equal(h.document.getElementById('knMenuView-color'),null);assert.equal(h.button('color'),null);
   const language=h.languageGrid.parentElement;assert.equal(language.className,'kn-menu-language');assert.equal(language.parentElement,panel);assert.equal(language.hidden,false);assert.equal(h.languageGrid.children.length,4);assert.equal(language.getAttribute('aria-labelledby'),'knMenuLanguageTitle');

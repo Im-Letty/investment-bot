@@ -4,6 +4,7 @@ from copy import deepcopy
 from pathlib import Path
 from types import SimpleNamespace
 import json
+import os
 import unittest
 from unittest.mock import Mock, patch
 from flask import Flask, jsonify, request
@@ -11,7 +12,10 @@ from community_api import CommunityError
 
 PATH = Path(__file__).resolve().parents[1] / 'line_bot.py'
 TREE = ast.parse(PATH.read_text())
-VIEW = next(n for n in TREE.body if isinstance(n, ast.FunctionDef) and n.name == 'api_chat')
+VIEWS = [n for n in TREE.body if isinstance(n, ast.FunctionDef) and n.name in {'api_chat', 'api_chat_memory_capacity'}]
+OWNER = '00000000-0000-4000-8000-000000000071'
+OTHER_OWNER = '00000000-0000-4000-8000-000000000072'
+AUTH = {'Authorization': 'Bearer fixture-token'}
 
 
 class SharedAssistantContext(unittest.TestCase):
@@ -28,11 +32,14 @@ class SharedAssistantContext(unittest.TestCase):
                           '_rl_check_and_consume': self.rate, 'get_anthropic_client': self.provider,
                           'TEACHER_PROMPT': 'teacher policy', 'RL_IP_PER_DAY': 10, 'RL_IP_PER_MIN': 5,
                           'SUPABASE_URL': 'https://auth.fixture.invalid', 'SUPABASE_KEY': 'fixture-key', 'print': Mock()}
-        exec(compile(ast.Module(body=[deepcopy(VIEW)], type_ignores=[]), str(PATH), 'exec'), self.namespace)
+        exec(compile(ast.Module(body=deepcopy(VIEWS), type_ignores=[]), str(PATH), 'exec'), self.namespace)
         self.client = self.app.test_client()
         self.repo = patch('community_api.SupabaseCommunityRepository').start()
         self.addCleanup(patch.stopall)
-        self.repo.return_value.verify_user.return_value = '00000000-0000-4000-8000-000000000071'
+        self.repo.return_value.verify_user.return_value = OWNER
+        config = patch.dict(os.environ, {'ASSISTANT_MEMORY_PAID_MEMBER_IDS': ''})
+        config.start()
+        self.addCleanup(config.stop)
 
     def ask(self, context=None, headers=None, mode=None):
         data = {'messages': [{'role': 'user', 'content': '今回の質問'}]}
@@ -72,7 +79,7 @@ class SharedAssistantContext(unittest.TestCase):
         for context in ({}, [], self.context() | {'owner': 'other'}, self.context() | {'assets': []},
                         self.context() | {'consent': False}, self.context() | {'consent': 1},
                         self.context() | {'version': True}, self.context() | {'version': 2},
-                        self.context() | {'summary': 'x' * 1201}, self.context() | {'summary': '\0'},
+                        self.context() | {'summary': 'x' * 3601}, self.context() | {'summary': '😀' * 1801}, self.context() | {'summary': '\ud800'}, self.context() | {'summary': '\0'},
                         self.context() | {'summary': 1}):
             with self.subTest(context_kind=type(context).__name__):
                 response = self.ask(context, {'Authorization': 'Bearer fixture-token'})
@@ -80,6 +87,46 @@ class SharedAssistantContext(unittest.TestCase):
                 self.assertEqual(response.get_json(), {'error': 'invalid_shared_context'})
         self.messages.assert_not_called()
         self.repo.assert_not_called()
+
+    def test_memory_capacity_is_private_and_granted_only_to_verified_allowlisted_owner(self):
+        url = '/api/chat/memory-capacity'
+        self.assertEqual(self.client.get(url).status_code, 401)
+        self.assertEqual(self.client.get(url, headers=AUTH).get_json(), {'summary_limit': 1200})
+        with patch.dict(os.environ, {'ASSISTANT_MEMORY_PAID_MEMBER_IDS': OWNER}):
+            paid = self.client.get(url, headers=AUTH)
+            self.assertEqual(paid.get_json(), {'summary_limit': 3600})
+            self.assertEqual(paid.headers['Cache-Control'], 'no-store')
+            self.assertEqual(paid.headers['Vary'], 'Authorization')
+            self.assertEqual(self.client.get(url + '?owner=' + OWNER, headers=AUTH).status_code, 400)
+            self.repo.return_value.verify_user.return_value = OTHER_OWNER
+            spoof = self.client.get(url, headers=AUTH | {'X-Owner': OWNER, 'X-Plan': 'paid'})
+            self.assertEqual(spoof.get_json(), {'summary_limit': 1200})
+        self.messages.assert_not_called()
+        self.rate.assert_not_called()
+
+    def test_downgrade_keeps_chat_available_and_uses_only_the_free_prefix(self):
+        text = 'あ' * 1199 + '😀' + '有料時の記録'
+        self.reply(json.dumps({'reply': '通常の回答', 'memory_proposal': '短い候補'}))
+        response = self.ask(self.context(text), AUTH)
+        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(response.get_json()['memory_proposal'])
+        args = self.messages.call_args.kwargs
+        self.assertEqual(args['messages'][0]['content'].splitlines()[-1], 'あ' * 1199)
+        self.assertEqual(args['max_tokens'], 512)
+        self.messages.assert_called_once()
+
+    def test_verified_paid_owner_can_use_the_larger_summary_in_either_chat(self):
+        text = 'あ' * 2000
+        self.reply(json.dumps({'reply': '回答', 'memory_proposal': text}))
+        with patch.dict(os.environ, {'ASSISTANT_MEMORY_PAID_MEMBER_IDS': OWNER}):
+            for mode in (None, 'teacher'):
+                self.messages.reset_mock()
+                response = self.ask(self.context(text), AUTH, mode)
+                self.assertEqual(response.get_json()['memory_proposal'], text)
+                args = self.messages.call_args.kwargs
+                self.assertEqual(args['messages'][0]['content'].splitlines()[-1], text)
+                self.assertEqual(args['max_tokens'], 512)
+                self.messages.assert_called_once()
 
     def test_auth_failure_is_fixed_and_never_fetches_any_personal_record(self):
         for error, status, reason in ((CommunityError('auth_required'), 401, 'auth_required'),

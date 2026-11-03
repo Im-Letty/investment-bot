@@ -2286,7 +2286,7 @@ function kkNavGo(tab, el){
   function kkMemoryOwner(uid){return typeof uid==='string'&&/^[A-Za-z0-9_-]{1,80}$/.test(uid)&&kkMyPageOwner(uid);}
   function kkMemoryRaw(raw){
     if(typeof raw!=='string'||raw.length>16000)return false;
-    try{var d=JSON.parse(raw);return !!d&&!Array.isArray(d)&&Object.keys(d).sort().join(',')==='enabled,summary,version'&&d.version===1&&typeof d.enabled==='boolean'&&typeof d.summary==='string'&&d.summary.length<=1200&&!/[\u0000-\u0008\u000b-\u001f\u007f]/.test(d.summary);}catch(ignore){return false;}
+    try{var d=JSON.parse(raw);return !!d&&!Array.isArray(d)&&Object.keys(d).sort().join(',')==='enabled,summary,version'&&d.version===1&&typeof d.enabled==='boolean'&&typeof d.summary==='string'&&d.summary.length<=3600&&!/[\u0000-\u0008\u000b-\u001f\u007f]/.test(d.summary);}catch(ignore){return false;}
   }
   function kkRestoreMemoryPending(uid){
     if(!kkMemoryOwner(uid))return;
