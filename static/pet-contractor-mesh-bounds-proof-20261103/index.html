@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <link rel="icon" href="data:,">
+  <title>村の立体から読む、平面の範囲</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif;color:#303b35;background:#f7f4ea;font-size:16px;line-height:1.75}
+    *{box-sizing:border-box}body{margin:0}main{width:min(100%,1080px);padding:clamp(18px,4vw,44px);margin:auto}h1{font-size:clamp(1.5rem,4vw,2.25rem);line-height:1.4;font-weight:650;margin:.4em 0}h2{font-size:1.12rem;line-height:1.5;margin:0 0 12px}.eyebrow{color:#506653;letter-spacing:.09em;font-size:.8rem;font-weight:650}.lead{max-width:48em;margin:0 0 24px}.card{background:#fffdf6;border:1px solid #d6ddcd;border-radius:20px;padding:clamp(16px,3vw,26px);margin:18px 0;box-shadow:0 6px 18px #48543c08}.note{border-left:4px solid #a67f3d;background:#f7efdd;padding:14px 18px;border-radius:4px 14px 14px 4px}.note p{margin:0}.cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:10px}button{font:inherit;line-height:1.45;color:#354b3a;background:#eff3e6;border:1px solid #aab99e;border-radius:12px;padding:12px 14px;text-align:left;cursor:pointer;min-height:48px}button:hover{background:#e3ebd8}button:focus-visible,summary:focus-visible{outline:3px solid #587444;outline-offset:3px}button:disabled{opacity:.6;cursor:wait}.primary{background:#465e43;color:#fffdf5;border-color:#465e43}.primary:hover{background:#354c33}.secondary{background:transparent;display:inline-block;margin-top:14px;text-align:center}#status{min-height:3.5em;color:#4d5a4c;font-size:.9rem;margin:14px 0 0}#summary{font-weight:600;overflow-wrap:anywhere}.table-wrap{overflow-x:auto;max-width:100%;border:1px solid #e0e4d7;border-radius:12px}table{border-collapse:collapse;width:100%;font-size:.84rem;min-width:540px}th,td{padding:12px 14px;text-align:left;vertical-align:top;border-bottom:1px solid #e1e6da}th{font-weight:600;background:#f0f3e8}tr:last-child td{border-bottom:0}td:nth-child(2){overflow-wrap:anywhere}details{max-width:100%;margin-top:20px}summary{cursor:pointer;font-weight:600}pre{font:12px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;background:#f0f2e9;border-radius:12px;padding:16px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:460px;overflow:auto}ul{padding-left:1.3em}li{margin:.35em 0}.muted{color:#54614f;font-size:.84rem}footer{font-size:.8rem;color:#58644f;margin-top:24px}a{color:#3d5e3b}@media(max-width:420px){main{padding:18px}.card{border-radius:16px}.cases{grid-template-columns:1fr}button{min-height:48px}th,td{padding:10px}}
+  </style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">村の変更に向けた、読取だけの見本</div>
+  <h1>立体から読む、平面の範囲</h1>
+  <p class="lead">村の立体に格納された三角形の頂点から、上から見たX/Zの四角い範囲を読みます。ふたつの範囲が離れる・端で接する・重なる場合を、小さな例と比べられます。</p>
+  <div class="note"><p><strong>四角い包絡の関係だけを表します。</strong> 包絡が重なっても立体同士の衝突とは限りません。離れていても、絵の要素・道・水際などを含む通行や配置の確認は終わっていません。</p></div>
+  <section class="card" aria-labelledby="examples-heading">
+    <h2 id="examples-heading">見本を選ぶ</h2>
+    <div class="cases">
+      <button class="primary" data-case="actual">現在のsourceから読む</button>
+      <button data-case="separate">離れた包絡</button>
+      <button data-case="touch">端が接する包絡</button>
+      <button data-case="overlap">重なる包絡</button>
+      <button data-case="unreferenced">未参照の遠い頂点</button>
+      <button data-case="flat">点になる投影</button>
+      <button data-case="sprite">Meshなしの場所</button>
+      <button data-case="malformed">不正な添字</button>
+      <button data-case="nonfinite">有限でない座標</button>
+      <button data-case="overflow">差が範囲を超える座標</button>
+    </div>
+    <button id="reset" class="secondary">表示を戻す</button>
+    <p id="status" role="status" aria-live="polite">見本を準備しています…</p>
+  </section>
+  <section class="card" aria-labelledby="result-heading">
+    <h2 id="result-heading">読んだ範囲</h2><p id="summary">見本を選ぶと範囲を表示します。</p>
+    <div class="table-wrap" tabindex="0" aria-label="場所ごとの範囲。横にスクロールできます">
+      <table><thead><tr><th>場所</th><th>参照頂点の範囲</th><th>参照 / 未参照の頂点</th><th>未測定の絵</th></tr></thead><tbody id="place-rows"></tbody></table>
+    </div>
+    <p class="muted">三角形の添字が参照する頂点だけで範囲を作ります。格納されていても未参照の頂点は別に数えます。</p>
+    <h2>場所の組み合わせ</h2>
+    <div class="table-wrap" tabindex="0" aria-label="15組の包絡の関係。横にスクロールできます">
+      <table><thead><tr><th>組み合わせ</th><th>包絡の関係</th><th>符号付きの重なり幅</th></tr></thead><tbody id="pair-rows"></tbody></table>
+    </div>
+    <p class="muted">幅が負ならその軸で離れています。0なら包絡の端が一致します。正でも三角形の接触や通行可否は判定していません。</p>
+    <details><summary>読取記録を見る</summary><p class="muted">表示用の要約です。Meshの行は各場所の先頭2件まで。入力全体・元バッファ・全結果の生記録ではありません。</p><pre id="report" tabindex="0">未読取</pre></details>
+  </section>
+  <section class="card" aria-labelledby="limits-heading"><h2 id="limits-heading">この見本の範囲</h2><ul>
+    <li>元のまとめ描画用Meshは1回ずつ、水・窓の区分も含めて読みます。表示の描画範囲や材質による除外は行いません。</li>
+    <li>絵の要素は体積を測っていません。Meshがない場所を「空いている」とは扱いません。</li>
+    <li>現在のsource例は別のメモリ上で組み立て、読取後に片付けます。画像の読込・WebGL描画・本人の保存には接続しません。</li>
+    <li>衝突・通行・移動中の経路・身体へのfit、業者への送信・受付・費用・日数・工事の確認は含みません。</li>
+  </ul></section>
+  <footer>数値は明示したJSONの範囲です。浮動小数点の比較で、余白の補正や推測による埋め合わせは行いません。</footer>
+</main>
+<script type="module" src="./proof.mjs"></script>
+</body>
+</html>
