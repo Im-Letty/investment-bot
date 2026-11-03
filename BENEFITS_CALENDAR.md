@@ -1,10 +1,8 @@
 # Shareholder benefits calendar
 
-The catalogue contains 36 company information records: the original nine reviewed
-on 2026-09-25, fifteen additions on 2026-10-17, three on 2026-10-18, three on
-2026-10-19, two on 2026-10-20, two on 2026-10-23 and one dated one-time benefit
-on 2026-10-24 and one current programme on 2026-10-27. This total includes
-past-record information; it is not a count of
+The catalogue contains 43 company information records: the original nine reviewed
+on 2026-09-25 and 34 additions reviewed from 2026-10-17 through 2026-11-03.
+This total includes past one-time record information; it is not a count of
 companies currently offering an annual programme. The owner chose phased
 expansion using free official sources only. This remains a partial, manually reviewed catalogue, not a
 complete benefit-issuer list or automatic data updater. Missing records never mean
@@ -773,3 +771,14 @@ Rootの現行公式HTML取得と独立担当者による同じ制度HTMLの通�
 2025年9月29日発表、初回は2026年2月末が基準です。発表日・初回の名簿基準時点・制度の暦日有効期間を分け、有効期間の端点は不明のままです。4月上旬頃の優待案内発送予定を、商品の発送・実発送・実到着と区別します。商品選択・申込の手順と期限、券期限、次回購入締切は未確認です。
 
 出典は [暁飯島工業の制度導入案内](https://www.eazima.co.jp/%e6%a0%aa%e4%b8%bb%e5%84%aa%e5%be%85%e5%88%b6%e5%ba%a6%e3%81%ae%e5%b0%8e%e5%85%a5%e3%81%ab%e9%96%a2%e3%81%99%e3%82%8b%e3%81%8a%e7%9f%a5%e3%82%89%e3%81%9b/) です。担当者が実リンクの原PDF全1頁を確認し、独立担当者が保存原PDFの全3区分・条件を目視照合しました。現在の開示一覧は見出しの有限確認で、全開示本文や将来の無変更を保証しません。確認日は2026/11/03であり、発表日や制度開始日ではありません。短い独立した制度事実だけを自作文で保存し、原文・画像・原表を転載しません。観測ノートSHAは元HTML/PDFのSHAと別です。
+
+## 2026-11-03 昭和産業（2004）の現行制度確認
+
+既存42件の確認値・確認日を保持し、昭和産業を追加して43件（既存9件＋個別確認34件、過去の一回限り1770を含む）とします。全優待実施会社数や当日の全上場会社数ではありません。既存12件の購入締切予定を保持し、今回の購入締切予定は追加しません。
+
+- 公式制度本文 https://www.showa-sangyo.co.jp/corporate/ir/stock/benefit/ は毎年3月31日の名簿を対象に、家庭用の自社商品を年1回案内しています。100～199株は1,000円相当、200～999株は3,000円相当、1,000株以上は5,000円相当です。該当する1区分のみで、区分の額は加算しません。公式株式情報で証券コード2004・東証プライム・100株単元を照合しました。
+- 最低保有期間、同一株主番号、連続名簿回数と途中各回の株数、申請・商品選択の要否や手順、食品の期限は記載未確認です。未記載の保有期間を0か月にしません。制度開始日・現行区分の適用開始日・発表日も未確認のままにします。
+- 公式FAQ https://www.showa-sangyo.co.jp/corporate/ir/individual/faq/ は6月中旬の発送予定、制度ページは6月末～7月上旬の贈呈予定を示しています。異なる名目の二つの予定を保持し、その具体的な関係、実発送日や実到着日を推測しません。次回の購入締切日は未確認です。
+- IR一覧で読めた2026年10月19日から7月29日までの20見出しという有限の範囲を記録し、全履歴・将来の改廃がないとは扱いません。利用条件でリンクは原則自由という案内と削除要請があり得ることを確認し、原文・表・画像を転載せず、短い独立した制度事実を自作文で保存しました。一般的な再利用許諾は主張しません。
+
+`benefits-data/evidence/reviewed-2004-observation-note-20261103.json` は自作の観測ノートです。制度本文などの元ページSHA・実観測時刻をノート内で区別しており、ノートSHAを元ページSHAとは呼びません。確認日は2026-11-03です。数値・条件の独立レビュー後も、通常公開・公開アセット照合・実カレンダー表示の確認は別gateです。

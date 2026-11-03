@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "batch_id": "batch-20261103-121429",
+  "code": "2004",
+  "recorded_at_jst": "2026-11-03T12:32:15.066948+09:00",
+  "kind": "independently_authored_primary_observation_note",
+  "facts": {
+    "issuer": "昭和産業株式会社",
+    "code": "2004",
+    "symbol": "2004.T",
+    "market": "Tokyo Prime",
+    "identity_source_stock_information_as_of": "2026-03-31",
+    "trading_lot": 100,
+    "minimum_benefit_shares": 100,
+    "record_month_day": "03-31",
+    "frequency_per_year": 1,
+    "reward_kind": "own household products",
+    "alternatives_not_additive": [
+      {
+        "current_shares_min": 100,
+        "current_shares_max": 199,
+        "yen_equivalent": 1000
+      },
+      {
+        "current_shares_min": 200,
+        "current_shares_max": 999,
+        "yen_equivalent": 3000
+      },
+      {
+        "current_shares_min": 1000,
+        "current_shares_max": null,
+        "yen_equivalent": 5000
+      }
+    ],
+    "programme_page_gifting_plan": "late June to early July",
+    "FAQ_dispatch_plan": "mid June",
+    "different_named_stages_not_inferred_same_event_or_contradiction": true,
+    "dispatch_gifting_relation_and_actual_arrival": "unconfirmed",
+    "holding_months_min": null,
+    "same_number_continuity_record_count_historical_shares": "unstated/unconfirmed",
+    "application_choice_procedure_product_expiry": "unconfirmed",
+    "announcement_programme_start_current_tier_effective_dates": null,
+    "next_purchase_deadline": null
+  },
+  "source_observations": [
+    {
+      "receipt": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261103-121429/company-2004/http-3.json",
+        "sha256": "82f8168b341f840532634712379c84881eaa49002684c7413fcd818a913dc294",
+        "bytes": 36004
+      },
+      "source_URL": "https://www.showa-sangyo.co.jp/corporate/ir/individual/faq/",
+      "observed_at_jst": "2026-11-03T12:27:49.589170+09:00",
+      "http_status": 200,
+      "original_page_sha256": "6a2f299fbcf2318b0e17d03119fcb3d3854b58cf2fe003d4a063116b07ed615a",
+      "original_page_bytes": 73744,
+      "HTML_body_not_saved": true
+    },
+    {
+      "receipt": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261103-121429/company-2004/http-4.json",
+        "sha256": "f744202077085ef72175dfce97a802d715d8333c8caf43f323fdcf1f84c94388",
+        "bytes": 35482
+      },
+      "source_URL": "https://www.showa-sangyo.co.jp/corporate/ir/stock/benefit/",
+      "observed_at_jst": "2026-11-03T12:28:18.812715+09:00",
+      "http_status": 200,
+      "original_page_sha256": "f94bb3fbf91a47fe0939ebeea370baf2e67434cd71a16a59a192b426e423b4fc",
+      "original_page_bytes": 65712,
+      "HTML_body_not_saved": true
+    },
+    {
+      "receipt": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261103-121429/company-2004/http-6.json",
+        "sha256": "a00dd22a77cd6175a125eb9e7468269dd97d4a8cc35500825dd54e5310bd617f",
+        "bytes": 35623
+      },
+      "source_URL": "https://www.showa-sangyo.co.jp/corporate/terms/",
+      "observed_at_jst": "2026-11-03T12:29:47.121649+09:00",
+      "http_status": 200,
+      "original_page_sha256": "5a59de5d596fe3c672cf0fc10a7d56a3e12a122ffb33bbd9938f624975e522a5",
+      "original_page_bytes": 47094,
+      "HTML_body_not_saved": true
+    },
+    {
+      "receipt": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261103-121429/company-2004/http-7.json",
+        "sha256": "37bb991e2defcaabc41dc1b8d159af772723f853ffa7f31f3b0a7aaade104244",
+        "bytes": 35883
+      },
+      "source_URL": "https://www.showa-sangyo.co.jp/corporate/ir/stock/info/",
+      "observed_at_jst": "2026-11-03T12:29:58.095695+09:00",
+      "http_status": 200,
+      "original_page_sha256": "54e1b1c82edce3c7e99b99fba052e1ec548cecfbd00390c8cad029282c6a7039",
+      "original_page_bytes": 67774,
+      "HTML_body_not_saved": true
+    },
+    {
+      "receipt": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261103-121429/company-2004/http-8.json",
+        "sha256": "94e82bdb165f316dff4c552382b86b6df1bd531793b9c9037a530a1af06a5807",
+        "bytes": 35460
+      },
+      "source_URL": "https://www.showa-sangyo.co.jp/corporate/ir/news/",
+      "observed_at_jst": "2026-11-03T12:30:21.003133+09:00",
+      "http_status": 200,
+      "original_page_sha256": "c126c4516c1dff15bdc321ce1601f36567a21f945943a9bcbcfc758f77955bf7",
+      "original_page_bytes": 80627,
+      "HTML_body_not_saved": true
+    },
+    {
+      "receipt": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261103-121429/company-2004/http-9.json",
+        "sha256": "f8b153283fa10e668e6200c2ebf35e07c45751bae3f304361b16edb33720f979",
+        "bytes": 36004
+      },
+      "source_URL": "https://www.showa-sangyo.co.jp/corporate/ir/individual/faq/",
+      "observed_at_jst": "2026-11-03T12:30:37.898892+09:00",
+      "http_status": 200,
+      "original_page_sha256": "f63220b8f021b82eade5eb7cc565d7d2030dc50ce214e52509c75d4f6a70bfd1",
+      "original_page_bytes": 73744,
+      "HTML_body_not_saved": true
+    }
+  ],
+  "body_review_scope": {
+    "programme4_complete_actual_transient_text_and_ordered_HTML3tiers": true,
+    "terms6_complete_actual_transient_body": true,
+    "stock7_complete_actual_transient_body_and_identity": true,
+    "IR8_only20current_headings": "2026-10-19 through 2026-07-29",
+    "IR8_all_history_or_future_amendment_absence_claimed": false,
+    "firstFAQ3_tool_output_clipped_no_full_reader_claim": true,
+    "FAQ9_deliberate_final_sixth_normal_GET_full_body_read": true,
+    "first_FAQ3_original_SHA_differs_from_FAQ9_same_bytes_not_claimed": true
+  },
+  "use_and_link_review": {
+    "copyright_protected_expression_reproduction_requires_permission": true,
+    "short_independent_facts_are_distinct_from_source_expression": true,
+    "incoming_links_principally_free_on_read_terms": true,
+    "right_to_request_link_removal_retained": true,
+    "general_reuse_licence_claimed": false,
+    "original_prose_tables_images_voucher_art_republished": false,
+    "external_contact_auth_registration_paid_changes": false
+  },
+  "current_local_StockSearch_identity": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261103-121429/current-local-StockSearch-identity.json",
+    "sha256": "e0ddd438f19dd3e67944cc326f9874e72aa6ada76c99f942d72cf197d9bfc984",
+    "bytes": 2848
+  },
+  "note_SHA_is_original_page_SHA": false,
+  "purchase_schedules_added": 0,
+  "product_publication_or_acceptance_from_note_alone": false
+}
