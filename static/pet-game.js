@@ -91,8 +91,8 @@
       anchor: art.anchor, capabilities: milneCapabilities });
   }
   var staticFrameCopies = new WeakMap();
-  function staticFrameSource(visual) {
-    if (!visual || !visual.dataset || visual.dataset.characterId !== 'milne') return visual;
+  function staticFrameSource(visual, copyFullImage) {
+    if (!visual || (!copyFullImage && (!visual.dataset || visual.dataset.characterId !== 'milne'))) return visual;
     if (!visual.complete || !(visual.naturalWidth > 0) || !(visual.naturalHeight > 0)) return null;
     var cached = staticFrameCopies.get(visual);
     if (cached && cached.width === visual.naturalWidth && cached.height === visual.naturalHeight) return cached;
@@ -105,8 +105,8 @@
       context.drawImage(visual, 0, 0); staticFrameCopies.set(visual, canvas); return canvas;
     } catch (_) { return null; }
   }
-  function deliverStillFrame(controller, visual) {
-    var frame = staticFrameSource(visual);
+  function deliverStillFrame(controller, visual, copyFullImage) {
+    var frame = staticFrameSource(visual, copyFullImage);
     return frame ? controller.setFrame(frame, frameOptions(visual)) : false;
   }
   function frameOptions(visual) {
@@ -2069,7 +2069,7 @@
     if (townSceneLoading) return townSceneLoading;
     if (!d.head) return Promise.resolve(null);
     townSceneLoading = new Promise(function (resolve) {
-      var script = d.createElement('script'); script.src = '/static/pet-town-scene.js?v=20261103-village-step1'; script.async = true;
+      var script = d.createElement('script'); script.src = '/static/pet-town-scene.js?v=20261104-art-motion1'; script.async = true;
       script.onload = function () { resolve(w.PetTownScene && typeof w.PetTownScene.mount === 'function' ? w.PetTownScene : null); };
       script.onerror = function () { townSceneLoading = null; script.remove(); resolve(null); };
       d.head.appendChild(script);
@@ -2409,7 +2409,9 @@
         if (!active() || sceneState !== 'loading' || townController !== controllerAtStart) return null;
         if (!api) { fallback(); return null; }
         visualAttempted = true;
+        var staticArtwork = request ? null : mainCharacterProfile(s);
         return api.mount({ viewport: viewport, world: world, position: townController.position(), camera: townCamera,
+          artworkPath: request ? null : staticArtwork ? staticArtwork.src : petImage(s),
           view: townPresentation(s), seasonNow: options && options.seasonNow, seasonSubscribe: options && options.seasonSubscribe,
           canRun: function () { return active() && sceneState !== 'fallback'; },
           onFacing: function (frame) { if (active() && request && request.controller && typeof request.controller.setLocomotion === 'function') request.controller.setLocomotion(currentWorldReaction() ? null : frame); },
@@ -2435,7 +2437,7 @@
           if (request.failed) { fallback(); return; }
           if (request.controller && typeof request.controller.refreshFrame === 'function') request.controller.refreshFrame();
         } else {
-          function stillFrame() { if (active() && townVisual === mounted && deliverStillFrame(mounted, visual) === false) fallback(); }
+          function stillFrame() { if (active() && townVisual === mounted && deliverStillFrame(mounted, visual, true) === false) fallback(); }
           if (visual.complete && visual.naturalWidth === 0) fallback();
           else if (visual.complete) stillFrame();
           else { visual.addEventListener('load', stillFrame, { once: true }); visual.addEventListener('error', fallback, { once: true }); }
