@@ -2461,6 +2461,27 @@ def health():
         return jsonify({"status": "error", "error": str(e)}), 500
 
 
+@app.route("/api/chat/memory-capacity", methods=["GET"])
+def api_chat_memory_capacity():
+    from assistant_memory_policy import memory_limit, verified_owner
+    from community_api import CommunityError
+
+    try:
+        if request.args:
+            response, status = jsonify(error="invalid_request"), 400
+        else:
+            actor = verified_owner(request.headers.get("Authorization", ""), SUPABASE_URL, SUPABASE_KEY)
+            response, status = jsonify(summary_limit=memory_limit(actor)), 200
+    except CommunityError as error:
+        reason = "auth_required" if error.reason == "auth_required" else "auth_unavailable"
+        response, status = jsonify(error=reason), 401 if reason == "auth_required" else 503
+    except Exception:
+        response, status = jsonify(error="auth_unavailable"), 503
+    response.headers["Cache-Control"] = "no-store"
+    response.headers["Vary"] = "Authorization"
+    return response, status
+
+
 @app.route("/api/chat", methods=["POST"])
 def api_chat():
     """ページ内 AI チャットウィジェット用エンドポイント。
@@ -2497,7 +2518,10 @@ def api_chat():
 
         # Summary memory is supplied only by the consenting current browser
         # owner. Verify the existing token; never fetch a ledger or another user.
+        from assistant_memory_policy import FREE_LIMIT, PAID_LIMIT, memory_limit, summary_units, verified_owner, within_limit
         memory_summary = None
+        summary_limit = FREE_LIMIT
+        summary_over_limit = False
         if "shared_context" in data:
             context = data["shared_context"]
             if (not isinstance(context, dict)
@@ -2505,7 +2529,7 @@ def api_chat():
                     or type(context["version"]) is not int or context["version"] != 1
                     or context["consent"] is not True
                     or not isinstance(context["summary"], str)
-                    or len(context["summary"]) > 1200
+                    or summary_units(context["summary"]) > PAID_LIMIT
                     or any(ord(c) < 32 and c not in "\n\t" or ord(c) == 127
                            for c in context["summary"])):
                 return jsonify(error="invalid_shared_context"), 400
@@ -2556,14 +2580,14 @@ def api_chat():
             except (ValueError, TypeError, KeyError, OverflowError):
                 return jsonify(error="invalid_site_context"), 400
         if memory_summary is not None or site_context is not None:
-            authorization = request.headers.get("Authorization", "")
-            if (not authorization.startswith("Bearer ")
-                    or not 1 <= len(authorization[7:]) <= 8192
-                    or any(ord(c) <= 32 or ord(c) >= 127 for c in authorization[7:])):
-                return jsonify(error="auth_required"), 401
-            from community_api import SupabaseCommunityRepository, CommunityError
+            from community_api import CommunityError
             try:
-                SupabaseCommunityRepository(SUPABASE_URL, SUPABASE_KEY).verify_user(authorization[7:])
+                actor = verified_owner(request.headers.get("Authorization", ""), SUPABASE_URL, SUPABASE_KEY)
+                if memory_summary is not None:
+                    summary_limit = memory_limit(actor)
+                    summary_over_limit = summary_units(memory_summary) > summary_limit
+                    if summary_over_limit:
+                        memory_summary = within_limit(memory_summary, summary_limit)
             except CommunityError as error:
                 reason = "auth_required" if error.reason == "auth_required" else "auth_unavailable"
                 return jsonify(error=reason), 401 if reason == "auth_required" else 503
@@ -2614,7 +2638,7 @@ def api_chat():
                 "要点から資産額や保有銘柄など未提供の個人情報を推測しないでください。"
                 "この応答ではJSONオブジェクトだけを返してください。キーはreplyとmemory_proposalの2つです。"
                 "replyは通常の回答を150〜200文字程度、memory_proposalは本人の希望・理解度・相談中の課題の"
-                "うち今後も役立つ内容だけを100文字以内でまとめた更新候補にしてください。"
+                f"うち今後も役立つ内容だけを{180 if summary_limit == PAID_LIMIT else 100}文字以内でまとめた更新候補にしてください。"
                 "記憶の更新が不要ならmemory_proposalはnullにしてください。"
                 "候補に本人・第三者の氏名、保有銘柄名、金額、口座、連絡先、住所、健康情報を含めず、"
                 "以前の要点と今回本人が明示した事実だけを使ってください。推測や売買の結論を記憶しないでください。"
@@ -2660,9 +2684,9 @@ def api_chat():
                     if isinstance(answer, str) and 1 <= len(answer.strip()) <= 4000:
                         reply = answer.strip()
                         candidate = structured.get("memory_proposal")
-                        if (set(structured) == {"reply", "memory_proposal"}
-                                and isinstance(candidate, str) and 1 <= len(candidate.strip()) <= 1200
-                                and len(candidate) <= 1200
+                        if (not summary_over_limit and set(structured) == {"reply", "memory_proposal"}
+                                and isinstance(candidate, str) and 1 <= summary_units(candidate.strip())
+                                and summary_units(candidate) <= summary_limit
                                 and not any(ord(c) < 32 and c not in "\n\t" or ord(c) == 127 for c in candidate)):
                             proposal = candidate.strip()
                     else:

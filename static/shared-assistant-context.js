@@ -4,21 +4,23 @@
   if(typeof module==='object'&&module.exports)module.exports=api;else root.KNSharedAssistantContext=api;
 })(typeof window==='object'?window:globalThis,function(){
   'use strict';
-  var KEY='kb2_assistant_memory_v1',LIMIT=1200;
+  var KEY='kb2_assistant_memory_v1',LIMIT=1200,MAX_LIMIT=3600;
   function empty(){return {version:1,enabled:false,summary:''};}
-  function validText(text){return typeof text==='string'&&text.length<=LIMIT&&!/[\u0000-\u0008\u000b-\u001f\u007f]/.test(text);}
+  function validText(text,limit){
+    return typeof text==='string'&&text.length<=limit&&!/[\u0000-\u0008\u000b-\u001f\u007f\uD800-\uDFFF]/u.test(text);
+  }
   function decode(raw){
     if(raw===null)return empty();if(typeof raw!=='string'||raw.length>16000)throw Error('memory_format');var d=JSON.parse(raw);
-    if(!d||Array.isArray(d)||Object.keys(d).sort().join(',')!=='enabled,summary,version'||d.version!==1||typeof d.enabled!=='boolean'||!validText(d.summary))throw Error('memory_format');
+    if(!d||Array.isArray(d)||Object.keys(d).sort().join(',')!=='enabled,summary,version'||d.version!==1||typeof d.enabled!=='boolean'||!validText(d.summary,MAX_LIMIT))throw Error('memory_format');
     return {version:1,enabled:d.enabled,summary:d.summary};
   }
-  function encode(enabled,summary){if(typeof enabled!=='boolean'||!validText(summary))throw Error('memory_format');return JSON.stringify({version:1,enabled:enabled,summary:summary.trim()});}
+  function encode(enabled,summary,limit){if(typeof enabled!=='boolean'||!validText(summary,limit===MAX_LIMIT?MAX_LIMIT:LIMIT))throw Error('memory_format');return JSON.stringify({version:1,enabled:enabled,summary:summary.trim()});}
   function createSession(options){
-    var owner='',epoch=0,serial=0,raw,doc=empty(),ready=false,busy=false,proposal=null,error='',factsOnce=false;
+    var owner='',epoch=0,serial=0,raw,doc=empty(),ready=false,busy=false,proposal=null,error='',factsOnce=false,limit=LIMIT;
     function current(){return !!owner&&owner===options.owner();}
-    function state(){return current()?{owner:owner,epoch:epoch,raw:raw,ready:ready,busy:busy,enabled:doc.enabled,summary:doc.summary,proposal:proposal,error:error,factsOnce:factsOnce}:{owner:'',epoch:epoch,raw:undefined,ready:false,busy:false,enabled:false,summary:'',proposal:null,error:'',factsOnce:false};}
+    function state(){return current()?{owner:owner,epoch:epoch,raw:raw,ready:ready,busy:busy,enabled:doc.enabled,summary:doc.summary,proposal:proposal,error:error,factsOnce:factsOnce,limit:limit}:{owner:'',epoch:epoch,raw:undefined,ready:false,busy:false,enabled:false,summary:'',proposal:null,error:'',factsOnce:false,limit:LIMIT};}
     function emit(){if(options.onChange)options.onChange(state());}
-    function reset(){owner=options.owner()||'';epoch++;serial++;raw=undefined;doc=empty();ready=false;busy=false;proposal=null;error='';factsOnce=false;emit();}
+    function reset(){owner=options.owner()||'';epoch++;serial++;raw=undefined;doc=empty();ready=false;busy=false;proposal=null;error='';factsOnce=false;limit=LIMIT;emit();}
     async function refresh(){
       if(owner!==(options.owner()||''))reset();if(!owner){emit();return false;}var who=owner,generation=epoch,token=++serial;
       try{var next=await options.read(who);if(!current()||epoch!==generation||token!==serial)return false;var value=decode(next);
@@ -26,14 +28,21 @@
       }catch(e){if(current()&&epoch===generation&&token===serial){ready=false;proposal=null;error=e&&e.message==='memory_not_ready'?'':'記憶を読み込めませんでした。保存済みの内容は変更していません。';emit();}return false;}
     }
     async function update(enabled,summary){
-      if(!current()||!ready||busy)throw Error('memory_not_ready');var who=owner,generation=epoch,base=raw,next=encode(enabled,summary);busy=true;error='';emit();
+      if(!current()||!ready||busy)throw Error('memory_not_ready');var who=owner,generation=epoch,base=raw,next=encode(enabled,summary,summary===doc.summary?MAX_LIMIT:limit);busy=true;error='';emit();
       try{var result=await options.write(who,base,next);if(!current()||epoch!==generation)throw Error('memory_owner_changed');
         if(!result||result.ok!==true)throw Error('memory_save_failed');var latest=await options.read(who);if(!current()||epoch!==generation)throw Error('memory_owner_changed');if(latest!==next)throw Error('memory_changed');raw=next;doc=decode(next);proposal=null;emit();return {ok:true,synced:result.synced===true};
       }catch(e){if(current()&&epoch===generation){error=e&&e.message==='memory_changed'?'記憶が別の操作で更新されています。再読み込みして確認してください。':'保存できませんでした。入力内容は残しています。';emit();}throw e;}
       finally{if(current()&&epoch===generation){busy=false;emit();}}
     }
-    function propose(text,snapshot){if(!validText(text)||!text.trim()||!snapshot||!current()||snapshot.owner!==owner||snapshot.epoch!==epoch||snapshot.raw!==raw||!ready||!doc.enabled)return false;proposal=text.trim();emit();return true;}
-    return {state:state,refresh:refresh,reset:reset,update:update,forget:async function(){var result=await update(false,'');factsOnce=false;emit();return result;},propose:propose,setFactsOnce:function(value){if(!current()||!ready||typeof value!=='boolean')return false;factsOnce=value;emit();return true;},dismiss:function(){proposal=null;emit();}};
+    function propose(text,snapshot){if(!validText(text,limit)||!text.trim()||!snapshot||!current()||snapshot.owner!==owner||snapshot.epoch!==epoch||snapshot.raw!==raw||snapshot.limit!==limit||doc.summary.length>limit||!ready||!doc.enabled)return false;proposal=text.trim();emit();return true;}
+    function setLimit(next){
+      if(!current()||(next!==LIMIT&&next!==MAX_LIMIT))return false;
+      if(proposal&&(next<limit||doc.summary.length>next||proposal.length>next))proposal=null;
+      limit=next;
+      emit();
+      return true;
+    }
+    return {state:state,refresh:refresh,reset:reset,update:update,setLimit:setLimit,forget:async function(){var result=await update(false,'');factsOnce=false;emit();return result;},propose:propose,setFactsOnce:function(value){if(!current()||!ready||typeof value!=='boolean')return false;factsOnce=value;emit();return true;},dismiss:function(){proposal=null;emit();}};
   }
   var categories={現金:'cash','現金・預金':'cash',預金:'cash',国内株:'domestic_stock',日本株:'domestic_stock',米国株:'us_stock',投資信託:'investment_fund',ETF:'etf',債券:'bond',不動産:'real_estate',仮想通貨:'crypto',暗号資産:'crypto'};
   function number(value){if(typeof value!=='number'||!Number.isFinite(value)||Math.abs(value)>Number.MAX_SAFE_INTEGER)throw Error('context_invalid');return value;}
@@ -63,42 +72,91 @@
       token:function(who){return checked(who).knLedgerSession.access_token;}};
   }
   function createController(w,options){
-    options=options||{};var d=w.document,views=[],destroyed=false,frame=options.frame||function(){return d.querySelector('#myPageOv .kb-frame');},adapter=options.adapter||createFrameAdapter(w,frame),bound=new WeakSet(),observedOwner=adapter.owner(),chatBusy=false,chatTicket=0;
-    var session=createSession({owner:adapter.owner,read:adapter.read,write:adapter.write,onChange:function(s){views.forEach(function(v){paint(v,s);});if(options.onChange)options.onChange(s);}});
+    options=options||{};var d=w.document,views=[],destroyed=false,frame=options.frame||function(){return d.querySelector('#myPageOv .kb-frame');},adapter=options.adapter||createFrameAdapter(w,frame),bound=new WeakSet(),observedOwner=adapter.owner(),chatBusy=false,chatTicket=0,capacityTicket=0,capacityPending=false,capacityCheckedEpoch=-1;
+    var session=createSession({owner:adapter.owner,read:adapter.read,write:adapter.write,onChange:function(s){
+      views.forEach(function(v){paint(v,s);});
+      if(options.onChange)options.onChange(s);
+      if(s.ready&&!capacityPending&&capacityCheckedEpoch!==s.epoch
+          &&d.querySelector('#sideDrawer.open[data-menu-view="memory"]'))refreshCapacity();
+    }});
     function node(tag,cls,text){var n=d.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;}
     function button(text,fn){var n=node('button','kn-am-button',text);n.type='button';n.addEventListener('click',fn);return n;}
     function paint(v,s){
       if(v.owner!==s.owner){v.owner=s.owner;v.dirty=false;v.proposalDirty=false;v.proposalText=null;v.summary.value='';v.enabled.checked=false;v.candidate.value='';v.notice.textContent='';}v.facts.checked=!!s.factsOnce;
       if(!v.dirty){v.summary.value=s.summary;v.enabled.checked=s.enabled;}
-      [v.summary,v.enabled,v.facts,v.save,v.forget].forEach(function(n){n.disabled=!s.ready||s.busy;});v.retry.disabled=s.busy;
+      [v.summary,v.enabled,v.facts,v.forget].forEach(function(n){n.disabled=!s.ready||s.busy;});
+      v.save.disabled=!s.ready||s.busy||capacityPending;
+      v.retry.disabled=s.busy||capacityPending;
+      v.summary.maxLength=s.limit;
+      v.candidate.maxLength=s.limit;
+      v.capacity.textContent=!s.ready?'':capacityPending?'利用できる記憶の量を確認しています。':s.summary.length>s.limit?'保存済みの要点を保持し、相談では先頭'+s.limit+'文字までを使います。':'現在の記憶枠は'+s.limit+'文字までです。';
       v.status.textContent=s.error||(!s.ready?'マイページで非公開接続を準備すると、要点を保存できます。':s.enabled?'相談ロボットと先生AIで、保存した要点を使います。':'記憶はOFFです。会話の要点を自動送信しません。');
       v.proposalBox.hidden=!s.proposal;if(s.proposal!==v.proposalText){v.proposalText=s.proposal;v.proposalDirty=false;v.candidate.value=s.proposal||'';}
-      v.confirm.disabled=!s.ready||s.busy;v.dismiss.disabled=s.busy;
+      v.confirm.disabled=!s.ready||s.busy||capacityPending;v.dismiss.disabled=s.busy;
     }
     function mount(host){
-      if(!host||destroyed)return null;var box=node('details','kn-assistant-memory'),title=node('summary','','会話の要点を記憶');box.appendChild(title);
+      if(!host||destroyed)return null;var box=node('section','kn-assistant-memory');
       var body=node('div','kn-am-body'),status=node('p','kn-am-status');status.setAttribute('role','status');body.appendChild(status);
+      var capacity=node('p','kn-am-caption');body.appendChild(capacity);
       var label=node('label','kn-am-opt'),enabled=node('input');enabled.type='checkbox';label.appendChild(enabled);label.appendChild(node('span','','会話の要点を覚えて相談に使う（任意）'));body.appendChild(label);
-      body.appendChild(node('p','kn-am-caption','ONにすると、確認して保存した要点を相談ロボット・先生AIのAnthropicへ送ります。返信と同じ1回の処理で更新候補を作り、確認してから保存できます。'));
+      body.appendChild(node('p','kn-am-caption','ONにすると、確認して保存した要点を相談ロボット・先生AIのAnthropicへ送ります。返信と同じ1回の処理で更新候補を作り、ここで確認してから保存できます。'));
       var summaryLabel=node('label','kn-am-label','覚えておく要点'),summary=node('textarea');summary.maxLength=LIMIT;summary.rows=4;summary.setAttribute('aria-label','覚えておく会話の要点');summaryLabel.appendChild(summary);body.appendChild(summaryLabel);
       body.appendChild(node('p','kn-am-caption','希望や相談中の課題を短くまとめてください。氏名、銘柄名、金額、口座、連絡先などは含めないでください。資産・自由メモ・別画面の記録を自動で送ることはありません。'));
-      var factsLabel=node('label','kn-am-opt'),facts=node('input');facts.type='checkbox';factsLabel.appendChild(facts);factsLabel.appendChild(node('span','','次の相談に資産・目標・今月家計の集計を使う（Anthropicへ送信）'));body.appendChild(factsLabel);body.appendChild(node('p','kn-am-caption','集計は相談ごとに新しく確認し、この1回だけ送ります。名前・銘柄名・取引内容・メモは含めず、金額を記憶には保存しません。'));facts.addEventListener('change',function(){session.setFactsOnce(facts.checked);});
+      var factsBox=node('fieldset','kn-am-facts');
+      factsBox.appendChild(node('legend','','次の相談だけに使う情報'));
+      var factsLabel=node('label','kn-am-opt'),facts=node('input');
+      facts.type='checkbox';
+      factsLabel.appendChild(facts);
+      factsLabel.appendChild(node('span','','資産・目標・今月家計の集計を使う（Anthropicへ送信）'));
+      factsBox.appendChild(factsLabel);
+      factsBox.appendChild(node('p','kn-am-caption','集計は次の相談に一度だけ送ります。名前・銘柄名・取引内容・メモは含めません。'));
+      facts.addEventListener('change',function(){session.setFactsOnce(facts.checked);});
       var actions=node('div','kn-am-actions'),notice=node('p','kn-am-status');notice.setAttribute('role','status');
-      var view={owner:'',box:box,enabled:enabled,facts:facts,summary:summary,status:status,notice:notice,dirty:false,proposalText:null,proposalDirty:false};
+      var view={owner:'',box:box,enabled:enabled,facts:facts,summary:summary,status:status,capacity:capacity,notice:notice,dirty:false,proposalText:null,proposalDirty:false};
       async function save(value,isEnabled){try{var saved=await session.update(isEnabled,value);view.dirty=false;notice.textContent=saved.synced?'要点を保存・同期しました。':'この端末に保存しました。同期を待っています。';paint(view,session.state());}catch(ignore){notice.textContent='保存できませんでした。入力内容は残しています。';}}
       view.save=button('設定を保存',function(){return save(summary.value,enabled.checked);});actions.appendChild(view.save);
       view.forget=button('記憶を削除',async function(){try{var saved=await session.forget();view.dirty=false;notice.textContent=saved.synced?'記憶を削除・同期しました。':'この端末の記憶を削除しました。同期を待っています。';paint(view,session.state());}catch(ignore){notice.textContent='削除できませんでした。記憶は残しています。';}});actions.appendChild(view.forget);
-      view.retry=button('接続・再読み込み',async function(){try{if(options.ensureReady)await options.ensureReady();bind();await session.refresh();}catch(ignore){notice.textContent='マイページの非公開接続を確認してください。';}});actions.appendChild(view.retry);body.appendChild(actions);body.appendChild(notice);
+      view.retry=button('接続・再読み込み',async function(){try{if(options.ensureReady)await options.ensureReady();bind();await refreshCapacity();}catch(ignore){notice.textContent='マイページの非公開接続を確認してください。';}});actions.appendChild(view.retry);body.appendChild(actions);body.appendChild(notice);
       var proposalBox=node('section','kn-am-proposal');proposalBox.hidden=true;proposalBox.appendChild(node('strong','','今回の会話からの更新候補'));proposalBox.appendChild(node('p','kn-am-caption','内容を確認・修正して保存してください。保存するまでは記憶に加わりません。'));
       var candidate=node('textarea');candidate.maxLength=LIMIT;candidate.rows=4;candidate.setAttribute('aria-label','確認して保存する要点の候補');proposalBox.appendChild(candidate);var proposalActions=node('div','kn-am-actions');
-      view.confirm=button('この要点を保存',function(){return save(candidate.value,true);});view.dismiss=button('今回は保存しない',function(){session.dismiss();});proposalActions.appendChild(view.confirm);proposalActions.appendChild(view.dismiss);proposalBox.appendChild(proposalActions);body.appendChild(proposalBox);
-      body.appendChild(node('p','kn-am-caption','連携先：相談ロボット・先生AI。家計・資産AI、質問ヒント、レシート読取にはこの記憶を送信しません。既存の利用制限は変わりません。'));
+      view.confirm=button('この要点を保存',function(){return save(candidate.value,true);});view.dismiss=button('今回は保存しない',function(){session.dismiss();});proposalActions.appendChild(view.confirm);proposalActions.appendChild(view.dismiss);proposalBox.appendChild(proposalActions);body.appendChild(proposalBox);body.appendChild(factsBox);
+      body.appendChild(node('p','kn-am-caption','連携先：相談ロボット・先生AI。家計・資産AI、質問ヒント、レシート読取にはこの記憶を送信しません。チャットの利用回数は共通です。'));
       view.proposalBox=proposalBox;view.candidate=candidate;enabled.addEventListener('change',function(){view.dirty=true;notice.textContent='';});summary.addEventListener('input',function(){view.dirty=true;notice.textContent='';});candidate.addEventListener('input',function(){view.proposalDirty=true;});box.appendChild(body);host.appendChild(box);views.push(view);paint(view,session.state());return box;
     }
     function bind(){var f=frame();if(!f||bound.has(f))return;bound.add(f);f.addEventListener('load',function(){session.refresh();});}
-    function changedOwner(){var who=adapter.owner();if(observedOwner!==who){observedOwner=who;chatTicket++;chatBusy=false;if(adapter.invalidate)adapter.invalidate();session.reset();}bind();session.refresh();}
+    function changedOwner(){var who=adapter.owner();if(observedOwner!==who){observedOwner=who;chatTicket++;chatBusy=false;capacityTicket++;capacityPending=false;if(adapter.invalidate)adapter.invalidate();session.reset();}bind();session.refresh();}
     function records(event){var f=frame();if(event.origin===w.location.origin&&f&&event.source===f.contentWindow&&event.data&&event.data.type==='kn-mypage-records-ready')session.refresh();}
     d.addEventListener('knAuthChange',changedOwner);w.addEventListener('message',records);bind();session.refresh();
+    async function refreshCapacity(){
+      if(capacityPending||destroyed)return;
+      var ticket=++capacityTicket,next=LIMIT;
+      capacityPending=true;
+      views.forEach(function(v){paint(v,session.state());});
+      try{
+        await session.refresh();
+        var before=session.state();
+        if(ticket!==capacityTicket||!before.ready||!before.owner)return;
+        capacityCheckedEpoch=before.epoch;
+        var request={headers:{Authorization:'Bearer '+adapter.token(before.owner)},cache:'no-store',redirect:'error'};
+        if(w.AbortSignal&&typeof w.AbortSignal.timeout==='function')request.signal=w.AbortSignal.timeout(8000);
+        var response=await w.fetch('/api/chat/memory-capacity',request);
+        if(!response.ok)return;
+        var text=await response.text();
+        if(text.length>256)return;
+        var result=JSON.parse(text),after=session.state();
+        if(ticket===capacityTicket&&after.owner===before.owner&&after.epoch===before.epoch&&result&&result.summary_limit===MAX_LIMIT){
+          next=MAX_LIMIT;
+        }
+      }catch(ignore){
+        // An unavailable capacity lookup leaves the conservative limit in effect.
+      }finally{
+        if(ticket===capacityTicket){
+          capacityPending=false;
+          session.setLimit(next);
+          views.forEach(function(v){paint(v,session.state());});
+        }
+      }
+    }
     function ownerError(){var e=Error('memory_owner_changed');e.code='assistant_owner_changed';return e;}
     async function fetchChat(payload,requestOptions){
       if(chatBusy){var waiting=Error('request_pending');waiting.code='assistant_busy';throw waiting;}var ticket=++chatTicket;chatBusy=true;
@@ -112,11 +170,11 @@
       var response=await w.fetch('/api/chat',{method:'POST',headers:headers,body:JSON.stringify(body),signal:requestOptions.signal,cache:'no-store'});
       if(destroyed||adapter.owner()!==who||session.state().epoch!==generation)throw ownerError();var text=await response.text();
       if(destroyed||adapter.owner()!==who||session.state().epoch!==generation)throw ownerError();if(text.length>64000)throw Error('memory_response_invalid');
-      if(body.shared_context){try{var result=JSON.parse(text);if(result&&result.shared_context_used===true&&validText(result.memory_proposal)&&result.memory_proposal.trim())session.propose(result.memory_proposal,before);}catch(ignore){}}
+      if(body.shared_context){try{var result=JSON.parse(text);if(result&&result.shared_context_used===true&&validText(result.memory_proposal,MAX_LIMIT)&&result.memory_proposal.trim())session.propose(result.memory_proposal,before);}catch(ignore){}}
       return {ok:response.ok,status:response.status,text:async function(){if(destroyed||adapter.owner()!==who||session.state().epoch!==generation)throw ownerError();return text;}};
       }finally{if(ticket===chatTicket)chatBusy=false;}
     }
-    return {mount:mount,refresh:session.refresh,state:session.state,fetchChat:fetchChat,session:session,destroy:function(){destroyed=true;d.removeEventListener('knAuthChange',changedOwner);w.removeEventListener('message',records);session.reset();views.forEach(function(v){v.box.remove();});views=[];}};
+    return {mount:mount,refresh:session.refresh,refreshCapacity:refreshCapacity,state:session.state,fetchChat:fetchChat,session:session,destroy:function(){destroyed=true;capacityTicket++;capacityPending=false;d.removeEventListener('knAuthChange',changedOwner);w.removeEventListener('message',records);session.reset();views.forEach(function(v){v.box.remove();});views=[];}};
   }
   return Object.freeze({KEY:KEY,LIMIT:LIMIT,empty:empty,decode:decode,encode:encode,createSession:createSession,siteFacts:siteFacts,createFrameAdapter:createFrameAdapter,createController:createController});
 });
