@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>村の配置案と立体範囲の照合</title>
+  <style>
+    :root{color-scheme:light;font:16px/1.65 system-ui,-apple-system,sans-serif;color:#253d36;background:#f7f8f4}
+    *{box-sizing:border-box}body{margin:0;padding:24px 18px 48px}main{max-width:960px;margin:auto}
+    h1{font-size:clamp(1.45rem,4.5vw,2rem);line-height:1.4;margin:0 0 14px}h2{font-size:1.15rem;margin:0 0 12px}
+    p{margin:12px 0}section{background:#fff;border:1px solid #d4dfd6;border-radius:18px;padding:20px;margin:20px 0}
+    .muted{color:#4a6055}.cases{display:flex;flex-wrap:wrap;gap:10px}button,summary{font:inherit}
+    button{min-height:44px;padding:9px 14px;background:#f0f5ef;color:#294638;border:1px solid #9bb7a4;border-radius:12px;cursor:pointer}
+    button:hover{background:#e4eee5}button:disabled{cursor:wait;opacity:.65}button[aria-pressed="true"]{background:#dcebe0;border-color:#637e6b;font-weight:650}
+    :focus-visible{outline:3px solid #356575;outline-offset:3px}#status{min-height:1.7em}#summary{font-weight:650}
+    .table-wrap{max-width:100%;overflow:auto}table{border-collapse:collapse;width:100%;font-size:.92rem}th,td{text-align:left;padding:10px;border-bottom:1px solid #dce4dc;vertical-align:top}th{background:#f0f4ef;white-space:nowrap}td{min-width:135px}td:first-child{min-width:72px}
+    details{margin-top:18px}summary{cursor:pointer;min-height:44px;padding:8px 0}pre{max-height:32rem;overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;background:#f1f4f0;border-radius:12px;padding:14px;font:13px/1.6 ui-monospace,monospace}
+    @media(max-width:400px){body{padding:18px 12px 32px}section{padding:16px}.cases{gap:8px}button{padding:9px 11px}}
+  </style>
+</head>
+<body><main>
+  <h1>村の配置案と立体範囲の照合</h1>
+  <p>架空の現在配置と変更案に、それぞれの立体データが対応するかを読み比べる見本です。現在のソースから別々に作る2つの例と、不一致や不正な入力の例を選べます。</p>
+  <p class="muted">対応が一致しても、提供された入力同士の一致だけを示します。保存の本人確認、最新性、立体の衝突、移設の可否は判定しません。同じ配置のデータを入れ替えても、出所や役割を区別できるとは限りません。</p>
+  <section aria-labelledby="case-title">
+    <h2 id="case-title">照合する例</h2>
+    <div class="cases">
+      <button type="button" data-case="actual">現在と変更案</button>
+      <button type="button" data-case="swapped">変更前後の入れ替え</button>
+      <button type="button" data-case="mapping">変更しない場所の不一致</button>
+      <button type="button" data-case="stale">古い版の案</button>
+      <button type="button" data-case="world">世界の寸法の不一致</button>
+      <button type="button" data-case="same">同じ配置と役割の限界</button>
+      <button type="button" data-case="separate">離れた範囲</button>
+      <button type="button" data-case="touch">接する範囲</button>
+      <button type="button" data-case="overlap">重なる範囲</button>
+      <button type="button" data-case="sprite">立体範囲なし</button>
+      <button type="button" data-case="index">不正な三角形の指定</button>
+      <button type="button" data-case="limit">読取上限を超える入力</button>
+    </div>
+    <p id="status" role="status" aria-live="polite">読み込み中です。</p>
+    <button type="button" id="reset">表示を戻す</button>
+  </section>
+  <section aria-labelledby="result-title">
+    <h2 id="result-title">読取結果</h2>
+    <p id="summary">例を選ぶと照合結果を表示します。</p>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="場所ごとの範囲の比較表。狭い画面では左右にスクロールできます。"><table><thead><tr><th>場所</th><th>現在の範囲</th><th>変更案の範囲</th><th>Mesh数</th></tr></thead><tbody id="place-rows"></tbody></table></div>
+    <details id="report-details"><summary>読取の内訳を見る</summary><pre id="report" tabindex="0">未読取</pre></details>
+  </section>
+  <p class="muted">四角い平面範囲の関係は、三角形同士の接触や通り道の安全性を示しません。木や花など、体積を測っていない表示も残ります。本人の村や保存内容を読み書きせず、業者への送信・受付・見積り・工事は進めません。</p>
+</main><script type="module" src="./proof.mjs"></script></body>
+</html>
