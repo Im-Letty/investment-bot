@@ -16,7 +16,7 @@ import time
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from daily_news_runtime import StorageUnavailable, _valid_issue
+from daily_news_runtime import MAX_ATTEMPTS, StorageUnavailable, _valid_issue
 from morning_news_window import (JST, MAX_ARTICLES, MorningNewsPreparer, morning_window,
     manifest_window, healthy_empty_manifest, read_prepared_manifest)
 from news_cache import load_reviewed_digests
@@ -92,6 +92,24 @@ def _outcome(status, *, now=None, manifest=None, phase="source_preparation"):
     return value
 
 
+def _quiet_v1_recheck(storage, manifest, now):
+    """Admit unpaid recovery once after release, never reset paid state."""
+    current = datetime.fromtimestamp(now, JST)
+    if (current.hour < 8 or manifest.get("version") != 1
+            or not healthy_empty_manifest(manifest)):
+        return False
+    prefix = f"days/{current.date().isoformat()}"
+    if storage.read(prefix + "/edition.json") is not None:
+        return False
+    # The scheduled guard also checks these objects, but source preparation
+    # must fail closed independently when invoked directly or after a race.
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        if (storage.read(prefix + f"/attempt-{attempt}.lock") is not None
+                or storage.read(prefix + f"/attempt-{attempt}.result.json") is not None):
+            return False
+    return True
+
+
 def run_once(*, environ=None, wall_clock=time.time, monotonic=time.monotonic,
              sleep=time.sleep, storage_factory=PrivateNewsStorage, collector=collect_website_sources):
     env = os.environ if environ is None else environ
@@ -126,12 +144,14 @@ def run_once(*, environ=None, wall_clock=time.time, monotonic=time.monotonic,
                     storage.set_phase_deadline(expiry, phase="source_preparation")
                     operation_started = True
                 manifest = read_prepared_manifest(storage, now)
-                if manifest is None:
+                quiet_recheck = manifest is not None and _quiet_v1_recheck(storage, manifest, now)
+                if manifest is None or quiet_recheck:
                     history = _history(storage, now)
-                    manifest = preparer.prepare(now, history)
-                    if manifest is not None and (manifest["articles"] or healthy_empty_manifest(manifest)):
-                        return _outcome("prepared" if manifest["articles"] else "source_empty",
-                                        now=wall_clock(), manifest=manifest)
+                    if not quiet_recheck:
+                        manifest = preparer.prepare(now, history)
+                        if manifest is not None and (manifest["articles"] or healthy_empty_manifest(manifest)):
+                            return _outcome("prepared" if manifest["articles"] else "source_empty",
+                                            now=wall_clock(), manifest=manifest)
                     manifest = preparer.prepare_recovery(wall_clock(), history)
                 if manifest is not None:
                     return _outcome("prepared" if manifest["articles"] else "source_empty",

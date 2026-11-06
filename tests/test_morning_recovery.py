@@ -344,6 +344,95 @@ class RecoveryProtocolTests(unittest.TestCase):
 
 
 class SourceCliTests(unittest.TestCase):
+    def empty_v1(self, storage):
+        status = {}
+        diagnostics(status, False)
+        frozen = {**morning_window(at()), "articles": [], "source_status": status}
+        storage.values["days/2026-10-12/preparation/manifest.json"] = deepcopy(frozen)
+        return frozen
+
+    def run_source(self, storage, collector, *, now):
+        with patch("scripts.prepare_private_news_sources.load_reviewed_digests", return_value=[]):
+            return run_once(environ={"SUPABASE_URL": "https://example.supabase.co", "SUPABASE_KEY": "not-a-real-key"},
+                wall_clock=lambda: now, monotonic=lambda: 1,
+                storage_factory=lambda *args, **kwargs: storage, collector=collector)
+
+    def test_quiet_v1_waits_until_release_then_recovers_late_verified_original(self):
+        storage = Storage()
+        frozen = self.empty_v1(storage)
+        def collect(now, **kwargs):
+            diagnostics(kwargs["diagnostics"])
+            return [article(verified=now)]
+        collector = Mock(side_effect=collect)
+        before = deepcopy(storage.values)
+        quiet = self.run_source(storage, collector, now=at(7, 59, 59))
+        self.assertEqual(quiet["status"], "source_empty")
+        self.assertEqual(storage.values, before)
+        collector.assert_not_called()
+
+        recovered = self.run_source(storage, collector, now=at(8))
+        self.assertEqual(recovered["status"], "prepared")
+        self.assertEqual(recovered["source_article_count"], 1)
+        self.assertEqual(recovered["source_window"]["version"], 3)
+        self.assertEqual(recovered["source_window"]["snapshot_at"], at(8))
+        self.assertEqual(recovered["source_window"]["cutoff_at"], at(7, 30))
+        self.assertEqual(collector.call_args.kwargs["until"], at(7, 30))
+        self.assertEqual(storage.values["days/2026-10-12/preparation/manifest.json"], frozen)
+        self.assertEqual(recovered["ai_attempt_count"], 0)
+        self.assertEqual(recovered["published_count"], 0)
+        self.assertFalse(any("/attempt-" in key or key.endswith("/edition.json") for key in storage.values))
+
+    def test_quiet_v3_is_authoritative_and_never_collects_again(self):
+        storage = Storage()
+        frozen = self.empty_v1(storage)
+        def collect(now, **kwargs):
+            diagnostics(kwargs["diagnostics"], False)
+            return []
+        collector = Mock(side_effect=collect)
+        first = self.run_source(storage, collector, now=at(8))
+        self.assertEqual(first["status"], "source_empty")
+        self.assertEqual(first["source_window"]["version"], 3)
+        after = deepcopy(storage.values)
+        second = self.run_source(storage, collector, now=at(20, 33))
+        self.assertEqual(second["status"], "source_empty")
+        self.assertEqual(second["source_window"]["snapshot_at"], at(8))
+        self.assertEqual(collector.call_count, 1)
+        self.assertEqual(storage.values, after)
+        self.assertEqual(storage.values["days/2026-10-12/preparation/manifest.json"], frozen)
+
+    def test_quiet_v1_recheck_never_collects_with_edition_or_any_paid_state(self):
+        prefix = "days/2026-10-12/"
+        for key, value in (("edition.json", {"ambiguous": True}),
+                           ("attempt-1.lock", {"ambiguous": True}),
+                           ("attempt-6.lock", {"ambiguous": True}),
+                           ("attempt-1.result.json", {"status": "generation_failed"}),
+                           ("attempt-6.result.json", {"ambiguous": True})):
+            with self.subTest(key=key):
+                storage = Storage()
+                self.empty_v1(storage)
+                storage.values[prefix + key] = value
+                before = deepcopy(storage.values)
+                collector = Mock()
+                result = self.run_source(storage, collector, now=at(9))
+                self.assertEqual(result["status"], "source_empty")
+                self.assertEqual(storage.values, before)
+                collector.assert_not_called()
+
+    def test_quiet_v1_recheck_retains_three_unpaid_recovery_lease_cap(self):
+        storage = Storage()
+        self.empty_v1(storage)
+        prefix = "days/2026-10-12/preparation/"
+        for attempt in range(1, 4):
+            storage.values[prefix + f"recovery-v3-{attempt}.lock"] = {
+                "version": 1, "edition_date": "2026-10-12", "attempt": attempt,
+                "started_at": at(8) - 301}
+        before = deepcopy(storage.values)
+        collector = Mock()
+        result = self.run_source(storage, collector, now=at(8))
+        self.assertEqual(result["status"], "source_collection_limit")
+        self.assertEqual(storage.values, before)
+        collector.assert_not_called()
+
     def test_late_cli_finishes_preparation_without_any_ai_claim(self):
         storage = Storage()
         factory = Mock(return_value=storage)
