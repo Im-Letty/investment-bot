@@ -22,7 +22,30 @@
   function headlinesFallback(d){return !!(d&&d.delivery==='headlines'&&d.fallback_reason==='current_edition_unavailable'&&d.digest===null&&d.selection_status==='ready'&&Array.isArray(d.news)&&d.news.length);}
   function safeNewsURL(value){try{var u=new URL(value);return ['https:','http:'].includes(u.protocol)&&!u.username&&!u.password?u.href:'';}catch(_){return '';}}
   function validISODate(value){if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;var date=new Date(value+'T00:00:00Z');return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value;}
-  function newsUpdateMarkup(d){
+  function dailyUpdateSummary(value,l,now){
+    var daily=value.daily_update;
+    if(!daily||daily.timezone!=='Asia/Tokyo'||!validISODate(daily.target_date)||daily.target_date!==editionKey(now))return '';
+    var target=Date.parse(daily.target_date+'T08:00:00+09:00')/1000;
+    if(!Number.isFinite(daily.target_at)||daily.target_at!==target)return '';
+    var words={
+      ja:{target:'毎朝08:00 JST 公開目標',pending_before_target:'本日分は08:00の公開目標前です',awaiting_catch_up:'08:00の目標時刻を過ぎています。本日分の公開を確認待ちです',published_on_time:'本日分の公開を確認しました（08:00までに公開）',published_late:'本日分を遅れて公開しました',published_time_unconfirmed:'本日分は掲載済み・公開時刻は未確認です',checked_no_eligible_articles:'本日の確認：対象となる原文はありませんでした',showing:'表示中：',unknown:'掲載版は未確認'},
+      en:{target:'Daily publication target:08:00 JST',pending_before_target:'Today’s publication target has not arrived',awaiting_catch_up:'Past08:00; today’s publication is awaiting confirmation',published_on_time:'Today’s edition was published by08:00',published_late:'Today’s edition was published late',published_time_unconfirmed:'Today’s edition is available; publication time unconfirmed',checked_no_eligible_articles:'Today’s source check found no eligible originals',showing:'Showing:',unknown:'Edition unconfirmed'},
+      ko:{target:'매일08:00 JST 공개 목표',pending_before_target:'오늘 공개 목표 시각 전입니다',awaiting_catch_up:'08:00이 지났습니다. 오늘 공개 확인 대기 중',published_on_time:'오늘 기사는08:00까지 공개되었습니다',published_late:'오늘 기사가 늦게 공개되었습니다',published_time_unconfirmed:'오늘 기사는 게재됨·공개 시각은 미확인',checked_no_eligible_articles:'오늘 확인:대상 원문이 없었습니다',showing:'표시 중:',unknown:'게재일 미확인'},
+      zh:{target:'每日08:00 JST发布目标',pending_before_target:'尚未到今天的发布目标时间',awaiting_catch_up:'已过08:00，等待确认今天的发布',published_on_time:'今天的内容已于08:00前发布',published_late:'今天的内容已延迟发布',published_time_unconfirmed:'今天的内容已刊登，发布时间未确认',checked_no_eligible_articles:'今天的来源检查未发现符合条件的原文',showing:'当前显示：',unknown:'刊登日期未确认'}
+    }[l]||null;
+    if(!words||!['pending_before_target','awaiting_catch_up','published_on_time','published_late','published_time_unconfirmed','checked_no_eligible_articles'].includes(daily.state))return '';
+    var state=daily.state;
+    if(state==='pending_before_target'&&now>=target)state='awaiting_catch_up';
+    if(state==='checked_no_eligible_articles'||state==='published_on_time'||state==='published_late'){
+      if(!Number.isFinite(daily.confirmed_at)||daily.confirmed_at<=0||daily.confirmed_at>now||editionKey(daily.confirmed_at)!==daily.target_date)return '';
+    }
+    if(state.indexOf('published_')===0&&value.edition_date!==daily.target_date)return '';
+    if(state==='published_on_time'&&daily.confirmed_at>target||state==='published_late'&&daily.confirmed_at<=target)return '';
+    var day=window.KNDateDisplay.date(daily.target_date);
+    var shown=validISODate(value.edition_date)?window.KNDateDisplay.date(value.edition_date)+(l==='ja'?'版':''):words.unknown;
+    return words.target+' · '+day+' · '+words[state]+' · '+words.showing+shown;
+  }
+  function newsUpdateMarkup(d,l){
     var value=d.update_status,now=Date.now()/1000;
     if(!value||value.version!==1)return '';
     var labels={no_eligible_articles:'対象記事なし（取得元の確認済み）',partially_published:'一部公開・残りは確認未完',review_failed:'審査で停止',generation_failed:'生成で停止（詳細未提供）',check_failed:'確認に失敗',daily_limit:'当日の試行上限に到達',in_progress:'処理中',publication_confirmed:'掲載を確認',prepared:'原稿準備済み・公開待ち',candidate_confirmed:'掲載候補を確認（未公開）',no_publication:'新規掲載なし（対象候補の有無は未確認）',unavailable:'結果未提供'};
@@ -39,7 +62,9 @@
       var stamp=value[pair[0]];
       if(Number.isFinite(stamp)&&stamp>0&&stamp<=now){var date=new Date((stamp+9*3600)*1000).toISOString();lines.push([pair[1],date.slice(0,10).replace(/-/g,'/')+' '+date.slice(11,16)+' JST']);}
     });
-    return '<details class="news-update-status" lang="ja" data-news-key="update-status"><summary data-news-focus="update-status">'+esc(day+' · '+state)+'</summary><dl>'+lines.map(function(row){return '<div><dt>'+esc(row[0])+'</dt><dd>'+esc(row[1])+'</dd></div>';}).join('')+'</dl></details>';
+    var daily=dailyUpdateSummary(value,l,now);
+    if(daily)lines.unshift(['掲載状況',day+' · '+state]);
+    return '<details class="news-update-status" lang="ja" data-news-key="update-status"><summary lang="'+esc(daily?l:'ja')+'" data-news-focus="update-status">'+esc(daily||day+' · '+state)+'</summary><dl>'+lines.map(function(row){return '<div><dt>'+esc(row[0])+'</dt><dd>'+esc(row[1])+'</dd></div>';}).join('')+'</dl></details>';
   }
   function sourceWindow(digest){
     var w=digest&&digest.source_window;
@@ -229,7 +254,7 @@
     }).join('')+'</section>';
     var more=stories?'<details class="read-more" data-news-key="more"><summary data-news-focus="more"><span class="closed-label">'+esc(leadAndOthers?otherNewsCopy[l]:c.more)+'</span><span class="open-label">'+esc(c.close)+'</span><span class="read-toggle" aria-hidden="true"></span></summary><div class="stories editorial-detail">'+stories+'</div></details>':'';
     var tail=leadAndOthers&&more?'<div class="news-tail">'+more+'</div>':more;
-    var observation=newsUpdateMarkup(d);
+    var observation=newsUpdateMarkup(d,l);
     var footer=status||observation?'<footer class="news-footer">'+(status?'<p>'+esc(status)+'</p>':'')+observation+'</footer>':'';
     return '<article id="knNewsDigest" class="news-card journal" aria-labelledby="knNewsDigestTitle"><header class="news-header">'+calendar+'<div class="heading-text"><h3 id="knNewsDigestTitle">'+esc(c.title)+'</h3></div></header><div class="news-content"><div class="brief">'+brief+'</div>'+tail+footer+'</div></article>';
   }

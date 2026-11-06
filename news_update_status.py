@@ -52,6 +52,47 @@ def _job_result(value, now):
     return result
 
 
+def _economic_daily_target(result, now):
+    """A target clock is not a publication or a successful collection receipt."""
+    today = datetime.fromtimestamp(now, JST).date()
+    midnight = datetime.combine(today, datetime.min.time(), JST).timestamp()
+    target = midnight + 8 * 3600
+    day = today.isoformat()
+    published_at = result.get("published_at")
+    confirmed_at = None
+    if result.get("edition_date") == day and result.get("publication_state") == "current":
+        # Keep a real but incompatible/missing publication clock unknown.
+        if published_at is not None and midnight <= published_at <= now:
+            state = "published_on_time" if published_at <= target else "published_late"
+            confirmed_at = published_at
+        else:
+            state = "published_time_unconfirmed"
+    elif now < target:
+        state = "pending_before_target"
+    else:
+        state = "awaiting_catch_up"
+        # Only a dated, timed, explicit ordinary result can establish a quiet
+        # source check. A later failure/in-progress result supersedes it.
+        receipts = []
+        for key in ("morning_result", "intraday_result"):
+            row = result.get(key)
+            stamp = _stamp(row.get("observed_at"), now) if isinstance(row, dict) else None
+            if (isinstance(row, dict) and row.get("edition_date") == day
+                    and stamp is not None and midnight <= stamp <= now
+                    and row.get("observation_failed") is not True):
+                receipts.append((stamp, row))
+        if receipts:
+            stamp, row = max(receipts, key=lambda value: value[0])
+            if row.get("state") == "no_eligible_articles" and not row.get("published_count"):
+                state = "checked_no_eligible_articles"
+                confirmed_at = stamp
+    catch_up = ("completed" if state == "published_late" else
+                "awaiting" if state == "awaiting_catch_up" else
+                "not_due" if state == "pending_before_target" else "not_needed")
+    return {"target_date": day, "target_at": target, "timezone": "Asia/Tokyo",
+            "state": state, "catch_up_state": catch_up, "confirmed_at": confirmed_at}
+
+
 def economic_update_status(data, runtime=None, *, now):
     """Project an already selected public edition and process-memory runtime.
 
@@ -95,6 +136,7 @@ def economic_update_status(data, runtime=None, *, now):
     elif isinstance(jobs.get("morning"), dict) and jobs["morning"].get("read_state") == "failed":
         result["morning_result"]["observation_failed"] = True
     result["intraday_result"] = _job_result(jobs.get("intraday"), now) or {"state": "unavailable"}
+    result["daily_update"] = _economic_daily_target(result, now)
     return result
 
 
@@ -124,13 +166,34 @@ RESULT_LABELS = {
 }
 
 
+DAILY_LABELS = {
+    "pending_before_target": "本日分は08:00の公開目標前です",
+    "awaiting_catch_up": "08:00の目標時刻を過ぎています。本日分の公開を確認待ちです",
+    "published_on_time": "本日分の公開を確認しました（08:00までに公開）",
+    "published_late": "本日分を遅れて公開しました",
+    "published_time_unconfirmed": "本日分は掲載済み・公開時刻は未確認です",
+    "checked_no_eligible_articles": "本日の確認：対象となる原文はありませんでした",
+}
+
+
 def economic_status_lines(status):
     """Japanese SSR copy; the browser maps the same fixed enum contract."""
     day = _day(status.get("edition_date"))
     edition = day.replace("-", "/") + "版" if day else "掲載版は未確認"
     state = {"current": "新しい掲載を確認", "previous": "新しい掲載は未確認・前回分を表示",
              "unconfirmed": "公開記事は未確認"}.get(status.get("publication_state"), "公開記事は未確認")
-    lines = [("掲載状況", edition + " · " + state)]
+    daily = status.get("daily_update")
+    lines = []
+    if isinstance(daily, dict) and daily.get("state") in DAILY_LABELS and _day(daily.get("target_date")):
+        headline = "毎朝08:00 JST 公開目標 · " + daily["target_date"].replace("-", "/") + " · " + DAILY_LABELS[daily["state"]]
+        lines.append(("毎日の更新", headline + " · 表示中：" + edition))
+        lines.append(("掲載状況", edition + " · " + state))
+        stamp = _stamp(daily.get("confirmed_at"), status.get("display_checked_at", 0))
+        if stamp is not None:
+            kind = "公開開始" if daily["state"].startswith("published_") else "処理結果確認"
+            lines.append(("本日分の" + kind, datetime.fromtimestamp(stamp, JST).strftime("%Y/%m/%d %H:%M JST")))
+    else:
+        lines.append(("掲載状況", edition + " · " + state))
     for key, title in (("morning_result", "朝の通常処理"), ("intraday_result", "日中の通常処理")):
         value = status.get(key) if isinstance(status.get(key), dict) else {}
         day = _day(value.get("edition_date"))

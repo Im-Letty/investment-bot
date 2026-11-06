@@ -27,6 +27,53 @@ test('update observation distinguishes old copy, actual failure and unavailable 
   assert.equal(app.context.document.activeElement.getAttribute('data-news-focus'),'update-status');
 });
 
+function dailyStatus(app,state,extra={}){
+  const day=new Date(app.now()+9*3600000).toISOString().slice(0,10),target=Date.parse(day+'T08:00:00+09:00')/1000;
+  return {version:1,edition_date:'2026-09-11',publication_state:'previous',display_checked_at:app.now()/1000,
+    daily_update:{target_date:day,target_at:target,timezone:'Asia/Tokyo',state,confirmed_at:null,...extra},morning_result:{state:'unavailable'},intraday_result:{state:'unavailable'}};
+}
+function updateSummary(html){return html.match(/<summary[^>]*data-news-focus="update-status"[^>]*>(.*?)<\/summary>/)?.[1]||'';}
+
+test('daily target remains visible before08 and changes to catch-up awaiting when the clock crosses08',()=>{
+  const app=harness();app.advance(-2*3600000);
+  const status=dailyStatus(app,'pending_before_target'),data=app.news('ja',{update_status:status});
+  assert.match(updateSummary(app.markup(data)),/毎朝08:00 JST 公開目標.*公開目標前/);
+  app.advance(2*3600000);
+  const summary=updateSummary(app.markup(data));
+  assert.match(summary,/目標時刻を過ぎています.*確認待ち/);
+  assert.match(summary,/表示中：2026\/09\/11版/);
+});
+
+test('daily summary shows a source-backed quiet check and keeps the old article edition',()=>{
+  const app=harness(),status=dailyStatus(app,'checked_no_eligible_articles',{confirmed_at:app.now()/1000-88*60});
+  status.morning_result={state:'no_eligible_articles',edition_date:'2026-09-12',observed_at:status.daily_update.confirmed_at};
+  const data=app.news('ja',{edition_date:'2026-09-11',update_status:status}),summary=updateSummary(app.markup(data));
+  assert.match(summary,/本日の確認：対象となる原文はありませんでした/);
+  assert.match(summary,/表示中：2026\/09\/11版/);
+  assert.equal(data.edition_date,'2026-09-11');
+  assert.doesNotMatch(summary,/遅れて公開|本日分の公開を確認しました/);
+});
+
+test('on-time and caught-up publication summaries need compatible actual publish clocks',()=>{
+  const app=harness();
+  for(const [state,offset,expected]of [['published_on_time',-3600,/08:00までに公開/],['published_late',-1800,/遅れて公開/],['published_time_unconfirmed',null,/公開時刻は未確認/]]){
+    const status=dailyStatus(app,state,{confirmed_at:offset===null?null:app.now()/1000+offset});status.edition_date='2026-09-12';status.publication_state='current';
+    assert.match(updateSummary(app.markup(app.news('ja',{update_status:status}))),expected);
+  }
+  const invalid=dailyStatus(app,'published_on_time',{confirmed_at:app.now()/1000-60});invalid.edition_date='2026-09-12';
+  assert.doesNotMatch(updateSummary(app.markup(app.news('ja',{update_status:invalid}))),/08:00までに公開/);
+});
+
+test('quiet daily summary is localized while stale, future or unavailable proof cannot claim today was checked',()=>{
+  const app=harness(),status=dailyStatus(app,'checked_no_eligible_articles',{confirmed_at:app.now()/1000-60});
+  const expected={ja:/対象となる原文はありませんでした/,en:/no eligible originals/,ko:/대상 원문이 없었습니다/,zh:/未发现符合条件的原文/};
+  for(const language of Object.keys(expected))assert.match(updateSummary(app.context.__testDigestMarkup(app.news(language,{update_status:status}),language,'')),expected[language]);
+  for(const extra of [{confirmed_at:null},{confirmed_at:app.now()/1000+1},{target_date:'2026-09-11'},{state:'target'},{state:'https://private.invalid<script>'}]){
+    const value={...status,daily_update:{...status.daily_update,...extra}},summary=updateSummary(app.markup(app.news('ja',{update_status:value})));
+    assert.doesNotMatch(summary,/対象となる原文はありませんでした|private.invalid|<script>/);
+  }
+});
+
 function deferred(){let resolve, reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return {promise,resolve,reject};}
 async function flush(){for(let i=0;i<30;i++)await Promise.resolve();}
 function harness(saved={}){

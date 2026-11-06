@@ -56,6 +56,63 @@ class PublicNewsStatusTests(unittest.TestCase):
         self.assertIsNone(result["source_checked_at"])
         self.assertEqual(result["morning_result"]["state"], "unavailable")
 
+    def test_daily_eight_target_distinguishes_before_target_and_awaiting_catch_up(self):
+        before = economic_update_status(edition(), now=at("2026-10-30T07:59:59"))
+        after = economic_update_status(edition(), now=at("2026-10-30T08:00:00"))
+        self.assertEqual(before["daily_update"]["state"], "pending_before_target")
+        self.assertEqual(before["daily_update"]["catch_up_state"], "not_due")
+        self.assertEqual(after["daily_update"]["state"], "awaiting_catch_up")
+        self.assertEqual(after["daily_update"]["catch_up_state"], "awaiting")
+        self.assertEqual(after["daily_update"]["target_at"], at("2026-10-30T08:00:00"))
+        self.assertEqual(after["edition_date"], "2026-10-28")
+        self.assertEqual(after["published_at"], at("2026-10-28T08:00:00"))
+
+    def test_actual_current_publication_time_distinguishes_on_time_late_and_unknown(self):
+        for clock, expected in (("2026-10-30T08:00:00", "published_on_time"),
+                                ("2026-10-30T10:12:00", "published_late"),
+                                ("2026-10-29T08:00:00", "published_time_unconfirmed"),
+                                (None, "published_time_unconfirmed")):
+            with self.subTest(clock=clock):
+                data = edition(); data["edition_date"] = "2026-10-30"
+                data["digest"]["publish_at"] = at(clock) if clock else None
+                result = economic_update_status(data, now=at("2026-10-30T11:00:00"))
+                self.assertEqual(result["daily_update"]["state"], expected)
+                self.assertEqual(result["daily_update"]["confirmed_at"], at(clock) if clock and expected != "published_time_unconfirmed" else None)
+                if expected == "published_late":
+                    self.assertEqual(result["daily_update"]["catch_up_state"], "completed")
+
+    def test_dated_quiet_receipt_is_visible_without_renaming_old_article_or_source_clock(self):
+        checked = at("2026-10-30T07:32:13")
+        data = edition(); data["source_fetched_at"] = at("2026-10-28T07:30:00")
+        runtime = {"status": "source_empty", "edition_date": "2026-10-30", "observed_at": checked}
+        result = economic_update_status(data, runtime, now=at("2026-10-30T09:00:00"))
+        self.assertEqual(result["daily_update"]["state"], "checked_no_eligible_articles")
+        self.assertEqual(result["daily_update"]["confirmed_at"], checked)
+        self.assertEqual(result["edition_date"], "2026-10-28")
+        self.assertEqual(result["source_checked_at"], data["source_fetched_at"])
+        first = economic_status_lines(result)[0][1]
+        self.assertIn("毎朝08:00 JST 公開目標", first)
+        self.assertIn("本日の確認：対象となる原文はありませんでした", first)
+        self.assertIn("表示中：2026/10/28版", first)
+        self.assertIn("保存済みの見出し", render_news_markup({**data, "update_status": result}, now=at("2026-10-30T09:00:00")))
+
+    def test_missing_yesterday_or_failed_quiet_observation_cannot_establish_todays_quiet_check(self):
+        for receipt in ({"state": "no_eligible_articles", "edition_date": "2026-10-29", "finished_at": at("2026-10-29T08:00:00")},
+                        {"state": "no_eligible_articles", "edition_date": "2026-10-30"},
+                        {"state": "no_eligible_articles", "edition_date": "2026-10-30", "finished_at": at("2026-10-30T08:00:00"), "read_state": "failed"},
+                        {"state": "check_failed", "edition_date": "2026-10-30", "finished_at": at("2026-10-30T08:00:00")},
+                        {"state": "no_eligible_articles", "edition_date": "2026-10-30", "finished_at": at("2026-10-30T08:00:00"), "published_count": 1}):
+            with self.subTest(receipt=receipt):
+                result = economic_update_status(edition(), {"job_results": {"morning": receipt}}, now=at("2026-10-30T09:00:00"))
+                self.assertEqual(result["daily_update"]["state"], "awaiting_catch_up")
+
+    def test_later_actual_job_failure_supersedes_a_quiet_check_without_becoming_generation_failure(self):
+        jobs = {"morning": {"state": "no_eligible_articles", "edition_date": "2026-10-30", "finished_at": at("2026-10-30T07:31:00")},
+                "intraday": {"state": "check_failed", "edition_date": "2026-10-30", "finished_at": at("2026-10-30T09:00:00")}}
+        result = economic_update_status(edition(), {"job_results": jobs}, now=at("2026-10-30T09:30:00"))
+        self.assertEqual(result["daily_update"]["state"], "awaiting_catch_up")
+        self.assertEqual(result["intraday_result"]["state"], "check_failed")
+
     def test_company_collection_and_review_times_do_not_claim_normal_job_or_publication_time(self):
         data = {"edition_date": "2026-10-29", "companies": [{"reviewed_at": at()-2}],
                 "checked_at": at()-1, "publication_checked_at": at()-1, "collection_health": "partial"}
