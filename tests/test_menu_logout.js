@@ -125,7 +125,7 @@ test('logout exists once directly after inline language and colors, without the 
   const h=fixture({user:{id:'synthetic-member',is_anonymous:false}}),group=h.group();
   assert.ok(group);assert.equal(group.parentElement.className,'knAccPanel kn-menu-content');const order=group.parentElement.children;assert.equal(order.at(-3),h.languageGrid.parentElement);assert.equal(order.at(-2),h.colors);assert.equal(order.at(-1),group);
   assert.equal(h.nav.querySelectorAll('[data-menu-page="logout"]').length,1);assert.equal(h.button('logout').textContent,'ログアウト');assert.equal(group.hidden,false);
-  const html=read('index.html');assert.equal(/ensureLogout|knLogoutBtn/.test(html),false);const menuLoader=html.match(/menu-a\.js\?v=[a-zA-Z0-9_-]+/)?.[0];assert.equal(menuLoader,'menu-a.js?v=20261104-memory-tier1');assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
+  const html=read('index.html');assert.equal(/ensureLogout|knLogoutBtn/.test(html),false);const menuLoader=html.match(/menu-a\.js\?v=[a-zA-Z0-9_-]+/)?.[0];assert.equal(menuLoader,'menu-a.js?v=20261107-font-compact1');assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
 });
 test('conversation memory opens its own menu settings and returns focus to its row',()=>{
   const h=fixture();let lookups=0;
@@ -367,7 +367,7 @@ test('the font fieldset restores one saved choice with native labels and preview
     assert.equal(field.tagName,'fieldset');assert.equal(field.querySelector('legend').textContent,'字体');assert.equal(field.querySelector('select'),null);
     assert.deepEqual(inputs.map(input=>input.dataset.menuFont),FONT_KEYS);assert.deepEqual(inputs.map(input=>input.getAttribute('value')),FONT_KEYS);assert.ok(inputs.every(input=>input.getAttribute('type')==='radio'&&input.getAttribute('name')==='kn-menu-font'));
     const selected=FONT_KEYS.includes(savedFont)?savedFont:'gothic';assert.deepEqual(inputs.filter(input=>input.checked).map(input=>input.dataset.menuFont),[selected]);
-    assert.equal(labels.length,5);for(const label of labels){const input=label.querySelector('[data-menu-font]'),sample=label.querySelector('.kn-menu-font-sample'),name=label.querySelector('.kn-menu-font-name');assert.ok(input&&sample&&name);assert.equal(sample.getAttribute('aria-hidden'),'true');assert.equal(name.getAttribute('data-font-preview'),input.dataset.menuFont);assert.equal(name.dataset.menuCopy,input.dataset.menuFont);}
+    assert.equal(labels.length,5);for(const label of labels){const input=label.querySelector('[data-menu-font]'),sample=label.querySelector('.kn-menu-font-sample'),name=label.querySelector('.kn-menu-font-name');assert.ok(input&&sample);assert.equal(name,null);assert.equal(sample.textContent,'Aa');assert.equal(sample.getAttribute('aria-hidden'),'true');assert.equal(sample.getAttribute('data-font-preview'),input.dataset.menuFont);assert.ok(input.getAttribute('aria-label'));}
     assert.deepEqual([...h.storage],before);assert.deepEqual(h.calls,[]);assert.deepEqual(h.themeWrites,[]);
   }
 });
@@ -391,7 +391,7 @@ test('font reset style notifications and all four language labels keep selection
   const names={ja:['ゴシック','丸ゴシック','明朝','かわいい','かっこいい'],en:['Sans serif','Rounded','Serif','Handwritten','Stylish'],ko:['고딕','둥근 글꼴','명조','손글씨','스타일 글꼴'],zh:['黑体','圆体','明朝体','手写体','个性字体']};
   for(const language of Object.keys(names)){
     h.storage.set('app_lang',language);h.document.dispatch('langChanged');const field=h.document.getElementById('knMenuFont');
-    assert.deepEqual(field.querySelectorAll('.kn-menu-font-name').map(name=>name.textContent),names[language]);assert.equal(field.getAttribute('aria-label'),({ja:'字体',en:'Font',ko:'글꼴',zh:'字体'})[language]);assert.deepEqual(fontInputs(h).filter(input=>input.checked).map(input=>input.dataset.menuFont),['pop']);assert.equal(h.drawer.dataset.menuView,'display');
+    assert.equal(field.querySelectorAll('.kn-menu-font-name').length,0);assert.deepEqual(fontInputs(h).map(input=>input.getAttribute('aria-label')),names[language]);assert.equal(field.getAttribute('aria-label'),({ja:'字体',en:'Font',ko:'글꼴',zh:'字体'})[language]);assert.deepEqual(fontInputs(h).filter(input=>input.checked).map(input=>input.dataset.menuFont),['pop']);assert.equal(h.drawer.dataset.menuView,'display');
   }
   assert.deepEqual(h.calls,[['font','klee'],['reset']]);assert.equal(h.storage.get('userBrandColor'),'#725799');assert.equal(h.storage.get('userBrandColorCustom'),'1');assert.deepEqual(h.themeWrites,[]);
 });
