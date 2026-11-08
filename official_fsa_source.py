@@ -148,10 +148,15 @@ def extract_fsa_article(document, item, original, final, now, since, observed_at
         return None
 
     title = item["title"]
-    # The fixed RSS adds this delivery suffix to the exact release heading.
-    if title.endswith("公表しました。"):
-        title = title[:-len("公表しました。")]
-    if _compact(sources._body_text(headings[0])) != _compact(title):
+    # Inspected RSS releases use either delivery suffix. Some HTML headings
+    # already end in 「について」; others omit that RSS connective entirely.
+    # Compare the complete primary heading to these fixed alternatives only.
+    titles = ([title[:-len("公表しました。")]]
+              if title.endswith("公表しました。") else [title])
+    if title.endswith("について公表しました。"):
+        titles.append(title[:-len("について公表しました。")])
+    primary_titles = {_compact(value) for value in titles if value.strip()}
+    if _compact(sources._body_text(headings[0])) not in primary_titles:
         # A release can put the registered issuer in a parenthetical subtitle
         # after one explicit line break. The RSS names its primary heading.
         # Require that exact DOM shape and primary-title equality; an arbitrary
@@ -162,7 +167,7 @@ def extract_fsa_article(document, item, original, final, now, since, observed_at
                 or isinstance(parts[1], str) or parts[1].tag != "br"
                 or parts[1].attrs or parts[1].children
                 or not isinstance(parts[2], str)
-                or _compact(parts[0]) != _compact(title)
+                or _compact(parts[0]) not in primary_titles
                 or re.fullmatch(r"\([^()]+\)", _compact(parts[2])) is None):
             return None
     contacts = [n for n in document.nodes if "contact_box" in n.attrs.get("class", "").split()

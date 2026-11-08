@@ -36,6 +36,45 @@ class Storage:
 
 
 class JobObservationTests(unittest.TestCase):
+    def test_unpaid_morning_quiet_preparation_reaches_public_daily_state_without_writer(self):
+        from tests.test_morning_recovery import Storage as SourceStorage, diagnostics, at as source_at
+        from scripts.prepare_private_news_sources import run_once
+        class BoundSourceStorage(SourceStorage):
+            def read(self, path, **kwargs):
+                return super().read(path)
+            def _list(self, prefix, **kwargs):
+                return [{"name": key[len(prefix) + 1:]} for key in self.values
+                        if key.startswith(prefix + "/")]
+        storage = BoundSourceStorage()
+        clock = {"now": source_at(9)}
+        def collect(now, **kwargs):
+            clock["now"] += 2
+            diagnostics(kwargs["diagnostics"], False)
+            return []
+        collector = Mock(side_effect=collect)
+        with patch("scripts.prepare_private_news_sources.load_reviewed_digests", return_value=[]):
+            outcome = run_once(environ={"SUPABASE_URL": "https://fixture.supabase.co", "SUPABASE_KEY": "fixture-only"},
+                wall_clock=lambda: clock["now"], monotonic=lambda: 1,
+                storage_factory=lambda *args, **kwargs: storage, collector=collector)
+        self.assertEqual(outcome["status"], "source_empty")
+        self.assertTrue(outcome["advisory_receipt_saved"])
+        notes = [v for key, v in storage.values.items() if key.startswith(PREFIX + "/")]
+        self.assertEqual(len(notes), 1)
+        self.assertEqual(notes[0]["state"], "no_eligible_articles")
+        self.assertEqual(notes[0]["started_at"], source_at(9))
+        self.assertEqual(notes[0]["finished_at"], source_at(9) + 2)
+        self.assertNotIn("attempt_count", notes[0], "unpaid preparation cannot attest paid claim count")
+        self.assertFalse(any("/attempt-" in key or key.endswith("/edition.json") for key in storage.values))
+        cache = ObservationCache(storage, ("morning",), monotonic=lambda: 10)
+        cache.refresh(clock["now"] + 1)
+        public = economic_update_status({"edition_date": "2026-10-11"},
+            {"job_results": cache.snapshot()}, now=clock["now"] + 1)
+        self.assertEqual(public["morning_result"]["state"], "no_eligible_articles")
+        self.assertNotIn("observation_failed", public["morning_result"])
+        self.assertEqual(public["daily_update"]["state"], "checked_no_eligible_articles")
+        self.assertEqual(public["edition_date"], "2026-10-11", "old article date remains unchanged")
+        self.assertEqual(collector.call_count, 1)
+
     def test_exact_receipt_connects_publication_failure_and_healthy_empty_to_ui_status(self):
         storage = Storage()
         cases = (("company", {"status": "published", "published_count": 3, "attempt_count": 3}, "publication_confirmed"),

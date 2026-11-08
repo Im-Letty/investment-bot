@@ -257,6 +257,16 @@ body.kn-home-a #myPageOv .td-del {
 }
 
 body.kn-home-a #myPageOv .kb-pane { min-width: 0; }
+/* These two views share one ledger frame. Keep its surface and the view tabs
+   on the viewport centerline, including browsers with a reserved scrollbar. */
+body.kn-home-a #myPageOv:is([data-mp-view="assets"],[data-mp-view="ledger"]) .mo-body {
+  scrollbar-gutter: stable both-edges;
+}
+body.kn-home-a #myPageOv:is([data-mp-view="assets"],[data-mp-view="ledger"]) .kb-pane {
+  width: 100%;
+  max-width: 960px;
+  margin-inline: auto;
+}
 
 /* The embedded ledger owns its scrolling so its dialogs fit above the shared navigation. */
 body.kn-home-a #myPageOv .mo-body:has(> .kb-pane.on) {

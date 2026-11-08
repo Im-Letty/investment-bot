@@ -68,6 +68,48 @@ class FsaSourceTest(unittest.TestCase):
     def test_same_heading_without_feed_delivery_suffix(self):
         self.assertIsNotNone(extract(record=item(title=TITLE)))
 
+    def test_fixed_rss_connective_suffix_matches_complete_heading_without_it(self):
+        heading = "金融機関利用者へのお願い"
+        original = item(title=heading + "について公表しました。")
+        before = dict(original)
+        result = extract(html=fixture(heading=heading), record=original)
+        self.assertIsNotNone(result)
+        self.assertEqual(result["title"], heading)
+        self.assertEqual(result["published_date"], DAY)
+        self.assertIsNone(result["published_at"])
+        self.assertFalse(result["attachments_verified"])
+        self.assertEqual(original, before)
+
+    def test_fixed_connective_does_not_allow_arbitrary_heading_prefixes(self):
+        heading = "金融機関利用者へのお願い"
+        record = item(title=heading + "について公表しました。")
+        for changed in (heading + "追加説明", heading[:-2], heading + "（参考資料）"):
+            with self.subTest(changed=changed):
+                self.assertIsNone(extract(html=fixture(heading=changed), record=record))
+        self.assertIsNone(extract(html=fixture(heading=heading),
+            record=item(title=heading + "に関して公表しました。")))
+
+    def test_connective_suffix_does_not_repair_mismatched_identity_or_date(self):
+        heading = "金融機関利用者へのお願い"
+        record = item(title=heading + "について公表しました。")
+        for html in (fixture(heading=heading, issuer="別機関"),
+                     fixture(heading=heading, dateline="令和８年10月12日")):
+            self.assertIsNone(extract(html=html, record=record))
+        self.assertIsNone(extract(html=fixture(heading=heading),
+            record={**record, "published_date": "2026-10-12"}))
+        self.assertIsNone(extract(html=fixture(heading=heading), record=record,
+            final=URL + "?alternate=1"))
+
+    def test_connective_suffix_preserves_explicit_parenthetical_subtitle_rule(self):
+        heading = "金融機関利用者へのお願い"
+        record = item(title=heading + "について公表しました。")
+        html = fixture(heading=heading).replace(f"<h1>{heading}</h1>",
+            f"<h1>{heading}<br>（検証用株式会社）</h1>")
+        result = extract(html=html, record=record)
+        self.assertIsNotNone(result)
+        self.assertEqual(result["title"], heading + "\n（検証用株式会社）")
+        self.assertIsNone(extract(html=html.replace("<br>", "<span> </span>"), record=record))
+
     def test_jst_feed_time_is_calendar_discovery_day_only(self):
         publication = fsa.feed_publication("Tue, 13 Oct 2026 17:00:00 JST")
         self.assertEqual(publication, {"published_at": None, "published_date": DAY,

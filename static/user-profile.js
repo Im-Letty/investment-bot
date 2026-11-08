@@ -43,7 +43,7 @@
     var doc=w.document,state=empty(),identity=null,loaded=false,loading=false,error='',email='',serial=0,readPromise=null,saving=false,refreshTimer=null;
     var section=null,form=null,fields={},summaryName=null,summaryIcon=null,scope=null,status=null,retry=null,emailWrap=null,emailInput=null,dirty=false,iconButton=null,iconChoices=null,iconEditor=null;
     var nameButton=null,nameEditor=null,nameDone=null,nameEditing=false,nameStart='',nameOwner='',nameComposing=false,nameAutoInitial=false;
-    var bioComposing=false,draftRevision=0,autoTimer=null,autoPending=false,autoTask=null,autoBlocked=false;
+    var bioComposing=false,bioCount=null,draftRevision=0,autoTimer=null,autoPending=false,autoTask=null,autoBlocked=false;
     var photoInput=null,photoPreview=null,photoReset=null,albumButton=null,draftPhoto='',photoEdited=false,preparing=false,photoSerial=0,decodeCancel=null,imageSerial=0,imageRef='',imageOwner='',imageURL='',imagePending=false,imageController=null;
     // Initial labels belong only to this menu; posting still requires a saved username.
     var initialNames=Object.create(null),initialTasks=Object.create(null),initialGuestKey='kn_profile_initial_name_v1';
@@ -122,6 +122,7 @@
     }
     function savedSource(){var value=imageValue(state);if(identity==='guest'&&isPhotoData(value))return value;return imageOwner===identity&&imageRef===value?imageURL:'';}
     function draftSource(){if(isPhotoData(draftPhoto))return draftPhoto;return draftPhoto&&draftPhoto===imageValue(state)?savedSource():'';}
+    function syncBioCount(){if(bioCount)bioCount.textContent=count(fields.bio.value)+' / 160';}
     function paint(force,keepDraft){
       if(!section)return;
       syncProfileVisibility();summaryName.textContent=state.username||initialName();summaryName.hidden=false;nameButton.textContent=summaryName.textContent;nameButton.setAttribute('aria-label','ユーザー名を編集（'+summaryName.textContent+'）');fields.username.placeholder=state.username?'みんなに表示する名前':summaryName.textContent;renderAvatar(summaryIcon,state.avatar,savedSource());
@@ -130,6 +131,7 @@
       emailWrap.hidden=identity==='guest'||!email;emailInput.value=email;
       if(force||!dirty&&!keepDraft){fields.username.value=state.username;fields.bio.value=state.bio;fields.avatar.value=state.avatar;draftPhoto=imageValue(state);photoEdited=false;}
       if(nameEditing&&nameAutoInitial&&!nameComposing&&initialNames[identity])fields.username.value=initialNames[identity];
+      syncBioCount();
       renderAvatar(photoPreview,fields.avatar.value||state.avatar,draftSource());
       var disabled=loading||!loaded;
       Object.keys(fields).forEach(function(key){fields[key].disabled=disabled;});
@@ -400,7 +402,7 @@
       nameButton=make('button','kn-profile-name-button');nameButton.id='knProfileNameButton';nameButton.type='button';nameButton.hidden=true;nameButton.setAttribute('aria-controls','knProfileNameEditor');nameButton.setAttribute('aria-expanded','false');section.insertBefore(nameButton,form);
       nameEditor=make('div','kn-profile-name-editor');nameEditor.id='knProfileNameEditor';nameEditor.hidden=true;nameEditor.setAttribute('role','group');nameEditor.setAttribute('aria-label','ユーザー名を編集');
       var name=make('input');name.id='knProfileUsername';name.name='username';name.type='text';name.maxLength=40;name.autocomplete='nickname';name.placeholder='みんなに表示する名前';name.setAttribute('aria-label','ユーザー名（20文字まで）');fields.username=name;nameEditor.appendChild(name);
-      nameDone=make('button','kn-profile-name-done','✓');nameDone.type='button';nameDone.setAttribute('aria-label','編集を完了');nameEditor.appendChild(nameDone);section.insertBefore(nameEditor,form);
+      nameDone=make('button','kn-profile-name-done');nameDone.type='button';nameDone.setAttribute('aria-label','編集を完了');var doneFace=make('span','kn-profile-name-done-face');doneFace.setAttribute('aria-hidden','true');doneFace.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m20 6-11 11-5-5"/></svg>';nameDone.appendChild(doneFace);nameEditor.appendChild(nameDone);section.insertBefore(nameEditor,form);
       iconEditor=make('div','kn-profile-icon-editor');iconEditor.hidden=true;
       iconButton=make('button','kn-profile-icon-button');iconButton.id='knProfileIconButton';iconButton.type='button';iconButton.hidden=true;iconButton.setAttribute('aria-label','アイコンを変更（葉っぱ）');iconButton.setAttribute('aria-controls','knProfileIconChoices');iconButton.setAttribute('aria-expanded','false');
       photoPreview=make('span','kn-profile-photo-preview');photoPreview.setAttribute('aria-hidden','true');iconButton.appendChild(photoPreview);section.insertBefore(iconButton,form);
@@ -411,11 +413,11 @@
       photoReset=make('button','kn-profile-photo-reset','初期アイコンに戻す');photoReset.type='button';iconActions.appendChild(photoReset);
       photoInput=make('input','kn-profile-photo-input');photoInput.id='knProfilePhoto';photoInput.type='file';photoInput.hidden=true;photoInput.tabIndex=-1;photoInput.accept='image/jpeg,image/png,image/webp,image/gif,image/avif,image/heic,image/heif,image/bmp,.heic,.heif';iconActions.appendChild(photoInput);iconChoices.appendChild(iconActions);iconEditor.appendChild(iconChoices);section.insertBefore(iconEditor,form);
       var bio=field('自己紹介','bio','textarea');bio.maxLength=320;bio.rows=3;bio.placeholder='好きなことや興味のあること';bio.setAttribute('aria-describedby','knProfileBioLimit');
-      var bioLimit=make('span','kn-profile-bio-limit','（160文字まで）');bioLimit.id='knProfileBioLimit';bio.parentNode.firstChild.appendChild(bioLimit);
+      bio.parentNode.className+=' kn-profile-bio-field';bio.parentNode.firstChild.className='kn-profile-bio-label';var bioLimit=make('span','kn-profile-bio-limit','160文字まで');bioLimit.id='knProfileBioLimit';bio.parentNode.firstChild.appendChild(bioLimit);bioCount=make('span','kn-profile-bio-count','0 / 160');bioCount.id='knProfileBioCount';bioCount.setAttribute('aria-hidden','true');bio.parentNode.appendChild(bioCount);
       emailWrap=make('div','kn-profile-private');var emailLabel=make('label','kn-profile-field'),emailTitle=make('span','','ログイン用メールアドレス（非公開）');emailInput=make('input');emailInput.type='email';emailInput.readOnly=true;emailInput.tabIndex=0;emailLabel.appendChild(emailTitle);emailLabel.appendChild(emailInput);emailWrap.appendChild(emailLabel);form.appendChild(emailWrap);
       retry=make('button','kn-profile-retry','もう一度試す');retry.type='button';retry.hidden=true;form.appendChild(retry);
       status=make('p','kn-profile-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');form.appendChild(status);
-      function bioChanged(){if(bio.disabled||resetIdentity())return;draftChanged();queueAutosave(false);}
+      function bioChanged(){if(bio.disabled||resetIdentity())return;syncBioCount();draftChanged();queueAutosave(false);}
       bio.addEventListener('input',bioChanged);
       bio.addEventListener('change',function(){if(bio.disabled||resetIdentity())return;draftChanged();return queueAutosave(true);});
       bio.addEventListener('blur',function(){return queueAutosave(true);});
