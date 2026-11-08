@@ -50,7 +50,7 @@ test('autosave has no manual footer or successful receipt and opening an untouch
 });
 
 test('rapid name and bio input coalesce to the final complete profile after the 600ms quiet period',async()=>{
- const h=fixture();await h.ready();await h.editName('最終名');await h.tick(400);await h.bio('紹介その1');await h.tick(400);assert.equal(h.writes.length,0);await h.bio('紹介の最終版');await h.tick(599);assert.equal(h.writes.length,0);await h.tick(1);
+ const h=fixture();await h.ready();assert.equal(h.byId('knProfileBioCount').textContent,'4 / 160');await h.editName('最終名');await h.tick(400);await h.bio('紹介その1');assert.equal(h.byId('knProfileBioCount').textContent,'5 / 160');await h.tick(400);assert.equal(h.writes.length,0);await h.bio('紹介の最終版');assert.equal(h.byId('knProfileBioCount').textContent,'6 / 160');await h.tick(599);assert.equal(h.writes.length,0);await h.tick(1);
  assert.equal(h.writes.length,1);assert.deepEqual(h.writes[0].next,profile('最終名','紹介の最終版'));assert.equal(h.api.snapshot().bio,'紹介の最終版');assert.equal(h.byId('knProfileUsername').value,'最終名');assert.ok(!h.byClass('kn-profile-status').textContent.includes('保存しました'));
 });
 
@@ -84,6 +84,7 @@ test('fold and reopen retains the same nodes and produces no duplicate save for 
 
 test('invalid Unicode length produces no write and a corrected draft can autosave without reload',async()=>{
  const h=fixture();await h.ready();await h.editName('🌿'.repeat(21));await h.tick(600);assert.equal(h.writes.length,0);assert.match(h.byClass('kn-profile-status').textContent,/20文字/);const n=h.byId('knProfileUsername');n.value='🌿'.repeat(20);await n.fire('input');await h.tick(600);assert.equal(h.writes.length,1);assert.equal(h.api.username(),'🌿'.repeat(20));
+ const bio=await h.bio('🌿'.repeat(161));assert.equal(h.byId('knProfileBioCount').textContent,'161 / 160');await h.tick(600);assert.equal(h.writes.length,1);assert.equal(bio.value,'🌿'.repeat(161),'the counter cannot truncate an invalid draft');assert.match(h.byClass('kn-profile-status').textContent,/160文字/);await h.bio('🌿'.repeat(160));await h.tick(600);assert.equal(h.writes.length,2);assert.equal(h.api.snapshot().bio,'🌿'.repeat(160));assert.equal(h.byId('knProfileBioCount').textContent,'160 / 160');
 });
 
 test('photo preparation must finish before one whole-draft save and native picker cancellation writes nothing',async()=>{

@@ -20,6 +20,7 @@ from daily_news_runtime import MAX_ATTEMPTS, StorageUnavailable, _valid_issue
 from morning_news_window import (JST, MAX_ARTICLES, MorningNewsPreparer, morning_window,
     manifest_window, healthy_empty_manifest, read_prepared_manifest)
 from news_cache import load_reviewed_digests
+from news_job_observations import write_once
 from scripts.private_news_storage import PrivateNewsStorage
 from scripts.run_private_news_job import (ResultFile, ResultFileUnavailable, JobDeadline, DeadlineUnavailable,
                                          process_deadline, _safe_source_diagnostics)
@@ -110,6 +111,27 @@ def _quiet_v1_recheck(storage, manifest, now):
     return True
 
 
+def _prepared_outcome(storage, started, finished, manifest):
+    """Publish only healthy quiet-source metadata; never attest a new article.
+
+    Quiet preparation skips the authenticated writer, so it owns this advisory
+    receipt. Its failure cannot alter the successful source result or buy a
+    generation retry. Nonempty preparation is not a reviewed/public edition.
+    """
+    result = _outcome("prepared" if manifest["articles"] else "source_empty",
+                      now=finished, manifest=manifest)
+    if (result["status"] == "source_empty" and healthy_empty_manifest(manifest)
+            and started <= finished
+            and datetime.fromtimestamp(started, JST).date().isoformat() == result["edition_date"]
+            and datetime.fromtimestamp(finished, JST).date().isoformat() == result["edition_date"]):
+        try:
+            result["advisory_receipt_saved"] = write_once(storage, "morning", result,
+                                                         started, finished) is True
+        except (Exception, JobDeadline):
+            result["advisory_receipt_saved"] = False
+    return result
+
+
 def run_once(*, environ=None, wall_clock=time.time, monotonic=time.monotonic,
              sleep=time.sleep, storage_factory=PrivateNewsStorage, collector=collect_website_sources):
     env = os.environ if environ is None else environ
@@ -150,12 +172,10 @@ def run_once(*, environ=None, wall_clock=time.time, monotonic=time.monotonic,
                     if not quiet_recheck:
                         manifest = preparer.prepare(now, history)
                         if manifest is not None and (manifest["articles"] or healthy_empty_manifest(manifest)):
-                            return _outcome("prepared" if manifest["articles"] else "source_empty",
-                                            now=wall_clock(), manifest=manifest)
+                            return _prepared_outcome(storage, started, wall_clock(), manifest)
                     manifest = preparer.prepare_recovery(wall_clock(), history)
                 if manifest is not None:
-                    return _outcome("prepared" if manifest["articles"] else "source_empty",
-                                    now=wall_clock(), manifest=manifest)
+                    return _prepared_outcome(storage, started, wall_clock(), manifest)
             pause = min(POLL_SECONDS, max(0, expiry - monotonic()))
             if pause:
                 sleep(pause)

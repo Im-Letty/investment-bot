@@ -98,5 +98,9 @@ test('the adopted segment uses theme and type tokens, two shrinkable columns and
  const css=fs.readFileSync(path.join(__dirname,'../static/mypage-view-picker.css'),'utf8');
  assert.match(css,/grid-template-columns:minmax\(0,1\.35fr\) minmax\(0,1fr\)/);assert.match(css,/min-height:44px/);assert.match(css,/border:0;border-radius:999px/);
  assert.match(css,/background:var\(--kn-sh-chip/);assert.match(css,/background:var\(--kn-sh-paper/);assert.match(css,/var\(--kn-type-scale,1\)/);assert.match(css,/white-space:normal;overflow-wrap:anywhere/);
- assert.match(css,/\[hidden\] \{display:none!important\}/);assert.doesNotMatch(css,/select|display:none!important[^\n]*mp-toptab|#knFloatHam|position:fixed|--kn-a-menu-left\s*:/);
+ assert.match(css,/\[hidden\] \{display:none!important\}/);
+ assert.match(css,/--mp-tabs-left:var\(--mypage-gutter\)/,'the pill uses equal left and right gutters');
+ const pageCss=fs.readFileSync(path.join(__dirname,'../static/mypage-theme.css'),'utf8');
+ assert.match(pageCss,/:is\(\[data-mp-view="assets"\],\[data-mp-view="ledger"\]\) \.mo-body \{\s*scrollbar-gutter: stable both-edges;/,'only the shared ledger views reserve symmetric scrollbar space');
+ assert.match(pageCss,/:is\(\[data-mp-view="assets"\],\[data-mp-view="ledger"\]\) \.kb-pane \{\s*width: 100%;\s*max-width: 960px;\s*margin-inline: auto;/,'the existing frame pane centers without exposing another panel');assert.doesNotMatch(css,/select|display:none!important[^\n]*mp-toptab|#knFloatHam|position:fixed|--kn-a-menu-left\s*:/);
 });

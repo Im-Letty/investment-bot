@@ -1,6 +1,6 @@
 /* One row of round view tabs, using the original route controls and palette. */
 body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] {
-  --mp-tabs-left:max(var(--mypage-gutter),calc(var(--kn-a-menu-left,22px) + 48px));
+  --mp-tabs-left:var(--mypage-gutter);
   display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);
   position:relative;isolation:isolate;align-items:stretch;gap:3px;
   min-width:0;min-height:72px;box-sizing:border-box;

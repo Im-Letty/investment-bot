@@ -31,22 +31,28 @@
 #sideDrawer.kn-menu-a .kn-profile[open] .kn-profile-summary .kn-profile-name{visibility:hidden}
 #sideDrawer.kn-menu-a .kn-profile-name-button{position:absolute;z-index:1;top:0;left:48px;right:26px;box-sizing:border-box;display:flex;align-items:center;min-width:0;min-height:var(--kn-profile-head-height);max-height:var(--kn-profile-head-height);overflow:hidden;padding:5px 0;border:0;border-radius:8px;background:transparent;color:var(--kn-a-ink);text-align:left;font:600 calc(16px * var(--kn-a-scale,1))/1.5 var(--kn-a-sans);overflow-wrap:anywhere;cursor:text}
 #sideDrawer.kn-menu-a .kn-profile-name-button:hover{background:var(--kn-a-chip)}
-#sideDrawer.kn-menu-a .kn-profile-name-editor{position:absolute;z-index:2;top:calc(var(--kn-profile-head-height) / 2);left:48px;right:26px;transform:translateY(-50%);box-sizing:border-box;display:flex;align-items:center;gap:3px;min-width:0;min-height:46px;padding:2px;border:1px solid var(--kn-a-line);border-radius:10px;background:var(--kn-a-paper)}
+#sideDrawer.kn-menu-a .kn-profile-name-editor{position:absolute;z-index:2;top:calc(var(--kn-profile-head-height) / 2);left:48px;right:26px;transform:translateY(-50%);box-sizing:border-box;display:flex;align-items:center;gap:0;min-width:0;min-height:48px;padding:0 2px 0 11px;border:1px solid var(--kn-a-line);border-radius:14px;background:var(--kn-a-paper)}
 #sideDrawer.kn-menu-a .kn-profile-name-editor:focus-within{outline:1px solid var(--kn-a-button);outline-offset:1px}
-#sideDrawer.kn-menu-a .kn-profile-name-editor input{box-sizing:border-box;flex:1;width:0;min-width:0;min-height:44px;padding:6px;border:0;border-radius:7px;background:transparent;color:var(--kn-a-ink);font:500 max(16px,calc(16px * var(--kn-a-scale,1)))/1.5 var(--kn-a-sans)}
+#sideDrawer.kn-menu-a .kn-profile-name-editor input{box-sizing:border-box;flex:1;width:0;min-width:0;min-height:44px;padding:7px 0;border:0;border-radius:0;background:transparent;color:var(--kn-a-ink);font:500 max(16px,calc(16px * var(--kn-a-scale,1)))/1.6 var(--kn-a-sans)}
 #sideDrawer.kn-menu-a .kn-profile-name-editor input:focus-visible{outline:none}
-#sideDrawer.kn-menu-a .kn-profile-name-done{box-sizing:border-box;flex:none;display:grid;place-items:center;width:44px;min-height:44px;padding:0;border:0;border-radius:8px;background:var(--kn-a-chip);color:var(--kn-a-ink);font:500 20px/1 var(--kn-a-sans);cursor:pointer}
+#sideDrawer.kn-menu-a .kn-profile-name-done{box-sizing:border-box;flex:none;display:grid;place-items:center;width:44px;min-height:44px;padding:0;border:0;border-radius:9px;background:transparent;color:var(--kn-a-ink);cursor:pointer}
+#sideDrawer.kn-menu-a .kn-profile-name-done-face{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:var(--kn-a-chip);pointer-events:none}
+#sideDrawer.kn-menu-a .kn-profile-name-done-face svg{width:16px;height:16px;stroke-width:2}
 #sideDrawer.kn-menu-a :is(.kn-profile-name-button,.kn-profile-name-done):focus-visible{outline:2px solid var(--kn-a-button);outline-offset:2px}
 #sideDrawer.kn-menu-a :is(.kn-profile-name-button,.kn-profile-name-done):disabled{opacity:.6;cursor:wait}
 #sideDrawer.kn-menu-a .kn-profile-name-editor input:disabled{opacity:.65}
 @keyframes kn-profile-pop-in{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){#sideDrawer.kn-menu-a .kn-profile-icon-editor{animation:none}}
-#sideDrawer.kn-menu-a .kn-profile-form{display:grid;gap:14px;padding:4px 0 15px;margin:0;color:var(--kn-a-ink);font:400 calc(14px * var(--kn-a-scale,1))/1.6 var(--kn-a-sans)}
+#sideDrawer.kn-menu-a .kn-profile-form{display:grid;gap:14px;padding:12px 0 18px;margin:0;color:var(--kn-a-ink);font:400 calc(14px * var(--kn-a-scale,1))/1.6 var(--kn-a-sans)}
 #sideDrawer.kn-menu-a .kn-profile-form[hidden],#sideDrawer.kn-menu-a .kn-profile:not([open])>.kn-profile-form{display:none}
 #sideDrawer.kn-menu-a .kn-profile-field{display:grid;gap:6px;margin:0;font-size:calc(13px * var(--kn-a-scale,1));color:var(--kn-a-muted)}
 #sideDrawer.kn-menu-a .kn-profile-field :is(input,textarea,select){box-sizing:border-box;width:100%;min-width:0;min-height:44px;padding:10px 11px;border:1px solid var(--kn-a-line);border-radius:8px;background:var(--kn-a-paper);color:var(--kn-a-ink);font:400 max(16px,calc(15px * var(--kn-a-scale,1)))/1.5 var(--kn-a-sans)}
 #sideDrawer.kn-menu-a .kn-profile-field textarea{resize:vertical;max-height:240px}
-#sideDrawer.kn-menu-a .kn-profile-bio-limit{margin-inline-start:.4em;color:var(--kn-a-muted);font-size:calc(12px * var(--kn-a-scale,1));font-weight:400;line-height:1.7;white-space:nowrap}
+#sideDrawer.kn-menu-a .kn-profile-bio-field{gap:0}
+#sideDrawer.kn-menu-a .kn-profile-bio-label{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:7px}
+#sideDrawer.kn-menu-a .kn-profile-bio-limit{margin-inline-start:auto;color:var(--kn-a-muted);font-size:calc(12px * var(--kn-a-scale,1));font-weight:400;line-height:1.7;white-space:nowrap}
+#sideDrawer.kn-menu-a .kn-profile-bio-field textarea{min-height:106px;border-radius:14px;padding:12px;font-size:max(16px,calc(16px * var(--kn-a-scale,1)));line-height:1.6}
+#sideDrawer.kn-menu-a .kn-profile-bio-count{padding-top:4px;text-align:right;color:var(--kn-a-muted);font-size:calc(12px * var(--kn-a-scale,1));line-height:1.6}
 #sideDrawer.kn-menu-a .kn-profile-field :is(input,textarea,select):focus-visible{outline:2px solid var(--kn-a-button);outline-offset:2px}
 #sideDrawer.kn-menu-a .kn-profile-field :is(input,textarea,select):disabled{opacity:.65}
 #sideDrawer.kn-menu-a .kn-profile-private{padding-top:12px;border-top:1px solid var(--kn-a-line)}

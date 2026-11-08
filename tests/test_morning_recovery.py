@@ -16,6 +16,7 @@ from morning_news_window import (JST, MorningNewsPreparer, manifest_window, morn
 from news_cache import _official_window, _validated_digest, OFFICIAL_NEWS_SOURCES
 from scripts.check_daily_news import valid_official_delivery
 from scripts.prepare_private_news_sources import run_once, _budget
+from news_job_observations import PREFIX
 
 
 def at(hour=9, minute=0, second=0, day="2026-10-12"):
@@ -344,6 +345,10 @@ class RecoveryProtocolTests(unittest.TestCase):
 
 
 class SourceCliTests(unittest.TestCase):
+    def source_values(self, storage):
+        return {key: value for key, value in storage.values.items()
+                if not key.startswith(PREFIX + "/")}
+
     def empty_v1(self, storage):
         status = {}
         diagnostics(status, False)
@@ -367,7 +372,8 @@ class SourceCliTests(unittest.TestCase):
         before = deepcopy(storage.values)
         quiet = self.run_source(storage, collector, now=at(7, 59, 59))
         self.assertEqual(quiet["status"], "source_empty")
-        self.assertEqual(storage.values, before)
+        self.assertEqual(self.source_values(storage), before)
+        self.assertTrue(quiet["advisory_receipt_saved"])
         collector.assert_not_called()
 
         recovered = self.run_source(storage, collector, now=at(8))
@@ -397,7 +403,8 @@ class SourceCliTests(unittest.TestCase):
         self.assertEqual(second["status"], "source_empty")
         self.assertEqual(second["source_window"]["snapshot_at"], at(8))
         self.assertEqual(collector.call_count, 1)
-        self.assertEqual(storage.values, after)
+        self.assertEqual(self.source_values(storage), {key: value for key, value in after.items()
+            if not key.startswith(PREFIX + "/")})
         self.assertEqual(storage.values["days/2026-10-12/preparation/manifest.json"], frozen)
 
     def test_quiet_v1_recheck_never_collects_with_edition_or_any_paid_state(self):
@@ -415,7 +422,7 @@ class SourceCliTests(unittest.TestCase):
                 collector = Mock()
                 result = self.run_source(storage, collector, now=at(9))
                 self.assertEqual(result["status"], "source_empty")
-                self.assertEqual(storage.values, before)
+                self.assertEqual(self.source_values(storage), before)
                 collector.assert_not_called()
 
     def test_quiet_v1_recheck_retains_three_unpaid_recovery_lease_cap(self):
@@ -453,6 +460,53 @@ class SourceCliTests(unittest.TestCase):
         self.assertNotIn("not-a-real-key", repr(result))
         self.assertFalse(any("attempt-" in key for key in storage.values))
         self.assertEqual(factory.call_args.kwargs["deadline"], 310)
+        self.assertFalse(any(key.startswith(PREFIX + "/") for key in storage.values),
+                         "nonempty preparation is not a reviewed edition receipt")
+
+    def test_failed_quiet_receipt_does_not_repeat_collection_or_change_source_success(self):
+        storage = Storage()
+        real_create = storage.create
+        def create(path, value):
+            if path.startswith(PREFIX + "/"):
+                raise StorageUnavailable("fixed_fixture_advisory_failure")
+            return real_create(path, value)
+        storage.create = Mock(side_effect=create)
+        def collect(now, **kwargs):
+            diagnostics(kwargs["diagnostics"], False)
+            return []
+        collector = Mock(side_effect=collect)
+        result = self.run_source(storage, collector, now=at(9))
+        self.assertEqual(result["status"], "source_empty")
+        self.assertTrue(result["success"])
+        self.assertIs(result["advisory_receipt_saved"], False)
+        self.assertEqual(collector.call_count, 1)
+        attempts = [call for call in storage.create.call_args_list
+                    if call.args[0].startswith(PREFIX + "/")]
+        self.assertEqual(len(attempts), 1)
+        self.assertFalse(any("/attempt-" in key or key.endswith("/edition.json") for key in storage.values))
+
+    def test_quiet_receipt_needs_same_real_day_and_healthy_sources(self):
+        from scripts.prepare_private_news_sources import _prepared_outcome
+        storage = Storage()
+        healthy = self.empty_v1(storage)
+        with patch("scripts.prepare_private_news_sources.write_once") as write:
+            _prepared_outcome(storage, at(day="2026-10-11"), at(), healthy)
+            _prepared_outcome(storage, at(10), at(9), healthy)
+            broken = deepcopy(healthy)
+            broken["source_status"]["金融庁"]["errors"] = ["body_or_date_unverified"]
+            _prepared_outcome(storage, at(), at(), broken)
+        write.assert_not_called()
+
+    def test_advisory_process_deadline_keeps_already_confirmed_quiet_outcome(self):
+        from scripts.prepare_private_news_sources import _prepared_outcome, JobDeadline
+        storage = Storage()
+        healthy = self.empty_v1(storage)
+        with patch("scripts.prepare_private_news_sources.write_once", side_effect=JobDeadline()):
+            result = _prepared_outcome(storage, at(), at(), healthy)
+        self.assertEqual(result["status"], "source_empty")
+        self.assertTrue(result["success"])
+        self.assertIs(result["advisory_receipt_saved"], False)
+        self.assertFalse(any("/attempt-" in key for key in storage.values))
 
     def test_start_and_midnight_budget_guards(self):
         self.assertIsNone(_budget(at(6)))
