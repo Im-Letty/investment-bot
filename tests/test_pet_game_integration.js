@@ -652,7 +652,7 @@ test('main game does not load a removed minigame runtime and updates only change
   assert.doesNotMatch(html,/<script\b[^>]*src=["'][^"']*pet-cafe\.js/);
   assert.equal(fs.existsSync(path.join(root,'static/pet-cafe.js')),false);
   for(const asset of ['pet-village.css']){
-    assert.ok(html.includes('/static/'+asset+'?v=20261102-edge-icons1'),asset);
+    assert.ok(html.includes('/static/'+asset+'?v=20261109-streak-spacing1'),asset);
   }
   for(const asset of ['pet-village-economy.js','pet-village-economy-scene.js','pet-village-economy-scene.css'])assert.ok(html.includes('/static/'+asset+'?v=20261024-village-economy1'),asset);
   assert.ok(html.includes('/static/pet-game.css?v=20261102-bag1'),'market artwork layout pin');
