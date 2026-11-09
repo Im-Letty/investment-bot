@@ -1,5 +1,28 @@
 'use strict';
-window.knApplyEntryColor=function(hex){
+(function(){
+let lastHex=null,lastCustom=false;
+function entryHomeBackground(hex,custom){
+  try{
+    if(window.parent&&window.parent!==window&&window.parent.location.origin===location.origin){
+      const parent=window.parent,shared=parent.getComputedStyle(parent.document.documentElement).getPropertyValue('--kn-site-bg').trim();
+      if(shared)return shared;
+      const home=parent.document.getElementById('morning-section'),value=home&&parent.getComputedStyle(home).backgroundColor;
+      if(value&&value!=='transparent'&&!/^rgba\(0,\s*0,\s*0,\s*0\)$/.test(value))return value;
+    }
+  }catch(_){}
+  const dark=[document.documentElement,document.body].some(el=>el&&el.getAttribute&&el.getAttribute('data-theme')==='dark');
+  const valid=/^#[0-9a-f]{6}$/i.test(hex||'');
+  if(valid&&(hex.toLowerCase()!=='#3da060'||custom))return 'color-mix(in srgb,'+hex.toLowerCase()+' 10%,'+(dark?'#20241f':'#f5f2e9')+')';
+  return dark?'#20271f':'#f0eedf';
+}
+function syncEntryBackground(){
+  const value=entryHomeBackground(lastHex,lastCustom);
+  document.documentElement.style.setProperty('--kn-site-bg',value);
+  document.documentElement.style.setProperty('--entry-surface',value);
+}
+window.knApplyEntryColor=function(hex,custom){
+  lastHex=hex;lastCustom=custom===true;
+
   const defaults={'--mm-bg':'#356c5c','--mm-halo':'#83c9af','--mm-cool':'#e2fff4','--mm-accent':'#e1edb9','--mm-ink':'#184b3c','--mm-muted':'#365d50','--letter':'#416439','--entry-button':'#205c49','--entry-surface':'linear-gradient(155deg,#edf9f1,#a2d6bf 53%,#dff3e7)'};
   let palette=defaults;
   if(/^#[0-9a-f]{6}$/i.test(hex||'')&&hex.toLowerCase()!=='#3da060'){
@@ -10,10 +33,26 @@ window.knApplyEntryColor=function(hex){
     // Keep pale backgrounds luminous and the sphere shaded, even for very light input.
     palette={'--mm-bg':hsl(tone*.6,32),'--mm-halo':hsl(tone,68),'--mm-cool':hsl(tone,94),'--mm-accent':hsl(tone*.7,82),'--mm-ink':hsl(tone*.7,20),'--mm-muted':hsl(tone*.4,30),'--letter':hsl(tone*.55,28),'--entry-button':hsl(tone*.7,25),'--entry-surface':`linear-gradient(155deg,${hsl(tone,96)},${hsl(tone,75)} 53%,${hsl(tone,91)})`};
   }
+  const background=entryHomeBackground(hex,lastCustom);
+  palette=Object.assign({},palette,{'--entry-surface':background,'--kn-site-bg':background});
   for(const [key,value] of Object.entries(palette))document.documentElement.style.setProperty(key,value);
   document.querySelectorAll('#news-pastel-palettes,#news-pastel-palettes section,#news-mint-welcome').forEach(el=>{for(const [key,value] of Object.entries(palette))el.style.setProperty(key,value);});
 };
-try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){window.knApplyEntryColor(null);}
+function refreshEntryPalette(){
+  let hex=null,custom=false;
+  try{hex=localStorage.getItem('userBrandColor');custom=localStorage.getItem('userBrandColorCustom')==='1';}catch(_){}
+  window.knApplyEntryColor(hex,custom);
+}
+refreshEntryPalette();
+if(typeof window.addEventListener==='function'){
+  window.addEventListener('storage',event=>{if(!event.key||event.key==='userBrandColor'||event.key==='userBrandColorCustom')refreshEntryPalette();});
+  window.addEventListener('focus',refreshEntryPalette);
+}
+if(typeof MutationObserver==='function'){
+  const observer=new MutationObserver(syncEntryBackground);
+  [document.documentElement,document.body].forEach(el=>observer.observe(el,{attributes:true,attributeFilter:['data-theme']}));
+}
+})();
 
 (function(){
   const signup=document.body.dataset.mode==='signup';

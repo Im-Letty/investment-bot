@@ -1,25 +1,29 @@
-/* Keep the morning letter's selected hue while moving gently toward the right.
-   A positive share of the original background remains on every page. */
-body.kn-home-a:not([data-theme="dark"]) {
-  --kn-nav-simulator-bg: color-mix(in srgb, var(--kn-sh-bg, var(--kn-a-bg)) 85%, #fff);
-  --kn-nav-shorts-bg: color-mix(in srgb, var(--kn-sh-bg, var(--kn-a-bg)) 70%, #fff);
-  --kn-nav-pet-bg: color-mix(in srgb, var(--kn-sh-bg, var(--kn-a-bg)) 55%, #fff);
-  --kn-nav-mypage-bg: color-mix(in srgb, var(--kn-sh-bg, var(--kn-a-bg)) 25%, #fff);
+/* Every route keeps the resolved home backdrop. Cards, fields and scrims own
+   separate paper/contrast tokens and retain their existing reading surfaces. */
+:root {--kn-site-bg:#f0eedf;--kn-site-ink:#343331;--kn-site-muted:#625d58}
+html:root,html:root > body,#lp-section {background-color:var(--kn-site-bg,#f0eedf)!important}
+body.kn-home-a {
+  --kn-nav-simulator-bg:var(--kn-site-bg,var(--kn-sh-bg,#f0eedf));
+  --kn-nav-shorts-bg:var(--kn-site-bg,var(--kn-sh-bg,#f0eedf));
+  --kn-nav-pet-bg:var(--kn-site-bg,var(--kn-sh-bg,#f0eedf));
+  --kn-nav-mypage-bg:var(--kn-site-bg,var(--kn-sh-bg,#f0eedf));
 }
-
-body.kn-home-a:not([data-theme="dark"]) #knSimEmbedOv {
-  background: var(--kn-nav-simulator-bg) !important;
+body.kn-home-a #knSimEmbedOv {background:var(--kn-nav-simulator-bg)!important}
+body.kn-home-a :is(#knShorts,#ksSearchPanel,#knSavedOv) {--kn-sh-bg:var(--kn-nav-shorts-bg);background:var(--kn-nav-shorts-bg)!important}
+body.kn-home-a #knShorts.open {background:var(--kn-site-bg)!important}
+body.kn-home-a :is(#sect-pet,#sect-pet .ipg-shell-head) {background:var(--kn-nav-pet-bg)!important}
+body.kn-home-a #myPageOv {--kn-sh-bg:var(--kn-nav-mypage-bg)}
+/* A memo is a paper dialog: its more-specific local paper palette stays intact. */
+body.kn-home-a #sideDrawer.kn-menu-a {background:var(--kn-site-bg)!important}
+body :is(#knAuthOv,#knWelcomeOv,#spl,#spl #news-pastel-palettes .screen,.talkhub-ov,#knMyTalkHub) {background:var(--kn-site-bg)!important}
+#knWelcomeOv #news-mint-welcome {
+  --mm-ink:var(--kn-site-ink,#343331)!important;
+  --mm-muted:var(--kn-site-muted,#625d58)!important;
+  --letter:var(--kn-site-muted,#625d58)!important;
 }
-
-/* Scoped tokens leave cards, text, and the dark video player unchanged. */
-body.kn-home-a:not([data-theme="dark"]) :is(#knShorts, #ksSearchPanel, #knSavedOv) {
-  --kn-sh-bg: var(--kn-nav-shorts-bg);
-}
-
-body.kn-home-a:not([data-theme="dark"]) :is(#sect-pet, #sect-pet .ipg-shell-head) {
-  background: var(--kn-nav-pet-bg) !important;
-}
-
-body.kn-home-a:not([data-theme="dark"]) #myPageOv {
-  --kn-sh-bg: var(--kn-nav-mypage-bg);
+#spl #news-pastel-palettes .brand {
+  color:var(--kn-site-ink,#343331)!important;
+  --mm-ink:var(--kn-site-ink,#343331)!important;
+  --mm-muted:var(--kn-site-muted,#625d58)!important;
+  --letter:var(--kn-site-muted,#625d58)!important;
 }

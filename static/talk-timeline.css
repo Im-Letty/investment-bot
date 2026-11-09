@@ -1,10 +1,10 @@
 /* Talk's bookshelf palette and a quiet, continuous conversation timeline.
    Resolve the morning color on body; descendants only consume this value. */
 body.kn-home-a {
-  --kn-talk-bg:color-mix(in srgb,var(--kn-sh-bg,var(--kn-a-bg,#f0eedf)) 45%,#fff 55%);
+  --kn-talk-bg:var(--kn-site-bg,var(--kn-sh-bg,var(--kn-a-bg,#f0eedf)));
 }
 body.kn-home-a[data-theme="dark"] {
-  --kn-talk-bg:var(--kn-sh-bg,var(--kn-a-bg));
+  --kn-talk-bg:var(--kn-site-bg,var(--kn-sh-bg,var(--kn-a-bg)));
 }
 body.kn-home-a :is(#cmOv,#stockTalkOv,#cpStockTalk).cw-screen {
   --cw-stock-accent:var(--kn-sh-button);

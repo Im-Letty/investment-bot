@@ -32,36 +32,40 @@
   function contrast(a,b) {var x=luminance(a),y=luminance(b);return (Math.max(x,y)+0.05)/(Math.min(x,y)+0.05);}
   function fallbackPalette() {
     var result=Object.assign({},defaults), brand, custom;
-    var morningBg='#f0eedf';
-    try {brand=localStorage.getItem('userBrandColor');custom=localStorage.getItem('userBrandColorCustom')==='1'||(brand&&brand!=='#3da060');} catch (_) {}
+    var dark=[document.documentElement,document.body].some(function(el){return el.getAttribute&&el.getAttribute('data-theme')==='dark';});
+    var morningBg=dark?'#20271f':'#f0eedf';
+    result.pageInk=dark?'#eeeede':'#343331';result.pageMuted=dark?'#c0c6b2':'#625d58';
+    try {brand=localStorage.getItem('userBrandColor');custom=localStorage.getItem('userBrandColorCustom')==='1';} catch (_) {}
     if(/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(brand||'')) {
-      brand=normalize(brand,'#3da060');
+      brand=normalize(brand,'#3da060').toLowerCase();custom=custom||brand!=='#3da060';
       result.tint=brand;
       if(custom) {
         result.button=mix(brand,'#4c6150',.45);
-        morningBg=mix(brand,'#f5f2e9',.10);
+        morningBg='color-mix(in srgb,'+brand+' 10%,'+(dark?'#20241f':'#f5f2e9')+')';
+        if(dark){result.pageInk='color-mix(in srgb,'+brand+' 5%,#f5f4e9)';result.pageMuted='color-mix(in srgb,'+brand+' 10%,#d1d3c5)';}
       }
     }
-    result.bg=mix(morningBg,'#ffffff',.85);
+    result.bg=morningBg;
     return result;
   }
   function readPalette() {
-    var result=fallbackPalette(), backdrop, parentDark=false;
+    var result=fallbackPalette(), backdrop;
     try {
       if(window.parent!==window && window.parent.location.origin===location.origin) {
         var source=window.parent.document.getElementById('morning-section');
         if(source && window.parent.document.body.classList.contains('kn-home-a')) {
           var style=window.parent.getComputedStyle(source);
           result.button=normalize(style.getPropertyValue('--kn-a-button').trim(),result.button);
-          parentDark=window.parent.document.body.getAttribute('data-theme')==='dark';
-          if(!parentDark) backdrop=normalize(style.getPropertyValue('--kn-nav-simulator-bg').trim(),null);
+          var shared=window.parent.getComputedStyle(window.parent.document.documentElement);
+          backdrop=shared.getPropertyValue('--kn-site-bg').trim()||style.backgroundColor;
+          if(backdrop&&!CSS.supports('color',backdrop))backdrop=null;
+          result.pageInk=shared.getPropertyValue('--kn-site-ink').trim()||style.getPropertyValue('--kn-a-ink').trim()||result.pageInk;
+          result.pageMuted=shared.getPropertyValue('--kn-site-muted').trim()||style.getPropertyValue('--kn-a-muted').trim()||result.pageMuted;
         }
       }
     } catch (_) {}
-    // The embedded canvas and its parent use the same morning-based backdrop.
-    // Keep the existing dark-mode reading surfaces and contrast unchanged.
-    if(parentDark) result.bg=mix(result.tint||result.button,result.paper,.08);
-    else if(backdrop) result.bg=backdrop;
+    // Match the actual home backdrop, keeping the existing reading surfaces.
+    if(backdrop) result.bg=backdrop;
     // A very light selected color still needs a visible control/chart outline.
     for(var step=0;contrast(result.button,result.paper)<3.5 && step<12;step++)
       result.button=mix(result.button,'#303638',.85);
@@ -127,6 +131,8 @@
     if(signature===nextSignature && !readingChanged) return;
     palette=next;signature=nextSignature;
     names.forEach(function(k){document.documentElement.style.setProperty('--sim-'+k,palette[k]);});
+    document.documentElement.style.setProperty('--sim-page-ink',palette.pageInk);
+    document.documentElement.style.setProperty('--sim-page-muted',palette.pageMuted);
     document.documentElement.style.setProperty('--sim-on-button',palette.onButton);
     document.documentElement.style.setProperty('--sim-chart-bg',palette.chartBg);
     window.__coinRGB=rgb(palette.ink).join(',');
@@ -152,6 +158,8 @@
       });
     }
   } catch (_) {}
+  var localThemeObserver=new MutationObserver(schedule);
+  [document.documentElement,document.body].forEach(function(el){localThemeObserver.observe(el,{attributes:true,attributeFilter:['data-theme']});});
   window.addEventListener('storage',function(e){if(!e.key||e.key==='userBrandColor'||e.key==='userBrandColorCustom'||e.key==='ui_fontscale')schedule();});
   window.addEventListener('focus',schedule);
   document.addEventListener('visibilitychange',schedule);

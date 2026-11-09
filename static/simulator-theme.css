@@ -26,6 +26,12 @@ body :is(h1, .sim-title, .section-title, .mp-section-title) {
   color: var(--sim-ink) !important;
 }
 
+/* These captions sit on the page backdrop; cards retain their reading ink. */
+body .wrap > h1 {color:var(--sim-page-ink,var(--sim-ink))!important}
+body .wrap > .lang-wrap :is(.lang-globe,select),
+body .wrap > .lang-wrap .lang-select-outer::after {color:var(--sim-page-muted,var(--sim-muted))!important}
+body .wrap > .lang-wrap select option {background:var(--sim-paper);color:var(--sim-ink)}
+
 body :is(.card, .metric, .info-item) {
   background: var(--sim-paper) !important;
   border-color: var(--sim-line) !important;

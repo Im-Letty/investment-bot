@@ -1,7 +1,8 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
-const files=['static/simulator-embed-a13fb258db.html','simulator.html'];
+const activeURL=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8').match(/var SIM_URL="([^"]+)"/)[1];
+const files=[new URL(activeURL,'https://example.test').pathname.slice(1),'simulator.html'];
 function read(file){return fs.readFileSync(path.join(__dirname,'..',file),'utf8');}
 function calculator(file,{uid='',embedded=true}={}){
   const html=read(file),nodes=new Map(),events=new Map(),timers=new Map(),frames=new Map(),messages=[],requests=[];

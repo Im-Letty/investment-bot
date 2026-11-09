@@ -872,3 +872,24 @@ for (const outcome of ['unapproved callback', 'missing callback', 'server error'
     assert.ok(app.requests.every(request => request.url.includes('/authentication/')));
   });
 }
+
+
+function entryPalette({brand=null,custom=false,dark=false,parentColor=null}={}){
+  const properties=new Map(),events=new Map(),observers=[],storage=new Map([['userBrandColor',brand],['userBrandColorCustom',custom?'1':'0']]);let darkValue=dark;
+  const root={style:{setProperty:(name,value)=>properties.set(name,value)},getAttribute:()=>null},body={getAttribute:name=>name==='data-theme'&&darkValue?'dark':null};
+  const context={document:{documentElement:root,body,querySelectorAll:()=>[]},location:{origin:SITE},localStorage:{getItem:key=>storage.get(key)||null,setItem(){throw Error('palette must not save preferences');}},addEventListener:(name,fn)=>events.set(name,fn),MutationObserver:class{constructor(fn){observers.push(fn);}observe(){}}};context.window=context;
+  context.parent=parentColor?{location:context.location,document:{documentElement:{}},getComputedStyle:()=>({getPropertyValue:()=>parentColor})}:context;
+  const end=source.indexOf('\n(function(){\n  const signup=');assert.ok(end>0);vm.runInNewContext(source.slice(0,end),context);
+  return {properties,theme(value){darkValue=value;observers[0]();},color(value,flag){storage.set('userBrandColor',value);storage.set('userBrandColorCustom',flag?'1':'0');events.get('storage')({key:'userBrandColor'});}};
+}
+test('dedicated auth backdrop follows all four home cases and the custom-green distinction without changing its artwork palette',()=>{
+  for(const [options,expected]of [[{},'#f0eedf'],[{brand:'#e91e63'},'color-mix(in srgb,#e91e63 10%,#f5f2e9)'],[{dark:true},'#20271f'],[{brand:'#e91e63',dark:true},'color-mix(in srgb,#e91e63 10%,#20241f)'],[{brand:'#3da060'},'#f0eedf'],[{brand:'#3da060',custom:true},'color-mix(in srgb,#3da060 10%,#f5f2e9)']]){
+    const h=entryPalette(options);assert.equal(h.properties.get('--kn-site-bg'),expected);assert.equal(h.properties.get('--entry-surface'),expected);const globe=h.properties.get('--mm-bg');h.theme(!options.dark);assert.equal(h.properties.get('--mm-bg'),globe);
+  }
+});
+test('dedicated auth keeps background synchronized with existing theme attributes and color storage events',()=>{
+  const h=entryPalette();h.theme(true);assert.equal(h.properties.get('--kn-site-bg'),'#20271f');h.color('#000000',true);assert.equal(h.properties.get('--kn-site-bg'),'color-mix(in srgb,#000000 10%,#20241f)');h.theme(false);assert.equal(h.properties.get('--kn-site-bg'),'color-mix(in srgb,#000000 10%,#f5f2e9)');h.color('#3da060',false);assert.equal(h.properties.get('--kn-site-bg'),'#f0eedf');
+});
+test('a same-origin auth frame uses the exact canonical parent background rather than independently tinting it',()=>{
+  const color='color(srgb 0.14 0.18 0.13)',h=entryPalette({brand:'#ff0000',parentColor:color});assert.equal(h.properties.get('--kn-site-bg'),color);assert.equal(h.properties.get('--entry-surface'),color);
+});
