@@ -1,19 +1,12 @@
 <!DOCTYPE html>
 <html lang="ja">
   <head>
-<meta name="theme-color" content="#f8f7ef">
+<meta name="theme-color" content="#f0eedf">
 <script>/* KN_BROWSER_SURFACE: Match the phone's inset/chrome to the visible entry or home surface. */
 (function(){
   if(window.knSyncBrowserSurface)return;
-  var root=document.documentElement,Observe=window.MutationObserver,colors={home:'#f0eedf',intro:'#f8f7ef',welcome:'#edf9f1'};
+  var root=document.documentElement,Observe=window.MutationObserver;
   function blend(base,color,weight){return '#'+[1,3,5].map(function(i){return Math.round(parseInt(color.slice(i,i+2),16)*weight+parseInt(base.slice(i,i+2),16)*(1-weight)).toString(16).padStart(2,'0');}).join('');}
-  // Resolve a saved color before any external script or stylesheet can delay first paint.
-  try{
-    var hex=localStorage.getItem('userBrandColor')||'',custom=localStorage.getItem('userBrandColorCustom')==='1';
-    if(/^#[0-9a-f]{3}$/i.test(hex))hex='#'+hex.slice(1).split('').map(function(c){return c+c;}).join('');
-    if(/^#[0-9a-f]{6}$/i.test(hex)&&(hex.toLowerCase()!=='#3da060'||custom))colors.home=blend('#f5f2e9',hex,.1);
-    colors.intro=blend(colors.home,'#ffffff',.5);
-  }catch(_){}
   function browserColor(value){
     var rgb=value.match(/^rgba?\(([^)]+)\)$/i),srgb=value.match(/^color\(srgb\s+([^)]+)\)$/i),parts;
     if(rgb||srgb){
@@ -22,26 +15,33 @@
     }
     return value;
   }
-  function refresh(palette){
-    if(palette&&typeof palette.intro==='string')colors.intro=palette.intro;
-    if(palette&&typeof palette.home==='string')colors.home=palette.home;
-    if(palette&&typeof palette.welcome==='string')colors.welcome=palette.welcome;
-    var splash=document.getElementById('spl'),welcome=document.getElementById('knWelcomeOv'),color=colors.intro;
-    if(window.knIntroComplete&&(!splash||splash.classList.contains('done'))){
-      color=colors.home;
-      if(welcome&&welcome.classList.contains('open'))color=colors.welcome;
-      else{
-        var home=document.getElementById('morning-section');
-        if(home){
-          var actual=getComputedStyle(home).backgroundColor;
-          if(actual&&actual!=='transparent'&&actual!=='rgba(0, 0, 0, 0)')color=actual;
-        }
+  function property(style,name){return style&&typeof style.getPropertyValue==='function'?style.getPropertyValue(name).trim():'';}
+  function put(name,value){if(root.style.getPropertyValue(name)!==value)root.style.setProperty(name,value);}
+  // Use the same four home backgrounds before external CSS/startup is ready.
+  // Read existing color choices only; theme detection does not add a new setting.
+  function fallback(){
+    var body=document.body,dark=!!(body&&body.getAttribute&&body.getAttribute('data-theme')==='dark'),hex=property(root.style,'--brand-color'),custom=!!(root.hasAttribute&&root.hasAttribute('data-custom-brand-color'));
+    try{if(!hex){hex=localStorage.getItem('userBrandColor')||'';custom=localStorage.getItem('userBrandColorCustom')==='1';}}catch(_){}
+    if(/^#[0-9a-f]{3}$/i.test(hex))hex='#'+hex.slice(1).split('').map(function(c){return c+c;}).join('');
+    custom=/^#[0-9a-f]{6}$/i.test(hex)&&(hex.toLowerCase()!=='#3da060'||custom);
+    return {bg:custom?blend(dark?'#20241f':'#f5f2e9',hex,.1):dark?'#20271f':'#f0eedf',ink:dark?(custom?blend('#f5f4e9',hex,.05):'#eeeede'):'#343331',muted:dark?(custom?blend('#d1d3c5',hex,.1):'#c0c6b2'):'#625d58'};
+  }
+  function refresh(){
+    var palette=fallback(),home=document.getElementById('morning-section'),body=document.body;
+    if(home&&body&&body.classList&&body.classList.contains('kn-home-a')){
+      var style=getComputedStyle(home),actual=style.backgroundColor;
+      // The resolved morning surface wins once its real CSS variables exist.
+      if(property(style,'--kn-a-bg')&&actual&&actual!=='transparent'&&actual!=='rgba(0, 0, 0, 0)'){
+        palette.bg=actual;palette.ink=style.color||palette.ink;palette.muted=property(style,'--kn-a-muted')||palette.muted;
       }
     }
-    color=browserColor(color);
-    if(root.style.getPropertyValue('--kn-browser-surface')!==color)root.style.setProperty('--kn-browser-surface',color);
+    // Preserve the browser's resolved color-mix precision for page surfaces.
+    // Only browser chrome needs an opaque normalized color value.
+    var chrome=browserColor(palette.bg);
+    put('--kn-site-bg',palette.bg);put('--kn-site-ink',palette.ink);put('--kn-site-muted',palette.muted);
+    put('--kn-browser-surface',chrome);
     var meta=document.querySelector('meta[name="theme-color"]');
-    if(meta&&meta.getAttribute('content')!==color)meta.setAttribute('content',color);
+    if(meta&&meta.getAttribute('content')!==chrome)meta.setAttribute('content',chrome);
   }
   window.knSyncBrowserSurface=refresh;
   refresh();
@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded',function(){if(window.__KN_HOME_A)re
   window.__knGate={whitelist:WL};
 })();
 </script>
-<style id="knBrowserSurface">html:root,html:root > body{background-color:var(--kn-browser-surface,#f8f7ef)!important}</style>
+<style id="knBrowserSurface">html:root,html:root > body{background-color:var(--kn-browser-surface,#f0eedf)!important}</style>
 <style id="knBottomNavCSS">
 #knBottomNav{display:flex!important}body:has(#spl:not(.done),#knWelcomeOv.open:not(.kn-entry-leaving)) #knBottomNav{visibility:hidden;pointer-events:none}
 #knBottomNav{position:fixed;left:0;right:0;bottom:0;z-index:9997;display:flex;justify-content:space-around;align-items:center;background:rgba(255,255,255,.92);backdrop-filter:saturate(180%) blur(14px);-webkit-backdrop-filter:saturate(180%) blur(14px);border-top:1px solid rgba(20,83,45,.10);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 18px -10px rgba(20,83,45,.25)}#knBottomNav .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:none;border:none;cursor:pointer;color:#6b7280;font:600 10px/1 system-ui,sans-serif;padding:4px 0;transition:color .2s,transform .2s;-webkit-tap-highlight-color:transparent}#knBottomNav .bn-item svg{width:25px;height:25px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}#knBottomNav .bn-item:active{transform:scale(.9)}#knBottomNav .bn-item.active{color:#1e5c20}body.has-bottom-nav{padding-bottom:64px}body.has-bottom-nav #knChatFab{bottom:78px!important}#knBottomNav .bn-item[data-act="home"]{order:2}#knBottomNav .bn-item[data-act="morning"]{order:1}#knBottomNav .bn-item[data-act="pet"]{order:4}#knBottomNav .bn-item[data-act="shorts"]{order:3}#knBottomNav .bn-item[data-act="talk"]{order:5}#knBottomNav .bn-item[data-act="mypage"]{order:6}</style>
@@ -504,8 +504,8 @@ window.knRetryFetch=function(url,opts,onOk,onWait,tries){
 .morning-news-retry{font:inherit;color:var(--brand-color,#205c49);background:transparent;border:1px solid currentColor;border-radius:16px;padding:5px 12px;cursor:pointer}
 </style>
 <link rel="stylesheet" href="/static/menu-a.css?v=20261110-settings-entry1">
-<link rel="stylesheet" href="/static/navigation-backgrounds.css?v=20261019-steps2">
-<link rel="stylesheet" href="/static/talk-timeline.css?v=20261031-round-tabs1">
+<link rel="stylesheet" href="/static/navigation-backgrounds.css?v=20261110-home-base1">
+<link rel="stylesheet" href="/static/talk-timeline.css?v=20261110-home-base1">
 <script defer src="/static/shared-assistant-context.js?v=20261104-memory-tier1"></script>
 <script defer src="/static/assistant-memory-entry.js?v=20261104-memory-tier1"></script>
 </head>
@@ -4978,7 +4978,7 @@ setInterval(apply,500);
 <script>
 (function(){
   if(window.__KN_SIM_EMBED4_BOOTED) return; window.__KN_SIM_EMBED4_BOOTED=true;
-  var SIM_URL="/static/simulator-embed-35db9aef20.html?v=20261024-lump-chart1";
+  var SIM_URL="/static/simulator-embed-83c68b2adf.html?v=20261110-home-background1";
   var ov,frame,fham,state='idle',attempt='',sequence=0,timer;
   function els(){ov=document.getElementById("knSimEmbedOv");frame=document.getElementById("knSimEmbedFrame");fham=document.getElementById("knFloatHam");}
   function visibility(){
