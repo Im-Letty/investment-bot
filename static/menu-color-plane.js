@@ -43,9 +43,9 @@
     if (!validHex(hex)) return null;
     var digits = hex.slice(1);
     if (digits.length === 3) digits = digits.split('').map(function (c) { return c + c; }).join('');
-    var base = dark ? [32, 36, 31] : [245, 242, 233];
+    var base = dark ? [32, 36, 31] : [247, 244, 236], share = dark ? 0.1 : 0.08;
     return '#' + [0, 2, 4].map(function (offset, i) {
-      return Math.round(parseInt(digits.slice(offset, offset + 2), 16) * 0.1 + base[i] * 0.9).toString(16).padStart(2, '0');
+      return Math.round(parseInt(digits.slice(offset, offset + 2), 16) * share + base[i] * (1 - share)).toString(16).padStart(2, '0');
     }).join('');
   }
   function mount(colors, options) {
@@ -115,7 +115,8 @@
       spectrum.marker.style.left = 'clamp(14px, ' + String(hsv.h / 360 * 100) + '%, calc(100% - 14px))';
       spectrum.marker.style.top = 'clamp(14px, ' + String((1 - lightness) * 100) + '%, calc(100% - 14px))';
       var dark = doc.body && doc.body.getAttribute('data-theme') === 'dark';
-      spectrum.element.style.setProperty('--kn-color-surface-base', dark ? '#20241f' : '#f5f2e9');
+      spectrum.element.style.setProperty('--kn-color-surface-base', dark ? '#20241f' : '#f7f4ec');
+      spectrum.element.style.setProperty('--kn-color-surface-share', dark ? '90%' : '92%');
       spectrum.marker.style.backgroundColor = themeBackgroundColor(previewRaw, dark);
       sample.style.backgroundColor = themeBackgroundColor(previewRaw, dark);
       value.textContent = previewCustom ? previewRaw : label('standardColor');

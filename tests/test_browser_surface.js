@@ -38,24 +38,24 @@ function app({storage={},blocked=false,readyState='loading',homeReady=false,dark
 test('browser color is available before external startup files and has one meta',()=>{
   assert.equal((html.match(/<meta name="theme-color"/g)||[]).length,1);
   assert.ok(html.indexOf('/* KN_BROWSER_SURFACE:')<html.indexOf('<script src='));
-  const a=app();assert.equal(a.color(),'#f0eedf');assert.equal(a.meta(),a.color());
+  const a=app();assert.equal(a.color(),'#f3f1e4');assert.equal(a.meta(),a.color());
 });
 test('saved custom and shorthand colors tint the first paint without modifying settings',()=>{
   const a=app({storage:{userBrandColor:'#ff00ff'}});
-  assert.equal(a.color(),'#f6daeb');assert.equal(a.meta(),a.color());
+  assert.equal(a.color(),'#f8e0ee');assert.equal(a.meta(),a.color());
   assert.equal(app({storage:{userBrandColor:'#f0f'}}).color(),a.color());
   assert.notEqual(app({storage:{userBrandColor:'#3da060',userBrandColorCustom:'1'}}).color(),app().color());
   assert.equal(app({storage:{userBrandColor:'#3da060',userBrandColorCustom:'0'}}).color(),app().color());
 });
 test('missing, invalid or blocked saved settings leave a usable default',()=>{
   for(const options of [{},{storage:{userBrandColor:'pink'}},{storage:{userBrandColor:'bad<script>'}},{blocked:true}]){
-    const a=app(options);assert.equal(a.color(),'#f0eedf');assert.equal(a.meta(),a.color());
+    const a=app(options);assert.equal(a.color(),'#f3f1e4');assert.equal(a.meta(),a.color());
   }
 });
 test('intro, welcome and home keep one base while the existing entry timing remains independent',()=>{
   const a=app();a.fire('DOMContentLoaded');a.context.knIntroComplete=true;a.fire('knIntroComplete');
-  assert.equal(a.color(),'#f0eedf');
-  a.classes.add('done');a.welcomeClasses.add('open');a.mutation();assert.equal(a.color(),'#f0eedf');assert.equal(a.site(),a.color());assert.equal(a.meta(),a.color());
+  assert.equal(a.color(),'#f3f1e4');
+  a.classes.add('done');a.welcomeClasses.add('open');a.mutation();assert.equal(a.color(),'#f3f1e4');assert.equal(a.site(),a.color());assert.equal(a.meta(),a.color());
 });
 test('home and dark theme follow the actual surface rather than the older body palette',()=>{
   const a=app({readyState:'complete'});a.context.knIntroComplete=true;a.classes.add('done');
@@ -63,7 +63,7 @@ test('home and dark theme follow the actual surface rather than the older body p
   a.setComputed('rgb(32, 39, 31)');a.mutation();assert.equal(a.color(),'#20271f');assert.equal(a.meta(),a.color());
 });
 test('four home palettes and selected-green flag are available before CSS without saving preferences',()=>{
- const cases=[{options:{},expected:'#f0eedf'},{options:{storage:{userBrandColor:'#ff00ff'}},expected:'#f6daeb'},{options:{dark:true},expected:'#20271f'},{options:{dark:true,storage:{userBrandColor:'#ff00ff'}},expected:'#362035'}];
+ const cases=[{options:{},expected:'#f3f1e4'},{options:{storage:{userBrandColor:'#ff00ff'}},expected:'#f8e0ee'},{options:{dark:true},expected:'#20271f'},{options:{dark:true,storage:{userBrandColor:'#ff00ff'}},expected:'#362035'}];
  for(const {options,expected}of cases){const a=app(options);a.welcomeClasses.add('open');a.refresh();assert.equal(a.site(),expected);assert.equal(a.meta(),expected);assert.equal(a.color(),expected);}
  assert.notEqual(app({storage:{userBrandColor:'#3da060',userBrandColorCustom:'1'}}).site(),app({storage:{userBrandColor:'#3da060',userBrandColorCustom:'0'}}).site());
  const a=app({dark:true});assert.equal(a.ink(),'#eeeede');a.setComputed('rgb(51, 40, 46)');a.refresh();assert.equal(a.site(),'rgb(51, 40, 46)');assert.equal(a.meta(),'#33282e');

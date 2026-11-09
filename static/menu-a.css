@@ -45,7 +45,7 @@ body.kn-home-a #sideDrawer.kn-menu-a .kn-menu-row{background:transparent!importa
 #sideDrawer.kn-menu-a .kn-color-close{display:grid;place-items:center;flex:none;width:44px;min-height:44px;padding:0;border:0;border-radius:8px;background:transparent;color:var(--kn-a-muted);font:400 22px/1 var(--kn-a-sans);cursor:pointer}
 #sideDrawer.kn-menu-a .kn-color-close:hover{background:var(--kn-a-chip)}
 #sideDrawer.kn-menu-a .kn-color-field{position:relative;box-sizing:border-box;display:block;width:100%;height:136px;border:1px solid var(--kn-a-line);border-radius:14px;overflow:hidden;cursor:crosshair;touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:inset 0 0 0 1px #ffffff35}
-#sideDrawer.kn-menu-a .kn-color-spectrum{background-image:linear-gradient(color-mix(in srgb,var(--kn-color-surface-base,#f5f2e9) 90%,transparent),color-mix(in srgb,var(--kn-color-surface-base,#f5f2e9) 90%,transparent)),linear-gradient(to bottom,#fff 0%,rgba(255,255,255,0) 50%,#000 100%),linear-gradient(to right,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)}
+#sideDrawer.kn-menu-a .kn-color-spectrum{background-image:linear-gradient(color-mix(in srgb,var(--kn-color-surface-base,#f7f4ec) var(--kn-color-surface-share,92%),transparent),color-mix(in srgb,var(--kn-color-surface-base,#f7f4ec) var(--kn-color-surface-share,92%),transparent)),linear-gradient(to bottom,#fff 0%,rgba(255,255,255,0) 50%,#000 100%),linear-gradient(to right,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00)}
 #sideDrawer.kn-menu-a .kn-color-marker{position:absolute;box-sizing:border-box;width:18px;height:18px;border:2px solid #fff;border-radius:50%;outline:1px solid #303c3070;box-shadow:0 2px 7px #0004;transform:translate(-50%,-50%);pointer-events:none}
 #sideDrawer.kn-menu-a .kn-color-field:focus-visible{outline:2px solid var(--kn-a-button);outline-offset:3px}
 #sideDrawer.kn-menu-a .kn-color-selection{display:flex;align-items:center;gap:10px;min-width:0;margin:12px 0 2px;padding:8px 10px;border-radius:12px;background:var(--kn-a-chip)}
@@ -107,3 +107,14 @@ body.kn-home-a[data-kn-a-custom-color] :is(#sideDrawer.kn-menu-a,#knMenuDisplayO
 #knMenuDisplayOverlay .kn-display-close:hover{background:var(--kn-a-chip,#eeeddc)}
 #knMenuDisplayOverlay .kn-menu-reset{margin:0}
 @media(max-width:360px){#knMenuDisplayOverlay .kn-display-dialog{padding-left:18px;padding-right:18px}}
+
+/* A small ivory lift for light-mode decorative roles. Keep paper, ink, buttons
+   and all existing dark-mode values intact. */
+body.kn-home-a:not([data-theme="dark"]) :is(#sideDrawer.kn-menu-a,#knMenuDisplayOverlay){--kn-a-line:#d9dac8;--kn-a-chip:#f1f0e4}
+body.kn-home-a:not([data-theme="dark"])[data-kn-a-custom-color] :is(#sideDrawer.kn-menu-a,#knMenuDisplayOverlay){--kn-a-line:color-mix(in srgb,var(--brand-color) 10%,#e1dfd3);--kn-a-chip:color-mix(in srgb,var(--brand-color) 5%,#f3f1e4)}
+/* The custom-color drawer has a dark page backdrop. Only its outer text and
+   hover follow that backdrop; the color panel and display dialog keep paper ink. */
+body.kn-home-a[data-theme="dark"][data-kn-a-custom-color] #sideDrawer.kn-menu-a :is(.kn-menu-header,.kn-menu-row){color:var(--kn-site-ink,var(--kn-sh-ink))!important}
+body.kn-home-a[data-theme="dark"][data-kn-a-custom-color] #sideDrawer.kn-menu-a :is(.kn-menu-label,.kn-menu-back,.kn-menu-chevron){color:var(--kn-site-muted,var(--kn-sh-muted))!important}
+body.kn-home-a[data-theme="dark"][data-kn-a-custom-color] #sideDrawer.kn-menu-a #knMenuLogoutGroup .kn-menu-row{color:var(--kn-site-muted,var(--kn-sh-muted))!important}
+body.kn-home-a[data-theme="dark"][data-kn-a-custom-color] #sideDrawer.kn-menu-a .kn-menu-row:hover{background:color-mix(in srgb,var(--kn-site-bg) 92%,var(--kn-site-ink))!important}

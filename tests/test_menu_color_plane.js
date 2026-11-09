@@ -299,17 +299,17 @@ test('legacy gray and dark colors keep exact raw values while the single marker 
 test('palette preview uses the existing light and dark site background mix while commits keep their raw color',()=>{
   const fs=require('node:fs'),path=require('node:path');
   const theme=fs.readFileSync(path.join(__dirname,'../static/home-h.css'),'utf8'),picker=fs.readFileSync(path.join(__dirname,'../static/menu-a.css'),'utf8');
-  assert.ok(theme.includes('--kn-a-bg:color-mix(in srgb,var(--brand-color) 10%,#f5f2e9)'));assert.ok(theme.includes('--kn-a-bg:color-mix(in srgb,var(--brand-color) 10%,#20241f)'));
-  assert.ok(picker.includes('var(--kn-color-surface-base,#f5f2e9) 90%,transparent'));
+  assert.ok(theme.includes('--kn-a-bg:color-mix(in srgb,var(--brand-color) 8%,#f7f4ec)'));assert.ok(theme.includes('--kn-a-bg:color-mix(in srgb,var(--brand-color) 10%,#20241f)'));
+  assert.ok(picker.includes('var(--kn-color-surface-base,#f7f4ec) var(--kn-color-surface-share,92%),transparent'));
   for(const dark of [false,true]){
-    const base=dark?[32,36,31]:[245,242,233];
+    const base=dark?[32,36,31]:[247,244,236],share=dark?.1:.08;
     for(const raw of ['#000000','#ffffff','#ff0000','#00ff00','#0000ff','#123456','#808080']){
-      const expected='#'+[0,2,4].map((n,i)=>Math.round(parseInt(raw.slice(n+1,n+3),16)/10+base[i]*.9).toString(16).padStart(2,'0')).join('');
+      const expected='#'+[0,2,4].map((n,i)=>Math.round(parseInt(raw.slice(n+1,n+3),16)*share+base[i]*(1-share)).toString(16).padStart(2,'0')).join('');
       assert.equal(themeBackgroundColor(raw,dark),expected);
-      const f=fixture({color:raw,dark});f.open();assert.equal(f.sample().style.backgroundColor,expected);assert.equal(f.raw(),raw);assert.deepEqual(f.commits,[]);
+      const f=fixture({color:raw,dark});f.open();assert.equal(f.sample().style.backgroundColor,expected);assert.equal(f.spectrum.style.values.get('--kn-color-surface-share'),dark?'90%':'92%');assert.equal(f.raw(),raw);assert.deepEqual(f.commits,[]);
       f.pointer('pointerdown',f.spectrum,130,70);f.pointer('pointerup',f.spectrum,130,70);assert.equal(f.raw(),'#00ff00');assert.equal(f.sample().style.backgroundColor,themeBackgroundColor(f.raw(),dark));
     }
   }
-  assert.equal(themeBackgroundColor('#000000'),'#dddad2');assert.notEqual(themeBackgroundColor('#000000'),'#000000');
+  assert.equal(themeBackgroundColor('#000000'),'#e3e0d9');assert.notEqual(themeBackgroundColor('#000000'),'#000000');
   for(const invalid of [null,'red','#12','#gggggg'])assert.equal(themeBackgroundColor(invalid),null);
 });

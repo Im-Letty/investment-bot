@@ -883,12 +883,12 @@ function entryPalette({brand=null,custom=false,dark=false,parentColor=null}={}){
   return {properties,theme(value){darkValue=value;observers[0]();},color(value,flag){storage.set('userBrandColor',value);storage.set('userBrandColorCustom',flag?'1':'0');events.get('storage')({key:'userBrandColor'});}};
 }
 test('dedicated auth backdrop follows all four home cases and the custom-green distinction without changing its artwork palette',()=>{
-  for(const [options,expected]of [[{},'#f0eedf'],[{brand:'#e91e63'},'color-mix(in srgb,#e91e63 10%,#f5f2e9)'],[{dark:true},'#20271f'],[{brand:'#e91e63',dark:true},'color-mix(in srgb,#e91e63 10%,#20241f)'],[{brand:'#3da060'},'#f0eedf'],[{brand:'#3da060',custom:true},'color-mix(in srgb,#3da060 10%,#f5f2e9)']]){
+  for(const [options,expected]of [[{},'#f3f1e4'],[{brand:'#e91e63'},'color-mix(in srgb,#e91e63 8%,#f7f4ec)'],[{dark:true},'#20271f'],[{brand:'#e91e63',dark:true},'color-mix(in srgb,#e91e63 10%,#20241f)'],[{brand:'#3da060'},'#f3f1e4'],[{brand:'#3da060',custom:true},'color-mix(in srgb,#3da060 8%,#f7f4ec)']]){
     const h=entryPalette(options);assert.equal(h.properties.get('--kn-site-bg'),expected);assert.equal(h.properties.get('--entry-surface'),expected);const globe=h.properties.get('--mm-bg');h.theme(!options.dark);assert.equal(h.properties.get('--mm-bg'),globe);
   }
 });
 test('dedicated auth keeps background synchronized with existing theme attributes and color storage events',()=>{
-  const h=entryPalette();h.theme(true);assert.equal(h.properties.get('--kn-site-bg'),'#20271f');h.color('#000000',true);assert.equal(h.properties.get('--kn-site-bg'),'color-mix(in srgb,#000000 10%,#20241f)');h.theme(false);assert.equal(h.properties.get('--kn-site-bg'),'color-mix(in srgb,#000000 10%,#f5f2e9)');h.color('#3da060',false);assert.equal(h.properties.get('--kn-site-bg'),'#f0eedf');
+  const h=entryPalette();h.theme(true);assert.equal(h.properties.get('--kn-site-bg'),'#20271f');h.color('#000000',true);assert.equal(h.properties.get('--kn-site-bg'),'color-mix(in srgb,#000000 10%,#20241f)');h.theme(false);assert.equal(h.properties.get('--kn-site-bg'),'color-mix(in srgb,#000000 8%,#f7f4ec)');h.color('#3da060',false);assert.equal(h.properties.get('--kn-site-bg'),'#f3f1e4');
 });
 test('a same-origin auth frame uses the exact canonical parent background rather than independently tinting it',()=>{
   const color='color(srgb 0.14 0.18 0.13)',h=entryPalette({brand:'#ff0000',parentColor:color});assert.equal(h.properties.get('--kn-site-bg'),color);assert.equal(h.properties.get('--entry-surface'),color);

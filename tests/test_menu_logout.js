@@ -485,7 +485,7 @@ test('openMain keeps an already open hamburger open without toggling, route chan
 
 
 test('the single color plane keeps its current color while Japanese and English accessible labels change',()=>{
-  const h=fixture({brandColor:'#0c1d2e',customColor:true});h.document.getElementById('knMenuColorPlus').click();const field=h.document.getElementById('knMenuColorSpectrum'),preview=h.colors.querySelector('.kn-color-sample');assert.match(field.getAttribute('aria-label'),/^背景色: #0c1d2e$/);assert.equal(preview.style.backgroundColor,'#deddd6');const beforeCalls=h.calls.slice();h.storage.set('app_lang','en');h.document.dispatch('langChanged');assert.match(field.getAttribute('aria-label'),/^Background color: #0c1d2e$/);assert.equal(preview.style.backgroundColor,'#deddd6');assert.deepEqual(h.themeWrites,[]);assert.deepEqual(h.calls,beforeCalls);assert.equal(h.document.getElementById('knMenuColorTone'),null);assert.equal(h.document.getElementById('knMenuColorToneButton'),null);
+  const h=fixture({brandColor:'#0c1d2e',customColor:true});h.document.getElementById('knMenuColorPlus').click();const field=h.document.getElementById('knMenuColorSpectrum'),preview=h.colors.querySelector('.kn-color-sample');assert.match(field.getAttribute('aria-label'),/^背景色: #0c1d2e$/);assert.equal(preview.style.backgroundColor,'#e4e3dd');const beforeCalls=h.calls.slice();h.storage.set('app_lang','en');h.document.dispatch('langChanged');assert.match(field.getAttribute('aria-label'),/^Background color: #0c1d2e$/);assert.equal(preview.style.backgroundColor,'#e4e3dd');assert.deepEqual(h.themeWrites,[]);assert.deepEqual(h.calls,beforeCalls);assert.equal(h.document.getElementById('knMenuColorTone'),null);assert.equal(h.document.getElementById('knMenuColorToneButton'),null);
 });
 
 

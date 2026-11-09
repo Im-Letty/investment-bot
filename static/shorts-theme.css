@@ -1,8 +1,8 @@
 /* Immersive video feed; search and saved lists keep the morning letter palette. */
 :root {
-  --kn-sh-bg:#f0eedf; --kn-sh-paper:#fdfcf6; --kn-sh-ink:#343331;
-  --kn-sh-muted:#625d58; --kn-sh-line:#d5d6c3; --kn-sh-button:#607765;
-  --kn-sh-chip:#eeeddf;
+  --kn-sh-bg:#f3f1e4; --kn-sh-paper:#fdfcf6; --kn-sh-ink:#343331;
+  --kn-sh-muted:#625d58; --kn-sh-line:#d9dac8; --kn-sh-button:#607765;
+  --kn-sh-chip:#f1f0e4;
 }
 body.kn-home-a #knShorts,
 body.kn-home-a #ksSearchPanel,

@@ -3,7 +3,7 @@ const test=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const source=fs.readFileSync(path.join(__dirname,'..','static/simulator-theme.js'),'utf8');
 
-function reading({embedded=true,size='m',scale='1',withChart=true,brand='',custom=false,dark=false,parentBg='#f0eedf',parentInk='#343331',parentMuted='#625d58'}={}) {
+function reading({embedded=true,size='m',scale='1',withChart=true,brand='',custom=false,dark=false,parentBg='#f3f1e4',parentInk='#343331',parentMuted='#625d58'}={}) {
   const properties=new Map(),attributes=new Map(),events=new Map(),timers=new Map(),observers=[];
   let parentScale=scale,storedSize=size,sequence=0;if(dark)attributes.set('data-theme','dark');
   const chart={data:{datasets:[{data:[1000,2000]},{data:[1000,2100]}]},options:{
@@ -76,9 +76,9 @@ test('standalone preferences update without a parent, and late charts use the ch
 
 test('standalone simulator uses the same four home backgrounds including custom green without changing reading cards',()=>{
   for(const [options,expected]of [
-    [{},'#f0eedf'],[{brand:'#e91e63'},'color-mix(in srgb,#e91e63 10%,#f5f2e9)'],
+    [{},'#f3f1e4'],[{brand:'#e91e63'},'color-mix(in srgb,#e91e63 8%,#f7f4ec)'],
     [{dark:true},'#20271f'],[{brand:'#e91e63',dark:true},'color-mix(in srgb,#e91e63 10%,#20241f)'],
-    [{brand:'#3da060'},'#f0eedf'],[{brand:'#3da060',custom:true},'color-mix(in srgb,#3da060 10%,#f5f2e9)']
+    [{brand:'#3da060'},'#f3f1e4'],[{brand:'#3da060',custom:true},'color-mix(in srgb,#3da060 8%,#f7f4ec)']
   ]){
     const h=reading({embedded:false,...options});assert.equal(h.properties.get('--sim-bg'),expected);assert.equal(h.properties.get('--sim-paper'),'#fffefb');assert.equal(h.properties.get('--sim-ink'),'#303638');assert.equal(h.properties.get('--sim-chart-bg'),'#fffefb');
   }
@@ -88,5 +88,5 @@ test('embedded simulator takes the exact shared home background and page caption
   assert.equal(h.properties.get('--sim-bg'),bg);assert.equal(h.properties.get('--sim-page-ink'),'#eeeede');assert.equal(h.properties.get('--sim-page-muted'),'#c0c6b2');assert.equal(h.properties.get('--sim-paper'),'#fffefb');assert.equal(h.properties.get('--sim-ink'),'#303638');
 });
 test('existing local dark attributes update the standalone backdrop without changing stored preferences or card ink',()=>{
-  const h=reading({embedded:false});h.localTheme(true);assert.equal(h.properties.get('--sim-bg'),'#20271f');assert.equal(h.properties.get('--sim-page-ink'),'#eeeede');assert.equal(h.properties.get('--sim-ink'),'#303638');h.localTheme(false);assert.equal(h.properties.get('--sim-bg'),'#f0eedf');
+  const h=reading({embedded:false});h.localTheme(true);assert.equal(h.properties.get('--sim-bg'),'#20271f');assert.equal(h.properties.get('--sim-page-ink'),'#eeeede');assert.equal(h.properties.get('--sim-ink'),'#303638');h.localTheme(false);assert.equal(h.properties.get('--sim-bg'),'#f3f1e4');
 });
