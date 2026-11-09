@@ -9,7 +9,7 @@
   var mounted = new WeakMap();
   var defaults = {
     chooseColor: '自由に色を選ぶ', closeColor: '色選びを閉じる',
-    colorSpectrum: '色と明るさ',
+    colorSpectrum: '背景色',
     colorKeyboardHint: '左右で色、上下で明るさを選べます。Shiftで大きく調整できます。',
     standardColor: '標準の色', selectedColor: '選んだ色', colorUnavailable: '色を変更できませんでした。'
   };
@@ -36,6 +36,17 @@
     var chroma = v * s, x = chroma * (1 - Math.abs((h / 60) % 2 - 1)), m = v - chroma;
     var channels = h < 60 ? [chroma, x, 0] : h < 120 ? [x, chroma, 0] : h < 180 ? [0, chroma, x] : h < 240 ? [0, x, chroma] : h < 300 ? [x, 0, chroma] : [chroma, 0, x];
     return '#' + channels.map(function (channel) { return Math.round((channel + m) * 255 + 1e-10).toString(16).padStart(2, '0'); }).join('');
+  }
+  // Match home-h.css's existing sRGB background mix, without changing the
+  // raw color stored by applyBrandColor or the other theme roles.
+  function themeBackgroundColor(hex, dark) {
+    if (!validHex(hex)) return null;
+    var digits = hex.slice(1);
+    if (digits.length === 3) digits = digits.split('').map(function (c) { return c + c; }).join('');
+    var base = dark ? [32, 36, 31] : [245, 242, 233];
+    return '#' + [0, 2, 4].map(function (offset, i) {
+      return Math.round(parseInt(digits.slice(offset, offset + 2), 16) * 0.1 + base[i] * 0.9).toString(16).padStart(2, '0');
+    }).join('');
   }
   function mount(colors, options) {
     if (!colors) return null;
@@ -75,11 +86,12 @@
     }
     var spectrum = field('kn-color-spectrum', 'knMenuColorSpectrum');
     var selection = node('div', 'kn-color-selection', panel);
+    selection.hidden = true;
     var sample = node('span', 'kn-color-sample', selection); sample.setAttribute('aria-hidden', 'true');
     var value = node('output', 'kn-color-value', selection);
     var hint = node('p', 'kn-color-hint', panel); hint.id = 'knMenuColorKeyboardHint';
     var status = node('p', 'kn-color-status', panel); status.hidden = true; status.setAttribute('role', 'alert');
-    if (reset) panel.appendChild(reset);
+    if (reset) { panel.appendChild(reset); reset.hidden = true; reset.tabIndex = -1; }
     if (input) {
       input.hidden = true; input.tabIndex = -1;
       var custom = input.closest('.drawer-color-custom');
@@ -102,8 +114,10 @@
       var lightness = hsv.v * (1 - hsv.s / 2);
       spectrum.marker.style.left = 'clamp(14px, ' + String(hsv.h / 360 * 100) + '%, calc(100% - 14px))';
       spectrum.marker.style.top = 'clamp(14px, ' + String((1 - lightness) * 100) + '%, calc(100% - 14px))';
-      spectrum.marker.style.backgroundColor = previewRaw;
-      sample.style.backgroundColor = previewRaw;
+      var dark = doc.body && doc.body.getAttribute('data-theme') === 'dark';
+      spectrum.element.style.setProperty('--kn-color-surface-base', dark ? '#20241f' : '#f5f2e9');
+      spectrum.marker.style.backgroundColor = themeBackgroundColor(previewRaw, dark);
+      sample.style.backgroundColor = themeBackgroundColor(previewRaw, dark);
       value.textContent = previewCustom ? previewRaw : label('standardColor');
       value.setAttribute('aria-label', label('selectedColor') + ': ' + value.textContent);
       spectrum.element.setAttribute('aria-label', label('colorSpectrum') + ': ' + previewRaw);
@@ -275,7 +289,7 @@
     if (win) win.addEventListener('blur', function () { close(false); });
     function translate() {
       plus.setAttribute('aria-label', label('chooseColor')); panel.setAttribute('aria-label', label('chooseColor'));
-      closeButton.setAttribute('aria-label', label('closeColor')); title.textContent = label('chooseColor');
+      closeButton.setAttribute('aria-label', label('closeColor')); title.textContent = label('colorSpectrum');
       hint.textContent = label('colorKeyboardHint'); render();
       if (!status.hidden) status.textContent = label('colorUnavailable');
     }
@@ -283,5 +297,5 @@
     mounted.set(colors, controller); sync(); translate();
     return controller;
   }
-  return { mount: mount, hexToHsv: hexToHsv, hsvToHex: hsvToHex, validHex: validHex };
+  return { mount: mount, hexToHsv: hexToHsv, hsvToHex: hsvToHex, validHex: validHex, themeBackgroundColor: themeBackgroundColor };
 });

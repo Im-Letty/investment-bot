@@ -1,7 +1,7 @@
 /* Compact bottom menu. Keep destinations and saved preferences on their existing paths. */
 (function () {
   'use strict';
-  var drawer, nav, lastOpener, mainPanel, backButton, syncDrawerState, colorController, currentView='main', wasOpen=false;
+  var drawer, nav, lastOpener, mainPanel, backButton, syncDrawerState, colorController, displayDialog, displayBackdrop, displayOverflow, currentView='main', wasOpen=false;
   var views=Object.create(null), viewTriggers=Object.create(null);
   var copy = {
     ja: {menu:'メニュー',back:'戻る',close:'閉じる',frequent:'よく使うもの',news:'経済ニュース',stocks:'今日の銘柄',favorites:'お気に入り',calendar:'カレンダー',color:'カラー',resetColor:'元の色に戻す',original:'これまでの機能',morning:'朝の相場レター',sim:'シミュレーター',shorts:'ショート',saved:'保存した動画',talk:'トーク',kakeibo:'家計簿',memo:'自由メモ',alert:'急騰アラート',guide:'はじめてガイド',pet:'育成ゲーム',memory:'会話の記憶設定',display:'表示設定',size:'文字の大きさ',font:'字体',small:'小',medium:'中',large:'大',largest:'特大',gothic:'ゴシック',round:'丸ゴシック',mincho:'明朝',klee:'かわいい',pop:'かっこいい',reset:'標準に戻す',style:'説明のスタイル',beginner:'かんたん解説',pro:'しっかり解説',account:'マイページ',language:'言語',logout:'ログアウト'},
@@ -12,10 +12,10 @@
   var paths = {memory:'M4 4h16v12H9l-5 4zM8 8h8M8 12h5',color:'M12 3a9 9 0 1 0 0 18h1.5a2 2 0 0 0 1.4-3.4 1.6 1.6 0 0 1 1.1-2.7h1a4 4 0 0 0 4-4C21 6.5 17 3 12 3ZM7.5 10h.01M10 6.5h.01M15 7h.01M7 14h.01',display:'M4 6h16M4 12h16M4 18h16M8 3v6M16 9v6M10 15v6',language:'M3 5h12M9 3v2M6 5c0 5 3 9 7 11M12 5c0 5-3 9-7 11M14 21l4-10 4 10M15.5 17h5',news:'M4 4h16v16H4zM8 8h8M8 12h8M8 16h5',stocks:'M4 19h16M6 15l4-5 4 3 5-8',favorites:'m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9z',calendar:'M5 5h14v15H5zM8 3v4M16 3v4M5 10h14',sim:'M4 20h17M7 16V9M12 16V5M17 16v-4',shorts:'m8 5 11 7-11 7z',saved:'M6 3h12v18l-6-4-6 4z',talk:'M4 4h16v12H9l-5 4z',kakeibo:'M4 6h15v14H4zM4 6V4h12M14 11h7v5h-7z',memo:'M5 3h14v18H5zM8 8h8M8 12h8M8 16h5',alert:'M12 3 3 20h18zM12 9v5M12 17h.01',guide:'M9 8a3 3 0 0 1 6 0c0 2-3 2-3 5M12 17h.01',pet:'M19 4C6 3 3 11 6 16s15 3 13-12ZM5 21l10-11',account:'M16 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0M5 21v-2a7 7 0 0 1 14 0v2',logout:'M9 4H4v16h5M14 8l4 4-4 4M8 12h10',morning:'M12 2v2M12 20v2M2 12h2M20 12h2M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2M17 12a5 5 0 1 1-10 0 5 5 0 0 1 10 0'};
   function lang() { var value; try { value=localStorage.getItem('app_lang'); } catch (_) {} return copy[value] ? value : 'ja'; }
   var colorCopy = {
-    ja:{color:'表示カラー',chooseColor:'好きな色を選ぶ',closeColor:'色の選択を閉じる',colorSpectrum:'色と明るさ',colorKeyboardHint:'左右で色、上下で明るさを選べます。Shiftで大きく調整できます。',standardColor:'標準の色',colorUnavailable:'色を変更できませんでした。もう一度選んでください。',selectedColor:'選択中の色',presetGreen:'グリーン',presetPink:'ピンク',presetYellow:'イエロー'},
-    en:{color:'Display color',chooseColor:'Choose a color',closeColor:'Close color selection',colorSpectrum:'Color and brightness',colorKeyboardHint:'Use left/right for hue and up/down for brightness. Hold Shift for larger steps.',standardColor:'Default color',colorUnavailable:'The color could not be changed. Please choose again.',selectedColor:'Selected color',presetGreen:'Green',presetPink:'Pink',presetYellow:'Yellow'},
-    ko:{color:'표시 색상',chooseColor:'원하는 색 선택',closeColor:'색상 선택 닫기',colorSpectrum:'색상과 밝기',colorKeyboardHint:'좌우로 색상을, 위아래로 밝기를 선택합니다. Shift를 누르면 더 크게 조절합니다.',standardColor:'기본 색상',colorUnavailable:'색상을 변경하지 못했습니다. 다시 선택해 주세요.',selectedColor:'선택한 색상',presetGreen:'초록',presetPink:'분홍',presetYellow:'노랑'},
-    zh:{color:'显示颜色',chooseColor:'选择喜欢的颜色',closeColor:'关闭颜色选择',colorSpectrum:'颜色与明暗',colorKeyboardHint:'左右选择色相，上下调节明暗。按住 Shift 可加大调整幅度。',standardColor:'默认颜色',colorUnavailable:'无法更改颜色，请重新选择。',selectedColor:'所选颜色',presetGreen:'绿色',presetPink:'粉色',presetYellow:'黄色'}
+    ja:{color:'表示カラー',chooseColor:'好きな色を選ぶ',closeColor:'色の選択を閉じる',colorSpectrum:'背景色',colorKeyboardHint:'左右で色、上下で明るさを選べます。Shiftで大きく調整できます。',standardColor:'標準の色',colorUnavailable:'色を変更できませんでした。もう一度選んでください。',selectedColor:'選択中の色',presetGreen:'グリーン',presetPink:'ピンク',presetYellow:'イエロー'},
+    en:{color:'Display color',chooseColor:'Choose a color',closeColor:'Close color selection',colorSpectrum:'Background color',colorKeyboardHint:'Use left/right for hue and up/down for brightness. Hold Shift for larger steps.',standardColor:'Default color',colorUnavailable:'The color could not be changed. Please choose again.',selectedColor:'Selected color',presetGreen:'Green',presetPink:'Pink',presetYellow:'Yellow'},
+    ko:{color:'표시 색상',chooseColor:'원하는 색 선택',closeColor:'색상 선택 닫기',colorSpectrum:'배경색',colorKeyboardHint:'좌우로 색상을, 위아래로 밝기를 선택합니다. Shift를 누르면 더 크게 조절합니다.',standardColor:'기본 색상',colorUnavailable:'색상을 변경하지 못했습니다. 다시 선택해 주세요.',selectedColor:'선택한 색상',presetGreen:'초록',presetPink:'분홍',presetYellow:'노랑'},
+    zh:{color:'显示颜色',chooseColor:'选择喜欢的颜色',closeColor:'关闭颜色选择',colorSpectrum:'背景色',colorKeyboardHint:'左右选择色相，上下调节明暗。按住 Shift 可加大调整幅度。',standardColor:'默认颜色',colorUnavailable:'无法更改颜色，请重新选择。',selectedColor:'所选颜色',presetGreen:'绿色',presetPink:'粉色',presetYellow:'黄色'}
   };
   function text(key) { return colorCopy[lang()][key] || copy[lang()][key] || key; }
   function stored(key, fallback) { try { return localStorage.getItem(key) || fallback; } catch (_) { return fallback; } }
@@ -49,6 +49,36 @@
     // sees the same state and must not move focus back from the new screen.
     if(drawer&&!drawer.classList.contains('open')&&syncDrawerState)syncDrawerState();
   }
+  function closeDisplay(returnToMenu) {
+    if(!displayDialog||displayDialog.hidden)return;
+    displayDialog.hidden=true;displayBackdrop.hidden=true;displayBackdrop.inert=true;
+    document.body.classList.remove('kn-display-dialog-active');document.body.style.overflow=displayOverflow;
+    if(returnToMenu&&window.KNMenuSheet&&window.KNMenuSheet.openMain()){
+      var trigger=viewTriggers.display;if(trigger&&trigger.isConnected)trigger.focus({preventScroll:true});
+    }
+  }
+  function openDisplay() {
+    if(!displayDialog)return;
+    if(!displayDialog.hidden){displayDialog.querySelector('h2').focus({preventScroll:true});return;}
+    close();showView('main',false);
+    displayOverflow=document.body.style.overflow;
+    displayBackdrop.hidden=false;displayBackdrop.inert=false;displayDialog.hidden=false;
+    document.body.classList.add('kn-display-dialog-active');document.body.style.overflow='hidden';
+    syncPreferences();displayDialog.querySelector('h2').focus({preventScroll:true});
+  }
+  function displayKeys(e) {
+    if(displayDialog.hidden||e.isComposing)return;
+    if(e.key==='Escape'){e.preventDefault();e.stopPropagation();closeDisplay(true);return;}
+    if(e.key!=='Tab')return;
+    var controls=Array.from(displayDialog.querySelectorAll('button,input,select,textarea,a[href],[tabindex]')).filter(function(n){return !n.disabled&&n.tabIndex>=0&&n.getClientRects().length;});
+    var first=controls[0],last=controls[controls.length-1];
+    if(e.shiftKey&&(document.activeElement===first||document.activeElement===displayDialog.querySelector('h2'))){e.preventDefault();last.focus();}
+    else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+  }
+  function eachMenu(selector,callback) {
+    drawer.querySelectorAll(selector).forEach(callback);
+    if(displayDialog)displayDialog.querySelectorAll(selector).forEach(callback);
+  }
   function openHome() { bn('morning'); }
   function scrollToNode(node) { if(node)node.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'}); }
   function canLogout() { return !!(window.knUser && !window.knUser.is_anonymous); }
@@ -58,6 +88,7 @@
     if(group)group.hidden=!canLogout();
   }
   function navigate(key) {
+    if(key==='display'){openDisplay();return;}
     if(views[key]){
       showView(key);
       if(key==='memory'&&window.knAssistantMemory)window.knAssistantMemory.refreshCapacity();
@@ -98,20 +129,21 @@
     if(!drawer)return;
     // The drawer follows the home scale; legacy per-node sizing must not compound it.
     drawer.querySelectorAll('[data-bfs]').forEach(function(n){n.style.removeProperty('font-size');});
-    drawer.querySelectorAll('[data-menu-size]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.menuSize===stored('ui_fontscale','m')));});
+    eachMenu('[data-menu-size]',function(b){b.setAttribute('aria-pressed',String(b.dataset.menuSize===stored('ui_fontscale','m')));});
     var selected=stored('ui_font','gothic');if(['gothic','round','mincho','klee','pop'].indexOf(selected)<0)selected='gothic';
-    drawer.querySelectorAll('[data-menu-font]').forEach(function(input){input.checked=input.dataset.menuFont===selected;});
+    eachMenu('[data-menu-font]',function(input){input.checked=input.dataset.menuFont===selected;});
     drawer.querySelectorAll('[data-menu-style]').forEach(function(b){b.setAttribute('aria-pressed',String(b.dataset.menuStyle===stored('ui_style','pro')));});
     drawer.querySelectorAll('.drawer-color-preset').forEach(function(b){b.setAttribute('aria-pressed',String(b.classList.contains('active')&&document.documentElement.hasAttribute('data-custom-brand-color')));});
     if(colorController)colorController.sync();
   }
   function translate() {
     if(!drawer)return;
-    drawer.querySelectorAll('[data-menu-copy]').forEach(function(n){n.textContent=text(n.dataset.menuCopy);});
+    eachMenu('[data-menu-copy]',function(n){n.textContent=text(n.dataset.menuCopy);});
     drawer.setAttribute('aria-label',text('menu'));
     var x=drawer.querySelector('.kn-menu-close');if(x)x.setAttribute('aria-label',text('close'));
-    var font=drawer.querySelector('#knMenuFont');if(font)font.setAttribute('aria-label',text('font'));
-    drawer.querySelectorAll('[data-menu-font]').forEach(function(input){input.setAttribute('aria-label',text(input.dataset.menuFont));});
+    if(displayDialog)displayDialog.querySelector('.kn-display-close').setAttribute('aria-label',text('close'));
+    var font=document.getElementById('knMenuFont');if(font)font.setAttribute('aria-label',text('font'));
+    eachMenu('[data-menu-font]',function(input){input.setAttribute('aria-label',text(input.dataset.menuFont));});
     drawer.querySelectorAll('[data-menu-preset]').forEach(function(b){b.title=text(b.dataset.menuPreset);b.setAttribute('aria-label',b.title);});
     if(colorController)colorController.translate();
     syncPreferences();
@@ -126,8 +158,9 @@
     nav.replaceChildren();
     var panel=document.createElement('div');panel.className='knAccPanel kn-menu-content';mainPanel=panel;nav.appendChild(panel);
     window.KNMenuSheet={
-      showMain:function(){showView('main',false);},
+      showMain:function(){closeDisplay(false);showView('main',false);},
       openMain:function(){
+        closeDisplay(false);
         showView('main',false);
         if(!drawer.classList.contains('open')&&typeof window.toggleDrawer==='function')window.toggleDrawer();
         if(syncDrawerState)syncDrawerState();
@@ -148,11 +181,16 @@
     var display=view('display');var displayControls=document.createElement('div');displayControls.innerHTML='<p class="kn-menu-label" data-menu-copy="size">'+text('size')+'</p><div class="kn-menu-sizes">'+[['s','small'],['m','medium'],['l','large'],['xl','largest']].map(function(v){return '<button type="button" data-menu-size="'+v[0]+'" data-menu-copy="'+v[1]+'">'+text(v[1])+'</button>';}).join('')+'</div><fieldset class="kn-menu-font" id="knMenuFont"><legend data-menu-copy="font">'+text('font')+'</legend><div class="kn-menu-font-options">'+['gothic','round','mincho','klee','pop'].map(function(key){return '<label class="kn-menu-font-choice"><span class="kn-menu-font-sample" data-font-preview="'+key+'" aria-hidden="true">Aa</span><input type="radio" name="kn-menu-font" value="'+key+'" data-menu-font="'+key+'" aria-label="'+text(key)+'"></label>';}).join('')+'</div></fieldset>';
     while(displayControls.firstChild)display.appendChild(displayControls.firstChild);
     var motion=document.getElementById('knHomeOrbitMotion');if(motion){motion.classList.add('kn-menu-motion');display.appendChild(motion);}
-    var reset=document.createElement('button');reset.type='button';reset.className='kn-menu-reset';reset.dataset.menuReset='1';reset.dataset.menuCopy='reset';reset.textContent=text('reset');display.appendChild(reset);nav.appendChild(display);var displayTrigger=row('display');displayTrigger.setAttribute('aria-controls','knMenuView-display');viewTriggers.display=displayTrigger;panel.appendChild(displayTrigger);
+    var reset=document.createElement('button');reset.type='button';reset.className='kn-menu-reset';reset.dataset.menuReset='1';reset.dataset.menuCopy='reset';reset.textContent=text('reset');display.appendChild(reset);
+    displayDialog=display;delete views.display;display.classList.add('kn-display-dialog');display.setAttribute('role','dialog');display.setAttribute('aria-modal','true');
+    displayBackdrop=document.createElement('div');displayBackdrop.id='knMenuDisplayOverlay';displayBackdrop.hidden=true;displayBackdrop.inert=true;
+    var displayHeader=document.createElement('div');displayHeader.className='kn-display-head';displayHeader.appendChild(display.querySelector('h2'));
+    var displayClose=document.createElement('button');displayClose.type='button';displayClose.className='kn-display-close';displayClose.setAttribute('aria-label',text('close'));displayClose.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';displayClose.onclick=function(){closeDisplay(true);};displayHeader.appendChild(displayClose);display.insertBefore(displayHeader,display.firstChild);
+    displayBackdrop.appendChild(display);document.body.appendChild(displayBackdrop);
+    displayBackdrop.addEventListener('click',function(e){if(e.target===displayBackdrop)closeDisplay(true);});display.addEventListener('keydown',displayKeys);
+    var displayTrigger=row('display');displayTrigger.setAttribute('aria-controls',display.id);displayTrigger.setAttribute('aria-haspopup','dialog');viewTriggers.display=displayTrigger;panel.appendChild(displayTrigger);
     var memory=view('memory'),memorySettings=document.createElement('div');
     memorySettings.id='knAssistantMemorySettings';memory.appendChild(memorySettings);nav.appendChild(memory);
-    var memoryTrigger=row('memory');memoryTrigger.setAttribute('aria-controls',memory.id);
-    viewTriggers.memory=memoryTrigger;panel.insertBefore(memoryTrigger,displayTrigger);
     var logout=group(['logout']);logout.id='knMenuLogoutGroup';logout.hidden=true;
     var grid=drawer.querySelector('.lang-grid');if(grid){var language=document.createElement('section');language.className='kn-menu-language';language.setAttribute('aria-labelledby','knMenuLanguageTitle');var languageHeading=document.createElement('p');languageHeading.id='knMenuLanguageTitle';languageHeading.className='kn-menu-label';languageHeading.dataset.menuCopy='language';languageHeading.textContent=text('language');language.appendChild(languageHeading);language.appendChild(grid);panel.appendChild(language);}
     if(colors){
@@ -169,7 +207,8 @@
     panel.appendChild(logout);
     drawer.querySelectorAll(':scope > .drawer-section-label,:scope > .drawer-color-wrap,:scope > .drawer-footer').forEach(function(n){n.remove();});
     var oldSettings=document.getElementById('drawerSettingsBtn');if(oldSettings)oldSettings.parentElement.remove();
-    nav.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;if(b.dataset.menuPage)navigate(b.dataset.menuPage);if(b.dataset.menuSize&&window.dsSetSize)window.dsSetSize(b.dataset.menuSize);if(b.dataset.menuStyle&&window._setUIStyle)window._setUIStyle(b.dataset.menuStyle);if(b.dataset.menuReset&&window.dsReset)window.dsReset();syncPreferences();});
+    function menuAction(e){var b=e.target.closest('button');if(!b)return;if(b.dataset.menuPage)navigate(b.dataset.menuPage);if(b.dataset.menuSize&&window.dsSetSize)window.dsSetSize(b.dataset.menuSize);if(b.dataset.menuStyle&&window._setUIStyle)window._setUIStyle(b.dataset.menuStyle);if(b.dataset.menuReset&&window.dsReset)window.dsReset();syncPreferences();}
+    nav.addEventListener('click',menuAction);display.addEventListener('click',menuAction);
     display.querySelector('#knMenuFont').addEventListener('change',function(e){var input=e.target,key=input&&input.dataset&&input.dataset.menuFont;if(!input.checked||['gothic','round','mincho','klee','pop'].indexOf(key)<0)return;if(window.dsSetFont)window.dsSetFont(key);syncPreferences();});
     drawer.addEventListener('click',function(e){
       // Native radios dispatch change after click. Let that change commit the
@@ -183,7 +222,7 @@
     var stateObserver=new MutationObserver(syncDrawerState);stateObserver.observe(drawer,{attributes:true,attributeFilter:['class']});
     drawer.inert=!wasOpen;drawer.setAttribute('aria-hidden',String(drawer.inert));syncOpeners(wasOpen);
     drawer.addEventListener('keydown',function(e){if(e.key==='Escape'){e.preventDefault();close();}if(e.key==='Tab'){var focusable=Array.from(drawer.querySelectorAll('button,select,input,textarea,summary,a[href],[tabindex]')).filter(function(n){return !n.disabled&&n.tabIndex>=0&&n.getClientRects().length;});var first=focusable[0],last=focusable[focusable.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}});
-    translate();syncAccount();document.addEventListener('knAuthChange',syncAccount);document.addEventListener('langChanged',function(){if(colorController)colorController.close(false);translate();});document.addEventListener('styleChanged',syncPreferences);
+    translate();syncAccount();document.addEventListener('knAuthChange',function(){closeDisplay(false);syncAccount();});document.addEventListener('langChanged',function(){if(colorController)colorController.close(false);translate();});document.addEventListener('styleChanged',syncPreferences);
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(rebuild,950);},{once:true});else setTimeout(rebuild,950);
 })();
