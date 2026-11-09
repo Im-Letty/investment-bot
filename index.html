@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ja">
   <head>
-<meta name="theme-color" content="#f0eedf">
+<meta name="theme-color" content="#f3f1e4">
 <script>/* KN_BROWSER_SURFACE: Match the phone's inset/chrome to the visible entry or home surface. */
 (function(){
   if(window.knSyncBrowserSurface)return;
@@ -24,7 +24,7 @@
     try{if(!hex){hex=localStorage.getItem('userBrandColor')||'';custom=localStorage.getItem('userBrandColorCustom')==='1';}}catch(_){}
     if(/^#[0-9a-f]{3}$/i.test(hex))hex='#'+hex.slice(1).split('').map(function(c){return c+c;}).join('');
     custom=/^#[0-9a-f]{6}$/i.test(hex)&&(hex.toLowerCase()!=='#3da060'||custom);
-    return {bg:custom?blend(dark?'#20241f':'#f5f2e9',hex,.1):dark?'#20271f':'#f0eedf',ink:dark?(custom?blend('#f5f4e9',hex,.05):'#eeeede'):'#343331',muted:dark?(custom?blend('#d1d3c5',hex,.1):'#c0c6b2'):'#625d58'};
+    return {bg:custom?blend(dark?'#20241f':'#f7f4ec',hex,dark ? .1 : .08):dark?'#20271f':'#f3f1e4',ink:dark?(custom?blend('#f5f4e9',hex,.05):'#eeeede'):'#343331',muted:dark?(custom?blend('#d1d3c5',hex,.1):'#c0c6b2'):'#625d58'};
   }
   function refresh(){
     var palette=fallback(),home=document.getElementById('morning-section'),body=document.body;
@@ -109,8 +109,8 @@
 <link rel="stylesheet" href="/static/home-hero.css?v=20260930-bd1">
 <link rel="stylesheet" href="/static/stock-search-common.css?v=20261027-search-hover1">
 <link rel="stylesheet" href="/static/stock-reading.css?v=20261011-no-price-time1">
-<link rel="stylesheet" href="/static/home-h.css?v=20261103-reading-ink1">
-<link rel="stylesheet" href="/static/shorts-theme.css?v=20261103-reading-ink1">
+<link rel="stylesheet" href="/static/home-h.css?v=20261110-subtle-ivory1">
+<link rel="stylesheet" href="/static/shorts-theme.css?v=20261110-subtle-ivory1">
 <link rel="stylesheet" href="/static/shorts-viewport.css?v=20261030-nav-details1">
 <script defer src="/static/shorts-player.js?v=20261014-loading1"></script>
 <script defer src="/static/shorts-theme.js?v=20261011-immersive1"></script>
@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded',function(){if(window.__KN_HOME_A)re
   window.__knGate={whitelist:WL};
 })();
 </script>
-<style id="knBrowserSurface">html:root,html:root > body{background-color:var(--kn-browser-surface,#f0eedf)!important}</style>
+<style id="knBrowserSurface">html:root,html:root > body{background-color:var(--kn-browser-surface,#f3f1e4)!important}</style>
 <style id="knBottomNavCSS">
 #knBottomNav{display:flex!important}body:has(#spl:not(.done),#knWelcomeOv.open:not(.kn-entry-leaving)) #knBottomNav{visibility:hidden;pointer-events:none}
 #knBottomNav{position:fixed;left:0;right:0;bottom:0;z-index:9997;display:flex;justify-content:space-around;align-items:center;background:rgba(255,255,255,.92);backdrop-filter:saturate(180%) blur(14px);-webkit-backdrop-filter:saturate(180%) blur(14px);border-top:1px solid rgba(20,83,45,.10);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 18px -10px rgba(20,83,45,.25)}#knBottomNav .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:none;border:none;cursor:pointer;color:#6b7280;font:600 10px/1 system-ui,sans-serif;padding:4px 0;transition:color .2s,transform .2s;-webkit-tap-highlight-color:transparent}#knBottomNav .bn-item svg{width:25px;height:25px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}#knBottomNav .bn-item:active{transform:scale(.9)}#knBottomNav .bn-item.active{color:#1e5c20}body.has-bottom-nav{padding-bottom:64px}body.has-bottom-nav #knChatFab{bottom:78px!important}#knBottomNav .bn-item[data-act="home"]{order:2}#knBottomNav .bn-item[data-act="morning"]{order:1}#knBottomNav .bn-item[data-act="pet"]{order:4}#knBottomNav .bn-item[data-act="shorts"]{order:3}#knBottomNav .bn-item[data-act="talk"]{order:5}#knBottomNav .bn-item[data-act="mypage"]{order:6}</style>
@@ -503,8 +503,8 @@ window.knRetryFetch=function(url,opts,onOk,onWait,tries){
 .morning-news-updated{font:400 11px/1.8 system-ui,sans-serif;color:#687a70;margin:12px 0 2px}
 .morning-news-retry{font:inherit;color:var(--brand-color,#205c49);background:transparent;border:1px solid currentColor;border-radius:16px;padding:5px 12px;cursor:pointer}
 </style>
-<link rel="stylesheet" href="/static/menu-a.css?v=20261110-settings-entry1">
-<link rel="stylesheet" href="/static/navigation-backgrounds.css?v=20261110-home-base1">
+<link rel="stylesheet" href="/static/menu-a.css?v=20261110-subtle-ivory1">
+<link rel="stylesheet" href="/static/navigation-backgrounds.css?v=20261110-subtle-ivory1">
 <link rel="stylesheet" href="/static/talk-timeline.css?v=20261110-home-base1">
 <script defer src="/static/shared-assistant-context.js?v=20261104-memory-tier1"></script>
 <script defer src="/static/assistant-memory-entry.js?v=20261104-memory-tier1"></script>
@@ -4978,7 +4978,7 @@ setInterval(apply,500);
 <script>
 (function(){
   if(window.__KN_SIM_EMBED4_BOOTED) return; window.__KN_SIM_EMBED4_BOOTED=true;
-  var SIM_URL="/static/simulator-embed-83c68b2adf.html?v=20261110-home-background1";
+  var SIM_URL="/static/simulator-embed-f5c47cc9ea.html?v=20261110-subtle-ivory1";
   var ov,frame,fham,state='idle',attempt='',sequence=0,timer;
   function els(){ov=document.getElementById("knSimEmbedOv");frame=document.getElementById("knSimEmbedFrame");fham=document.getElementById("knFloatHam");}
   function visibility(){
@@ -5120,7 +5120,7 @@ setInterval(apply,500);
 
 </script>
 
-<script src="/static/menu-color-plane.js?v=20261110-soft-background1" defer></script>
+<script src="/static/menu-color-plane.js?v=20261110-subtle-ivory1" defer></script>
 <script src="/static/menu-a.js?v=20261110-logout-visible1" defer></script>
 
 </script>

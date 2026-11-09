@@ -33,7 +33,7 @@
   function fallbackPalette() {
     var result=Object.assign({},defaults), brand, custom;
     var dark=[document.documentElement,document.body].some(function(el){return el.getAttribute&&el.getAttribute('data-theme')==='dark';});
-    var morningBg=dark?'#20271f':'#f0eedf';
+    var morningBg=dark?'#20271f':'#f3f1e4';
     result.pageInk=dark?'#eeeede':'#343331';result.pageMuted=dark?'#c0c6b2':'#625d58';
     try {brand=localStorage.getItem('userBrandColor');custom=localStorage.getItem('userBrandColorCustom')==='1';} catch (_) {}
     if(/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(brand||'')) {
@@ -41,7 +41,7 @@
       result.tint=brand;
       if(custom) {
         result.button=mix(brand,'#4c6150',.45);
-        morningBg='color-mix(in srgb,'+brand+' 10%,'+(dark?'#20241f':'#f5f2e9')+')';
+        morningBg='color-mix(in srgb,'+brand+(dark?' 10%,#20241f':' 8%,#f7f4ec')+')';
         if(dark){result.pageInk='color-mix(in srgb,'+brand+' 5%,#f5f4e9)';result.pageMuted='color-mix(in srgb,'+brand+' 10%,#d1d3c5)';}
       }
     }

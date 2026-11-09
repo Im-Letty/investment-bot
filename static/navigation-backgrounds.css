@@ -1,12 +1,12 @@
 /* Every route keeps the resolved home backdrop. Cards, fields and scrims own
    separate paper/contrast tokens and retain their existing reading surfaces. */
-:root {--kn-site-bg:#f0eedf;--kn-site-ink:#343331;--kn-site-muted:#625d58}
-html:root,html:root > body,#lp-section {background-color:var(--kn-site-bg,#f0eedf)!important}
+:root {--kn-site-bg:#f3f1e4;--kn-site-ink:#343331;--kn-site-muted:#625d58}
+html:root,html:root > body,#lp-section {background-color:var(--kn-site-bg,#f3f1e4)!important}
 body.kn-home-a {
-  --kn-nav-simulator-bg:var(--kn-site-bg,var(--kn-sh-bg,#f0eedf));
-  --kn-nav-shorts-bg:var(--kn-site-bg,var(--kn-sh-bg,#f0eedf));
-  --kn-nav-pet-bg:var(--kn-site-bg,var(--kn-sh-bg,#f0eedf));
-  --kn-nav-mypage-bg:var(--kn-site-bg,var(--kn-sh-bg,#f0eedf));
+  --kn-nav-simulator-bg:var(--kn-site-bg,var(--kn-sh-bg,#f3f1e4));
+  --kn-nav-shorts-bg:var(--kn-site-bg,var(--kn-sh-bg,#f3f1e4));
+  --kn-nav-pet-bg:var(--kn-site-bg,var(--kn-sh-bg,#f3f1e4));
+  --kn-nav-mypage-bg:var(--kn-site-bg,var(--kn-sh-bg,#f3f1e4));
 }
 body.kn-home-a #knSimEmbedOv {background:var(--kn-nav-simulator-bg)!important}
 body.kn-home-a :is(#knShorts,#ksSearchPanel,#knSavedOv) {--kn-sh-bg:var(--kn-nav-shorts-bg);background:var(--kn-nav-shorts-bg)!important}

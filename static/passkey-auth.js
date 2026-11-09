@@ -12,8 +12,8 @@ function entryHomeBackground(hex,custom){
   }catch(_){}
   const dark=[document.documentElement,document.body].some(el=>el&&el.getAttribute&&el.getAttribute('data-theme')==='dark');
   const valid=/^#[0-9a-f]{6}$/i.test(hex||'');
-  if(valid&&(hex.toLowerCase()!=='#3da060'||custom))return 'color-mix(in srgb,'+hex.toLowerCase()+' 10%,'+(dark?'#20241f':'#f5f2e9')+')';
-  return dark?'#20271f':'#f0eedf';
+  if(valid&&(hex.toLowerCase()!=='#3da060'||custom))return 'color-mix(in srgb,'+hex.toLowerCase()+(dark?' 10%,#20241f':' 8%,#f7f4ec')+')';
+  return dark?'#20271f':'#f3f1e4';
 }
 function syncEntryBackground(){
   const value=entryHomeBackground(lastHex,lastCustom);

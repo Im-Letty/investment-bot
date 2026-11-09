@@ -2,7 +2,7 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const source=fs.readFileSync(path.join(__dirname,'..','static/mypage-kakeibo-theme.js'),'utf8');
-const defaults={bg:'#f0eedf',paper:'#fdfcf6',ink:'#343331',muted:'#625d58',line:'#d5d6c3',button:'#607765',chip:'#eeeddf'};
+const defaults={bg:'#f3f1e4',paper:'#fdfcf6',ink:'#343331',muted:'#625d58',line:'#d9dac8',button:'#607765',chip:'#f1f0e4'};
 function channels(value){
   const hex=value.match(/^#([0-9a-f]{6})$/i);
   if(hex)return [0,2,4].map(i=>parseInt(hex[1].slice(i,i+2),16));
@@ -80,12 +80,19 @@ function ratio(a,b){
 test('standalone same-document brand changes update shared palette immediately and settle',()=>{
   const h=fixture({stored:{userBrandColor:'#aa5599',userBrandColorCustom:'1'}});
   assert.match(h.root.style.getPropertyValue('--kn-sh-button'),/#aa5599/);
+  assert.equal(h.root.style.getPropertyValue('--kn-sh-bg'),'color-mix(in srgb,#aa5599 8%,#f7f4ec)');
+  assert.equal(h.root.style.getPropertyValue('--kn-sh-line'),'color-mix(in srgb,#aa5599 10%,#e1dfd3)');
+  assert.equal(h.root.style.getPropertyValue('--kn-sh-chip'),'color-mix(in srgb,#aa5599 5%,#f3f1e4)');
+  for(const role of ['paper','ink','muted'])assert.equal(h.root.style.getPropertyValue('--kn-sh-'+role),defaults[role]);
+  assert.equal(h.body.getAttribute('data-kn-ledger-dark'),'false','standalone dark behavior is retained');
+
   h.root.style.setProperty('--brand-color','#4466aa');h.root.setAttribute('data-custom-brand-color','');h.flush();
   assert.match(h.root.style.getPropertyValue('--kn-sh-button'),/#4466aa/);
   const before=h.writes.length,rounds=h.observerRounds;h.flush();
   assert.equal(h.writes.length,before);assert.equal(h.observerRounds,rounds);assert.deepEqual(h.storageWrites,[]);
   h.root.style.setProperty('--brand-color','#3da060');h.root.removeAttribute('data-custom-brand-color');h.flush();
   assert.equal(h.root.style.getPropertyValue('--kn-sh-button'),defaults.button,'reset retains the default shared palette');
+  for(const role of ['bg','line','chip','paper','ink','muted'])assert.equal(h.root.style.getPropertyValue('--kn-sh-'+role),defaults[role]);
 });
 test('storage and focus synchronize local preferences without rewriting storage',()=>{
   const h=fixture();h.storage.set('userBrandColor','#725799');h.storage.set('userBrandColorCustom','1');h.storage.set('ui_fontscale','xl');h.event('storage');h.flush();
