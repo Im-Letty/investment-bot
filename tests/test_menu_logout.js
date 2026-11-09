@@ -60,7 +60,7 @@ function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true,col
   }
   const root=node('html'),body=node('body');root.appendChild(body);
   document={readyState:'complete',documentElement:root,body,activeElement:null,listeners:new Map(),createElement:node,getElementById:id=>root.querySelector('#'+id),querySelector:selector=>root.querySelector(selector),querySelectorAll:selector=>root.querySelectorAll(selector),
-    addEventListener(type,fn){if(!this.listeners.has(type))this.listeners.set(type,[]);this.listeners.get(type).push(fn);},dispatch(type,event={}){for(const fn of this.listeners.get(type)||[])fn({type,...event});},dispatchEvent(event){this.dispatch(event.type,event);}};
+    addEventListener(type,fn){if(!this.listeners.has(type))this.listeners.set(type,[]);this.listeners.get(type).push(fn);},removeEventListener(type,fn){this.listeners.set(type,(this.listeners.get(type)||[]).filter(x=>x!==fn));},dispatch(type,event={}){for(const fn of this.listeners.get(type)||[])fn({type,...event});},dispatchEvent(event){this.dispatch(event.type,event);}};
   function add(tag,attrs={},parent=body){const el=node(tag);Object.entries(attrs).forEach(([key,value])=>el.setAttribute(key,value));parent.appendChild(el);return el;}
   const drawer=add('aside',{id:'sideDrawer',class:'open'}),nav=add('nav',{id:'drawerNav'},drawer);
   const languageGrid=add('div',{class:'lang-grid'},drawer);for(const [language,label]of [['ja','🇯🇵 日本語'],['en','🇬🇧 English'],['ko','🇰🇷 한국어'],['zh','🇨🇳 中文']])add('button',{class:'lang-btn','data-lang':language},languageGrid).textContent=label;
@@ -103,9 +103,13 @@ function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true,col
   flush();
   return {w,document,drawer,nav,calls,storage,themeWrites,entryColors,flush,advance,route,now:()=>clock,pendingTimers:()=>timers.map(t=>t.delay),setMypageAllowed(value){mypageAllowed=value;},node,mounted,colors,languageGrid,originalLanguageButtons,motion,custom,colorReset,notifyDrawerState(){observers.find(o=>o.target===drawer).fn();},notifyNav(){observers.find(o=>o.target===nav).fn();},group:()=>document.getElementById('knMenuLogoutGroup'),button:key=>nav.querySelector('[data-menu-page="'+key+'"]'),activate(key,{nested=false}={}){const b=nav.querySelector('[data-menu-page="'+key+'"]');assert.ok(b,key+' menu row exists');(nested?b.querySelector('span'):b).click();flush();},
     navigate(key){route(key);flush();},
+    useGuestAccess(getSession){
+      w.sb={auth:{getSession,signInAnonymously(){throw Error('unexpected new guest');}}};context.location={search:''};context.URLSearchParams=URLSearchParams;context.Event=class{constructor(type){this.type=type;}};
+      vm.runInNewContext(read('static/guest-access.js'),context);
+    },
     useConfirmation(){
       const html=read('index.html'),marker='(function(){window.knLogoutFlow=function(){',start=html.indexOf(marker);assert.ok(start>=0,'Existing confirmation IIFE exists');const end=html.indexOf('})();',start);assert.ok(end>start);
-      let signouts=0,reloads=0;const replacements=[];w.sb={auth:{signOut(){signouts++;return Promise.resolve();}}};context.location={href:'https://example.test/?screen=mypage#private',reload(){reloads++;},replace(url){replacements.push(url);}};context.URL=URL;context.Event=class{constructor(type){this.type=type;}};
+      let signouts=0,reloads=0;const replacements=[];w.sb={auth:{getSession:async()=>({data:{session:w.knUser?{user:w.knUser}:null}}),signOut(){signouts++;return Promise.resolve({error:null});}}};context.location={href:'https://example.test/?screen=mypage#private',reload(){reloads++;},replace(url){replacements.push(url);}};context.URL=URL;context.Event=class{constructor(type){this.type=type;}};
       vm.runInNewContext(html.slice(start,end+5),context);
       return {signouts:()=>signouts,reloads:()=>reloads,replacements,dialog:()=>document.getElementById('knLogoutDlg')};
     }
@@ -125,7 +129,7 @@ test('logout exists once directly after inline language and colors, without the 
   const h=fixture({user:{id:'synthetic-member',is_anonymous:false}}),group=h.group();
   assert.ok(group);assert.equal(group.parentElement.className,'knAccPanel kn-menu-content');const order=group.parentElement.children;assert.equal(order.at(-3),h.languageGrid.parentElement);assert.equal(order.at(-2),h.colors);assert.equal(order.at(-1),group);
   assert.equal(h.nav.querySelectorAll('[data-menu-page="logout"]').length,1);assert.equal(h.button('logout').textContent,'ログアウト');assert.equal(group.hidden,false);
-  const html=read('index.html');assert.equal(/ensureLogout|knLogoutBtn/.test(html),false);const menuLoader=html.match(/menu-a\.js\?v=[a-zA-Z0-9_-]+/)?.[0];assert.equal(menuLoader,'menu-a.js?v=20261110-settings-entry1');assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
+  const html=read('index.html');assert.equal(/ensureLogout|knLogoutBtn/.test(html),false);const menuLoader=html.match(/menu-a\.js\?v=[a-zA-Z0-9_-]+/)?.[0];assert.equal(menuLoader,'menu-a.js?v=20261110-logout-visible1');assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
 });
 test('conversation memory menu entry stays absent while its hidden settings host and stored preferences remain intact',()=>{
   for(const language of ['ja','en','ko','zh']){
@@ -140,24 +144,24 @@ test('conversation memory menu entry stays absent while its hidden settings host
     assert.equal(lookups,0);assert.deepEqual(h.calls,[]);assert.deepEqual([...h.storage],before);
   }
 });
-test('signed-out and guest users cannot invoke logout even through a programmatic menu click',()=>{
+test('public and guest menus keep one usable logout entry while identity metadata is unavailable',()=>{
   for(const user of [null,undefined,{id:'synthetic-guest',is_anonymous:true}]){
-    const h=fixture({user});assert.equal(h.group().hidden,true);h.activate('logout',{nested:true});assert.deepEqual(h.calls,[]);
+    const h=fixture({user});assert.equal(h.group().hidden,false);assert.equal(h.button('logout').disabled,false);h.activate('logout',{nested:true});assert.deepEqual(h.calls,[['close'],['logout-flow']]);
   }
 });
 test('a member activation closes the drawer then invokes the existing flow exactly once',()=>{
   const h=fixture({user:{id:'synthetic-member',is_anonymous:false}});h.activate('logout',{nested:true});assert.deepEqual(h.calls,[['close'],['logout-flow']]);
 });
-test('logout safely does nothing when the existing flow is unavailable',()=>{
-  const h=fixture({user:{id:'synthetic-member'},logoutFlow:false});assert.doesNotThrow(()=>h.activate('logout'));assert.deepEqual(h.calls,[]);
+test('an unavailable logout flow leaves its row visible but explicitly disabled',()=>{
+  const h=fixture({user:{id:'synthetic-member'},logoutFlow:false});assert.equal(h.group().hidden,false);assert.equal(h.button('logout').disabled,true);assert.doesNotThrow(()=>h.activate('logout'));assert.deepEqual(h.calls,[]);
+  const button=h.button('logout');h.w.knLogoutFlow=()=>h.calls.push(['late-logout-flow']);h.document.dispatch('knAuthChange');assert.equal(h.button('logout'),button);assert.equal(button.disabled,false);h.activate('logout');assert.deepEqual(h.calls,[['close'],['late-logout-flow']]);
 });
-test('authentication changes update the one menu group and stale visible rows remain guarded',()=>{
-  const h=fixture();const group=h.group();assert.equal(group.hidden,true);
-  h.w.knUser={id:'synthetic-member',is_anonymous:false};h.document.dispatch('knAuthChange');assert.equal(group.hidden,false);
-  h.w.knUser={id:'synthetic-guest',is_anonymous:true};h.activate('logout');assert.deepEqual(h.calls,[],'Guard checks current identity before an auth event redraw');
-  h.document.dispatch('knAuthChange');assert.equal(group.hidden,true);
-  h.w.knUser={id:'synthetic-member-2'};h.document.dispatch('knAuthChange');assert.equal(group.hidden,false);
-  h.w.knUser=null;h.document.dispatch('knAuthChange');assert.equal(group.hidden,true);assert.equal(h.group(),group);
+test('auth restore, guest identity and expired metadata never remove or duplicate the logout entry',()=>{
+  const h=fixture(),group=h.group(),button=h.button('logout');assert.equal(group.hidden,false);
+  for(const user of [{id:'synthetic-member',is_anonymous:false},{id:'synthetic-guest',is_anonymous:true},null]){
+    h.w.knUser=user;h.document.dispatch('knAuthChange');assert.equal(group.hidden,false);assert.equal(h.group(),group);assert.equal(h.button('logout'),button);assert.equal(button.disabled,false);assert.equal(h.nav.querySelectorAll('[data-menu-page="logout"]').length,1);
+  }
+  h.activate('logout');assert.deepEqual(h.calls,[['close'],['logout-flow']]);
 });
 test('logout follows the existing language selection and language-change event',()=>{
   for(const [language,label]of [['ja','ログアウト'],['en','Log out'],['ko','로그아웃'],['zh','退出登录']]){
@@ -174,8 +178,8 @@ test('the existing confirmation can cancel without signing out or reloading',()=
 test('only confirmation signs out and replaces the private view with clean entry',async()=>{
   const h=fixture({user:{id:'synthetic-member',is_anonymous:false}}),flow=h.useConfirmation();h.activate('logout');
   assert.equal(flow.signouts(),0);assert.equal(flow.reloads(),0);const ok=flow.dialog().querySelectorAll('button')[1];assert.equal(ok.textContent,'ログアウト');ok.click();
-  assert.ok(flow.dialog());assert.equal(h.w.knUser.id,'synthetic-member');assert.equal(flow.signouts(),1);assert.equal(flow.reloads(),0);
-  await new Promise(setImmediate);assert.equal(h.w.knUser,null);assert.deepEqual(flow.replacements,['https://example.test/?entry=logout']);assert.equal(flow.reloads(),0);
+  assert.ok(flow.dialog());assert.equal(h.w.knUser.id,'synthetic-member');assert.equal(flow.signouts(),0);assert.equal(flow.reloads(),0);
+  await new Promise(setImmediate);assert.equal(flow.signouts(),1);assert.equal(h.w.knUser,null);assert.deepEqual(flow.replacements,['https://example.test/?entry=logout']);assert.equal(flow.reloads(),0);
 });
 
 test('the guide menu entry explicitly requests menu return after the drawer has synchronously closed',()=>{
@@ -333,10 +337,10 @@ test('color, language and motion controls retain their original nodes and handle
   assert.equal(h.languageGrid.parentElement.className,'kn-menu-language');assert.equal(h.languageGrid.children.length,4);assert.deepEqual(h.languageGrid.children,h.originalLanguageButtons);
   h.activate('display');assert.equal(h.motion.parentElement,h.document.getElementById('knMenuView-display'));h.motion.click();assert.deepEqual(h.calls.at(-1),['motion']);
 });
-test('signed-out and guest menus retain visible languages and colors before the hidden logout group',()=>{
+test('public and guest menus retain visible languages and colors before the visible logout group',()=>{
   for(const user of [null,{id:'synthetic-guest',is_anonymous:true}]){
     const h=fixture({user}),section=h.languageGrid.parentElement,panel=h.mounted[0];
-    assert.equal(h.group().hidden,true);assert.equal(section.hidden,false);assert.equal(section.getClientRects().length,1);assert.equal(h.languageGrid.getClientRects().length,1);
+    assert.equal(h.group().hidden,false);assert.equal(section.hidden,false);assert.equal(section.getClientRects().length,1);assert.equal(h.languageGrid.getClientRects().length,1);
     assert.equal(panel.children.indexOf(section),panel.children.indexOf(h.button('display'))+1);assert.equal(panel.children.indexOf(h.colors),panel.children.indexOf(section)+1);assert.equal(panel.children.indexOf(h.group()),panel.children.indexOf(h.colors)+1);
     assert.deepEqual(h.languageGrid.children,h.originalLanguageButtons);assert.deepEqual(h.languageGrid.children.map(b=>b.getAttribute('data-lang')),['ja','en','ko','zh']);
     assert.equal(h.button('language'),null);assert.equal(h.document.getElementById('knMenuView-language'),null);assert.deepEqual(h.calls,[]);
@@ -412,7 +416,7 @@ test('only open state transitions move focus, and both visible menu openers stay
   h.drawer.classList.add('open');h.notifyDrawerState();assert.equal(h.drawer.dataset.menuView,'main');assert.equal(h.mounted[0].hidden,false);
 });
 test('focus trap uses only visible controls and Escape or the close button keep the existing closer',()=>{
-  const h=fixture(),first=h.drawer.querySelector('.kn-menu-close'),last=h.document.getElementById('knMenuColorPlus');
+  const h=fixture(),first=h.drawer.querySelector('.kn-menu-close'),last=h.button('logout');
   last.focus();let blocked=0;last.fire('keydown',{key:'Tab',preventDefault(){blocked++;}});assert.equal(h.document.activeElement,first);assert.equal(blocked,1);
   first.fire('keydown',{key:'Tab',shiftKey:true,preventDefault(){blocked++;}});assert.equal(h.document.activeElement,last);assert.equal(blocked,2);
   last.fire('keydown',{key:'Escape'});h.drawer.querySelector('.kn-menu-close').click();assert.deepEqual(h.calls,[['close'],['close']]);
@@ -451,7 +455,7 @@ test('focus trap follows the reordered guest and member controls and excludes ne
   const excluded=h.node('button');excluded.tabIndex=-2;h.drawer.appendChild(excluded);
   const controls=h.drawer.querySelectorAll('button,select,input,textarea,summary,a[href],[tabindex]').filter(n=>!n.disabled&&n.tabIndex>=0&&n.getClientRects().length);
   assert.ok(controls.includes(field));assert.ok(!controls.includes(excluded));assert.ok(!controls.includes(h.custom));assert.equal(h.document.getElementById('knMenuColorTone'),null);assert.equal(h.document.getElementById('knMenuColorToneButton'),null);
-  const last=controls.at(-1);if(user)assert.equal(last,h.button('logout'));else assert.ok(!controls.includes(h.button('logout')));
+  const last=controls.at(-1);assert.equal(last,h.button('logout'));assert.ok(controls.includes(h.button('logout')));
   last.focus();last.fire('keydown',{key:'Tab'});assert.equal(h.document.activeElement,controls[0]);assert.ok(!h.calls.some(call=>call[0]==='logout'));
  }
 });
@@ -488,4 +492,21 @@ test('the single color plane keeps its current color while Japanese and English 
 test('an account change closes display settings without reopening the menu or saving preferences',()=>{
   const h=fixture(),before=[...h.storage];h.activate('display');h.document.dispatch('knAuthChange');
   assert.equal(h.document.getElementById('knMenuView-display').hidden,true);assert.equal(h.document.getElementById('knMenuDisplayOverlay').hidden,true);assert.equal(h.drawer.classList.contains('open'),false);assert.equal(h.document.body.classList.contains('kn-display-dialog-active'),false);assert.deepEqual(h.calls,[['close']]);assert.deepEqual([...h.storage],before);assert.deepEqual(h.themeWrites,[]);
+});
+
+
+test('delayed verified session restoration leaves the logout control usable before and after the real guest module event',async()=>{
+  const h=fixture(),button=h.button('logout');let release;
+  h.useGuestAccess(()=>new Promise(resolve=>{release=resolve;}));const pending=h.w.knEnsureGuest();await new Promise(setImmediate);
+  assert.equal(h.group().hidden,false);assert.equal(button.disabled,false);assert.equal(h.w.knUser,null);
+  release({data:{session:{user:{id:'restored-synthetic-guest',is_anonymous:true}}}});await pending;
+  assert.equal(h.w.knUser.id,'restored-synthetic-guest');assert.equal(h.group().hidden,false);assert.equal(h.button('logout'),button);assert.equal(button.disabled,false);assert.deepEqual(h.calls,[]);
+});
+for(const kind of ['returned error','rejection'])test('session metadata '+kind+' keeps logout visible without inventing an authenticated user',async()=>{
+  const h=fixture(),button=h.button('logout');h.useGuestAccess(async()=>{if(kind==='rejection')throw Error('synthetic network');return {error:{message:'synthetic SDK error'}};});
+  await assert.rejects(h.w.knEnsureGuest());assert.equal(h.w.knUser,null);assert.equal(h.group().hidden,false);assert.equal(button.disabled,false);assert.equal(h.button('logout'),button);assert.deepEqual(h.calls,[]);
+});
+test('a public logout with an unavailable SDK opens retryable confirmation without false exit success',async()=>{
+  const h=fixture(),flow=h.useConfirmation();h.w.sb=null;h.activate('logout');assert.ok(flow.dialog());const [cancel,ok]=flow.dialog().querySelectorAll('button');await ok.onclick();
+  assert.equal(h.w.knUser,null);assert.equal(flow.signouts(),0);assert.deepEqual(flow.replacements,[]);assert.equal(ok.disabled,false);assert.equal(cancel.disabled,false);assert.match(flow.dialog().textContent,/ログアウトできませんでした/);assert.equal(h.group().hidden,false);
 });

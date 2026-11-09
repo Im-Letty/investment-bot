@@ -175,7 +175,7 @@ function domFixture(seed=[{id:1,name:'架空の保存資産',cat:'国内株',amo
    addEventListener:(name,fn)=>events[name]=fn,focus(){n.focused=true;},scrollIntoView(){},remove(){if(n.parentNode)n.parentNode.children=n.parentNode.children.filter(c=>c!==n);attrs.delete('data-po-custom');},click(){if(events.click)return events.click({target:n});}};
   all.push(n);if(id)nodes.set(id,n);return n;
  }
- const ids=['tab-assets','poEditor','poStatus','poFieldset','totalAssetVal','poProfitValue','poProfitNote','poAsOf','poGoalHero','poGoalBody','totalAssetChange','asset-legend','poAllocationStack','asset-list-el','poAllocationNote','poEditorError','poEditorTitle','poSaveButton','poCancelButton','poGoalDisplay','poGoalTargetValue','poGoalEdit','poGoalCancel','poUndoNotice','poUndoText','poUndo','poGoalForm','poGoalAmount','poGoalError','poGoalSave','poGoalStatus','poRetry'];ids.forEach(id=>element('div',id));nodes.get('poEditor').hidden=true;
+ const ids=['tab-assets','poEditor','poStatus','poFieldset','totalAssetVal','poProfitValue','poProfitNote','poAsOf','poGoalHero','poGoalTitle','poGoalBody','totalAssetChange','asset-legend','poAllocationStack','asset-list-el','poAllocationNote','poEditorError','poEditorTitle','poSaveButton','poCancelButton','poGoalDisplay','poGoalTargetValue','poGoalEdit','poGoalCancel','poUndoNotice','poUndoText','poUndo','poGoalForm','poGoalAmount','poGoalError','poGoalSave','poGoalStatus','poRetry'];ids.forEach(id=>element('div',id));nodes.get('poEditor').hidden=true;
  nodes.get('tab-assets').appendChild(nodes.get('poGoalHero'));nodes.get('poGoalHero').appendChild(nodes.get('poGoalBody'));nodes.get('poGoalHero').appendChild(nodes.get('poGoalForm'));
  const advice=element('section','kkPortfolioAdvice'),adviceControl=element('button');advice.appendChild(adviceControl);nodes.get('tab-assets').appendChild(advice);
  for(const key of ['cat','amount']){const input=element('input','ast-'+key);delete input.options;}
@@ -232,15 +232,15 @@ test('DOM save errors keep the draft and show fixed Japanese copy while known fi
 test('DOM target shows the same exact current total as the hero plus percentage and remaining amount without legacy metadata',async()=>{
  const h=domFixture([{amount:1.5},{amount:2.5}]);await h.flush();h.setPlanner(raw({version:1,goals:[{id:'old',title:'表示しない旧目標名',target:10,deadline:'2030-01-01'}],selectedGoalId:'old'}));await h.w.kkPortfolioRender();
  const body=h.nodes.get('poGoalBody'),text=nodeText(body);
- assert.equal(h.nodes.get('totalAssetVal').textContent,'4円');assert.match(text,/現在 4円/);assert.match(text,/40%/);assert.equal(h.nodes.get('poGoalTargetValue').textContent,'10円');assert.match(text,/目標まであと 6円/);assert.doesNotMatch(text,/旧目標名|2030/);assert.equal(h.nodes.get('poGoalAmount').value,'10');
+ assert.equal(h.nodes.get('totalAssetVal').textContent,'4円');assert.match(text,/現在 4円/);assert.match(text,/40%/);assert.equal(nodeText(h.nodes.get('poGoalTargetValue')).replace(/ /g,''),'10円');assert.match(text,/目標まであと 6円/);assert.doesNotMatch(text,/旧目標名|2030/);assert.equal(h.nodes.get('poGoalAmount').value,'10');
  const track=body.children.find(n=>n.getAttribute('role')==='progressbar');assert.equal(track.getAttribute('aria-valuenow'),'40');assert.equal(track.getAttribute('aria-valuetext'),'40%');
- assert.match(nodeText(body.children[0]),/^目標まであと 6円$/);assert.equal(body.children[1].textContent,'達成率 40%');
- h.setPlanner(raw({version:1,goals:[],assetTarget:2}));await h.w.kkPortfolioRender();assert.match(nodeText(body.children[0]),/^目標を上回った金額 2円$/);assert.match(nodeText(body),/200%/);assert.equal(body.children.find(n=>n.getAttribute('role')==='progressbar').getAttribute('aria-valuenow'),'100');
+ assert.match(nodeText(body.children[2].children[1]),/^目標まであと 6円$/);assert.equal(body.children[2].open,false);assert.equal(body.children[0].children[1].textContent,'達成率 40%');
+ h.setPlanner(raw({version:1,goals:[],assetTarget:2}));await h.w.kkPortfolioRender();assert.match(nodeText(body.children[2].children[1]),/^目標を上回った金額 2円$/);assert.match(nodeText(body),/200%/);assert.equal(body.children.find(n=>n.getAttribute('role')==='progressbar').getAttribute('aria-valuenow'),'100');
 });
 test('an empty restored asset list is zero progress and an exact target match shows progress without an achievement message',async()=>{
  const empty=domFixture([]);await empty.flush();empty.setPlanner(raw({version:1,goals:[],assetTarget:10}));await empty.w.kkPortfolioRender();const body=empty.nodes.get('poGoalBody');
- assert.equal(empty.nodes.get('totalAssetVal').textContent,'0円');assert.match(nodeText(body),/目標まであと 10円.*0%.*現在 0円/);
- const exact=domFixture([{amount:.1},{amount:.2}]);await exact.flush();exact.setPlanner(raw({version:1,goals:[],assetTarget:.3}));await exact.w.kkPortfolioRender();const achieved=exact.nodes.get('poGoalBody');assert.match(nodeText(achieved),/達成率 100%.*現在 0.3円/);assert.doesNotMatch(nodeText(achieved),/目標額に到達/);assert.equal(achieved.children[0].className,'po-goal-rate');assert.equal(achieved.children.find(n=>n.getAttribute('role')==='progressbar').getAttribute('aria-valuenow'),'100');
+ assert.equal(empty.nodes.get('totalAssetVal').textContent,'0円');assert.match(nodeText(body),/現在 0円.*0%.*目標まであと 10円/);
+ const exact=domFixture([{amount:.1},{amount:.2}]);await exact.flush();exact.setPlanner(raw({version:1,goals:[],assetTarget:.3}));await exact.w.kkPortfolioRender();const achieved=exact.nodes.get('poGoalBody');assert.match(nodeText(achieved),/現在 0.3円.*達成率 100%/);assert.doesNotMatch(nodeText(achieved),/目標額に到達/);assert.equal(achieved.children[0].className,'po-goal-progress-title');assert.equal(achieved.children.find(n=>n.getAttribute('role')==='progressbar').getAttribute('aria-valuenow'),'100');
 });
 test('DOM target saves only on submit through the existing bridge and blank clears legacy fallback',async()=>{
  const h=domFixture();await h.flush();const planner=require('../static/mypage-planner.js'),d=planner.empty();d.notes=[{id:'p',title:'保持',body:'本文',groupId:'',pinned:true}];d.goals=[{id:'old',title:'保持',details:'詳細',target:100,monthly:null,deadline:''}];d.selectedGoalId='old';d.extra={keep:true};h.setPlanner(raw(d));await h.w.kkPortfolioRender();
@@ -272,7 +272,7 @@ test('goal-first markup keeps one editable target and the existing independently
   assert.match(html,/<script defer src="\/static\/portfolio-advice\.js\?v=20261030-advice-icon1"><\/script>/);
  assert.match(html,/<link rel="stylesheet" href="\/static\/portfolio-advice\.css\?v=20261030-advice-icon1">/);
 });
-test('prominent remaining and excess values keep signed totals and exact fractional differences',async()=>{
+test('collapsed details retain signed totals and exact fractional remaining and excess amounts',async()=>{
  for(const [rows,target,label,current] of [
   [[{amount:-1.25}],10,'目標まであと 11.25円','現在 -1.25円'],
   [[{amount:.1},{amount:.2}],1,'目標まであと 0.7円','現在 0.3円'],
@@ -280,8 +280,8 @@ test('prominent remaining and excess values keep signed totals and exact fractio
   [[{amount:999999.99}],1000000,'目標まであと 0.01円','現在 999,999.99円']
  ]){
   const h=domFixture(rows);await h.flush();h.setPlanner(raw({version:1,goals:[],assetTarget:target}));await h.w.kkPortfolioRender();const body=h.nodes.get('poGoalBody');
-  assert.equal(nodeText(body.children[0]),label);assert.match(nodeText(body),new RegExp(current.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
-  assert.equal(body.children[0].children[1].className,'po-goal-amount');
+  assert.equal(nodeText(body.children[2].children[1]),label);assert.equal(body.children[2].open,false);assert.match(nodeText(body),new RegExp(current.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
+  assert.equal(body.children[2].children[1].children[1].className,'po-goal-money');
   if(rows[0].amount<0)assert.equal(body.children.find(n=>n.getAttribute('role')==='progressbar').getAttribute('aria-valuenow'),'0');
   if(target===1000000)assert.match(nodeText(body),/達成率 99.9%/);
   assert.equal(h.writes.length,0);assert.equal(h.targetWrites.length,0);
@@ -291,7 +291,7 @@ test('readiness and account transitions clear all prominent goal numbers before 
  const h=domFixture([{amount:4321.25}]);await h.flush();h.setPlanner(raw({version:1,goals:[],assetTarget:9876.5}));await h.w.kkPortfolioRender();assert.match(nodeText(h.nodes.get('poGoalBody')),/5,555.25円/);
  let restore;h.w.kkMyPageStore.load=()=>new Promise(resolve=>restore=resolve);h.owner('B');h.dispatch('knLedgerAuth');
  assert.equal(h.nodes.get('tab-assets').getAttribute('data-po-ready'),'false');assert.equal(nodeText(h.nodes.get('poGoalBody')),'');assert.equal(h.nodes.get('poGoalAmount').value,'');assert.equal(h.nodes.get('poGoalSave').disabled,true);
- restore({assetsRaw:raw([{amount:7}]),raw:raw({version:1,goals:[],assetTarget:20})});await h.flush();assert.equal(nodeText(h.nodes.get('poGoalBody').children[0]),'目標まであと 13円');assert.doesNotMatch(nodeText(h.nodes.get('poGoalBody')),/4,321|9,876|5,555/);
+ restore({assetsRaw:raw([{amount:7}]),raw:raw({version:1,goals:[],assetTarget:20})});await h.flush();assert.equal(nodeText(h.nodes.get('poGoalBody').children[2].children[1]),'目標まであと 13円');assert.doesNotMatch(nodeText(h.nodes.get('poGoalBody')),/4,321|9,876|5,555/);
  h.w.kkMyPageStore.load=async()=>{throw Error('synthetic restore failure');};h.dispatch('knLedgerAuth');await h.flush();assert.equal(nodeText(h.nodes.get('poGoalBody')),'');assert.equal(h.nodes.get('poGoalSave').disabled,true);
 });
 test('overview redraws and target saves preserve the mounted advice node and its controls without running them',async()=>{
@@ -331,9 +331,9 @@ test('a deletion whose follow-up read fails can still be undone after a successf
  h.setRead(null);await h.session.refresh();assert.equal(h.session.state().canUndo,true);await h.session.undo();assert.equal(h.getRaw(),before);
 });
 test('saved target switches from its displayed amount to an inline editor and cancel keeps saved target',async()=>{
- const h=domFixture();await h.flush();h.setPlanner(raw({...require('../static/mypage-planner.js').empty(),assetTarget:120000}));await h.w.kkPortfolioRender();assert.equal(h.nodes.get('poGoalDisplay').hidden,false);assert.equal(h.nodes.get('poGoalForm').hidden,true);assert.equal(h.nodes.get('poGoalTargetValue').textContent,'120,000円');
+ const h=domFixture();await h.flush();h.setPlanner(raw({...require('../static/mypage-planner.js').empty(),assetTarget:120000}));await h.w.kkPortfolioRender();assert.equal(h.nodes.get('poGoalDisplay').hidden,false);assert.equal(h.nodes.get('poGoalForm').hidden,true);assert.equal(nodeText(h.nodes.get('poGoalTargetValue')).replace(/ /g,''),'12万円');
  h.nodes.get('poGoalEdit').click();assert.equal(h.nodes.get('poGoalDisplay').hidden,true);assert.equal(h.nodes.get('poGoalForm').hidden,false);assert.equal(h.nodes.get('poGoalAmount').focused,true);h.target('250000');h.nodes.get('poGoalCancel').click();assert.equal(h.nodes.get('poGoalForm').hidden,true);assert.equal(h.nodes.get('poGoalAmount').value,'120000');assert.equal(h.targetWrites.length,0);
- h.nodes.get('poGoalEdit').click();h.target('250000');await h.saveTarget();await h.flush();assert.equal(h.nodes.get('poGoalForm').hidden,true);assert.equal(h.nodes.get('poGoalTargetValue').textContent,'250,000円');assert.equal(h.targetWrites.length,1);
+ h.nodes.get('poGoalEdit').click();h.target('250000');await h.saveTarget();await h.flush();assert.equal(h.nodes.get('poGoalForm').hidden,true);assert.equal(nodeText(h.nodes.get('poGoalTargetValue')).replace(/ /g,''),'25万円');assert.equal(h.targetWrites.length,1);
 });
 test('target validation and save failure keep editing in place while owner change scrubs the old amount',async()=>{
  const h=domFixture();await h.flush();h.setPlanner(raw({...require('../static/mypage-planner.js').empty(),assetTarget:100}));await h.w.kkPortfolioRender();h.nodes.get('poGoalEdit').click();h.target('0');await h.saveTarget();assert.equal(h.nodes.get('poGoalForm').hidden,false);assert.equal(h.nodes.get('poGoalAmount').value,'0');assert.equal(h.nodes.get('poGoalDisplay').hidden,true);
@@ -362,4 +362,20 @@ test('deleting a row preserves an unfinished edit and its stale snapshot cannot 
  const h=domFixture();await h.flush();h.nodes.get('asset-list-el').children[1].children[0].click();h.input('amount','987');const del=h.nodes.get('asset-list-el').children[0].children[1];await del.click();await h.flush();assert.equal(h.nodes.get('poEditor').hidden,false);assert.equal(h.nodes.get('ast-amount').value,'987');assert.equal(h.writes.length,1);
  assert.equal(await h.w.kkPortfolioSaveAsset(),false);assert.equal(h.writes.length,1);assert.match(h.nodes.get('poEditorError').textContent,/資産の内容が更新/);assert.equal(h.nodes.get('ast-amount').value,'987');
  await h.nodes.get('poUndo').click();await h.flush();assert.equal(h.nodes.get('poEditor').hidden,false);assert.equal(h.nodes.get('ast-amount').value,'987');assert.equal(JSON.parse(h.getRaw()).length,2);
+});
+
+test('goal compact units shift exact decimal text without rounding currency, signs or fractions',()=>{
+ for(const [value,number,unit] of [[10000000,'1,000','万円'],['5200123.45','520.012345','万円'],[-12345.67,'-1.234567','万円'],[0,'0','円'],['0.0000001','0.0000001','円'],[Number.MAX_SAFE_INTEGER,'900,719,925,474.0991','万円']]){
+  const formatted=api.goalMoney(value,'ja');assert.equal(formatted.number,number);assert.equal(formatted.unit,unit);assert.equal(formatted.exact,api.money(value));
+ }
+ assert.equal(api.goalMoney(10000000,'en').unit,' ×10,000 JPY');assert.equal(api.goalMoney(10000000,'ko').unit,'만 엔');assert.equal(api.goalMoney(10000000,'zh').unit,'万日元');
+});
+test('adopted target-first card uses live totals, keeps exact details and saves edited target through the existing owner store',async()=>{
+ const h=domFixture([{amount:5200000}]);await h.flush();h.setPlanner(raw({...require('../static/mypage-planner.js').empty(),assetTarget:10000000}));await h.w.kkPortfolioRender();
+ const body=h.nodes.get('poGoalBody'),details=()=>body.children.find(n=>n.tagName==='DETAILS'),track=()=>body.children.find(n=>n.getAttribute('role')==='progressbar');
+ assert.equal(nodeText(h.nodes.get('poGoalTargetValue')).replace(/ /g,''),'1,000万円');assert.match(nodeText(body.children[0]),/現在 520万円.*達成率 52%/);assert.equal(track().getAttribute('aria-valuenow'),'52');assert.equal(details().open,false);assert.match(nodeText(details()),/480万円.*10,000,000円.*5,200,000円.*4,800,000円/);
+ details().open=true;await h.w.kkPortfolioRender();assert.equal(details().open,true,'same-owner refresh keeps the user-opened detail');
+ h.nodes.get('poGoalEdit').click();h.target('20000000');await h.saveTarget();assert.match(nodeText(body.children[0]),/達成率 26%/);assert.equal(JSON.parse(h.getPlanner()).assetTarget,20000000);
+ h.nodes.get('poGoalEdit').click();h.target('1000000');await h.saveTarget();assert.match(nodeText(body.children[0]),/達成率 520%/);assert.match(nodeText(details()),/目標を上回った金額 420万円/);assert.equal(track().getAttribute('aria-valuenow'),'100');assert.equal(track().children[0].style.width,'100%');
+ h.w.document.documentElement={lang:'en'};await h.w.kkPortfolioRender();assert.equal(h.nodes.get('poGoalTitle').textContent,'Asset goal');assert.match(nodeText(body.children[0]),/Current.*Progress 520%/);assert.equal(h.nodes.get('poGoalEdit').getAttribute('aria-label'),'Edit target amount');assert.equal(h.targetWrites.length,2);assert.equal(h.writes.length,0);
 });

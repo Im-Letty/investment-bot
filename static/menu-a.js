@@ -81,11 +81,14 @@
   }
   function openHome() { bn('morning'); }
   function scrollToNode(node) { if(node)node.scrollIntoView({behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'}); }
-  function canLogout() { return !!(window.knUser && !window.knUser.is_anonymous); }
   function syncAccount() {
     if(!drawer)return;
     var group=drawer.querySelector('#knMenuLogoutGroup');
-    if(group)group.hidden=!canLogout();
+    if(group){
+      group.hidden=false;
+      var button=group.querySelector('[data-menu-page="logout"]');
+      if(button)button.disabled=typeof window.knLogoutFlow!=='function';
+    }
   }
   function navigate(key) {
     if(key==='display'){openDisplay();return;}
@@ -95,7 +98,7 @@
       return;
     }
     if(key==='logout'){
-      if(canLogout()&&typeof window.knLogoutFlow==='function'){close();window.knLogoutFlow();}
+      if(typeof window.knLogoutFlow==='function'){close();window.knLogoutFlow();}
       return;
     }
     close();

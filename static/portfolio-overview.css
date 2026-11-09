@@ -138,3 +138,21 @@
 #tab-assets .po-undo{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px;margin-bottom:16px;border:1px solid var(--kn-ledger-line,#d9d8c3);border-radius:10px;background:var(--kn-ledger-chip,#f4f2e7);font-size:calc(13px * var(--kn-ledger-scale,1))}
 #tab-assets[data-po-ready="false"] .po-assets-group{visibility:hidden}
 @media(max-width:620px){#tab-assets .po-assets-group .po-columns{gap:22px}#tab-assets .po-pie{width:min(65%,200px)}#tab-assets .po-target-amount,#tab-assets #poGoalForm #poGoalAmount{font-size:max(16px,calc(32px * var(--kn-ledger-scale,1)))!important}}
+/* Adopted “数字を主役に”: target first, supporting numbers in one quiet row. */
+#tab-assets #poGoalHero{max-width:600px;border-radius:18px;padding:24px 26px 26px;font-family:var(--kn-ledger-sans,sans-serif)}
+#tab-assets #poGoalHero>.po-heading{flex-wrap:nowrap;margin-bottom:18px}
+#tab-assets #poGoalHero .po-target-amount{font-size:calc(40px * var(--kn-ledger-scale,1));font-weight:400;line-height:1.35;letter-spacing:-.045em}
+#tab-assets #poGoalHero .po-goal-unit{font-size:.45em;letter-spacing:0;margin-left:4px}
+#tab-assets #poGoalHero .po-goal-money{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#tab-assets #poGoalHero .po-goal-progress-title{display:flex;justify-content:space-between;gap:8px 14px;flex-wrap:wrap;margin:24px 0 10px;color:var(--kn-ledger-muted,#72785b);font-size:calc(13px * var(--kn-ledger-scale,1));line-height:1.7}
+#tab-assets #poGoalHero .po-goal-progress-title p{margin:0;overflow-wrap:anywhere}
+#tab-assets #poGoalHero .po-goal-progress-title .po-goal-unit,#tab-assets #poGoalHero .po-goal-details .po-goal-unit{font-size:1em;margin-left:0}
+#tab-assets #poGoalHero .po-goal-rate{font-size:inherit;line-height:inherit;font-weight:400}
+#tab-assets #poGoalHero .po-track{height:6px;border-radius:8px}
+#tab-assets #poGoalHero .po-goal-details{margin-top:18px;color:var(--kn-ledger-muted,#72785b);font-size:calc(12px * var(--kn-ledger-scale,1));line-height:1.7}
+#tab-assets #poGoalHero .po-goal-details summary{padding:6px 0;cursor:pointer;width:fit-content;max-width:100%;overflow-wrap:anywhere}
+#tab-assets #poGoalHero .po-goal-detail-row{display:flex;justify-content:space-between;gap:10px 14px;flex-wrap:wrap;margin:8px 0;color:var(--kn-ledger-ink,#505538)}
+#tab-assets #poGoalHero .po-goal-exact{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px 12px;margin:14px 0 0;padding-top:12px;border-top:1px solid var(--kn-ledger-line,#d9d8c3)}
+#tab-assets #poGoalHero .po-goal-exact dt,#tab-assets #poGoalHero .po-goal-exact dd{margin:0;min-width:0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#tab-assets #poGoalHero .po-goal-exact dd{text-align:right;color:var(--kn-ledger-ink,#505538)}
+@media(max-width:440px){#tab-assets #poGoalHero{padding:18px 18px 22px}#tab-assets #poGoalHero .po-target-amount{font-size:calc(34px * var(--kn-ledger-scale,1))!important}}

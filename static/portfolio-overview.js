@@ -79,6 +79,21 @@
     if(index===null)rows.push(next);else rows[index]=next;return rows;
   }
   function money(value){var text=typeof value==='string'?value:decimalText([value]);if(!/^-?\d+(?:\.\d+)?$/.test(text))throw Error('assets_invalid');var parts=text.split('.');return parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,',')+(parts[1]?'.'+parts[1]:'')+'円';}
+  var goalWords={
+    ja:{title:'資産目標',edit:'目標額を編集',input:'目標資産額（円）',save:'保存',cancel:'キャンセル',current:'現在',rate:'達成率',progress:'目標への進捗',details:'目標との差額',remaining:'目標まであと',above:'目標を上回った金額',target:'目標額',exact:'円単位の内訳',yen:'円',largeUnit:'万円'},
+    en:{title:'Asset goal',edit:'Edit target amount',input:'Target amount (JPY)',save:'Save',cancel:'Cancel',current:'Current',rate:'Progress',progress:'Progress toward your goal',details:'Difference from target',remaining:'Remaining',above:'Above target',target:'Target',exact:'Exact amounts in JPY',yen:' JPY',largeUnit:' ×10,000 JPY'},
+    ko:{title:'자산 목표',edit:'목표 금액 편집',input:'목표 금액 (엔)',save:'저장',cancel:'취소',current:'현재',rate:'달성률',progress:'목표 달성 현황',details:'목표와의 차액',remaining:'남은 금액',above:'목표 초과 금액',target:'목표 금액',exact:'엔 단위 내역',yen:'엔',largeUnit:'만 엔'},
+    zh:{title:'资产目标',edit:'编辑目标金额',input:'目标金额（日元）',save:'保存',cancel:'取消',current:'当前',rate:'达成率',progress:'目标进度',details:'与目标的差额',remaining:'还需',above:'超出目标的金额',target:'目标金额',exact:'日元明细',yen:'日元',largeUnit:'万日元'}
+  };
+  // Shift the existing exact decimal text rather than dividing a Number or
+  // rounding stored fractions. Small amounts retain their yen unit.
+  function goalMoney(value,lang){
+    var text=typeof value==='string'?value:decimalText([value]);money(text);
+    var words=goalWords[lang]||goalWords.ja,negative=text[0]==='-',bits=(negative?text.slice(1):text).split('.'),whole=bits[0],fraction=bits[1]||'',large=whole.length>4;
+    if(large){fraction=(whole.slice(-4)+fraction).replace(/0+$/,'');whole=whole.slice(0,-4);}
+    var number=(negative?'-':'')+whole.replace(/\B(?=(\d{3})+(?!\d))/g,',')+(fraction?'.'+fraction:'');
+    return {number:number,unit:large?words.largeUnit:words.yen,exact:money(text)};
+  }
   function percent(total,target,gapText){
     var ratio=total/target*100,under=gapText!==undefined&&gapText!=='0'&&gapText[0]!=='-';
     if(!Number.isFinite(ratio))return ratio>0?'100%超':'0%未満';
@@ -151,6 +166,8 @@
   function mount(w){
     var doc=w.document;if(!doc)return;var pane,form,fields={},session,editorIndex=null,editorRaw,editorOwner='',busy=false,dirty=false,editedFields=Object.create(null),targetInput,targetForm,targetOwner='',targetDirty=false,targetBusy=false,targetEpoch=0,targetEditing=false;
     function node(tag,cls,text){var n=doc.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;}
+    function goalLanguage(){return String(doc.documentElement&&doc.documentElement.lang||w.KK_LANG||'ja').split('-')[0];}
+    function goalAmount(value,splitUnit){var parts=goalMoney(value,goalLanguage()),el=node('span','po-goal-money',parts.number+(splitUnit?'':parts.unit));if(splitUnit)el.appendChild(node('span','po-goal-unit',parts.unit));return el;}
     function owner(){
       try{var s=w.knLedgerSession,id=s&&s.access_token&&s.user&&String(s.user.id);if(!id||w.localStorage.getItem('kn_ledger_owner')!==id)return '';
         if(w.parent!==w&&(w.parent.location.origin!==w.location.origin||!w.parent.knUser||String(w.parent.knUser.id)!==id))return '';return id;
@@ -171,7 +188,11 @@
       targetOwner=s.owner||'';targetInput.disabled=!s.ready||!!s.goalError||targetBusy;doc.getElementById('poGoalSave').disabled=targetInput.disabled;
       if(!targetDirty)targetInput.value=s.ready&&s.goal&&s.goal.target>0?String(s.goal.target):'';
       pane.querySelectorAll('[data-po-add]').forEach(function(b){b.disabled=!s.ready||busy;});
-      var hasTarget=s.ready&&!s.goalError&&s.goal&&s.goal.target>0;targetForm.hidden=!s.ready||!!s.goalError||!!hasTarget&&!targetEditing;doc.getElementById('poGoalDisplay').hidden=!hasTarget||targetEditing;doc.getElementById('poGoalTargetValue').textContent=hasTarget?money(s.goal.target):'';doc.getElementById('poGoalCancel').hidden=!hasTarget;doc.getElementById('poGoalCancel').disabled=targetBusy;doc.getElementById('poGoalEdit').disabled=targetBusy;
+      var hasTarget=s.ready&&!s.goalError&&s.goal&&s.goal.target>0;targetForm.hidden=!s.ready||!!s.goalError||!!hasTarget&&!targetEditing;doc.getElementById('poGoalDisplay').hidden=!hasTarget||targetEditing;
+      var targetValue=doc.getElementById('poGoalTargetValue');targetValue.replaceChildren();targetValue.textContent='';if(hasTarget)targetValue.appendChild(goalAmount(s.goal.target,true));
+      doc.getElementById('poGoalCancel').hidden=!hasTarget;doc.getElementById('poGoalCancel').disabled=targetBusy;doc.getElementById('poGoalEdit').disabled=targetBusy;doc.getElementById('poGoalEdit').hidden=!hasTarget||targetEditing;
+      var copy=goalWords[goalLanguage()]||goalWords.ja,title=doc.getElementById('poGoalTitle');if(title)title.textContent=copy.title;
+      doc.getElementById('poGoalEdit').setAttribute('aria-label',copy.edit);targetInput.setAttribute('aria-label',copy.input);doc.getElementById('poGoalSave').textContent=copy.save;doc.getElementById('poGoalCancel').textContent=copy.cancel;
       doc.getElementById('poUndoNotice').hidden=!s.ready||!s.canUndo;doc.getElementById('poUndo').disabled=busy;doc.getElementById('poUndoText').textContent=s.canUndo?'この端末から削除しました。':'';
       doc.getElementById('totalAssetVal').textContent=s.model?money(s.model.totalText):'—';
       status(s.error||(!s.ready?'資産の非公開接続を確認しています…':''),!!s.error);
@@ -199,15 +220,20 @@
       });
       paintGoal(s);
     }
-    function paintGoal(s){var body=doc.getElementById('poGoalBody');body.replaceChildren();var g=s.goal;
+    function paintGoal(s){var body=doc.getElementById('poGoalBody'),wasOpen=Array.prototype.some.call(body.children,function(n){return n.tagName==='DETAILS'&&n.open;});body.replaceChildren();var g=s.goal;
       if(s.goalError){body.appendChild(node('p','po-muted','目標を読み込めませんでした。再読み込みしてください。'));return;}
       if(!g)return;
       if(!(g.target>0)){body.appendChild(node('p','po-muted','目標額は未入力です。'));return;}
       var gap=decimalText([g.target].concat(s.model.rows.map(function(row){return -row.amount;}))),ratio=s.model.total/g.target*100,ratioLabel=percent(s.model.total,g.target,gap),pct=Math.max(0,Math.min(gap!=='0'&&gap[0]!=='-'?99.9:100,ratio)),above=gap[0]==='-';
-      if(gap!=='0'){var distance=node('p','po-goal-gap');distance.appendChild(node('span','po-goal-label',above?'目標を上回った金額':'目標まであと'));distance.appendChild(node('strong','po-goal-amount',money(above?gap.slice(1):gap)));body.appendChild(distance);}
-      body.appendChild(node('p','po-goal-rate','達成率 '+ratioLabel));
-      var track=node('div','po-track');track.setAttribute('role','progressbar');track.setAttribute('aria-label','資産目標の達成率');track.setAttribute('aria-valuenow',String(pct));track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax','100');track.setAttribute('aria-valuetext',ratioLabel);var fill=node('div','po-fill');fill.style.width=pct+'%';track.appendChild(fill);body.appendChild(track);
-      var values=node('div','po-goal-current-target'),current=node('p','po-goal-current');current.appendChild(node('span','po-goal-label','現在 '));current.appendChild(node('strong','',money(s.model.totalText)));values.appendChild(current);body.appendChild(values);
+      var lang=goalLanguage(),copy=goalWords[lang]||goalWords.ja;
+      if(lang!=='ja')ratioLabel=ratioLabel.replace('100%超','>100%').replace('0%未満','<0%').replace('0.1%未満','<0.1%');
+      var values=node('div','po-goal-progress-title'),current=node('p','po-goal-current');current.appendChild(node('span','',copy.current+' '));current.appendChild(goalAmount(s.model.totalText));values.appendChild(current);values.appendChild(node('p','po-goal-rate',copy.rate+' '+ratioLabel));body.appendChild(values);
+      var track=node('div','po-track');track.setAttribute('role','progressbar');track.setAttribute('aria-label',copy.progress);track.setAttribute('aria-valuenow',String(pct));track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax','100');track.setAttribute('aria-valuetext',ratioLabel);var fill=node('div','po-fill');fill.style.width=pct+'%';track.appendChild(fill);body.appendChild(track);
+      var details=node('details','po-goal-details');details.open=!!wasOpen;details.appendChild(node('summary','',copy.details));
+      var distance=node('p','po-goal-detail-row');distance.appendChild(node('span','',above?copy.above:copy.remaining));distance.appendChild(goalAmount(above?gap.slice(1):gap));details.appendChild(distance);
+      var exact=node('dl','po-goal-exact');exact.setAttribute('aria-label',copy.exact);
+      [[copy.target,g.target],[copy.current,s.model.totalText],[above?copy.above:copy.remaining,above?gap.slice(1):gap]].forEach(function(pair){exact.appendChild(node('dt','',pair[0]));var yen=money(pair[1]);exact.appendChild(node('dd','',lang==='ja'?yen:yen.replace(/円$/,copy.yen)));});
+      details.appendChild(exact);body.appendChild(details);
     }
     function open(index){if(busy)return;var s=session.state();if(!s.ready||owner()!==s.owner)return;if(!form.hidden&&dirty&&!w.confirm('編集中の内容を閉じますか？'))return;
       editorIndex=index;editorRaw=s.raw;editorOwner=s.owner;var a=index===null?{}:s.model.rows[index];if(!a)return;
@@ -261,5 +287,5 @@
     }
     if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',build,{once:true});else build();
   }
-  return Object.freeze({sum:sum,decimalText:decimalText,decode:decode,analyse:analyse,goal:goal,targetAmount:targetAmount,targetDocument:targetDocument,amount:amount,updateRows:updateRows,money:money,percent:percent,createSession:createSession,mount:mount});
+  return Object.freeze({sum:sum,decimalText:decimalText,decode:decode,analyse:analyse,goal:goal,targetAmount:targetAmount,targetDocument:targetDocument,amount:amount,updateRows:updateRows,money:money,goalMoney:goalMoney,percent:percent,createSession:createSession,mount:mount});
 });
