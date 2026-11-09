@@ -4,6 +4,7 @@ No AI, publication, database, or LINE operations occur here. Callers must apply
 their source-use policy before enabling collection. Date-only releases keep
 published_at=None; retrieval time is never substituted for publication time.
 """
+from calendar import monthrange
 from datetime import date, datetime, time as daytime, timezone
 from email.utils import parsedate_to_datetime
 from hashlib import sha256
@@ -81,7 +82,20 @@ def _mof_archive_path(path):
     return bool(re.fullmatch(r"/public_relations/whats_new/[12]\d{3}(?:0[1-9]|1[0-2])\.html", path))
 
 
-def _safe_url(value, *, base=None, allow_supporting_pdf=False, allow_publication_archive=False):
+def _mof_exchange_assets_workbook_path(path):
+    match = re.fullmatch(r"/policy/international_policy/reference/gaitametokkai/"
+                         r"gaitametokkai_([12]\d{7})\.xlsx", path)
+    if not match:
+        return False
+    try:
+        datetime.strptime(match[1], "%Y%m%d")
+        return True
+    except ValueError:
+        return False
+
+
+def _safe_url(value, *, base=None, allow_supporting_pdf=False, allow_publication_archive=False,
+              allow_mof_exchange_assets_workbook=False):
     if not isinstance(value, str) or not value or len(value) > 2048:
         return None
     if any(ord(c) < 33 or ord(c) == 127 for c in value) or "\\" in value:
@@ -103,16 +117,22 @@ def _safe_url(value, *, base=None, allow_supporting_pdf=False, allow_publication
                           any(parsed.path == item["path"] for item in MOF_SUPPORTING_PDFS.values()))
         publication_archive = (allow_publication_archive and host == "www.mof.go.jp"
                                and _mof_archive_path(parsed.path))
+        exchange_assets_workbook = (allow_mof_exchange_assets_workbook and host == "www.mof.go.jp"
+                                    and _mof_exchange_assets_workbook_path(parsed.path))
         return normalized if (normalized in FEEDS.values() or _article_path(host, parsed.path)
-                              or supporting_pdf or publication_archive) else None
+                              or supporting_pdf or publication_archive or exchange_assets_workbook) else None
     except (ValueError, UnicodeError):
         return None
 
 
-def _download(url, deadline, *, max_bytes=None, supporting_pdf=False, publication_archive=False):
+def _download(url, deadline, *, max_bytes=None, supporting_pdf=False, publication_archive=False,
+              mof_exchange_assets_workbook=False):
     """Pinned-IP HTTPS; redirects stay on the same explicitly approved host."""
+    if sum(bool(value) for value in (supporting_pdf, publication_archive, mof_exchange_assets_workbook)) > 1:
+        raise ValueError("unapproved_source")
     current = _safe_url(url, allow_supporting_pdf=supporting_pdf,
-                        allow_publication_archive=publication_archive)
+                        allow_publication_archive=publication_archive,
+                        allow_mof_exchange_assets_workbook=mof_exchange_assets_workbook)
     if not current:
         raise ValueError("unapproved_source")
     host = urlsplit(current).hostname
@@ -121,6 +141,10 @@ def _download(url, deadline, *, max_bytes=None, supporting_pdf=False, publicatio
         raise ValueError("unapproved_source")
     archive_url = current if publication_archive and host == "www.mof.go.jp" and _mof_archive_path(urlsplit(current).path) else None
     if publication_archive and (archive_url is None or supporting_pdf):
+        raise ValueError("unapproved_source")
+    workbook_url = current if (mof_exchange_assets_workbook and host == "www.mof.go.jp"
+                               and _mof_exchange_assets_workbook_path(urlsplit(current).path)) else None
+    if mof_exchange_assets_workbook and workbook_url is None:
         raise ValueError("unapproved_source")
     maximum = MAX_BYTES if max_bytes is None else min(MAX_BYTES, max_bytes)
     if type(maximum) is not int or maximum <= 0:
@@ -140,15 +164,19 @@ def _download(url, deadline, *, max_bytes=None, supporting_pdf=False, publicatio
             with session.get(current, allow_redirects=False, stream=True, verify=True,
                              timeout=(min(3, remaining), min(4, remaining)),
                              headers={"User-Agent": "EconomicNewsOfficialCollector/1.0",
-                                      "Accept": "text/html,application/xml,application/rss+xml,application/rdf+xml,application/pdf",
+                                      "Accept": ("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                                 if workbook_url else
+                                                 "text/html,application/xml,application/rss+xml,application/rdf+xml,application/pdf"),
                                       "Accept-Encoding": "identity", "Host": host}) as response:
                 if response.status_code in (301, 302, 303, 307, 308):
                     redirect = _safe_url(response.headers.get("Location", ""), base=current,
                                          allow_supporting_pdf=supporting_pdf,
-                                         allow_publication_archive=publication_archive)
+                                         allow_publication_archive=publication_archive,
+                                         allow_mof_exchange_assets_workbook=mof_exchange_assets_workbook)
                     if (hop == MAX_REDIRECTS or not redirect or urlsplit(redirect).hostname != host
                             or (supporting_url is not None and redirect != supporting_url)
-                            or (archive_url is not None and redirect != archive_url)):
+                            or (archive_url is not None and redirect != archive_url)
+                            or (workbook_url is not None and redirect != workbook_url)):
                         raise ValueError("unapproved_redirect")
                     current = redirect
                     continue
@@ -156,9 +184,10 @@ def _download(url, deadline, *, max_bytes=None, supporting_pdf=False, publicatio
                     raise ValueError("source_unavailable")
                 mime = response.headers.get("Content-Type", "").split(";", 1)[0].lower().strip()
                 is_pdf = (host == "www.boj.or.jp" and urlsplit(current).path.endswith(".pdf")) or supporting_url is not None
-                expected = {"application/pdf"} if is_pdf else {"text/html", "application/xhtml+xml"} if archive_url else {
+                expected = ({"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}
+                            if workbook_url else {"application/pdf"} if is_pdf else {"text/html", "application/xhtml+xml"} if archive_url else {
                     "text/html", "application/xhtml+xml", "application/xml", "text/xml",
-                    "application/rss+xml", "application/rdf+xml", "application/atom+xml"}
+                    "application/rss+xml", "application/rdf+xml", "application/atom+xml"})
                 if mime not in expected:
                     raise ValueError("source_content_type")
                 length = response.headers.get("Content-Length")
@@ -630,6 +659,197 @@ def _mof_statistical_publication(document, heading, body_node, body, item, origi
     return result
 
 
+def _mof_feio_quarter_publication(document, heading, body_node, body, item, original, final,
+                                  now, since, payload_size, deadline):
+    """Verify the inspected FEIO quarterly result, never an arbitrary CMS date.
+
+    The RSS identity, visible publisher/dateline/result and a unique dated
+    official archive entry must agree. The operation period is separate from
+    the publication day; the feed delivery clock is not an original clock.
+    """
+    path = re.fullmatch(r"/policy/international_policy/reference/feio/data/quarter/"
+                        r"([12]\d{3})_([1-4])Q\.html", urlsplit(original).path)
+    period = re.fullmatch(r"外国為替平衡操作の実施状況\(令和(元|\d+)年(\d{1,2})月~"
+                          r"令和(元|\d+)年(\d{1,2})月\)", _compact(heading))
+    if (not path or not period or original != final or item.get("source") != "財務省"
+            or _compact(heading) != _compact(item.get("title", ""))
+            or not _in_window(item, now, since)):
+        return None
+    first_era, first_month, last_era, last_month = period.groups()
+    years = [2018 + (1 if value == "元" else int(value)) for value in (first_era, last_era)]
+    year, quarter = int(path[1]), int(path[2])
+    if years != [year, year] or (int(first_month), int(last_month)) != (3 * quarter - 2, 3 * quarter):
+        return None
+    mains = [node for node in document.nodes if node.tag == "main" and node.attrs.get("id") == "main"]
+    if len(mains) != 1 or not _visible_content(mains[0]):
+        return None
+    main = mains[0]
+    headings = [node for node in document.nodes if node.tag == "h1" and _descends(node, main)]
+    bodies = [node for node in document.nodes if "unique-block" in node.attrs.get("class", "").split()
+              and _descends(node, main)]
+    section = body_node.parent
+    if (len(headings) != 1 or not _visible_subtree(headings[0]) or bodies != [body_node]
+            or section.tag != "section" or "content-section" not in section.attrs.get("class", "").split()
+            or not _visible_subtree(body_node)):
+        return None
+    tables = [node for node in document.nodes if node.tag == "table" and _descends(node, body_node)]
+    if (len(tables) != 1 or not all(any(node.tag == tag and _descends(node, tables[0])
+                                      and _body_text(node) for node in document.nodes)
+                                   for tag in ("th", "td"))):
+        return None
+    # Only the inspected adjacent publisher/date/title/body sequence establishes
+    # publication. A footer, table's operation date or duplicate date cannot.
+    if any(isinstance(node, str) and node.strip() for node in section.children):
+        return None
+    siblings = [node for node in section.children if not isinstance(node, str)]
+    if len(siblings) < 4 or siblings[3] is not body_node:
+        return None
+    dateline, publisher, title = siblings[:3]
+    if (any(node.tag != "p" or "text-right" not in node.attrs.get("class", "").split()
+            for node in (dateline, publisher)) or _compact(_body_text(publisher)) != "財務省"
+            or title.tag != "h2" or _compact(_body_text(title)) != _compact(heading)
+            or not all(_visible_subtree(node) for node in (dateline, publisher, title))
+            or any(node.tag != "aside" or "contact-box" not in node.attrs.get("class", "").split()
+                   for node in siblings[4:])):
+        return None
+    match = re.fullmatch(_JAPANESE_DATE, _compact(_body_text(dateline)))
+    day = _japanese_day(match) if match else None
+    if (day is None or day.isoformat() != item["published_date"]
+            or date(year, 3 * quarter, monthrange(year, 3 * quarter)[1]) >= day):
+        return None
+    publication = {"published_date": day.isoformat(), "published_at": None, "publication_precision": "day"}
+    if not _in_window(publication, now, since):
+        return None
+    metadata = [_publication(node.attrs.get("content", "")) for node in document.nodes
+                if node.tag == "meta" and (node.attrs.get("property") or node.attrs.get("name") or "").lower() == "date"]
+    page_date = _agree(metadata) if metadata else None
+    if metadata and (page_date is None or page_date["publication_precision"] != "day"
+                     or date.fromisoformat(page_date["published_date"]) > day):
+        return None
+    explicit = _html_dates(document, body, exclude_date_meta=True)
+    if explicit and _agree([item, *explicit]) is None:
+        return None
+    canonical = [node.attrs.get("href") for node in document.nodes if node.tag == "link"
+                 and "canonical" in node.attrs.get("rel", "").lower().split()]
+    declared = [node.attrs.get("content") for node in document.nodes if node.tag == "meta"
+                and node.attrs.get("property", "").lower() == "og:url"]
+    if canonical != [original] or declared != [original]:
+        return None
+    archive_url = f"https://www.mof.go.jp/public_relations/whats_new/{day:%Y%m}.html"
+    deadline = time.monotonic() + COLLECTION_SECONDS if deadline is None else deadline
+    payload, archive_final = _download(archive_url, deadline, max_bytes=MAX_BYTES - payload_size,
+                                       publication_archive=True)
+    if archive_final != archive_url:
+        raise ValueError("unapproved_redirect")
+    if not isinstance(payload, bytes) or payload_size + len(payload) > MAX_BYTES:
+        raise ValueError("source_size_limit")
+    evidence = _mof_archive_entry(payload, archive_url, item, category="international")
+    if evidence is None:
+        return None
+    result = {"publication": publication, "publication_evidence": evidence,
+              "source_scope": "official_mof_feio_quarter_html_with_verified_publication_archive"}
+    if page_date is not None:
+        result["page_metadata_date"] = page_date["published_date"]
+    return result
+
+
+def _mof_exchange_assets_record(document, main, headings, item, original, final,
+                                now, since, observed_at, payload_size, deadline):
+    """Bind one dated annual workbook to its original official release index.
+
+    This HTML is publication/attachment evidence, not the report body. The
+    separately validated workbook supplies the full cached report content.
+    """
+    expected_title = "外国為替資金特別会計の外貨建資産の内訳及び運用収入の内訳等"
+    parent_path = "/policy/international_policy/reference/gaitametokkai/index.html"
+    if (urlsplit(original).path != parent_path or original != final or item.get("source") != "財務省"
+            or _compact(item.get("title", "")) != expected_title or len(headings) != 1
+            or _compact(_body_text(headings[0])) != expected_title
+            or not _visible_content(main) or not _visible_subtree(headings[0])
+            or not _in_window(item, now, since)):
+        return None
+    mains = [node for node in document.nodes if node.tag == "main" and node.attrs.get("id") == "main"]
+    if mains != [main]:
+        return None
+    day = date.fromisoformat(item["published_date"])
+    publication = {"published_date": day.isoformat(), "published_at": None, "publication_precision": "day"}
+    if not _in_window(publication, now, since):
+        return None
+    canonical = [node.attrs.get("href") for node in document.nodes if node.tag == "link"
+                 and "canonical" in node.attrs.get("rel", "").lower().split()]
+    declared = [node.attrs.get("content") for node in document.nodes if node.tag == "meta"
+                and node.attrs.get("property", "").lower() == "og:url"]
+    if canonical != [original] or declared != [original]:
+        return None
+    metadata = [_publication(node.attrs.get("content", "")) for node in document.nodes
+                if node.tag == "meta" and (node.attrs.get("property") or node.attrs.get("name") or "").lower() == "date"]
+    page_date = _agree(metadata) if metadata else None
+    if metadata and (page_date is None or page_date["publication_precision"] != "day"
+                     or date.fromisoformat(page_date["published_date"]) > day):
+        return None
+    explicit = _html_dates(document, _body_text(main), exclude_date_meta=True)
+    if explicit and _agree([item, *explicit]) is None:
+        return None
+    workbook_url = "https://www.mof.go.jp/policy/international_policy/reference/gaitametokkai/" + \
+        f"gaitametokkai_{day:%Y%m%d}.xlsx"
+    links = [node for node in document.nodes if node.tag == "a" and _descends(node, main)
+             and _safe_url(node.attrs.get("href"), base=original,
+                           allow_mof_exchange_assets_workbook=True) == workbook_url]
+    if (len(links) != 1 or links[0].parent.tag != "li" or not _visible_subtree(links[0])
+            or not _body_text(links[0]).startswith("Excel")):
+        return None
+    archive_url = f"https://www.mof.go.jp/public_relations/whats_new/{day:%Y%m}.html"
+    deadline = time.monotonic() + COLLECTION_SECONDS if deadline is None else deadline
+    archive, archive_final = _download(archive_url, deadline, max_bytes=MAX_BYTES - payload_size,
+                                       publication_archive=True)
+    if archive_final != archive_url:
+        raise ValueError("unapproved_redirect")
+    if not isinstance(archive, bytes) or payload_size + len(archive) > MAX_BYTES:
+        raise ValueError("source_size_limit")
+    evidence = _mof_archive_entry(archive, archive_url, item, category="international")
+    if evidence is None:
+        return None
+    workbook, workbook_final = _download(workbook_url, deadline,
+        max_bytes=min(128_000, MAX_BYTES - payload_size - len(archive)), mof_exchange_assets_workbook=True)
+    if workbook_final != workbook_url:
+        raise ValueError("unapproved_redirect")
+    if (not isinstance(workbook, bytes) or len(workbook) > 128_000
+            or payload_size + len(archive) + len(workbook) > MAX_BYTES):
+        raise ValueError("source_size_limit")
+    from official_mof_exchange_assets_xlsx import extract_mof_exchange_assets_workbook
+    try:
+        report = extract_mof_exchange_assets_workbook(workbook, day.isoformat())
+    except ValueError:
+        return None
+    report_title = re.fullmatch(r"令和([1-9]\d?)年度" + re.escape(expected_title),
+                                _compact(report.get("title", ""))) if isinstance(report, dict) else None
+    if (not isinstance(report, dict) or report_title is None
+            or report.get("source_kind") != "mof_exchange_assets_xlsx_cached_v1"
+            or type(report.get("reporting_fiscal_year")) is not int
+            or report["reporting_fiscal_year"] != 2018 + int(report_title[1])
+            or _compact(report.get("fiscal_year_label", "")) != "令和" + report_title[1] + "年度"
+            or not isinstance(report.get("body"), str)
+            or report.get("body_sha256") != sha256(report["body"].encode()).hexdigest()
+            or report.get("workbook_sha256") != sha256(workbook).hexdigest()):
+        return None
+    record = _record(item, original, final, report["body"], publication, observed_at, now, since)
+    if record is None:
+        return None
+    record.update(source_scope="official_mof_exchange_assets_xlsx_with_verified_publication_archive",
+                  publication_evidence=evidence,
+                  supporting_documents=[{"url": workbook_url, "parent_url": original, "title": report["title"],
+                      "source_kind": report["source_kind"], "mime_type":
+                      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                      "sha256": report["workbook_sha256"], "body_sha256": report["body_sha256"],
+                      "reporting_fiscal_year": report.get("reporting_fiscal_year"),
+                      "fiscal_year_label": report.get("fiscal_year_label"),
+                      "publication_date_in_workbook": None, "issuer_in_workbook": None,
+                      "parent_publication_date": day.isoformat(), "publication_evidence_url": archive_url}])
+    if page_date is not None:
+        record["page_metadata_date"] = page_date["published_date"]
+    return record
+
+
 def _mof_conference_publication(document, heading, body, item, original, final, now, since,
                                 payload_size, deadline):
     """Separate the conference day from a later independently verified posting day.
@@ -866,6 +1086,10 @@ def _extract_article(payload, item, final_url, now, since, *, observed_at, deadl
     headings = [node for node in document.nodes if node.tag == "h1" and _descends(node, main)]
     if not headings or not _body_text(headings[0]):
         return None
+    if (host == "www.mof.go.jp" and urlsplit(original).path ==
+            "/policy/international_policy/reference/gaitametokkai/index.html"):
+        return _mof_exchange_assets_record(document, main, headings, item, original, final,
+            now, since, observed_at, len(payload), deadline)
     if host == "www.stat.go.jp":
         body_node = headings[0].parent
         while body_node is not main and body_node.tag != "article":
@@ -918,7 +1142,18 @@ def _extract_article(payload, item, final_url, now, since, *, observed_at, deadl
         html_publication = _html_date(document, body)
     publication = _agree([item, html_publication])
     conference = None
-    if (publication is None and host == "www.mof.go.jp" and len(headings) == 1
+    feio_quarter = host == "www.mof.go.jp" and re.fullmatch(
+        r"/policy/international_policy/reference/feio/data/quarter/[12]\d{3}_[1-4]Q\.html",
+        urlsplit(original).path)
+    if feio_quarter:
+        conference = _mof_feio_quarter_publication(document, _body_text(headings[0]), body_node, body,
+            item, original, final, now, since, len(payload), deadline)
+        # Even matching CMS metadata cannot bypass this inspected template's
+        # visible dateline, quarter identity and independent archive contract.
+        if conference is None:
+            return None
+        publication = conference["publication"]
+    elif (publication is None and host == "www.mof.go.jp" and len(headings) == 1
             and _visible_subtree(headings[0])):
         conference = _mof_conference_publication(document, _body_text(headings[0]), body, item,
             original, final, now, since, len(payload), deadline)
