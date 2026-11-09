@@ -105,9 +105,9 @@ function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true,col
     navigate(key){route(key);flush();},
     useConfirmation(){
       const html=read('index.html'),marker='(function(){window.knLogoutFlow=function(){',start=html.indexOf(marker);assert.ok(start>=0,'Existing confirmation IIFE exists');const end=html.indexOf('})();',start);assert.ok(end>start);
-      let signouts=0,reloads=0;w.sb={auth:{signOut(){signouts++;return Promise.resolve();}}};context.location={reload(){reloads++;}};
+      let signouts=0,reloads=0;const replacements=[];w.sb={auth:{signOut(){signouts++;return Promise.resolve();}}};context.location={href:'https://example.test/?screen=mypage#private',reload(){reloads++;},replace(url){replacements.push(url);}};context.URL=URL;context.Event=class{constructor(type){this.type=type;}};
       vm.runInNewContext(html.slice(start,end+5),context);
-      return {signouts:()=>signouts,reloads:()=>reloads,dialog:()=>document.getElementById('knLogoutDlg')};
+      return {signouts:()=>signouts,reloads:()=>reloads,replacements,dialog:()=>document.getElementById('knLogoutDlg')};
     }
   };
 }
@@ -125,25 +125,20 @@ test('logout exists once directly after inline language and colors, without the 
   const h=fixture({user:{id:'synthetic-member',is_anonymous:false}}),group=h.group();
   assert.ok(group);assert.equal(group.parentElement.className,'knAccPanel kn-menu-content');const order=group.parentElement.children;assert.equal(order.at(-3),h.languageGrid.parentElement);assert.equal(order.at(-2),h.colors);assert.equal(order.at(-1),group);
   assert.equal(h.nav.querySelectorAll('[data-menu-page="logout"]').length,1);assert.equal(h.button('logout').textContent,'ログアウト');assert.equal(group.hidden,false);
-  const html=read('index.html');assert.equal(/ensureLogout|knLogoutBtn/.test(html),false);const menuLoader=html.match(/menu-a\.js\?v=[a-zA-Z0-9_-]+/)?.[0];assert.equal(menuLoader,'menu-a.js?v=20261107-font-compact1');assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
+  const html=read('index.html');assert.equal(/ensureLogout|knLogoutBtn/.test(html),false);const menuLoader=html.match(/menu-a\.js\?v=[a-zA-Z0-9_-]+/)?.[0];assert.equal(menuLoader,'menu-a.js?v=20261110-settings-entry1');assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
 });
-test('conversation memory opens its own menu settings and returns focus to its row',()=>{
-  const h=fixture();let lookups=0;
-  h.w.knAssistantMemory={refreshCapacity(){lookups++;}};
-  const button=h.button('memory'),view=h.document.getElementById('knMenuView-memory');
-  assert.equal(button.textContent,'会話の記憶設定');
-  assert.equal(button.getAttribute('aria-controls'),view.id);
-  assert.equal(view.hidden,true);
-  assert.equal(lookups,0);
-  h.activate('memory',{nested:true});
-  assert.equal(view.hidden,false);
-  assert.equal(h.document.getElementById('knAssistantMemorySettings').parentElement,view);
-  assert.equal(h.document.activeElement,view.querySelector('h2'));
-  assert.equal(lookups,1);
-  assert.deepEqual(h.calls,[]);
-  h.drawer.querySelector('.kn-menu-back').click();
-  assert.equal(view.hidden,true);
-  assert.equal(h.document.activeElement,button);
+test('conversation memory menu entry stays absent while its hidden settings host and stored preferences remain intact',()=>{
+  for(const language of ['ja','en','ko','zh']){
+    const h=fixture({language}),before=[...h.storage];let lookups=0;
+    h.w.knAssistantMemory={refreshCapacity(){lookups++;}};
+    const view=h.document.getElementById('knMenuView-memory');
+    assert.equal(h.button('memory'),null);
+    assert.equal(view.hidden,true);
+    assert.equal(h.document.getElementById('knAssistantMemorySettings').parentElement,view);
+    h.document.dispatch('langChanged');
+    assert.equal(h.button('memory'),null);assert.equal(view.hidden,true);
+    assert.equal(lookups,0);assert.deepEqual(h.calls,[]);assert.deepEqual([...h.storage],before);
+  }
 });
 test('signed-out and guest users cannot invoke logout even through a programmatic menu click',()=>{
   for(const user of [null,undefined,{id:'synthetic-guest',is_anonymous:true}]){
@@ -176,11 +171,11 @@ test('the existing confirmation can cancel without signing out or reloading',()=
   const buttons=flow.dialog().querySelectorAll('button');assert.equal(buttons[0].textContent,'キャンセル');buttons[0].click();
   assert.equal(flow.dialog(),null);assert.equal(flow.signouts(),0);assert.equal(flow.reloads(),0);assert.equal(h.w.knUser,user);
 });
-test('only confirmation invokes the synthetic signOut and then reloads',async()=>{
+test('only confirmation signs out and replaces the private view with clean entry',async()=>{
   const h=fixture({user:{id:'synthetic-member',is_anonymous:false}}),flow=h.useConfirmation();h.activate('logout');
   assert.equal(flow.signouts(),0);assert.equal(flow.reloads(),0);const ok=flow.dialog().querySelectorAll('button')[1];assert.equal(ok.textContent,'ログアウト');ok.click();
-  assert.equal(flow.dialog(),null);assert.equal(h.w.knUser,null);assert.equal(flow.signouts(),1);assert.equal(flow.reloads(),0);
-  await Promise.resolve();assert.equal(flow.reloads(),1);
+  assert.ok(flow.dialog());assert.equal(h.w.knUser.id,'synthetic-member');assert.equal(flow.signouts(),1);assert.equal(flow.reloads(),0);
+  await new Promise(setImmediate);assert.equal(h.w.knUser,null);assert.deepEqual(flow.replacements,['https://example.test/?entry=logout']);assert.equal(flow.reloads(),0);
 });
 
 test('the guide menu entry explicitly requests menu return after the drawer has synchronously closed',()=>{
@@ -304,7 +299,7 @@ test('an explicit close without navigation still restores the existing opener on
 test('menu shows four language frames and colors with the existing logout group directly below colors',()=>{
   const h=fixture({user:{id:'synthetic-member'}}),panel=h.mounted[0];
   assert.equal(panel.className,'knAccPanel kn-menu-content');assert.equal(h.document.getElementById('knProfile').parentElement,panel);
-  assert.deepEqual(panel.querySelectorAll('[data-menu-page]').map(n=>n.dataset.menuPage),['memo','guide','memory','display','logout']);
+  assert.deepEqual(panel.querySelectorAll('[data-menu-page]').map(n=>n.dataset.menuPage),['memo','guide','display','logout']);
   assert.equal(h.document.getElementById('knMenuView-display').hidden,true);assert.equal(h.document.getElementById('knMenuView-language'),null);assert.equal(h.button('language'),null);
   assert.equal(h.document.getElementById('knMenuView-color'),null);assert.equal(h.button('color'),null);
   const language=h.languageGrid.parentElement;assert.equal(language.className,'kn-menu-language');assert.equal(language.parentElement,panel);assert.equal(language.hidden,false);assert.equal(h.languageGrid.children.length,4);assert.equal(language.getAttribute('aria-labelledby'),'knMenuLanguageTitle');
@@ -313,14 +308,21 @@ test('menu shows four language frames and colors with the existing logout group 
   for(const key of ['account','kakeibo','saved','alert'])assert.equal(h.button(key),null);
   assert.equal(h.drawer.querySelector('[data-menu-style]'),null);
 });
-test('display preference opens in place and Back restores its row without adding a language subpage',()=>{
-  const h=fixture();
-  for(const key of ['display']){
-    h.activate(key,{nested:true});const page=h.document.getElementById('knMenuView-'+key);
-    assert.equal(h.mounted[0].hidden,true);assert.equal(page.hidden,false);assert.equal(h.drawer.dataset.menuView,key);assert.equal(h.document.activeElement,page.querySelector('h2'));
-    assert.deepEqual(h.calls,[],'Opening a preference is not a route or account action');
-    assert.equal(h.button(key).classList.contains('drawer-item'),false,'Preferences must not trigger the existing simulator navigation closer');
-    h.drawer.querySelector('.kn-menu-back').click();assert.equal(page.hidden,true);assert.equal(h.mounted[0].hidden,false);assert.equal(h.document.activeElement,h.button(key));
+test('display preferences open in a centered dialog and every close returns to the same menu without preference writes',()=>{
+  for(const method of ['close','Escape','backdrop']){
+    const h=fixture(),before=[...h.storage],trigger=h.button('display');h.document.body.style.overflow='auto';
+    h.activate('display',{nested:true});const page=h.document.getElementById('knMenuView-display'),overlay=h.document.getElementById('knMenuDisplayOverlay');
+    assert.equal(page.parentElement,overlay);assert.equal(overlay.parentElement,h.document.body);assert.equal(overlay.hidden,false);assert.equal(overlay.inert,false);
+    assert.equal(page.hidden,false);assert.equal(page.getAttribute('role'),'dialog');assert.equal(page.getAttribute('aria-modal'),'true');assert.equal(trigger.getAttribute('aria-haspopup'),'dialog');
+    assert.equal(h.drawer.classList.contains('open'),false);assert.equal(h.drawer.inert,true);assert.equal(h.document.activeElement,page.querySelector('h2'));assert.equal(h.document.body.style.overflow,'hidden');
+    assert.deepEqual(h.calls,[['close']]);assert.deepEqual([...h.storage],before);
+    const controls=page.querySelectorAll('button,input'),first=controls[0],last=controls.at(-1);last.focus();last.fire('keydown',{key:'Tab'});assert.equal(h.document.activeElement,first);first.fire('keydown',{key:'Tab',shiftKey:true});assert.equal(h.document.activeElement,last);
+    if(method==='close')page.querySelector('.kn-display-close').click();
+    else if(method==='Escape'){page.fire('keydown',{key:'Escape',isComposing:true});assert.equal(page.hidden,false);page.fire('keydown',{key:'Escape'});}
+    else overlay.click();
+    assert.equal(page.hidden,true);assert.equal(overlay.hidden,true);assert.equal(overlay.inert,true);assert.equal(h.drawer.classList.contains('open'),true);assert.equal(h.document.activeElement,trigger);assert.equal(h.document.body.style.overflow,'auto');
+    assert.deepEqual(h.calls,[['close'],['toggle']]);assert.deepEqual([...h.storage],before);assert.deepEqual(h.themeWrites,[]);
+    assert.equal(h.document.getElementById('knMenuView-language'),null);
   }
 });
 test('color, language and motion controls retain their original nodes and handlers',()=>{
@@ -355,9 +357,9 @@ test('retained inline language buttons execute the actual index handler and clos
   }
 });
 test('display settings keep the existing setters and synchronize saved selections',()=>{
-  const h=fixture();h.activate('display');const xl=h.drawer.querySelector('[data-menu-size="xl"]');xl.click();assert.deepEqual(h.calls,[['size','xl']]);assert.equal(xl.getAttribute('aria-pressed'),'true');
+  const h=fixture();h.activate('display');h.calls.length=0;const xl=h.document.querySelector('[data-menu-size="xl"]');xl.click();assert.deepEqual(h.calls,[['size','xl']]);assert.equal(xl.getAttribute('aria-pressed'),'true');
   const font=chooseFont(h,'round');assert.deepEqual(h.calls.at(-1),['font','round']);assert.equal(font.checked,true);assert.equal(h.storage.get('ui_font'),'round');
-  h.drawer.querySelector('[data-menu-reset]').click();assert.deepEqual(h.calls.at(-1),['reset']);assert.equal(h.storage.has('ui_font'),false);assert.equal(h.storage.has('ui_fontscale'),false);assert.deepEqual(fontInputs(h).filter(input=>input.checked).map(input=>input.dataset.menuFont),['gothic']);
+  h.document.querySelector('[data-menu-reset]').click();assert.deepEqual(h.calls.at(-1),['reset']);assert.equal(h.storage.has('ui_font'),false);assert.equal(h.storage.has('ui_fontscale'),false);assert.deepEqual(fontInputs(h).filter(input=>input.checked).map(input=>input.dataset.menuFont),['gothic']);
 });
 
 test('the font fieldset restores one saved choice with native labels and previews without rewriting preferences',()=>{
@@ -368,7 +370,7 @@ test('the font fieldset restores one saved choice with native labels and preview
     assert.deepEqual(inputs.map(input=>input.dataset.menuFont),FONT_KEYS);assert.deepEqual(inputs.map(input=>input.getAttribute('value')),FONT_KEYS);assert.ok(inputs.every(input=>input.getAttribute('type')==='radio'&&input.getAttribute('name')==='kn-menu-font'));
     const selected=FONT_KEYS.includes(savedFont)?savedFont:'gothic';assert.deepEqual(inputs.filter(input=>input.checked).map(input=>input.dataset.menuFont),[selected]);
     assert.equal(labels.length,5);for(const label of labels){const input=label.querySelector('[data-menu-font]'),sample=label.querySelector('.kn-menu-font-sample'),name=label.querySelector('.kn-menu-font-name');assert.ok(input&&sample);assert.equal(name,null);assert.equal(sample.textContent,'Aa');assert.equal(sample.getAttribute('aria-hidden'),'true');assert.equal(sample.getAttribute('data-font-preview'),input.dataset.menuFont);assert.ok(input.getAttribute('aria-label'));}
-    assert.deepEqual([...h.storage],before);assert.deepEqual(h.calls,[]);assert.deepEqual(h.themeWrites,[]);
+    assert.deepEqual([...h.storage],before);assert.deepEqual(h.calls,[['close']]);assert.deepEqual(h.themeWrites,[]);
   }
 });
 
@@ -380,18 +382,18 @@ test('native font activation reaches the current setter once and changes only th
     assert.deepEqual(h.calls.filter(call=>call[0]==='font'),FONT_KEYS.slice(0,index+1).map(value=>['font',value]));assert.deepEqual(wrapper,FONT_KEYS.slice(0,index+1));assert.deepEqual(Object.fromEntries(h.storage),{...before,ui_font:key});
   }
   const unchecked=fontInputs(h).find(input=>!input.checked),count=wrapper.length;unchecked.fire('change');assert.equal(wrapper.length,count,'an unchecked change cannot commit another font');
-  assert.deepEqual(h.themeWrites,[]);assert.equal(h.drawer.dataset.menuView,'display');
+  assert.deepEqual(h.themeWrites,[]);assert.equal(h.document.getElementById('knMenuView-display').hidden,false);
 });
 
 test('font reset style notifications and all four language labels keep selection synchronized without extra writes',()=>{
-  const h=fixture({savedFont:'mincho',brandColor:'#725799',customColor:true});h.activate('display');chooseFont(h,'klee');
+  const h=fixture({savedFont:'mincho',brandColor:'#725799',customColor:true});h.activate('display');h.calls.length=0;chooseFont(h,'klee');
   h.storage.set('ui_font','round');h.document.dispatch('styleChanged');assert.deepEqual(fontInputs(h).filter(input=>input.checked).map(input=>input.dataset.menuFont),['round']);assert.deepEqual(h.calls,[['font','klee']]);
-  h.drawer.querySelector('[data-menu-reset]').click();assert.deepEqual(fontInputs(h).filter(input=>input.checked).map(input=>input.dataset.menuFont),['gothic']);
+  h.document.querySelector('[data-menu-reset]').click();assert.deepEqual(fontInputs(h).filter(input=>input.checked).map(input=>input.dataset.menuFont),['gothic']);
   h.storage.set('ui_font','pop');h.document.dispatch('styleChanged');
   const names={ja:['ゴシック','丸ゴシック','明朝','かわいい','かっこいい'],en:['Sans serif','Rounded','Serif','Handwritten','Stylish'],ko:['고딕','둥근 글꼴','명조','손글씨','스타일 글꼴'],zh:['黑体','圆体','明朝体','手写体','个性字体']};
   for(const language of Object.keys(names)){
     h.storage.set('app_lang',language);h.document.dispatch('langChanged');const field=h.document.getElementById('knMenuFont');
-    assert.equal(field.querySelectorAll('.kn-menu-font-name').length,0);assert.deepEqual(fontInputs(h).map(input=>input.getAttribute('aria-label')),names[language]);assert.equal(field.getAttribute('aria-label'),({ja:'字体',en:'Font',ko:'글꼴',zh:'字体'})[language]);assert.deepEqual(fontInputs(h).filter(input=>input.checked).map(input=>input.dataset.menuFont),['pop']);assert.equal(h.drawer.dataset.menuView,'display');
+    assert.equal(field.querySelectorAll('.kn-menu-font-name').length,0);assert.deepEqual(fontInputs(h).map(input=>input.getAttribute('aria-label')),names[language]);assert.equal(field.getAttribute('aria-label'),({ja:'字体',en:'Font',ko:'글꼴',zh:'字体'})[language]);assert.deepEqual(fontInputs(h).filter(input=>input.checked).map(input=>input.dataset.menuFont),['pop']);assert.equal(h.document.getElementById('knMenuView-display').hidden,false);
   }
   assert.deepEqual(h.calls,[['font','klee'],['reset']]);assert.equal(h.storage.get('userBrandColor'),'#725799');assert.equal(h.storage.get('userBrandColorCustom'),'1');assert.deepEqual(h.themeWrites,[]);
 });
@@ -405,7 +407,7 @@ test('only open state transitions move focus, and both visible menu openers stay
   h.drawer.classList.remove('open');h.notifyDrawerState();opener.focus();h.drawer.classList.add('open');h.notifyDrawerState();
   assert.equal(h.document.activeElement,h.drawer.querySelector('.kn-menu-close'));
   for(const id of ['knHomeAMenu','knFloatHam','hamburgerBtn'])assert.equal(h.document.getElementById(id).getAttribute('aria-expanded'),'true');
-  h.activate('display');const focused=h.document.activeElement;h.drawer.classList.add('another-class');h.notifyDrawerState();assert.equal(h.document.activeElement,focused);assert.equal(h.drawer.dataset.menuView,'display');
+  const focused=h.button('memo');focused.focus();h.drawer.classList.add('another-class');h.notifyDrawerState();assert.equal(h.document.activeElement,focused);assert.equal(h.drawer.dataset.menuView,'main');
   h.drawer.classList.remove('open');h.notifyDrawerState();assert.equal(h.document.activeElement,opener);assert.equal(h.drawer.inert,true);assert.equal(opener.getAttribute('aria-expanded'),'false');
   h.drawer.classList.add('open');h.notifyDrawerState();assert.equal(h.drawer.dataset.menuView,'main');assert.equal(h.mounted[0].hidden,false);
 });
@@ -417,11 +419,11 @@ test('focus trap uses only visible controls and Escape or the close button keep 
 });
 test('external profile hook reveals the existing profile panel without writing or losing its node',()=>{
   const h=fixture();const profile=h.document.getElementById('knProfile');h.activate('display');h.w.KNMenuSheet.showMain();
-  assert.equal(h.mounted[0].hidden,false);assert.equal(h.drawer.dataset.menuView,'main');assert.equal(h.document.getElementById('knProfile'),profile);assert.deepEqual(h.calls,[]);
+  assert.equal(h.mounted[0].hidden,false);assert.equal(h.drawer.dataset.menuView,'main');assert.equal(h.document.getElementById('knProfile'),profile);assert.equal(h.document.getElementById('knMenuView-display').hidden,true);assert.deepEqual(h.calls,[['close']]);
 });
 test('legacy nav cleanup preserves each preference page and removes only injected siblings',()=>{
   const h=fixture();const obsolete=h.node('button');h.nav.appendChild(obsolete);h.notifyNav();assert.equal(obsolete.parentElement,null);
-  assert.equal(h.document.getElementById('knMenuView-display').parentElement,h.nav);assert.equal(h.languageGrid.parentElement.parentElement,h.mounted[0]);
+  assert.equal(h.document.getElementById('knMenuView-display').parentElement,h.document.getElementById('knMenuDisplayOverlay'));assert.equal(h.languageGrid.parentElement.parentElement,h.mounted[0]);
 });
 
 test('opening and closing the rectangle keeps a saved blue and invokes no color writer',()=>{
@@ -439,7 +441,7 @@ test('new plane commits through the current wrapper and the actual existing colo
 
 test('preference navigation, drawer close and auth change close the color panel without color writes',()=>{
   const h=fixture(),plus=h.document.getElementById('knMenuColorPlus'),panel=h.document.getElementById('knMenuColorPanel');
-  plus.click();h.activate('display');assert.equal(panel.hidden,true);h.drawer.querySelector('.kn-menu-back').click();plus.click();h.drawer.classList.remove('open');h.notifyDrawerState();assert.equal(panel.hidden,true);
+  plus.click();h.activate('display');assert.equal(panel.hidden,true);h.document.querySelector('.kn-display-close').click();plus.click();h.drawer.classList.remove('open');h.notifyDrawerState();assert.equal(panel.hidden,true);
   h.drawer.classList.add('open');h.notifyDrawerState();plus.click();h.document.dispatch('knAuthChange');assert.equal(panel.hidden,true);assert.deepEqual(h.themeWrites,[]);
 });
 
@@ -455,7 +457,7 @@ test('focus trap follows the reordered guest and member controls and excludes ne
 });
 
 test('language changes translate the inline caption, preset names and color plane controls',()=>{
-  const h=fixture();h.storage.set('app_lang','en');h.document.dispatch('langChanged');assert.equal(h.document.getElementById('knMenuColorTitle').textContent,'Display color');assert.equal(h.colors.querySelector('.drawer-color-preset').getAttribute('aria-label'),'Green');assert.equal(h.document.getElementById('knMenuColorPlus').getAttribute('aria-label'),'Choose a color');assert.equal(h.document.getElementById('knMenuColorToneButton'),null);assert.equal(h.document.getElementById('knMenuColorTone'),null);assert.match(h.document.getElementById('knMenuColorSpectrum').getAttribute('aria-label'),/^Color and brightness: /);
+  const h=fixture();h.storage.set('app_lang','en');h.document.dispatch('langChanged');assert.equal(h.document.getElementById('knMenuColorTitle').textContent,'Display color');assert.equal(h.colors.querySelector('.drawer-color-preset').getAttribute('aria-label'),'Green');assert.equal(h.document.getElementById('knMenuColorPlus').getAttribute('aria-label'),'Choose a color');assert.equal(h.document.getElementById('knMenuColorToneButton'),null);assert.equal(h.document.getElementById('knMenuColorTone'),null);assert.match(h.document.getElementById('knMenuColorSpectrum').getAttribute('aria-label'),/^Background color: /);
 });
 
 test('missing color module retains presets and reset while exposing an unavailable custom selector without a native popup',()=>{
@@ -469,15 +471,21 @@ test('blocked color storage does not erase the saved value or produce a persiste
 
 test('openMain opens a closed hamburger once with immediate main view, inert, aria and focus synchronization',()=>{
   const h=fixture(),opener=h.document.getElementById('knFloatHam'),profile=h.document.getElementById('knProfile');h.activate('display');h.drawer.classList.remove('open');h.notifyDrawerState();opener.focus();assert.equal(h.drawer.inert,true);h.w.KNMenuSheet.openMain();
-  assert.equal(h.drawer.classList.contains('open'),true);assert.equal(h.drawer.inert,false);assert.equal(h.drawer.getAttribute('aria-hidden'),'false');assert.equal(h.drawer.dataset.menuView,'main');assert.equal(h.mounted[0].hidden,false);assert.equal(h.document.getElementById('knMenuView-display').hidden,true);assert.equal(h.document.getElementById('knProfile'),profile);assert.equal(h.document.activeElement,h.drawer.querySelector('.kn-menu-close'));for(const id of ['knHomeAMenu','knFloatHam','hamburgerBtn'])assert.equal(h.document.getElementById(id).getAttribute('aria-expanded'),'true');assert.deepEqual(h.calls,[['toggle']]);assert.deepEqual(h.themeWrites,[]);
-  h.notifyDrawerState();assert.deepEqual(h.calls,[['toggle']]);assert.equal(h.document.activeElement,h.drawer.querySelector('.kn-menu-close'));
+  assert.equal(h.drawer.classList.contains('open'),true);assert.equal(h.drawer.inert,false);assert.equal(h.drawer.getAttribute('aria-hidden'),'false');assert.equal(h.drawer.dataset.menuView,'main');assert.equal(h.mounted[0].hidden,false);assert.equal(h.document.getElementById('knMenuView-display').hidden,true);assert.equal(h.document.getElementById('knProfile'),profile);assert.equal(h.document.activeElement,h.drawer.querySelector('.kn-menu-close'));for(const id of ['knHomeAMenu','knFloatHam','hamburgerBtn'])assert.equal(h.document.getElementById(id).getAttribute('aria-expanded'),'true');assert.deepEqual(h.calls,[['close'],['toggle']]);assert.deepEqual(h.themeWrites,[]);
+  h.notifyDrawerState();assert.deepEqual(h.calls,[['close'],['toggle']]);assert.equal(h.document.activeElement,h.drawer.querySelector('.kn-menu-close'));
 });
 
 test('openMain keeps an already open hamburger open without toggling, route changes, logout or preference writes',()=>{
-  const h=fixture({user:{id:'synthetic-member'}}),profile=h.document.getElementById('knProfile'),memoClose=h.document.createElement('button');h.document.body.appendChild(memoClose);h.activate('display');memoClose.focus();h.w.KNMenuSheet.openMain();assert.equal(h.document.activeElement,h.drawer.querySelector('.kn-menu-close'),'already-open menu takes focus back from the memo close button');h.w.KNMenuSheet.openMain();assert.equal(h.drawer.classList.contains('open'),true);assert.equal(h.drawer.inert,false);assert.equal(h.drawer.dataset.menuView,'main');assert.equal(h.mounted[0].hidden,false);assert.equal(h.document.getElementById('knProfile'),profile);assert.deepEqual(h.calls,[]);assert.deepEqual(h.themeWrites,[]);
+  const h=fixture({user:{id:'synthetic-member'}}),profile=h.document.getElementById('knProfile'),memoClose=h.document.createElement('button');h.document.body.appendChild(memoClose);h.activate('display');memoClose.focus();h.w.KNMenuSheet.openMain();assert.equal(h.document.activeElement,h.drawer.querySelector('.kn-menu-close'),'already-open menu takes focus back from the memo close button');h.w.KNMenuSheet.openMain();assert.equal(h.drawer.classList.contains('open'),true);assert.equal(h.drawer.inert,false);assert.equal(h.drawer.dataset.menuView,'main');assert.equal(h.mounted[0].hidden,false);assert.equal(h.document.getElementById('knProfile'),profile);assert.deepEqual(h.calls,[['close'],['toggle']]);assert.deepEqual(h.themeWrites,[]);
 });
 
 
 test('the single color plane keeps its current color while Japanese and English accessible labels change',()=>{
-  const h=fixture({brandColor:'#0c1d2e',customColor:true});h.document.getElementById('knMenuColorPlus').click();const field=h.document.getElementById('knMenuColorSpectrum'),preview=h.colors.querySelector('.kn-color-sample');assert.match(field.getAttribute('aria-label'),/^色と明るさ: #0c1d2e$/);assert.equal(preview.style.backgroundColor,'#0c1d2e');const beforeCalls=h.calls.slice();h.storage.set('app_lang','en');h.document.dispatch('langChanged');assert.match(field.getAttribute('aria-label'),/^Color and brightness: #0c1d2e$/);assert.equal(preview.style.backgroundColor,'#0c1d2e');assert.deepEqual(h.themeWrites,[]);assert.deepEqual(h.calls,beforeCalls);assert.equal(h.document.getElementById('knMenuColorTone'),null);assert.equal(h.document.getElementById('knMenuColorToneButton'),null);
+  const h=fixture({brandColor:'#0c1d2e',customColor:true});h.document.getElementById('knMenuColorPlus').click();const field=h.document.getElementById('knMenuColorSpectrum'),preview=h.colors.querySelector('.kn-color-sample');assert.match(field.getAttribute('aria-label'),/^背景色: #0c1d2e$/);assert.equal(preview.style.backgroundColor,'#deddd6');const beforeCalls=h.calls.slice();h.storage.set('app_lang','en');h.document.dispatch('langChanged');assert.match(field.getAttribute('aria-label'),/^Background color: #0c1d2e$/);assert.equal(preview.style.backgroundColor,'#deddd6');assert.deepEqual(h.themeWrites,[]);assert.deepEqual(h.calls,beforeCalls);assert.equal(h.document.getElementById('knMenuColorTone'),null);assert.equal(h.document.getElementById('knMenuColorToneButton'),null);
+});
+
+
+test('an account change closes display settings without reopening the menu or saving preferences',()=>{
+  const h=fixture(),before=[...h.storage];h.activate('display');h.document.dispatch('knAuthChange');
+  assert.equal(h.document.getElementById('knMenuView-display').hidden,true);assert.equal(h.document.getElementById('knMenuDisplayOverlay').hidden,true);assert.equal(h.drawer.classList.contains('open'),false);assert.equal(h.document.body.classList.contains('kn-display-dialog-active'),false);assert.deepEqual(h.calls,[['close']]);assert.deepEqual([...h.storage],before);assert.deepEqual(h.themeWrites,[]);
 });

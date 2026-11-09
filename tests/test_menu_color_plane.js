@@ -1,9 +1,9 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { mount, hexToHsv, hsvToHex, validHex } = require('../static/menu-color-plane.js');
+const { mount, hexToHsv, hsvToHex, validHex, themeBackgroundColor } = require('../static/menu-color-plane.js');
 
-function fixture({ color = '#3da060', custom = true, commitThrows = false } = {}) {
+function fixture({ color = '#3da060', custom = true, commitThrows = false, dark = false } = {}) {
   let document, raw = color, customFlag = custom, allowed = true, language = 'ja';
   const commits = [];
   function matches(node, selector) {
@@ -79,7 +79,7 @@ function fixture({ color = '#3da060', custom = true, commitThrows = false } = {}
   }
   const window = eventTarget();
   document = Object.assign(eventTarget(), { defaultView: window, hidden: false, createElement: node });
-  document.documentElement = node('html'); document.body = node('body'); document.documentElement.appendChild(document.body);
+  document.documentElement = node('html'); document.body = node('body'); document.documentElement.appendChild(document.body);if(dark)document.body.setAttribute('data-theme','dark');
   const colors = node('div'); document.body.appendChild(colors);
   const presets = node('div'); presets.className = 'drawer-color-presets'; colors.appendChild(presets);
   for (const hex of ['#3da060', '#e91e63', '#b2923a']) {
@@ -128,26 +128,26 @@ test('a finite RGB sample round-trips exactly, including old blue and unsaturate
 test('mount and opening preserve exact legacy/raw values and never persist or round a selection', () => {
   for (const color of ['#2196f3', '#808080', '#000000', '#ffffff', '#AbC', '#0c1d2e']) {
     const f = fixture({ color }); f.open();
-    assert.equal(f.raw(), color); assert.equal(f.sample().style.backgroundColor, color); assert.equal(f.value().textContent, color);
+    assert.equal(f.raw(), color); assert.equal(f.sample().style.backgroundColor, themeBackgroundColor(color)); assert.equal(f.value().textContent, color);
     assert.deepEqual(f.commits, []); assert.equal(f.panel.hidden, false); assert.equal(f.plus.getAttribute('aria-expanded'), 'true');
     assert.equal(f.document.activeElement, f.spectrum);
-    f.controller.sync(); f.language('en'); f.controller.translate(); assert.equal(f.raw(), color); assert.equal(f.sample().style.backgroundColor, color); assert.equal(f.value().textContent, color);
-    f.pointer('pointerdown', f.spectrum, 130, 95); f.pointer('pointercancel'); assert.equal(f.raw(), color); assert.equal(f.sample().style.backgroundColor, color);
+    f.controller.sync(); f.language('en'); f.controller.translate(); assert.equal(f.raw(), color); assert.equal(f.sample().style.backgroundColor, themeBackgroundColor(color)); assert.equal(f.value().textContent, color);
+    f.pointer('pointerdown', f.spectrum, 130, 95); f.pointer('pointercancel'); assert.equal(f.raw(), color); assert.equal(f.sample().style.backgroundColor, themeBackgroundColor(color));
     f.controller.close(false); assert.equal(f.raw(), color); assert.deepEqual(f.commits, []);
   }
 });
 test('three preserved presets, native input and existing reset keep their identity with one plus', () => {
   const f = fixture({ custom: false }); assert.equal(f.presets.children.length, 4); assert.equal(f.presets.children.at(-1), f.plus);
   assert.equal(f.nativeWrap.hidden, true); assert.equal(f.input.hidden, true); assert.equal(f.input.tabIndex, -1);
-  assert.equal(f.reset.parentElement, f.panel); f.open(); assert.equal(f.value().textContent, '標準の色');
+  assert.equal(f.reset.parentElement, f.panel);assert.equal(f.reset.hidden,true);assert.equal(f.reset.tabIndex,-1);assert.equal(f.value().parentElement.hidden,true); f.open(); assert.equal(f.value().textContent, '標準の色');
   f.reset.click(); assert.equal(f.resets(), 1); assert.equal(f.isCustom(), false); assert.equal(f.panel.hidden, false); assert.deepEqual(f.commits, []);
   const same = mount(f.colors, f.options); assert.equal(same, f.controller); assert.equal(f.presets.children.length, 4);
 });
 test('spectrum tap and drag preview locally and commit exactly once on matching pointerup', () => {
   const f = fixture({ color: '#ff0000' }); f.open();
   f.pointer('pointerdown', f.spectrum, 10, 70); f.pointer('pointermove', f.spectrum, 130, 70);
-  assert.equal(f.sample().style.backgroundColor, '#00ff00'); assert.equal(f.raw(), '#ff0000'); assert.deepEqual(f.commits, []);
-  f.controller.sync(); assert.equal(f.sample().style.backgroundColor, '#00ff00', 'same-value outer preference sync retains local preview');
+  assert.equal(f.sample().style.backgroundColor, themeBackgroundColor('#00ff00')); assert.equal(f.raw(), '#ff0000'); assert.deepEqual(f.commits, []);
+  f.controller.sync(); assert.equal(f.sample().style.backgroundColor, themeBackgroundColor('#00ff00'), 'same-value outer preference sync retains local preview');
   f.pointer('pointerup', f.spectrum, 250, 70); assert.deepEqual(f.commits, ['#0000ff']); assert.equal(f.raw(), '#0000ff');
   f.pointer('pointerup', f.spectrum, 250, 70); assert.equal(f.commits.length, 1); assert.equal(f.spectrum.captures.size, 0);
 });
@@ -155,7 +155,7 @@ test('one spectrum clamps all edges and selects white, pure colors, dark colors 
   const f = fixture({ color: '#ff0000' }); f.open();
   assert.equal(f.panel.querySelectorAll('.kn-color-field').length, 1); assert.equal(f.get('knMenuColorTone'), null); assert.equal(f.get('knMenuColorToneButton'), null);
   for (const [x, y, expected] of [[-100, -100, '#ffffff'], [10, 70, '#ff0000'], [130, 70, '#00ff00'], [250, 70, '#0000ff'], [10, 95, '#800000'], [900, 500, '#000000']]) {
-    const before = f.commits.length; f.pointer('pointerdown', f.spectrum, x, y); assert.equal(f.sample().style.backgroundColor, expected); assert.equal(f.commits.length, before); f.pointer('pointerup', f.spectrum, x, y); assert.equal(f.raw(), expected); assert.equal(f.commits.length, before + 1);
+    const before = f.commits.length; f.pointer('pointerdown', f.spectrum, x, y); assert.equal(f.sample().style.backgroundColor, themeBackgroundColor(expected)); assert.equal(f.commits.length, before); f.pointer('pointerup', f.spectrum, x, y); assert.equal(f.raw(), expected); assert.equal(f.commits.length, before + 1);
   }
 });
 test('invalid geometry and nonprimary or unrelated pointers cannot save', () => {
@@ -166,13 +166,13 @@ test('invalid geometry and nonprimary or unrelated pointers cannot save', () => 
   f.spectrum.rect.width = 360; f.spectrum.rect.left = NaN; f.pointer('pointerdown'); f.pointer('pointerup'); assert.deepEqual(f.commits, []);
   f.spectrum.rect.left = 10; f.pointer('pointerdown', f.spectrum, 100, 50);
   f.pointer('pointerup', f.spectrum, 100, 50, { pointerId: 8 }); assert.deepEqual(f.commits, []);
-  f.pointer('pointerup', f.spectrum, NaN, 50); assert.deepEqual(f.commits, []); assert.equal(f.sample().style.backgroundColor, f.raw());
+  f.pointer('pointerup', f.spectrum, NaN, 50); assert.deepEqual(f.commits, []); assert.equal(f.sample().style.backgroundColor, themeBackgroundColor(f.raw()));
 });
 test('pointercancel and lost capture discard local preview without altering the saved color', () => {
   for (const kind of ['pointercancel', 'lostpointercapture']) {
     const f = fixture({ color: '#2196f3' }); f.open(); f.pointer('pointerdown', f.spectrum, 100, 50);
     if (kind === 'pointercancel') f.pointer(kind); else f.spectrum.fire(kind, { pointerId: 7 });
-    assert.equal(f.sample().style.backgroundColor, '#2196f3'); f.pointer('pointerup'); assert.deepEqual(f.commits, []);
+    assert.equal(f.sample().style.backgroundColor, themeBackgroundColor('#2196f3')); f.pointer('pointerup'); assert.deepEqual(f.commits, []);
   }
 });
 test('close, visibility, owner change and window blur invalidate a pending gesture and late events', () => {
@@ -192,7 +192,7 @@ test('external confirmed color changes cancel pending preview, including before 
     const f = fixture({ color: '#2196f3' }); f.open(); f.pointer('pointerdown', f.spectrum, 100, 50);
     f.external('#654321'); if (notify) f.controller.sync();
     f.pointer('pointerup', f.spectrum, 250, 20); assert.deepEqual(f.commits, []);
-    assert.equal(f.raw(), '#654321'); assert.equal(f.sample().style.backgroundColor, '#654321');
+    assert.equal(f.raw(), '#654321'); assert.equal(f.sample().style.backgroundColor, themeBackgroundColor('#654321'));
   }
 });
 test('one spectrum keyboard commits one hue or lightness step and guards modified or hidden input', () => {
@@ -225,10 +225,10 @@ test('outside native pointer sequence keeps target geometry stable while canceli
   f.outside.addEventListener('click', () => { activations++; });
   f.outside.getBoundingClientRect = () => ({ left: 10, top: f.panel.hidden ? 20 : 180, width: 120, height: 44 });
   f.open(); f.pointer('pointerdown', f.spectrum, 100, 50);
-  assert.notEqual(f.sample().style.backgroundColor, '#2196f3');
+  assert.notEqual(f.sample().style.backgroundColor, themeBackgroundColor('#2196f3'));
   const targetTop = f.outside.getBoundingClientRect().top;
   f.pointer('pointerdown', f.outside, 30, targetTop + 10, { pointerId: 9 }); f.outside.focus();
-  assert.equal(f.sample().style.backgroundColor, '#2196f3'); assert.equal(f.spectrum.captures.size, 0);
+  assert.equal(f.sample().style.backgroundColor, themeBackgroundColor('#2196f3')); assert.equal(f.spectrum.captures.size, 0);
   assert.equal(f.panel.hidden, false); assert.equal(f.outside.getBoundingClientRect().top, targetTop);
   f.pointer('pointermove', f.spectrum, 250, 20); f.pointer('pointerup', f.spectrum, 250, 20);
   f.pointer('pointerup', f.outside, 30, targetTop + 10, { pointerId: 9 });
@@ -256,7 +256,7 @@ test('a preset keeps its own handler and closes the single plane; translation do
 test('commit failure restores the confirmed color without a success claim or losing the open editor', () => {
   const f = fixture({ color: '#2196f3', commitThrows: true }); f.open();
   f.pointer('pointerdown', f.spectrum, 10, 20); f.pointer('pointerup', f.spectrum, 10, 20);
-  assert.deepEqual(f.commits, []); assert.equal(f.raw(), '#2196f3'); assert.equal(f.sample().style.backgroundColor, '#2196f3');
+  assert.deepEqual(f.commits, []); assert.equal(f.raw(), '#2196f3'); assert.equal(f.sample().style.backgroundColor, themeBackgroundColor('#2196f3'));
   assert.equal(f.panel.hidden, false); assert.equal(f.colors.querySelector('.kn-color-status').hidden, false);
 });
 
@@ -291,6 +291,25 @@ test('black and white endpoints can move back into a colored lightness range and
 test('legacy gray and dark colors keep exact raw values while the single marker projects their lightness', () => {
   const percent = value => Number(String(value).match(/(-?[0-9]+(?:\.[0-9]+)?)%/)[1]);
   for (const [color, x, y] of [['#ffffff', 0, 0], ['#ff0000', 0, 50], ['#800000', 0, 74.90196078431373], ['#808080', 0, 49.80392156862745], ['#408080', 50, 62.35294117647059], ['#000000', 0, 100]]) {
-    const f = fixture({ color }); f.open(); const marker = f.spectrum.querySelector('.kn-color-marker'); assert.ok(Math.abs(percent(marker.style.left) - x) < 1e-8); assert.ok(Math.abs(percent(marker.style.top) - y) < 1e-8); f.controller.sync(); f.controller.translate(); assert.equal(f.raw(), color); assert.equal(f.sample().style.backgroundColor, color); assert.deepEqual(f.commits, []);
+    const f = fixture({ color }); f.open(); const marker = f.spectrum.querySelector('.kn-color-marker'); assert.ok(Math.abs(percent(marker.style.left) - x) < 1e-8); assert.ok(Math.abs(percent(marker.style.top) - y) < 1e-8); f.controller.sync(); f.controller.translate(); assert.equal(f.raw(), color); assert.equal(f.sample().style.backgroundColor, themeBackgroundColor(color)); assert.deepEqual(f.commits, []);
   }
+});
+
+
+test('palette preview uses the existing light and dark site background mix while commits keep their raw color',()=>{
+  const fs=require('node:fs'),path=require('node:path');
+  const theme=fs.readFileSync(path.join(__dirname,'../static/home-h.css'),'utf8'),picker=fs.readFileSync(path.join(__dirname,'../static/menu-a.css'),'utf8');
+  assert.ok(theme.includes('--kn-a-bg:color-mix(in srgb,var(--brand-color) 10%,#f5f2e9)'));assert.ok(theme.includes('--kn-a-bg:color-mix(in srgb,var(--brand-color) 10%,#20241f)'));
+  assert.ok(picker.includes('var(--kn-color-surface-base,#f5f2e9) 90%,transparent'));
+  for(const dark of [false,true]){
+    const base=dark?[32,36,31]:[245,242,233];
+    for(const raw of ['#000000','#ffffff','#ff0000','#00ff00','#0000ff','#123456','#808080']){
+      const expected='#'+[0,2,4].map((n,i)=>Math.round(parseInt(raw.slice(n+1,n+3),16)/10+base[i]*.9).toString(16).padStart(2,'0')).join('');
+      assert.equal(themeBackgroundColor(raw,dark),expected);
+      const f=fixture({color:raw,dark});f.open();assert.equal(f.sample().style.backgroundColor,expected);assert.equal(f.raw(),raw);assert.deepEqual(f.commits,[]);
+      f.pointer('pointerdown',f.spectrum,130,70);f.pointer('pointerup',f.spectrum,130,70);assert.equal(f.raw(),'#00ff00');assert.equal(f.sample().style.backgroundColor,themeBackgroundColor(f.raw(),dark));
+    }
+  }
+  assert.equal(themeBackgroundColor('#000000'),'#dddad2');assert.notEqual(themeBackgroundColor('#000000'),'#000000');
+  for(const invalid of [null,'red','#12','#gggggg'])assert.equal(themeBackgroundColor(invalid),null);
 });
