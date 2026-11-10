@@ -18,14 +18,50 @@
     var paths={menu:'M4 6h16M4 12h16M4 18h16',talk:'M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z',sun:'M12 1v2M12 21v2M1 12h2M21 12h2M4 4l2 2M18 18l2 2M4 20l2-2M18 6l2-2M17 12a5 5 0 1 1-10 0 5 5 0 0 1 10 0Z',settings:'M4 5h16M4 12h16M4 19h16M8 3v4M16 10v4M10 17v4',search:'M19 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0ZM15 15l6 6'};
     return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+paths[name]+'"/></svg>';
   }
-  function renderDate() {
+  function renderDate(now) {
     var node=document.getElementById('knHomeADate');
     if(!node)return;
-    var now=new Date(),zone='Asia/Tokyo',locale=lang();
+    now=now||new Date();
+    var zone='Asia/Tokyo',locale=lang();
     var date=now.toLocaleDateString(locale,{month:'long',day:'numeric',timeZone:zone});
     var weekday=now.toLocaleDateString(locale,{weekday:'long',timeZone:zone});
     var value=new Intl.DateTimeFormat('sv-SE',{year:'numeric',month:'2-digit',day:'2-digit',timeZone:zone}).format(now);
     setHTML(node,'<time datetime="'+value+'">'+esc(date)+'</time><span class="kn-a-date-separator" aria-hidden="true"></span><time datetime="'+value+'">'+esc(weekday)+'</time>');
+  }
+  /* Local Japan clock: independent of market/news requests and article dates. */
+  function startHomeClock() {
+    var clock=document.getElementById('knHomeAClock');
+    if(!clock||clock.__knClockStarted)return;
+    clock.__knClockStarted=true;
+    var time=clock.querySelector('time'),numbers=clock.querySelectorAll('[data-clock-part]'),zone=clock.querySelector('.kn-a-clock-zone');
+    var timer=null,suspended=false,lastDay='',lastLanguage='',language=lang();
+    var labels={ja:'日本時間',en:'Japan time',ko:'일본 시간',zh:'日本时间'};
+    var motion=window.matchMedia?window.matchMedia('(prefers-reduced-motion: reduce)'):null;
+    var formatter=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Tokyo',numberingSystem:'latn',hourCycle:'h23',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    var dayFormatter=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Tokyo',numberingSystem:'latn',year:'numeric',month:'2-digit',day:'2-digit'});
+    function stop(){if(timer!==null){clearTimeout(timer);timer=null;}}
+    function tick(animate) {
+      stop();
+      if(document.hidden||suspended)return;
+      var now=new Date(),parts=formatter.formatToParts(now),day=dayFormatter.format(now);
+      ['hour','minute','second'].forEach(function(part,index){
+        var value=parts.find(function(item){return item.type===part;}).value,node=numbers[index],previous=node.textContent;
+        if(previous===value)return;
+        node.textContent=value;
+        if(animate&&previous!=='--'&&!(motion&&motion.matches)&&typeof node.animate==='function'){
+          node.animate([{opacity:.6,transform:'translateY(.12em)'},{opacity:1,transform:'translateY(0)'}],{duration:240,easing:'ease-out'});
+        }
+      });
+      time.dateTime=now.toISOString();
+      if(zone.textContent!==labels[language])zone.textContent=labels[language];
+      if(day!==lastDay||language!==lastLanguage){renderDate(now);lastDay=day;lastLanguage=language;}
+      timer=setTimeout(function(){tick(true);},1000-Date.now()%1000);
+    }
+    document.addEventListener('visibilitychange',function(){tick(false);});
+    document.addEventListener('langChanged',function(){language=lang();tick(false);});
+    window.addEventListener('pagehide',function(){suspended=true;stop();});
+    window.addEventListener('pageshow',function(){suspended=false;tick(false);});
+    tick(false);
   }
   function renderMarkets() {
     if(!model)return;
@@ -207,6 +243,7 @@
   async function boot() {
     if(window.knHomeA || !window.KNMarketData || !window.KN_MARKET_CATALOG)return;
     if(window.__knGateReady)try{await window.__knGateReady;}catch(_){}
+    if(window.knHomeA)return;
     var section=document.getElementById('morning-section'),banner=section&&section.querySelector('.morning-banner');if(!banner)return;
     document.body.classList.add('kn-home-a');
     function syncColor(){var color=document.documentElement.style.getPropertyValue('--brand-color').trim().toLowerCase();document.body.toggleAttribute('data-kn-a-custom-color',!!color&&(color!=='#3da060'||document.documentElement.hasAttribute('data-custom-brand-color')));}
@@ -223,7 +260,8 @@
     syncReading();
     ['dsSetSize','dsSetFont','dsReset'].forEach(function(name){if(typeof window[name]==='function'){var original=window[name];window[name]=function(){var result=original.apply(this,arguments);syncReading();return result;};}});
     var homeHero=window.KNHomeHero||window.KNNewsOrbit;
-    var masthead=document.createElement('div');masthead.className='kn-a-masthead';masthead.innerHTML='<div class="kn-a-top-row"><button type="button" id="knHomeAMenu" aria-label="'+esc(text('menu'))+'">'+icon('menu')+'</button><button type="button" id="knHomeATalk" aria-label="'+esc(text('talk'))+'" title="'+esc(text('talk'))+'">'+icon('talk')+'</button></div>'+(homeHero?homeHero.markup:'')+'<div class="kn-a-daily-caption"><div class="kn-a-daily-title"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.3"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg><h1 data-kn-home-text="daily">'+esc(text('daily'))+'</h1></div><div id="knHomeADate"></div></div>';banner.appendChild(masthead);
+    var masthead=document.createElement('div');masthead.className='kn-a-masthead';masthead.innerHTML='<div class="kn-a-top-row"><button type="button" id="knHomeAMenu" aria-label="'+esc(text('menu'))+'">'+icon('menu')+'</button><button type="button" id="knHomeATalk" aria-label="'+esc(text('talk'))+'" title="'+esc(text('talk'))+'">'+icon('talk')+'</button></div>'+(homeHero?homeHero.markup:'')+'<div class="kn-a-daily-caption"><div class="kn-a-daily-title"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.3"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg><h1 data-kn-home-text="daily">'+esc(text('daily'))+'</h1></div><div id="knHomeADate"></div><div id="knHomeAClock" class="kn-a-live-clock" role="timer" aria-live="off"><time aria-describedby="knHomeAClockZone"><span data-clock-part="hour">--</span><span class="kn-a-clock-colon">:</span><span data-clock-part="minute">--</span><span class="kn-a-clock-colon">:</span><span data-clock-part="second">--</span></time><span class="kn-a-clock-zone" id="knHomeAClockZone"></span></div></div>';banner.appendChild(masthead);
+    startHomeClock();
     if(homeHero)homeHero.mount(masthead);
     var markets=document.createElement('section');markets.id='knHomeMarkets';markets.innerHTML='<div class="kn-a-market-heading"><button type="button" id="knMarketOpen">'+icon('settings')+'<span data-kn-home-text="choose">'+esc(text('choose'))+'</span></button></div><div id="knHomeMarketGrid"></div>';banner.insertAdjacentElement('afterend',markets);
     if(window.KNMarketCarousel)marketCarousel=window.KNMarketCarousel.mount({grid:document.getElementById('knHomeMarketGrid'),controls:markets.querySelector('.kn-a-market-heading'),section:markets});
