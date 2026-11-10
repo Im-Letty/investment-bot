@@ -22,6 +22,14 @@ body.kn-home-a .kn-a-masthead .kn-a-daily-title svg {width:18px;height:18px;flex
 body.kn-home-a .kn-a-daily-caption #knHomeADate {display:flex;align-items:center;justify-content:center;gap:10px;font:400 calc(11px * var(--kn-a-scale,1))/1.6 var(--kn-a-sans)!important;letter-spacing:.055em;font-variant-numeric:tabular-nums;color:var(--kn-caption-ink);margin:0}
 body.kn-home-a #knHomeADate time {white-space:nowrap}
 body.kn-home-a .kn-a-date-separator {width:1px;height:9px;background:var(--kn-caption-line)}
+/* The home clock follows the reference's light numerals without a new panel. */
+body.kn-home-a .kn-a-daily-caption #knHomeAClock {display:flex;flex-direction:column;align-items:center;gap:5px;max-width:100%;margin-top:13px;color:var(--kn-caption-ink)}
+body.kn-home-a #knHomeAClock time {display:flex;align-items:center;gap:8px;white-space:nowrap;font:300 calc(34px * var(--kn-a-scale,1))/1.12 "Helvetica Neue",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;font-variant-numeric:lining-nums tabular-nums;font-feature-settings:"tnum";letter-spacing:.025em}
+body.kn-home-a #knHomeAClock [data-clock-part] {display:inline-block;min-width:1.2em;text-align:center}
+body.kn-home-a #knHomeAClock .kn-a-clock-colon {font-size:.6em;opacity:.6;transform:translateY(-.05em)}
+body.kn-home-a #knHomeAClock .kn-a-clock-zone {font:400 calc(9px * var(--kn-a-scale,1))/1.6 var(--kn-a-sans,sans-serif)!important;letter-spacing:.12em}
+@media(max-width:359px) {body.kn-home-a #knHomeAClock time {font-size:calc(30px * var(--kn-a-scale,1))!important;gap:6px}}
+
 body.kn-home-a .kn-news-orbit {position:relative;isolation:isolate;width:320px;max-width:100%;height:220px;margin:20px auto 80px}
 body.kn-home-a .kn-orbit-scene {position:absolute;inset:0;isolation:isolate;pointer-events:none}
 body.kn-home-a .kn-orbit-art-pending .kn-orbit-scene {visibility:hidden}
