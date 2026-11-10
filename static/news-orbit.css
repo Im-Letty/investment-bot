@@ -25,7 +25,10 @@ body.kn-home-a .kn-a-date-separator {width:1px;height:9px;background:var(--kn-ca
 /* The home clock follows the reference's light numerals without a new panel. */
 body.kn-home-a .kn-a-daily-caption #knHomeAClock {display:flex;flex-direction:column;align-items:center;gap:5px;max-width:100%;margin-top:13px;color:var(--kn-caption-ink)}
 body.kn-home-a #knHomeAClock time {display:flex;align-items:center;gap:8px;white-space:nowrap;font:300 calc(34px * var(--kn-a-scale,1))/1.12 "Helvetica Neue",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;font-variant-numeric:lining-nums tabular-nums;font-feature-settings:"tnum";letter-spacing:.025em}
-body.kn-home-a #knHomeAClock [data-clock-part] {display:inline-block;min-width:1.2em;text-align:center}
+body.kn-home-a #knHomeAClock [data-clock-part] {display:inline-flex;min-width:1.2em;text-align:center}
+body.kn-home-a #knHomeAClock .kn-a-clock-digit {position:relative;display:block;flex:none;width:.6em;height:1.12em;overflow:hidden;contain:paint;letter-spacing:0}
+body.kn-home-a #knHomeAClock .kn-a-clock-current {display:block;width:100%;line-height:1.12}
+body.kn-home-a #knHomeAClock .kn-a-clock-outgoing {position:absolute;inset:0;display:block;line-height:1.12;pointer-events:none}
 body.kn-home-a #knHomeAClock .kn-a-clock-colon {font-size:.6em;opacity:.6;transform:translateY(-.05em)}
 body.kn-home-a #knHomeAClock .kn-a-clock-zone {font:400 calc(9px * var(--kn-a-scale,1))/1.6 var(--kn-a-sans,sans-serif)!important;letter-spacing:.12em}
 @media(max-width:359px) {body.kn-home-a #knHomeAClock time {font-size:calc(30px * var(--kn-a-scale,1))!important;gap:6px}}

@@ -34,29 +34,50 @@
     if(!clock||clock.__knClockStarted)return;
     clock.__knClockStarted=true;
     var time=clock.querySelector('time'),numbers=clock.querySelectorAll('[data-clock-part]'),zone=clock.querySelector('.kn-a-clock-zone');
-    var timer=null,suspended=false,lastDay='',lastLanguage='',language=lang();
+    var timer=null,suspended=false,lastDay='',lastLanguage='',language=lang(),motions=[];
+    var digits=Array.from(numbers).map(function(part){
+      part.textContent='';
+      return [0,1].map(function(){
+        var cell=document.createElement('span'),current=document.createElement('span');
+        cell.className='kn-a-clock-digit';current.className='kn-a-clock-current';current.textContent='-';
+        cell.appendChild(current);part.appendChild(cell);return {cell:cell,current:current};
+      });
+    });
     var labels={ja:'日本時間',en:'Japan time',ko:'일본 시간',zh:'日本时间'};
     var motion=window.matchMedia?window.matchMedia('(prefers-reduced-motion: reduce)'):null;
     var formatter=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Tokyo',numberingSystem:'latn',hourCycle:'h23',hour:'2-digit',minute:'2-digit',second:'2-digit'});
     var dayFormatter=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Tokyo',numberingSystem:'latn',year:'numeric',month:'2-digit',day:'2-digit'});
-    function stop(){if(timer!==null){clearTimeout(timer);timer=null;}}
+    function clearMotion(){
+      motions.forEach(function(item){item.animations.forEach(function(animation){animation.cancel();});item.outgoing.remove();});
+      motions=[];
+    }
+    function stop(){if(timer!==null){clearTimeout(timer);timer=null;}clearMotion();}
+    function paintDigit(digit,value,animate){
+      var previous=digit.current.textContent;
+      if(previous===value)return;
+      digit.current.textContent=value;
+      if(!animate||previous==='-'||(motion&&motion.matches)||typeof digit.current.animate!=='function')return;
+      var outgoing=document.createElement('span');outgoing.className='kn-a-clock-outgoing';outgoing.textContent=previous;outgoing.setAttribute('aria-hidden','true');digit.cell.appendChild(outgoing);
+      var timing={duration:520,easing:'cubic-bezier(.35,0,.28,1)'};
+      var leave=outgoing.animate([{transform:'translateY(0)'},{transform:'translateY(110%)'}],timing);
+      var enter=digit.current.animate([{transform:'translateY(-110%)',offset:0},{transform:'translateY(5%)',offset:.82},{transform:'translateY(0)',offset:1}],timing);
+      leave.onfinish=function(){outgoing.remove();};
+      motions.push({outgoing:outgoing,animations:[leave,enter]});
+    }
     function tick(animate) {
       stop();
       if(document.hidden||suspended)return;
       var now=new Date(),parts=formatter.formatToParts(now),day=dayFormatter.format(now);
       ['hour','minute','second'].forEach(function(part,index){
-        var value=parts.find(function(item){return item.type===part;}).value,node=numbers[index],previous=node.textContent;
-        if(previous===value)return;
-        node.textContent=value;
-        if(animate&&previous!=='--'&&!(motion&&motion.matches)&&typeof node.animate==='function'){
-          node.animate([{opacity:.6,transform:'translateY(.12em)'},{opacity:1,transform:'translateY(0)'}],{duration:240,easing:'ease-out'});
-        }
+        var value=parts.find(function(item){return item.type===part;}).value;
+        digits[index].forEach(function(digit,position){paintDigit(digit,value.charAt(position),animate);});
       });
       time.dateTime=now.toISOString();
       if(zone.textContent!==labels[language])zone.textContent=labels[language];
       if(day!==lastDay||language!==lastLanguage){renderDate(now);lastDay=day;lastLanguage=language;}
       timer=setTimeout(function(){tick(true);},1000-Date.now()%1000);
     }
+    if(motion&&typeof motion.addEventListener==='function')motion.addEventListener('change',function(){if(motion.matches)clearMotion();});
     document.addEventListener('visibilitychange',function(){tick(false);});
     document.addEventListener('langChanged',function(){language=lang();tick(false);});
     window.addEventListener('pagehide',function(){suspended=true;stop();});
