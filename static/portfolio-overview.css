@@ -156,3 +156,44 @@
 #tab-assets #poGoalHero .po-goal-exact dt,#tab-assets #poGoalHero .po-goal-exact dd{margin:0;min-width:0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
 #tab-assets #poGoalHero .po-goal-exact dd{text-align:right;color:var(--kn-ledger-ink,#505538)}
 @media(max-width:440px){#tab-assets #poGoalHero{padding:18px 18px 22px}#tab-assets #poGoalHero .po-target-amount{font-size:calc(34px * var(--kn-ledger-scale,1))!important}}
+
+/* Compact the goal card while the target form is open. */
+#tab-assets #poGoalHero:has(> #poGoalForm:not([hidden])) {
+  max-width:480px;
+  padding:16px 18px;
+  border-radius:22px;
+}
+#tab-assets #poGoalHero:has(> #poGoalForm:not([hidden])) > .po-heading {
+  margin-bottom:10px;
+}
+#tab-assets #poGoalHero #poGoalForm {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+#tab-assets #poGoalHero #poGoalForm .po-goal-input-value {
+  flex:1 1 calc(148px * var(--kn-ledger-scale,1));
+  min-width:min(100%,calc(148px * var(--kn-ledger-scale,1)));
+  box-sizing:border-box;
+  min-height:46px;
+  padding-inline:12px;
+  border-width:1px;
+  border-radius:14px;
+}
+#tab-assets #poGoalHero #poGoalForm #poGoalAmount {
+  min-height:44px;
+  padding-block:8px;
+  font-size:max(16px,calc(22px * var(--kn-ledger-scale,1)))!important;
+}
+#tab-assets #poGoalForm .po-target-actions {
+  max-width:100%;
+  gap:8px;
+}
+#tab-assets #poGoalHero #poGoalForm :is(#poGoalSave,#poGoalCancel) {
+  min-height:44px;
+  padding:8px 12px;
+  border-radius:14px;
+}
+#tab-assets #poGoalForm #poGoalError {
+  flex-basis:100%;
+}
