@@ -99,8 +99,11 @@ test('a pending-auth timeout leaves confirmation retryable without sending signO
  h.w.knPrepareLogout=async()=>{throw Error('logout_pending_timeout');};h.w.knLogoutFlow();const [cancel,ok]=h.buttons();await ok.onclick();
  assert.equal(calls,0);assert.equal(h.w.knUser,user);assert.equal(ok.disabled,false);assert.equal(cancel.disabled,false);assert.equal(h.w.knEntryChoiceRequired,false);assert.deepEqual(h.replacements,[]);assert.match(h.dialog().children[0].children[0].textContent,/ログアウトできませんでした/);
 });
-test('entry artwork keeps the registration, login and guest actions, and auth redirects return to root',()=>{
- for(const action of ['signup','login','guest'])assert.ok(html.includes('data-action=\\"'+action+'\\"'));
+test('entry artwork offers a shared signup and login button and a separate guest action',()=>{
+ const welcome=html.slice(html.indexOf('    ov.innerHTML=',html.indexOf("  var SEEN='kn_seen_welcome';")),html.indexOf('    ov.querySelectorAll',html.indexOf("  var SEEN='kn_seen_welcome';")));
+ assert.deepEqual([...welcome.matchAll(/data-action=\\"([^"]+)\\"/g)].map(match=>match[1]),['login','guest']);
+ assert.match(welcome,/新規会員登録・ログインはこちら/);
+ assert.match(html,/初めての方は新規登録/);
  assert.ok(html.indexOf('/static/guest-access.js?v=20261110-entry1')<html.indexOf('function startApprovedIntro(){'));
  assert.match(html,/redirectTo:'https:\/\/investment-bot-ta24\.onrender\.com'/);
 });
