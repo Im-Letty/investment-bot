@@ -21,6 +21,21 @@ test('failed guest creation does not invent an owner and permits a later retry',
  assert.equal((await a.w.knEnsureGuest()).user.id,'recovered');assert.equal(a.calls(),2);
 });
 
+test('ledger handoff is scoped to a confirmed owner with enough session lifetime',async()=>{
+ const session={user:{id:'guest'},access_token:'token',expires_at:Date.now()/1000+600};
+ const a=app(session,()=>{throw Error('must not create');});
+ await a.w.knEnsureGuest();
+ assert.equal(a.w.knCurrentLedgerSession().access_token,'token');
+ a.w.knUser={id:'different'};
+ assert.equal(a.w.knCurrentLedgerSession(),null);
+ a.w.knUser=session.user;
+ a.w.knRememberLedgerSession({...session,expires_at:Date.now()/1000+20});
+ assert.equal(a.w.knCurrentLedgerSession(),null);
+ a.w.knRememberLedgerSession(session);
+ await a.w.knPrepareLogout();
+ a.w.knEntryChoiceRequired=false;
+ assert.equal(a.w.knCurrentLedgerSession(),null);
+});
 function deferred(){let resolve;const promise=new Promise(r=>resolve=r);return {promise,resolve};}
 test('explicit logout entry does not create or restore an automatic guest',async()=>{
  for(const session of [null,{user:{id:'member'}}]){

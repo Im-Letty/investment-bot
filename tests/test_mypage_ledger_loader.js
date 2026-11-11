@@ -56,7 +56,7 @@ function fixture(user={id:'account-A'},options={}) {
   function documentInFrame(n){n.contentDocument={readyState:'complete',documentElement:{getAttribute:()=> 'true'}};n.contentWindow={location:{origin:'https://local.test',protocol:'https:',pathname:'/kakeibo'},kkRefreshRecords(){refreshes++;return options.refresh?.();},kkSetMyPageView(view){views.push(view);return true;}};}
   const doc={readyState:options.readyState||'complete',body:el(''),querySelector:selector=>selector==='#knBottomNav [data-act="morning"]'&&!options.noMorningControl?morningButton:null,getElementById:id=>({myPageOv:pageAvailable?page:null,myPageCard:card,'morning-section':morning,sideDrawer:drawer}[id]),createElement:tag=>{const n=el('');n.tagName=tag.toUpperCase();if(tag==='iframe')documentInFrame(n);return n;},addEventListener:(name,fn,settings)=>{events[name]=fn;registrations.push({target:'document',name,settings});}};
   doc.body.appendChild(morning);doc.body.appendChild(drawer);doc.body.appendChild(morningButton);doc.body.appendChild(page);doc.body.appendChild(card);doc.body.classList.add('view-asaletter');
-  const context={document:doc,knUser:user,location:{origin:'https://local.test',search:options.search||''},URLSearchParams,Date:{now:()=>now},getComputedStyle(node){return {display:node.style.display||((node.classList.contains('mo-pane')&&!node.classList.contains('on'))?'none':'block'),visibility:node.style.visibility||'visible'};},setTimeout(fn,ms){if(!options.deferPage)throw Error('setup should be immediate');fallbacks.push({fn,ms});return fallbacks.length;},MutationObserver:class {constructor(fn){mutations.push(fn);}observe(){}},addEventListener:(name,fn)=>{messages[name]=fn;registrations.push({target:'window',name});}};context.window=context;
+  const context={document:doc,knUser:user,knEntryChoiceRequired:options.entryChoiceRequired,location:{origin:'https://local.test',search:options.search||''},URLSearchParams,Date:{now:()=>now},getComputedStyle(node){return {display:node.style.display||((node.classList.contains('mo-pane')&&!node.classList.contains('on'))?'none':'block'),visibility:node.style.visibility||'visible'};},setTimeout(fn,ms){if(!options.deferPage)throw Error('setup should be immediate');fallbacks.push({fn,ms});return fallbacks.length;},MutationObserver:class {constructor(fn){mutations.push(fn);}observe(){}},addEventListener:(name,fn)=>{messages[name]=fn;registrations.push({target:'window',name});}};context.window=context;
   context.knRequireAuth=()=>{authChecks++;return !!(context.knUser&&(!context.knUser.is_anonymous||options.allowAnonymous));};
   context.knEnsureGuest=()=>assert.fail('warming must never initiate or refresh identity');
   context.KNMenuSheet={openMain(){menuOpens++;drawer.dataset.menuView='main';drawer.classList.add('open');drawer.inert=false;menuClose.focus();}};
@@ -71,6 +71,15 @@ test('an already established owner warms one hidden ledger without opening MyPag
   const h=fixture();assert.equal(h.frame.getAttribute('src'),'/kakeibo');h.context.knPrepareLedger();assert.deepEqual(h.navigations,['/kakeibo']);
   assert.equal(h.page.classList.contains('open'),false);assert.equal(h.authChecks(),0);assert.equal(h.refreshes(),0);
   const anonymous=fixture(null);anonymous.context.knOpenLedger();assert.equal(anonymous.frame.getAttribute('src'),null);assert.equal(anonymous.page.classList.contains('open'),false);
+});
+test('returning guest warms once after entering home with the same owner',()=>{
+  const h=fixture({id:'guest',is_anonymous:true},{entryChoiceRequired:true,allowAnonymous:true});
+  assert.deepEqual(h.navigations,[]);
+  h.context.knEntryChoiceRequired=false;
+  h.context.knPrepareLedger(true);
+  h.context.knOpenLedger();
+  assert.deepEqual(h.navigations,['/kakeibo']);
+  assert.equal(h.page.classList.contains('open'),true);
 });
 test('same-account tab and screen changes preserve one document, its draft and scroll',()=>{
   const h=fixture();h.context.knOpenLedger();assert.deepEqual(h.frame.srcChanges,['/kakeibo']);

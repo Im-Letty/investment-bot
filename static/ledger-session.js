@@ -33,12 +33,21 @@
    var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';s.onload=init;s.onerror=reject;document.head.appendChild(s);
   });
  }
- function ensure(){
+ function ensure(useHostSession){
   if(pending)return pending;
   pending=Promise.resolve().then(async function(){
    var session;
    if(w.parent!==w&&w.parent.location.origin===location.origin&&typeof w.parent.knEnsureGuest==='function'){
-    session=await w.parent.knEnsureGuest();
+    var host=w.parent,owner=host.knUser&&host.knUser.id;
+    if(host.knEntryChoiceRequired)throw new Error('entry choice required');
+    // Reuse the session the host just established, then restore through the
+    // same authenticated ledger API. Periodic checks keep the normal path.
+    if(useHostSession&&typeof host.knCurrentLedgerSession==='function')session=host.knCurrentLedgerSession();
+    if(!session)session=await host.knEnsureGuest();
+    var currentOwner=host.knUser&&host.knUser.id;
+    if(host.knEntryChoiceRequired||(owner&&owner!==currentOwner)||
+        (currentOwner&&(!session||!session.user||session.user.id!==currentOwner)))
+      throw new Error('ledger owner changed');
    }else{
     var sb=await standalone(),r=await sb.auth.getSession();if(r.error)throw r.error;
     session=r.data.session;
@@ -54,5 +63,5 @@
  // Discard the old account immediately; no expired owner may continue syncing.
  w.addEventListener('storage',function(e){if(!e.key||e.key.indexOf('sb-')===0||e.key==='kn_ledger_owner'){w.knLedgerSession=null;document.documentElement.removeAttribute('data-ledger-private-ready');ensure();}});
  if(w.parent!==w)try{w.parent.document.addEventListener('knAuthChange',function(){w.knLedgerSession=null;document.documentElement.removeAttribute('data-ledger-private-ready');ensure();});}catch(ignore){}
- ensure();setInterval(ensure,30000);
+ ensure(true);setInterval(ensure,30000);
 })(window);

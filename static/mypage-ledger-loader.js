@@ -176,6 +176,7 @@
   }
   function prepare(allowHidden) {
     if(!page||!page.classList.contains('open')&&allowHidden!==true)return;
+    if(window.knEntryChoiceRequired)return;
     var current=account();
     if(!current){unload();return;}
     if(owner&&owner!==current)unload();
