@@ -100,8 +100,15 @@
 /* Adopted goal input: Natural / current atmosphere, with its own reference palette. */
 #tab-assets #poGoalForm{--po-goal-paper:transparent;--po-goal-field:var(--kn-ledger-paper,#fffef8);--po-goal-ink:var(--kn-ledger-ink,#53583c);--po-goal-muted:var(--kn-ledger-muted,#70765e);--po-goal-line:var(--kn-ledger-line,#d2d3bf);--po-goal-button:var(--kn-ledger-button,#7b8055);--po-goal-on-button:var(--kn-ledger-on-button,#fffef8);container:po-goal-entry / inline-size;box-sizing:border-box;max-width:580px;margin:22px auto 0;padding:0;border:0;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--po-goal-paper);color:var(--po-goal-ink)}
 #tab-assets #poGoalForm .po-goal-input-value{grid-column:1;grid-row:1;display:flex;align-items:center;gap:8px;min-width:0;min-height:52px;padding:0 14px;border:1px solid var(--po-goal-line);border-radius:10px;background:var(--po-goal-field)}
-#tab-assets #poGoalForm .po-goal-input-value:focus-within{outline:2px solid var(--po-goal-button);outline-offset:3px}
-#tab-assets #poGoalForm .po-goal-input-value:has([aria-invalid="true"]){border-color:var(--kn-ledger-expense,#a15f54)}
+#tab-assets #poGoalForm .po-goal-input-value:has([aria-invalid="true"]){
+  --po-goal-focus-line:var(--kn-ledger-expense,#a15f54);
+  border-color:var(--po-goal-focus-line);
+}
+#tab-assets #poGoalForm .po-goal-input-value:focus-within{
+  border-color:transparent;
+  outline:2px solid var(--po-goal-focus-line,var(--po-goal-button));
+  outline-offset:-2px;
+}
 #tab-assets #poGoalForm #poGoalAmount{flex:1;width:100%;min-width:0;min-height:50px;margin:0;padding:12px 0;border:0!important;border-radius:0!important;background:transparent!important;color:var(--po-goal-ink)!important;font-size:max(16px,calc(22px * var(--kn-ledger-scale,1)))!important;font-weight:400;line-height:1.35;font-variant-numeric:tabular-nums;box-shadow:none}
 #tab-assets #poGoalForm #poGoalAmount:focus-visible{outline:none!important}
 #tab-assets #poGoalForm .po-goal-input-yen{flex:none;font-size:calc(14px * var(--kn-ledger-scale,1));color:var(--po-goal-muted)}
@@ -178,7 +185,7 @@
   min-height:46px;
   padding-inline:12px;
   border-width:1px;
-  border-radius:14px;
+  border-radius:20px;
 }
 #tab-assets #poGoalHero #poGoalForm #poGoalAmount {
   min-height:44px;
@@ -193,6 +200,9 @@
   min-height:44px;
   padding:8px 12px;
   border-radius:14px;
+}
+#tab-assets #poGoalHero #poGoalForm #poGoalSave {
+  border-radius:18px;
 }
 #tab-assets #poGoalForm #poGoalError {
   flex-basis:100%;
