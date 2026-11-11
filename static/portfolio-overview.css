@@ -138,7 +138,15 @@
 #tab-assets .po-assets-group .po-columns{align-items:start;margin-bottom:24px}
 #tab-assets .po-allocation{min-width:0}
 #tab-assets .po-allocation .po-heading{margin-bottom:8px}
-#tab-assets .po-pie{width:min(100%,210px);aspect-ratio:1;border-radius:50%;margin:18px auto 20px;background:var(--kn-ledger-chip,#f4f2e7)}
+#tab-assets .po-pie {
+  width:min(100%,210px);
+  aspect-ratio:1;
+  border-radius:50%;
+  margin:18px auto 20px;
+  background:var(--kn-ledger-chip,#f4f2e7);
+  -webkit-mask-image:radial-gradient(circle closest-side,transparent calc(60% - .5px),#000 calc(60% + .5px));
+  mask-image:radial-gradient(circle closest-side,transparent calc(60% - .5px),#000 calc(60% + .5px));
+}
 #tab-assets .po-assets-group #poEditor{max-width:none;margin:0 0 22px;background:color-mix(in srgb,var(--kn-ledger-paper,#fffdf6) 90%,var(--kn-ledger-button,#74784b));border-radius:12px}
 #tab-assets [data-po-add].po-icon-button{width:44px;height:44px;min-height:44px;padding:0;border:1px solid var(--kn-ledger-line,#d9d8c3);background:transparent;color:var(--kn-ledger-ink,#505538);font-size:27px;font-weight:300}
 #tab-assets .po-delete.po-icon-button{width:44px;padding:0;border-color:transparent;color:var(--kn-ledger-muted,#72785b);font-size:27px}
