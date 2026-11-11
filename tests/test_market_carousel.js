@@ -39,6 +39,7 @@ class Element extends Events {
     };
   }
   get firstChild() { return this.children[0] || null; }
+  getBoundingClientRect() { return { left: this.parentNode?.measureChildLeft?.(this) ?? 0 }; }
   appendChild(node) { return this.insertBefore(node, null); }
   insertBefore(node, before) {
     node.remove();
@@ -70,17 +71,28 @@ class Element extends Events {
   }
 }
 
-function harness({ count = 4, mobile = true, reduced = false, priceWidth = 80 } = {}) {
-  let clock = 0, sequence = 0, width = 390;
-  const timers = new Map(), intersections = [], resizes = [];
+function harness({ count = 4, mobile = true, reduced = false, priceWidth = 80, supported = true } = {}) {
+  let width = mobile ? 390 : 1000;
+  const animations = [], intersections = [], resizes = [];
   const section = new Element('section'), controls = new Element(), grid = new Element();
   section.appendChild(controls); section.appendChild(grid);
-  function makeCard(id, requiredWidth = priceWidth) {
+  const columns = () => Number(grid.style['--kn-market-columns'] || 3);
+  grid.measureChildLeft = card => grid.children.indexOf(card) * width / columns();
+  if (supported) grid.animate = (frames, options) => {
+    const a = {
+      frames, options, currentTime: null, playState: 'running',
+      play() { this.playState = 'running'; },
+      pause() { this.playState = 'paused'; },
+      cancel() { this.playState = 'idle'; }
+    };
+    animations.push(a);
+    return a;
+  };
+  function makeCard(id) {
     const card = new Element(), price = new Element();
-    card.className = 'kn-a-quote'; card.title = id; card.innerHTML = `${id}: 100.00 (+1.00, +1.00%)`;
-    price.className = 'kn-a-quote-value'; price.scrollWidth = requiredWidth;
-    // Simulate only the measured price widths; layout appearance is checked in a browser.
-    Object.defineProperty(price, 'clientWidth', { get: () => width / Number(grid.style['--kn-market-columns'] || 3) - 12 });
+    card.className = 'kn-a-quote'; card.title = id; card.innerHTML = id + ': 100.00 (+1.00, +1.00%)';
+    price.className = 'kn-a-quote-value'; price.scrollWidth = priceWidth;
+    Object.defineProperty(price, 'clientWidth', { get: () => width / columns() - 12 });
     card.appendChild(price); return card;
   }
   grid.replaceChildren(...Array.from({ length: count }, (_, i) => makeCard(String.fromCharCode(65 + i))));
@@ -93,176 +105,116 @@ function harness({ count = 4, mobile = true, reduced = false, priceWidth = 80 } 
   window.matchMedia = query => query.includes('max-width') ? phoneQuery : motionQuery;
   class IntersectionObserver {
     constructor(callback) { this.callback = callback; this.disconnected = false; intersections.push(this); }
-    observe(target) { this.target = target; }
+    observe() {}
     disconnect() { this.disconnected = true; }
   }
   class ResizeObserver {
     constructor(callback) { this.callback = callback; this.disconnected = false; resizes.push(this); }
-    observe(target) { this.target = target; }
+    observe() {}
     disconnect() { this.disconnected = true; }
   }
   window.IntersectionObserver = IntersectionObserver; window.ResizeObserver = ResizeObserver;
-  const context = { window, document, IntersectionObserver, ResizeObserver,
-    localStorage: { getItem: () => null },
-    setTimeout(fn, delay) { const id = ++sequence; timers.set(id, { fn, at: clock + delay }); return id; },
-    clearTimeout(id) { timers.delete(id); }
-  };
-  vm.runInNewContext(source, context);
+  vm.runInNewContext(source, { window, document, IntersectionObserver, ResizeObserver,
+    localStorage: { getItem: () => null } });
   const controller = window.KNMarketCarousel.mount({ grid, controls, section });
   const viewport = grid.parentNode, button = controls.firstChild;
-  function advance(duration) {
-    const until = clock + duration;
-    let steps = 0;
-    while (true) {
-      const next = [...timers].filter(([, timer]) => timer.at <= until).sort((a, b) => a[1].at - b[1].at)[0];
-      if (!next) break;
-      assert.ok(++steps < 1000, 'Timers must not spin without advancing time');
-      clock = next[1].at; timers.delete(next[0]); next[1].fn();
-    }
-    clock = until;
-  }
   const originals = () => grid.children.filter(card => !card.hasAttribute('data-kn-market-clone'));
   const clones = () => grid.children.filter(card => card.hasAttribute('data-kn-market-clone'));
-  const columns = () => Number(grid.style['--kn-market-columns']);
-  const index = () => Math.round(-parseFloat((grid.style.transform || 'translateX(0%)').slice(11)) * columns() / 100) || 0;
-  return { grid, controls, section, viewport, button, document, window, controller, timers, intersections, resizes,
-    phoneQuery, motionQuery, advance, originals, clones, columns, index,
-    shown: () => grid.children.slice(index(), index() + columns()).map(card => card.title),
-    deadline: () => [...timers.values()].map(timer => timer.at),
+  const runningAnimations = () => animations.filter(a => a.playState !== 'idle');
+  return { grid, section, viewport, button, document, window, controller, animations, intersections, resizes,
+    phoneQuery, motionQuery, originals, clones, columns, runningAnimations,
+    animation: () => runningAnimations()[0],
     click: () => button.fire('click'), tap: () => viewport.fire('click'),
     replace(ids) { grid.replaceChildren(...ids.map(id => makeCard(id))); controller.sync(); },
-    mobile(value) { phoneQuery.matches = value; phoneQuery.fire('change', { matches: value }); },
-    reduced(value) { motionQuery.matches = value; motionQuery.fire('change', { matches: value }); },
+    reduced(value) { motionQuery.matches = value; motionQuery.fire('change'); },
     hidden(value) { document.hidden = value; document.fire('visibilitychange'); },
-    visible(value) { intersections[0].callback([{ target: section, isIntersecting: value }]); },
+    visible(value) { intersections[0].callback([{ isIntersecting: value }]); },
     resize(value) { width = value; resizes[0].callback([{ contentRect: { width } }]); }
   };
 }
 
-test('four mobile markets rotate one at a time after six seconds and loop without losing a visible card', () => {
-  const h = harness();
-  assert.equal(h.columns(), 3); assert.equal(h.clones().length, 3);
-  assert.deepEqual(h.shown(), ['A', 'B', 'C']);
-  assert.ok(h.clones().every(card => card.getAttribute('aria-hidden') === 'true'));
-  for (const expected of [['B', 'C', 'D'], ['C', 'D', 'A'], ['D', 'A', 'B'], ['A', 'B', 'C']]) {
-    const before = h.grid.style.transform;
-    h.advance(5999); assert.equal(h.grid.style.transform, before);
-    h.advance(1); assert.deepEqual(h.shown(), expected); assert.match(h.grid.style.transition, /700ms/);
-    h.advance(699); assert.equal(h.timers.size, 1);
-    h.advance(1); assert.equal(h.timers.size, 1);
+test('mobile and desktop move left by one whole set at a constant speed', () => {
+  for (const [count, mobile, expectedColumns] of [[2,true,2],[4,true,3],[6,true,3],[6,false,6]]) {
+    const h = harness({ count, mobile });
+    assert.equal(h.columns(), expectedColumns);
+    const distance = count * (mobile ? 390 : 1000) / expectedColumns;
+    const a = h.animation();
+    assert.equal(a.frames[0].transform, 'translateX(0px)');
+    assert.ok(Math.abs(parseFloat(a.frames[1].transform.slice(11)) + distance) < 0.01);
+    assert.ok(Math.abs(a.options.duration - distance / 28 * 1000) < 0.01);
+    assert.equal(a.options.iterations, Infinity);
+    assert.equal(a.options.easing, 'linear');
+    assert.deepEqual(h.clones().map(card => card.title), h.originals().map(card => card.title));
+    assert.ok(h.clones().every(card => card.getAttribute('aria-hidden') === 'true'));
   }
-  assert.equal(h.index(), 0); assert.equal(h.grid.style.transition, 'none');
 });
 
-test('price and language updates refresh clones without restarting the current waiting period', () => {
-  const h = harness(); h.advance(6700); h.advance(2000);
-  const deadline = h.deadline(), original = h.originals()[0];
+test('quote updates and language changes keep the animation and its position', () => {
+  const h = harness();
+  const a = h.animation(); a.currentTime = 5000;
+  const original = h.originals()[0];
   original.innerHTML = 'A: 101.25 (+2.25, +2.27%)'; original.title = 'Updated A';
   h.document.documentElement.lang = 'en'; h.controller.sync();
-  assert.equal(h.index(), 1); assert.deepEqual(h.deadline(), deadline);
+  assert.equal(h.animation(), a); assert.equal(a.currentTime, 5000);
   assert.equal(h.originals()[0], original);
   assert.equal(h.clones()[0].innerHTML, original.innerHTML); assert.equal(h.clones()[0].title, 'Updated A');
-  assert.equal(h.button.getAttribute('aria-label'), 'Pause automatic rotation');
-  h.advance(4000); assert.equal(h.index(), 2);
+  assert.equal(h.button.getAttribute('aria-label'), 'Pause price ticker');
 });
 
-test('six mobile markets all appear in a complete cycle and shrinking to two stops rotation', () => {
-  const h = harness({count:6});
-  const seen = new Set(h.shown());
-  for (let step=0;step<6;step++) {
-    h.advance(6700); h.shown().forEach(id=>seen.add(id));
-    assert.equal(h.originals().length,6); assert.equal(h.clones().length,3);
+test('replacing the selection restarts one loop with the new quotes; one or zero stays still', () => {
+  const h = harness({ count: 6 });
+  const a = h.animation(); a.currentTime = 8000;
+  h.replace(['X', 'Y']);
+  assert.equal(a.playState, 'idle');
+  assert.equal(h.runningAnimations().length, 1); assert.equal(h.animation().currentTime, 0);
+  assert.deepEqual(h.clones().map(card => card.title), ['X', 'Y']);
+  for (const selected of [['Z'], []]) {
+    h.replace(selected);
+    assert.equal(h.clones().length, 0); assert.equal(h.runningAnimations().length, 0);
+    assert.equal(h.button.hidden, true);
   }
-  assert.deepEqual([...seen],['A','B','C','D','E','F']); assert.equal(h.index(),0);
-  h.replace(['E','F']); const position=h.grid.style.transform;
-  h.advance(60000); assert.equal(h.grid.style.transform,position); assert.equal(h.timers.size,0);
-  assert.deepEqual(h.shown(),['E','F']); assert.equal(h.clones().length,0); assert.equal(h.button.hidden,true);
 });
 
-test('six desktop markets remain visible without automatic rotation', () => {
-  const h=harness({count:6,mobile:false});
-  assert.equal(h.originals().length,6); assert.equal(h.clones().length,0); assert.equal(h.timers.size,0);
-  assert.equal(h.button.hidden,true); h.advance(60000); assert.equal(h.index(),0);
-});
-
-test('selection changes discard removed markets and rotate only when the visible capacity is exceeded', () => {
-  const h = harness(); h.advance(6700);
-  h.replace(['W', 'X', 'Y', 'Z']);
-  assert.equal(h.index(), 0); assert.deepEqual(h.shown(), ['W', 'X', 'Y']);
-  assert.deepEqual(h.clones().map(card => card.title), ['W', 'X', 'Y']); assert.equal(h.timers.size, 1);
-  for (const ids of [['W', 'X', 'Y'], ['W'], []]) {
-    h.replace(ids);
-    assert.equal(h.clones().length, 0); assert.equal(h.timers.size, 0); assert.equal(h.button.hidden, true);
-    assert.deepEqual(h.originals().map(card => card.title), ids);
-  }
-  h.replace(['A', 'B', 'C', 'D']); h.advance(6000); assert.deepEqual(h.shown(), ['B', 'C', 'D']);
-});
-
-test('the native pause button and tapping the quotes preserve a user pause across refreshes', () => {
+test('pausing at any position survives refresh, offscreen and background changes', () => {
   const h = harness();
+  const a = h.animation(); a.currentTime = 1700;
   assert.equal(h.button.tagName, 'BUTTON'); assert.equal(h.button.type, 'button');
-  h.advance(2000); h.click();
-  assert.equal(h.button.getAttribute('aria-pressed'), 'true'); assert.equal(h.timers.size, 0);
-  h.originals()[0].innerHTML = 'A: 102.00'; h.controller.sync(); h.advance(30000);
-  assert.equal(h.index(), 0); assert.equal(h.timers.size, 0); assert.equal(h.clones()[0].innerHTML, 'A: 102.00');
-  h.tap(); assert.equal(h.button.getAttribute('aria-pressed'), 'false');
-  h.advance(5999); assert.equal(h.index(), 0); h.advance(1); assert.equal(h.index(), 1);
+  h.click(); h.controller.sync(); h.visible(false); h.hidden(true); h.visible(true); h.hidden(false);
+  assert.equal(a.playState, 'paused'); assert.equal(a.currentTime, 1700);
+  assert.equal(h.button.getAttribute('aria-pressed'), 'true');
+  h.tap(); assert.equal(a.playState, 'running');
+  h.hidden(true); assert.equal(a.playState, 'paused');
+  h.visible(false); h.hidden(false); assert.equal(a.playState, 'paused');
+  h.visible(true); assert.equal(a.playState, 'running');
 });
 
-test('pausing during a slide finishes that step and schedules no additional rotation', () => {
-  const h = harness(); h.advance(6300); h.click();
-  assert.equal(h.index(), 1); assert.equal(h.timers.size, 1, 'The current 700 ms step must still finish');
-  h.advance(399); assert.equal(h.timers.size, 1);
-  h.advance(1); assert.equal(h.timers.size, 0); h.advance(20000); assert.equal(h.index(), 1);
-  h.click(); h.advance(6000); assert.equal(h.index(), 2);
-});
-
-test('document and section visibility must both permit motion and cannot clear a user pause', () => {
-  const h = harness(); h.advance(6200); h.hidden(true);
-  assert.equal(h.timers.size, 0); assert.equal(h.grid.style.transition, 'none');
-  h.visible(false); h.hidden(false); h.advance(20000); assert.equal(h.timers.size, 0);
-  h.visible(true); assert.equal(h.timers.size, 1); h.advance(6000); assert.equal(h.index(), 2);
-  h.advance(700); h.click(); h.visible(false); h.hidden(true); h.visible(true); h.hidden(false);
-  assert.equal(h.button.getAttribute('aria-pressed'), 'true'); assert.equal(h.timers.size, 0);
-});
-
-test('reduced motion exposes all four original cards and desktop mode remains static', () => {
+test('reduced motion and missing animation support keep all the original quotes readable', () => {
   const h = harness({ reduced: true });
-  assert.ok(h.section.classList.contains('kn-markets-still')); assert.equal(h.originals().length, 4);
-  assert.equal(h.clones().length, 0); assert.equal(h.timers.size, 0); assert.equal(h.button.hidden, true);
-  h.reduced(false); h.advance(6200); assert.equal(h.index(), 1);
-  h.reduced(true); assert.equal(h.index(), 0); assert.equal(h.clones().length, 0); assert.equal(h.timers.size, 0);
-  h.reduced(false); h.mobile(false);
-  assert.equal(h.originals().length, 4); assert.equal(h.clones().length, 0); assert.equal(h.timers.size, 0);
-  assert.ok(!h.section.classList.contains('kn-markets-compact')); assert.ok(!h.section.classList.contains('kn-markets-still'));
-  h.mobile(true); assert.equal(h.columns(), 3); assert.equal(h.clones().length, 3); assert.equal(h.timers.size, 1);
+  assert.ok(h.section.classList.contains('kn-markets-still'));
+  assert.equal(h.originals().length, 4); assert.equal(h.clones().length, 0);
+  assert.equal(h.button.hidden, true); assert.equal(h.runningAnimations().length, 0);
+  h.reduced(false); assert.equal(h.runningAnimations().length, 1);
+  h.reduced(true); assert.equal(h.runningAnimations().length, 0); assert.equal(h.clones().length, 0);
+  const fallback = harness({supported: false});
+  assert.equal(fallback.originals().length, 4); assert.equal(fallback.clones().length, 0);
+  assert.equal(fallback.button.hidden, true);
 });
 
-test('long prices gain columns of space and a wider viewport restores the three-card layout', () => {
+test('long prices gain room and resizing replaces the loop while keeping its progress', () => {
   const h = harness({ priceWidth: 150 });
-  assert.equal(h.columns(), 2); assert.equal(h.clones().length, 2);
-  h.originals()[0].querySelector('.kn-a-quote-value').scrollWidth = 210; h.controller.sync();
-  assert.equal(h.columns(), 1); assert.equal(h.clones().length, 1);
-  h.resize(690); assert.equal(h.columns(), 3); assert.equal(h.clones().length, 3);
-  assert.equal(h.timers.size, 1);
+  assert.equal(h.columns(), 2); assert.equal(h.clones().length, 4);
+  const a = h.animation(); a.currentTime = a.options.duration * 0.25;
+  h.resize(690);
+  assert.equal(h.columns(), 3); assert.equal(h.clones().length, 4);
+  assert.equal(a.playState, 'idle'); assert.equal(h.runningAnimations().length, 1);
+  assert.ok(Math.abs(h.animation().currentTime / h.animation().options.duration - 0.25) < 0.0001);
 });
 
-test('three or fewer selected markets remain static even when long prices need additional rows', () => {
-  for (const count of [1, 2, 3]) {
-    const h = harness({ count, priceWidth: 210 });
-    assert.equal(h.columns(), 1); assert.equal(h.originals().length, count);
-    assert.equal(h.clones().length, 0); assert.equal(h.timers.size, 0); assert.equal(h.button.hidden, true);
-    assert.ok(!h.section.classList.contains('kn-markets-rotating'));
-    h.advance(30000); assert.equal(h.index(), 0);
-  }
-});
-
-test('destroy restores the original DOM and removes timers, observers and event listeners', () => {
-  const h = harness(); h.advance(6200); h.controller.destroy();
+test('destroy cancels the loop and restores the original DOM and observers', () => {
+  const h = harness(); h.controller.destroy(); h.controller.sync();
   assert.equal(h.grid.parentNode, h.section); assert.equal(h.viewport.parentNode, null); assert.equal(h.button.parentNode, null);
-  assert.equal(h.originals().length, 4); assert.equal(h.clones().length, 0); assert.equal(h.timers.size, 0);
-  assert.equal(h.grid.style.transform, undefined); assert.equal(h.grid.style.transition, undefined);
+  assert.equal(h.originals().length, 4); assert.equal(h.clones().length, 0);
+  assert.equal(h.runningAnimations().length, 0);
   for (const node of [h.document, h.window, h.viewport, h.button, h.phoneQuery, h.motionQuery]) assert.equal(node.listenerCount(), 0);
   assert.ok([...h.intersections, ...h.resizes].every(observer => observer.disconnected));
-  h.controller.sync(); h.advance(30000); assert.equal(h.timers.size, 0);
 });

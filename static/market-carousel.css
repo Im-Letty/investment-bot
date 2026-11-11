@@ -1,4 +1,4 @@
-/* Approved D: three mobile quotes, six seconds to read each step. */
+/* Keep the viewport in place while the price cards pass through it. */
 body.kn-home-a .kn-market-viewport {min-width:0;overflow:hidden}
 /* Keep the ordinary view clear while retaining a separate accessible pause control. */
 body.kn-home-a #knHomeMarkets .kn-market-motion {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
@@ -8,6 +8,8 @@ body.kn-home-a #knHomeMarkets .kn-a-market-heading {gap:8px;position:relative}
 body.kn-home-a #knHomeMarketGrid {width:100%;overflow:visible;scrollbar-width:none}
 body.kn-home-a #knHomeMarketGrid .kn-a-quote {box-sizing:border-box;flex:1 0 0}
 body.kn-home-a #knHomeMarketGrid .kn-a-quote-value {overflow-wrap:anywhere;white-space:normal}
+body.kn-home-a .kn-markets-rotating #knHomeMarketGrid .kn-a-quote {flex:0 0 calc(100% / var(--kn-market-columns));padding-inline:15px;border-right:1px solid var(--kn-a-line)}
+body.kn-home-a .kn-markets-rotating #knHomeMarketGrid .kn-a-quote-value {white-space:nowrap}
 body.kn-home-a #knHomeMarkets.kn-markets-compact {padding-inline:12px}
 body.kn-home-a .kn-markets-compact #knHomeMarketGrid {padding:0}
 body.kn-home-a .kn-markets-compact:not(.kn-markets-rotating) #knHomeMarketGrid {display:grid;grid-template-columns:repeat(var(--kn-market-columns,3),minmax(0,1fr));row-gap:18px}
