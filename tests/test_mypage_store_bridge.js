@@ -2,12 +2,14 @@
 const test=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
 const html=fs.readFileSync('kakeibo.html','utf8');
 const start=html.indexOf('/* ==== Kakeibo <-> Supabase sync'),source=html.slice(start,html.indexOf('</script>',start));
+const openingStart=html.indexOf('<script id="ledger-opening-read">');
+const openingSource=html.slice(html.indexOf('>',openingStart)+1,html.indexOf('</script>',openingStart));
 const KEY='kb2_mypage_v1';
 const JOURNAL='kn_mypage_pending:';
 const planner=require('../static/mypage-planner.js');
 const raw=label=>JSON.stringify({...planner.empty(),label});
 async function settle(){for(let n=0;n<12;n++)await Promise.resolve();}
-function fixture(seed={},framed=true,failReadKey=null){
+function fixture(seed={},framed=true,failReadKey=null,{opening=false,loading=false}={}){
   class FixtureStorage{
     constructor(){this.values=new Map(Object.entries({kn_ledger_owner:'alice',...seed}));this.writes=[];}
     get length(){return this.values.size;}
@@ -16,18 +18,23 @@ function fixture(seed={},framed=true,failReadKey=null){
     setItem(k,v){if(this.failKey===k)throw new Error('synthetic storage failure');this.writes.push(String(k));this.values.set(String(k),String(v));}
     removeItem(k){this.values.delete(k);}
   }
-  const ls=new FixtureStorage(),requests=[],timers=new Map(),events=[],messages=[],listeners=new Map();let seq=0;
+  const ls=new FixtureStorage(),requests=[],timers=new Map(),events=[],messages=[],listeners=new Map(),documentListeners=new Map();let seq=0;
   const context={Storage:FixtureStorage,localStorage:ls,knLedgerSession:{user:{id:'alice'},access_token:'fixture-no-authority'},
-    document:{readyState:'interactive',addEventListener(){}},location:{origin:'https://fixture.test'},Event:class{constructor(type){this.type=type;}},
+    document:{readyState:loading?'loading':'interactive',addEventListener(name,fn){documentListeners.set(name,fn);}},location:{origin:'https://fixture.test'},Event:class{constructor(type){this.type=type;}},
     setTimeout(fn,ms){timers.set(++seq,{fn,ms});return seq;},clearTimeout:id=>timers.delete(id),
     addEventListener(name,fn){listeners.set(name,fn);},dispatchEvent(event){events.push(event.type);},
     fetch(url,init){const request={url,init,resolved:false};requests.push(request);return new Promise(resolve=>request.resolve=resolve);},
     renderAll(){},renderCalendar(){},renderDayModal(){},kkRenderCustomCats(){}};
   context.window=context;context.parent=framed?{location:context.location,knUser:{id:'alice'},postMessage(data,targetOrigin){messages.push({data:JSON.parse(JSON.stringify(data)),targetOrigin});}}:context;
+  if(opening){
+    context.parent.knCurrentLedgerSession=()=>context.parent.knEntryChoiceRequired?null:context.knLedgerSession;
+    vm.runInNewContext(openingSource,context);
+  }
+  const requestsBeforeSync=requests.length;
   vm.runInNewContext(source,context);
   const bridge=context.kkMyPageStore;
   function respond(path,body,ok=true){const r=requests.find(item=>!item.resolved&&item.url.endsWith(path));assert.ok(r,'pending '+path);r.resolved=true;r.resolve({ok,json:async()=>body});return r;}
-  return {context,ls,requests,timers,events,messages,listeners,bridge,
+  return {context,ls,requests,timers,events,messages,listeners,documentListeners,requestsBeforeSync,bridge,
     failRead(key){failReadKey=key;},
     async restore(data,ok=true){respond('/load',{data},ok);await settle();},
     respondLoad:(data,ok=true)=>respond('/load',{data},ok),respondSave:(ok=true,json={ok})=>respond('/save',json,ok),
@@ -35,6 +42,48 @@ function fixture(seed={},framed=true,failReadKey=null){
     change(owner){context.kkLedgerChangeOwner();context.knLedgerSession={user:{id:owner},access_token:'fixture-'+owner};ls.values.set('kn_ledger_owner',owner);if(framed)context.parent.knUser={id:owner};}};
 }
 
+test('an opening read starts before the ledger scripts and restores once across auth and DOM ready',async()=>{
+  const h=fixture({},true,null,{opening:true,loading:true});
+  assert.equal(h.requestsBeforeSync,1);
+  assert.equal(h.requests[0].init.headers.Authorization,'Bearer fixture-no-authority');
+  h.listeners.get('knLedgerAuth')();
+  assert.equal(await h.bridge.save('alice',raw('before restore')),false);
+  await h.restore({[KEY]:raw('restored')});
+  assert.equal((await h.bridge.load('alice')).raw,raw('restored'));
+  h.documentListeners.get('DOMContentLoaded')();
+  assert.equal(h.requests.length,1);
+});
+test('an intervening local edit invalidates the opening read before the normal restore',async()=>{
+  const h=fixture({[KEY]:raw('old')},true,null,{opening:true,loading:true});
+  h.ls.values.set(KEY,raw('updated by another tab'));
+  h.listeners.get('knLedgerAuth')();
+  assert.equal(h.requests.length,2);
+  await h.restore({[KEY]:raw('outdated response')});
+  assert.equal(h.ls.getItem(KEY),raw('updated by another tab'));
+  await h.restore({[KEY]:raw('latest server response')});
+  assert.equal((await h.bridge.load('alice')).raw,raw('latest server response'));
+});
+test('an opening response cannot restore after the host closes the entry session',async()=>{
+  const h=fixture({[KEY]:raw('old')},true,null,{opening:true,loading:true});
+  h.listeners.get('knLedgerAuth')();
+  const restored=h.bridge.load('alice');
+  h.context.parent.knEntryChoiceRequired=true;
+  const rejected=assert.rejects(restored,/mypage_restore_unavailable/);
+  await h.restore({[KEY]:raw('late response')});
+  await rejected;
+  assert.equal(h.ls.getItem(KEY),raw('old'));
+  assert.equal(h.requests.length,1);
+});
+test('a failed opening request falls back to the normal fetch',async()=>{
+  const h=fixture({},true,null,{opening:true,loading:true});
+  h.listeners.get('knLedgerAuth')();
+  await h.restore({},false);
+  assert.equal(h.requests.length,2);
+  await h.restore({[KEY]:raw('restored')});
+  assert.equal((await h.bridge.load('alice')).raw,raw('restored'));
+  h.documentListeners.get('DOMContentLoaded')();
+  assert.equal(h.requests.length,2);
+});
 test('the bridge waits for a real successful restore, returns exact strings, and keeps the legacy pull bool contract',async()=>{
   const h=fixture(),read=h.bridge.load('alice');let resolved=false;read.then(()=>resolved=true);
   await settle();assert.equal(resolved,false);assert.equal(h.requests.length,1);assert.equal(await h.bridge.save('alice',raw('too early')),false);

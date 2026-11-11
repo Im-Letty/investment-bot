@@ -19,12 +19,60 @@
   })();</script>
   <style>html:not([data-ledger-private-ready="true"]) body > :not(#ledger-session-notice){visibility:hidden}#ledger-session-notice{padding:24px;font:16px sans-serif}</style>
   <title>資産分析・家計簿</title>
+  <script id="ledger-opening-read">
+  (function (w) {
+    // Start the normal private read while the iframe is loading its styles and scripts.
+    try {
+      var host = w.parent;
+      if (host === w || host.location.origin !== w.location.origin ||
+          typeof host.knCurrentLedgerSession !== 'function') return;
+      var session = host.knCurrentLedgerSession();
+      if (!session || !session.user || !session.access_token) return;
+      var owner = session.user.id, token = session.access_token;
+      if (localStorage.getItem('kn_ledger_owner') !== owner) return;
+
+      // Reuse the response only if the restore starts with the same local records.
+      var snapshot = Object.create(null);
+      for (var i = 0; i < localStorage.length; i++) {
+        var key = localStorage.key(i);
+        if (/^(kb2|kbday_|kk_custom_cats|pg_kakeibo_day)/.test(key)) snapshot[key] = localStorage.getItem(key);
+      }
+      var keys = Object.keys(snapshot), expiresAt = Date.now() + 15000;
+      var response = fetch('/api/kakeibo/load', {
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token}
+      }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; });
+      var expiry = setTimeout(function () { w.knTakeLedgerOpeningRead = null; }, 15000);
+
+      function sameOwner() {
+        try {
+          var current = host.knCurrentLedgerSession(), child = w.knLedgerSession;
+          return current && current.user.id === owner && current.access_token === token &&
+            child && child.user.id === owner && child.access_token === token &&
+            localStorage.getItem('kn_ledger_owner') === owner;
+        } catch (ignore) { return false; }
+      }
+
+      w.knTakeLedgerOpeningRead = function (currentSnapshot) {
+        clearTimeout(expiry);
+        w.knTakeLedgerOpeningRead = null;
+        if (Date.now() >= expiresAt || !sameOwner() ||
+            keys.length !== Object.keys(currentSnapshot).length ||
+            keys.some(function (key) { return snapshot[key] !== currentSnapshot[key]; })) return null;
+        return response.then(function (data) {
+          if (!sameOwner()) throw new Error('ledger_owner_changed');
+          return data;
+        });
+      };
+    } catch (ignore) {}
+  })(window);
+  </script>
   <script defer src="/static/ledger-session.js?v=20261111-ledger-start1"></script>
   <link rel="stylesheet" href="/static/mypage-kakeibo-theme.css?v=20261103-reading-ink1">
   <link rel="stylesheet" href="/static/site-typography.css?v=20261011-type1">
   <script defer src="/static/mypage-kakeibo-theme.js?v=20261110-subtle-ivory1"></script>
   <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261031-toolbar-outside1">
   <script defer src="/static/kakeibo-layout.js?v=20261103-fast-open1"></script>
+  <script defer src="/static/portfolio-overview.js?v=20261110-goal-hero1"></script>
   <link rel="stylesheet" href="/static/kakeibo-calendar-designs.css?v=20261028-remove-planner-divider1">
   <script defer src="/static/kakeibo-investment-categories.js?v=20261016-investmentcats1"></script>
   <script defer src="/static/kakeibo-income-categories.js?v=20261016-incomecats1"></script>
@@ -33,7 +81,6 @@
   <link rel="stylesheet" href="/static/portfolio-advice.css?v=20261030-advice-icon1">
 <script defer src="/static/portfolio-advice.js?v=20261030-advice-icon1"></script>
   <link rel="stylesheet" href="/static/portfolio-overview.css?v=20261112-card-width1">
-  <script defer src="/static/portfolio-overview.js?v=20261110-goal-hero1"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Outfit:wght@400;600;700;800&amp;family=M+PLUS+Rounded+1c:wght@400;700&amp;family=Klee+One:wght@400;600&amp;family=Shippori+Mincho:wght@400;700&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <style>
@@ -2372,15 +2419,20 @@ function kkNavGo(tab, el){
     renderedSnapshot=kkSnapshot();
     if(previous[myPageKey]!==renderedSnapshot[myPageKey]||previous.kb2_assets!==renderedSnapshot.kb2_assets)kkMyPageNotice();
   }
+  function kkFetchRecords(){
+    return fetch("/api/kakeibo/load",{headers:kkHeaders()}).then(function(r){
+      if(!r.ok)throw new Error('ledger_load_failed');return r.json();
+    });
+  }
   function kkPull(){
     var uid=kkUid();if(!uid)return Promise.resolve(false);
     if(pullInFlight)return pullInFlight;
     if(!kkRestoreMyPagePending(uid))return Promise.resolve(false);
     kkRestoreMemoryPending(uid);pullOwner=uid;
     var before=kkSnapshot(),dirtyBefore=Object.assign({},dirtyVersions),startedVersion=editVersion,generation=ownerGeneration;
-    pullInFlight=fetch("/api/kakeibo/load",{headers:kkHeaders()}).then(function(r){
-      if(!r.ok)throw new Error('ledger_load_failed');return r.json();
-    }).then(function(j){
+    var openingRead=window.knTakeLedgerOpeningRead&&window.knTakeLedgerOpeningRead(before);
+    var read=openingRead?openingRead.then(function(data){return data===null?kkFetchRecords():data;}):kkFetchRecords();
+    pullInFlight=read.then(function(j){
       if(kkUid()!==uid||ownerGeneration!==generation||!j)return false;
       if(j.data===null){Object.keys(kkSnapshot()).forEach(function(k){if(!dirtyVersions[k])kkMarkChanged(k);});kkMemoryLoaded(uid,null);kkMyPageLoaded(uid,null);return false;}
       if(!j.data)return false;
@@ -2482,7 +2534,10 @@ function kkNavGo(tab, el){
     if(identityChecks++<25)identityTimer=setTimeout(kkWaitForIdentity,1200);
   }
   window.addEventListener('knLedgerAuth',kkWaitForIdentity);
-  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",kkWaitForIdentity,{once:true});
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",function(){
+    var uid=kkUid();
+    if(!uid||(loadedOwner!==uid&&pullOwner!==uid))kkWaitForIdentity();
+  },{once:true});
   else kkWaitForIdentity();
 })();
 </script>
