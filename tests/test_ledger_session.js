@@ -27,6 +27,21 @@ test('embedded ledger starts with a confirmed parent session without waiting for
  assert.equal(h.c.knLedgerSession,null);
  assert.equal(h.attrs.has('data-ledger-private-ready'),false);
 });
+test('a frame started for the old owner leaves storage untouched when the owner changes during lookup',async()=>{
+ let finish;
+ const sdkSession=new Promise(resolve=>{finish=resolve;});
+ const h=fixture({kn_ledger_owner:'alice',kb2_2026_10:'alice-records'}, {parent:{
+  knUser:{id:'alice'},knEnsureGuest:()=>sdkSession
+ }});
+ await new Promise(setImmediate);
+ h.c.parent.knUser={id:'bob'};
+ finish({user:{id:'bob'},access_token:'verified-token'});
+ await new Promise(setImmediate);
+ assert.equal(h.c.knLedgerSession,null);
+ assert.equal(h.attrs.has('data-ledger-private-ready'),false);
+ assert.equal(h.values.get('kn_ledger_owner'),'alice');
+ assert.equal(h.values.get('kb2_2026_10'),'alice-records');
+});
 test('first verified guest retains existing local input without importing any supplied legacy UID',async()=>{
  const h=fixture({kb2_2026_10:'local-records',lineUserId:'someone-else'});await h.tick();
  assert.equal(h.values.get('kb2_2026_10'),'local-records');assert.equal(h.values.get('kn_ledger_owner'),'alice');assert.equal(h.c.knLedgerSession.user.id,'alice');

@@ -45,7 +45,8 @@
     if(useHostSession&&typeof host.knCurrentLedgerSession==='function')session=host.knCurrentLedgerSession();
     if(!session)session=await host.knEnsureGuest();
     var currentOwner=host.knUser&&host.knUser.id;
-    if(host.knEntryChoiceRequired||(owner||currentOwner)&&(!currentOwner||!session||!session.user||session.user.id!==currentOwner))
+    if(host.knEntryChoiceRequired||(owner&&owner!==currentOwner)||
+        (currentOwner&&(!session||!session.user||session.user.id!==currentOwner)))
       throw new Error('ledger owner changed');
    }else{
     var sb=await standalone(),r=await sb.auth.getSession();if(r.error)throw r.error;
