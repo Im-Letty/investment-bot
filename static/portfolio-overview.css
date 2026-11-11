@@ -161,15 +161,9 @@
 #tab-assets #poGoalHero .po-goal-money{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 #tab-assets #poGoalHero .po-goal-progress-title{display:flex;justify-content:space-between;gap:8px 14px;flex-wrap:wrap;margin:24px 0 10px;color:var(--kn-ledger-muted,#72785b);font-size:calc(13px * var(--kn-ledger-scale,1));line-height:1.7}
 #tab-assets #poGoalHero .po-goal-progress-title p{margin:0;overflow-wrap:anywhere}
-#tab-assets #poGoalHero .po-goal-progress-title .po-goal-unit,#tab-assets #poGoalHero .po-goal-details .po-goal-unit{font-size:1em;margin-left:0}
+#tab-assets #poGoalHero .po-goal-progress-title .po-goal-unit{font-size:1em;margin-left:0}
 #tab-assets #poGoalHero .po-goal-rate{font-size:inherit;line-height:inherit;font-weight:400}
 #tab-assets #poGoalHero .po-track{height:6px;border-radius:8px}
-#tab-assets #poGoalHero .po-goal-details{margin-top:18px;color:var(--kn-ledger-muted,#72785b);font-size:calc(12px * var(--kn-ledger-scale,1));line-height:1.7}
-#tab-assets #poGoalHero .po-goal-details summary{padding:6px 0;cursor:pointer;width:fit-content;max-width:100%;overflow-wrap:anywhere}
-#tab-assets #poGoalHero .po-goal-detail-row{display:flex;justify-content:space-between;gap:10px 14px;flex-wrap:wrap;margin:8px 0;color:var(--kn-ledger-ink,#505538)}
-#tab-assets #poGoalHero .po-goal-exact{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:6px 12px;margin:14px 0 0;padding-top:12px;border-top:1px solid var(--kn-ledger-line,#d9d8c3)}
-#tab-assets #poGoalHero .po-goal-exact dt,#tab-assets #poGoalHero .po-goal-exact dd{margin:0;min-width:0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
-#tab-assets #poGoalHero .po-goal-exact dd{text-align:right;color:var(--kn-ledger-ink,#505538)}
 @media(max-width:440px){#tab-assets #poGoalHero{padding:18px 18px 22px}#tab-assets #poGoalHero .po-target-amount{font-size:calc(34px * var(--kn-ledger-scale,1))!important}}
 
 /* Neutral editor surfaces with a small tint from the selected theme. */
