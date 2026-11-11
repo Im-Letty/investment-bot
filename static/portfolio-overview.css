@@ -3,12 +3,6 @@
 #tab-assets.po-overview [hidden]{display:none!important}
 #tab-assets .po-hero{display:block!important}
 #tab-assets .po-hero,#tab-assets .po-panel{background:var(--kn-ledger-paper,#fffdf6);border:1px solid var(--kn-ledger-line,#d9d8c3);border-radius:12px;padding:22px;margin-bottom:18px;box-shadow:none;min-width:0}
-/* Match the two portfolio cards while showing a saved goal. */
-#tab-assets[data-po-ready="true"] > .po-card-stack:has(#poGoalDisplay:not([hidden])):not(:has(#poEditor:not([hidden]))) {
-  display:grid;
-  grid-template-columns:minmax(0,1fr);
-  grid-template-rows:1fr 1fr;
-}
 #tab-assets .po-hero-head,#tab-assets .po-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 #tab-assets .po-label-row{display:flex;align-items:center;gap:8px;min-width:0}
 #tab-assets #kkAssetTotalLabel{margin:0}
@@ -152,7 +146,7 @@
 #tab-assets[data-po-ready="false"] .po-assets-group{visibility:hidden}
 @media(max-width:620px){#tab-assets .po-assets-group .po-columns{gap:22px}#tab-assets .po-pie{width:min(65%,200px)}#tab-assets .po-target-amount,#tab-assets #poGoalForm #poGoalAmount{font-size:max(16px,calc(32px * var(--kn-ledger-scale,1)))!important}}
 /* Adopted “数字を主役に”: target first, supporting numbers in one quiet row. */
-#tab-assets #poGoalHero{max-width:600px;border-radius:18px;padding:24px 26px 26px;font-family:var(--kn-ledger-sans,sans-serif)}
+#tab-assets #poGoalHero{border-radius:18px;padding:24px 26px 26px;font-family:var(--kn-ledger-sans,sans-serif)}
 #tab-assets #poGoalHero>.po-heading{flex-wrap:nowrap;margin-bottom:18px}
 #tab-assets #poGoalHero .po-target-amount{font-size:calc(40px * var(--kn-ledger-scale,1));font-weight:400;line-height:1.35;letter-spacing:-.045em}
 #tab-assets #poGoalHero .po-goal-unit{font-size:.45em;letter-spacing:0;margin-left:4px}

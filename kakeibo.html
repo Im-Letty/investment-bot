@@ -32,7 +32,7 @@
   <script defer src="/static/kakeibo-receipt-sources.js?v=20261016-receipts1"></script>
   <link rel="stylesheet" href="/static/portfolio-advice.css?v=20261030-advice-icon1">
 <script defer src="/static/portfolio-advice.js?v=20261030-advice-icon1"></script>
-  <link rel="stylesheet" href="/static/portfolio-overview.css?v=20261112-card-height1">
+  <link rel="stylesheet" href="/static/portfolio-overview.css?v=20261112-card-width1">
   <script defer src="/static/portfolio-overview.js?v=20261110-goal-hero1"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Outfit:wght@400;600;700;800&amp;family=M+PLUS+Rounded+1c:wght@400;700&amp;family=Klee+One:wght@400;600&amp;family=Shippori+Mincho:wght@400;700&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -342,7 +342,6 @@ body{padding-bottom:24px;}
 <div class="tab-content po-overview" id="tab-assets" data-po-ready="false">
   <p id="poStatus" class="po-status" role="status" aria-live="polite">資産の非公開接続を確認しています…</p>
   <button type="button" class="po-button" id="poRetry">再読み込み</button>
-  <div class="po-card-stack">
   <section class="po-panel po-goal-hero" id="poGoalHero" aria-labelledby="poGoalTitle">
     <div class="po-heading"><h3 id="poGoalTitle" data-kk-pane-title tabindex="-1">資産目標</h3><button type="button" id="poGoalEdit" class="po-icon-button po-pencil" aria-label="目標資産額を編集"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="m15 5 4 4M4 20l4-1L20 7a2.8 2.8 0 0 0-4-4L4 15z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
     <div id="poGoalDisplay" class="po-goal-display" hidden><strong id="poGoalTargetValue" class="po-target-amount"></strong></div>
@@ -382,7 +381,6 @@ body{padding-bottom:24px;}
   </form>
   <section class="po-holdings" aria-label="登録した資産"><div id="poUndoNotice" class="po-undo" hidden><span id="poUndoText" role="status" aria-live="polite"></span><button type="button" id="poUndo" class="po-button">元に戻す</button></div><div id="asset-list-el" class="po-list"></div><p class="po-muted" style="margin-top:10px">資産を押すと編集、−で削除できます。削除後は「元に戻す」で取り消せます。</p></section>
   </section>
-  </div>
 </div>
 <div class="tab-content" id="tab-records">
   <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_records">記録一覧</h2>
