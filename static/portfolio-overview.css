@@ -105,7 +105,7 @@
 #tab-assets #poGoalForm #poGoalAmount{flex:1;width:100%;min-width:0;min-height:50px;margin:0;padding:12px 0;border:0!important;border-radius:0!important;background:transparent!important;color:var(--po-goal-ink)!important;font-size:max(16px,calc(22px * var(--kn-ledger-scale,1)))!important;font-weight:400;line-height:1.35;font-variant-numeric:tabular-nums;box-shadow:none}
 #tab-assets #poGoalForm #poGoalAmount:focus-visible{outline:none!important}
 #tab-assets #poGoalForm .po-goal-input-yen{flex:none;font-size:calc(14px * var(--kn-ledger-scale,1));color:var(--po-goal-muted)}
-#tab-assets #poGoalForm #poGoalSave{grid-column:2;grid-row:1;min-width:64px;min-height:48px;padding:12px 16px;border:1px solid transparent;border-radius:10px;background:var(--po-goal-button);color:var(--po-goal-on-button);font-size:calc(15px * var(--kn-ledger-scale,1));font-weight:400;line-height:1.4;white-space:nowrap}
+#tab-assets #poGoalForm #poGoalSave{grid-column:2;grid-row:1;min-width:64px;min-height:48px;padding:12px 16px;border:1px solid var(--po-goal-line);border-color:color-mix(in srgb,var(--po-goal-button) 32%,var(--po-goal-field));border-radius:10px;background:var(--po-goal-field);background:color-mix(in srgb,var(--po-goal-button) 18%,var(--po-goal-field));color:var(--po-goal-ink);font-size:calc(15px * var(--kn-ledger-scale,1));font-weight:400;line-height:1.4;white-space:nowrap}
 @media(max-width:420px){#tab-assets #poGoalForm{column-gap:10px}}
 /* A narrow form gives the amount a full row when enlarged type needs it. */
 @container po-goal-entry (max-width:260px){#tab-assets #poGoalForm .po-goal-input-value{grid-column:1/-1}#tab-assets #poGoalForm #poGoalSave{grid-column:1/-1;grid-row:2;justify-self:end}}
