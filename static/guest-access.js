@@ -5,9 +5,22 @@
   // An explicit logout returns to the three entry choices, even for a browser
   // that has already visited. Do not silently create a guest behind that entry.
   try{w.knEntryChoiceRequired=new URLSearchParams(location.search).get('entry')==='logout';}catch(_){w.knEntryChoiceRequired=false;}
-  var pending=null,generation=0;
+  var pending=null,generation=0,ledgerSession=null;
+  w.knRememberLedgerSession=function(session){
+    ledgerSession=session&&session.user&&session.user.id&&session.access_token&&Number.isFinite(session.expires_at)?
+      {owner:session.user.id,accessToken:session.access_token,expiresAt:session.expires_at}:null;
+  };
+  w.knCurrentLedgerSession=function(){
+    var user=w.knUser;
+    if(w.knEntryChoiceRequired||!user||!ledgerSession||ledgerSession.owner!==user.id||
+        ledgerSession.expiresAt<=Date.now()/1000+30)return null;
+    return {user:user,access_token:ledgerSession.accessToken};
+  };
+  if(typeof w.addEventListener==='function')w.addEventListener('storage',function(event){
+    if(!event.key||event.key.indexOf('sb-')===0)ledgerSession=null;
+  });
   w.knPrepareLogout=function(){
-    w.knEntryChoiceRequired=true;generation++;
+    w.knEntryChoiceRequired=true;generation++;ledgerSession=null;
     // A guest creation already sent to the SDK must settle before signOut.
     // Otherwise its later completion could authenticate after the logout.
     if(!pending)return Promise.resolve();
@@ -44,6 +57,7 @@
       assertCurrent();
       var changed=!w.knUser||w.knUser.id!==session.user.id;
       w.knUser=session.user;
+      w.knRememberLedgerSession(session);
       document.documentElement.setAttribute("data-kn-session-ready","true");
       if(changed)document.dispatchEvent(new Event('knAuthChange'));
       return session;

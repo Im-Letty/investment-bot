@@ -104,7 +104,8 @@ test('entry artwork offers a shared signup and login button and a separate guest
  assert.deepEqual([...welcome.matchAll(/data-action=\\"([^"]+)\\"/g)].map(match=>match[1]),['login','guest']);
  assert.match(welcome,/新規会員登録・ログインはこちら/);
  assert.match(html,/初めての方は新規登録/);
- assert.ok(html.indexOf('/static/guest-access.js?v=20261110-entry1')<html.indexOf('function startApprovedIntro(){'));
+ const guestScript=html.indexOf('/static/guest-access.js?'),intro=html.indexOf('function startApprovedIntro(){');
+ assert.ok(guestScript>=0&&guestScript<intro);
  assert.match(html,/redirectTo:'https:\/\/investment-bot-ta24\.onrender\.com'/);
 });
 
