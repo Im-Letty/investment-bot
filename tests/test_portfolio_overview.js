@@ -175,7 +175,7 @@ function domFixture(seed=[{id:1,name:'架空の保存資産',cat:'国内株',amo
    addEventListener:(name,fn)=>events[name]=fn,focus(){n.focused=true;},scrollIntoView(){},remove(){if(n.parentNode)n.parentNode.children=n.parentNode.children.filter(c=>c!==n);attrs.delete('data-po-custom');},click(){if(events.click)return events.click({target:n});}};
   all.push(n);if(id)nodes.set(id,n);return n;
  }
- const ids=['tab-assets','poEditor','poStatus','poFieldset','totalAssetVal','poProfitValue','poProfitNote','poAsOf','poGoalHero','poGoalTitle','poGoalBody','totalAssetChange','asset-legend','poAllocationStack','asset-list-el','poAllocationNote','poEditorError','poEditorTitle','poSaveButton','poCancelButton','poGoalDisplay','poGoalTargetValue','poGoalEdit','poGoalCancel','poUndoNotice','poUndoText','poUndo','poGoalForm','poGoalAmount','poGoalError','poGoalSave','poGoalStatus','poRetry'];ids.forEach(id=>element('div',id));nodes.get('poEditor').hidden=true;
+ const ids=['tab-assets','poEditor','poStatus','poFieldset','totalAssetVal','poProfitValue','poProfitNote','poAsOf','poGoalHero','poGoalTitle','poGoalBody','asset-legend','poAllocationStack','asset-list-el','poAllocationNote','poEditorError','poEditorTitle','poSaveButton','poCancelButton','poGoalDisplay','poGoalTargetValue','poGoalEdit','poGoalCancel','poUndoNotice','poUndoText','poUndo','poGoalForm','poGoalAmount','poGoalError','poGoalSave','poGoalStatus','poRetry'];ids.forEach(id=>element('div',id));nodes.get('poEditor').hidden=true;
  nodes.get('tab-assets').appendChild(nodes.get('poGoalHero'));nodes.get('poGoalHero').appendChild(nodes.get('poGoalBody'));nodes.get('poGoalHero').appendChild(nodes.get('poGoalForm'));
  const advice=element('section','kkPortfolioAdvice'),adviceControl=element('button');advice.appendChild(adviceControl);nodes.get('tab-assets').appendChild(advice);
  for(const key of ['cat','amount']){const input=element('input','ast-'+key);delete input.options;}
@@ -197,7 +197,7 @@ test('actual DOM handlers show the exact model, submit once, preserve untouched 
 test('same-owner token refresh and ordinary rerender keep unfinished editor fields; a confirmed account change scrubs them',async()=>{
  const h=domFixture();await h.flush();h.add.click();h.input('cat','未保存の私的な下書き');h.input('amount','１２３．４５');
  h.dispatch('storage',{key:'sb-auth-token'});h.dispatch('knLedgerAuth');await h.flush();assert.equal(h.nodes.get('poEditor').hidden,false);assert.equal(h.nodes.get('ast-cat').value,'未保存の私的な下書き');assert.equal(h.nodes.get('ast-amount').value,'１２３．４５');assert.equal(h.writes.length,0);
- h.owner('B');h.dispatch('knLedgerAuth');assert.equal(h.nodes.get('poEditor').hidden,true);for(const k of ['cat','amount'])assert.equal(h.nodes.get('ast-'+k).value,'');assert.equal(h.nodes.get('totalAssetChange').textContent,'');
+ h.owner('B');h.dispatch('knLedgerAuth');assert.equal(h.nodes.get('poEditor').hidden,true);for(const k of ['cat','amount'])assert.equal(h.nodes.get('ast-'+k).value,'');assert.equal(h.nodes.get('totalAssetVal').textContent,'—');
 });
 test('DOM asset edit and cancel keep stored signed valuations and unknown properties intact',async()=>{
  const h=domFixture([{id:1,name:'架空',cat:'国内株',amount:-1.25,extra:{keep:true},date:'unknown-basis'}]);await h.flush();const before=h.getRaw(),edit=h.nodes.get('asset-list-el').children[0].children[0];edit.click();h.input('cat','編集下書き');h.nodes.get('poCancelButton').click();assert.equal(h.getRaw(),before);assert.equal(h.writes.length,0);

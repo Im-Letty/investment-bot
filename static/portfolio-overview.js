@@ -197,8 +197,8 @@
       doc.getElementById('totalAssetVal').textContent=s.model?money(s.model.totalText):'—';
       status(s.error||(!s.ready?'資産の非公開接続を確認しています…':''),!!s.error);
       var legend=doc.getElementById('asset-legend'),stack=doc.getElementById('poAllocationStack'),list=doc.getElementById('asset-list-el');legend.replaceChildren();stack.replaceChildren();stack.style.background='';list.replaceChildren();
-      if(!s.ready||!s.model){doc.getElementById('poProfitValue').textContent='—';doc.getElementById('poProfitNote').textContent='';doc.getElementById('poAsOf').textContent='';doc.getElementById('totalAssetChange').textContent='';doc.getElementById('poGoalBody').replaceChildren();return;}
-      var m=s.model;doc.getElementById('totalAssetChange').textContent='登録資産 '+m.rows.length+'件';
+      if(!s.ready||!s.model){doc.getElementById('poProfitValue').textContent='—';doc.getElementById('poProfitNote').textContent='';doc.getElementById('poAsOf').textContent='';doc.getElementById('poGoalBody').replaceChildren();return;}
+      var m=s.model;
       var dates=m.rows.map(function(a){return typeof a.date==='string'&&a.date&&dateOK(a.date)?a.date:'';}),unknownDates=dates.filter(function(d){return !d;}).length;
       doc.getElementById('poAsOf').textContent=!m.rows.length?'手入力の評価額を合計します':unknownDates?'基準日未入力 '+unknownDates+'件 · 手入力':new Set(dates).size===1?'評価額の基準日 '+dates[0].replace(/-/g,'/')+' · 手入力':'各資産の基準日で集計 · 手入力';
       var profitSign=m.profitText===null||m.profitText==='0'?0:m.profitText[0]==='-'?-1:1;

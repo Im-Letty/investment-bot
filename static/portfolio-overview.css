@@ -3,11 +3,8 @@
 #tab-assets.po-overview [hidden]{display:none!important}
 #tab-assets .po-hero{display:block!important}
 #tab-assets .po-hero,#tab-assets .po-panel{background:var(--kn-ledger-paper,#fffdf6);border:1px solid var(--kn-ledger-line,#d9d8c3);border-radius:12px;padding:22px;margin-bottom:18px;box-shadow:none;min-width:0}
-#tab-assets .po-hero-head,#tab-assets .po-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-#tab-assets .po-label-row{display:flex;align-items:center;gap:8px;min-width:0}
+#tab-assets .po-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 #tab-assets #kkAssetTotalLabel{margin:0}
-#tab-assets .po-hero .kk-asset-info{position:relative;inset:auto;display:inline-block;margin:0}
-#tab-assets .po-hero .kk-asset-info-content{position:absolute;z-index:5;top:100%;left:0;width:min(290px,65vw);max-width:290px;padding:14px;background:var(--kn-ledger-paper,#fffdf6);border:1px solid var(--kn-ledger-line,#d9d8c3);border-radius:9px;box-shadow:0 8px 20px rgb(0 0 0 / .08)}
 #tab-assets .po-hero #totalAssetVal{margin:10px 0 8px;font:400 calc(36px * var(--kn-ledger-scale,1))/1.35 var(--kn-ledger-sans,sans-serif);overflow-wrap:anywhere;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
 #tab-assets .po-muted,#tab-assets .po-asof{font-size:calc(12px * var(--kn-ledger-scale,1));color:var(--kn-ledger-muted,#72785b);overflow-wrap:anywhere}
 #tab-assets .po-profit{display:flex;gap:7px 16px;align-items:baseline;flex-wrap:wrap;border-top:1px solid var(--kn-ledger-line,#d9d8c3);margin-top:16px;padding-top:13px}
