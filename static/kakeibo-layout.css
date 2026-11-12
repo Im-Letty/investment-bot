@@ -77,6 +77,10 @@ body.kn-ledger-letter.kn-ledger-paper #kkBottomNav .kk-nav-item {
 }
 body.kn-ledger-paper #kkBottomNav .kk-more {margin:0}
 body.kn-ledger-paper #kkBottomNav .kk-more>summary {height:44px;box-sizing:border-box}
+body.kn-ledger-letter.kn-ledger-paper #kkBottomNav :is(.kk-nav-item[data-kknav="calendar"],.kk-more>summary) {
+  box-sizing:border-box;border:1px solid color-mix(in srgb,var(--kn-ledger-line) 60%,var(--kn-ledger-paper));
+  border-radius:50%;background:var(--kn-ledger-paper);
+}
 body.kn-ledger-paper #kkBottomNav .kk-nav-item svg {
   display:block;width:26px;height:26px;flex:none;pointer-events:none;
 }
@@ -84,12 +88,14 @@ body.kn-ledger-paper #kkBottomNav .kk-nav-label {
   position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;
   overflow:hidden;clip-path:inset(50%);white-space:nowrap;
 }
-body.kn-ledger-letter.kn-ledger-paper #kkBottomNav .kk-nav-item.active {
+body.kn-ledger-letter.kn-ledger-paper #kkBottomNav .kk-nav-item.active,
+body.kn-ledger-letter.kn-ledger-paper #kkBottomNav .kk-more[open]>summary {
   border-color:var(--kn-ledger-line);background:var(--kn-ledger-chip);
   color:var(--kn-ledger-ink);box-shadow:none;
 }
 @media (hover:hover) {
-  body.kn-ledger-paper #kkBottomNav .kk-nav-item:hover {
+  body.kn-ledger-paper #kkBottomNav .kk-nav-item:hover,
+  body.kn-ledger-letter.kn-ledger-paper #kkBottomNav :is(.kk-nav-item[data-kknav="calendar"],.kk-more>summary):hover {
     background:var(--kn-ledger-chip);color:var(--kn-ledger-ink);
   }
 }
