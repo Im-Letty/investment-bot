@@ -66,8 +66,9 @@ test('the household assets link delegates to the same-origin parent and standalo
 });
 test('the assets surface keeps the existing form, chart and list and excludes household chrome',()=>{
   const assetPane=html.slice(html.indexOf('<div class="tab-content po-overview" id="tab-assets"'),html.indexOf('<div class="tab-content" id="tab-records">'));
-  for(const id of ['totalAssetVal','totalAssetChange','ast-cat','ast-amount','assetPieChart','asset-legend','asset-list-el'])
+  for(const id of ['totalAssetVal','ast-cat','ast-amount','assetPieChart','asset-legend','asset-list-el'])
     assert.match(assetPane,new RegExp('id="'+id+'"'));
+  assert.doesNotMatch(assetPane,/id="(?:kkAssetInfo|totalAssetChange)"|data-i18n="kk_assets_manual_note"/);
   const editor=assetPane.slice(assetPane.indexOf('<form class="po-panel" id="poEditor"'),assetPane.indexOf('</form>',assetPane.indexOf('<form class="po-panel" id="poEditor"')));
   assert.deepEqual([...editor.matchAll(/<input\b[^>]*id="([^"]+)"/g)].map(match=>match[1]),['ast-cat','ast-amount']);
   assert.doesNotMatch(editor,/<select\b|ast-name|ast-cost|ast-date|ast-account|ast-institution/);
@@ -89,14 +90,13 @@ test('the actual moved asset renderer escapes saved names and categories without
   assert.match(node.innerHTML,/deleteAsset\(42\)/);assert.match(node.innerHTML,/deleteAsset\(NaN\)/);
   assert.equal(JSON.stringify(assets),original);
 });
-test('the moved total uses saved signed valuations and counts registered zero-valued assets separately from household income',()=>{
+test('the moved total uses saved signed valuations separately from household income',()=>{
   const start=html.indexOf('  var totalAst=assets.reduce('),end=html.indexOf('  var months=[]',start);
   assert.ok(start>0&&end>start);
   for(const assets of [[{amount:0}],[{amount:123.45},{amount:-23.45}],[]]){
-    const nodes={totalAssetVal:{},totalAssetChange:{}},before=JSON.stringify(assets);
-    vm.runInNewContext(html.slice(start,end),{assets,document:{getElementById:id=>nodes[id]},fmt:String,kkT:key=>({kk_asset_count:'登録資産 {count}件',kk_pls_register_asset:'資産を登録してください'})[key]});
+    const nodes={totalAssetVal:{}},before=JSON.stringify(assets);
+    vm.runInNewContext(html.slice(start,end),{assets,document:{getElementById:id=>nodes[id]},fmt:String});
     assert.equal(nodes.totalAssetVal.textContent,String(assets.reduce((sum,row)=>sum+row.amount,0)));
-    assert.equal(nodes.totalAssetChange.textContent,assets.length?'登録資産 '+assets.length+'件':'資産を登録してください');
     assert.equal(JSON.stringify(assets),before);
   }
 });
