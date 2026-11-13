@@ -72,12 +72,11 @@ body.kn-ledger-letter.kn-ledger-paper #kkBottomNav {
 body.kn-ledger-letter.kn-ledger-paper #kkBottomNav .kk-nav-item {
   flex:none;position:relative;display:flex;align-items:center;justify-content:center;
   width:44px;height:44px;min-width:44px;min-height:44px;padding:0;
-  border:1px solid transparent;border-radius:10px;background:transparent;
   color:var(--kn-ledger-ink);box-shadow:none;line-height:1;
 }
 body.kn-ledger-paper #kkBottomNav .kk-more {margin:0}
 body.kn-ledger-paper #kkBottomNav .kk-more>summary {height:44px;box-sizing:border-box}
-body.kn-ledger-letter.kn-ledger-paper #kkBottomNav :is(.kk-nav-item[data-kknav="calendar"],.kk-more>summary) {
+body.kn-ledger-letter.kn-ledger-paper #kkBottomNav :is(.kk-nav-item,.kk-more>summary) {
   box-sizing:border-box;border:1px solid color-mix(in srgb,var(--kn-ledger-line) 60%,var(--kn-ledger-paper));
   border-radius:50%;background:var(--kn-ledger-paper);
 }
@@ -94,8 +93,7 @@ body.kn-ledger-letter.kn-ledger-paper #kkBottomNav .kk-more[open]>summary {
   color:var(--kn-ledger-ink);box-shadow:none;
 }
 @media (hover:hover) {
-  body.kn-ledger-paper #kkBottomNav .kk-nav-item:hover,
-  body.kn-ledger-letter.kn-ledger-paper #kkBottomNav :is(.kk-nav-item[data-kknav="calendar"],.kk-more>summary):hover {
+  body.kn-ledger-letter.kn-ledger-paper #kkBottomNav :is(.kk-nav-item,.kk-more>summary):hover {
     background:var(--kn-ledger-chip);color:var(--kn-ledger-ink);
   }
 }
