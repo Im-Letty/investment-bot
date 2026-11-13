@@ -67,7 +67,7 @@ body.kn-ledger-paper:is([data-kk-active-tab="calendar"],[data-kk-active-tab="rec
 body.kn-ledger-letter.kn-ledger-paper #kkBottomNav {
   position:static;display:flex;flex-direction:row;flex-wrap:nowrap;align-items:center;
   justify-content:flex-end;flex:none;width:auto;max-width:none;
-  margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;gap:6px;
+  margin:0;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;gap:10px;
 }
 body.kn-ledger-letter.kn-ledger-paper #kkBottomNav .kk-nav-item {
   flex:none;position:relative;display:flex;align-items:center;justify-content:center;

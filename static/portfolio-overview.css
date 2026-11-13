@@ -95,12 +95,6 @@
 #tab-assets #poGoalForm .po-goal-input-value{grid-column:1;grid-row:1;display:flex;align-items:center;gap:8px;min-width:0;min-height:52px;padding:0 14px;border:1px solid var(--po-goal-line);border-radius:10px;background:var(--po-goal-field)}
 #tab-assets #poGoalForm .po-goal-input-value:has([aria-invalid="true"]){
   --po-goal-focus-line:var(--kn-ledger-expense,#a15f54);
-  border-color:var(--po-goal-focus-line);
-}
-#tab-assets #poGoalForm .po-goal-input-value:focus-within{
-  border-color:transparent;
-  outline:2px solid var(--po-goal-focus-line,var(--po-goal-button));
-  outline-offset:-2px;
 }
 #tab-assets #poGoalForm #poGoalAmount{flex:1;width:100%;min-width:0;min-height:50px;margin:0;padding:12px 0;border:0!important;border-radius:0!important;background:transparent!important;color:var(--po-goal-ink)!important;font-size:max(16px,calc(22px * var(--kn-ledger-scale,1)))!important;font-weight:400;line-height:1.35;font-variant-numeric:tabular-nums;box-shadow:none}
 #tab-assets #poGoalForm #poGoalAmount:focus-visible{outline:none!important}
@@ -176,16 +170,15 @@
 /* Neutral editor surfaces with a small tint from the selected theme. */
 #tab-assets #poGoalHero {
   --po-goal-card-neutral:#fffdf7;
-  --po-goal-field-neutral:#f2efea;
-  --po-goal-save-neutral:#66695d;
+  --po-goal-save-background:#e4d1c7;
+  --po-goal-save-text:#423632;
   --po-goal-border-neutral:#cbc6bd;
   --po-goal-card-border:color-mix(in srgb,#e5dfd1 82%,var(--kn-ledger-line,#d2d3bf));
   --po-goal-editor-border:color-mix(in srgb,var(--po-goal-border-neutral) 82%,var(--kn-ledger-line,#d2d3bf));
 }
 body[data-kn-ledger-dark="true"] #tab-assets #poGoalHero {
   --po-goal-card-neutral:#35332f;
-  --po-goal-field-neutral:#2e2c28;
-  --po-goal-save-neutral:#53524b;
+  --po-goal-save-background:#c4ada2;
   --po-goal-border-neutral:#57554e;
   --po-goal-card-border:var(--po-goal-editor-border);
 }
@@ -194,8 +187,6 @@ body[data-kn-ledger-dark="true"] #tab-assets #poGoalHero {
   border-color:var(--po-goal-card-border);
 }
 #tab-assets #poGoalHero #poGoalForm {
-  --po-goal-field:color-mix(in srgb,var(--po-goal-field-neutral) 86%,var(--kn-ledger-paper,#fffef8));
-  --po-goal-line:var(--po-goal-editor-border);
   display:flex;
   flex-wrap:wrap;
   gap:8px;
@@ -205,9 +196,13 @@ body[data-kn-ledger-dark="true"] #tab-assets #poGoalHero {
   min-width:min(100%,calc(92px * var(--kn-ledger-scale,1)));
   box-sizing:border-box;
   min-height:46px;
-  padding-inline:12px;
-  border-width:1px;
-  border-radius:20px;
+  padding:0;
+  border:0;
+  border-radius:0;
+  background:transparent;
+}
+#tab-assets #poGoalHero #poGoalForm .po-goal-input-value:focus-within {
+  box-shadow:inset 0 -2px var(--po-goal-focus-line,var(--po-goal-button));
 }
 #tab-assets #poGoalHero #poGoalForm #poGoalAmount {
   min-height:44px;
@@ -221,12 +216,11 @@ body[data-kn-ledger-dark="true"] #tab-assets #poGoalHero {
 #tab-assets #poGoalHero #poGoalForm :is(#poGoalSave,#poGoalCancel) {
   min-height:44px;
   padding:8px 12px;
-  border-radius:14px;
+  border-radius:999px;
 }
 @container po-goal-entry (max-width:280px) {
   #tab-assets #poGoalHero #poGoalForm .po-goal-input-value {
     gap:4px;
-    padding-inline:6px;
   }
   #tab-assets #poGoalHero #poGoalForm #poGoalAmount {
     font-size:max(16px,calc(16px * var(--kn-ledger-scale,1)))!important;
@@ -238,10 +232,9 @@ body[data-kn-ledger-dark="true"] #tab-assets #poGoalHero {
   #tab-assets #poGoalHero #poGoalForm #poGoalCancel {padding-inline:6px}
 }
 #tab-assets #poGoalHero #poGoalForm #poGoalSave {
-  background-color:color-mix(in srgb,var(--po-goal-save-neutral) 92%,var(--po-goal-button));
-  color:#fff;
-  border-color:color-mix(in srgb,var(--po-goal-field-neutral) 78%,var(--po-goal-editor-border));
-  border-radius:18px;
+  background:var(--po-goal-save-background);
+  color:var(--po-goal-save-text);
+  border-color:transparent;
 }
 #tab-assets #poGoalForm #poGoalError {
   flex-basis:100%;
