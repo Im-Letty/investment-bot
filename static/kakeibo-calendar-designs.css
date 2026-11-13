@@ -105,19 +105,31 @@
   white-space:normal;
   overflow-wrap:anywhere;
 }
-#tab-calendar[data-calendar-design] > .card {
+#tab-calendar[data-calendar-design] > .card,
+#tab-calendar[data-calendar-design] > :where(.kk-calendar-viewport) > .kk-calendar-sheet {
   min-width:0;
   border:1px solid var(--kk-cal-line);
   background:var(--kk-cal-paper);
   color:var(--kk-cal-ink);
   box-shadow:none;
 }
+#tab-calendar .kk-calendar-viewport {
+  position:relative;
+  display:flow-root;
+  overflow:hidden;
+  overflow:clip;
+}
 #tab-calendar[data-calendar-design] .kk-calendar-sheet {
   position:relative;
   min-width:0;
   padding:18px!important; /* Existing sheet has a normal inline padding value. */
 }
-#tab-calendar[data-calendar-design] #calGrid {
+#tab-calendar[data-calendar-design] .kk-calendar-sheet.kk-calendar-outgoing {
+  position:absolute;
+  inset:0 0 auto;
+  pointer-events:none;
+}
+#tab-calendar[data-calendar-design] .kk-calendar-sheet > .cal-grid {
   display:grid;
   grid-template-columns:repeat(7,minmax(0,1fr));
   gap:4px;
@@ -279,9 +291,10 @@
   letter-spacing:-.025em;
 }
 #tab-calendar[data-calendar-design="modern"] .mnav-btn {border-radius:2px}
-#tab-calendar[data-calendar-design="modern"] > .card {border-radius:2px}
+#tab-calendar[data-calendar-design="modern"] > .card,
+#tab-calendar[data-calendar-design="modern"] > :where(.kk-calendar-viewport) > .kk-calendar-sheet {border-radius:2px}
 #tab-calendar[data-calendar-design="modern"] .kk-calendar-sheet {padding:0!important}
-#tab-calendar[data-calendar-design="modern"] #calGrid {gap:0}
+#tab-calendar[data-calendar-design="modern"] .kk-calendar-sheet > .cal-grid {gap:0}
 #tab-calendar[data-calendar-design="modern"] :is(.cal-head,.cal-day) {
   border:0;
   border-right:1px solid var(--kk-cal-line);
@@ -333,12 +346,13 @@
   border-radius:50%;
   background:var(--kk-cal-cell);
 }
-#tab-calendar[data-calendar-design="pop"] > .card {
+#tab-calendar[data-calendar-design="pop"] > .card,
+#tab-calendar[data-calendar-design="pop"] > :where(.kk-calendar-viewport) > .kk-calendar-sheet {
   border:2px solid var(--kk-cal-line);
   border-radius:19px;
 }
 #tab-calendar[data-calendar-design="pop"] .kk-calendar-sheet {padding:16px!important}
-#tab-calendar[data-calendar-design="pop"] #calGrid {gap:6px}
+#tab-calendar[data-calendar-design="pop"] .kk-calendar-sheet > .cal-grid {gap:6px}
 #tab-calendar[data-calendar-design="pop"] .cal-head {font-weight:600}
 #tab-calendar[data-calendar-design="pop"] .cal-day {
   min-height:93px;
@@ -413,7 +427,7 @@ body[data-kn-ledger-dark="true"] #tab-calendar[data-calendar-design="pop"] {
   #tab-calendar[data-calendar-design] .kk-calendar-design {padding:9px 5px;font-size:calc(12px * var(--kn-ledger-scale,1))}
   #tab-calendar[data-calendar-design] > .month-nav {gap:8px}
   #tab-calendar[data-calendar-design] .kk-calendar-sheet {padding:10px!important}
-  #tab-calendar[data-calendar-design] #calGrid {gap:2px}
+  #tab-calendar[data-calendar-design] .kk-calendar-sheet > .cal-grid {gap:2px}
   #tab-calendar[data-calendar-design] .cal-head {font-size:calc(10px * var(--kn-ledger-scale,1))}
   #tab-calendar[data-calendar-design] .cal-day {min-height:76px;padding:7px 1px 17px}
   #tab-calendar[data-calendar-design] .cal-day-num {font-size:calc(13px * var(--kn-ledger-scale,1))}
@@ -424,13 +438,13 @@ body[data-kn-ledger-dark="true"] #tab-calendar[data-calendar-design="pop"] {
   #tab-calendar[data-calendar-design="planner"] .kk-calendar-sheet::after {left:16px}
   #tab-calendar[data-calendar-design="planner"] .mnav-lbl {font-size:calc(23px * var(--kn-ledger-scale,1))}
   #tab-calendar[data-calendar-design="modern"] .kk-calendar-sheet {padding:0!important}
-  #tab-calendar[data-calendar-design="modern"] #calGrid {gap:0}
+  #tab-calendar[data-calendar-design="modern"] .kk-calendar-sheet > .cal-grid {gap:0}
   #tab-calendar[data-calendar-design="modern"] .mnav-lbl {font-size:calc(28px * var(--kn-ledger-scale,1))}
   #tab-calendar[data-calendar-design="modern"] .cal-day {min-height:82px}
   #tab-calendar[data-calendar-design="pop"] > .month-nav {padding:10px 6px}
   #tab-calendar[data-calendar-design="pop"] .mnav-lbl {font-size:calc(23px * var(--kn-ledger-scale,1))}
   #tab-calendar[data-calendar-design="pop"] .kk-calendar-sheet {padding:10px!important}
-  #tab-calendar[data-calendar-design="pop"] #calGrid {gap:3px}
+  #tab-calendar[data-calendar-design="pop"] .kk-calendar-sheet > .cal-grid {gap:3px}
   #tab-calendar[data-calendar-design="pop"] .cal-day {min-height:85px}
   #tab-calendar[data-calendar-design="pop"] .cal-day-num {min-width:0;min-height:0;width:100%;max-width:29px;aspect-ratio:1;padding:0 1px;font-size:calc(12px * var(--kn-ledger-scale,1))}
 }

@@ -73,7 +73,7 @@
   <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261112-round-toolbar1">
   <script defer src="/static/kakeibo-layout.js?v=20261103-fast-open1"></script>
   <script defer src="/static/portfolio-overview.js?v=20261112-total-info1"></script>
-  <link rel="stylesheet" href="/static/kakeibo-calendar-designs.css?v=20261028-remove-planner-divider1">
+  <link rel="stylesheet" href="/static/kakeibo-calendar-designs.css?v=20261113-month-slide1">
   <script defer src="/static/kakeibo-investment-categories.js?v=20261016-investmentcats1"></script>
   <script defer src="/static/kakeibo-income-categories.js?v=20261016-incomecats1"></script>
   <script defer src="/static/kakeibo-category-picker.js?v=20261016-incomecats1"></script>
@@ -432,8 +432,14 @@ body{padding-bottom:24px;}
 
 <div class="tab-content" id="tab-calendar" data-calendar-design="planner">
   <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_calendar">カレンダー</h2>
-  <div class="month-nav"><button class="mnav-btn" onclick="calChangeMonth(-1)">◀</button><div class="mnav-lbl" id="calMonthLabel"></div><button class="mnav-btn" onclick="calChangeMonth(1)">▶</button></div>
-  <div class="card kk-calendar-sheet" style="padding:12px"><div class="cal-grid" id="calGrid"></div></div>
+  <div class="month-nav">
+    <button type="button" class="mnav-btn" onclick="calChangeMonth(-1)" aria-label="前の月" data-kk-layout-label="kk_layout_previous_month">◀</button>
+    <div class="mnav-lbl" id="calMonthLabel" aria-live="polite"></div>
+    <button type="button" class="mnav-btn" onclick="calChangeMonth(1)" aria-label="次の月" data-kk-layout-label="kk_layout_next_month">▶</button>
+  </div>
+  <div class="kk-calendar-viewport">
+    <div class="card kk-calendar-sheet" style="padding:12px"><div class="cal-grid" id="calGrid"></div></div>
+  </div>
   <section class="card kk-cal-log" aria-labelledby="kkCalendarRecordsTitle">
     <h2 class="card-title" id="kkCalendarRecordsTitle" data-i18n="kk_calendar_records">入力した記録</h2>
     <p id="kkCalendarRecordsNotice" class="kk-layout-note" role="status" hidden></p>
@@ -1608,7 +1614,48 @@ function saveDayData(y,m,day,d){
   var other=getData(y,m).filter(function(row){return kkTrendMonthDay(row.date,y,m)!==day;});
   return saveData(other.concat(d.map(function(row){return Object.assign({},row,{date:date});})),y,m);
 }
-function calChangeMonth(d){_year=_calYear;_month=_calMonth;changeMonth(d);}
+var finishCalendarSlide=null;
+
+function calChangeMonth(direction){
+  if(finishCalendarSlide)finishCalendarSlide();
+
+  var grid=document.getElementById('calGrid');
+  var sheet=grid&&grid.parentElement;
+  var canSlide=sheet&&typeof sheet.animate==='function'&&_chartVisible(grid)
+    &&!window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    &&grid.childElementCount>0;
+  var outgoing=canSlide?sheet.cloneNode(true):null;
+
+  _year=_calYear;
+  _month=_calMonth;
+  changeMonth(direction);
+  if(!outgoing)return;
+
+  outgoing.classList.add('kk-calendar-outgoing');
+  outgoing.querySelector('.cal-grid').removeAttribute('id');
+  outgoing.setAttribute('aria-hidden','true');
+  outgoing.setAttribute('inert','');
+  sheet.parentElement.appendChild(outgoing);
+
+  var offset=direction<0?-100:100;
+  var timing={duration:320,easing:'cubic-bezier(0.22, 0.61, 0.36, 1)'};
+  var entering=sheet.animate([
+    {transform:'translateX('+offset+'%)'},
+    {transform:'translateX(0)'}
+  ],timing);
+  var leaving=outgoing.animate([
+    {transform:'translateX(0)'},
+    {transform:'translateX('+(-offset)+'%)'}
+  ],timing);
+  finishCalendarSlide=function(){
+    entering.onfinish=null;
+    entering.cancel();
+    leaving.cancel();
+    outgoing.remove();
+    finishCalendarSlide=null;
+  };
+  entering.onfinish=finishCalendarSlide;
+}
 function kkCalendarMemo(row){
   var fields=['memo','note','name'];
   for(var i=0;i<fields.length;i++){var value=row[fields[i]];if(typeof value==='string'&&value.trim())return value;}
