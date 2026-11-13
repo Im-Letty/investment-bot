@@ -145,10 +145,13 @@
           return id;
         }catch(ignore){return '';}
       }
-      var panel=el('section','card pa-panel');panel.id='kkPortfolioAdvice';panel.setAttribute('aria-labelledby','paTitle');
+      var panel=el('dialog','card pa-panel');panel.id='kkPortfolioAdvice';panel.setAttribute('aria-labelledby','paTitle');
       var header=el('div','pa-heading'),title=el('h2','','資産の見直し・AIアドバイス');title.id='paTitle';header.appendChild(title);
+      var actions=el('div','pa-heading-actions');
       var info=el('details','pa-info'),toggle=el('summary'),symbol=el('span','pa-info-symbol','!');symbol.setAttribute('aria-hidden','true');toggle.appendChild(symbol);toggle.setAttribute('aria-label','分析について');
-      info.appendChild(toggle);info.appendChild(el('p','','登録した評価額をもとにした参考情報です。価格は自動更新されません。銘柄の中身・負債・為替・将来の値動きまでは判断できません。AIの説明には誤りが含まれることがあります。大切な判断は専門家にもご相談ください。'));header.appendChild(info);panel.appendChild(header);
+      info.appendChild(toggle);info.appendChild(el('p','','登録した評価額をもとにした参考情報です。価格は自動更新されません。銘柄の中身・負債・為替・将来の値動きまでは判断できません。AIの説明には誤りが含まれることがあります。大切な判断は専門家にもご相談ください。'));
+      var close=el('button','pa-close','×');close.type='button';close.setAttribute('aria-label','閉じる');
+      actions.appendChild(info);actions.appendChild(close);header.appendChild(actions);panel.appendChild(header);
       var notice=el('p','pa-notice');notice.setAttribute('role','status');panel.appendChild(notice);
       var facts=el('div','pa-facts');panel.appendChild(facts);
       var ai=el('div','pa-ai');ai.appendChild(el('h3','','AIと見直す'));
@@ -156,7 +159,33 @@
       var consentLabel=el('label','pa-consent'),consent=el('input');consent.type='checkbox';consentLabel.appendChild(consent);
       consentLabel.appendChild(el('span','','18歳以上です。資産カテゴリ別の集計をGoogle Geminiに送信して分析します。登録名やメモは送信しません。'));ai.appendChild(consentLabel);
       var run=el('button','pa-run','AIで分析する');run.type='button';ai.appendChild(run);
-      var output=el('div','pa-result');output.setAttribute('aria-live','polite');ai.appendChild(output);panel.appendChild(ai);pane.appendChild(panel);
+      var output=el('div','pa-result');output.setAttribute('aria-live','polite');ai.appendChild(output);panel.appendChild(ai);
+      var launcher=el('button','pa-launch');launcher.type='button';launcher.hidden=true;launcher.setAttribute('aria-label',title.textContent);
+      launcher.setAttribute('aria-haspopup','dialog');launcher.setAttribute('aria-controls',panel.id);launcher.setAttribute('aria-expanded','false');
+      launcher.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/></svg>';
+      pane.appendChild(launcher);pane.appendChild(panel);
+      var hostPage;
+      try{if(w.parent!==w&&w.parent.location.origin===w.location.origin)hostPage=w.parent.document.getElementById('myPageOv');}catch(ignore){}
+      function visible(){
+        return pane.classList.contains('active')&&!pane.hidden&&(!hostPage||
+          hostPage.classList.contains('open')&&hostPage.getAttribute('data-mp-view')==='assets');
+      }
+      function closePanel(restoreFocus){
+        if(!panel.open)return;
+        panel.close();info.open=false;launcher.setAttribute('aria-expanded','false');
+        if(restoreFocus&&visible()&&!launcher.hidden)launcher.focus({preventScroll:true});
+      }
+      launcher.addEventListener('click',function(){
+        if(panel.open||!owner()||!visible())return;
+        panel.showModal();launcher.setAttribute('aria-expanded','true');close.focus({preventScroll:true});
+      });
+      close.addEventListener('click',function(){closePanel(true);});
+      panel.addEventListener('cancel',function(event){event.preventDefault();closePanel(true);});
+      if(typeof w.MutationObserver==='function'){
+        var monitor=new w.MutationObserver(function(){if(!visible())closePanel(false);});
+        monitor.observe(pane,{attributes:true,attributeFilter:['class','hidden']});
+        if(hostPage)monitor.observe(hostPage,{attributes:true,attributeFilter:['class','data-mp-view']});
+      }
       var currentOwner='';
       function money(n){return new Intl.NumberFormat('ja-JP',{maximumFractionDigits:20}).format(n)+'円';}
       function pct(n){return new Intl.NumberFormat('ja-JP',{maximumFractionDigits:1}).format(n)+'%';}
@@ -173,7 +202,8 @@
       };
       function paint(state){
         var who=owner();
-        if(currentOwner!==who){currentOwner=who;consent.checked=false;}
+        launcher.hidden=!who;
+        if(currentOwner!==who){currentOwner=who;consent.checked=false;closePanel(false);}
         facts.replaceChildren();output.replaceChildren();
         var f=state.facts;
         notice.textContent=messages[state.error]||(state.error?'AI分析を利用できません。':state.stale?'記録が変わりました。必要に応じてもう一度分析してください。':!f?'資産記録を確認しています。':!f.count?'資産を追加すると分析できます。':f.negative||f.total<=0?'分析するには、登録額をご確認ください。':'');

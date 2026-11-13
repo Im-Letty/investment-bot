@@ -78,9 +78,9 @@
   <script defer src="/static/kakeibo-income-categories.js?v=20261016-incomecats1"></script>
   <script defer src="/static/kakeibo-category-picker.js?v=20261016-incomecats1"></script>
   <script defer src="/static/kakeibo-receipt-sources.js?v=20261016-receipts1"></script>
-  <link rel="stylesheet" href="/static/portfolio-advice.css?v=20261030-advice-icon1">
-<script defer src="/static/portfolio-advice.js?v=20261030-advice-icon1"></script>
-  <link rel="stylesheet" href="/static/portfolio-overview.css?v=20261114-inline-goal1">
+  <link rel="stylesheet" href="/static/portfolio-advice.css?v=20261114-advice-dialog1">
+<script defer src="/static/portfolio-advice.js?v=20261114-advice-dialog1"></script>
+  <link rel="stylesheet" href="/static/portfolio-overview.css?v=20261114-centered-holdings1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Outfit:wght@400;600;700;800&amp;family=M+PLUS+Rounded+1c:wght@400;700&amp;family=Klee+One:wght@400;600&amp;family=Shippori+Mincho:wght@400;700&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <style>
@@ -406,7 +406,14 @@ body{padding-bottom:24px;}
     <p id="kkAssetTotalLabel" class="kk-layout-note" data-i18n="kk_total_asset">総資産</p>
     <p id="totalAssetVal" class="kk-asset-total">—</p>
   </section>
-  <section class="po-allocation" aria-label="資産の内訳"><p id="poAllocationNote" class="po-muted" hidden></p><div id="poAllocationStack" class="po-pie" role="img" aria-label="資産の内訳"></div><canvas id="assetPieChart" class="po-legacy-canvas" aria-hidden="true" hidden></canvas><div id="asset-legend"></div></section>
+  <div class="po-chart">
+    <div id="poAllocationStack" class="po-pie" role="img" aria-label="資産の内訳"></div>
+    <canvas id="assetPieChart" class="po-legacy-canvas" aria-hidden="true" hidden></canvas>
+  </div>
+  <section class="po-allocation" aria-label="資産の内訳">
+    <p id="poAllocationNote" class="po-muted" hidden></p>
+    <div id="asset-legend" class="po-scroll-list" tabindex="0" role="group" aria-label="資産の配分一覧"></div>
+  </section>
   </div>
   <form class="po-panel" id="poEditor" hidden novalidate>
     <div class="po-heading"><h3 id="poEditorTitle">資産を追加</h3></div>
@@ -418,7 +425,13 @@ body{padding-bottom:24px;}
     <p id="poEditorError" class="po-error" role="alert"></p>
     <div class="po-actions"><button type="button" class="po-button" id="poCancelButton">キャンセル</button><button type="submit" class="po-button po-button-primary" id="poSaveButton">追加する</button></div></fieldset>
   </form>
-  <section class="po-holdings" aria-label="登録した資産"><div id="poUndoNotice" class="po-undo" hidden><span id="poUndoText" role="status" aria-live="polite"></span><button type="button" id="poUndo" class="po-button">元に戻す</button></div><div id="asset-list-el" class="po-list"></div></section>
+  <section class="po-holdings" aria-label="登録した資産">
+    <div id="asset-list-el" class="po-list po-scroll-list" tabindex="0" role="group" aria-label="登録した資産の一覧"></div>
+    <div id="poUndoNotice" class="po-undo" hidden>
+      <span id="poUndoText" class="po-visually-hidden" role="status" aria-live="polite"></span>
+      <button type="button" id="poUndo" class="po-button">元に戻す</button>
+    </div>
+  </section>
   </section>
 </div>
 <div class="tab-content" id="tab-records">
