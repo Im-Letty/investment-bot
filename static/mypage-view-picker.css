@@ -1,7 +1,7 @@
 /* One row of round view tabs, using the original route controls and palette. */
 body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] {
   display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-  position:relative;isolation:isolate;align-items:stretch;gap:3px;
+  position:relative;isolation:isolate;align-items:stretch;gap:8px;
   min-width:0;min-height:72px;box-sizing:border-box;
   /* Talk: 64px header + 16px gap; this track has a 10px top inset. */
   margin-top:70px;
@@ -19,14 +19,14 @@ body.kn-home-a[data-theme="dark"] #myPageOv .mp-toptabs[data-mp-tabs-ready="true
 }
 body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab {
   display:flex;align-items:center;justify-content:center;
-  min-width:0;min-height:44px;margin:4px 0;padding:8px 9px;
+  min-width:0;min-height:44px;margin:7px 0;padding:8px 9px;
   border:0;border-radius:999px;
   background:transparent!important;color:var(--kn-sh-ink,#3d4b3c)!important;
   font:400 calc(var(--kn-type-control,14px) * var(--kn-type-scale,1))/1.4 var(--kn-a-sans,system-ui,sans-serif)!important;
   white-space:normal;overflow-wrap:anywhere;text-align:center;box-shadow:none;
 }
-body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab:first-child {margin-left:4px}
-body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab:last-child {margin-right:4px}
+body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab:first-child {margin-left:7px}
+body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab:last-child {margin-right:7px}
 body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab.on {
   background:var(--kn-sh-chip,#eeeddf)!important;font-weight:600!important;
 }
