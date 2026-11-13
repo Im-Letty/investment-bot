@@ -6,11 +6,7 @@
 #tab-assets .po-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 #tab-assets #kkAssetTotalLabel{margin:0}
 #tab-assets .po-hero #totalAssetVal{margin:10px 0 8px;font:400 calc(36px * var(--kn-ledger-scale,1))/1.35 var(--kn-ledger-sans,sans-serif);overflow-wrap:anywhere;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
-#tab-assets .po-muted,#tab-assets .po-asof{font-size:calc(12px * var(--kn-ledger-scale,1));color:var(--kn-ledger-muted,#72785b);overflow-wrap:anywhere}
-#tab-assets .po-profit{display:flex;gap:7px 16px;align-items:baseline;flex-wrap:wrap;border-top:1px solid var(--kn-ledger-line,#d9d8c3);margin-top:16px;padding-top:13px}
-#tab-assets .po-profit-label{font-size:calc(13px * var(--kn-ledger-scale,1));color:var(--kn-ledger-muted,#72785b)}
-#tab-assets .po-profit-value{font-size:calc(19px * var(--kn-ledger-scale,1));font-weight:400;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
-#tab-assets .po-profit-note{flex-basis:100%;margin:0;font-size:calc(12px * var(--kn-ledger-scale,1));color:var(--kn-ledger-muted,#72785b)}
+#tab-assets .po-muted{font-size:calc(12px * var(--kn-ledger-scale,1));color:var(--kn-ledger-muted,#72785b);overflow-wrap:anywhere}
 #tab-assets .po-up{color:var(--kn-ledger-income,#3d7357)}
 #tab-assets .po-down{color:var(--kn-ledger-expense,#a15f54)}
 #tab-assets .po-button{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:8px 13px;border:1px solid var(--kn-ledger-line,#d9d8c3);border-radius:8px;background:var(--kn-ledger-paper,#fffdf6);color:var(--kn-ledger-ink,#505538);font:400 calc(14px * var(--kn-ledger-scale,1))/1.5 var(--kn-ledger-sans,sans-serif);max-width:100%;white-space:normal;touch-action:manipulation;cursor:pointer}
@@ -65,7 +61,7 @@
 #tab-assets .po-fieldset{border:0;min-width:0;padding:0}
 #tab-assets .po-status{margin:0 0 18px;font-size:calc(13px * var(--kn-ledger-scale,1));color:var(--kn-ledger-muted,#72785b);overflow-wrap:anywhere}
 #tab-assets .po-error{color:var(--kn-ledger-expense,#a15f54);font-size:calc(13px * var(--kn-ledger-scale,1));overflow-wrap:anywhere}
-#tab-assets[data-po-ready="false"] :is(#poGoalBody,.po-columns,.po-holdings,.po-profit,.po-asof){visibility:hidden}
+#tab-assets[data-po-ready="false"] :is(#poGoalBody,.po-columns,.po-holdings){visibility:hidden}
 #tab-assets .po-legacy-canvas{display:none!important}
 @media(max-width:620px){#tab-assets .po-fields{grid-template-columns:1fr}#tab-assets .po-columns{grid-template-columns:1fr;gap:0}#tab-assets .po-hero{display:block!important}
 #tab-assets .po-hero,#tab-assets .po-panel{padding:18px}#tab-assets .po-hero #totalAssetVal{font-size:calc(31px * var(--kn-ledger-scale,1))}#tab-assets .po-goal-amount{font-size:calc(36px * var(--kn-ledger-scale,1))}#tab-assets .po-asset{grid-template-columns:minmax(0,1fr) minmax(75px,.85fr)}}
@@ -134,7 +130,6 @@
 #tab-assets .po-assets-group .po-hero{padding:0;margin:0;border:0;border-radius:0;background:transparent}
 #tab-assets .po-assets-group .po-columns{align-items:start;margin-bottom:24px}
 #tab-assets .po-allocation{min-width:0}
-#tab-assets .po-allocation .po-heading{margin-bottom:8px}
 #tab-assets .po-pie {
   width:min(100%,210px);
   aspect-ratio:1;
@@ -151,17 +146,32 @@
 #tab-assets[data-po-ready="false"] .po-assets-group{visibility:hidden}
 @media(max-width:620px){#tab-assets .po-assets-group .po-columns{gap:22px}#tab-assets .po-pie{width:min(65%,200px)}#tab-assets .po-target-amount,#tab-assets #poGoalForm #poGoalAmount{font-size:max(16px,calc(32px * var(--kn-ledger-scale,1)))!important}}
 /* Adopted “数字を主役に”: target first, supporting numbers in one quiet row. */
-#tab-assets #poGoalHero{border-radius:18px;padding:24px 26px 26px;font-family:var(--kn-ledger-sans,sans-serif)}
-#tab-assets #poGoalHero>.po-heading{flex-wrap:nowrap;margin-bottom:18px}
-#tab-assets #poGoalHero .po-target-amount{font-size:calc(40px * var(--kn-ledger-scale,1));font-weight:400;line-height:1.35;letter-spacing:-.045em}
+#tab-assets #poGoalHero{
+  --po-goal-number-size:calc(40px * var(--kn-ledger-scale,1));
+  --po-goal-number-row:max(46px,calc(var(--po-goal-number-size) * 1.35));
+  --po-goal-progress-line:calc(13px * var(--kn-ledger-scale,1) * 1.7);
+  border-radius:18px;
+  padding:24px 26px 26px;
+  font-family:var(--kn-ledger-sans,sans-serif);
+}
+#tab-assets #poGoalHero>.po-heading{flex-wrap:nowrap;min-block-size:44px;margin-bottom:18px}
+#tab-assets #poGoalHero .po-target-amount{font-size:var(--po-goal-number-size)!important;font-weight:400;line-height:1.35;letter-spacing:-.045em}
 #tab-assets #poGoalHero .po-goal-unit{font-size:.45em;letter-spacing:0;margin-left:4px}
 #tab-assets #poGoalHero .po-goal-money{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+/* The amount and progress areas reserve the saved layout before a goal exists. */
+#tab-assets #poGoalHero :is(#poGoalDisplay,#poGoalForm){min-block-size:var(--po-goal-number-row)}
+#tab-assets[data-po-ready="true"] #poGoalBody {
+  display:flow-root;
+  min-block-size:calc(40px + var(--po-goal-progress-line));
+}
+#tab-assets #poGoalBody > .po-muted{margin-top:24px}
 #tab-assets #poGoalHero .po-goal-progress-title{display:flex;justify-content:space-between;gap:8px 14px;flex-wrap:wrap;margin:24px 0 10px;color:var(--kn-ledger-muted,#72785b);font-size:calc(13px * var(--kn-ledger-scale,1));line-height:1.7}
 #tab-assets #poGoalHero .po-goal-progress-title p{margin:0;overflow-wrap:anywhere}
 #tab-assets #poGoalHero .po-goal-progress-title .po-goal-unit{font-size:1em;margin-left:0}
 #tab-assets #poGoalHero .po-goal-rate{font-size:inherit;line-height:inherit;font-weight:400}
 #tab-assets #poGoalHero .po-track{height:6px;border-radius:8px}
-@media(max-width:440px){#tab-assets #poGoalHero{padding:18px 18px 22px}#tab-assets #poGoalHero .po-target-amount{font-size:calc(34px * var(--kn-ledger-scale,1))!important}}
+@media(max-width:620px){#tab-assets #poGoalHero{--po-goal-number-size:max(16px,calc(32px * var(--kn-ledger-scale,1)))}}
+@media(max-width:440px){#tab-assets #poGoalHero{--po-goal-number-size:calc(34px * var(--kn-ledger-scale,1));padding:18px 18px 22px}}
 
 /* Neutral editor surfaces with a small tint from the selected theme. */
 #tab-assets #poGoalHero {
@@ -182,12 +192,6 @@ body[data-kn-ledger-dark="true"] #tab-assets #poGoalHero {
 #tab-assets #poGoalHero:has(> #poGoalForm:not([hidden])) {
   background-color:color-mix(in srgb,var(--po-goal-card-neutral) 82%,var(--kn-ledger-bg,#f2f3eb));
   border-color:var(--po-goal-card-border);
-  max-width:480px;
-  padding:16px 18px;
-  border-radius:22px;
-}
-#tab-assets #poGoalHero:has(> #poGoalForm:not([hidden])) > .po-heading {
-  margin-bottom:10px;
 }
 #tab-assets #poGoalHero #poGoalForm {
   --po-goal-field:color-mix(in srgb,var(--po-goal-field-neutral) 86%,var(--kn-ledger-paper,#fffef8));
@@ -197,8 +201,8 @@ body[data-kn-ledger-dark="true"] #tab-assets #poGoalHero {
   gap:8px;
 }
 #tab-assets #poGoalHero #poGoalForm .po-goal-input-value {
-  flex:1 1 calc(148px * var(--kn-ledger-scale,1));
-  min-width:min(100%,calc(148px * var(--kn-ledger-scale,1)));
+  flex:1 1 calc(92px * var(--kn-ledger-scale,1));
+  min-width:min(100%,calc(92px * var(--kn-ledger-scale,1)));
   box-sizing:border-box;
   min-height:46px;
   padding-inline:12px;
@@ -207,7 +211,7 @@ body[data-kn-ledger-dark="true"] #tab-assets #poGoalHero {
 }
 #tab-assets #poGoalHero #poGoalForm #poGoalAmount {
   min-height:44px;
-  padding-block:8px;
+  padding-block:6px;
   font-size:max(16px,calc(22px * var(--kn-ledger-scale,1)))!important;
 }
 #tab-assets #poGoalForm .po-target-actions {
@@ -218,6 +222,20 @@ body[data-kn-ledger-dark="true"] #tab-assets #poGoalHero {
   min-height:44px;
   padding:8px 12px;
   border-radius:14px;
+}
+@container po-goal-entry (max-width:280px) {
+  #tab-assets #poGoalHero #poGoalForm .po-goal-input-value {
+    gap:4px;
+    padding-inline:6px;
+  }
+  #tab-assets #poGoalHero #poGoalForm #poGoalAmount {
+    font-size:max(16px,calc(16px * var(--kn-ledger-scale,1)))!important;
+  }
+  #tab-assets #poGoalHero #poGoalForm #poGoalSave {
+    min-width:44px;
+    padding-inline:8px;
+  }
+  #tab-assets #poGoalHero #poGoalForm #poGoalCancel {padding-inline:6px}
 }
 #tab-assets #poGoalHero #poGoalForm #poGoalSave {
   background-color:color-mix(in srgb,var(--po-goal-save-neutral) 92%,var(--po-goal-button));
