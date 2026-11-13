@@ -197,16 +197,18 @@
       doc.getElementById('totalAssetVal').textContent=s.model?money(s.model.totalText):'—';
       status(s.error||(!s.ready?'資産の非公開接続を確認しています…':''),!!s.error);
       var legend=doc.getElementById('asset-legend'),stack=doc.getElementById('poAllocationStack'),list=doc.getElementById('asset-list-el');legend.replaceChildren();stack.replaceChildren();stack.style.background='';list.replaceChildren();
-      if(!s.ready||!s.model){doc.getElementById('poProfitValue').textContent='—';doc.getElementById('poProfitNote').textContent='';doc.getElementById('poAsOf').textContent='';doc.getElementById('poGoalBody').replaceChildren();return;}
+      var allocationNote=doc.getElementById('poAllocationNote');
+      allocationNote.hidden=true;
+      allocationNote.textContent='';
+      if(!s.ready||!s.model){doc.getElementById('poGoalBody').replaceChildren();return;}
       var m=s.model;
-      var dates=m.rows.map(function(a){return typeof a.date==='string'&&a.date&&dateOK(a.date)?a.date:'';}),unknownDates=dates.filter(function(d){return !d;}).length;
-      doc.getElementById('poAsOf').textContent=!m.rows.length?'手入力の評価額を合計します':unknownDates?'基準日未入力 '+unknownDates+'件 · 手入力':new Set(dates).size===1?'評価額の基準日 '+dates[0].replace(/-/g,'/')+' · 手入力':'各資産の基準日で集計 · 手入力';
-      var profitSign=m.profitText===null||m.profitText==='0'?0:m.profitText[0]==='-'?-1:1;
-      doc.getElementById('poProfitValue').textContent=m.profitText===null?'—':(profitSign>0?'＋':profitSign<0?'−':'')+money(profitSign<0?m.profitText.slice(1):m.profitText);
-      doc.getElementById('poProfitValue').className='po-profit-value '+(profitSign>0?'po-up':profitSign<0?'po-down':'');
-      doc.getElementById('poProfitNote').textContent=(m.knownCount?'取得額のある記録 '+m.knownCount+'件を集計':'取得額のある記録はありません')+(m.unknownCount?' · 取得額不明 '+m.unknownCount+'件':'');
       stack.hidden=!m.canAllocate;stack.setAttribute('aria-label',m.groups.map(function(g){return g.name+' '+money(g.amountText);}).join('、'));
-      doc.getElementById('poAllocationNote').textContent=m.rows.length?m.canAllocate?'評価額ベース':'マイナスまたは合計0円のため、配分率の代わりに金額を表示しています。':'資産を追加すると内訳が表示されます。';
+      if(!m.canAllocate){
+        allocationNote.textContent=m.rows.length
+          ? 'マイナスまたは合計0円のため、配分率の代わりに金額を表示しています。'
+          : '資産を追加すると内訳が表示されます。';
+        allocationNote.hidden=false;
+      }
       var allocated=0,positive=m.groups.filter(function(g){return g.amount>0;}),stops=[];m.groups.forEach(function(g,i){var color='var(--po-category-'+(i%7)+')';if(m.canAllocate&&g.amount>0){var start=allocated;allocated+=g.amount/m.total*100;if(g===positive[positive.length-1])allocated=100;stops.push(color+' '+start+'% '+allocated+'%');}
         var row=node('div','po-legend-row'),name=node('span','po-category'),swatch=node('span','po-swatch');swatch.style.background=color;name.appendChild(swatch);name.appendChild(node('span','',g.name));row.appendChild(name);
         var value=node('span','po-legend-value',money(g.amountText));value.appendChild(node('small','',m.canAllocate?(g.amount/m.total*100).toLocaleString('ja-JP',{maximumFractionDigits:1})+'%':'—'));row.appendChild(value);legend.appendChild(row);
