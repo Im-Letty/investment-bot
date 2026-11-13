@@ -122,8 +122,43 @@
 /* One section owns the total, chart, entry controls and saved rows. */
 #tab-assets .po-assets-group>.po-heading{margin-bottom:22px}
 #tab-assets .po-assets-group .po-hero{padding:0;margin:0;border:0;border-radius:0;background:transparent}
-#tab-assets .po-assets-group .po-columns{align-items:start;margin-bottom:24px}
-#tab-assets .po-allocation{min-width:0}
+#tab-assets .po-assets-group {container:po-holdings / inline-size}
+#tab-assets .po-assets-group .po-columns {
+  grid-template-columns:minmax(0,1fr) minmax(0,210px) minmax(0,1fr);
+  align-items:center;
+  gap:18px;
+  margin-bottom:24px;
+}
+#tab-assets .po-allocation,
+#tab-assets .po-chart {min-width:0}
+#tab-assets .po-chart:has(.po-pie[hidden]) {display:none}
+#tab-assets .po-assets-group .po-columns:where(:has(.po-pie[hidden])) {
+  grid-template-columns:repeat(2,minmax(0,1fr));
+}
+#tab-assets .po-assets-group .po-pie {margin:0 auto}
+#tab-assets .po-scroll-list {
+  overflow-y:auto;
+  scrollbar-gutter:stable;
+}
+#tab-assets .po-scroll-list:focus-visible {
+  outline:2px solid var(--kn-ledger-button,#74784b);
+  outline-offset:-2px;
+}
+#tab-assets #asset-legend {max-block-size:210px}
+#tab-assets #asset-legend:empty {display:none}
+#tab-assets #asset-list-el {max-block-size:min(16rem,42vh)}
+@container po-holdings (max-width:620px) {
+  #tab-assets .po-assets-group .po-columns {
+    grid-template-columns:minmax(0,1fr);
+    gap:16px;
+  }
+  #tab-assets .po-assets-group .po-pie {width:min(65%,180px)}
+  #tab-assets #asset-legend {max-block-size:8rem}
+  #tab-assets #asset-legend:not(:has(> :nth-child(4))),
+  #tab-assets #asset-list-el:not(:has(> :nth-child(4))) {
+    max-block-size:none;
+  }
+}
 #tab-assets .po-pie {
   width:min(100%,210px);
   aspect-ratio:1;
@@ -136,9 +171,22 @@
 #tab-assets .po-assets-group #poEditor{max-width:none;margin:0 0 22px;background:color-mix(in srgb,var(--kn-ledger-paper,#fffdf6) 90%,var(--kn-ledger-button,#74784b));border-radius:12px}
 #tab-assets [data-po-add].po-icon-button{width:44px;height:44px;min-height:44px;padding:0;border:1px solid var(--kn-ledger-line,#d9d8c3);background:transparent;color:var(--kn-ledger-ink,#505538);font-size:27px;font-weight:300}
 #tab-assets .po-delete.po-icon-button{width:44px;padding:0;border-color:transparent;color:var(--kn-ledger-muted,#72785b);font-size:27px}
-#tab-assets .po-undo{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px;margin-bottom:16px;border:1px solid var(--kn-ledger-line,#d9d8c3);border-radius:10px;background:var(--kn-ledger-chip,#f4f2e7);font-size:calc(13px * var(--kn-ledger-scale,1))}
+#tab-assets .po-undo {
+  display:flex;
+  justify-content:flex-end;
+  margin-top:12px;
+}
+#tab-assets #poUndo {border-radius:999px}
+#tab-assets .po-visually-hidden {
+  position:absolute;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+  clip-path:inset(50%);
+  white-space:nowrap;
+}
 #tab-assets[data-po-ready="false"] .po-assets-group{visibility:hidden}
-@media(max-width:620px){#tab-assets .po-assets-group .po-columns{gap:22px}#tab-assets .po-pie{width:min(65%,200px)}#tab-assets .po-target-amount,#tab-assets #poGoalForm #poGoalAmount{font-size:max(16px,calc(32px * var(--kn-ledger-scale,1)))!important}}
+@media(max-width:620px){#tab-assets .po-target-amount,#tab-assets #poGoalForm #poGoalAmount{font-size:max(16px,calc(32px * var(--kn-ledger-scale,1)))!important}}
 /* Adopted “数字を主役に”: target first, supporting numbers in one quiet row. */
 #tab-assets #poGoalHero{
   --po-goal-number-size:calc(40px * var(--kn-ledger-scale,1));
