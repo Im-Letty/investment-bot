@@ -18,6 +18,9 @@ body.kn-home-a #drawerOverlay{touch-action:none;}
 :is(#sideDrawer.kn-menu-a,#knMenuDisplayOverlay) .kn-menu-label{color:var(--kn-a-muted);font-size:calc(13px * var(--kn-a-scale,1));font-weight:400;line-height:1.6;margin:10px 0 8px;}
 body.kn-home-a #sideDrawer.kn-menu-a .kn-menu-row{background:transparent!important;border:0;border-bottom:1px solid var(--kn-a-line);border-radius:0;width:100%;display:flex;align-items:center;gap:12px;padding:15px 0;min-height:57px;font:400 calc(16px * var(--kn-a-scale,1))/1.5 var(--kn-a-sans);text-align:left;color:var(--kn-a-ink)!important;cursor:pointer;}
 #sideDrawer.kn-menu-a .kn-menu-row span{flex:1;min-width:0;overflow-wrap:anywhere;}
+#sideDrawer.kn-menu-a .kn-menu-auth-group{margin-top:12px;border-top:1px solid var(--kn-a-line);}
+body.kn-home-a #sideDrawer.kn-menu-a .kn-menu-auth-row{border-bottom:0;padding-inline:6px;}
+#sideDrawer.kn-menu-a .kn-menu-auth-row:disabled{opacity:.55;cursor:default;}
 #sideDrawer.kn-menu-a .kn-menu-chevron{width:14px;height:14px;color:var(--kn-a-muted);}
 #sideDrawer.kn-menu-a .kn-menu-row:hover,#sideDrawer.kn-menu-a summary:hover{background:var(--kn-a-chip)!important;}
 :is(#sideDrawer.kn-menu-a,#knMenuDisplayOverlay) :is(button,select,input,summary):focus-visible{outline:2px solid var(--kn-a-button);outline-offset:3px;}
@@ -116,5 +119,4 @@ body.kn-home-a:not([data-theme="dark"])[data-kn-a-custom-color] :is(#sideDrawer.
    hover follow that backdrop; the color panel and display dialog keep paper ink. */
 body.kn-home-a[data-theme="dark"][data-kn-a-custom-color] #sideDrawer.kn-menu-a :is(.kn-menu-header,.kn-menu-row){color:var(--kn-site-ink,var(--kn-sh-ink))!important}
 body.kn-home-a[data-theme="dark"][data-kn-a-custom-color] #sideDrawer.kn-menu-a :is(.kn-menu-label,.kn-menu-back,.kn-menu-chevron){color:var(--kn-site-muted,var(--kn-sh-muted))!important}
-body.kn-home-a[data-theme="dark"][data-kn-a-custom-color] #sideDrawer.kn-menu-a #knMenuLogoutGroup .kn-menu-row{color:var(--kn-site-muted,var(--kn-sh-muted))!important}
 body.kn-home-a[data-theme="dark"][data-kn-a-custom-color] #sideDrawer.kn-menu-a .kn-menu-row:hover{background:color-mix(in srgb,var(--kn-site-bg) 92%,var(--kn-site-ink))!important}

@@ -62,6 +62,45 @@ test('guest choice leaves entry, retains saved records and resumes verified gues
  assert.equal(new URL(h.location.href).searchParams.has('entry'),false);assert.equal(h.storage.get('kn_finance_test'),'synthetic-finance');assert.equal(h.storage.get('kn_memory_test'),'synthetic-memory');
  const next=harness({entry:false,session:{user:{id:'synthetic-guest',is_anonymous:true}}});assert.equal(next.nodes.has('knWelcomeOv'),false,'reload after choosing guest follows ordinary public startup');
 });
+test('the menu opens the existing login from public guest mode and returns to the same guest on close',async()=>{
+ const user={id:'synthetic-guest',is_anonymous:true},h=harness({entry:false,session:{user}});
+ h.w.openAuth('login');
+ assert.equal(h.mounts(),0);
+ await h.w.knEnsureGuest();
+ h.w.knOpenMenuLogin();
+ assert.equal(h.w.knaMode,'login');
+ assert.equal(h.mounts(),1);
+ assert.equal(h.w.knEntryChoiceRequired,false);
+ assert.ok(h.nodes.get('knAuthOv').classList.contains('open'));
+ await h.w.closeAuth();
+ assert.equal(h.nodes.get('knAuthOv').classList.contains('open'),false);
+ assert.equal(h.w.knUser,user);
+ assert.equal(h.guestCalls(),0);
+ assert.equal(h.storage.get('kn_finance_test'),'synthetic-finance');
+ h.w.knOpenMenuLogin();
+ assert.equal(h.mounts(),2);
+ assert.ok(h.nodes.get('knAuthOv').classList.contains('open'));
+});
+
+test('menu login waits for a member sign-in and exits through the existing home flow',()=>{
+ const h=harness({entry:false});
+ h.w.knOpenMenuLogin();
+ const auth=h.nodes.get('knAuthOv');
+ h.w.knUser={id:'restored-member',is_anonymous:false};
+ h.w.knAuthEvent='INITIAL_SESSION';
+ h.fire('knAuthChange');
+ assert.ok(auth.classList.contains('open'));
+ h.w.knUser={id:'new-guest',is_anonymous:true};
+ h.w.knAuthEvent='SIGNED_IN';
+ h.fire('knAuthChange');
+ assert.ok(auth.classList.contains('open'));
+ h.w.knUser={id:'signed-in-member',is_anonymous:false};
+ h.fire('knAuthChange');
+ assert.equal(auth.classList.contains('open'),false);
+ assert.equal(h.w.knEntryChoiceRequired,false);
+ assert.equal(h.w.knUser.id,'signed-in-member');
+ assert.equal(h.guestCalls(),0);
+});
 test('ordinary direct visits and OAuth returns keep their existing automatic home path',async()=>{
  for(const session of [null,{user:{id:'oauth-member',is_anonymous:false}}]){
   const h=harness({entry:false,session});assert.equal(h.w.knEntryChoiceRequired,false);assert.equal(h.nodes.has('knWelcomeOv'),false);
