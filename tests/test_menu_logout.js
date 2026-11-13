@@ -3,7 +3,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const read=file=>fs.readFileSync(path.join(__dirname,'..',file),'utf8');
 
 // Execute the production drawer and confirmation code against synthetic DOM and auth objects.
-function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true,colorModule=true,realColors=false,realLanguage=false,brandColor='#3da060',customColor=false,blockedColorStorage=false,savedFont}={}){
+function fixture({user=null,language='ja',logoutFlow=true,loginFlow=true,mypageAllowed=true,colorModule=true,realColors=false,realLanguage=false,brandColor='#3da060',customColor=false,blockedColorStorage=false,savedFont}={}){
   const calls=[],timers=[],observers=[],themeWrites=[],entryColors=[],windowListeners=new Map(),storage=new Map([['app_lang',language],['userBrandColor',brandColor],['userBrandColorCustom',customColor?'1':'0']]);let document,clock=0;
   if(savedFont!==undefined)storage.set('ui_font',savedFont);
   const dataKey=key=>key.slice(5).replace(/-([a-z])/g,(_,letter)=>letter.toUpperCase());
@@ -84,6 +84,7 @@ function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true,col
   w.toggleDrawer=()=>{calls.push(['toggle']);drawer.classList.toggle('open');};
   for(const [key,name]of Object.entries({openSimulatorSection:'sim',openSaved:'saved',openAlertSection:'alert',openBeginnerGuide:'guide'}))w[key]=()=>calls.push(['open',name]);
   if(logoutFlow)w.knLogoutFlow=()=>calls.push(['logout-flow']);
+  if(loginFlow)w.knOpenMenuLogin=()=>calls.push(['login-flow']);
   const context={window:w,document,localStorage:{getItem:key=>storage.get(key)||null,setItem(key,value){if(blockedColorStorage&&key.startsWith('userBrandColor'))throw Error('blocked');storage.set(key,String(value));}},setTimeout:(fn,delay=0)=>{timers.push({fn,at:clock+delay,delay});return timers.length;},MutationObserver:class{constructor(fn){this.fn=fn;observers.push(this);}observe(target,options){this.target=target;this.options=options;}},console};
   if(realColors){
     const html=read('index.html'),start=html.indexOf('function hexToRgb(hex){'),end=html.indexOf('loadBrandColor();',start);assert.ok(start>=0&&end>start);
@@ -101,7 +102,7 @@ function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true,col
   function advance(ms){const end=clock+ms;for(let budget=20;;){timers.sort((a,b)=>a.at-b.at);if(!timers.length||timers[0].at>end)break;assert.ok(budget-->0,'Unexpected repeated menu scheduling');const next=timers.shift();clock=next.at;next.fn();}clock=end;}
   function route(key){const b=node('button');b.dataset.menuPage=key;nav.appendChild(b);b.click();b.remove();}
   flush();
-  return {w,document,drawer,nav,calls,storage,themeWrites,entryColors,flush,advance,route,now:()=>clock,pendingTimers:()=>timers.map(t=>t.delay),setMypageAllowed(value){mypageAllowed=value;},node,mounted,colors,languageGrid,originalLanguageButtons,motion,custom,colorReset,notifyDrawerState(){observers.find(o=>o.target===drawer).fn();},notifyNav(){observers.find(o=>o.target===nav).fn();},group:()=>document.getElementById('knMenuLogoutGroup'),button:key=>nav.querySelector('[data-menu-page="'+key+'"]'),activate(key,{nested=false}={}){const b=nav.querySelector('[data-menu-page="'+key+'"]');assert.ok(b,key+' menu row exists');(nested?b.querySelector('span'):b).click();flush();},
+  return {w,document,drawer,nav,calls,storage,themeWrites,entryColors,flush,advance,route,now:()=>clock,pendingTimers:()=>timers.map(t=>t.delay),setMypageAllowed(value){mypageAllowed=value;},node,mounted,colors,languageGrid,originalLanguageButtons,motion,custom,colorReset,notifyDrawerState(){observers.find(o=>o.target===drawer).fn();},notifyNav(){observers.find(o=>o.target===nav).fn();},group:()=>document.getElementById('knMenuAuthGroup'),button:key=>nav.querySelector('[data-menu-page="'+key+'"]'),activate(key,{nested=false}={}){const b=nav.querySelector('[data-menu-page="'+key+'"]');assert.ok(b,key+' menu row exists');(nested?b.querySelector('span'):b).click();flush();},
     navigate(key){route(key);flush();},
     useGuestAccess(getSession){
       w.sb={auth:{getSession,signInAnonymously(){throw Error('unexpected new guest');}}};context.location={search:''};context.URLSearchParams=URLSearchParams;context.Event=class{constructor(type){this.type=type;}};
@@ -129,7 +130,7 @@ test('logout exists once directly after inline language and colors, without the 
   const h=fixture({user:{id:'synthetic-member',is_anonymous:false}}),group=h.group();
   assert.ok(group);assert.equal(group.parentElement.className,'knAccPanel kn-menu-content');const order=group.parentElement.children;assert.equal(order.at(-3),h.languageGrid.parentElement);assert.equal(order.at(-2),h.colors);assert.equal(order.at(-1),group);
   assert.equal(h.nav.querySelectorAll('[data-menu-page="logout"]').length,1);assert.equal(h.button('logout').textContent,'ログアウト');assert.equal(group.hidden,false);
-  const html=read('index.html');assert.equal(/ensureLogout|knLogoutBtn/.test(html),false);const menuLoader=html.match(/menu-a\.js\?v=[a-zA-Z0-9_-]+/)?.[0];assert.equal(menuLoader,'menu-a.js?v=20261110-logout-visible1');assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
+  const html=read('index.html');assert.equal(/ensureLogout|knLogoutBtn/.test(html),false);const menuLoader=html.match(/menu-a\.js\?v=[a-zA-Z0-9_-]+/)?.[0];assert.equal(menuLoader,'menu-a.js?v=20261114-auth-row1');assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
 });
 test('conversation memory menu entry stays absent while its hidden settings host and stored preferences remain intact',()=>{
   for(const language of ['ja','en','ko','zh']){
@@ -144,29 +145,50 @@ test('conversation memory menu entry stays absent while its hidden settings host
     assert.equal(lookups,0);assert.deepEqual(h.calls,[]);assert.deepEqual([...h.storage],before);
   }
 });
-test('public and guest menus keep one usable logout entry while identity metadata is unavailable',()=>{
-  for(const user of [null,undefined,{id:'synthetic-guest',is_anonymous:true}]){
-    const h=fixture({user});assert.equal(h.group().hidden,false);assert.equal(h.button('logout').disabled,false);h.activate('logout',{nested:true});assert.deepEqual(h.calls,[['close'],['logout-flow']]);
+test('public, guest and unclassified sessions show one login action without ending the guest session',()=>{
+  for(const user of [null,undefined,{id:'synthetic-guest',is_anonymous:true},{id:'unclassified-session'}]){
+    const h=fixture({user});
+    const button=h.button('login');
+    assert.equal(button.disabled,false);
+    assert.equal(button.textContent,'ログイン');
+    assert.equal(h.group().querySelectorAll('button').length,1);
+    assert.equal(h.button('logout'),null);
+    h.activate('login',{nested:true});
+    assert.deepEqual(h.calls,[['close'],['login-flow']]);
   }
 });
 test('a member activation closes the drawer then invokes the existing flow exactly once',()=>{
   const h=fixture({user:{id:'synthetic-member',is_anonymous:false}});h.activate('logout',{nested:true});assert.deepEqual(h.calls,[['close'],['logout-flow']]);
 });
 test('an unavailable logout flow leaves its row visible but explicitly disabled',()=>{
-  const h=fixture({user:{id:'synthetic-member'},logoutFlow:false});assert.equal(h.group().hidden,false);assert.equal(h.button('logout').disabled,true);assert.doesNotThrow(()=>h.activate('logout'));assert.deepEqual(h.calls,[]);
+  const h=fixture({user:{id:'synthetic-member',is_anonymous:false},logoutFlow:false});assert.equal(h.group().hidden,false);assert.equal(h.button('logout').disabled,true);assert.doesNotThrow(()=>h.activate('logout'));assert.deepEqual(h.calls,[]);
   const button=h.button('logout');h.w.knLogoutFlow=()=>h.calls.push(['late-logout-flow']);h.document.dispatch('knAuthChange');assert.equal(h.button('logout'),button);assert.equal(button.disabled,false);h.activate('logout');assert.deepEqual(h.calls,[['close'],['late-logout-flow']]);
 });
-test('auth restore, guest identity and expired metadata never remove or duplicate the logout entry',()=>{
-  const h=fixture(),group=h.group(),button=h.button('logout');assert.equal(group.hidden,false);
-  for(const user of [{id:'synthetic-member',is_anonymous:false},{id:'synthetic-guest',is_anonymous:true},null]){
-    h.w.knUser=user;h.document.dispatch('knAuthChange');assert.equal(group.hidden,false);assert.equal(h.group(),group);assert.equal(h.button('logout'),button);assert.equal(button.disabled,false);assert.equal(h.nav.querySelectorAll('[data-menu-page="logout"]').length,1);
+test('auth restoration updates the same focused action without duplicating the row',()=>{
+  const h=fixture(),group=h.group(),button=h.button('login');
+  button.focus();
+  for(const [user,action] of [[{id:'synthetic-member',is_anonymous:false},'logout'],[{id:'synthetic-guest',is_anonymous:true},'login'],[null,'login']]){
+    h.w.knUser=user;
+    h.document.dispatch('knAuthChange');
+    assert.equal(h.group(),group);
+    assert.equal(h.button(action),button);
+    assert.equal(h.document.activeElement,button);
+    assert.equal(button.disabled,false);
+    assert.equal(group.querySelectorAll('button').length,1);
   }
-  h.activate('logout');assert.deepEqual(h.calls,[['close'],['logout-flow']]);
+  h.activate('login');
+  assert.deepEqual(h.calls,[['close'],['login-flow']]);
 });
-test('logout follows the existing language selection and language-change event',()=>{
-  for(const [language,label]of [['ja','ログアウト'],['en','Log out'],['ko','로그아웃'],['zh','退出登录']]){
-    const h=fixture({language,user:{id:'synthetic-member'}});assert.equal(h.button('logout').textContent,label);
-    h.storage.set('app_lang','en');h.document.dispatch('langChanged');assert.equal(h.button('logout').textContent,'Log out');assert.equal(h.group().hidden,false);
+test('both account actions follow the existing language selection and language-change event',()=>{
+  for(const [language,login,logout] of [['ja','ログイン','ログアウト'],['en','Log in','Log out'],['ko','로그인','로그아웃'],['zh','登录','退出登录']]){
+    const h=fixture({language});
+    assert.equal(h.button('login').textContent,login);
+    h.w.knUser={id:'synthetic-member',is_anonymous:false};
+    h.document.dispatch('knAuthChange');
+    assert.equal(h.button('logout').textContent,logout);
+    h.storage.set('app_lang','en');
+    h.document.dispatch('langChanged');
+    assert.equal(h.button('logout').textContent,'Log out');
   }
 });
 test('the existing confirmation can cancel without signing out or reloading',()=>{
@@ -301,7 +323,7 @@ test('an explicit close without navigation still restores the existing opener on
 });
 
 test('menu shows four language frames and colors with the existing logout group directly below colors',()=>{
-  const h=fixture({user:{id:'synthetic-member'}}),panel=h.mounted[0];
+  const h=fixture({user:{id:'synthetic-member',is_anonymous:false}}),panel=h.mounted[0];
   assert.equal(panel.className,'knAccPanel kn-menu-content');assert.equal(h.document.getElementById('knProfile').parentElement,panel);
   assert.deepEqual(panel.querySelectorAll('[data-menu-page]').map(n=>n.dataset.menuPage),['memo','guide','display','logout']);
   assert.equal(h.document.getElementById('knMenuView-display').hidden,true);assert.equal(h.document.getElementById('knMenuView-language'),null);assert.equal(h.button('language'),null);
@@ -337,7 +359,7 @@ test('color, language and motion controls retain their original nodes and handle
   assert.equal(h.languageGrid.parentElement.className,'kn-menu-language');assert.equal(h.languageGrid.children.length,4);assert.deepEqual(h.languageGrid.children,h.originalLanguageButtons);
   h.activate('display');assert.equal(h.motion.parentElement,h.document.getElementById('knMenuView-display'));h.motion.click();assert.deepEqual(h.calls.at(-1),['motion']);
 });
-test('public and guest menus retain visible languages and colors before the visible logout group',()=>{
+test('public and guest menus retain visible languages and colors before the login row',()=>{
   for(const user of [null,{id:'synthetic-guest',is_anonymous:true}]){
     const h=fixture({user}),section=h.languageGrid.parentElement,panel=h.mounted[0];
     assert.equal(h.group().hidden,false);assert.equal(section.hidden,false);assert.equal(section.getClientRects().length,1);assert.equal(h.languageGrid.getClientRects().length,1);
@@ -416,7 +438,7 @@ test('only open state transitions move focus, and both visible menu openers stay
   h.drawer.classList.add('open');h.notifyDrawerState();assert.equal(h.drawer.dataset.menuView,'main');assert.equal(h.mounted[0].hidden,false);
 });
 test('focus trap uses only visible controls and Escape or the close button keep the existing closer',()=>{
-  const h=fixture(),first=h.drawer.querySelector('.kn-menu-close'),last=h.button('logout');
+  const h=fixture(),first=h.drawer.querySelector('.kn-menu-close'),last=h.button('login');
   last.focus();let blocked=0;last.fire('keydown',{key:'Tab',preventDefault(){blocked++;}});assert.equal(h.document.activeElement,first);assert.equal(blocked,1);
   first.fire('keydown',{key:'Tab',shiftKey:true,preventDefault(){blocked++;}});assert.equal(h.document.activeElement,last);assert.equal(blocked,2);
   last.fire('keydown',{key:'Escape'});h.drawer.querySelector('.kn-menu-close').click();assert.deepEqual(h.calls,[['close'],['close']]);
@@ -450,12 +472,12 @@ test('preference navigation, drawer close and auth change close the color panel 
 });
 
 test('focus trap follows the reordered guest and member controls and excludes negative-tabindex controls',()=>{
- for(const user of [null,{id:'synthetic-member'}]){
+ for(const user of [null,{id:'synthetic-member',is_anonymous:false}]){
   const h=fixture({user}),plus=h.document.getElementById('knMenuColorPlus');plus.click();const field=h.document.getElementById('knMenuColorSpectrum');assert.equal(h.document.activeElement,field);
   const excluded=h.node('button');excluded.tabIndex=-2;h.drawer.appendChild(excluded);
   const controls=h.drawer.querySelectorAll('button,select,input,textarea,summary,a[href],[tabindex]').filter(n=>!n.disabled&&n.tabIndex>=0&&n.getClientRects().length);
   assert.ok(controls.includes(field));assert.ok(!controls.includes(excluded));assert.ok(!controls.includes(h.custom));assert.equal(h.document.getElementById('knMenuColorTone'),null);assert.equal(h.document.getElementById('knMenuColorToneButton'),null);
-  const last=controls.at(-1);assert.equal(last,h.button('logout'));assert.ok(controls.includes(h.button('logout')));
+  const action=user?'logout':'login';const last=controls.at(-1);assert.equal(last,h.button(action));assert.ok(controls.includes(h.button(action)));
   last.focus();last.fire('keydown',{key:'Tab'});assert.equal(h.document.activeElement,controls[0]);assert.ok(!h.calls.some(call=>call[0]==='logout'));
  }
 });
@@ -495,18 +517,28 @@ test('an account change closes display settings without reopening the menu or sa
 });
 
 
-test('delayed verified session restoration leaves the logout control usable before and after the real guest module event',async()=>{
-  const h=fixture(),button=h.button('logout');let release;
+test('delayed verified session restoration leaves the login control usable before and after the real guest module event',async()=>{
+  const h=fixture(),button=h.button('login');let release;
   h.useGuestAccess(()=>new Promise(resolve=>{release=resolve;}));const pending=h.w.knEnsureGuest();await new Promise(setImmediate);
   assert.equal(h.group().hidden,false);assert.equal(button.disabled,false);assert.equal(h.w.knUser,null);
   release({data:{session:{user:{id:'restored-synthetic-guest',is_anonymous:true}}}});await pending;
-  assert.equal(h.w.knUser.id,'restored-synthetic-guest');assert.equal(h.group().hidden,false);assert.equal(h.button('logout'),button);assert.equal(button.disabled,false);assert.deepEqual(h.calls,[]);
+  assert.equal(h.w.knUser.id,'restored-synthetic-guest');assert.equal(h.group().hidden,false);assert.equal(h.button('login'),button);assert.equal(button.disabled,false);assert.deepEqual(h.calls,[]);
 });
-for(const kind of ['returned error','rejection'])test('session metadata '+kind+' keeps logout visible without inventing an authenticated user',async()=>{
-  const h=fixture(),button=h.button('logout');h.useGuestAccess(async()=>{if(kind==='rejection')throw Error('synthetic network');return {error:{message:'synthetic SDK error'}};});
-  await assert.rejects(h.w.knEnsureGuest());assert.equal(h.w.knUser,null);assert.equal(h.group().hidden,false);assert.equal(button.disabled,false);assert.equal(h.button('logout'),button);assert.deepEqual(h.calls,[]);
+for(const kind of ['returned error','rejection'])test('session metadata '+kind+' keeps login visible without inventing an authenticated user',async()=>{
+  const h=fixture(),button=h.button('login');h.useGuestAccess(async()=>{if(kind==='rejection')throw Error('synthetic network');return {error:{message:'synthetic SDK error'}};});
+  await assert.rejects(h.w.knEnsureGuest());assert.equal(h.w.knUser,null);assert.equal(h.group().hidden,false);assert.equal(button.disabled,false);assert.equal(h.button('login'),button);assert.deepEqual(h.calls,[]);
 });
-test('a public logout with an unavailable SDK opens retryable confirmation without false exit success',async()=>{
-  const h=fixture(),flow=h.useConfirmation();h.w.sb=null;h.activate('logout');assert.ok(flow.dialog());const [cancel,ok]=flow.dialog().querySelectorAll('button');await ok.onclick();
-  assert.equal(h.w.knUser,null);assert.equal(flow.signouts(),0);assert.deepEqual(flow.replacements,[]);assert.equal(ok.disabled,false);assert.equal(cancel.disabled,false);assert.match(flow.dialog().textContent,/ログアウトできませんでした/);assert.equal(h.group().hidden,false);
+test('login stays disabled until its opener exists and a stale action cannot log out a guest',()=>{
+  const h=fixture({loginFlow:false});
+  const button=h.button('login');
+  assert.equal(button.disabled,true);
+  h.activate('login');
+  assert.deepEqual(h.calls,[]);
+  h.w.knOpenMenuLogin=()=>h.calls.push(['login-flow']);
+  h.document.dispatch('knAuthChange');
+  assert.equal(button.disabled,false);
+  h.navigate('logout');
+  assert.deepEqual(h.calls,[]);
+  h.activate('login');
+  assert.deepEqual(h.calls,[['close'],['login-flow']]);
 });
