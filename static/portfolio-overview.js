@@ -233,10 +233,20 @@
       });
       if(m.canAllocate)stack.style.background='conic-gradient('+stops.join(',')+')';
       if(!m.rows.length)list.appendChild(node('p','po-muted','資産はまだ登録されていません。'));
-      m.rows.forEach(function(a,index){var row=node('div','po-holding'),edit=node('button','po-asset');edit.type='button';edit.setAttribute('aria-label',(a.name||'名称未設定')+'の詳細を編集');
-        var left=node('span','po-asset-main');left.appendChild(node('span','po-asset-name',typeof a.name==='string'?a.name:'名称未設定'));left.appendChild(node('span','po-asset-meta',(typeof a.cat==='string'&&a.cat?a.cat:'未分類')+(!cash(a)&&typeof a.account==='string'&&a.account?' · '+a.account:'')));edit.appendChild(left);
-        var right=node('span','po-asset-values');right.appendChild(node('strong','',money(a.amount)));if(!cash(a)){var pnl=knownCost(a)?decimalText([a.amount,-a.cost]):null,pnlSign=pnl===null||pnl==='0'?0:pnl[0]==='-'?-1:1;right.appendChild(node('small',pnlSign>0?'po-up':pnlSign<0?'po-down':'po-muted',pnl===null?'損益 —':(pnlSign>0?'＋':pnlSign<0?'−':'')+money(pnlSign<0?pnl.slice(1):pnl)));}edit.appendChild(right);edit.addEventListener('click',function(){open(index);});row.appendChild(edit);
-        var del=node('button','po-delete po-icon-button','−');del.type='button';del.setAttribute('aria-label',(a.name||'名称未設定')+'を削除');del.addEventListener('click',async function(){if(busy)return;var who=owner();busy=true;syncEditor(session.state());try{await session.remove(index,s.raw);if(who===owner()){if(!dirty)resetEditor();status('',false);}}catch(e){if(who===owner())status(errorMessage(e),true);}finally{idle();}});row.appendChild(del);list.appendChild(row);
+      m.rows.forEach(function(a,index){var row=node('div','po-holding'),edit=node('button','po-asset');edit.type='button';
+        var name=typeof a.name==='string'&&a.name.trim()||'名称未設定';
+        var category=typeof a.cat==='string'&&a.cat.trim()||'未分類';
+        var account=!cash(a)&&typeof a.account==='string'?a.account.trim():'';
+        var detail=[category,account].filter(function(label){return label&&label!==name;}).join(' · ');
+        edit.setAttribute('aria-label',name+'の詳細を編集');
+        var left=node('span','po-asset-main');
+        left.appendChild(node('span','po-asset-name',name));
+        if(detail)left.appendChild(node('span','po-asset-meta',detail));
+        edit.appendChild(left);
+        var right=node('span','po-asset-values');
+        right.appendChild(node('strong','',money(a.amount)));
+        edit.appendChild(right);edit.addEventListener('click',function(){open(index);});row.appendChild(edit);
+        var del=node('button','po-delete po-icon-button','−');del.type='button';del.setAttribute('aria-label',name+'を削除');del.addEventListener('click',async function(){if(busy)return;var who=owner();busy=true;syncEditor(session.state());try{await session.remove(index,s.raw);if(who===owner()){if(!dirty)resetEditor();status('',false);}}catch(e){if(who===owner())status(errorMessage(e),true);}finally{idle();}});row.appendChild(del);list.appendChild(row);
       });
       paintGoal(s);
     }
