@@ -266,6 +266,29 @@ body.kn-ledger-paper .kk-input-note {margin:0 0 16px}
 body.kn-ledger-paper .kk-entry-date {display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:12px;margin:0 0 16px}
 body.kn-ledger-paper .kk-entry-date .kk-entry-label {margin:0}
 body.kn-ledger-paper .kk-entry-date .kk-entry-error {grid-column:1/-1}
+body.kn-ledger-paper .kk-monthly-form #kkEntryDate {
+  font-variant-numeric:tabular-nums;
+}
+body.kn-ledger-paper .kk-monthly-form #kkEntryDate:focus {
+  outline:none!important;
+  box-shadow:none;
+}
+body.kn-ledger-paper .kk-monthly-form #kkEntryDate:focus:not([aria-invalid="true"]) {
+  border-bottom-color:var(--kn-ledger-muted,#655f57)!important;
+}
+@media (forced-colors:none) {
+  body.kn-ledger-paper .kk-monthly-form #kkEntryDate::-webkit-calendar-picker-indicator {
+    --kk-date-icon:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3.5' y='5.5' width='17' height='15' rx='3'/%3E%3Cpath d='M8 3.5v4m8-4v4M3.5 10h17m-12 4h2m3 0h2m-7 3.5h2'/%3E%3C/svg%3E");
+    inline-size:44px;
+    block-size:36px;
+    margin:0;
+    padding:0;
+    cursor:pointer;
+    background:var(--kn-ledger-muted,#655f57);
+    -webkit-mask:var(--kk-date-icon) center / 20px no-repeat;
+    mask:var(--kk-date-icon) center / 20px no-repeat;
+  }
+}
 body.kn-ledger-paper .kk-record-date {display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:6px;font:400 calc(12px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans);color:var(--kn-ledger-muted)}
 body.kn-ledger-paper .kk-record-date input {width:10em;max-width:100%;min-height:44px;padding:6px;border:1px solid var(--kn-ledger-line);border-radius:6px;background:var(--kn-ledger-paper);color:var(--kn-ledger-ink);font:inherit}
 body.kn-ledger-paper .kk-record-date .kk-entry-error {flex-basis:100%}
