@@ -193,6 +193,18 @@ test('actual DOM handlers show the exact model, submit once, preserve untouched 
  h.nodes.get('poEditor').events.submit({preventDefault(){prevented=true;}});await h.flush();assert.equal(prevented,true);assert.equal(h.writes.length,1);assert.equal(h.nodes.get('poEditor').hidden,false);assert.equal(h.nodes.get('totalAssetVal').textContent,'1.8円');
  const saved=JSON.parse(h.getRaw()).at(-1);assert.deepEqual(Object.keys(saved).sort(),['amount','cat','id','name']);assert.equal(saved.amount,1.5);assert.equal(saved.name,'現金・預金');assert.equal(saved.cat,'現金・預金');
 });
+test('holdings show the name once and the valuation while keeping distinct category or account labels',async()=>{
+ const seed=[
+  {id:1,name:'債券',cat:'債券',amount:10000},
+  {id:2,name:'米国債',cat:'債券',account:'特定口座',amount:11000,cost:9000},
+  {id:3,name:'ETF',cat:' ETF ',account:'NISA',amount:12000,cost:15000}
+ ];
+ const h=domFixture(seed);await h.flush();
+ const rows=h.nodes.get('asset-list-el').children;
+ const values=rows.map(row=>row.children[0].children.map(part=>part.children.map(n=>n.textContent)));
+ assert.deepEqual(values,[[['債券'],['10,000円']],[['米国債','債券 · 特定口座'],['11,000円']],[['ETF','NISA'],['12,000円']]]);
+ assert.equal(h.getRaw(),raw(seed));assert.deepEqual(h.writes,[]);
+});
 test('same-owner token refresh and ordinary rerender keep unfinished editor fields; a confirmed account change scrubs them',async()=>{
  const h=domFixture();await h.flush();h.input('cat','未保存の私的な下書き');h.input('amount','１２３．４５');
  h.dispatch('storage',{key:'sb-auth-token'});h.dispatch('knLedgerAuth');await h.flush();assert.equal(h.nodes.get('poEditor').hidden,false);assert.equal(h.nodes.get('ast-cat').value,'未保存の私的な下書き');assert.equal(h.nodes.get('ast-amount').value,'１２３．４５');assert.equal(h.writes.length,0);
