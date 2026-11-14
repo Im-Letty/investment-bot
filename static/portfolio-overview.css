@@ -1,5 +1,20 @@
 /* Adopted goal-first portfolio. Values keep the ledger's selected reading theme. */
-#tab-assets.po-overview{--po-category-0:var(--kn-ledger-button,#74784b);--po-category-1:color-mix(in srgb,var(--kn-ledger-button,#74784b) 60%,var(--kn-ledger-paper,#fffdf6));--po-category-2:color-mix(in srgb,var(--kn-ledger-button,#74784b) 55%,var(--kn-ledger-ink,#505538));--po-category-3:color-mix(in srgb,var(--kn-ledger-muted,#72785b) 70%,var(--kn-ledger-paper,#fffdf6));--po-category-4:color-mix(in srgb,var(--kn-ledger-button,#74784b) 30%,var(--kn-ledger-paper,#fffdf6));--po-category-5:color-mix(in srgb,var(--kn-ledger-button,#74784b) 70%,var(--kn-ledger-muted,#72785b));--po-category-6:color-mix(in srgb,var(--kn-ledger-muted,#72785b) 45%,var(--kn-ledger-paper,#fffdf6));max-width:960px}
+#tab-assets.po-overview {
+  /* Tint each theme color by the same amount to retain the existing hue relationships. */
+  --po-chart-tint:14%;
+  --po-chart-accent:color-mix(in srgb,var(--kn-ledger-button,#74784b),white var(--po-chart-tint));
+  --po-chart-paper:color-mix(in srgb,var(--kn-ledger-paper,#fffdf6),white var(--po-chart-tint));
+  --po-chart-ink:color-mix(in srgb,var(--kn-ledger-ink,#505538),white var(--po-chart-tint));
+  --po-chart-muted:color-mix(in srgb,var(--kn-ledger-muted,#72785b),white var(--po-chart-tint));
+  --po-category-0:var(--po-chart-accent);
+  --po-category-1:color-mix(in srgb,var(--po-chart-accent) 60%,var(--po-chart-paper));
+  --po-category-2:color-mix(in srgb,var(--po-chart-accent) 55%,var(--po-chart-ink));
+  --po-category-3:color-mix(in srgb,var(--po-chart-muted) 70%,var(--po-chart-paper));
+  --po-category-4:color-mix(in srgb,var(--po-chart-accent) 30%,var(--po-chart-paper));
+  --po-category-5:color-mix(in srgb,var(--po-chart-accent) 70%,var(--po-chart-muted));
+  --po-category-6:color-mix(in srgb,var(--po-chart-muted) 45%,var(--po-chart-paper));
+  max-width:960px;
+}
 #tab-assets.po-overview [hidden]{display:none!important}
 #tab-assets .po-hero{display:block!important}
 #tab-assets .po-hero,#tab-assets .po-panel{background:var(--kn-ledger-paper,#fffdf6);border:1px solid var(--kn-ledger-line,#d9d8c3);border-radius:12px;padding:22px;margin-bottom:18px;box-shadow:none;min-width:0}
