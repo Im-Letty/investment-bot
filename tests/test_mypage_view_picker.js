@@ -19,6 +19,7 @@ function fixture({late=false}={}){
   get id(){return this.attrs.id||'';}set id(v){this.attrs.id=v;}
   set textContent(s){this._text=String(s);this.children=[];}get textContent(){return this._text+this.children.map(n=>n.textContent).join('');}
   appendChild(n){this.children.push(n);n.parentNode=this;return n;}
+  insertBefore(n,reference){this.children.splice(this.children.indexOf(reference),0,n);n.parentNode=this;return n;}
   setAttribute(k,v){this.attrs[k]=String(v);}getAttribute(k){return this.attrs[k]??null;}
   matches(sel){return sel[0]==='.'?this.classList.contains(sel.slice(1)):sel[0]==='#'?this.id===sel.slice(1):this.tagName.toLowerCase()===sel;}
   querySelectorAll(sel){let result=[];const choices=sel.split(',');const walk=n=>n.children.forEach(c=>{if(choices.some(s=>c.matches(s)))result.push(c);walk(c);});walk(this);return result;}
@@ -49,31 +50,34 @@ function fixture({late=false}={}){
   key(button,key){let prevented=false;button.focus();(button.events.keydown||[]).forEach(fn=>fn({key,preventDefault(){prevented=true;}}));api.sync();return prevented;}
  };
 }
-test('round tabs retain exactly the original two controls and route listeners across repeated mounts',()=>{
+test('view navigation adds one heading and keeps the existing routes across repeated mounts',()=>{
  const h=fixture(),nodes=[...h.top.children];h.api.mount();h.api.mount();
- assert.deepEqual(h.top.children,nodes);assert.equal(h.top.querySelectorAll('select').length,0);
+ const headings=h.top.querySelectorAll('.mp-view-title');assert.equal(headings.length,1);
+ assert.equal(headings[0].textContent,'ポートフォリオ');assert.equal(headings[0].tagName,'H1');
+ assert.deepEqual(h.top.children.slice(1),nodes);assert.equal(h.personal.hidden,true);assert.equal(h.ledger.hidden,false);
  assert.equal(h.top.getAttribute('data-mp-tabs-ready'),'true');assert.deepEqual(h.routesCalled,[]);
  assert.equal(h.personal.events.click.length,1);assert.equal(h.ledger.events.click.length,1);
  assert.equal(h.personal.getAttribute('role'),'button');assert.equal(h.personal.getAttribute('aria-pressed'),'true');assert.equal(h.ledger.getAttribute('aria-pressed'),'false');
 });
-test('clicks use the actual existing controllers while retaining focus, pending restore, drafts, scroll and frame identity',()=>{
+test('clicks use the actual existing controllers while updating the focused heading and preserving pending restore, drafts, scroll and frame identity',()=>{
  const h=fixture();h.api.mount();const frame=h.frame,scroll=JSON.stringify(h.scroll);
  h.click(h.ledger);assert.deepEqual(h.routesCalled,[1]);assert.equal(h.ledger.getAttribute('aria-pressed'),'true');assert.equal(h.personal.getAttribute('aria-pressed'),'false');
- assert.equal(h.doc.activeElement,h.ledger);assert.equal(h.frame,frame);assert.equal(h.frame.pending,'pending restore');assert.equal(h.frame.draft,'unsaved amount');assert.equal(JSON.stringify(h.scroll),scroll);
- h.click(h.personal);assert.deepEqual(h.routesCalled,[1,0]);assert.equal(h.frame.selected,'assets');assert.equal(h.doc.activeElement,h.personal);
+ assert.equal(h.doc.activeElement,h.top.querySelector('.mp-view-title'));assert.equal(h.doc.activeElement.textContent,'家計簿');
+ assert.equal(h.ledger.hidden,true);assert.equal(h.personal.hidden,false);assert.equal(h.frame,frame);assert.equal(h.frame.pending,'pending restore');assert.equal(h.frame.draft,'unsaved amount');assert.equal(JSON.stringify(h.scroll),scroll);
+ h.click(h.personal);assert.deepEqual(h.routesCalled,[1,0]);assert.equal(h.frame.selected,'assets');assert.equal(h.doc.activeElement,h.top.querySelector('.mp-view-title'));
 });
 test('controller and owner changes remain authoritative and translated labels stay on the original controls',()=>{
  const h=fixture();h.api.mount();h.show(1);h.api.sync();assert.equal(h.ledger.getAttribute('aria-pressed'),'true');
  h.setOwner('B');h.show(0);
  for(const labels of [['Portfolio','Budget'],['포트폴리오','가계부'],['投资组合','家庭账本'],['ポートフォリオ','家計簿']]){
   h.personal.textContent=labels[0];h.ledger.textContent=labels[1];h.api.sync();
-  assert.deepEqual(h.top.children.map(n=>n.textContent),labels);assert.equal(h.personal.getAttribute('aria-pressed'),'true');
+  assert.deepEqual(h.top.children.map(n=>n.textContent),[labels[0],...labels]);assert.equal(h.personal.getAttribute('aria-pressed'),'true');
  }
  h.setOwner('');h.click(h.ledger);assert.equal(h.personal.getAttribute('aria-pressed'),'true','the original controller refused the inaccessible view');assert.equal(h.ledger.getAttribute('aria-pressed'),'false');
 });
 test('memo, hidden, inert and closed states stay under the original controller without a replacement control',()=>{
  const h=fixture();h.api.mount();h.page.setAttribute('data-mp-view','memo');h.top.hidden=true;h.top.inert=true;h.top.setAttribute('aria-hidden','true');h.api.sync();
- assert.equal(h.top.hidden,true);assert.equal(h.top.inert,true);assert.equal(h.top.getAttribute('aria-hidden'),'true');assert.equal(h.top.children.length,2);assert.deepEqual(h.routesCalled,[]);
+ assert.equal(h.top.hidden,true);assert.equal(h.top.inert,true);assert.equal(h.top.getAttribute('aria-hidden'),'true');assert.equal(h.top.children.length,3);assert.deepEqual(h.routesCalled,[]);
  h.page.setAttribute('data-mp-view','assets');h.top.hidden=false;h.top.inert=false;h.top.setAttribute('aria-hidden','false');h.api.sync();
  assert.equal(h.top.hidden,false);assert.equal(h.top.inert,false);assert.equal(h.personal.getAttribute('aria-pressed'),'true');h.page.className='';h.api.sync();assert.equal(h.page.className,'');assert.deepEqual(h.routesCalled,[]);
 });
@@ -84,24 +88,25 @@ test('original availability and accessibility metadata are retained rather than 
 test('existing keyboard activation fires one controller and respects focus moved into an editor',()=>{
  const h=fixture();h.api.mount();h.hydrate();
  assert.equal(h.personal.events.keydown.length,1);assert.equal(h.ledger.events.keydown.length,1);
- assert.equal(h.key(h.ledger,'Enter'),true);assert.deepEqual(h.routesCalled,[1]);assert.equal(h.doc.activeElement,h.ledger);
- assert.equal(h.key(h.personal,' '),true);assert.deepEqual(h.routesCalled,[1,0]);assert.equal(h.doc.activeElement,h.personal);
+ assert.equal(h.key(h.ledger,'Enter'),true);assert.deepEqual(h.routesCalled,[1]);assert.equal(h.doc.activeElement,h.top.querySelector('.mp-view-title'));
+ assert.equal(h.key(h.personal,' '),true);assert.deepEqual(h.routesCalled,[1,0]);assert.equal(h.doc.activeElement,h.top.querySelector('.mp-view-title'));
  assert.equal(h.key(h.personal,'ArrowRight'),false);assert.deepEqual(h.routesCalled,[1,0]);
  const editor=h.doc.createElement('input');h.ledger.addEventListener('click',()=>editor.focus());h.key(h.ledger,'Enter');assert.deepEqual(h.routesCalled,[1,0,1]);assert.equal(h.doc.activeElement,editor);
 });
 test('late original tab creation is discovered idempotently without adding route or keyboard handlers',()=>{
  const h=fixture({late:true});assert.equal(h.api.mount(),false);const discovery=h.observers.at(-1);
  assert.equal(h.top.getAttribute('data-mp-tabs-ready'),null);h.doc.body.appendChild(h.page);discovery.fn();assert.equal(discovery.disconnected,true);
- h.api.mount();h.hydrate();assert.equal(h.top.children.length,2);assert.equal(h.personal.events.click.length,1);assert.equal(h.ledger.events.click.length,1);assert.equal(h.personal.events.keydown.length,1);
+ h.api.mount();h.hydrate();assert.equal(h.top.children.length,3);assert.equal(h.personal.events.click.length,1);assert.equal(h.ledger.events.click.length,1);assert.equal(h.personal.events.keydown.length,1);
 });
-test('the adopted segment uses a white track, equal shrinkable columns and wrapping labels',()=>{
+test('the heading and destination use shrinkable columns, wrapping labels and a visible focus outline',()=>{
  const css=fs.readFileSync(path.join(__dirname,'../static/mypage-view-picker.css'),'utf8');
- assert.match(css,/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/);assert.match(css,/min-height:44px/);assert.match(css,/border:0;border-radius:999px/);
- assert.match(css,/background:var\(--kn-sh-chip/);assert.match(css,/background:var\(--kn-sh-paper/);assert.match(css,/var\(--kn-type-scale,1\)/);assert.match(css,/white-space:normal;overflow-wrap:anywhere/);
- assert.match(css,/\[hidden\] \{display:none!important\}/);
- assert.match(css,/inset:10px var\(--mypage-gutter\);/,'the track uses equal left and right gutters');
- assert.match(css,/border-radius:999px;background:#fff/,'the light track is white');
+ assert.match(css,/grid-template-columns:minmax\(0,1fr\) minmax\(0,max-content\)/);
+ assert.match(css,/min-height:44px/);
+ assert.match(css,/var\(--kn-type-scale,1\)/);
+ assert.match(css,/white-space:normal/);assert.match(css,/overflow-wrap:anywhere/);
+ assert.match(css,/\.mp-toptab\[hidden\] \{\s*display:none!important/);
+ assert.match(css,/\.mp-toptab:focus-visible \{\s*outline:2px solid/);
  const pageCss=fs.readFileSync(path.join(__dirname,'../static/mypage-theme.css'),'utf8');
  assert.match(pageCss,/:is\(\[data-mp-view="assets"\],\[data-mp-view="ledger"\]\) \.mo-body \{\s*scrollbar-gutter: stable both-edges;/,'only the shared ledger views reserve symmetric scrollbar space');
- assert.match(pageCss,/:is\(\[data-mp-view="assets"\],\[data-mp-view="ledger"\]\) \.kb-pane \{\s*width: 100%;\s*max-width: 960px;\s*margin-inline: auto;/,'the existing frame pane centers without exposing another panel');assert.doesNotMatch(css,/select|display:none!important[^\n]*mp-toptab|#knFloatHam|position:fixed|--kn-a-menu-left\s*:/);
+ assert.match(pageCss,/:is\(\[data-mp-view="assets"\],\[data-mp-view="ledger"\]\) \.kb-pane \{\s*width: 100%;\s*max-width: 960px;\s*margin-inline: auto;/,'the existing frame pane centers without exposing another panel');assert.doesNotMatch(css,/position:fixed|#knFloatHam/);
 });
