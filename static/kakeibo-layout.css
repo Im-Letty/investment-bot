@@ -360,3 +360,38 @@ body.kn-ledger-paper .kk-cal-record[data-type="inv"] .kk-cal-amount {color:var(-
   body.kn-ledger-paper .kk-cal-memo-field {grid-column:1/-1;grid-row:2}
   body.kn-ledger-paper .kk-cal-amount-field {grid-column:2;grid-row:1}
 }
+
+/* The private MyPage summaries keep live text and charts above the photo. */
+body.kn-ledger-paper[data-kk-mypage-view] {
+  --kk-photo-wash-start:color-mix(in srgb,var(--kn-ledger-paper) 76%,transparent);
+  --kk-photo-wash-end:color-mix(in srgb,var(--kn-ledger-paper) 48%,transparent);
+}
+body.kn-ledger-paper[data-kk-mypage-view][data-kn-ledger-dark="true"] {
+  --kk-photo-wash-start:color-mix(in srgb,var(--kn-ledger-paper) 94%,transparent);
+  --kk-photo-wash-end:color-mix(in srgb,var(--kn-ledger-paper) 83%,transparent);
+}
+body.kn-ledger-paper[data-kk-mypage-view="assets"] #tab-assets > :is(.po-goal-hero,.po-assets-group),
+body.kn-ledger-letter.kn-ledger-paper[data-kk-mypage-view="ledger"] #tab-home > :is(.kk-paper-overview,.kk-home-trend) {
+  background-color:var(--kn-ledger-paper);
+  background-image:linear-gradient(110deg,var(--kk-photo-wash-start),var(--kk-photo-wash-end)),var(--kk-mypage-photo);
+  background-size:cover;
+  background-position:right top;
+  background-repeat:no-repeat;
+}
+body.kn-ledger-paper[data-kk-mypage-view="assets"] #tab-assets {
+  --kk-mypage-photo:url("/static/mypage-portfolio-photo.webp");
+}
+body.kn-ledger-paper[data-kk-mypage-view="ledger"] #tab-home {
+  --kk-mypage-photo:url("/static/mypage-ledger-photo.webp");
+}
+body.kn-ledger-letter.kn-ledger-paper[data-kk-mypage-view="ledger"] #tab-home > .kk-home-trend {
+  padding:clamp(14px,3vw,24px);
+  border:1px solid var(--kn-ledger-line);
+  border-radius:16px;
+}
+@media (forced-colors:active) {
+  body.kn-ledger-paper[data-kk-mypage-view="assets"] #tab-assets > :is(.po-goal-hero,.po-assets-group),
+  body.kn-ledger-letter.kn-ledger-paper[data-kk-mypage-view="ledger"] #tab-home > :is(.kk-paper-overview,.kk-home-trend) {
+    background-image:none;
+  }
+}

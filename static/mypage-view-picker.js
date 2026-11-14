@@ -1,17 +1,24 @@
-/* Round view tabs retain the existing controls, keyboard support and controllers.
-   This enhancement owns no route, ledger document, draft or persistent state. */
+/* Present the active view as a heading and the other view as a destination. */
 (function(root,factory){
   'use strict';
   if(typeof module==='object'&&module.exports)module.exports=factory;
   if(root){var api=factory(root);root.KNMyPageViewPicker=api;if(root.document.readyState==='loading')root.document.addEventListener('DOMContentLoaded',api.mount,{once:true});else api.mount();}
 })(typeof window==='undefined'?null:window,function(w){
   'use strict';
-  var doc=w.document,top,source=[],observer,discovery;
+  var doc=w.document,top,title,source=[],observer,discovery;
   function set(node,key,value){if(node.getAttribute(key)!==value)node.setAttribute(key,value);}
   function sync(){
-    // The original controller's .on class remains authoritative, including
-    // owner changes and entry from the menu or the retained private iframe.
-    source.forEach(function(button){set(button,'aria-pressed',String(button.classList.contains('on')));});
+    var current=source.find(function(button){return button.classList.contains('on');});
+    if(!current)return;
+    var moveFocus=doc.activeElement===current&&!top.hidden;
+    var label=current.textContent;
+    if(title.textContent!==label)title.textContent=label;
+    source.forEach(function(button){
+      var selected=button===current;
+      set(button,'aria-pressed',String(selected));
+      button.hidden=selected;
+    });
+    if(moveFocus)title.focus({preventScroll:true});
   }
   function mount(){
     var page=doc.getElementById('myPageOv'),nextTop=page&&page.querySelector('.mp-toptabs');
@@ -24,13 +31,17 @@
     if(buttons.length!==2)return false;
     if(discovery){discovery.disconnect();discovery=null;}
     if(observer)observer.disconnect();top=nextTop;source=buttons;
-    // Keep the same nodes, labels, listeners, focus, hidden/inert state and
-    // button semantics supplied by mypage-theme. Missing assets retain the
-    // original controls as a fallback, rather than hiding them for a replacement.
+    title=top.querySelector('.mp-view-title');
+    if(!title){
+      title=doc.createElement('h1');
+      title.className='mp-view-title';
+      title.setAttribute('tabindex','-1');
+      top.insertBefore(title,source[0]);
+    }
     sync();set(top,'data-mp-tabs-ready','true');
     if(typeof w.MutationObserver==='function'){
       observer=new w.MutationObserver(sync);
-      observer.observe(top,{subtree:true,attributes:true,attributeFilter:['class']});
+      observer.observe(top,{subtree:true,attributes:true,attributeFilter:['class'],childList:true,characterData:true});
     }
     return true;
   }

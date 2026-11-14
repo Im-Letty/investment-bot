@@ -1,42 +1,66 @@
-/* One row of round view tabs, using the original route controls and palette. */
+/* The current page title and one destination use the existing view controls. */
 body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] {
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));
-  position:relative;isolation:isolate;align-items:stretch;gap:8px;
-  min-width:0;min-height:72px;box-sizing:border-box;
-  /* Talk: 64px header + 16px gap; this track has a 10px top inset. */
-  margin-top:70px;
-  padding:10px var(--mypage-gutter);
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,max-content);
+  align-items:center;
+  gap:12px;
+  min-height:66px;
+  margin-top:66px;
+  padding:8px var(--mypage-gutter);
   overflow:visible;
 }
-body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"][hidden] {display:none!important}
-body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"]::before {
-  content:"";position:absolute;z-index:-1;
-  inset:10px var(--mypage-gutter);
-  border-radius:999px;background:#fff;pointer-events:none;
+
+body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"][hidden],
+body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab[hidden] {
+  display:none!important;
 }
-body.kn-home-a[data-theme="dark"] #myPageOv .mp-toptabs[data-mp-tabs-ready="true"]::before {
-  background:var(--kn-sh-paper,#292b27);
+
+body.kn-home-a #myPageOv .mp-view-title {
+  min-width:0;
+  margin:0;
+  color:var(--kn-sh-ink,#343331);
+  font:400 calc(var(--kn-type-page,22px) * var(--kn-type-scale,1))/1.24 var(--kn-a-serif,"Yu Mincho",serif);
+  overflow-wrap:anywhere;
 }
+
 body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab {
-  display:flex;align-items:center;justify-content:center;
-  min-width:0;min-height:44px;margin:7px 0;padding:8px 9px;
-  border:0;border-radius:999px;
-  background:transparent!important;color:var(--kn-sh-ink,#3d4b3c)!important;
-  font:400 calc(var(--kn-type-control,14px) * var(--kn-type-scale,1))/1.4 var(--kn-a-sans,system-ui,sans-serif)!important;
-  white-space:normal;overflow-wrap:anywhere;text-align:center;box-shadow:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  min-width:0;
+  min-height:44px;
+  padding:8px clamp(9px,2vw,16px);
+  border:1px solid var(--kn-sh-line,#d5d6c3);
+  border-radius:999px;
+  background:var(--kn-sh-paper,#fdfcf6)!important;
+  color:var(--kn-sh-ink,#343331)!important;
+  font:500 calc(var(--kn-type-control,14px) * var(--kn-type-scale,1))/1.4 var(--kn-a-sans,system-ui,sans-serif)!important;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  text-align:center;
+  cursor:pointer;
 }
-body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab:first-child {margin-left:7px}
-body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab:last-child {margin-right:7px}
-body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab.on {
-  background:var(--kn-sh-chip,#eeeddf)!important;font-weight:600!important;
+
+body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab::after {
+  content:"";
+  width:.42em;
+  height:.42em;
+  flex:none;
+  border:solid currentColor;
+  border-width:1px 1px 0 0;
+  transform:rotate(45deg);
 }
+
+body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab:hover {
+  background:var(--kn-sh-chip,#eeeddf)!important;
+}
+
 body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab:focus-visible {
-  outline:2px solid var(--kn-sh-button,#607765)!important;outline-offset:-2px;
+  outline:2px solid var(--kn-sh-button,#607765)!important;
+  outline-offset:2px;
 }
+
 @media(max-width:640px) {
-  /* Talk's compact header is 60px tall. */
-  body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] {margin-top:66px}
-}
-@media(max-width:360px) {
-  body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] > .mp-toptab {padding-right:5px;padding-left:5px}
+  body.kn-home-a #myPageOv .mp-toptabs[data-mp-tabs-ready="true"] {margin-top:62px}
 }
