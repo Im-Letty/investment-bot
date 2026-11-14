@@ -120,7 +120,7 @@
 #tab-assets .po-goal-gap{margin-top:24px}
 #tab-assets .po-goal-amount{font-size:calc(28px * var(--kn-ledger-scale,1))}
 /* One section owns the total, chart, entry controls and saved rows. */
-#tab-assets .po-assets-group>.po-heading{margin-bottom:22px}
+#tab-assets .po-assets-group>.po-heading{margin-bottom:14px}
 #tab-assets .po-assets-group .po-hero{padding:0;margin:0;border:0;border-radius:0;background:transparent}
 #tab-assets .po-assets-group {container:po-holdings / inline-size}
 #tab-assets .po-assets-group .po-columns {
@@ -154,7 +154,7 @@
   }
   #tab-assets .po-assets-group .po-columns:where(:has(.po-pie:not([hidden]))) {
     grid-template-columns:minmax(0,1fr) min(34%,180px) minmax(0,1fr);
-    gap:14px clamp(8px,2cqi,14px);
+    gap:6px clamp(8px,2cqi,14px);
   }
   #tab-assets .po-columns > .po-hero {grid-column:1/-1}
   #tab-assets .po-chart {grid-column:2}
@@ -178,6 +178,14 @@
   }
   #tab-assets #asset-list-el:not(:has(> :nth-child(4))) {
     max-block-size:none;
+  }
+}
+@container po-holdings (500px <= width <= 620px) {
+  #tab-assets .po-assets-group .po-columns:where(:has(.po-pie:not([hidden]))) {
+    align-items:start;
+  }
+  #tab-assets .po-columns:where(:has(.po-pie:not([hidden]))) > .po-hero {
+    grid-column:1;
   }
 }
 @container po-holdings (max-width:340px) {
