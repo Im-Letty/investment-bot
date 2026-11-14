@@ -70,25 +70,25 @@
 
 #tab-assets #poRetry{margin:0 0 16px}#tab-assets[data-po-ready="true"] #poRetry{display:none}
 
-/* Adopted Natural / standard asset entry. Scope stays within this editor and its launchers. */
-#tab-assets #poEditor,#tab-assets [data-po-add]{--po-entry-paper:var(--kn-ledger-bg,#fcfbf5);--po-entry-panel:var(--kn-ledger-paper,#fffef8);--po-entry-ink:var(--kn-ledger-ink,#53583c);--po-entry-muted:var(--kn-ledger-muted,#70765e);--po-entry-line:var(--kn-ledger-line,#d2d3bf);--po-entry-button:var(--kn-ledger-button,#747b4e);--po-entry-on-button:var(--kn-ledger-on-button,#fffef8)}
-#tab-assets [data-po-add]{min-height:46px;padding:11px 16px;border:1px solid transparent;border-radius:10px;background:var(--po-entry-button);color:var(--po-entry-on-button);font-weight:400;line-height:1.4}
+/* Inline asset entry shares the ledger's theme. */
+#tab-assets #poEditor{--po-entry-paper:var(--kn-ledger-bg,#fcfbf5);--po-entry-panel:var(--kn-ledger-paper,#fffef8);--po-entry-ink:var(--kn-ledger-ink,#53583c);--po-entry-muted:var(--kn-ledger-muted,#70765e);--po-entry-line:var(--kn-ledger-line,#d2d3bf);--po-entry-button:var(--kn-ledger-button,#747b4e);--po-entry-on-button:var(--kn-ledger-on-button,#fffef8)}
 #tab-assets #poEditor{container-type:inline-size;box-sizing:border-box;max-width:580px;margin-inline:auto;padding:18px;border:1px solid var(--po-entry-line);border-radius:16px;background:var(--po-entry-panel);color:var(--po-entry-ink);box-shadow:none}
 #tab-assets #poEditor .po-fields{grid-template-columns:minmax(0,1fr);gap:16px}
 #tab-assets #poEditor .po-field{gap:7px;font-size:calc(14px * var(--kn-ledger-scale,1));line-height:1.5;color:var(--po-entry-ink)}
 #tab-assets #poEditor .po-entry-value{display:flex;align-items:center;gap:8px;min-width:0;min-height:52px;padding:0 12px;border:1px solid var(--po-entry-line);border-radius:10px;background:var(--po-entry-paper)}
-#tab-assets #poEditor .po-entry-value:focus-within{outline:2px solid var(--po-entry-button);outline-offset:3px}
+#tab-assets #poEditor:not([data-po-pointer]) .po-entry-value:has(.inp:focus-visible),
+#tab-assets #poEditor .po-actions button:focus-visible{outline:1px solid var(--po-entry-muted);outline-offset:2px}
 #tab-assets #poEditor .po-entry-value:has([aria-invalid="true"]){border-color:var(--kn-ledger-expense,#a15f54)}
 #tab-assets #poEditor .po-entry-value .inp{box-sizing:border-box;flex:1;width:100%;min-width:0;min-height:50px;margin:0;padding:12px 0;border:0!important;border-radius:0!important;background:transparent!important;color:var(--po-entry-ink)!important;font-size:max(16px,calc(20px * var(--kn-ledger-scale,1)))!important;line-height:1.35;font-weight:400;box-shadow:none}
 #tab-assets #poEditor #ast-amount{font-size:max(16px,calc(22px * var(--kn-ledger-scale,1)))!important;font-variant-numeric:tabular-nums}
 #tab-assets #poEditor .po-entry-value .inp::placeholder{color:var(--po-entry-muted)}
-#tab-assets #poEditor .po-entry-value .inp:focus-visible{outline:none!important}
+#tab-assets #poEditor .po-entry-value .inp:focus{outline:none!important;box-shadow:none!important}
 #tab-assets #poEditor .po-entry-yen{flex:none;font-size:calc(14px * var(--kn-ledger-scale,1));color:var(--po-entry-muted)}
 #tab-assets #poEditor .po-actions{align-items:center;gap:10px;margin-top:18px}
 #tab-assets #poEditor .po-actions .po-button{min-height:46px;padding:11px 16px;border:1px solid var(--po-entry-line);border-radius:10px;background:transparent;color:var(--po-entry-ink);font-size:calc(15px * var(--kn-ledger-scale,1));font-weight:400;line-height:1.4}
 #tab-assets #poEditor .po-actions .po-button-primary{min-width:72px;border-color:transparent;background:var(--po-entry-button);color:var(--po-entry-on-button)}
 @container(min-width:440px){#tab-assets #poEditor .po-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:420px){#tab-assets #poEditor{padding:16px}#tab-assets [data-po-add],#tab-assets #poEditor .po-actions .po-button{padding-inline:13px}}
+@media(max-width:420px){#tab-assets #poEditor{padding:16px}#tab-assets #poEditor .po-actions .po-button{padding-inline:13px}}
 
 /* Adopted goal input: Natural / current atmosphere, with its own reference palette. */
 #tab-assets #poGoalForm{--po-goal-paper:transparent;--po-goal-field:var(--kn-ledger-paper,#fffef8);--po-goal-ink:var(--kn-ledger-ink,#53583c);--po-goal-muted:var(--kn-ledger-muted,#70765e);--po-goal-line:var(--kn-ledger-line,#d2d3bf);--po-goal-button:var(--kn-ledger-button,#7b8055);--po-goal-on-button:var(--kn-ledger-on-button,#fffef8);container:po-goal-entry / inline-size;box-sizing:border-box;max-width:580px;margin:22px auto 0;padding:0;border:0;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;background:var(--po-goal-paper);color:var(--po-goal-ink)}
@@ -148,16 +148,40 @@
 #tab-assets #asset-legend:empty {display:none}
 #tab-assets #asset-list-el {max-block-size:min(16rem,42vh)}
 @container po-holdings (max-width:620px) {
-  #tab-assets .po-assets-group .po-columns {
+  #tab-assets .po-assets-group .po-columns:where(:has(.po-pie[hidden])) {
     grid-template-columns:minmax(0,1fr);
     gap:16px;
   }
-  #tab-assets .po-assets-group .po-pie {width:min(65%,180px)}
-  #tab-assets #asset-legend {max-block-size:8rem}
-  #tab-assets #asset-legend:not(:has(> :nth-child(4))),
+  #tab-assets .po-assets-group .po-columns:where(:has(.po-pie:not([hidden]))) {
+    grid-template-columns:minmax(0,1fr) min(34%,180px) minmax(0,1fr);
+    gap:14px clamp(8px,2cqi,14px);
+  }
+  #tab-assets .po-columns > .po-hero {grid-column:1/-1}
+  #tab-assets .po-chart {grid-column:2}
+  #tab-assets .po-chart:not(:has(.po-pie[hidden])) + .po-allocation {grid-column:3}
+  #tab-assets #asset-legend {
+    max-block-size:10rem;
+    scrollbar-gutter:auto;
+  }
+  #tab-assets .po-legend-row {
+    grid-template-columns:minmax(0,1fr);
+    row-gap:2px;
+  }
+  #tab-assets .po-legend-value {
+    padding-inline-start:16px;
+    text-align:start;
+  }
+  #tab-assets .po-legend-value small {
+    display:inline-block;
+    margin-inline:0;
+    margin-inline-start:5px;
+  }
   #tab-assets #asset-list-el:not(:has(> :nth-child(4))) {
     max-block-size:none;
   }
+}
+@container po-holdings (max-width:340px) {
+  #tab-assets .po-legend-value {padding-inline-start:0}
 }
 #tab-assets .po-pie {
   width:min(100%,210px);
@@ -168,8 +192,7 @@
   -webkit-mask-image:radial-gradient(circle closest-side,transparent calc(60% - .5px),#000 calc(60% + .5px));
   mask-image:radial-gradient(circle closest-side,transparent calc(60% - .5px),#000 calc(60% + .5px));
 }
-#tab-assets .po-assets-group #poEditor{max-width:none;margin:0 0 22px;background:color-mix(in srgb,var(--kn-ledger-paper,#fffdf6) 90%,var(--kn-ledger-button,#74784b));border-radius:12px}
-#tab-assets [data-po-add].po-icon-button{width:44px;height:44px;min-height:44px;padding:0;border:1px solid var(--kn-ledger-line,#d9d8c3);background:transparent;color:var(--kn-ledger-ink,#505538);font-size:27px;font-weight:300}
+#tab-assets .po-assets-group #poEditor{max-width:none;margin:0 0 22px;background:color-mix(in srgb,var(--po-entry-panel) 97%,var(--po-entry-button));border-radius:12px}
 #tab-assets .po-delete.po-icon-button{width:44px;padding:0;border-color:transparent;color:var(--kn-ledger-muted,#72785b);font-size:27px}
 #tab-assets .po-undo {
   display:flex;
