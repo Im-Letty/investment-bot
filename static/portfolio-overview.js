@@ -104,7 +104,7 @@
   }
   function errorMessage(error){
     var text=error&&error.message;
-    var known=['金額を数字で入力してください。','金額を確認してください。','目標資産額は0円より大きい金額を入力してください。','目標資産額を確認してください。','記録の読み込みを確認してから、もう一度お試しください。','この端末に保存できませんでした。入力内容は残しています。','目標を読み込めませんでした。再読み込みしてください。','目標を保存できませんでした。入力内容は残しています。もう一度お試しください。','資産名と種類を入力してください。','資産の種類を80文字以内で入力してください。','基準日を確認してください。','入力は80文字以内にしてください。','非公開接続を確認してから、もう一度お試しください。','アカウントが切り替わりました。','資産の内容が更新されています。入力内容は残しています。閉じて開き直して確認してください。','非公開接続を確認してください。','資産の内容が更新されています。再読み込みしてください。','資産が見つかりません。','元に戻せる削除はありません。','資産が変更されたため、削除を元に戻せません。最新の内容を確認してください。'];
+    var known=['金額を数字で入力してください。','金額を確認してください。','目標資産額は0円より大きい金額を入力してください。','目標資産額を確認してください。','記録の読み込みを確認してから、もう一度お試しください。','この端末に保存できませんでした。入力内容は残しています。','目標を読み込めませんでした。再読み込みしてください。','目標を保存できませんでした。入力内容は残しています。もう一度お試しください。','資産名と種類を入力してください。','資産の種類を80文字以内で入力してください。','基準日を確認してください。','入力は80文字以内にしてください。','非公開接続を確認してから、もう一度お試しください。','アカウントが切り替わりました。','資産の内容が更新されています。入力内容は残しています。キャンセルして最新の内容を確認してください。','非公開接続を確認してください。','資産の内容が更新されています。再読み込みしてください。','資産が見つかりません。','元に戻せる削除はありません。','資産が変更されたため、削除を元に戻せません。最新の内容を確認してください。'];
     if(known.indexOf(text)>=0)return text;
     if(text==='assets_invalid'||text==='asset_changed')return '資産の内容を確認してください。入力内容は残しています。';
     return '保存できませんでした。入力内容は残しています。もう一度お試しください。';
@@ -127,7 +127,7 @@
     async function save(index,draft,baseRaw){
       var who=owner,token=serial,epoch=generation;if(!ready||!current())throw Error('非公開接続を確認してから、もう一度お試しください。');
       var latest=await options.read(who);if(!current()||serial!==token)throw Error('アカウントが切り替わりました。');
-      if(latest.assetsRaw!==baseRaw)throw Error('資産の内容が更新されています。入力内容は残しています。閉じて開き直して確認してください。');
+      if(latest.assetsRaw!==baseRaw)throw Error('資産の内容が更新されています。入力内容は残しています。キャンセルして最新の内容を確認してください。');
       var rows=updateRows(latest.assetsRaw,index,draft);analyse(JSON.stringify(rows));options.write(who,rows);undoStack=[];
       if(!current())throw Error('アカウントが切り替わりました。');await refresh();if(!current()||owner!==who||generation!==epoch)throw Error('アカウントが切り替わりました。');return true;
     }
@@ -174,20 +174,38 @@
       }catch(ignore){return '';}
     }
     function status(text,error){var el=doc.getElementById('poStatus');el.textContent=text||'';el.hidden=!text;el.classList.toggle('po-error',!!error);}
-    function idle(){busy=false;var s=session.state();doc.getElementById('poFieldset').disabled=!s.ready;pane.querySelectorAll('[data-po-add]').forEach(function(b){b.disabled=!s.ready;});doc.getElementById('poUndo').disabled=!s.ready;}
-    function close(){form.hidden=true;editorIndex=null;editorRaw=undefined;editorOwner='';dirty=false;doc.getElementById('poEditorError').textContent='';}
-    function scrub(){close();Object.keys(fields).forEach(function(k){fields[k].value='';});pane.querySelectorAll('[data-po-custom]').forEach(function(n){n.remove();});targetEpoch++;targetOwner='';targetDirty=false;targetBusy=false;targetEditing=false;if(targetInput)targetInput.value='';if(targetForm){doc.getElementById('poGoalError').textContent='';doc.getElementById('poGoalStatus').textContent='';}}
+    function syncEditor(s){
+      doc.getElementById('poFieldset').disabled=!s.ready||busy;
+      if(s.ready&&!busy&&!dirty&&editorIndex===null){
+        editorRaw=s.raw;
+        editorOwner=s.owner;
+      }
+    }
+    function idle(){
+      busy=false;
+      var s=session.state();
+      syncEditor(s);
+      doc.getElementById('poUndo').disabled=!s.ready;
+    }
+    function resetEditor(){
+      editorIndex=null;editorRaw=undefined;editorOwner='';dirty=false;editedFields=Object.create(null);
+      fields.cat.value='';fields.amount.value='';
+      fields.amount.removeAttribute('aria-invalid');
+      doc.getElementById('poEditorTitle').textContent='資産を追加';
+      doc.getElementById('poSaveButton').textContent='追加する';
+      doc.getElementById('poEditorError').textContent='';
+    }
+    function scrub(){resetEditor();pane.querySelectorAll('[data-po-custom]').forEach(function(n){n.remove();});targetEpoch++;targetOwner='';targetDirty=false;targetBusy=false;targetEditing=false;if(targetInput)targetInput.value='';if(targetForm){doc.getElementById('poGoalError').textContent='';doc.getElementById('poGoalStatus').textContent='';}}
     function fieldValues(){var draft={amount:fields.amount.value};
       if(editorIndex===null||editedFields.cat)draft.cat=fields.cat.value;return draft;
     }
     function paint(s){
       var same=owner()&&s.owner===owner();if(!same){scrub();s={ready:false,model:null,error:''};}
       if(editorOwner&&editorOwner!==s.owner)scrub();
-      pane.setAttribute('data-po-ready',s.ready?'true':'false');doc.getElementById('poFieldset').disabled=!s.ready||busy;
+      pane.setAttribute('data-po-ready',s.ready?'true':'false');syncEditor(s);
       if(targetOwner&&targetOwner!==s.owner)scrub();
       targetOwner=s.owner||'';targetInput.disabled=!s.ready||!!s.goalError||targetBusy;doc.getElementById('poGoalSave').disabled=targetInput.disabled;
       if(!targetDirty)targetInput.value=s.ready&&s.goal&&s.goal.target>0?String(s.goal.target):'';
-      pane.querySelectorAll('[data-po-add]').forEach(function(b){b.disabled=!s.ready||busy;});
       var hasTarget=s.ready&&!s.goalError&&s.goal&&s.goal.target>0;targetForm.hidden=!s.ready||!!s.goalError||!!hasTarget&&!targetEditing;doc.getElementById('poGoalDisplay').hidden=!hasTarget||targetEditing;
       var targetValue=doc.getElementById('poGoalTargetValue');targetValue.replaceChildren();targetValue.textContent='';if(hasTarget)targetValue.appendChild(goalAmount(s.goal.target,true));
       doc.getElementById('poGoalCancel').hidden=!hasTarget;doc.getElementById('poGoalCancel').disabled=targetBusy;doc.getElementById('poGoalEdit').disabled=targetBusy;doc.getElementById('poGoalEdit').hidden=!hasTarget||targetEditing;
@@ -218,7 +236,7 @@
       m.rows.forEach(function(a,index){var row=node('div','po-holding'),edit=node('button','po-asset');edit.type='button';edit.setAttribute('aria-label',(a.name||'名称未設定')+'の詳細を編集');
         var left=node('span','po-asset-main');left.appendChild(node('span','po-asset-name',typeof a.name==='string'?a.name:'名称未設定'));left.appendChild(node('span','po-asset-meta',(typeof a.cat==='string'&&a.cat?a.cat:'未分類')+(!cash(a)&&typeof a.account==='string'&&a.account?' · '+a.account:'')));edit.appendChild(left);
         var right=node('span','po-asset-values');right.appendChild(node('strong','',money(a.amount)));if(!cash(a)){var pnl=knownCost(a)?decimalText([a.amount,-a.cost]):null,pnlSign=pnl===null||pnl==='0'?0:pnl[0]==='-'?-1:1;right.appendChild(node('small',pnlSign>0?'po-up':pnlSign<0?'po-down':'po-muted',pnl===null?'損益 —':(pnlSign>0?'＋':pnlSign<0?'−':'')+money(pnlSign<0?pnl.slice(1):pnl)));}edit.appendChild(right);edit.addEventListener('click',function(){open(index);});row.appendChild(edit);
-        var del=node('button','po-delete po-icon-button','−');del.type='button';del.setAttribute('aria-label',(a.name||'名称未設定')+'を削除');del.addEventListener('click',async function(){if(busy)return;var who=owner();busy=true;try{await session.remove(index,s.raw);if(who===owner()){if(!dirty)close();status('',false);}}catch(e){if(who===owner())status(errorMessage(e),true);}finally{idle();}});row.appendChild(del);list.appendChild(row);
+        var del=node('button','po-delete po-icon-button','−');del.type='button';del.setAttribute('aria-label',(a.name||'名称未設定')+'を削除');del.addEventListener('click',async function(){if(busy)return;var who=owner();busy=true;syncEditor(session.state());try{await session.remove(index,s.raw);if(who===owner()){if(!dirty)resetEditor();status('',false);}}catch(e){if(who===owner())status(errorMessage(e),true);}finally{idle();}});row.appendChild(del);list.appendChild(row);
       });
       paintGoal(s);
     }
@@ -234,13 +252,31 @@
       var values=node('div','po-goal-progress-title'),current=node('p','po-goal-current');current.appendChild(node('span','',copy.current+' '));current.appendChild(goalAmount(s.model.totalText));values.appendChild(current);values.appendChild(node('p','po-goal-rate',copy.rate+' '+ratioLabel));body.appendChild(values);
       var track=node('div','po-track');track.setAttribute('role','progressbar');track.setAttribute('aria-label',copy.progress);track.setAttribute('aria-valuenow',String(pct));track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax','100');track.setAttribute('aria-valuetext',ratioLabel);var fill=node('div','po-fill');fill.style.width=pct+'%';track.appendChild(fill);body.appendChild(track);
     }
-    function open(index){if(busy)return;var s=session.state();if(!s.ready||owner()!==s.owner)return;if(!form.hidden&&dirty&&!w.confirm('編集中の内容を閉じますか？'))return;
-      editorIndex=index;editorRaw=s.raw;editorOwner=s.owner;var a=index===null?{}:s.model.rows[index];if(!a)return;
-      fields.amount.value=index===null?'':String(a.amount);fields.cat.value=typeof a.cat==='string'?a.cat:'';
-      doc.getElementById('poEditorTitle').textContent=index===null?'資産を追加':'資産の詳細';doc.getElementById('poSaveButton').textContent=index===null?'追加する':'変更を保存';doc.getElementById('poEditorError').textContent='';dirty=false;editedFields=Object.create(null);form.hidden=false;fields.cat.focus();form.scrollIntoView({block:'nearest',behavior:'auto'});
+    function open(index){
+      if(busy)return;
+      var s=session.state(),a=s.model&&s.model.rows[index];
+      if(!s.ready||owner()!==s.owner||!a)return;
+      if(dirty&&!w.confirm('編集中の内容を閉じますか？'))return;
+      resetEditor();
+      editorIndex=index;editorRaw=s.raw;editorOwner=s.owner;
+      fields.amount.value=String(a.amount);fields.cat.value=typeof a.cat==='string'?a.cat:'';
+      doc.getElementById('poEditorTitle').textContent='資産の詳細';
+      doc.getElementById('poSaveButton').textContent='変更を保存';
+      fields.cat.focus();form.scrollIntoView({block:'nearest',behavior:'auto'});
     }
-    async function save(){if(busy)return false;var s=session.state();if(form.hidden){open(null);return false;}if(editorOwner!==owner()||!s.ready)return false;
-      var who=editorOwner,base=editorRaw;busy=true;doc.getElementById('poFieldset').disabled=true;try{var draft=fieldValues();await session.save(editorIndex,draft,editorRaw);if(who!==owner()||editorOwner!==who||editorRaw!==base)return false;close();status('この端末に保存しました。',false);return true;}catch(e){if(who===owner()&&editorOwner===who)doc.getElementById('poEditorError').textContent=errorMessage(e);return false;}finally{idle();}
+    async function save(){
+      if(busy)return false;
+      var s=session.state(),who=editorOwner,base=editorRaw,draft=fieldValues();
+      if(!who||who!==owner()||!s.ready)return false;
+      busy=true;syncEditor(s);
+      try{
+        await session.save(editorIndex,draft,base);
+        if(who!==owner()||editorOwner!==who||editorRaw!==base)return false;
+        resetEditor();status('この端末に保存しました。',false);return true;
+      }catch(e){
+        if(who===owner()&&editorOwner===who)doc.getElementById('poEditorError').textContent=errorMessage(e);
+        return false;
+      }finally{idle();}
     }
     function decodePlanner(raw){if(w.parent!==w&&w.parent.location.origin===w.location.origin&&w.parent.KNMyPagePlanner)return w.parent.KNMyPagePlanner.decode(raw);return JSON.parse(raw);}
     async function writeTarget(who,value){
@@ -276,9 +312,12 @@
       doc.getElementById('poGoalEdit').addEventListener('click',function(){if(targetBusy||!session.state().ready)return;targetEditing=true;paint(session.state());targetInput.focus();});
       doc.getElementById('poGoalCancel').addEventListener('click',function(){if(targetBusy)return;targetEditing=false;targetDirty=false;doc.getElementById('poGoalError').textContent='';paint(session.state());doc.getElementById('poGoalEdit').focus();});
       doc.getElementById('poUndo').addEventListener('click',async function(){if(busy)return;var who=owner();busy=true;paint(session.state());try{await session.undo();if(who===owner())status('この端末で削除を元に戻しました。',false);}catch(e){if(who===owner())status(errorMessage(e),true);}finally{idle();}});
-      pane.querySelectorAll('[data-po-add]').forEach(function(b){b.addEventListener('click',function(){open(null);});});doc.getElementById('poCancelButton').addEventListener('click',close);doc.getElementById('poRetry').addEventListener('click',function(){session.refresh();});
+      doc.getElementById('poCancelButton').addEventListener('click',function(){if(busy)return;resetEditor();syncEditor(session.state());fields.cat.focus();});
+      doc.getElementById('poRetry').addEventListener('click',function(){session.refresh();});
       targetInput.addEventListener('input',function(){if(targetBusy||targetInput.disabled)return;targetDirty=true;doc.getElementById('poGoalError').textContent='';doc.getElementById('poGoalStatus').textContent='';});targetForm.addEventListener('submit',function(e){e.preventDefault();return saveTarget();});
-      form.addEventListener('input',function(e){dirty=true;if(e.target&&e.target.id&&e.target.id.indexOf('ast-')===0)editedFields[e.target.id.slice(4)]=true;doc.getElementById('poEditorError').textContent='';});form.addEventListener('submit',function(e){e.preventDefault();save();});
+      pane.addEventListener('pointerdown',function(){form.setAttribute('data-po-pointer','');});
+      w.addEventListener('keydown',function(e){if(e.key==='Tab')form.removeAttribute('data-po-pointer');},true);
+      form.addEventListener('input',function(e){if(busy||doc.getElementById('poFieldset').disabled)return;dirty=true;if(e.target&&e.target.id&&e.target.id.indexOf('ast-')===0)editedFields[e.target.id.slice(4)]=true;doc.getElementById('poEditorError').textContent='';});form.addEventListener('submit',function(e){e.preventDefault();save();});
       w.kkPortfolioSaveAsset=save;w.kkPortfolioRender=function(){return session.refresh();};
       w.addEventListener('knLedgerAuth',function(){if(editorOwner&&editorOwner!==owner())scrub();session.refresh();});w.addEventListener('knMyPageStoreChange',function(){session.refresh();});
       w.addEventListener('storage',function(e){if(!e.key||e.key==='kn_ledger_owner'){if(owner()!==session.state().owner){scrub();session.reset();}session.refresh();}});

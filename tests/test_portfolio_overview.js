@@ -169,38 +169,38 @@ function domFixture(seed=[{id:1,name:'架空の保存資産',cat:'国内株',amo
  const nodes=new Map(),all=[],listeners={},values=new Map([['kn_ledger_owner','A']]),writes=[],targetWrites=[];let assetRaw=raw(seed),planner=null;
  function element(tag='div',id=''){
   const attrs=new Map(),classes=new Set(),events={};const n={tagName:tag.toUpperCase(),id,value:'',textContent:'',hidden:false,disabled:false,children:[],style:{},events,options:[],
-   classList:{toggle(k,on){on?classes.add(k):classes.delete(k);},add:k=>classes.add(k),remove:k=>classes.delete(k),contains:k=>classes.has(k)},setAttribute:(k,v)=>attrs.set(k,String(v)),getAttribute:k=>attrs.get(k)??null,
+   classList:{toggle(k,on){on?classes.add(k):classes.delete(k);},add:k=>classes.add(k),remove:k=>classes.delete(k),contains:k=>classes.has(k)},setAttribute:(k,v)=>attrs.set(k,String(v)),getAttribute:k=>attrs.get(k)??null,removeAttribute:k=>attrs.delete(k),
    appendChild(c){n.children.push(c);c.parentNode=n;if(n.tagName==='SELECT')n.options.push(c);return c;},replaceChildren(...children){n.children=[];children.forEach(c=>n.appendChild(c));},
-   querySelectorAll(selector){return all.filter(c=>selector==='[data-po-add]'?c.getAttribute('data-po-add')!==null:selector==='[data-po-custom]'?c.getAttribute('data-po-custom')!==null:false);},
+   querySelectorAll(selector){return all.filter(c=>selector==='[data-po-custom]'&&c.getAttribute('data-po-custom')!==null);},
    addEventListener:(name,fn)=>events[name]=fn,focus(){n.focused=true;},scrollIntoView(){},remove(){if(n.parentNode)n.parentNode.children=n.parentNode.children.filter(c=>c!==n);attrs.delete('data-po-custom');},click(){if(events.click)return events.click({target:n});}};
   all.push(n);if(id)nodes.set(id,n);return n;
  }
- const ids=['tab-assets','poEditor','poStatus','poFieldset','totalAssetVal','poProfitValue','poProfitNote','poAsOf','poGoalHero','poGoalTitle','poGoalBody','asset-legend','poAllocationStack','asset-list-el','poAllocationNote','poEditorError','poEditorTitle','poSaveButton','poCancelButton','poGoalDisplay','poGoalTargetValue','poGoalEdit','poGoalCancel','poUndoNotice','poUndoText','poUndo','poGoalForm','poGoalAmount','poGoalError','poGoalSave','poGoalStatus','poRetry'];ids.forEach(id=>element('div',id));nodes.get('poEditor').hidden=true;
+ const ids=['tab-assets','poEditor','poStatus','poFieldset','totalAssetVal','poProfitValue','poProfitNote','poAsOf','poGoalHero','poGoalTitle','poGoalBody','asset-legend','poAllocationStack','asset-list-el','poAllocationNote','poEditorError','poEditorTitle','poSaveButton','poCancelButton','poGoalDisplay','poGoalTargetValue','poGoalEdit','poGoalCancel','poUndoNotice','poUndoText','poUndo','poGoalForm','poGoalAmount','poGoalError','poGoalSave','poGoalStatus','poRetry'];ids.forEach(id=>element('div',id));nodes.get('poFieldset').disabled=true;
  nodes.get('tab-assets').appendChild(nodes.get('poGoalHero'));nodes.get('poGoalHero').appendChild(nodes.get('poGoalBody'));nodes.get('poGoalHero').appendChild(nodes.get('poGoalForm'));
  const advice=element('section','kkPortfolioAdvice'),adviceControl=element('button');advice.appendChild(adviceControl);nodes.get('tab-assets').appendChild(advice);
  for(const key of ['cat','amount']){const input=element('input','ast-'+key);delete input.options;}
- const add=element('button');add.setAttribute('data-po-add','');
  const document={readyState:'complete',getElementById:id=>nodes.get(id)||null,createElement:tag=>element(tag)};
  const w={document,location:{origin:'https://portfolio.test',href:'https://portfolio.test/kakeibo'},knLedgerSession:{user:{id:'A'},access_token:'synthetic-token'},localStorage:{getItem:k=>values.get(k)??null},
   kkMyPageStore:{load:async()=>({assetsRaw:assetRaw,raw:planner}),stage(who,next){assert.equal(who,w.knLedgerSession.user.id);planner=next;targetWrites.push(next);if(listeners.knMyPageStoreChange)listeners.knMyPageStoreChange();return true;},save:async()=>true},saveAssets(rows){assetRaw=raw(rows);writes.push(assetRaw);},confirm:()=>true,addEventListener:(name,fn)=>listeners[name]=fn};w.parent=w;
  api.mount(w);
- return {w,nodes,all,add,advice,adviceControl,listeners,writes,targetWrites,getRaw:()=>assetRaw,getPlanner:()=>planner,setPlanner:r=>planner=r,async flush(){for(let i=0;i<20;i++)await Promise.resolve();},
+ return {w,nodes,all,advice,adviceControl,listeners,writes,targetWrites,getRaw:()=>assetRaw,getPlanner:()=>planner,setPlanner:r=>planner=r,async flush(){for(let i=0;i<20;i++)await Promise.resolve();},
   owner(id){values.set('kn_ledger_owner',id);w.knLedgerSession={user:{id},access_token:'synthetic-'+id};},
   input(key,value){const n=nodes.get('ast-'+key);n.value=value;nodes.get('poEditor').events.input({target:n});},target(value){const n=nodes.get('poGoalAmount');n.value=value;n.events.input({target:n});},saveTarget(){return nodes.get('poGoalForm').events.submit({preventDefault(){}});},
   dispatch(name,event={}){return listeners[name]&&listeners[name](event);}};
 }
 test('actual DOM handlers show the exact model, submit once, preserve untouched metadata and retain empty optional fields',async()=>{
- const h=domFixture();await h.flush();assert.equal(h.nodes.get('totalAssetVal').textContent,'0.3円');assert.match(h.nodes.get('poAllocationStack').style.background,/^conic-gradient\(/);assert.equal(h.nodes.get('asset-legend').children[0].children[1].textContent,'0.1円');h.add.click();assert.equal(h.nodes.get('ast-cat').value,'');h.input('cat','現金・預金');h.input('amount','１．５');let prevented=false;
- h.nodes.get('poEditor').events.submit({preventDefault(){prevented=true;}});await h.flush();assert.equal(prevented,true);assert.equal(h.writes.length,1);assert.equal(h.nodes.get('poEditor').hidden,true);assert.equal(h.nodes.get('totalAssetVal').textContent,'1.8円');
+ const h=domFixture();await h.flush();assert.equal(h.nodes.get('totalAssetVal').textContent,'0.3円');assert.match(h.nodes.get('poAllocationStack').style.background,/^conic-gradient\(/);assert.equal(h.nodes.get('asset-legend').children[0].children[1].textContent,'0.1円');assert.equal(h.nodes.get('ast-cat').value,'');h.input('cat','現金・預金');h.input('amount','１．５');let prevented=false;
+ h.nodes.get('poEditor').events.submit({preventDefault(){prevented=true;}});await h.flush();assert.equal(prevented,true);assert.equal(h.writes.length,1);assert.equal(h.nodes.get('poEditor').hidden,false);assert.equal(h.nodes.get('totalAssetVal').textContent,'1.8円');
  const saved=JSON.parse(h.getRaw()).at(-1);assert.deepEqual(Object.keys(saved).sort(),['amount','cat','id','name']);assert.equal(saved.amount,1.5);assert.equal(saved.name,'現金・預金');assert.equal(saved.cat,'現金・預金');
 });
 test('same-owner token refresh and ordinary rerender keep unfinished editor fields; a confirmed account change scrubs them',async()=>{
- const h=domFixture();await h.flush();h.add.click();h.input('cat','未保存の私的な下書き');h.input('amount','１２３．４５');
+ const h=domFixture();await h.flush();h.input('cat','未保存の私的な下書き');h.input('amount','１２３．４５');
  h.dispatch('storage',{key:'sb-auth-token'});h.dispatch('knLedgerAuth');await h.flush();assert.equal(h.nodes.get('poEditor').hidden,false);assert.equal(h.nodes.get('ast-cat').value,'未保存の私的な下書き');assert.equal(h.nodes.get('ast-amount').value,'１２３．４５');assert.equal(h.writes.length,0);
- h.owner('B');h.dispatch('knLedgerAuth');assert.equal(h.nodes.get('poEditor').hidden,true);for(const k of ['cat','amount'])assert.equal(h.nodes.get('ast-'+k).value,'');assert.equal(h.nodes.get('totalAssetVal').textContent,'—');
+ h.owner('B');h.dispatch('knLedgerAuth');assert.equal(h.nodes.get('poEditor').hidden,false);for(const k of ['cat','amount'])assert.equal(h.nodes.get('ast-'+k).value,'');assert.equal(h.nodes.get('totalAssetVal').textContent,'—');
 });
 test('DOM asset edit and cancel keep stored signed valuations and unknown properties intact',async()=>{
  const h=domFixture([{id:1,name:'架空',cat:'国内株',amount:-1.25,extra:{keep:true},date:'unknown-basis'}]);await h.flush();const before=h.getRaw(),edit=h.nodes.get('asset-list-el').children[0].children[0];edit.click();h.input('cat','編集下書き');h.nodes.get('poCancelButton').click();assert.equal(h.getRaw(),before);assert.equal(h.writes.length,0);
+ assert.equal(h.nodes.get('poEditorTitle').textContent,'資産を追加');assert.equal(h.nodes.get('ast-cat').value,'');assert.equal(h.nodes.get('ast-amount').value,'');
  edit.click();h.input('cat','その他');h.nodes.get('poEditor').events.submit({preventDefault(){}});await h.flush();assert.equal(h.writes.length,1);assert.deepEqual(JSON.parse(h.getRaw())[0],{id:1,name:'架空',cat:'その他',amount:-1.25,extra:{keep:true},date:'unknown-basis'});
 });
 test('the two actual input handlers edit legacy amounts without supplying removed metadata or names',async()=>{
@@ -215,7 +215,7 @@ test('the two actual input handlers edit legacy amounts without supplying remove
  }
 });
 test('DOM fieldset stays disabled and no saved values are fabricated if restoration fails',async()=>{
- const h=domFixture();h.w.kkMyPageStore.load=async()=>{throw Error('restore');};h.dispatch('knLedgerAuth');await h.flush();assert.equal(h.nodes.get('poFieldset').disabled,true);assert.equal(h.nodes.get('totalAssetVal').textContent,'—');assert.equal(h.add.disabled,true);assert.equal(h.writes.length,0);
+ const h=domFixture();h.w.kkMyPageStore.load=async()=>{throw Error('restore');};h.dispatch('knLedgerAuth');await h.flush();assert.equal(h.nodes.get('poFieldset').disabled,true);assert.equal(h.nodes.get('totalAssetVal').textContent,'—');assert.equal(h.nodes.get('poEditor').hidden,false);assert.equal(await h.w.kkPortfolioSaveAsset(),false);assert.equal(h.writes.length,0);
 });
 
 test('deleting an offsetting valuation rejects a nonfinite planned total before touching storage',async()=>{
@@ -223,7 +223,7 @@ test('deleting an offsetting valuation rejects a nonfinite planned total before 
 });
 
 test('DOM save errors keep the draft and show fixed Japanese copy while known field validation stays specific',async()=>{
- const h=domFixture();await h.flush();const before=h.getRaw();h.add.click();h.input('cat','保存前の下書き');h.input('amount','１．５');
+ const h=domFixture();await h.flush();const before=h.getRaw();h.input('cat','保存前の下書き');h.input('amount','１．５');
  h.w.saveAssets=()=>{throw Error('QuotaExceededError internal storage detail');};h.nodes.get('poEditor').events.submit({preventDefault(){}});await h.flush();
  assert.equal(h.nodes.get('poEditor').hidden,false);assert.equal(h.nodes.get('ast-cat').value,'保存前の下書き');assert.equal(h.nodes.get('ast-amount').value,'１．５');assert.equal(h.getRaw(),before);
  assert.equal(h.nodes.get('poEditorError').textContent,'保存できませんでした。入力内容は残しています。もう一度お試しください。');assert.doesNotMatch(h.nodes.get('poEditorError').textContent,/Quota|internal|storage/);
@@ -298,7 +298,7 @@ test('readiness and account transitions clear all prominent goal numbers before 
 });
 test('overview redraws and target saves preserve the mounted advice node and its controls without running them',async()=>{
  const h=domFixture();let clicks=0;h.adviceControl.addEventListener('click',()=>clicks++);await h.flush();
- h.target('10');await h.saveTarget();h.add.click();h.input('cat','保存しない下書き');h.nodes.get('poCancelButton').click();h.dispatch('knMyPageStoreChange');await h.flush();
+ h.target('10');await h.saveTarget();h.input('cat','保存しない下書き');h.nodes.get('poCancelButton').click();h.dispatch('knMyPageStoreChange');await h.flush();
  assert.equal(h.nodes.get('tab-assets').children.at(-1),h.advice);assert.equal(h.advice.children[0],h.adviceControl);assert.equal(clicks,0);assert.equal(h.writes.length,0);
  h.adviceControl.click();assert.equal(clicks,1);
 });
@@ -349,7 +349,7 @@ test('pie geometry represents the same positive category proportions and keeps a
 });
 test('minus and undo handlers need no browser confirm and closing an unfinished entry does not discard undo',async()=>{
  const h=domFixture();await h.flush();h.w.confirm=()=>{throw Error('native confirm must not be called');};const before=h.getRaw(),del=h.nodes.get('asset-list-el').children[0].children[1];assert.equal(del.textContent,'−');await del.click();await h.flush();assert.equal(h.nodes.get('poUndoNotice').hidden,false);assert.equal(h.writes.length,1);
- h.add.click();h.input('cat','未保存');h.nodes.get('poCancelButton').click();assert.equal(h.nodes.get('poUndoNotice').hidden,false);await h.nodes.get('poUndo').click();await h.flush();assert.equal(h.getRaw(),before);assert.equal(h.writes.length,2);assert.equal(h.nodes.get('poUndoNotice').hidden,true);assert.match(h.nodes.get('poStatus').textContent,/この端末で削除を元に戻しました/);
+ h.input('cat','未保存');h.nodes.get('poCancelButton').click();assert.equal(h.nodes.get('poUndoNotice').hidden,false);await h.nodes.get('poUndo').click();await h.flush();assert.equal(h.getRaw(),before);assert.equal(h.writes.length,2);assert.equal(h.nodes.get('poUndoNotice').hidden,true);assert.match(h.nodes.get('poStatus').textContent,/この端末で削除を元に戻しました/);
 });
 test('duplicate minus clicks and undo clicks cannot duplicate writes while a restore is pending',async()=>{
  const h=domFixture();await h.flush();const load=h.w.kkMyPageStore.load;let resolve;h.w.kkMyPageStore.load=()=>new Promise(r=>resolve=r);const del=h.nodes.get('asset-list-el').children[0].children[1],deleting=del.click();await del.click();assert.equal(h.writes.length,0);h.w.kkMyPageStore.load=load;resolve(await load());await deleting;await h.flush();assert.equal(h.writes.length,1);
@@ -357,13 +357,33 @@ test('duplicate minus clicks and undo clicks cannot duplicate writes while a res
 });
 test('one ownership group encloses the chart entry and holdings while the removed heading stays absent',()=>{
  const html=fs.readFileSync(path.join(__dirname,'../kakeibo.html'),'utf8'),pane=html.slice(html.indexOf('id="tab-assets"'),html.indexOf('id="tab-records"'));
- assert.doesNotMatch(pane,/>資産管理<\/h2>/);assert.match(pane,/<h3 id="poGoalTitle" data-kk-pane-title tabindex="-1">資産目標/);const group=pane.slice(pane.indexOf('class="po-panel po-assets-group"'));assert.ok(group.indexOf('id="poAllocationStack"')<group.indexOf('id="poEditor"'));assert.ok(group.indexOf('id="poEditor"')<group.indexOf('id="asset-list-el"'));assert.equal((group.match(/data-po-add/g)||[]).length,1);
+ assert.doesNotMatch(pane,/>資産管理<\/h2>/);assert.match(pane,/<h3 id="poGoalTitle" data-kk-pane-title tabindex="-1">資産目標/);const group=pane.slice(pane.indexOf('class="po-panel po-assets-group"'));assert.ok(group.indexOf('id="poAllocationStack"')<group.indexOf('id="poEditor"'));assert.ok(group.indexOf('id="poEditor"')<group.indexOf('id="asset-list-el"'));assert.doesNotMatch(group,/data-po-add/);assert.doesNotMatch(group.match(/<form[^>]+id="poEditor"[^>]*>/)[0],/\bhidden\b/);assert.match(group,/<fieldset[^>]+id="poFieldset"[^>]+disabled/);
 });
 
 test('deleting a row preserves an unfinished edit and its stale snapshot cannot overwrite the remaining holdings',async()=>{
  const h=domFixture();await h.flush();h.nodes.get('asset-list-el').children[1].children[0].click();h.input('amount','987');const del=h.nodes.get('asset-list-el').children[0].children[1];await del.click();await h.flush();assert.equal(h.nodes.get('poEditor').hidden,false);assert.equal(h.nodes.get('ast-amount').value,'987');assert.equal(h.writes.length,1);
  assert.equal(await h.w.kkPortfolioSaveAsset(),false);assert.equal(h.writes.length,1);assert.match(h.nodes.get('poEditorError').textContent,/資産の内容が更新/);assert.equal(h.nodes.get('ast-amount').value,'987');
  await h.nodes.get('poUndo').click();await h.flush();assert.equal(h.nodes.get('poEditor').hidden,false);assert.equal(h.nodes.get('ast-amount').value,'987');assert.equal(JSON.parse(h.getRaw()).length,2);
+});
+test('the always-open addition resets after consecutive saves and rebases a canceled stale draft',async()=>{
+ const h=domFixture();await h.flush();
+ for(const [category,amount] of [['現金','10'],['国内株','20']]){
+  h.input('cat',category);h.input('amount',amount);
+  assert.equal(await h.w.kkPortfolioSaveAsset(),true);
+  assert.equal(h.nodes.get('poEditorTitle').textContent,'資産を追加');
+  assert.equal(h.nodes.get('ast-cat').value,'');assert.equal(h.nodes.get('ast-amount').value,'');
+  assert.equal(h.nodes.get('poFieldset').disabled,false);
+ }
+ h.input('cat','未確定');h.input('amount','30');
+ await h.nodes.get('asset-list-el').children[0].children[1].click();await h.flush();
+ assert.equal(await h.w.kkPortfolioSaveAsset(),false);
+ assert.equal(h.nodes.get('ast-cat').value,'未確定');
+ assert.match(h.nodes.get('poEditorError').textContent,/キャンセルして最新/);
+ h.nodes.get('poCancelButton').click();
+ h.input('cat','その他');h.input('amount','40');
+ assert.equal(await h.w.kkPortfolioSaveAsset(),true);
+ assert.equal(JSON.parse(h.getRaw()).at(-1).amount,40);
+ assert.equal(h.writes.length,4);
 });
 
 test('goal compact units shift exact decimal text without rounding currency, signs or fractions',()=>{

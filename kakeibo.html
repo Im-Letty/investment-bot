@@ -72,7 +72,7 @@
   <script defer src="/static/mypage-kakeibo-theme.js?v=20261110-subtle-ivory1"></script>
   <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261114-toolbar-space1">
   <script defer src="/static/kakeibo-layout.js?v=20261103-fast-open1"></script>
-  <script defer src="/static/portfolio-overview.js?v=20261114-portfolio-copy1"></script>
+  <script defer src="/static/portfolio-overview.js?v=20261114-inline-add1"></script>
   <link rel="stylesheet" href="/static/kakeibo-calendar-designs.css?v=20261113-month-slide1">
   <script defer src="/static/kakeibo-investment-categories.js?v=20261016-investmentcats1"></script>
   <script defer src="/static/kakeibo-income-categories.js?v=20261016-incomecats1"></script>
@@ -80,7 +80,7 @@
   <script defer src="/static/kakeibo-receipt-sources.js?v=20261016-receipts1"></script>
   <link rel="stylesheet" href="/static/portfolio-advice.css?v=20261114-advice-dialog1">
 <script defer src="/static/portfolio-advice.js?v=20261114-advice-dialog1"></script>
-  <link rel="stylesheet" href="/static/portfolio-overview.css?v=20261114-centered-holdings1">
+  <link rel="stylesheet" href="/static/portfolio-overview.css?v=20261114-inline-add1">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Outfit:wght@400;600;700;800&amp;family=M+PLUS+Rounded+1c:wght@400;700&amp;family=Klee+One:wght@400;600&amp;family=Shippori+Mincho:wght@400;700&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <style>
@@ -400,7 +400,7 @@ body{padding-bottom:24px;}
     <div id="poGoalBody"></div>
   </section>
   <section class="po-panel po-assets-group" aria-labelledby="poHoldingsTitle">
-  <div class="po-heading"><h3 id="poHoldingsTitle">保有資産</h3><button type="button" class="po-icon-button po-add" data-po-add aria-label="資産を追加" disabled><span aria-hidden="true">＋</span></button></div>
+  <div class="po-heading"><h3 id="poHoldingsTitle">保有資産</h3></div>
   <div class="po-columns">
   <section class="kk-asset-summary po-hero" aria-labelledby="kkAssetTotalLabel">
     <p id="kkAssetTotalLabel" class="kk-layout-note" data-i18n="kk_total_asset">総資産</p>
@@ -415,7 +415,7 @@ body{padding-bottom:24px;}
     <div id="asset-legend" class="po-scroll-list" tabindex="0" role="group" aria-label="資産の配分一覧"></div>
   </section>
   </div>
-  <form class="po-panel" id="poEditor" hidden novalidate>
+  <form class="po-panel" id="poEditor" aria-labelledby="poEditorTitle" novalidate>
     <div class="po-heading"><h3 id="poEditorTitle">資産を追加</h3></div>
     <fieldset class="po-fieldset" id="poFieldset" disabled><div class="po-fields">
       <label class="po-field" for="ast-cat"><span>資産の種類</span><span class="po-entry-value"><input class="inp" id="ast-cat" type="text" list="poAssetKinds" maxlength="80" autocomplete="off" placeholder="例：現金・預金、国内株"></span></label>
