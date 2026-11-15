@@ -57,42 +57,6 @@ body.kn-home-a #myPageOv .mo-x {
   cursor: pointer;
 }
 
-body.kn-home-a #myPageOv .mp-toptabs {
-  flex: 0 0 auto;
-  min-width: 0;
-  gap: 8px;
-  box-sizing: border-box;
-  padding: calc(12px + var(--mypage-top-space, 20px)) var(--mypage-gutter) 12px;
-  /* The floating menu now shares the first row with these tabs. */
-  padding-left: max(var(--mypage-gutter), calc(var(--kn-a-menu-left) + 48px));
-  background: var(--kn-sh-bg, #f0eedf) !important;
-  border-bottom: 0;
-  overflow-x: auto;
-  overscroll-behavior-x: contain;
-}
-
-body.kn-home-a #myPageOv .mp-toptab {
-  flex: 1 0 auto;
-  min-width: 120px;
-  min-height: 46px;
-  box-sizing: border-box;
-  padding: 11px 18px;
-  border: 1px solid var(--kn-sh-line, #d5d6c3);
-  border-radius: 8px;
-  background: var(--kn-sh-paper, #fdfcf6) !important;
-  color: var(--kn-sh-muted, #625d58) !important;
-  box-shadow: none;
-  font: 400 calc(var(--kn-type-control,14px) * var(--kn-type-scale,1))/1.5 var(--kn-a-sans, sans-serif) !important;
-  white-space: nowrap;
-}
-
-body.kn-home-a #myPageOv .mp-toptab.on {
-  background: var(--kn-sh-chip, #eeeddf) !important;
-  color: var(--kn-sh-ink, #343331) !important;
-  border-color: var(--kn-sh-button, #607765);
-  box-shadow: none;
-}
-
 body.kn-home-a #myPageOv > .mo-tabs {
   display: none !important;
   flex: 0 0 auto;
@@ -257,7 +221,7 @@ body.kn-home-a #myPageOv .td-del {
 }
 
 body.kn-home-a #myPageOv .kb-pane { min-width: 0; }
-/* These two views share one ledger frame. Keep its surface and the view tabs
+/* These two views share one ledger frame. Keep its surface and the content
    on the viewport centerline, including browsers with a reserved scrollbar. */
 body.kn-home-a #myPageOv:is([data-mp-view="assets"],[data-mp-view="ledger"]) .mo-body {
   scrollbar-gutter: stable both-edges;
@@ -293,7 +257,7 @@ body.kn-home-a #myPageOv .kb-frame {
 
 /* The ledger owns Home/Calendar tabs; its inactive personal tabs need no spacer. */
 body.kn-home-a #myPageOv[data-mp-view="ledger"] > .mo-tabs { display: none !important; }
-body.kn-home-a #myPageOv[data-mp-view="ledger"] .mo-body { padding-top: 0; }
+
 
 body.kn-home-a #myPageOv:is([data-mp-view="ledger"],[data-mp-view="assets"]) .kb-frame {
   border: 0;
@@ -317,8 +281,6 @@ body.kn-home-a #myPageOv button:disabled { opacity: .55; cursor: wait; }
     padding-bottom: 14px;
     font-size: calc(var(--kn-type-page,19px) * var(--kn-type-scale,1)) !important;
   }
-  body.kn-home-a #myPageOv .mp-toptabs { padding-top: calc(10px + var(--mypage-top-space, 20px)); padding-bottom: 10px; }
-  body.kn-home-a #myPageOv .mp-toptab { padding-right: 14px; padding-left: 14px; }
   body.kn-home-a #myPageOv .mo-body { padding-top: 18px; padding-bottom: 18px; }
 }
 
@@ -327,7 +289,6 @@ body.kn-home-a #myPageOv button:disabled { opacity: .55; cursor: wait; }
     --mypage-top-space: max(10px, env(safe-area-inset-top, 0px));
   }
   body.kn-home-a #myPageOv .mo-head { min-height: 54px; padding-top: 7px; padding-bottom: 7px; }
-  body.kn-home-a #myPageOv .mp-toptabs { padding-top: calc(6px + var(--mypage-top-space, 10px)); padding-bottom: 6px; }
 }
 
 /* Logout remains a distinct destructive action; existing handlers own visibility. */
@@ -412,7 +373,6 @@ body.kn-home-a #knLogoutDlg button:focus-visible {
 /* One private ledger document serves the portfolio and household views. */
 body.kn-home-a #myPageOv[data-mp-view="assets"] .mo-body {gap:0}
 /* Notes have their own menu entry while keeping the same private editor/store. */
-body.kn-home-a #myPageOv[data-mp-view="memo"] > :is(.mp-toptabs,.mo-tabs) {display:none!important}
 body.kn-home-a #myPageOv[data-mp-view="memo"] .mo-body {padding-top:max(76px,calc(var(--kn-a-menu-top,18px) + 48px))}
 body.kn-home-a #myPageOv[data-mp-view="memo"] .kb-pane.mp-memo-warming {display:block!important;position:fixed;left:-10000px;top:0;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none}
 
@@ -521,3 +481,39 @@ body.kn-home-a #myPageOv[data-mp-view="memo"] :is(button, input, textarea, selec
   body.kn-home-a #myPageOv.open[data-mp-view="memo"] { animation: none; }
 }
 #myPageOv .mp-portfolio-note {display:none!important}
+
+/* A single photo sits behind the scrollable private view and its frame. */
+body.kn-home-a #myPageOv:is([data-mp-view="assets"],[data-mp-view="ledger"]) {
+  --mp-photo-wash-left:color-mix(in srgb,var(--kn-sh-bg) 74%,transparent);
+  --mp-photo-wash-right:color-mix(in srgb,var(--kn-sh-bg) 49%,transparent);
+  background:
+    linear-gradient(110deg,var(--mp-photo-wash-left),var(--mp-photo-wash-right)),
+    var(--mp-photo) right top / cover no-repeat var(--kn-sh-bg,#f0eedf)!important;
+}
+
+body.kn-home-a #myPageOv[data-mp-view="assets"] {
+  --mp-photo:url("/static/mypage-portfolio-photo.webp");
+}
+
+body.kn-home-a #myPageOv[data-mp-view="ledger"] {
+  --mp-photo:url("/static/mypage-ledger-photo.webp");
+}
+
+body.kn-home-a[data-theme="dark"] #myPageOv:is([data-mp-view="assets"],[data-mp-view="ledger"]) {
+  --mp-photo-wash-left:color-mix(in srgb,var(--kn-sh-bg) 94%,transparent);
+  --mp-photo-wash-right:color-mix(in srgb,var(--kn-sh-bg) 84%,transparent);
+}
+
+body.kn-home-a #myPageOv:is([data-mp-view="personal"],[data-mp-view="assets"],[data-mp-view="ledger"]) .mo-body {
+  padding-top:max(68px,calc(var(--kn-a-menu-top,18px) + 48px));
+}
+
+body.kn-home-a #myPageOv:is([data-mp-view="assets"],[data-mp-view="ledger"]) .mo-body {
+  background:transparent!important;
+}
+
+@media (forced-colors:active) {
+  body.kn-home-a #myPageOv:is([data-mp-view="assets"],[data-mp-view="ledger"]) {
+    background-image:none!important;
+  }
+}

@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  var page, body, tabs, pane, frame, personal, ledger, owner='', ready=false, loaded=false, personalScroll=0;
+  var page, body, tabs, pane, frame, initialized=false, owner='', ready=false, loaded=false, personalScroll=0;
   var group=0, pendingAssets=false, pendingGoals=false;
   var memoSession=null, memoBackdrop=null, memoLastFocus=null;
   var refreshAt=0, refreshPending=null, refreshInterval=30000;
@@ -216,10 +216,6 @@
     group=nextGroup;
     var assets=group===0&&portfolioSelected()&&!!account();
     page.setAttribute('data-mp-view',group===2?'memo':group===1?'ledger':assets?'assets':'personal');
-    var top=page.querySelector('.mp-toptabs');
-    top.hidden=group===2;
-    if(group===2){top.setAttribute('inert','');top.setAttribute('aria-hidden','true');}
-    else{top.removeAttribute('inert');top.removeAttribute('aria-hidden');}
     if(group===1||group===2||assets){
       recoverWrongDocument();
       prepare();
@@ -227,9 +223,6 @@
       refreshVisible();
     }
     if(group===1&&!wasLedger)personalScroll=body.scrollTop;
-    personal.classList.toggle('on',group===0);ledger.classList.toggle('on',group===1);
-    // Reserve the same intrinsic tab-row height in both views, including large
-    // type and translated labels. Hidden tabs must not remain keyboard targets.
     tabs.hidden=group===2;tabs.style.display=group===2?'none':'';tabs.style.visibility=group===0?'':'hidden';
     if(group!==0){tabs.setAttribute('inert','');tabs.setAttribute('aria-hidden','true');}
     else {tabs.removeAttribute('inert');tabs.removeAttribute('aria-hidden');}
@@ -246,7 +239,7 @@
     if(group===1)body.scrollTop=0;
     else if(wasLedger)body.scrollTop=personalScroll;
     // Keep the same authenticated document, its scroll position and unfinished
-    // inputs when switching tabs. Authentication changes destroy it below.
+    // inputs when switching views. Authentication changes destroy it below.
   }
   function openAssets() {
     pendingGoals=false;pendingAssets=true;
@@ -287,7 +280,8 @@
     page=document.getElementById('myPageOv');
     if(!page){setTimeout(setup,300);return;}
     tabs=page.querySelector('.mo-tabs');body=page.querySelector('.mo-body');
-    if(!tabs||!body||page.querySelector('.mp-toptabs'))return;
+    if(!tabs||!body||initialized)return;
+    initialized=true;
     memoBackdrop=document.createElement('div');memoBackdrop.className='mp-memo-backdrop';memoBackdrop.hidden=true;memoBackdrop.inert=true;memoBackdrop.setAttribute('aria-hidden','true');document.body.appendChild(memoBackdrop);
     memoBackdrop.addEventListener('click',function(event){if(event.target===memoBackdrop)closeMemo();});
     var close=page.querySelector('.mo-x');if(close)close.addEventListener('click',function(event){if(!memoSession||group!==2)return;event.preventDefault();event.stopImmediatePropagation();closeMemo();},true);
@@ -299,12 +293,6 @@
     if(!frame)frame=createFrame();
     hidePortfolioNote();
     var old=tabs.querySelector('.kb-tab');if(old)old.parentNode.removeChild(old);
-    var top=document.createElement('div');top.className='mp-toptabs';
-    personal=document.createElement('div');personal.className='mp-toptab on';personal.textContent='ポートフォリオ';
-    ledger=document.createElement('div');ledger.className='mp-toptab';ledger.textContent='家計簿';
-    top.appendChild(personal);top.appendChild(ledger);page.insertBefore(top,tabs);
-    personal.addEventListener('click',function(){show(0);});
-    ledger.addEventListener('click',function(){show(1);});
     tabs.querySelectorAll('.mo-tab').forEach(function(tab){
       // The original tab handler still owns each note, goal and Todo pane.
       tab.addEventListener('click',function(){show(0);});

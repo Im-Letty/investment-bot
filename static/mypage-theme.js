@@ -69,7 +69,7 @@
     if(!watched.has(page)){
       watched.add(page);stateObserver.observe(page,{attributes:true,attributeFilter:['class','style']});
     }
-    page.querySelectorAll('.mp-toptab,.mo-tab').forEach(function(tab){
+    page.querySelectorAll('.mo-tab').forEach(function(tab){
       keyboard(tab);attribute(tab,'aria-pressed',String(tab.classList.contains('on')));
     });
     page.querySelectorAll('.td-chk').forEach(decorateCheck);
