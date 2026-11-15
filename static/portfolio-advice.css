@@ -4,12 +4,13 @@ body.kn-ledger-paper .pa-launch {
   right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));
   display:grid;place-items:center;width:56px;height:56px;padding:0;
   border:1px solid var(--kn-ledger-line,#e1ded3);border-radius:22px;
-  background:#fff;color:var(--kn-ledger-muted,#625d58);
+  background:var(--kn-ledger-paper,#fff);
+  background:color-mix(in srgb,var(--kn-ledger-paper,#fff) 86%,transparent);
+  color:var(--kn-ledger-muted,#625d58);
   box-shadow:0 5px 20px rgb(0 0 0 / .15);
   touch-action:manipulation;cursor:pointer;
 }
 body.kn-ledger-paper .pa-launch svg{display:block;width:30px;height:30px;pointer-events:none}
-body.kn-ledger-paper[data-kn-ledger-dark="true"] .pa-launch{background:var(--kn-ledger-paper,#2e2c28)}
 body.kn-ledger-paper #tab-assets:has(>.pa-launch:not([hidden]))::after {
   content:"";display:block;height:72px;pointer-events:none;
 }

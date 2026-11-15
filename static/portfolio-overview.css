@@ -263,7 +263,7 @@ body[data-kn-ledger-dark="true"] #tab-assets #poEditor{--po-entry-paper:var(--kn
   -webkit-mask-image:radial-gradient(circle closest-side,transparent calc(60% - .5px),#000 calc(60% + .5px));
   mask-image:radial-gradient(circle closest-side,transparent calc(60% - .5px),#000 calc(60% + .5px));
 }
-#tab-assets .po-assets-group #poEditor{max-width:none;margin:0 0 22px;background:color-mix(in srgb,var(--po-entry-panel) 97%,var(--po-entry-button));border-radius:12px}
+#tab-assets .po-assets-group #poEditor{max-width:none;margin:0 0 22px;background:color-mix(in srgb,color-mix(in srgb,var(--po-entry-panel) 97%,var(--po-entry-button)) 86%,transparent);border-radius:12px}
 #tab-assets .po-delete.po-icon-button{width:44px;padding:0;border-color:transparent;color:var(--kn-ledger-muted,#72785b);font-size:27px}
 #tab-assets .po-undo {
   display:flex;
