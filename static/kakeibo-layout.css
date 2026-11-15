@@ -388,12 +388,12 @@ body.kn-ledger-letter.kn-ledger-paper.kn-ledger-embedded[data-kk-mypage-view="le
 body.kn-ledger-embedded[data-kk-mypage-view="assets"] #tab-assets {
   position:relative;
   isolation:isolate;
-  --po-backdrop-panel: color-mix(in srgb, var(--kn-ledger-paper) 74%, transparent);
+  --po-backdrop-panel: color-mix(in srgb, var(--kn-ledger-paper) 60%, transparent);
   --po-backdrop-ink: color-mix(in srgb, #87534c 68%, var(--kn-ledger-button));
 }
 
 body.kn-ledger-embedded[data-kk-mypage-view="assets"][data-kn-ledger-dark="true"] #tab-assets {
-  --po-backdrop-panel: color-mix(in srgb, var(--kn-ledger-paper) 82%, transparent);
+  --po-backdrop-panel: color-mix(in srgb, var(--kn-ledger-paper) 70%, transparent);
   --po-backdrop-ink: color-mix(in srgb, #dcaa9d 62%, var(--kn-ledger-button));
 }
 
