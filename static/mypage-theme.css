@@ -498,22 +498,36 @@ body.kn-home-a #myPageOv > .mp-view-switch:not([hidden]) {
   display:grid;
   flex:none;
   grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:4px;
+  position:relative;
   box-sizing:border-box;
   inline-size:min(688px,calc(100% - 2 * var(--mypage-gutter)));
   margin:max(68px,calc(var(--kn-a-menu-top,18px) + 48px)) auto 0;
-  padding:4px;
-  border:1px solid var(--kn-sh-line,#d5d6c3);
-  border-radius:20px;
-  background:color-mix(in srgb,var(--kn-sh-paper,#fdfcf6) 78%,transparent);
+  border-radius:10px;
+  background:color-mix(in srgb,var(--kn-sh-paper,#fdfcf6) 90%,var(--kn-sh-ink,#343331));
+}
+
+body.kn-home-a #myPageOv > .mp-view-switch:not([hidden])::before {
+  content:"";
+  position:absolute;
+  inset-block-start:50%;
+  inset-inline-start:50%;
+  inline-size:1px;
+  block-size:26px;
+  transform:translateY(-50%);
+  background:color-mix(in srgb,var(--kn-sh-paper,#fdfcf6) 88%,white);
+  pointer-events:none;
+}
+
+body.kn-home-a[data-theme="dark"] #myPageOv > .mp-view-switch:not([hidden])::before {
+  background:color-mix(in srgb,var(--kn-sh-ink,#fdfcf6) 26%,transparent);
 }
 
 body.kn-home-a #myPageOv > .mp-view-switch > button {
   min-inline-size:0;
-  min-block-size:44px;
+  min-block-size:54px;
   padding:6px 8px;
   border:0;
-  border-radius:15px;
+  border-radius:6px;
   background:transparent;
   color:var(--kn-sh-ink,#343331);
   font:400 calc(var(--kn-type-control,14px) * var(--kn-type-scale,1))/1.35 var(--kn-a-sans,system-ui,sans-serif);
@@ -527,8 +541,19 @@ body.kn-home-a #myPageOv > .mp-view-switch > button {
 }
 
 body.kn-home-a #myPageOv > .mp-view-switch > button[aria-pressed="true"] {
-  background:var(--kn-sh-chip,#eeeddf);
   font-weight:650;
+}
+
+body.kn-home-a #myPageOv > .mp-view-switch > button:focus-visible {
+  outline:2px solid currentColor;
+  outline-offset:-4px;
+}
+
+@media (forced-colors: active) {
+  body.kn-home-a #myPageOv > .mp-view-switch:not([hidden])::before {
+    forced-color-adjust:none;
+    background:CanvasText;
+  }
 }
 
 body.kn-home-a #myPageOv:has(> .mp-view-switch:not([hidden])) > .mo-body {
