@@ -542,7 +542,7 @@ body.kn-home-a #myPageOv:is([data-mp-view="assets"],[data-mp-view="ledger"]) .mo
 body.kn-home-a #myPageOv.open[data-mp-view="assets"] {
   --mp-rose-wash-left: color-mix(in srgb, var(--kn-sh-bg) 32%, transparent);
   --mp-rose-wash-right: color-mix(in srgb, var(--kn-sh-bg) 16%, transparent);
-  --mp-glass-wave-opacity: .86;
+  --mp-glass-wave-opacity: .60;
   --mp-glass-light: rgb(255 255 255 / .43);
   background:
     linear-gradient(110deg, var(--mp-rose-wash-left), var(--mp-rose-wash-right)),
@@ -556,7 +556,7 @@ body.kn-home-a #myPageOv.open[data-mp-view="assets"] {
 body.kn-home-a[data-theme="dark"] #myPageOv.open[data-mp-view="assets"] {
   --mp-rose-wash-left: color-mix(in srgb, var(--kn-sh-bg) 88%, transparent);
   --mp-rose-wash-right: color-mix(in srgb, var(--kn-sh-bg) 73%, transparent);
-  --mp-glass-wave-opacity: .32;
+  --mp-glass-wave-opacity: .23;
   --mp-glass-light: rgb(255 255 255 / .15);
 }
 
@@ -571,12 +571,8 @@ body.kn-home-a #myPageOv.open[data-mp-view="assets"]::after {
 
 body.kn-home-a #myPageOv.open[data-mp-view="assets"]::before {
   inset:0;
-  background: url("/static/mypage-portfolio-light-wave.png") 0 0 /
-    clamp(76px,9vw,134px) clamp(255px,44vh,400px) repeat;
-  /* The light is already visible at the right edge when the sweep starts. */
-  mask-image:linear-gradient(90deg,transparent 38%,#000 50%,transparent 62%);
-  mask-size:220% 100%;
-  mask-repeat:no-repeat;
+  background:url("/static/mypage-portfolio-soft-wave.png") left center / 68% 100% no-repeat;
+  opacity:0;
 }
 
 body.kn-home-a #myPageOv.open[data-mp-view="assets"]::after {
@@ -594,21 +590,28 @@ body.kn-home-a #myPageOv.open[data-mp-view="assets"]::after {
 
 @media (prefers-reduced-motion: no-preference) {
   body.kn-home-a #myPageOv.open[data-mp-view="assets"]::before {
-    animation:mp-glass-lines 8s linear infinite;
+    animation:mp-glass-wave 12s linear infinite;
   }
   body.kn-home-a #myPageOv.open[data-mp-view="assets"]::after {
-    animation:mp-glass-reflection 8s ease-in-out infinite alternate;
+    animation:mp-glass-reflection-intro 2.4s ease-in both,
+      mp-glass-reflection 8s ease-in-out 2.4s infinite alternate;
   }
 }
 
-@keyframes mp-glass-lines {
-  from {background-position:18px 0;mask-position:12% 50%;opacity:calc(var(--mp-glass-wave-opacity) * .75)}
-  16%,74% {opacity:var(--mp-glass-wave-opacity)}
-  to {background-position:-18px 0;mask-position:100% 50%;opacity:0}
+@keyframes mp-glass-wave {
+  from {transform:translateX(88%)}
+  0%,6%,88%,100% {opacity:0}
+  27%,58% {opacity:var(--mp-glass-wave-opacity)}
+  to {transform:translateX(-68%)}
+}
+
+@keyframes mp-glass-reflection-intro {
+  from {opacity:0;transform:translate(-1%,-.5%)}
+  to {opacity:.66;transform:translate(-1%,-.5%)}
 }
 
 @keyframes mp-glass-reflection {
-  from {opacity:.60;transform:translate(-1%,-.5%)}
+  from {opacity:.66;transform:translate(-1%,-.5%)}
   to {opacity:.93;transform:translate(1.5%,1.5%)}
 }
 
