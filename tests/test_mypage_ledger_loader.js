@@ -355,6 +355,29 @@ test('the dedicated memo entry warms the same private connection while exposing 
   assert.equal(editor.draft,'編集途中の本文');assert.equal(h.frame,frame);assert.deepEqual(h.navigations,['/kakeibo']);
 });
 
+test('the visible view buttons switch the private iframe and reflect the selection',()=>{
+  const h=fixture();
+  h.context.knOpenAssets();
+  h.ready();
+  const frame=h.frame, switcher=h.page.querySelector('.mp-view-switch');
+  const [assets,ledger]=switcher.querySelectorAll('button');
+  assert.equal(switcher.hidden,false);
+  assert.equal(assets.getAttribute('aria-pressed'),'true');
+  assert.equal(ledger.getAttribute('aria-pressed'),'false');
+  ledger.click();
+  assert.equal(h.page.getAttribute('data-mp-view'),'ledger');
+  assert.equal(ledger.getAttribute('aria-pressed'),'true');
+  assets.click();
+  assert.equal(h.page.getAttribute('data-mp-view'),'assets');
+  assert.equal(assets.getAttribute('aria-pressed'),'true');
+  assert.equal(h.frame,frame);
+  assert.deepEqual(h.navigations,['/kakeibo']);
+  h.context.knOpenMemo();
+  assert.equal(switcher.hidden,true);
+  h.auth(null);
+  assert.equal(switcher.hidden,true);
+});
+
 test('memo, assets and household navigation retain one browsing context, its staged note data and unfinished inputs',()=>{
   const h=fixture();h.context.knOpenMemo();h.ready();const frame=h.frame,doc=frame.contentDocument,child=frame.contentWindow;
   const staged={notes:[{id:'memo',body:'未同期の本文\n末尾  ',pinned:true,future:{keep:true}}],assetTarget:1000000};

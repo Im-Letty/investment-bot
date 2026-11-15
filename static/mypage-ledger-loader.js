@@ -4,6 +4,7 @@
   var group=0, pendingAssets=false, pendingGoals=false;
   var memoSession=null, memoBackdrop=null, memoLastFocus=null;
   var refreshAt=0, refreshPending=null, refreshInterval=30000;
+  var viewSwitch;
   function account() {
     var user=window.knUser;
     return user&&user.id?String(user.id):'';
@@ -215,7 +216,12 @@
     var wasLedger=group===1;
     group=nextGroup;
     var assets=group===0&&portfolioSelected()&&!!account();
-    page.setAttribute('data-mp-view',group===2?'memo':group===1?'ledger':assets?'assets':'personal');
+    var view=group===2?'memo':group===1?'ledger':assets?'assets':'personal';
+    page.setAttribute('data-mp-view',view);
+    viewSwitch.hidden=view!=='assets'&&view!=='ledger';
+    viewSwitch.querySelectorAll('button').forEach(function(button){
+      button.setAttribute('aria-pressed',String(button.getAttribute('data-mp-target')===view));
+    });
     if(group===1||group===2||assets){
       recoverWrongDocument();
       prepare();
@@ -255,6 +261,24 @@
   function showMyPage() {
     var first=tabs.querySelector('.mo-tab');if(first)first.click();else show(0);
   }
+  function mountViewSwitch() {
+    viewSwitch=document.createElement('div');
+    viewSwitch.className='mp-view-switch';
+    viewSwitch.hidden=true;
+    viewSwitch.setAttribute('role','group');
+    viewSwitch.setAttribute('aria-label','マイページの表示');
+    [['assets','ポートフォリオ',showMyPage],['ledger','家計簿',function(){show(1);}]].forEach(function(option){
+      var button=document.createElement('button');
+      button.type='button';
+      button.textContent=option[1];
+      button.setAttribute('data-mp-target',option[0]);
+      button.addEventListener('click',function(){
+        if(page.classList.contains('open')&&account()&&page.getAttribute('data-mp-view')!==option[0])option[2]();
+      });
+      viewSwitch.appendChild(button);
+    });
+    page.insertBefore(viewSwitch,body);
+  }
   function openMemo() {
     var origin=document.activeElement;
     if(memoSession&&memoSession.owner===account()&&page.classList.contains('open')&&group===2){focusMemo();return true;}
@@ -282,6 +306,7 @@
     tabs=page.querySelector('.mo-tabs');body=page.querySelector('.mo-body');
     if(!tabs||!body||initialized)return;
     initialized=true;
+    mountViewSwitch();
     memoBackdrop=document.createElement('div');memoBackdrop.className='mp-memo-backdrop';memoBackdrop.hidden=true;memoBackdrop.inert=true;memoBackdrop.setAttribute('aria-hidden','true');document.body.appendChild(memoBackdrop);
     memoBackdrop.addEventListener('click',function(event){if(event.target===memoBackdrop)closeMemo();});
     var close=page.querySelector('.mo-x');if(close)close.addEventListener('click',function(event){if(!memoSession||group!==2)return;event.preventDefault();event.stopImmediatePropagation();closeMemo();},true);
