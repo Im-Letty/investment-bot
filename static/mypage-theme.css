@@ -502,8 +502,6 @@ body.kn-home-a #myPageOv > .mp-view-switch:not([hidden]) {
   box-sizing:border-box;
   inline-size:min(688px,calc(100% - 2 * var(--mypage-gutter)));
   margin:max(68px,calc(var(--kn-a-menu-top,18px) + 48px)) auto 0;
-  border-radius:10px;
-  background:color-mix(in srgb,var(--kn-sh-paper,#fdfcf6) 90%,var(--kn-sh-ink,#343331));
 }
 
 body.kn-home-a #myPageOv > .mp-view-switch:not([hidden])::before {
@@ -514,12 +512,8 @@ body.kn-home-a #myPageOv > .mp-view-switch:not([hidden])::before {
   inline-size:1px;
   block-size:26px;
   transform:translateY(-50%);
-  background:color-mix(in srgb,var(--kn-sh-paper,#fdfcf6) 88%,white);
+  background:color-mix(in srgb,var(--kn-sh-ink,#343331) 26%,transparent);
   pointer-events:none;
-}
-
-body.kn-home-a[data-theme="dark"] #myPageOv > .mp-view-switch:not([hidden])::before {
-  background:color-mix(in srgb,var(--kn-sh-ink,#fdfcf6) 26%,transparent);
 }
 
 body.kn-home-a #myPageOv > .mp-view-switch > button {
