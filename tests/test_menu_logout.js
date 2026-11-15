@@ -138,7 +138,7 @@ test('logout exists once directly after inline language and colors, without the 
   const h=fixture({user:{id:'synthetic-member',is_anonymous:false}}),group=h.group();
   assert.ok(group);assert.equal(group.parentElement.className,'knAccPanel kn-menu-content');const order=group.parentElement.children;assert.equal(order.at(-3),h.languageGrid.parentElement);assert.equal(order.at(-2),h.colors);assert.equal(order.at(-1),group);
   assert.equal(h.nav.querySelectorAll('[data-menu-page="logout"]').length,1);assert.equal(h.button('logout').textContent,'ログアウト');assert.equal(group.hidden,false);
-  const html=read('index.html');assert.equal(/ensureLogout|knLogoutBtn/.test(html),false);const menuLoader=html.match(/menu-a\.js\?v=[a-zA-Z0-9_-]+/)?.[0];assert.equal(menuLoader,'menu-a.js?v=20261115-full-photo1');assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
+  const html=read('index.html');assert.equal(/ensureLogout|knLogoutBtn/.test(html),false);const menuLoader=html.match(/menu-a\.js\?v=[a-zA-Z0-9_-]+/)?.[0];assert.equal(menuLoader,'menu-a.js?v=20261115-ledger-trend1');assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
 });
 test('conversation memory menu entry stays absent while its hidden settings host and stored preferences remain intact',()=>{
   for(const language of ['ja','en','ko','zh']){
@@ -275,16 +275,19 @@ test('a rejected opener does not select another view or apply an intent after la
   }
 });
 
-test('portfolio and household menu rows only show in open MyPage views and cannot route outside them',()=>{
-  const h=fixture(),assets=h.button('assets'),ledger=h.button('kakeibo');
+test('the household menu row opens Budget from the home menu while Portfolio remains available inside MyPage',()=>{
+  const h=fixture({user:{id:'synthetic-member'}}),assets=h.button('assets'),ledger=h.button('kakeibo');
   const visible=()=>[assets,ledger].map(row=>row.getClientRects().length>0);
-  h.mypage.setAttribute('data-mp-view','assets');h.notifyMyPageState();assert.deepEqual(visible(),[false,false]);
-  h.route('assets');h.route('kakeibo');assert.deepEqual(h.calls,[]);
+  h.mypage.setAttribute('data-mp-view','assets');h.notifyMyPageState();assert.deepEqual(visible(),[false,true]);
+  h.route('assets');assert.deepEqual(h.calls,[]);
+  h.activate('kakeibo');assert.deepEqual(h.calls,[['close'],['open','kakeibo']]);
+  assert.equal(h.mypage.getAttribute('data-mp-view'),'ledger');
+  assert.equal(h.mypage.classList.contains('open'),true);
   h.mypage.classList.add('open');
   for(const [view,shown] of [['assets',true],['ledger',true],['personal',true],['memo',false],['unknown',false]]){
-    h.mypage.setAttribute('data-mp-view',view);h.notifyMyPageState();assert.deepEqual(visible(),[shown,shown]);
+    h.mypage.setAttribute('data-mp-view',view);h.notifyMyPageState();assert.deepEqual(visible(),[shown,true]);
   }
-  h.route('assets');h.route('kakeibo');assert.deepEqual(h.calls,[]);
+  h.route('assets');assert.deepEqual(h.calls,[['close'],['open','kakeibo']]);
   for(const [code,portfolio,budget] of [['ja','ポートフォリオ','家計簿'],['en','Portfolio','Household budget'],['ko','포트폴리오','가계부'],['zh','投资组合','家庭账本']]){
     h.storage.set('app_lang',code);h.document.dispatch('langChanged');
     assert.equal(h.button('assets'),assets);assert.equal(h.button('kakeibo'),ledger);
@@ -354,7 +357,7 @@ test('an explicit close without navigation still restores the existing opener on
 test('menu shows four language frames and colors with the existing logout group directly below colors',()=>{
   const h=fixture({user:{id:'synthetic-member',is_anonymous:false}}),panel=h.mounted[0];
   assert.equal(panel.className,'knAccPanel kn-menu-content');assert.equal(h.document.getElementById('knProfile').parentElement,panel);
-  assert.deepEqual(panel.querySelectorAll('[data-menu-page]').filter(n=>n.getClientRects().length).map(n=>n.dataset.menuPage),['memo','guide','display','logout']);
+  assert.deepEqual(panel.querySelectorAll('[data-menu-page]').filter(n=>n.getClientRects().length).map(n=>n.dataset.menuPage),['kakeibo','memo','guide','display','logout']);
   assert.equal(h.document.getElementById('knMenuView-display').hidden,true);assert.equal(h.document.getElementById('knMenuView-language'),null);assert.equal(h.button('language'),null);
   assert.equal(h.document.getElementById('knMenuView-color'),null);assert.equal(h.button('color'),null);
   const language=h.languageGrid.parentElement;assert.equal(language.className,'kn-menu-language');assert.equal(language.parentElement,panel);assert.equal(language.hidden,false);assert.equal(h.languageGrid.children.length,4);assert.equal(language.getAttribute('aria-labelledby'),'knMenuLanguageTitle');

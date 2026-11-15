@@ -319,12 +319,22 @@ body.kn-ledger-paper .cal-day {min-width:0}
 body.kn-ledger-paper .kk-trend-heading {display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:12px}
 body.kn-ledger-letter.kn-ledger-paper .kk-trend-heading .card-title {margin:0}
 body.kn-ledger-paper .kk-trend-period-label,body.kn-ledger-paper .kk-trend-custom label {display:flex;align-items:center;gap:8px;font:400 calc(12px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans);color:var(--kn-ledger-muted)}
-body.kn-ledger-paper .kk-trend-periods {display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
-body.kn-ledger-paper .kk-trend-periods button {flex:1 1 auto;min-width:0;min-height:44px;padding:8px 14px;border:1px solid var(--kn-ledger-line);border-radius:999px;background:var(--kn-ledger-paper);color:var(--kn-ledger-muted);font:400 calc(12px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans);text-align:center;cursor:pointer;overflow-wrap:anywhere;transition:background-color .15s,color .15s,border-color .15s}
-body.kn-ledger-paper .kk-trend-periods button:hover {border-color:var(--kn-ledger-button);color:var(--kn-ledger-ink)}
-body.kn-ledger-paper .kk-trend-periods button[aria-pressed="true"] {border-color:var(--kn-ledger-button);background:var(--kn-ledger-button);color:var(--kn-ledger-on-button,var(--kn-ledger-paper));font-weight:500}
-body.kn-ledger-paper .kk-trend-periods button:focus-visible {outline:2px solid var(--kn-ledger-button);outline-offset:3px}
-body.kn-ledger-paper #kkTrendPeriod[hidden] {display:none!important}
+body.kn-ledger-paper #kkTrendPeriod {
+  box-sizing:border-box;
+  min-height:44px;
+  max-width:100%;
+  padding:8px 10px;
+  border:1px solid var(--kn-ledger-line)!important;
+  border-radius:8px!important;
+  background:var(--kn-ledger-paper)!important;
+  color:var(--kn-ledger-ink)!important;
+  font:500 calc(14px * var(--kn-ledger-scale,1))/1.5 var(--kn-ledger-sans);
+  cursor:pointer;
+}
+body.kn-ledger-paper #kkTrendPeriod:focus-visible {
+  outline:2px solid var(--kn-ledger-button)!important;
+  outline-offset:3px;
+}
 body.kn-ledger-paper .kk-trend-custom input {min-height:44px;padding:8px 10px;border:1px solid var(--kn-ledger-line)!important;border-radius:8px!important;background:var(--kn-ledger-paper)!important;color:var(--kn-ledger-ink)!important;font:inherit}
 body.kn-ledger-paper .kk-trend-custom {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:12px;margin:0 0 12px;align-items:end}
 body.kn-ledger-paper .kk-trend-custom[hidden] {display:none}
@@ -333,7 +343,6 @@ body.kn-ledger-paper .kk-trend-custom button {min-height:44px;padding:8px 14px;b
 body.kn-ledger-paper #kkTrendError {grid-column:1/-1;font-size:calc(13px * var(--kn-ledger-scale,1));color:var(--kn-ledger-ink);border-left:2px solid currentColor;padding-left:10px}
 body.kn-ledger-paper .kk-trend-custom input[aria-invalid="true"] {border-style:dashed!important;border-color:var(--kn-ledger-ink)!important}
 body.kn-ledger-paper .kk-home-trend .kk-trend-range {margin:0 0 12px;font-variant-numeric:tabular-nums}
-@media(max-width:600px) {body.kn-ledger-paper .kk-trend-periods {display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}body.kn-ledger-paper .kk-trend-periods button {padding:8px}}
 @media(max-width:480px) {body.kn-ledger-paper .kk-trend-custom {grid-template-columns:minmax(0,1fr)}}
 
 /* Calendar entries share the notebook's current palette, type and text scale. */
@@ -361,41 +370,11 @@ body.kn-ledger-paper .kk-cal-record[data-type="inv"] .kk-cal-amount {color:var(-
   body.kn-ledger-paper .kk-cal-amount-field {grid-column:2;grid-row:1}
 }
 
-/* The standalone ledger retains its existing photo cards. */
-body.kn-ledger-paper:not(.kn-ledger-embedded)[data-kk-mypage-view] {
-  --kk-photo-wash-start:color-mix(in srgb,var(--kn-ledger-paper) 76%,transparent);
-  --kk-photo-wash-end:color-mix(in srgb,var(--kn-ledger-paper) 48%,transparent);
-}
-body.kn-ledger-paper:not(.kn-ledger-embedded)[data-kk-mypage-view][data-kn-ledger-dark="true"] {
-  --kk-photo-wash-start:color-mix(in srgb,var(--kn-ledger-paper) 94%,transparent);
-  --kk-photo-wash-end:color-mix(in srgb,var(--kn-ledger-paper) 83%,transparent);
-}
-body.kn-ledger-paper:not(.kn-ledger-embedded)[data-kk-mypage-view="assets"] #tab-assets > :is(.po-goal-hero,.po-assets-group),
-body.kn-ledger-letter.kn-ledger-paper:not(.kn-ledger-embedded)[data-kk-mypage-view="ledger"] #tab-home > :is(.kk-paper-overview,.kk-home-trend) {
-  background-color:var(--kn-ledger-paper);
-  background-image:linear-gradient(110deg,var(--kk-photo-wash-start),var(--kk-photo-wash-end)),var(--kk-mypage-photo);
-  background-size:cover;
-  background-position:right top;
-  background-repeat:no-repeat;
-}
-body.kn-ledger-paper:not(.kn-ledger-embedded)[data-kk-mypage-view="assets"] #tab-assets {
-  --kk-mypage-photo:url("/static/mypage-portfolio-photo.webp");
-}
-body.kn-ledger-paper:not(.kn-ledger-embedded)[data-kk-mypage-view="ledger"] #tab-home {
-  --kk-mypage-photo:url("/static/mypage-ledger-photo.webp");
-}
 body.kn-ledger-letter.kn-ledger-paper[data-kk-mypage-view="ledger"] #tab-home > .kk-home-trend {
   padding:clamp(14px,3vw,24px);
   border:1px solid var(--kn-ledger-line);
   border-radius:16px;
 }
-@media (forced-colors:active) {
-  body.kn-ledger-paper:not(.kn-ledger-embedded)[data-kk-mypage-view="assets"] #tab-assets > :is(.po-goal-hero,.po-assets-group),
-  body.kn-ledger-letter.kn-ledger-paper:not(.kn-ledger-embedded)[data-kk-mypage-view="ledger"] #tab-home > :is(.kk-paper-overview,.kk-home-trend) {
-    background-image:none;
-  }
-}
-
 /* Let the MyPage backdrop show through the embedded document and summaries. */
 html:has(> body.kn-ledger-embedded[data-kk-mypage-view]),
 body.kn-ledger-paper.kn-ledger-embedded[data-kk-mypage-view] {
