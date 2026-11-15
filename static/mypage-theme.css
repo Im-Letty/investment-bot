@@ -576,7 +576,7 @@ body.kn-home-a #myPageOv.open[data-mp-view="assets"]::before {
     transparent 0 calc(var(--mp-glass-gap) - 5px),
     var(--mp-glass-line) calc(var(--mp-glass-gap) - 3px) calc(var(--mp-glass-gap) - 2px),
     transparent var(--mp-glass-gap));
-  /* The light is already visible at the left edge when the sweep starts. */
+  /* The light is already visible at the right edge when the sweep starts. */
   mask-image:linear-gradient(90deg,transparent 38%,#000 50%,transparent 62%);
   mask-size:220% 100%;
   mask-position:38% 50%;
@@ -602,9 +602,9 @@ body.kn-home-a #myPageOv.open[data-mp-view="assets"]::after {
 }
 
 @keyframes mp-glass-lines {
-  from {mask-position:88% 50%;opacity:.75}
+  from {mask-position:12% 50%;opacity:.75}
   16%,74% {opacity:1}
-  to {mask-position:0% 50%;opacity:0}
+  to {mask-position:100% 50%;opacity:0}
 }
 
 @keyframes mp-glass-reflection {
