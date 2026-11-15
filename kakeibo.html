@@ -70,7 +70,7 @@
   <link rel="stylesheet" href="/static/mypage-kakeibo-theme.css?v=20261103-reading-ink1">
   <link rel="stylesheet" href="/static/site-typography.css?v=20261011-type1">
   <script defer src="/static/mypage-kakeibo-theme.js?v=20261110-subtle-ivory1"></script>
-  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261115-rose-chart1">
+  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261115-rose-chart2">
   <script defer src="/static/kakeibo-layout.js?v=20261103-fast-open1"></script>
   <script defer src="/static/portfolio-overview.js?v=20261115-entry-ivory1"></script>
   <link rel="stylesheet" href="/static/kakeibo-calendar-designs.css?v=20261113-month-slide1">
@@ -393,12 +393,7 @@ body{padding-bottom:24px;}
     </form><p class="po-muted" id="poGoalStatus" role="status" aria-live="polite"></p>
     <div id="poGoalBody"></div>
   </section>
-  <div class="po-market-backdrop">
-    <input id="poBackdropMotion" type="checkbox" autocomplete="off" aria-label="背景チャートの動き">
-    <label for="poBackdropMotion">
-      <span aria-hidden="true">動きを再生</span>
-      <span aria-hidden="true">動きを停止</span>
-    </label>
+  <div class="po-market-backdrop" aria-hidden="true">
     <svg viewBox="0 0 1000 400" preserveAspectRatio="none" fill="none" aria-hidden="true" focusable="false">
       <defs>
         <path id="poMarketTrace" pathLength="100" d="M25 300L67 286L110 292L152 250L196 261L240 226L284 237L327 199L371 212L416 180L460 198L506 158L550 165L594 133L640 153L684 120L728 145L772 101L815 119L860 83L904 102L948 63L975 76"/>
@@ -428,6 +423,49 @@ body{padding-bottom:24px;}
       </g>
     </svg>
   </div>
+  <script>
+  (function () {
+    var host = window.frameElement && window.frameElement.closest('#myPageOv');
+    if (!host) return;
+    var panel = document.getElementById('tab-assets');
+    var backdrop = panel.querySelector('.po-market-backdrop');
+    var sweep = backdrop.querySelector('.po-market-sweep');
+    var reduced = matchMedia('(prefers-reduced-motion: reduce)');
+    var forced = matchMedia('(forced-colors: active)');
+    var played = false;
+
+    function stop() { backdrop.removeAttribute('data-playing'); }
+    function sync() {
+      var open = host.classList.contains('open') && host.getAttribute('data-mp-view') === 'assets' &&
+        document.body.getAttribute('data-kk-mypage-view') === 'assets';
+      if (!open) {
+        played = false;
+        stop();
+        return;
+      }
+      // The shared iframe can restore its records before MyPage is opened.
+      if (played || document.hidden || panel.getAttribute('data-po-ready') !== 'true' ||
+          document.documentElement.getAttribute('data-ledger-private-ready') !== 'true') return;
+      played = true;
+      if (!reduced.matches && !forced.matches) backdrop.setAttribute('data-playing', '');
+    }
+
+    var observer = new MutationObserver(sync);
+    function observe() {
+      observer.observe(host, {attributes: true, attributeFilter: ['class', 'data-mp-view']});
+      observer.observe(document.body, {attributes: true, attributeFilter: ['data-kk-mypage-view']});
+      observer.observe(document.documentElement, {attributes: true, attributeFilter: ['data-ledger-private-ready']});
+      observer.observe(panel, {attributes: true, attributeFilter: ['data-po-ready']});
+      sync();
+    }
+    sweep.addEventListener('animationend', stop);
+    sweep.addEventListener('animationcancel', stop);
+    document.addEventListener('visibilitychange', sync);
+    window.addEventListener('pagehide', function () { observer.disconnect(); stop(); });
+    window.addEventListener('pageshow', observe);
+    observe();
+  })();
+  </script>
   <section class="po-panel po-assets-group" aria-labelledby="poHoldingsTitle">
   <div class="po-heading"><h3 id="poHoldingsTitle">保有資産</h3></div>
   <div class="po-columns">
