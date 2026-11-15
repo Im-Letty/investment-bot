@@ -566,7 +566,9 @@ body.kn-home-a #myPageOv.open[data-mp-view="assets"] {
   --mp-glass-glint: rgb(255 255 249 / .38);
   background:
     linear-gradient(110deg, var(--mp-rose-wash-left), var(--mp-rose-wash-right)),
+    linear-gradient(var(--mp-glass-tint,transparent),var(--mp-glass-tint,transparent)),
     url("/static/mypage-portfolio-rose-smooth.webp") right center / cover no-repeat var(--kn-sh-bg, #f0eedf) !important;
+  background-blend-mode:normal,color,normal;
 }
 
 @media (max-width:640px) {
@@ -579,6 +581,18 @@ body.kn-home-a[data-theme="dark"] #myPageOv.open[data-mp-view="assets"] {
   --mp-glass-wave-opacity: .23;
   --mp-glass-light: rgb(255 255 255 / .15);
   --mp-glass-glint: rgb(255 255 249 / .14);
+}
+
+@supports (background-blend-mode:color) {
+  :root[data-custom-brand-color] body.kn-home-a #myPageOv.open[data-mp-view="assets"] {
+    --mp-glass-tint:color-mix(in srgb, var(--brand-color,#3da060) 68%, #c8c8c8);
+  }
+
+  :root[data-custom-brand-color] body.kn-home-a[data-theme="dark"] #myPageOv.open[data-mp-view="assets"] {
+    --mp-glass-dark-wash:color-mix(in srgb, #1d1d20 86%, var(--brand-color,#3da060));
+    --mp-rose-wash-left:color-mix(in srgb, var(--mp-glass-dark-wash) 88%, transparent);
+    --mp-rose-wash-right:color-mix(in srgb, var(--mp-glass-dark-wash) 73%, transparent);
+  }
 }
 
 /* The MyPage stacking context keeps both light layers behind its iframe. */
