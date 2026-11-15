@@ -493,3 +493,20 @@ body.kn-home-a #myPageOv:is([data-mp-view="personal"],[data-mp-view="assets"],[d
 body.kn-home-a #myPageOv:is([data-mp-view="assets"],[data-mp-view="ledger"]) .mo-body {
   background:transparent!important;
 }
+
+body.kn-home-a #myPageOv.open[data-mp-view="assets"] {
+  --mp-rose-wash-left: color-mix(in srgb, var(--kn-sh-bg) 32%, transparent);
+  --mp-rose-wash-right: color-mix(in srgb, var(--kn-sh-bg) 16%, transparent);
+  background:
+    linear-gradient(110deg, var(--mp-rose-wash-left), var(--mp-rose-wash-right)),
+    url("/static/mypage-portfolio-rose.webp") right center / cover no-repeat var(--kn-sh-bg, #f0eedf) !important;
+}
+
+body.kn-home-a[data-theme="dark"] #myPageOv.open[data-mp-view="assets"] {
+  --mp-rose-wash-left: color-mix(in srgb, var(--kn-sh-bg) 88%, transparent);
+  --mp-rose-wash-right: color-mix(in srgb, var(--kn-sh-bg) 73%, transparent);
+}
+
+@media (forced-colors: active) {
+  body.kn-home-a #myPageOv.open[data-mp-view="assets"] { background-image: none !important; }
+}
