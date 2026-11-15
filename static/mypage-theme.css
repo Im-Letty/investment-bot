@@ -3,6 +3,10 @@ body.kn-home-a.kn-mypage-active {
   --mypage-top-space: max(20px, env(safe-area-inset-top, 0px));
 }
 body.kn-home-a.kn-mypage-active #knFloatHam { z-index: 100001 !important; }
+/* A direct Budget entry may open on top of the morning letter. */
+body.kn-home-a.view-asaletter:has(#myPageOv.open:is([data-mp-view="assets"],[data-mp-view="ledger"])) #knFloatHam {
+  display:flex!important;
+}
 /* The menu keeps the same viewport position as the morning letter and videos. */
 body.kn-home-a.kn-mypage-active #drawerOverlay { z-index: 100010 !important; }
 body.kn-home-a.kn-mypage-active #sideDrawer { z-index: 100020 !important; }
