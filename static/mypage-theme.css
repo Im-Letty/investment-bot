@@ -544,7 +544,11 @@ body.kn-home-a #myPageOv.open[data-mp-view="assets"] {
   --mp-rose-wash-right: color-mix(in srgb, var(--kn-sh-bg) 16%, transparent);
   background:
     linear-gradient(110deg, var(--mp-rose-wash-left), var(--mp-rose-wash-right)),
-    url("/static/mypage-portfolio-rose.webp") right center / cover no-repeat var(--kn-sh-bg, #f0eedf) !important;
+    url("/static/mypage-portfolio-rose-glass.webp") right center / cover no-repeat var(--kn-sh-bg, #f0eedf) !important;
+}
+
+@media (max-width:640px) {
+  body.kn-home-a #myPageOv.open[data-mp-view="assets"] { background-position: 72% center !important; }
 }
 
 body.kn-home-a[data-theme="dark"] #myPageOv.open[data-mp-view="assets"] {
