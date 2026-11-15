@@ -386,6 +386,8 @@ body.kn-ledger-letter.kn-ledger-paper.kn-ledger-embedded[data-kk-mypage-view="le
 }
 
 body.kn-ledger-embedded[data-kk-mypage-view="assets"] #tab-assets {
+  position:relative;
+  isolation:isolate;
   --po-backdrop-panel: color-mix(in srgb, var(--kn-ledger-paper) 74%, transparent);
   --po-backdrop-ink: color-mix(in srgb, #87534c 68%, var(--kn-ledger-button));
 }
@@ -401,21 +403,24 @@ body.kn-ledger-paper.kn-ledger-embedded[data-kk-mypage-view="assets"] #tab-asset
 
 #tab-assets > .po-market-backdrop {display:none}
 
-body.kn-ledger-embedded[data-kk-mypage-view="assets"] #tab-assets[data-po-ready="true"] > .po-market-backdrop {
-  display:grid;
-  position:relative;
-  align-items:start;
-  justify-items:start;
+body.kn-ledger-embedded[data-kk-mypage-view="assets"] #tab-assets > .po-market-backdrop {
+  display:block;
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
   color:var(--po-backdrop-ink);
-  min-block-size:clamp(124px,30vw,148px);
-  margin-block-end:16px;
+}
+
+#tab-assets:not([data-po-ready="true"]) > .po-market-backdrop {
+  visibility:hidden;
 }
 
 #tab-assets .po-market-backdrop svg {
   position:absolute;
-  inset:0;
+  inset:clamp(104px,21vh,184px) 0 auto;
   width:100%;
-  height:100%;
+  height:clamp(152px,28vh,280px);
   pointer-events:none;
 }
 
@@ -432,67 +437,33 @@ body.kn-ledger-embedded[data-kk-mypage-view="assets"] #tab-assets[data-po-ready=
   vector-effect:non-scaling-stroke;
 }
 
-#tab-assets .po-market-line {opacity:.85}
-#tab-assets .po-market-sweep {visibility:hidden;stroke-width:2.5;stroke-dasharray:11 89}
-#tab-assets .po-market-candles path {stroke:currentColor;opacity:.64;vector-effect:non-scaling-stroke}
-#tab-assets .po-market-candles rect {fill:currentColor;opacity:.50}
-
-#poBackdropMotion {
-  position:absolute;
-  width:1px;
-  height:1px;
-  clip-path:inset(50%);
-}
-
-#tab-assets label[for="poBackdropMotion"] {
-  position:relative;
-  z-index:1;
-  display:inline-grid;
-  place-items:center;
-  box-sizing:border-box;
-  min-height:44px;
-  margin-inline-start:2.5%;
-  padding:6px 12px;
-  border:1px solid var(--kn-ledger-line);
-  border-radius:999px;
-  background:color-mix(in srgb,var(--kn-ledger-paper) 88%,transparent);
-  color:var(--kn-ledger-ink);
-  font-size:calc(13px * var(--kn-ledger-scale,1));
-  cursor:pointer;
-}
-
-#poBackdropMotion:focus-visible + label {
-  outline:2px solid var(--kn-ledger-button);
-  outline-offset:2px;
-}
-
-#poBackdropMotion:not(:checked) + label span:last-child,
-#poBackdropMotion:checked + label span:first-child {display:none}
+#tab-assets .po-market-line {opacity:.52}
+#tab-assets .po-market-sweep {opacity:0;stroke-width:2.5;stroke-dasharray:11 89}
+#tab-assets .po-market-candles path {stroke:currentColor;opacity:.38;vector-effect:non-scaling-stroke}
+#tab-assets .po-market-candles rect {fill:currentColor;opacity:.32}
 
 @media (prefers-reduced-motion: no-preference) {
-  #poBackdropMotion:checked ~ svg .po-market-sweep {
-    visibility:visible;
+  #tab-assets .po-market-backdrop[data-playing] .po-market-sweep {
     stroke:color-mix(in srgb,currentColor 62%,var(--kn-ledger-paper));
-    animation:po-market-flow 17s linear infinite;
+    animation:po-market-flow 4.2s ease-in-out;
   }
-  #poBackdropMotion:checked ~ svg .po-market-candles > g {
-    animation:po-market-glow 7s ease-in-out infinite alternate;
+  #tab-assets .po-market-backdrop[data-playing] .po-market-candles {
+    animation:po-market-glow 4.2s ease-in-out;
   }
-  #poBackdropMotion:checked ~ svg .po-market-candles > g:nth-child(even) {animation-delay:-3s}
 }
 
-@keyframes po-market-flow {from {stroke-dashoffset:11} to {stroke-dashoffset:-89}}
-@keyframes po-market-glow {to {opacity:.60}}
-
-@media (prefers-reduced-motion: reduce) {
-  #tab-assets :is(#poBackdropMotion,label[for="poBackdropMotion"]) {display:none}
+@keyframes po-market-flow {
+  from {stroke-dashoffset:11;opacity:0}
+  25%,75% {opacity:.68}
+  to {stroke-dashoffset:-89;opacity:0}
 }
+@keyframes po-market-glow {50% {opacity:.72}}
 
 @media (forced-colors: active) {
   body.kn-ledger-embedded[data-kk-mypage-view="assets"] #tab-assets {
     --po-backdrop-panel: Canvas;
   }
-  body.kn-ledger-embedded[data-kk-mypage-view="assets"] #tab-assets[data-po-ready="true"] > .po-market-backdrop {
+  body.kn-ledger-embedded[data-kk-mypage-view="assets"] #tab-assets > .po-market-backdrop {
     display:none;
   }
 }
