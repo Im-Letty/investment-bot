@@ -3,7 +3,7 @@ const test=require('node:test'),assert=require('node:assert/strict'),fs=require(
 const read=file=>fs.readFileSync(path.join(__dirname,'..',file),'utf8');
 
 // Execute the production drawer and confirmation code against synthetic DOM and auth objects.
-function fixture({user=null,language='ja',logoutFlow=true,loginFlow=true,mypageAllowed=true,colorModule=true,realColors=false,realLanguage=false,brandColor='#3da060',customColor=false,blockedColorStorage=false,savedFont}={}){
+function fixture({user=null,language='ja',logoutFlow=true,loginFlow=true,mypageAllowed=true,mypageView,colorModule=true,realColors=false,realLanguage=false,brandColor='#3da060',customColor=false,blockedColorStorage=false,savedFont}={}){
   const calls=[],timers=[],observers=[],themeWrites=[],entryColors=[],windowListeners=new Map(),storage=new Map([['app_lang',language],['userBrandColor',brandColor],['userBrandColorCustom',customColor?'1':'0']]);let document,clock=0;
   if(savedFont!==undefined)storage.set('ui_font',savedFont);
   const dataKey=key=>key.slice(5).replace(/-([a-z])/g,(_,letter)=>letter.toUpperCase());
@@ -75,12 +75,20 @@ function fixture({user=null,language='ja',logoutFlow=true,loginFlow=true,mypageA
 
   for(const act of ['morning','shorts','talk','pet','mypage'])add('button',{class:'bn-item','data-act':act}).onclick=()=>{calls.push(['bottom',act]);if(act==='mypage'&&mypageAllowed)mypage.classList.add('open');};
   add('div',{id:'morning-news-content'});const stock=add('div',{id:'knTabWrap'});add('button',{'data-kn-tab':'div_cal'},stock).onclick=()=>calls.push(['tab','div_cal']);
-  const mypage=add('div',{id:'myPageOv'});for(let i=0;i<2;i++)add('button',{class:'mp-toptab'},mypage).onclick=()=>calls.push(['mypage-tab',i]);
+  const mypage=add('div',{id:'myPageOv'});
+  if(mypageView){mypage.classList.add('open');mypage.setAttribute('data-mp-view',mypageView);}
   add('button',{class:'mo-tab','data-i18n':'g2_mp_tab_memo'},mypage).onclick=()=>calls.push(['memo-tab']);
   const w={knUser:user,KNUserProfile:{mount(panel){const section=add('details',{id:'knProfile'},panel);add('summary',{},section).textContent='プロフィール';mounted.push(panel);return section;}},dsSetSize:value=>{storage.set('ui_fontscale',value);calls.push(['size',value]);},dsSetFont:value=>{storage.set('ui_font',value);calls.push(['font',value]);},dsReset:()=>{storage.delete('ui_fontscale');storage.delete('ui_font');calls.push(['reset']);},closeDrawer:()=>{calls.push(['close']);drawer.classList.remove('open');},__knSetSub:value=>calls.push(['stock-view',value]),matchMedia:()=>({matches:false})};
   w.document=document;document.defaultView=w;w.addEventListener=(type,fn)=>{if(!windowListeners.has(type))windowListeners.set(type,[]);windowListeners.get(type).push(fn);};
   w.applyBrandColor=(hex,customSelection)=>{themeWrites.push([hex,customSelection]);custom.value=hex;root.toggleAttribute('data-custom-brand-color',customSelection);};
   w.knOpenMemo=()=>{calls.push(['open','memo']);if(mypageAllowed)mypage.classList.add('open');return mypageAllowed;};
+  function openMyPageView(key,view){
+    calls.push(['open',key]);
+    if(!mypageAllowed)return false;
+    mypage.classList.add('open');mypage.setAttribute('data-mp-view',view);return true;
+  }
+  w.knOpenAssets=()=>openMyPageView('assets','assets');
+  w.knOpenLedger=()=>openMyPageView('kakeibo','ledger');
   w.toggleDrawer=()=>{calls.push(['toggle']);drawer.classList.toggle('open');};
   for(const [key,name]of Object.entries({openSimulatorSection:'sim',openSaved:'saved',openAlertSection:'alert',openBeginnerGuide:'guide'}))w[key]=()=>calls.push(['open',name]);
   if(logoutFlow)w.knLogoutFlow=()=>calls.push(['logout-flow']);
@@ -102,7 +110,7 @@ function fixture({user=null,language='ja',logoutFlow=true,loginFlow=true,mypageA
   function advance(ms){const end=clock+ms;for(let budget=20;;){timers.sort((a,b)=>a.at-b.at);if(!timers.length||timers[0].at>end)break;assert.ok(budget-->0,'Unexpected repeated menu scheduling');const next=timers.shift();clock=next.at;next.fn();}clock=end;}
   function route(key){const b=node('button');b.dataset.menuPage=key;nav.appendChild(b);b.click();b.remove();}
   flush();
-  return {w,document,drawer,nav,calls,storage,themeWrites,entryColors,flush,advance,route,now:()=>clock,pendingTimers:()=>timers.map(t=>t.delay),setMypageAllowed(value){mypageAllowed=value;},node,mounted,colors,languageGrid,originalLanguageButtons,motion,custom,colorReset,notifyDrawerState(){observers.find(o=>o.target===drawer).fn();},notifyNav(){observers.find(o=>o.target===nav).fn();},group:()=>document.getElementById('knMenuAuthGroup'),button:key=>nav.querySelector('[data-menu-page="'+key+'"]'),activate(key,{nested=false}={}){const b=nav.querySelector('[data-menu-page="'+key+'"]');assert.ok(b,key+' menu row exists');(nested?b.querySelector('span'):b).click();flush();},
+  return {w,document,drawer,nav,mypage,calls,storage,themeWrites,entryColors,flush,advance,route,now:()=>clock,pendingTimers:()=>timers.map(t=>t.delay),setMypageAllowed(value){mypageAllowed=value;},node,mounted,colors,languageGrid,originalLanguageButtons,motion,custom,colorReset,notifyDrawerState(){observers.find(o=>o.target===drawer).fn();},notifyMyPageState(){observers.find(o=>o.target===mypage).fn();},notifyNav(){observers.find(o=>o.target===nav).fn();},group:()=>document.getElementById('knMenuAuthGroup'),button:key=>nav.querySelector('[data-menu-page="'+key+'"]'),activate(key,{nested=false}={}){const b=nav.querySelector('[data-menu-page="'+key+'"]');assert.ok(b,key+' menu row exists');(nested?b.querySelector('span'):b).click();flush();},
     navigate(key){route(key);flush();},
     useGuestAccess(getSession){
       w.sb={auth:{getSession,signInAnonymously(){throw Error('unexpected new guest');}}};context.location={search:''};context.URLSearchParams=URLSearchParams;context.Event=class{constructor(type){this.type=type;}};
@@ -130,7 +138,7 @@ test('logout exists once directly after inline language and colors, without the 
   const h=fixture({user:{id:'synthetic-member',is_anonymous:false}}),group=h.group();
   assert.ok(group);assert.equal(group.parentElement.className,'knAccPanel kn-menu-content');const order=group.parentElement.children;assert.equal(order.at(-3),h.languageGrid.parentElement);assert.equal(order.at(-2),h.colors);assert.equal(order.at(-1),group);
   assert.equal(h.nav.querySelectorAll('[data-menu-page="logout"]').length,1);assert.equal(h.button('logout').textContent,'ログアウト');assert.equal(group.hidden,false);
-  const html=read('index.html');assert.equal(/ensureLogout|knLogoutBtn/.test(html),false);const menuLoader=html.match(/menu-a\.js\?v=[a-zA-Z0-9_-]+/)?.[0];assert.equal(menuLoader,'menu-a.js?v=20261114-auth-row1');assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
+  const html=read('index.html');assert.equal(/ensureLogout|knLogoutBtn/.test(html),false);const menuLoader=html.match(/menu-a\.js\?v=[a-zA-Z0-9_-]+/)?.[0];assert.equal(menuLoader,'menu-a.js?v=20261115-full-photo1');assert.ok(html.indexOf('menu-color-plane.js?')<html.indexOf('menu-a.js?'));
 });
 test('conversation memory menu entry stays absent while its hidden settings host and stored preferences remain intact',()=>{
   for(const language of ['ja','en','ko','zh']){
@@ -228,38 +236,59 @@ const destinations={
   calendar:[['bottom','morning'],['tab','div_cal'],['scroll','knTabWrap','smooth','start']],
   morning:[['bottom','morning']],shorts:[['bottom','shorts']],talk:[['bottom','talk']],pet:[['bottom','pet']],
   sim:[['open','sim']],saved:[['open','saved']],alert:[['open','alert']],guide:[['open','guide']],account:[['bottom','mypage']],
-  kakeibo:[['bottom','mypage'],['mypage-tab',1]],memo:[['open','memo']]
+  assets:[['open','assets']],kakeibo:[['open','kakeibo']],memo:[['open','memo']]
 };
+function destinationFixture(key){
+  return fixture({user:{id:'synthetic-member'},mypageView:key==='assets'?'ledger':key==='kakeibo'?'assets':undefined});
+}
 for(const [key,expected]of Object.entries(destinations))test('existing '+key+' navigation retains its destination and arguments',()=>{
-  const h=fixture({user:{id:'synthetic-member'}});h.navigate(key);assert.deepEqual(h.calls,[['close'],...expected]);
+  const h=destinationFixture(key);h.navigate(key);assert.deepEqual(h.calls,[['close'],...expected]);
 });
 
 test('every route runs in the activation event after closing the drawer, without animation timers',()=>{
   for(const [key,expected]of Object.entries(destinations)){
-    const h=fixture({user:{id:'synthetic-member'}}),at=h.now();h.route(key);
+    const h=destinationFixture(key),at=h.now();h.route(key);
     assert.deepEqual(h.calls,[['close'],...expected],key+' must respond before advancing the clock');
     assert.equal(h.now(),at);assert.deepEqual(h.pendingTimers(),[],key+' must not leave a deferred navigation');
     h.advance(1000);assert.deepEqual(h.calls,[['close'],...expected],key+' must not replay a route after animation');
   }
 });
-test('household and memo use their own opener immediately while storage restoration stays on its own path',()=>{
-  for(const key of ['kakeibo','memo']){
-    const h=fixture({user:{id:'synthetic-member'}}),settings=[...h.storage];
+test('portfolio, household and memo use their own opener while storage restoration stays on its own path',()=>{
+  for(const key of ['assets','kakeibo','memo']){
+    const h=destinationFixture(key),settings=[...h.storage];
     Object.defineProperty(h.w,'__knGateReady',{get(){throw new Error('The existing personal-page route owns protected restoration');}});
-    h.route(key);
+    h.activate(key,{nested:true});
     assert.deepEqual(h.calls,[['close'],...destinations[key]]);assert.equal(h.document.getElementById('myPageOv').classList.contains('open'),true);
     assert.deepEqual([...h.storage],settings,'Navigation only selects the existing panel and never writes records');
     assert.deepEqual(h.pendingTimers(),[]);
   }
 });
-test('a rejected household or memo opener never selects hidden panels or applies an intent after later authentication',()=>{
-  for(const key of ['kakeibo','memo']){
-    const h=fixture({mypageAllowed:false});h.route(key);
-    const expected=[['close'],key==='memo'?['open','memo']:['bottom','mypage']];
-    assert.deepEqual(h.calls,expected);assert.equal(h.document.getElementById('myPageOv').classList.contains('open'),false);
+test('a rejected opener does not select another view or apply an intent after later authentication',()=>{
+  for(const [key,view] of [['assets','ledger'],['kakeibo','assets'],['memo',undefined]]){
+    const h=fixture({mypageAllowed:false,mypageView:view});h.activate(key);
+    const expected=[['close'],...destinations[key]];
+    assert.deepEqual(h.calls,expected);assert.equal(h.mypage.getAttribute('data-mp-view'),view??null);
     h.setMypageAllowed(true);h.document.dispatch('knAuthChange');h.advance(1000);assert.deepEqual(h.calls,expected);
-    assert.equal(h.document.getElementById('myPageOv').classList.contains('open'),false);
+    assert.equal(h.mypage.getAttribute('data-mp-view'),view??null);
+    assert.equal(h.mypage.classList.contains('open'),!!view);
     assert.deepEqual(h.pendingTimers(),[],'No delayed protected panel selection may survive denied auth');
+  }
+});
+
+test('portfolio and household menu rows only show in open MyPage views and cannot route outside them',()=>{
+  const h=fixture(),assets=h.button('assets'),ledger=h.button('kakeibo');
+  const visible=()=>[assets,ledger].map(row=>row.getClientRects().length>0);
+  h.mypage.setAttribute('data-mp-view','assets');h.notifyMyPageState();assert.deepEqual(visible(),[false,false]);
+  h.route('assets');h.route('kakeibo');assert.deepEqual(h.calls,[]);
+  h.mypage.classList.add('open');
+  for(const [view,shown] of [['assets',true],['ledger',true],['personal',true],['memo',false],['unknown',false]]){
+    h.mypage.setAttribute('data-mp-view',view);h.notifyMyPageState();assert.deepEqual(visible(),[shown,shown]);
+  }
+  h.route('assets');h.route('kakeibo');assert.deepEqual(h.calls,[]);
+  for(const [code,portfolio,budget] of [['ja','ポートフォリオ','家計簿'],['en','Portfolio','Household budget'],['ko','포트폴리오','가계부'],['zh','投资组合','家庭账本']]){
+    h.storage.set('app_lang',code);h.document.dispatch('langChanged');
+    assert.equal(h.button('assets'),assets);assert.equal(h.button('kakeibo'),ledger);
+    assert.equal(assets.textContent,portfolio);assert.equal(ledger.textContent,budget);
   }
 });
 
@@ -297,9 +326,9 @@ test('the memo row keeps one translated node across all four initial and live la
     assert.equal(h.mounted[0].hidden,false);assert.equal(h.button('memo'),row);
   }
 });
-test('switching routes after household selection cannot be pulled back by a delayed memo or ledger callback',()=>{
-  for(const key of ['kakeibo','memo']){
-    const h=fixture({user:{id:'synthetic-member'}});h.route(key);h.route('morning');const calls=h.calls.slice();
+test('switching routes after a MyPage selection cannot be pulled back by a delayed callback',()=>{
+  for(const key of ['assets','kakeibo','memo']){
+    const h=destinationFixture(key);h.route(key);h.route('morning');const calls=h.calls.slice();
     assert.deepEqual(calls,[['close'],...destinations[key],['close'],...destinations.morning]);
     h.advance(2000);assert.deepEqual(h.calls,calls);assert.deepEqual(h.pendingTimers(),[]);
   }
@@ -325,13 +354,13 @@ test('an explicit close without navigation still restores the existing opener on
 test('menu shows four language frames and colors with the existing logout group directly below colors',()=>{
   const h=fixture({user:{id:'synthetic-member',is_anonymous:false}}),panel=h.mounted[0];
   assert.equal(panel.className,'knAccPanel kn-menu-content');assert.equal(h.document.getElementById('knProfile').parentElement,panel);
-  assert.deepEqual(panel.querySelectorAll('[data-menu-page]').map(n=>n.dataset.menuPage),['memo','guide','display','logout']);
+  assert.deepEqual(panel.querySelectorAll('[data-menu-page]').filter(n=>n.getClientRects().length).map(n=>n.dataset.menuPage),['memo','guide','display','logout']);
   assert.equal(h.document.getElementById('knMenuView-display').hidden,true);assert.equal(h.document.getElementById('knMenuView-language'),null);assert.equal(h.button('language'),null);
   assert.equal(h.document.getElementById('knMenuView-color'),null);assert.equal(h.button('color'),null);
   const language=h.languageGrid.parentElement;assert.equal(language.className,'kn-menu-language');assert.equal(language.parentElement,panel);assert.equal(language.hidden,false);assert.equal(h.languageGrid.children.length,4);assert.equal(language.getAttribute('aria-labelledby'),'knMenuLanguageTitle');
   assert.equal(panel.children.indexOf(language),panel.children.indexOf(h.button('display'))+1);assert.equal(h.colors.parentElement,panel);assert.equal(panel.children.indexOf(h.colors),panel.children.indexOf(language)+1);assert.equal(panel.children.indexOf(h.group()),panel.children.indexOf(h.colors)+1);assert.equal(panel.children.at(-1),h.group());
   assert.equal(h.drawer.getAttribute('role'),'dialog');assert.equal(h.drawer.getAttribute('aria-modal'),'true');
-  for(const key of ['account','kakeibo','saved','alert'])assert.equal(h.button(key),null);
+  for(const key of ['account','saved','alert'])assert.equal(h.button(key),null);
   assert.equal(h.drawer.querySelector('[data-menu-style]'),null);
 });
 test('display preferences open in a centered dialog and every close returns to the same menu without preference writes',()=>{

@@ -361,27 +361,27 @@ body.kn-ledger-paper .kk-cal-record[data-type="inv"] .kk-cal-amount {color:var(-
   body.kn-ledger-paper .kk-cal-amount-field {grid-column:2;grid-row:1}
 }
 
-/* The private MyPage summaries keep live text and charts above the photo. */
-body.kn-ledger-paper[data-kk-mypage-view] {
+/* The standalone ledger retains its existing photo cards. */
+body.kn-ledger-paper:not(.kn-ledger-embedded)[data-kk-mypage-view] {
   --kk-photo-wash-start:color-mix(in srgb,var(--kn-ledger-paper) 76%,transparent);
   --kk-photo-wash-end:color-mix(in srgb,var(--kn-ledger-paper) 48%,transparent);
 }
-body.kn-ledger-paper[data-kk-mypage-view][data-kn-ledger-dark="true"] {
+body.kn-ledger-paper:not(.kn-ledger-embedded)[data-kk-mypage-view][data-kn-ledger-dark="true"] {
   --kk-photo-wash-start:color-mix(in srgb,var(--kn-ledger-paper) 94%,transparent);
   --kk-photo-wash-end:color-mix(in srgb,var(--kn-ledger-paper) 83%,transparent);
 }
-body.kn-ledger-paper[data-kk-mypage-view="assets"] #tab-assets > :is(.po-goal-hero,.po-assets-group),
-body.kn-ledger-letter.kn-ledger-paper[data-kk-mypage-view="ledger"] #tab-home > :is(.kk-paper-overview,.kk-home-trend) {
+body.kn-ledger-paper:not(.kn-ledger-embedded)[data-kk-mypage-view="assets"] #tab-assets > :is(.po-goal-hero,.po-assets-group),
+body.kn-ledger-letter.kn-ledger-paper:not(.kn-ledger-embedded)[data-kk-mypage-view="ledger"] #tab-home > :is(.kk-paper-overview,.kk-home-trend) {
   background-color:var(--kn-ledger-paper);
   background-image:linear-gradient(110deg,var(--kk-photo-wash-start),var(--kk-photo-wash-end)),var(--kk-mypage-photo);
   background-size:cover;
   background-position:right top;
   background-repeat:no-repeat;
 }
-body.kn-ledger-paper[data-kk-mypage-view="assets"] #tab-assets {
+body.kn-ledger-paper:not(.kn-ledger-embedded)[data-kk-mypage-view="assets"] #tab-assets {
   --kk-mypage-photo:url("/static/mypage-portfolio-photo.webp");
 }
-body.kn-ledger-paper[data-kk-mypage-view="ledger"] #tab-home {
+body.kn-ledger-paper:not(.kn-ledger-embedded)[data-kk-mypage-view="ledger"] #tab-home {
   --kk-mypage-photo:url("/static/mypage-ledger-photo.webp");
 }
 body.kn-ledger-letter.kn-ledger-paper[data-kk-mypage-view="ledger"] #tab-home > .kk-home-trend {
@@ -390,8 +390,19 @@ body.kn-ledger-letter.kn-ledger-paper[data-kk-mypage-view="ledger"] #tab-home > 
   border-radius:16px;
 }
 @media (forced-colors:active) {
-  body.kn-ledger-paper[data-kk-mypage-view="assets"] #tab-assets > :is(.po-goal-hero,.po-assets-group),
-  body.kn-ledger-letter.kn-ledger-paper[data-kk-mypage-view="ledger"] #tab-home > :is(.kk-paper-overview,.kk-home-trend) {
+  body.kn-ledger-paper:not(.kn-ledger-embedded)[data-kk-mypage-view="assets"] #tab-assets > :is(.po-goal-hero,.po-assets-group),
+  body.kn-ledger-letter.kn-ledger-paper:not(.kn-ledger-embedded)[data-kk-mypage-view="ledger"] #tab-home > :is(.kk-paper-overview,.kk-home-trend) {
     background-image:none;
   }
+}
+
+/* Let the MyPage backdrop show through the embedded document and summaries. */
+html:has(> body.kn-ledger-embedded[data-kk-mypage-view]),
+body.kn-ledger-paper.kn-ledger-embedded[data-kk-mypage-view] {
+  background:transparent!important;
+}
+
+body.kn-ledger-paper.kn-ledger-embedded[data-kk-mypage-view="assets"] #tab-assets > :is(.po-goal-hero,.po-assets-group),
+body.kn-ledger-letter.kn-ledger-paper.kn-ledger-embedded[data-kk-mypage-view="ledger"] #tab-home > :is(.kk-paper-overview,.kk-home-trend) {
+  background:color-mix(in srgb,var(--kn-ledger-paper) 30%,transparent);
 }
