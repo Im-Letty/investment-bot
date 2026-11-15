@@ -108,7 +108,6 @@ test('changing the upper month returns every long-range mode to that month while
     h.setPeriod(period);h.context.changeMonth(1);const data=h.data();
     assert.equal(h.context._trendPeriod,'1');assert.equal(h.nodes.get('kkTrendPeriod').value,'1');assert.equal(data.unit,'day');assert.equal(data.from,h.context.kkTrendMonthValue(h.context._year*12+h.context._month-1));
     assert.equal(h.nodes.get('kkTrendCustom').hidden,true);assert.deepEqual(copy(h.context._trendCustom),custom);
-    assert.deepEqual(h.document.querySelectorAll('[data-kk-trend-period]').filter(b=>b.getAttribute('aria-pressed')==='true').map(b=>b.getAttribute('data-kk-trend-period')),['1']);
   }
   assert.equal(total(h.setPeriod('all').income),60);assert.deepEqual(copy(h.custom('2020-01','2029-01')).income.filter(Boolean),[10,20,30]);
   assert.equal(h.writes.length,0);
@@ -252,6 +251,37 @@ test('empty, investment-only and zero totals use a zero-based yen axis without i
     assert.deepEqual(copy(chart.data.datasets.map(d=>d.data)),[[0],[0]]);
     assert.equal(axis.ticks.callback(0),'0円');assert.equal(axis.ticks.callback(1000),'1,000円');assert.equal(h.writes.length,0);
   }
+});
+test('trend hides zero and unreadable markers without changing either signed series or its gaps',()=>{
+  const seed={...seedMonth(2026,6,rows(125.25)),[monthKey(2026,9)]:'{',...seedMonth(2026,10,rows(0,-8.5))};
+  const h=fixture(seed,{charts:true});
+  h.theme();
+  for(const count of [36,37]){
+    if(count===36)h.setPeriod('36');
+    else h.custom('2023-10','2026-10');
+    const trend=h.data(),chart=h.chartInstances.get('lineChart');chart.update();
+    assert.equal(chart.data.labels.length,count);
+    assert.deepEqual(copy(chart.data.datasets.map(dataset=>dataset.data)),copy([trend.income,trend.expense]));
+    assert.ok(!chart.data.datasets[0].borderDash?.length);
+    assert.deepEqual(copy(chart.data.datasets[1].borderDash),[4,3]);
+    assert.equal(chart.options.plugins.legend.labels.usePointStyle,true);
+    assert.equal(chart.options.plugins.legend.labels.pointStyle,'line');
+    const tooltip=chart.options.plugins.tooltip;
+    chart.data.datasets.forEach((dataset,datasetIndex)=>{
+      const nonzero=datasetIndex===0?125.25:-8.5;
+      for(const [value,visible] of [[0,false],[null,false],[nonzero,true]]){
+        const dataIndex=dataset.data.indexOf(value);assert.ok(dataIndex>=0);
+        const parsed={x:dataIndex,y:value};
+        const context={type:'data',raw:value,parsed,dataIndex,dataset,datasetIndex,chart};
+        assert.equal(dataset.pointRadius(context),visible?(count>36?2:4):0);
+        assert.equal(dataset.pointHoverRadius(context),visible?6:0);
+        assert.equal(dataset.pointHitRadius(context),visible?6:0);
+        assert.equal(tooltip.filter(context),visible);
+      }
+    });
+  }
+  for(const [key,value] of Object.entries(seed))assert.equal(h.values.get(key),value);
+  assert.equal(h.writes.length,0);
 });
 test('trend yen labels retain thousands, negative and fractional amounts instead of flooring to whole ten-thousands',()=>{
   const h=allFixture(seedMonth(2026,10,rows(12500.25,-2500.5)),{charts:true}),chart=h.chartInstances.get('lineChart'),axis=chart.options.scales.y;
@@ -661,4 +691,27 @@ test('the real household DOM places shared period controls before spending break
   assert.ok(ids.indexOf('kkTrendPeriod')<ids.indexOf('donutChart'));
   for(const id of ['kkExpenseRange','kkExpenseDataNotice','kkExpenseSignedNotice','donutChart','donut-legend'])assert.ok(h.nodes.has(id),id);
   assert.equal(h.context.kkT('kk_card_pie_expense'),'支出内訳');
+});
+test('one visible localized period select changes both graphs and exposes custom months',()=>{
+  const h=fixture(seedMonth(2026,10,rows(100,25)),{charts:true});
+  const select=h.nodes.get('kkTrendPeriod'),label=select.parentElement;
+  assert.equal(select.tagName,'SELECT');assert.equal(select.hidden,false);assert.equal(select.value,'1');
+  assert.equal(label.tagName,'LABEL');assert.equal(label.getAttribute('for'),select.id);
+  const labelText=label.children.find(child=>child.getAttribute('data-i18n')==='kk_trend_period');
+  assert.ok(labelText);
+  assert.deepEqual(select.children.map(option=>[option.value,option.getAttribute('data-i18n')]),
+    ['all','1','6','12','36','custom'].map(period=>[period,'kk_trend_'+period]));
+  assert.equal(h.document.querySelectorAll('[data-kk-trend-period]').length,0);
+  const change=vm.runInNewContext('(function(){'+select.getAttribute('onchange')+'})',h.context);
+  const oldLine=h.chartInstances.get('lineChart'),oldPie=h.chartInstances.get('donutChart');
+  select.value='6';change.call(select);
+  assert.equal(h.context._trendPeriod,'6');assert.notEqual(h.chartInstances.get('lineChart'),oldLine);assert.notEqual(h.chartInstances.get('donutChart'),oldPie);
+  select.value='custom';change.call(select);
+  assert.equal(h.context._trendPeriod,'custom');assert.equal(h.nodes.get('kkTrendCustom').hidden,false);
+  assert.ok(h.nodes.get('kkTrendFrom').value);assert.ok(h.nodes.get('kkTrendTo').value);
+  for(const language of ['ja','en','ko','zh']){
+    h.context.kkApplyLang(language);
+    assert.equal(labelText.textContent,h.context.kkT('kk_trend_period'));assert.equal(select.value,'custom');
+    assert.deepEqual(select.children.map(option=>option.textContent),select.children.map(option=>h.context.kkT(option.getAttribute('data-i18n'))));
+  }
 });

@@ -70,7 +70,7 @@
   <link rel="stylesheet" href="/static/mypage-kakeibo-theme.css?v=20261103-reading-ink1">
   <link rel="stylesheet" href="/static/site-typography.css?v=20261011-type1">
   <script defer src="/static/mypage-kakeibo-theme.js?v=20261110-subtle-ivory1"></script>
-  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261115-full-photo1">
+  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261115-ledger-trend1">
   <script defer src="/static/kakeibo-layout.js?v=20261103-fast-open1"></script>
   <script defer src="/static/portfolio-overview.js?v=20261115-entry-ivory1"></script>
   <link rel="stylesheet" href="/static/kakeibo-calendar-designs.css?v=20261113-month-slide1">
@@ -354,16 +354,10 @@ body{padding-bottom:24px;}
   </div>
 </section>
   <div class="card kk-home-trend">
-    <div class="kk-trend-heading"><h2 class="card-title" id="kkTrendTitle" tabindex="-1" data-i18n="kk_layout_trend">収入と支出の推移</h2><span class="kk-trend-period-label" id="kkTrendPeriodLabel" data-i18n="kk_trend_period">表示期間</span></div>
-    <div class="kk-trend-periods" role="group" aria-labelledby="kkTrendPeriodLabel">
-      <button type="button" data-kk-trend-period="all" aria-pressed="false" onclick="if(this.getAttribute('aria-pressed')!=='true')kkTrendSetPeriod('all')" data-i18n="kk_trend_all">全期間</button>
-      <button type="button" data-kk-trend-period="1" aria-pressed="true" onclick="if(this.getAttribute('aria-pressed')!=='true')kkTrendSetPeriod('1')" data-i18n="kk_trend_1">1か月</button>
-      <button type="button" data-kk-trend-period="6" aria-pressed="false" onclick="if(this.getAttribute('aria-pressed')!=='true')kkTrendSetPeriod('6')" data-i18n="kk_trend_6">半年</button>
-      <button type="button" data-kk-trend-period="12" aria-pressed="false" onclick="if(this.getAttribute('aria-pressed')!=='true')kkTrendSetPeriod('12')" data-i18n="kk_trend_12">1年</button>
-      <button type="button" data-kk-trend-period="36" aria-pressed="false" onclick="if(this.getAttribute('aria-pressed')!=='true')kkTrendSetPeriod('36')" data-i18n="kk_trend_36">3年</button>
-      <button type="button" data-kk-trend-period="custom" aria-pressed="false" onclick="if(this.getAttribute('aria-pressed')!=='true')kkTrendSetPeriod('custom')" data-i18n="kk_trend_custom">期間を指定</button>
+    <div class="kk-trend-heading">
+      <h2 class="card-title" id="kkTrendTitle" tabindex="-1" data-i18n="kk_layout_trend">収入と支出の推移</h2>
+      <label class="kk-trend-period-label" for="kkTrendPeriod"><span data-i18n="kk_trend_period">表示期間</span><select id="kkTrendPeriod" onchange="kkTrendSetPeriod(this.value)"><option value="all" data-i18n="kk_trend_all">全期間</option><option value="1" selected data-i18n="kk_trend_1">1か月</option><option value="6" data-i18n="kk_trend_6">半年</option><option value="12" data-i18n="kk_trend_12">1年</option><option value="36" data-i18n="kk_trend_36">3年</option><option value="custom" data-i18n="kk_trend_custom">期間を指定</option></select></label>
     </div>
-    <select id="kkTrendPeriod" aria-labelledby="kkTrendPeriodLabel" onchange="kkTrendSetPeriod(this.value)" hidden><option value="all" data-i18n="kk_trend_all">全期間</option><option value="1" selected data-i18n="kk_trend_1">1か月</option><option value="6" data-i18n="kk_trend_6">半年</option><option value="12" data-i18n="kk_trend_12">1年</option><option value="36" data-i18n="kk_trend_36">3年</option><option value="custom" data-i18n="kk_trend_custom">期間を指定</option></select>
     <div id="kkTrendCustom" class="kk-trend-custom" hidden><label><span data-i18n="kk_trend_from">開始月</span><input id="kkTrendFrom" type="month" aria-describedby="kkTrendError" oninput="kkTrendClearError()"></label><label><span data-i18n="kk_trend_to">終了月</span><input id="kkTrendTo" type="month" aria-describedby="kkTrendError" oninput="kkTrendClearError()"></label><button type="button" onclick="kkTrendApplyRange()" data-i18n="kk_trend_apply">表示する</button><p id="kkTrendError" role="alert" data-i18n="kk_trend_invalid_range" hidden>開始月と終了月を正しく指定してください。終了月は開始月以降にしてください。</p></div>
     <p id="kkTrendRange" class="kk-layout-note kk-trend-range" role="status" aria-live="polite"></p>
     <div class="chart-area"><canvas id="lineChart" role="img" aria-describedby="kkTrendRange"></canvas></div>
@@ -1478,7 +1472,6 @@ function kkTrendApplyRange(){
 }
 function kkTrendSync(range){
   var select=document.getElementById('kkTrendPeriod');if(select)select.value=_trendPeriod;
-  document.querySelectorAll('[data-kk-trend-period]').forEach(function(button){button.setAttribute('aria-pressed',String(button.getAttribute('data-kk-trend-period')===_trendPeriod));});
   var custom=document.getElementById('kkTrendCustom');if(custom)custom.hidden=_trendPeriod!=='custom';
   var caption=document.getElementById('kkTrendRange');
   var from=range.from.replace('-','/'),to=range.to.replace('-','/');
@@ -1854,11 +1847,58 @@ function kkExpenseRender(range){
   }).join('');
 }
 
+function kkTrendHasPoint(value){
+  return Number.isFinite(value)&&value!==0;
+}
 function kkTrendRender(){
   var trend=kkTrendData();kkTrendSync(trend);kkExpenseRender(trend);
-  var hasAmount=trend.income.concat(trend.expense).some(function(value){return Number.isFinite(value)&&value!==0;});
+  var hasAmount=trend.income.concat(trend.expense).some(kkTrendHasPoint);
+  var pointSize=trend.labels.length>36?2:4;
+  var datasets=[
+    {label:kkT("kk_js_income"),data:trend.income,borderColor:'var(--brand-color)',backgroundColor:'rgba(93,184,122,0.1)',pointBackgroundColor:'var(--brand-color)'},
+    {label:kkT("kk_js_expense"),data:trend.expense,borderColor:'#625d58',backgroundColor:'rgba(98,93,88,0.07)',pointBackgroundColor:'#625d58',borderDash:[4,3]}
+  ];
+  datasets.forEach(function(dataset){
+    dataset.fill=true;
+    dataset.cubicInterpolationMode='monotone';
+    dataset.borderWidth=2.5;
+    dataset.pointRadius=function(context){return kkTrendHasPoint(context.raw)?pointSize:0;};
+    dataset.pointHoverRadius=function(context){return kkTrendHasPoint(context.raw)?6:0;};
+    dataset.pointHitRadius=function(context){return kkTrendHasPoint(context.raw)?6:0;};
+  });
   var lc=document.getElementById('lineChart');
-  _renderChart('lineChart','line',lc,{type:'line',data:{kkTrendPeriod:[trend.from,trend.to,trend.unit],labels:trend.labels,datasets:[{label:kkT("kk_js_income"),data:trend.income,borderColor:'var(--brand-color)',backgroundColor:'rgba(93,184,122,0.1)',fill:true,tension:0.4,pointRadius:trend.labels.length>36?2:5,pointBackgroundColor:'var(--brand-color)',borderWidth:2.5},{label:kkT("kk_js_expense"),data:trend.expense,borderColor:'#e05050',backgroundColor:'rgba(224,80,80,0.07)',fill:true,tension:0.4,pointRadius:trend.labels.length>36?2:5,pointBackgroundColor:'#e05050',borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{tooltip:{callbacks:{label:function(context){return context.dataset.label+': '+kkTrendYen(context.parsed.y);}}},legend:{position:'bottom',labels:{font:{family:'Noto Sans JP'},boxWidth:10,padding:10,color:'#4a7c5f'}}},scales:{x:{grid:{display:false},ticks:{includeBounds:true,maxTicksLimit:trend.unit==='day'?8:12,font:{size:11},color:'#7aaa8a'}},y:{beginAtZero:true,suggestedMax:hasAmount?undefined:1000,grid:{color:'var(--brand-haze)'},ticks:{maxTicksLimit:5,callback:kkTrendYen,font:{size:11},color:'#7aaa8a'}}}}});
+  _renderChart('lineChart','line',lc,{
+    type:'line',
+    data:{kkTrendPeriod:[trend.from,trend.to,trend.unit],labels:trend.labels,datasets:datasets},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{
+        tooltip:{
+          filter:function(item){return kkTrendHasPoint(item.parsed.y);},
+          callbacks:{label:function(context){return context.dataset.label+': '+kkTrendYen(context.parsed.y);}}
+        },
+        legend:{
+          position:'bottom',
+          labels:{
+            usePointStyle:true,pointStyle:'line',pointStyleWidth:20,padding:14,
+            font:{family:'Noto Sans JP',size:12},color:'#625d58',
+            generateLabels:function(chart){
+              return Chart.defaults.plugins.legend.labels.generateLabels(chart).map(function(label){
+                var dataset=chart.data.datasets[label.datasetIndex];
+                label.lineDash=dataset.borderDash||[];
+                label.lineWidth=dataset.borderWidth;
+                return label;
+              });
+            }
+          }
+        }
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{includeBounds:true,maxTicksLimit:trend.unit==='day'?8:12,font:{size:12},color:'#625d58'}},
+        y:{beginAtZero:true,suggestedMax:hasAmount?undefined:1000,grid:{color:'var(--brand-haze)'},ticks:{maxTicksLimit:5,callback:kkTrendYen,font:{size:12},color:'#625d58'}}
+      }
+    }
+  });
 }
 function renderAll(){
   // The portfolio restores and renders its own owner-checked data. Refresh

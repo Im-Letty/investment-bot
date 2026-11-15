@@ -111,7 +111,7 @@
       return;
     }
     if(key==='assets'||key==='kakeibo'){
-      if(!inMyPage())return;
+      if(key==='assets'&&!inMyPage())return;
       var openView=key==='assets'?window.knOpenAssets:window.knOpenLedger;
       if(typeof openView==='function'){close();openView();}
       return;
@@ -181,13 +181,13 @@
       }
     };
     if(window.KNUserProfile&&typeof window.KNUserProfile.mount==='function')window.KNUserProfile.mount(panel);
-    var myPageRoutes=group(['assets','kakeibo']);
+    var myPageRoutes=group(['assets']);
     function syncMyPageRoutes(){myPageRoutes.hidden=!inMyPage();}
     syncMyPageRoutes();
     panel.appendChild(myPageRoutes);
     var myPage=document.getElementById('myPageOv');
     if(myPage)new MutationObserver(syncMyPageRoutes).observe(myPage,{attributes:true,attributeFilter:['class','data-mp-view']});
-    panel.appendChild(group(['memo','guide']));
+    panel.appendChild(group(['kakeibo','memo','guide']));
     var colors=drawer.querySelector('.drawer-color-wrap:has(.drawer-color-presets)');
     if(colors){
       Array.from(colors.querySelectorAll('.drawer-color-preset')).forEach(function(b,i){if(i>=3){b.remove();return;}b.type='button';b.dataset.menuPreset=['presetGreen','presetPink','presetYellow'][i];b.setAttribute('aria-label',text(b.dataset.menuPreset));b.style.setProperty('--menu-swatch',b.getAttribute('data-color'));});
