@@ -546,7 +546,7 @@ body.kn-home-a #myPageOv.open[data-mp-view="assets"] {
   --mp-glass-light: rgb(255 255 255 / .43);
   background:
     linear-gradient(110deg, var(--mp-rose-wash-left), var(--mp-rose-wash-right)),
-    url("/static/mypage-portfolio-rose-glass.webp") right center / cover no-repeat var(--kn-sh-bg, #f0eedf) !important;
+    url("/static/mypage-portfolio-rose-smooth.webp") right center / cover no-repeat var(--kn-sh-bg, #f0eedf) !important;
 }
 
 @media (max-width:640px) {
@@ -579,7 +579,6 @@ body.kn-home-a #myPageOv.open[data-mp-view="assets"]::before {
   /* The light is already visible at the right edge when the sweep starts. */
   mask-image:linear-gradient(90deg,transparent 38%,#000 50%,transparent 62%);
   mask-size:220% 100%;
-  mask-position:38% 50%;
   mask-repeat:no-repeat;
 }
 
@@ -590,6 +589,10 @@ body.kn-home-a #myPageOv.open[data-mp-view="assets"]::after {
     radial-gradient(ellipse 5.5% 15% at 79% 56%,var(--mp-glass-light),transparent 100%),
     radial-gradient(ellipse 4.5% 13% at 90% 24%,var(--mp-glass-light),transparent 100%);
   opacity:.66;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.kn-home-a #myPageOv.open[data-mp-view="assets"]::before { content:none; }
 }
 
 @media (prefers-reduced-motion: no-preference) {
