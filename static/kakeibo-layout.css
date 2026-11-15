@@ -398,31 +398,53 @@ body.kn-ledger-embedded[data-kk-mypage-view="assets"][data-kn-ledger-dark="true"
 }
 
 body.kn-ledger-paper.kn-ledger-embedded[data-kk-mypage-view="assets"] #tab-assets > :is(.po-goal-hero,.po-assets-group) {
+  position:relative;
+  isolation:isolate;
   background:var(--po-backdrop-panel);
 }
 
-#tab-assets > .po-market-backdrop {display:none}
+#tab-assets :is(.po-market-backdrop,.po-holdings-backdrop) {display:none}
 
-body.kn-ledger-embedded[data-kk-mypage-view="assets"] #tab-assets > .po-market-backdrop {
+body.kn-ledger-embedded[data-kk-mypage-view="assets"] #tab-assets :is(.po-market-backdrop,.po-holdings-backdrop) {
   display:block;
   position:absolute;
-  inset:0;
   z-index:-1;
+  overflow:hidden;
   pointer-events:none;
   color:var(--po-backdrop-ink);
 }
 
-#tab-assets:not([data-po-ready="true"]) > .po-market-backdrop {
+#tab-assets:not([data-po-ready="true"]) :is(.po-market-backdrop,.po-holdings-backdrop) {
   visibility:hidden;
 }
 
+#tab-assets .po-market-backdrop {
+  --po-market-top:clamp(40px,calc(21vh - 64px),120px);
+  inset:0;
+  border-radius:inherit;
+  opacity:.34;
+}
+
+body[data-kn-ledger-dark="true"] #tab-assets .po-market-backdrop {opacity:.28}
+
 #tab-assets .po-market-backdrop svg {
   position:absolute;
-  inset:clamp(104px,21vh,184px) 0 auto;
+  inset:var(--po-market-top) 0 auto;
   width:100%;
-  height:clamp(152px,28vh,280px);
+  height:min(clamp(152px,28vh,280px),calc(100% - var(--po-market-top)));
   pointer-events:none;
 }
+
+#tab-assets .po-holdings-backdrop {
+  inset:0 0 auto auto;
+  inline-size:min(44%,240px);
+  block-size:clamp(26px,5vw,40px);
+  border-start-end-radius:inherit;
+  opacity:.32;
+}
+
+#tab-assets .po-holdings-backdrop svg {display:block;width:100%;height:100%;pointer-events:none}
+#tab-assets .po-holdings-backdrop path {stroke:currentColor;stroke-width:1;vector-effect:non-scaling-stroke}
 
 #tab-assets .po-market-grid {
   stroke:currentColor;
@@ -463,7 +485,7 @@ body.kn-ledger-embedded[data-kk-mypage-view="assets"] #tab-assets > .po-market-b
   body.kn-ledger-embedded[data-kk-mypage-view="assets"] #tab-assets {
     --po-backdrop-panel: Canvas;
   }
-  body.kn-ledger-embedded[data-kk-mypage-view="assets"] #tab-assets > .po-market-backdrop {
+  body.kn-ledger-embedded[data-kk-mypage-view="assets"] #tab-assets :is(.po-market-backdrop,.po-holdings-backdrop) {
     display:none;
   }
 }
