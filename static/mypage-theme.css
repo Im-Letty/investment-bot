@@ -542,7 +542,7 @@ body.kn-home-a #myPageOv:is([data-mp-view="assets"],[data-mp-view="ledger"]) .mo
 body.kn-home-a #myPageOv.open[data-mp-view="assets"] {
   --mp-rose-wash-left: color-mix(in srgb, var(--kn-sh-bg) 32%, transparent);
   --mp-rose-wash-right: color-mix(in srgb, var(--kn-sh-bg) 16%, transparent);
-  --mp-glass-line: rgb(255 251 245 / .54);
+  --mp-glass-wave-opacity: .86;
   --mp-glass-light: rgb(255 255 255 / .43);
   background:
     linear-gradient(110deg, var(--mp-rose-wash-left), var(--mp-rose-wash-right)),
@@ -556,7 +556,7 @@ body.kn-home-a #myPageOv.open[data-mp-view="assets"] {
 body.kn-home-a[data-theme="dark"] #myPageOv.open[data-mp-view="assets"] {
   --mp-rose-wash-left: color-mix(in srgb, var(--kn-sh-bg) 88%, transparent);
   --mp-rose-wash-right: color-mix(in srgb, var(--kn-sh-bg) 73%, transparent);
-  --mp-glass-line: rgb(255 251 245 / .19);
+  --mp-glass-wave-opacity: .32;
   --mp-glass-light: rgb(255 255 255 / .15);
 }
 
@@ -570,12 +570,9 @@ body.kn-home-a #myPageOv.open[data-mp-view="assets"]::after {
 }
 
 body.kn-home-a #myPageOv.open[data-mp-view="assets"]::before {
-  --mp-glass-gap: clamp(14px,2.6vw,32px);
   inset:0;
-  background:repeating-linear-gradient(90deg,
-    transparent 0 calc(var(--mp-glass-gap) - 5px),
-    var(--mp-glass-line) calc(var(--mp-glass-gap) - 3px) calc(var(--mp-glass-gap) - 2px),
-    transparent var(--mp-glass-gap));
+  background: url("/static/mypage-portfolio-light-wave.png") 0 0 /
+    clamp(76px,9vw,134px) clamp(255px,44vh,400px) repeat;
   /* The light is already visible at the right edge when the sweep starts. */
   mask-image:linear-gradient(90deg,transparent 38%,#000 50%,transparent 62%);
   mask-size:220% 100%;
@@ -605,9 +602,9 @@ body.kn-home-a #myPageOv.open[data-mp-view="assets"]::after {
 }
 
 @keyframes mp-glass-lines {
-  from {mask-position:12% 50%;opacity:.75}
-  16%,74% {opacity:1}
-  to {mask-position:100% 50%;opacity:0}
+  from {background-position:18px 0;mask-position:12% 50%;opacity:calc(var(--mp-glass-wave-opacity) * .75)}
+  16%,74% {opacity:var(--mp-glass-wave-opacity)}
+  to {background-position:-18px 0;mask-position:100% 50%;opacity:0}
 }
 
 @keyframes mp-glass-reflection {
