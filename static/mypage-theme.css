@@ -559,16 +559,19 @@ body.kn-home-a #myPageOv:is([data-mp-view="assets"],[data-mp-view="ledger"]) .mo
 }
 
 body.kn-home-a #myPageOv.open[data-mp-view="assets"] {
-  --mp-rose-wash-left: color-mix(in srgb, var(--kn-sh-bg) 32%, transparent);
-  --mp-rose-wash-right: color-mix(in srgb, var(--kn-sh-bg) 16%, transparent);
+  /* Keep the morning letter hue and use only the photo's light and shadow. */
+  --mp-morning-bg:var(--kn-nav-mypage-bg,var(--kn-sh-bg,#f3f1e4));
+  --mp-photo-wash-start:84%;
+  --mp-photo-wash-end:76%;
   --mp-glass-wave-opacity: .60;
   --mp-glass-light: rgb(255 255 255 / .43);
   --mp-glass-glint: rgb(255 255 249 / .38);
   background:
-    linear-gradient(110deg, var(--mp-rose-wash-left), var(--mp-rose-wash-right)),
-    linear-gradient(var(--mp-glass-tint,transparent),var(--mp-glass-tint,transparent)),
-    url("/static/mypage-portfolio-rose-smooth.webp") right center / cover no-repeat var(--kn-sh-bg, #f0eedf) !important;
-  background-blend-mode:normal,color,normal;
+    linear-gradient(110deg,
+      color-mix(in srgb,var(--mp-morning-bg) var(--mp-photo-wash-start),transparent),
+      color-mix(in srgb,var(--mp-morning-bg) var(--mp-photo-wash-end),transparent)),
+    url("/static/mypage-portfolio-rose-smooth.webp") right center / cover no-repeat var(--mp-morning-bg) !important;
+  background-blend-mode:normal,luminosity;
 }
 
 @media (max-width:640px) {
@@ -576,23 +579,11 @@ body.kn-home-a #myPageOv.open[data-mp-view="assets"] {
 }
 
 body.kn-home-a[data-theme="dark"] #myPageOv.open[data-mp-view="assets"] {
-  --mp-rose-wash-left: color-mix(in srgb, var(--kn-sh-bg) 88%, transparent);
-  --mp-rose-wash-right: color-mix(in srgb, var(--kn-sh-bg) 73%, transparent);
+  --mp-photo-wash-start:96%;
+  --mp-photo-wash-end:90%;
   --mp-glass-wave-opacity: .23;
   --mp-glass-light: rgb(255 255 255 / .15);
   --mp-glass-glint: rgb(255 255 249 / .14);
-}
-
-@supports (background-blend-mode:color) {
-  :root[data-custom-brand-color] body.kn-home-a #myPageOv.open[data-mp-view="assets"] {
-    --mp-glass-tint:color-mix(in srgb, var(--brand-color,#3da060) 68%, #c8c8c8);
-  }
-
-  :root[data-custom-brand-color] body.kn-home-a[data-theme="dark"] #myPageOv.open[data-mp-view="assets"] {
-    --mp-glass-dark-wash:color-mix(in srgb, #1d1d20 86%, var(--brand-color,#3da060));
-    --mp-rose-wash-left:color-mix(in srgb, var(--mp-glass-dark-wash) 88%, transparent);
-    --mp-rose-wash-right:color-mix(in srgb, var(--mp-glass-dark-wash) 73%, transparent);
-  }
 }
 
 /* The MyPage stacking context keeps both light layers behind its iframe. */
