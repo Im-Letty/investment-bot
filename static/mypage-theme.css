@@ -561,17 +561,30 @@ body.kn-home-a #myPageOv:is([data-mp-view="assets"],[data-mp-view="ledger"]) .mo
 body.kn-home-a #myPageOv.open[data-mp-view="assets"] {
   /* Keep the morning letter hue and use only the photo's light and shadow. */
   --mp-morning-bg:var(--kn-nav-mypage-bg,var(--kn-sh-bg,#f3f1e4));
-  --mp-photo-wash-start:84%;
-  --mp-photo-wash-end:76%;
+  --mp-photo-wash-start:68%;
+  --mp-photo-wash-end:56%;
+  --mp-contour-light:rgb(255 255 255 / .56);
+  --mp-contour-soft:rgb(255 255 255 / .16);
+  --mp-contour-bloom:rgb(255 255 255 / .22);
+  --mp-contour-shade:color-mix(in srgb,var(--mp-morning-bg) 88%,#000);
   --mp-glass-wave-opacity: .60;
   --mp-glass-light: rgb(255 255 255 / .43);
   --mp-glass-glint: rgb(255 255 249 / .38);
   background:
+    radial-gradient(ellipse 86% 76% at 108% 0%,
+      transparent 46%,var(--mp-contour-light) 46.2%,var(--mp-contour-soft) 46.6%,
+      transparent 49%,var(--mp-contour-soft) 53%,transparent 53.3%),
+    radial-gradient(ellipse 108% 82% at -16% 106%,
+      transparent 45%,var(--mp-contour-light) 45.2%,var(--mp-contour-soft) 45.7%,
+      transparent 50%,var(--mp-contour-soft) 54%,transparent 54.3%),
+    radial-gradient(ellipse 75% 40% at 92% 10%,var(--mp-contour-bloom),transparent 86%),
+    radial-gradient(ellipse 60% 65% at 0% 85%,
+      color-mix(in srgb,var(--mp-contour-shade) 25%,transparent),transparent 85%),
     linear-gradient(110deg,
       color-mix(in srgb,var(--mp-morning-bg) var(--mp-photo-wash-start),transparent),
       color-mix(in srgb,var(--mp-morning-bg) var(--mp-photo-wash-end),transparent)),
     url("/static/mypage-portfolio-rose-smooth.webp") right center / cover no-repeat var(--mp-morning-bg) !important;
-  background-blend-mode:normal,luminosity;
+  background-blend-mode:normal,normal,normal,normal,normal,luminosity;
 }
 
 @media (max-width:640px) {
@@ -579,8 +592,11 @@ body.kn-home-a #myPageOv.open[data-mp-view="assets"] {
 }
 
 body.kn-home-a[data-theme="dark"] #myPageOv.open[data-mp-view="assets"] {
-  --mp-photo-wash-start:96%;
-  --mp-photo-wash-end:90%;
+  --mp-photo-wash-start:94%;
+  --mp-photo-wash-end:88%;
+  --mp-contour-light:rgb(255 255 255 / .16);
+  --mp-contour-soft:rgb(255 255 255 / .05);
+  --mp-contour-bloom:rgb(255 255 255 / .035);
   --mp-glass-wave-opacity: .23;
   --mp-glass-light: rgb(255 255 255 / .15);
   --mp-glass-glint: rgb(255 255 249 / .14);
