@@ -568,15 +568,7 @@ body.kn-home-a #myPageOv.open[data-mp-view="assets"] {
   --mp-contour-bloom:rgb(255 255 255 / .22);
   --mp-contour-shade:color-mix(in srgb,var(--mp-morning-bg) 88%,#000);
   --mp-glass-wave-opacity: .60;
-  --mp-glass-light: rgb(255 255 255 / .43);
-  --mp-glass-glint: rgb(255 255 249 / .38);
   background:
-    radial-gradient(ellipse 86% 76% at 108% 0%,
-      transparent 46%,var(--mp-contour-light) 46.2%,var(--mp-contour-soft) 46.6%,
-      transparent 49%,var(--mp-contour-soft) 53%,transparent 53.3%),
-    radial-gradient(ellipse 108% 82% at -16% 106%,
-      transparent 45%,var(--mp-contour-light) 45.2%,var(--mp-contour-soft) 45.7%,
-      transparent 50%,var(--mp-contour-soft) 54%,transparent 54.3%),
     radial-gradient(ellipse 75% 40% at 92% 10%,var(--mp-contour-bloom),transparent 86%),
     radial-gradient(ellipse 60% 65% at 0% 85%,
       color-mix(in srgb,var(--mp-contour-shade) 25%,transparent),transparent 85%),
@@ -584,7 +576,7 @@ body.kn-home-a #myPageOv.open[data-mp-view="assets"] {
       color-mix(in srgb,var(--mp-morning-bg) var(--mp-photo-wash-start),transparent),
       color-mix(in srgb,var(--mp-morning-bg) var(--mp-photo-wash-end),transparent)),
     url("/static/mypage-portfolio-rose-smooth.webp") right center / cover no-repeat var(--mp-morning-bg) !important;
-  background-blend-mode:normal,normal,normal,normal,normal,luminosity;
+  background-blend-mode:normal,normal,normal,luminosity;
 }
 
 @media (max-width:640px) {
@@ -598,13 +590,11 @@ body.kn-home-a[data-theme="dark"] #myPageOv.open[data-mp-view="assets"] {
   --mp-contour-soft:rgb(255 255 255 / .05);
   --mp-contour-bloom:rgb(255 255 255 / .035);
   --mp-glass-wave-opacity: .23;
-  --mp-glass-light: rgb(255 255 255 / .15);
-  --mp-glass-glint: rgb(255 255 249 / .14);
 }
 
-/* The MyPage stacking context keeps both light layers behind its iframe. */
+/* Paint the drifting light behind the controls and the scrollable content. */
 body.kn-home-a #myPageOv.open[data-mp-view="assets"]::before,
-body.kn-home-a #myPageOv.open[data-mp-view="assets"]::after {
+body.kn-home-a #myPageOv.open:is([data-mp-view="assets"],[data-mp-view="ledger"])::after {
   content:"";
   position:absolute;
   z-index:-1;
@@ -617,16 +607,35 @@ body.kn-home-a #myPageOv.open[data-mp-view="assets"]::before {
   opacity:0;
 }
 
+body.kn-home-a #myPageOv.open:is([data-mp-view="assets"],[data-mp-view="ledger"])::after {
+  inset:-12%;
+}
+
 body.kn-home-a #myPageOv.open[data-mp-view="assets"]::after {
-  inset:-8%;
   background:
-    radial-gradient(ellipse 1.3% 3.2% at 68% 34%,var(--mp-glass-glint),transparent),
-    radial-gradient(ellipse 1.6% 3.7% at 79% 56%,var(--mp-glass-glint),transparent),
-    radial-gradient(ellipse 1.1% 2.7% at 90% 24%,var(--mp-glass-glint),transparent),
-    radial-gradient(ellipse 5% 12% at 68% 34%,var(--mp-glass-light),transparent 100%),
-    radial-gradient(ellipse 5.5% 15% at 79% 56%,var(--mp-glass-light),transparent 100%),
-    radial-gradient(ellipse 4.5% 13% at 90% 24%,var(--mp-glass-light),transparent 100%);
-  opacity:.66;
+    radial-gradient(ellipse 78% 70% at 97% 11%,
+      transparent 46%,var(--mp-contour-light) 46.2%,var(--mp-contour-soft) 46.6%,
+      transparent 49%,var(--mp-contour-soft) 53%,transparent 53.3%),
+    radial-gradient(ellipse 98% 76% at -3% 94%,
+      transparent 45%,var(--mp-contour-light) 45.2%,var(--mp-contour-soft) 45.7%,
+      transparent 50%,var(--mp-contour-soft) 54%,transparent 54.3%),
+    radial-gradient(ellipse 35% 24% at 78% 35%,var(--mp-contour-bloom),transparent);
+}
+
+body.kn-home-a #myPageOv.open[data-mp-view="ledger"] {
+  --mp-ledger-light:rgb(255 255 255 / .50);
+  --mp-ledger-reflection:rgb(255 255 255 / .25);
+}
+
+body.kn-home-a[data-theme="dark"] #myPageOv.open[data-mp-view="ledger"] {
+  --mp-ledger-light:rgb(255 255 255 / .075);
+  --mp-ledger-reflection:rgb(255 255 255 / .045);
+}
+
+body.kn-home-a #myPageOv.open[data-mp-view="ledger"]::after {
+  background:
+    radial-gradient(ellipse 52% 28% at 76% 36%,var(--mp-ledger-light),transparent),
+    radial-gradient(ellipse 37% 32% at 24% 80%,var(--mp-ledger-reflection),transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -637,9 +646,8 @@ body.kn-home-a #myPageOv.open[data-mp-view="assets"]::after {
   body.kn-home-a #myPageOv.open[data-mp-view="assets"]::before {
     animation:mp-glass-wave 12s linear infinite;
   }
-  body.kn-home-a #myPageOv.open[data-mp-view="assets"]::after {
-    animation:mp-glass-reflection-intro 2.4s ease-in both,
-      mp-glass-reflection 8s ease-in-out 2.4s infinite alternate;
+  body.kn-home-a #myPageOv.open:is([data-mp-view="assets"],[data-mp-view="ledger"])::after {
+    animation:mp-glass-drift 12s ease-in-out infinite alternate;
   }
 }
 
@@ -650,20 +658,15 @@ body.kn-home-a #myPageOv.open[data-mp-view="assets"]::after {
   to {transform:translateX(-68%)}
 }
 
-@keyframes mp-glass-reflection-intro {
-  from {opacity:0;transform:translate(-1%,-.5%)}
-  to {opacity:.66;transform:translate(-1%,-.5%)}
-}
-
-@keyframes mp-glass-reflection {
-  from {opacity:.66;transform:translate(-1%,-.5%)}
-  to {opacity:.93;transform:translate(1.5%,1.5%)}
+@keyframes mp-glass-drift {
+  from {transform:translate(7%,-3%);opacity:.80}
+  to {transform:translate(-7%,3%);opacity:1}
 }
 
 @media (forced-colors: active) {
-  body.kn-home-a #myPageOv.open[data-mp-view="assets"] { background-image: none !important; }
+  body.kn-home-a #myPageOv.open[data-mp-view="assets"] { background-image:none!important; }
   body.kn-home-a #myPageOv.open[data-mp-view="assets"]::before,
-  body.kn-home-a #myPageOv.open[data-mp-view="assets"]::after {
+  body.kn-home-a #myPageOv.open:is([data-mp-view="assets"],[data-mp-view="ledger"])::after {
     content:none;
     animation:none;
   }
