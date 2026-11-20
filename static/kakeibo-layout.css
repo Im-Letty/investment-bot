@@ -385,10 +385,14 @@ body.kn-ledger-letter.kn-ledger-paper.kn-ledger-embedded[data-kk-mypage-view="le
   background:color-mix(in srgb,var(--kn-ledger-paper) 30%,transparent);
 }
 
-/* Tint the Portfolio panels while letting the animated backdrop show through. */
+/* Keep a warm ivory surface while letting the animated backdrop show through. */
+body.kn-ledger-paper.kn-ledger-embedded[data-kk-mypage-view="assets"][data-kn-ledger-dark="true"] {
+  --portfolio-panel-ivory:#574937;
+}
+
 body.kn-ledger-paper.kn-ledger-embedded[data-kk-mypage-view="assets"] #tab-assets > :is(.po-goal-hero,.po-assets-group) {
-  --portfolio-panel-tint:color-mix(in srgb,var(--kn-ledger-ink) 25%,var(--kn-ledger-bg));
-  background:color-mix(in srgb,var(--portfolio-panel-tint) 42%,transparent);
+  --portfolio-panel-tint:color-mix(in srgb,var(--portfolio-panel-ivory,#fff1d3) 88%,var(--kn-ledger-bg));
+  background:color-mix(in srgb,var(--portfolio-panel-tint) 58%,transparent);
 }
 
 @media (forced-colors: active) {
