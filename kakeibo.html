@@ -70,7 +70,7 @@
   <link rel="stylesheet" href="/static/mypage-kakeibo-theme.css?v=20261103-reading-ink1">
   <link rel="stylesheet" href="/static/site-typography.css?v=20261011-type1">
   <script defer src="/static/mypage-kakeibo-theme.js?v=20261110-subtle-ivory1"></script>
-  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261116-asset-glass1">
+  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261121-portfolio-rails1">
   <script defer src="/static/kakeibo-layout.js?v=20261103-fast-open1"></script>
   <script defer src="/static/portfolio-overview.js?v=20261115-entry-ivory1"></script>
   <link rel="stylesheet" href="/static/kakeibo-calendar-designs.css?v=20261113-month-slide1">
@@ -392,86 +392,8 @@ body{padding-bottom:24px;}
       <p class="po-error" id="poGoalError" role="alert"></p>
     </form><p class="po-muted" id="poGoalStatus" role="status" aria-live="polite"></p>
     <div id="poGoalBody"></div>
-    <div class="po-market-backdrop" aria-hidden="true">
-      <svg viewBox="0 0 1000 400" preserveAspectRatio="none" fill="none" aria-hidden="true" focusable="false">
-        <defs>
-          <path id="poMarketTrace" pathLength="100" d="M25 300L67 286L110 292L152 250L196 261L240 226L284 237L327 199L371 212L416 180L460 198L506 158L550 165L594 133L640 153L684 120L728 145L772 101L815 119L860 83L904 102L948 63L975 76"/>
-          <linearGradient id="poMarketFill" x2="0" y2="1">
-            <stop stop-color="currentColor" stop-opacity=".23"/>
-            <stop offset="1" stop-color="currentColor" stop-opacity="0"/>
-          </linearGradient>
-        </defs>
-        <path class="po-market-grid" d="M25 72H975M25 140H975M25 208H975M25 276H975M25 344H975M90 62V352M226 62V352M362 62V352M498 62V352M634 62V352M770 62V352M906 62V352"/>
-        <path fill="url(#poMarketFill)" d="M25 300L67 286L110 292L152 250L196 261L240 226L284 237L327 199L371 212L416 180L460 198L506 158L550 165L594 133L640 153L684 120L728 145L772 101L815 119L860 83L904 102L948 63L975 76V352H25Z"/>
-        <use class="po-market-line" href="#poMarketTrace"/>
-        <use class="po-market-sweep" href="#poMarketTrace"/>
-        <g class="po-market-candles">
-          <g><path d="M82 271v65"/><rect x="76" y="290" width="12" height="22" rx="1"/></g>
-          <g><path d="M155 239v69"/><rect x="149" y="260" width="12" height="23" rx="1"/></g>
-          <g><path d="M228 251v50"/><rect x="222" y="263" width="12" height="19" rx="1"/></g>
-          <g><path d="M302 222v55"/><rect x="296" y="240" width="12" height="21" rx="1"/></g>
-          <g><path d="M375 198v63"/><rect x="369" y="215" width="12" height="22" rx="1"/></g>
-          <g><path d="M448 183v54"/><rect x="442" y="201" width="12" height="18" rx="1"/></g>
-          <g><path d="M521 159v63"/><rect x="515" y="177" width="12" height="22" rx="1"/></g>
-          <g><path d="M594 144v61"/><rect x="588" y="163" width="12" height="22" rx="1"/></g>
-          <g><path d="M667 149v57"/><rect x="661" y="165" width="12" height="19" rx="1"/></g>
-          <g><path d="M741 125v62"/><rect x="735" y="143" width="12" height="23" rx="1"/></g>
-          <g><path d="M814 128v52"/><rect x="808" y="141" width="12" height="19" rx="1"/></g>
-          <g><path d="M887 99v64"/><rect x="881" y="119" width="12" height="23" rx="1"/></g>
-          <g><path d="M960 76v69"/><rect x="954" y="94" width="12" height="23" rx="1"/></g>
-        </g>
-      </svg>
-    </div>
   </section>
-  <script>
-  (function () {
-    var host = window.frameElement && window.frameElement.closest('#myPageOv');
-    if (!host) return;
-    var panel = document.getElementById('tab-assets');
-    var backdrop = panel.querySelector('.po-market-backdrop');
-    var sweep = backdrop.querySelector('.po-market-sweep');
-    var reduced = matchMedia('(prefers-reduced-motion: reduce)');
-    var forced = matchMedia('(forced-colors: active)');
-    var played = false;
-
-    function stop() { backdrop.removeAttribute('data-playing'); }
-    function sync() {
-      var open = host.classList.contains('open') && host.getAttribute('data-mp-view') === 'assets' &&
-        document.body.getAttribute('data-kk-mypage-view') === 'assets';
-      if (!open) {
-        played = false;
-        stop();
-        return;
-      }
-      // The shared iframe can restore its records before MyPage is opened.
-      if (played || document.hidden || panel.getAttribute('data-po-ready') !== 'true' ||
-          document.documentElement.getAttribute('data-ledger-private-ready') !== 'true') return;
-      played = true;
-      if (!reduced.matches && !forced.matches) backdrop.setAttribute('data-playing', '');
-    }
-
-    var observer = new MutationObserver(sync);
-    function observe() {
-      observer.observe(host, {attributes: true, attributeFilter: ['class', 'data-mp-view']});
-      observer.observe(document.body, {attributes: true, attributeFilter: ['data-kk-mypage-view']});
-      observer.observe(document.documentElement, {attributes: true, attributeFilter: ['data-ledger-private-ready']});
-      observer.observe(panel, {attributes: true, attributeFilter: ['data-po-ready']});
-      sync();
-    }
-    sweep.addEventListener('animationend', stop);
-    sweep.addEventListener('animationcancel', stop);
-    document.addEventListener('visibilitychange', sync);
-    window.addEventListener('pagehide', function () { observer.disconnect(); stop(); });
-    window.addEventListener('pageshow', observe);
-    observe();
-  })();
-  </script>
   <section class="po-panel po-assets-group" aria-labelledby="poHoldingsTitle">
-  <div class="po-holdings-backdrop" aria-hidden="true">
-    <svg viewBox="0 0 240 40" preserveAspectRatio="xMaxYMin slice" fill="none" aria-hidden="true" focusable="false">
-      <path d="M65 40C103 4 180-22 250 5M113 42C150 11 206-2 250 13"/>
-    </svg>
-  </div>
   <div class="po-heading"><h3 id="poHoldingsTitle">保有資産</h3></div>
   <div class="po-columns">
   <section class="kk-asset-summary po-hero" aria-labelledby="kkAssetTotalLabel">
