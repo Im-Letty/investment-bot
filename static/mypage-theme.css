@@ -559,25 +559,40 @@ body.kn-home-a #myPageOv:is([data-mp-view="assets"],[data-mp-view="ledger"]) .mo
 }
 
 body.kn-home-a #myPageOv.open[data-mp-view="assets"] {
-  --mp-rail-base: color-mix(in srgb,var(--kn-nav-mypage-bg,var(--kn-sh-bg,#f2f0ea)) 46%,var(--kn-sh-paper,#f9f7f0));
-  --mp-rail-line: color-mix(in srgb,var(--kn-sh-ink,#343331) 20%,transparent);
-  --mp-rail-mark: color-mix(in srgb,var(--kn-sh-muted,#625d58) 66%,transparent);
-  --mp-rail-fill: linear-gradient(var(--mp-rail-mark),var(--mp-rail-mark));
-  --mp-rail-width: clamp(5px,1.5vw,11px);
-  --mp-rail-x1: calc(78% + var(--mp-rail-width) * .28);
-  --mp-rail-x2: calc(82.3% + var(--mp-rail-width) * .323);
-  --mp-rail-x3: calc(86.6% + var(--mp-rail-width) * .366);
-  --mp-rail-x4: calc(90.9% + var(--mp-rail-width) * .409);
-  --mp-rail-x5: calc(95.2% + var(--mp-rail-width) * .452);
-  background:var(--mp-rail-base) !important;
+  /* Keep the morning letter hue and use only the photo's light and shadow. */
+  --mp-morning-bg:var(--kn-nav-mypage-bg,var(--kn-sh-bg,#f3f1e4));
+  --mp-photo-wash-start:68%;
+  --mp-photo-wash-end:56%;
+  --mp-contour-light:rgb(255 255 255 / .56);
+  --mp-contour-soft:rgb(255 255 255 / .16);
+  --mp-contour-bloom:rgb(255 255 255 / .22);
+  --mp-contour-shade:color-mix(in srgb,var(--mp-morning-bg) 88%,#000);
+  --mp-glass-wave-opacity: .60;
+  background:
+    radial-gradient(ellipse 75% 40% at 92% 10%,var(--mp-contour-bloom),transparent 86%),
+    radial-gradient(ellipse 60% 65% at 0% 85%,
+      color-mix(in srgb,var(--mp-contour-shade) 25%,transparent),transparent 85%),
+    linear-gradient(110deg,
+      color-mix(in srgb,var(--mp-morning-bg) var(--mp-photo-wash-start),transparent),
+      color-mix(in srgb,var(--mp-morning-bg) var(--mp-photo-wash-end),transparent)),
+    url("/static/mypage-portfolio-rose-smooth.webp") right center / cover no-repeat var(--mp-morning-bg) !important;
+  background-blend-mode:normal,normal,normal,luminosity;
+}
+
+@media (max-width:640px) {
+  body.kn-home-a #myPageOv.open[data-mp-view="assets"] { background-position: 72% center !important; }
 }
 
 body.kn-home-a[data-theme="dark"] #myPageOv.open[data-mp-view="assets"] {
-  --mp-rail-line: color-mix(in srgb,var(--kn-sh-ink,#efede6) 19%,transparent);
-  --mp-rail-mark: color-mix(in srgb,var(--kn-sh-muted,#b5b1a4) 48%,transparent);
+  --mp-photo-wash-start:94%;
+  --mp-photo-wash-end:88%;
+  --mp-contour-light:rgb(255 255 255 / .16);
+  --mp-contour-soft:rgb(255 255 255 / .05);
+  --mp-contour-bloom:rgb(255 255 255 / .035);
+  --mp-glass-wave-opacity: .23;
 }
 
-/* Keep guides and markers on the same plane behind the transparent iframe. */
+/* Paint the drifting light behind the controls and the scrollable content. */
 body.kn-home-a #myPageOv.open[data-mp-view="assets"]::before,
 body.kn-home-a #myPageOv.open:is([data-mp-view="assets"],[data-mp-view="ledger"])::after {
   content:"";
@@ -588,35 +603,23 @@ body.kn-home-a #myPageOv.open:is([data-mp-view="assets"],[data-mp-view="ledger"]
 
 body.kn-home-a #myPageOv.open[data-mp-view="assets"]::before {
   inset:0;
-  background:
-    linear-gradient(transparent 55%,var(--mp-rail-line) 55% 97%,transparent 97%) 4% 0 / 1px 100% no-repeat,
-    linear-gradient(transparent 55%,var(--mp-rail-line) 55% 97%,transparent 97%) 6.3% 0 / 1px 100% no-repeat,
-    linear-gradient(transparent 55%,var(--mp-rail-line) 55% 97%,transparent 97%) 8.6% 0 / 1px 100% no-repeat,
-    linear-gradient(transparent 55%,var(--mp-rail-line) 55% 97%,transparent 97%) 10.9% 0 / 1px 100% no-repeat,
-    linear-gradient(transparent 26%,var(--mp-rail-line) 26% 94%,transparent 94%) 78% 0 / 1px 100% no-repeat,
-    linear-gradient(transparent 31.3%,var(--mp-rail-line) 31.3% 90.2%,transparent 90.2%) 82.3% 0 / 1px 100% no-repeat,
-    linear-gradient(transparent 36.6%,var(--mp-rail-line) 36.6% 86.4%,transparent 86.4%) 86.6% 0 / 1px 100% no-repeat,
-    linear-gradient(transparent 41.9%,var(--mp-rail-line) 41.9% 82.6%,transparent 82.6%) 90.9% 0 / 1px 100% no-repeat,
-    linear-gradient(transparent 47.2%,var(--mp-rail-line) 47.2% 78.8%,transparent 78.8%) 95.2% 0 / 1px 100% no-repeat,
-    linear-gradient(var(--mp-rail-line),var(--mp-rail-line)) 30.15% 91% / 37% 1px no-repeat;
+  background:url("/static/mypage-portfolio-soft-wave.png") left center / 68% 100% no-repeat;
+  opacity:0;
+}
+
+body.kn-home-a #myPageOv.open:is([data-mp-view="assets"],[data-mp-view="ledger"])::after {
+  inset:-12%;
 }
 
 body.kn-home-a #myPageOv.open[data-mp-view="assets"]::after {
-  inset:0;
-  background-image:
-    var(--mp-rail-fill),var(--mp-rail-fill),var(--mp-rail-fill),var(--mp-rail-fill),
-    var(--mp-rail-fill),var(--mp-rail-fill),var(--mp-rail-fill),var(--mp-rail-fill),
-    var(--mp-rail-fill),var(--mp-rail-fill);
-  background-repeat:no-repeat;
-  background-size:
-    4px 4px,4px 4px,4px 4px,4px 4px,
-    var(--mp-rail-width) 24px,var(--mp-rail-width) 26px,var(--mp-rail-width) 29px,
-    var(--mp-rail-width) 31px,var(--mp-rail-width) 33px,7.5% 3px;
-  background-position:
-    calc(4% - 1.8px) 77%,calc(6.3% - 1.7px) 80%,
-    calc(8.6% - 1.7px) 83%,calc(10.9% - 1.6px) 86%,
-    var(--mp-rail-x1) 65%,var(--mp-rail-x2) 71%,var(--mp-rail-x3) 73%,
-    var(--mp-rail-x4) 69%,var(--mp-rail-x5) 65%,23% 91%;
+  background:
+    radial-gradient(ellipse 78% 70% at 97% 11%,
+      transparent 46%,var(--mp-contour-light) 46.2%,var(--mp-contour-soft) 46.6%,
+      transparent 49%,var(--mp-contour-soft) 53%,transparent 53.3%),
+    radial-gradient(ellipse 98% 76% at -3% 94%,
+      transparent 45%,var(--mp-contour-light) 45.2%,var(--mp-contour-soft) 45.7%,
+      transparent 50%,var(--mp-contour-soft) 54%,transparent 54.3%),
+    radial-gradient(ellipse 35% 24% at 78% 35%,var(--mp-contour-bloom),transparent);
 }
 
 body.kn-home-a #myPageOv.open[data-mp-view="ledger"] {
@@ -630,29 +633,29 @@ body.kn-home-a[data-theme="dark"] #myPageOv.open[data-mp-view="ledger"] {
 }
 
 body.kn-home-a #myPageOv.open[data-mp-view="ledger"]::after {
-  inset:-12%;
   background:
     radial-gradient(ellipse 52% 28% at 76% 36%,var(--mp-ledger-light),transparent),
     radial-gradient(ellipse 37% 32% at 24% 80%,var(--mp-ledger-reflection),transparent);
 }
 
+@media (prefers-reduced-motion: reduce) {
+  body.kn-home-a #myPageOv.open[data-mp-view="assets"]::before { content:none; }
+}
+
 @media (prefers-reduced-motion: no-preference) {
-  body.kn-home-a #myPageOv.open[data-mp-view="assets"]::after {
-    animation:mp-aligned-rail-motion 10s ease-in-out infinite alternate;
+  body.kn-home-a #myPageOv.open[data-mp-view="assets"]::before {
+    animation:mp-glass-wave 12s linear infinite;
   }
-  body.kn-home-a #myPageOv.open[data-mp-view="ledger"]::after {
+  body.kn-home-a #myPageOv.open:is([data-mp-view="assets"],[data-mp-view="ledger"])::after {
     animation:mp-glass-drift 12s ease-in-out infinite alternate;
   }
 }
 
-@keyframes mp-aligned-rail-motion {
-  to {
-    background-position:
-      calc(4% - 1.8px) 81%,calc(6.3% - 1.7px) 84%,
-      calc(8.6% - 1.7px) 87%,calc(10.9% - 1.6px) 90%,
-      var(--mp-rail-x1) 73%,var(--mp-rail-x2) 65%,var(--mp-rail-x3) 68%,
-      var(--mp-rail-x4) 75%,var(--mp-rail-x5) 72%,27% 91%;
-  }
+@keyframes mp-glass-wave {
+  from {transform:translateX(88%)}
+  0%,6%,88%,100% {opacity:0}
+  27%,58% {opacity:var(--mp-glass-wave-opacity)}
+  to {transform:translateX(-68%)}
 }
 
 @keyframes mp-glass-drift {
