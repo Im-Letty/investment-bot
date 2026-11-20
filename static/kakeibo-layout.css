@@ -385,9 +385,10 @@ body.kn-ledger-letter.kn-ledger-paper.kn-ledger-embedded[data-kk-mypage-view="le
   background:color-mix(in srgb,var(--kn-ledger-paper) 30%,transparent);
 }
 
-/* Portfolio panels reveal the backdrop through the transparent embedded document. */
+/* Tint the Portfolio panels while letting the animated backdrop show through. */
 body.kn-ledger-paper.kn-ledger-embedded[data-kk-mypage-view="assets"] #tab-assets > :is(.po-goal-hero,.po-assets-group) {
-  background:transparent;
+  --portfolio-panel-tint:color-mix(in srgb,var(--kn-ledger-ink) 25%,var(--kn-ledger-bg));
+  background:color-mix(in srgb,var(--portfolio-panel-tint) 42%,transparent);
 }
 
 @media (forced-colors: active) {
