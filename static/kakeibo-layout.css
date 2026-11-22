@@ -391,7 +391,7 @@ body.kn-ledger-paper.kn-ledger-embedded[data-kk-mypage-view="assets"][data-kn-le
 }
 
 body.kn-ledger-paper.kn-ledger-embedded[data-kk-mypage-view="assets"] #tab-assets > :is(.po-goal-hero,.po-assets-group) {
-  --portfolio-panel-tint:color-mix(in srgb,var(--portfolio-panel-ivory,#fff1d3) 88%,var(--kn-ledger-bg));
+  --portfolio-panel-tint:color-mix(in srgb,var(--portfolio-panel-ivory,#fffaf0) 88%,var(--kn-ledger-bg));
   background:color-mix(in srgb,var(--portfolio-panel-tint) 58%,transparent);
 }
 
